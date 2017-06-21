@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="unqualified"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:ns="urn:model.allure.qameta.io"
+            targetNamespace="urn:model.allure.qameta.io"
+            xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+            jaxb:extensionBindingPrefixes="xjc"
+            jaxb:version="1.0">
+
+    <xsd:annotation>
+        <xsd:appinfo>
+            <jaxb:globalBindings>
+                <xjc:serializable uid="1"/>
+            </jaxb:globalBindings>
+        </xsd:appinfo>
+    </xsd:annotation>
+
+    <xsd:element name="testRunResult" type="ns:TestRunResult"/>
+    <xsd:complexType name="TestRunResult">
+        <xsd:sequence>
+            <xsd:element name="uuid" type="xsd:string"/>
+            <xsd:element name="name" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="testResultContainer" type="ns:TestResultContainer"/>
+    <xsd:complexType name="TestResultContainer">
+        <xsd:all>
+            <xsd:element name="uuid" type="xsd:string"/>
+            <xsd:element name="name" type="xsd:string"/>
+
+            <xsd:element name="children" type="ns:Ids"/>
+
+            <xsd:element name="description" type="xsd:string"/>
+            <xsd:element name="descriptionHtml" type="xsd:string"/>
+
+            <xsd:element name="befores" type="ns:Befores"/>
+            <xsd:element name="afters" type="ns:Afters"/>
+
+            <xsd:element name="links" type="ns:Links"/>
+        </xsd:all>
+        <xsd:attribute name="start" type="xsd:long"/>
+        <xsd:attribute name="stop" type="xsd:long"/>
+    </xsd:complexType>
+
+    <xsd:element name="testResult" type="ns:TestResult"/>
+    <xsd:complexType name="TestResult">
+        <xsd:complexContent>
+            <xsd:extension base="ns:ExecutableItem">
+                <xsd:sequence>
+                    <xsd:element name="uuid" type="xsd:string"/>
+                    <xsd:element name="historyId" type="xsd:string"/>
+                    <xsd:element name="testCaseId" type="xsd:string"/>
+
+                    <xsd:element name="rerunOf" type="xsd:string"/>
+
+                    <xsd:element name="fullName" type="xsd:string"/>
+                    <xsd:element name="labels" type="ns:Labels" minOccurs="0"/>
+                    <xsd:element name="links" type="ns:Links" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="stepResult" type="ns:StepResult"/>
+    <xsd:complexType name="StepResult">
+        <xsd:complexContent>
+            <xsd:extension base="ns:ExecutableItem"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="fixtureResult" type="ns:FixtureResult"/>
+    <xsd:complexType name="FixtureResult">
+        <xsd:complexContent>
+            <xsd:extension base="ns:ExecutableItem"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ExecutableItem" abstract="true">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string"/>
+            <xsd:element name="status" type="ns:Status"/>
+            <xsd:element name="statusDetails" type="ns:StatusDetails"/>
+            <xsd:element name="stage" type="ns:Stage"/>
+
+            <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="descriptionHtml" type="xsd:string" minOccurs="0"/>
+
+            <xsd:element name="steps" type="ns:Steps" minOccurs="0"/>
+            <xsd:element name="attachments" type="ns:Attachments" minOccurs="0"/>
+            <xsd:element name="parameters" type="ns:Parameters" minOccurs="0"/>
+        </xsd:sequence>
+        <xsd:attribute name="start" type="xsd:long"/>
+        <xsd:attribute name="stop" type="xsd:long"/>
+    </xsd:complexType>
+
+    <xsd:element name="attachment" type="ns:Attachment"/>
+    <xsd:complexType name="Attachment">
+        <xsd:all>
+            <xsd:element name="name" type="xsd:string"/>
+            <xsd:element name="source" type="xsd:string"/>
+            <xsd:element name="type" type="xsd:string"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="parameter" type="ns:Parameter"/>
+    <xsd:complexType name="Parameter">
+        <xsd:all>
+            <xsd:element name="name" type="xsd:string"/>
+            <xsd:element name="value" type="xsd:string"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="label" type="ns:Label"/>
+    <xsd:complexType name="Label">
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:element name="link" type="ns:Link"/>
+    <xsd:complexType name="Link">
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="url" type="xsd:string"/>
+        <xsd:attribute name="type" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:element name="statusDetails" type="ns:StatusDetails"/>
+    <xsd:complexType name="StatusDetails">
+        <xsd:all>
+            <xsd:element name="known" type="xsd:boolean"/>
+            <xsd:element name="muted" type="xsd:boolean"/>
+            <xsd:element name="flaky" type="xsd:boolean"/>
+            <xsd:element name="message" type="xsd:string"/>
+            <xsd:element name="trace" type="xsd:string"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:simpleType name="Status">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="failed"/>
+            <xsd:enumeration value="broken"/>
+            <xsd:enumeration value="passed"/>
+            <xsd:enumeration value="skipped"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="Stage">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="scheduled"/>
+            <xsd:enumeration value="running"/>
+            <xsd:enumeration value="finished"/>
+            <xsd:enumeration value="pending"/>
+            <xsd:enumeration value="interrupted"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="Ids">
+        <xsd:sequence>
+            <xsd:element name="childId" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Befores">
+        <xsd:sequence>
+            <xsd:element name="before" type="ns:FixtureResult" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Afters">
+        <xsd:sequence>
+            <xsd:element name="after" type="ns:FixtureResult" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Steps">
+        <xsd:sequence>
+            <xsd:element name="step" type="ns:StepResult" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Attachments">
+        <xsd:sequence>
+            <xsd:element name="attachment" type="ns:Attachment" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Labels">
+        <xsd:sequence>
+            <xsd:element name="label" type="ns:Label" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Parameters">
+        <xsd:sequence>
+            <xsd:element name="parameter" type="ns:Parameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Links">
+        <xsd:sequence>
+            <xsd:element name="link" type="ns:Link" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>
