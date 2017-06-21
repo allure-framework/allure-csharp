@@ -11,8 +11,16 @@ namespace Allure.Commons.Writer
     {
         private string outputDirectory;
         JsonSerializer serializer = new JsonSerializer();
-        internal FileSystemResultsWriter(string outputDirectory)
+        internal FileSystemResultsWriter(string outputDirectory, bool cleanup)
         {
+            if (cleanup && Directory.Exists(outputDirectory))
+                foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
+                {
+                    file.Delete();
+                }
+
+            Directory.CreateDirectory(outputDirectory);
+
             this.outputDirectory = outputDirectory;
             serializer.NullValueHandling = NullValueHandling.Ignore;
             serializer.Formatting = Formatting.Indented;

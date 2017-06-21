@@ -156,9 +156,12 @@ namespace Allure.Commons
 
         private IAllureResultsWriter GetDefaultResultsWriter()
         {
-            var resultsFolder = configuration[AllureConstants.CONFIG_RESULTS_FOLDER_KEY] 
+            var resultsFolder = configuration["allure:directory"] 
                 ?? AllureConstants.DEFAULT_RESULTS_FOLDER;
-            return new FileSystemResultsWriter(resultsFolder);
+
+            var cleanup = bool.Parse(configuration["allure:cleanup"]);
+
+            return new FileSystemResultsWriter(resultsFolder, cleanup);
         }
 
     }
