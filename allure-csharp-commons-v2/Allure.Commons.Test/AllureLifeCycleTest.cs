@@ -10,7 +10,7 @@ namespace Allure.Commons.Test
     public class AllureLifeCycleTest
     {
         private readonly ITestOutputHelper output;
-        AllureLifeсycle cycle = new AllureLifeсycle();
+        AllureLifecycle cycle = new AllureLifecycle();
 
         public AllureLifeCycleTest(ITestOutputHelper output)
         {
