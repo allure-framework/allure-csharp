@@ -9,6 +9,6 @@ namespace Allure.Commons.Writer
     {
         void Write(TestResult testResult);
         void Write(TestResultContainer testResult);
-        void Write(string source, Stream attachment);
+        void Write(string source, byte[] attachment);
     }
 }

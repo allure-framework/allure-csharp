@@ -1,59 +1,92 @@
 using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Allure.Commons.Test
 {
     public class AllureLifeCycleTest
     {
+        private readonly ITestOutputHelper output;
         AllureLifeCycle cycle = new AllureLifeCycle();
 
-        public AllureLifeCycleTest()
+        public AllureLifeCycleTest(ITestOutputHelper output)
         {
-
+            this.output = output;
         }
 
-        [Fact]
+        [Fact(DisplayName = "ExecutableItem.status default value should be 'none'")]
+        public void ShouldSetDefaultStateAsNone()
+        {
+            Assert.Equal(Status.none, new TestResult().status);
+        }
+
+        [Fact(DisplayName = "Integration Test")]
         public void IntegrationTest()
         {
-            var container = new TestResultContainer()
+            Parallel.For(0, 2, i =>
             {
-                uuid = Guid.NewGuid().ToString("N")
-            };
+                var container = DataGenerator.GetTestResultContainer();
+                var beforeFeature = DataGenerator.GetFixture(Fixture.BeforeFeature);
+                var afterFeature = DataGenerator.GetFixture(Fixture.AfterFeature);
+                var beforeScenario = DataGenerator.GetFixture(Fixture.BeforeScenario);
+                var afterScenario = DataGenerator.GetFixture(Fixture.AfterScenario);
+                var test = DataGenerator.GetTestResult();
+                var step1 = DataGenerator.GetStep();
+                var step2 = DataGenerator.GetStep();
+                var step3 = DataGenerator.GetStep();
+                var txtAttach = DataGenerator.GetAttachment(".txt");
+                var txtAttachWithNoExt = DataGenerator.GetAttachment();
 
-            var tr = new TestResult()
-            {
-                uuid = Guid.NewGuid().ToString("N"),
-                description = "This is Description",
-                fullName = "This is Full Name",
-                name = "Test1",
-            };
-            //tr.testCaseId = tr.uuid;
-            var tr2 = new TestResult()
-            {
-                uuid = Guid.NewGuid().ToString("N"),
-                description = "This is Description",
-                fullName = "This is Full Name",
-                name = "Test2",
-            };
+                cycle
+                    .StartTestContainer(container)
 
-            cycle
-                .StartTestContainer(container)
+                    .ScheduleTestCase(container.uuid, test)
 
-                .ScheduleTestCase(container.uuid, tr)
-                .StartTestCase(tr.uuid)
-                
-                .StartStep(Guid.NewGuid().ToString("N"), new StepResult() { name = "step1", status = Status.passed })
-                
-                .StartStep(Guid.NewGuid().ToString("N"), new StepResult() { name = "ste21", status = Status.failed })
-                .StopStep()
-                .StopStep()
+                    .StartBeforeFixture(container.uuid, beforeFeature.uuid, beforeFeature.fixture)
+                    .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)
+                    .AddAttachment("text file", "text/xml", txtAttach.path)
+                    .StopFixture(beforeFeature.uuid)
 
-                //.UpdateTestCase(t => t.status = Status.failed)
-                .StopTestCase(tr.uuid)
-                .WriteTestCase(tr.uuid)
+                    .StartBeforeFixture(container.uuid, beforeScenario.uuid, beforeScenario.fixture)
+                    .UpdateFixture(beforeScenario.uuid, f => f.status = Status.passed)
+                    .StopFixture(beforeScenario.uuid)
 
-                .StopTestContainer(container.uuid)
-                .WriteTestContainer(container.uuid);
+                    .StartTestCase(test.uuid);
+
+                Thread.Sleep(100);
+
+                cycle
+                    .StartStep(step1.uuid, step1.step)
+                    .StopStep(x => x.status = Status.passed)
+                    
+                    .StartStep(step2.uuid, step2.step)
+                    .AddAttachment("unknown file", "text/xml", txtAttachWithNoExt.content)
+                    .StopStep(x => x.status = Status.broken)
+
+                    .StartStep(step3.uuid, step3.step)
+                    .StopStep(x => x.status = Status.skipped)
+                    
+                    .StopTestCase(x => {
+                        x.status = Status.broken;
+                         x.statusDetails = new StatusDetails() { flaky = true, known = true, message = "Oh my!", trace = "That was really bad...", muted = true };
+                     })
+
+                    .StartAfterFixture(container.uuid, afterScenario.uuid, afterScenario.fixture)
+                    .UpdateFixture(afterScenario.uuid, f => f.status = Status.passed)
+                    .StopFixture(afterScenario.uuid)
+
+                    .StartAfterFixture(container.uuid, afterFeature.uuid, afterFeature.fixture)
+                    .StopFixture(f => f.status = Status.passed)
+
+                    .WriteTestCase(test.uuid)
+
+                    .StopTestContainer(container.uuid)
+                    .WriteTestContainer(container.uuid);
+            });
+
         }
     }
 }

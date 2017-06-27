@@ -9,8 +9,6 @@ namespace Allure.Commons.Storage
 {
     class AllureStorage
     {
-
-
         private ConcurrentDictionary<string, object> storage = new ConcurrentDictionary<string, object>();
         private ThreadLocal<LinkedList<string>> stepContext = new ThreadLocal<LinkedList<string>>(() =>
         {
@@ -21,7 +19,6 @@ namespace Allure.Commons.Storage
         {
             return (T)storage[uuid];
         }
-
         public T Put<T>(T item)
         {
             dynamic obj = item;
@@ -31,18 +28,19 @@ namespace Allure.Commons.Storage
         {
             return (T)storage.AddOrUpdate(uuid, item, (key, value) => item);
         }
-
         public T Remove<T>(string uuid)
         {
             storage.Remove(uuid, out object value);
             return (T)value;
         }
-
+        public void AddFixture(string uuid, FixtureResult fixtureResult)
+        {
+            Put(uuid, fixtureResult);
+        }
         public void ClearStepContext()
         {
             stepContext.Value.Clear();
         }
-
         public void StartStep(string uuid)
         {
             stepContext.Value.AddFirst(uuid);
@@ -51,17 +49,14 @@ namespace Allure.Commons.Storage
         {
             stepContext.Value.RemoveFirst();
         }
-
         public string GetRootStep()
         {
             return stepContext.Value.Last?.Value;
         }
-
         public string GetCurrentStep()
         {
             return stepContext.Value.First?.Value;
         }
-
         public void AddStep(string parentUuid, string uuid, StepResult stepResult)
         {
             Put(uuid, stepResult);

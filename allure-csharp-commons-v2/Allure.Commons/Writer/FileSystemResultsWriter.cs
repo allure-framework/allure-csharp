@@ -20,12 +20,13 @@ namespace Allure.Commons.Writer
                 }
 
             Directory.CreateDirectory(outputDirectory);
-
             this.outputDirectory = outputDirectory;
+
             serializer.NullValueHandling = NullValueHandling.Ignore;
             serializer.Formatting = Formatting.Indented;
             serializer.Converters.Add(new StringEnumConverter());
         }
+
         public void Write(TestResult testResult)
         {
             this.Write(testResult, AllureConstants.TEST_RESULT_FILE_SUFFIX);
@@ -36,9 +37,10 @@ namespace Allure.Commons.Writer
             this.Write(testResult, AllureConstants.TEST_RESULT_CONTAINER_FILE_SUFFIX);
         }
 
-        public void Write(string source, Stream attachment)
+        public void Write(string source, byte[] content)
         {
-            throw new NotImplementedException();
+            var filePath = Path.Combine(outputDirectory, source);
+            File.WriteAllBytes(filePath, content);
         }
 
         protected string Write(object allureObject, string fileSuffix)

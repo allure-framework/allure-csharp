@@ -2,7 +2,7 @@
 using Allure.Commons.Writer;
 using Microsoft.Extensions.Configuration;
 using System;
-
+using System.IO;
 
 namespace Allure.Commons
 {
@@ -19,6 +19,55 @@ namespace Allure.Commons
         {
             writer = GetDefaultResultsWriter();
         }
+
+        #region Fixture
+        public AllureLifeCycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
+        {
+            UpdateTestContainer(parentUuid, container => container.befores.Add(result));
+            StartFixture(uuid, result);
+            return this;
+        }
+
+        public AllureLifeCycle StartAfterFixture(string parentUuid, string uuid, FixtureResult result)
+        {
+            UpdateTestContainer(parentUuid, container => container.afters.Add(result));
+            StartFixture(uuid, result);
+            return this;
+        }
+
+        private void StartFixture(string uuid, FixtureResult result)
+        {
+            storage.AddFixture(uuid, result);
+            result.stage = Stage.running;
+            result.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            storage.ClearStepContext();
+            storage.StartStep(uuid);
+        }
+        public AllureLifeCycle UpdateFixture(Action<FixtureResult> update)
+        {
+            UpdateFixture(storage.GetRootStep(), update);
+            return this;
+        }
+        public AllureLifeCycle UpdateFixture(string uuid, Action<FixtureResult> update)
+        {
+            update.Invoke(storage.Get<FixtureResult>(uuid));
+            return this;
+        }
+
+        public AllureLifeCycle StopFixture(Action<FixtureResult> beforeStop)
+        {
+            UpdateFixture(beforeStop);
+            return StopFixture(storage.GetRootStep());
+        }
+        public AllureLifeCycle StopFixture(string uuid)
+        {
+            var fixture = storage.Remove<FixtureResult>(uuid);
+            storage.ClearStepContext();
+            fixture.stage = Stage.finished;
+            fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            return this;
+        }
+        #endregion
 
         #region TestContainer
         public AllureLifeCycle StartTestContainer(TestResultContainer container)
@@ -54,10 +103,10 @@ namespace Allure.Commons
         }
         #endregion
 
-        #region TestResult
+        #region TestCase
         public AllureLifeCycle ScheduleTestCase(string parentUuid, TestResult testResult)
         {
-            UpdateTestContainer(parentUuid, c=>c.children.Add(testResult.uuid));
+            UpdateTestContainer(parentUuid, c => c.children.Add(testResult.uuid));
             ScheduleTestCase(testResult);
             return this;
         }
@@ -87,8 +136,14 @@ namespace Allure.Commons
 
         public AllureLifeCycle UpdateTestCase(Action<TestResult> update)
         {
-            update.Invoke(storage.Get<TestResult>(storage.GetRootStep()));
+            UpdateTestCase(storage.GetRootStep(), update);
             return this;
+        }
+
+        public AllureLifeCycle StopTestCase(Action<TestResult> beforeStop)
+        {
+            UpdateTestCase(beforeStop);
+            return StopTestCase(storage.GetRootStep());
         }
 
         public AllureLifeCycle StopTestCase(string uuid)
@@ -136,6 +191,11 @@ namespace Allure.Commons
             update.Invoke(storage.Get<StepResult>(uuid));
             return this;
         }
+        public AllureLifeCycle StopStep(Action<StepResult> beforeStop)
+        {
+            UpdateStep(beforeStop);
+            return StopStep(storage.GetCurrentStep());
+        }
 
         public AllureLifeCycle StopStep(string uuid)
         {
@@ -154,9 +214,35 @@ namespace Allure.Commons
 
         #endregion
 
+        #region Attachment
+
+        public AllureLifeCycle AddAttachment(string name, string type, string path)
+        {
+            var fileExtension = new FileInfo(path).Extension;
+            return this.AddAttachment(name, type, File.ReadAllBytes(path), fileExtension);
+        }
+        public AllureLifeCycle AddAttachment(string name, string type, byte[] content, string fileExtension = "")
+        {
+            var source = $"{Guid.NewGuid().ToString("N")}{AllureConstants.ATTACHMENT_FILE_SUFFIX}{fileExtension}";
+            var attachment = new Attachment()
+            {
+                name = name,
+                type = type,
+                source = source
+            };
+            writer.Write(source, content);
+            storage.Get<ExecutableItem>(storage.GetCurrentStep()).attachments.Add(attachment);
+            return this;
+        }
+
+        private void WriteAttachment(string source, byte[] content)
+        {
+            //writer.Write(attachmentSource, stream);
+        }
+        #endregion
         private IAllureResultsWriter GetDefaultResultsWriter()
         {
-            var resultsFolder = configuration["allure:directory"] 
+            var resultsFolder = configuration["allure:directory"]
                 ?? AllureConstants.DEFAULT_RESULTS_FOLDER;
 
             var cleanup = bool.Parse(configuration["allure:cleanup"]);
