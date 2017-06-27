@@ -16,4 +16,16 @@
     <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="actual.PNG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="diff.PNG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="expected.PNG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

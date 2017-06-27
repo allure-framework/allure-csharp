@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +10,7 @@ namespace Allure.Commons.Test
     public class AllureLifeCycleTest
     {
         private readonly ITestOutputHelper output;
-        AllureLifeCycle cycle = new AllureLifeCycle();
+        AllureLifeсycle cycle = new AllureLifeсycle();
 
         public AllureLifeCycleTest(ITestOutputHelper output)
         {
@@ -43,8 +43,6 @@ namespace Allure.Commons.Test
                 cycle
                     .StartTestContainer(container)
 
-                    .ScheduleTestCase(container.uuid, test)
-
                     .StartBeforeFixture(container.uuid, beforeFeature.uuid, beforeFeature.fixture)
                     .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)
                     .AddAttachment("text file", "text/xml", txtAttach.path)
@@ -54,25 +52,31 @@ namespace Allure.Commons.Test
                     .UpdateFixture(beforeScenario.uuid, f => f.status = Status.passed)
                     .StopFixture(beforeScenario.uuid)
 
-                    .StartTestCase(test.uuid);
+                    .StartTestCase(container.uuid, test)
 
-                Thread.Sleep(100);
-
-                cycle
                     .StartStep(step1.uuid, step1.step)
                     .StopStep(x => x.status = Status.passed)
-                    
+
                     .StartStep(step2.uuid, step2.step)
                     .AddAttachment("unknown file", "text/xml", txtAttachWithNoExt.content)
                     .StopStep(x => x.status = Status.broken)
 
                     .StartStep(step3.uuid, step3.step)
                     .StopStep(x => x.status = Status.skipped)
-                    
+
+                    .AddScreenDiff("expected.png", "actual.png", "diff.png")
+
                     .StopTestCase(x => {
                         x.status = Status.broken;
-                         x.statusDetails = new StatusDetails() { flaky = true, known = true, message = "Oh my!", trace = "That was really bad...", muted = true };
-                     })
+                        x.statusDetails = new StatusDetails()
+                        {
+                            flaky = true,
+                            known = true,
+                            message = "Oh my!",
+                            trace = "That was really bad...",
+                            muted = true
+                        };
+                    })
 
                     .StartAfterFixture(container.uuid, afterScenario.uuid, afterScenario.fixture)
                     .UpdateFixture(afterScenario.uuid, f => f.status = Status.passed)
@@ -82,7 +86,6 @@ namespace Allure.Commons.Test
                     .StopFixture(f => f.status = Status.passed)
 
                     .WriteTestCase(test.uuid)
-
                     .StopTestContainer(container.uuid)
                     .WriteTestContainer(container.uuid);
             });

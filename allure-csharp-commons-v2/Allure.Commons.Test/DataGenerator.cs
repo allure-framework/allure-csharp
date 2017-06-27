@@ -30,10 +30,10 @@ namespace Allure.Commons.Test
             //tr.steps = GetSteps(2);
             tr.labels = new List<Label>()
             {
-                Label.AddFeature("Feature 1"),
-                Label.AddStory("Story 2"),
-                Label.AddHost(),
-                Label.AddThread()
+                Label.Feature("Feature 1"),
+                Label.Story("Story 2"),
+                Label.Host(),
+                Label.Thread()
             };
             return tr;
         }

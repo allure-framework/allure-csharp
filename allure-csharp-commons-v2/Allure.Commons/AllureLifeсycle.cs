@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Allure.Commons
 {
-    public class AllureLifeCycle
+    public class AllureLifeсycle
     {
         private AllureStorage storage = new AllureStorage();
         private IAllureResultsWriter writer;
@@ -15,20 +15,20 @@ namespace Allure.Commons
             .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
             .Build();
 
-        public AllureLifeCycle()
+        public AllureLifeсycle()
         {
             writer = GetDefaultResultsWriter();
         }
 
         #region Fixture
-        public AllureLifeCycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
+        public AllureLifeсycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
         {
             UpdateTestContainer(parentUuid, container => container.befores.Add(result));
             StartFixture(uuid, result);
             return this;
         }
 
-        public AllureLifeCycle StartAfterFixture(string parentUuid, string uuid, FixtureResult result)
+        public AllureLifeсycle StartAfterFixture(string parentUuid, string uuid, FixtureResult result)
         {
             UpdateTestContainer(parentUuid, container => container.afters.Add(result));
             StartFixture(uuid, result);
@@ -43,23 +43,23 @@ namespace Allure.Commons
             storage.ClearStepContext();
             storage.StartStep(uuid);
         }
-        public AllureLifeCycle UpdateFixture(Action<FixtureResult> update)
+        public AllureLifeсycle UpdateFixture(Action<FixtureResult> update)
         {
             UpdateFixture(storage.GetRootStep(), update);
             return this;
         }
-        public AllureLifeCycle UpdateFixture(string uuid, Action<FixtureResult> update)
+        public AllureLifeсycle UpdateFixture(string uuid, Action<FixtureResult> update)
         {
             update.Invoke(storage.Get<FixtureResult>(uuid));
             return this;
         }
 
-        public AllureLifeCycle StopFixture(Action<FixtureResult> beforeStop)
+        public AllureLifeсycle StopFixture(Action<FixtureResult> beforeStop)
         {
             UpdateFixture(beforeStop);
             return StopFixture(storage.GetRootStep());
         }
-        public AllureLifeCycle StopFixture(string uuid)
+        public AllureLifeсycle StopFixture(string uuid)
         {
             var fixture = storage.Remove<FixtureResult>(uuid);
             storage.ClearStepContext();
@@ -70,33 +70,33 @@ namespace Allure.Commons
         #endregion
 
         #region TestContainer
-        public AllureLifeCycle StartTestContainer(TestResultContainer container)
+        public AllureLifeсycle StartTestContainer(TestResultContainer container)
         {
             container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             storage.Put(container);
             return this;
         }
 
-        public AllureLifeCycle StartTestContainer(string parentUuid, TestResultContainer container)
+        public AllureLifeсycle StartTestContainer(string parentUuid, TestResultContainer container)
         {
             UpdateTestContainer(parentUuid, c => c.children.Add(container.uuid));
             this.StartTestContainer(container);
             return this;
         }
 
-        public AllureLifeCycle UpdateTestContainer(string uuid, Action<TestResultContainer> update)
+        public AllureLifeсycle UpdateTestContainer(string uuid, Action<TestResultContainer> update)
         {
             update.Invoke(storage.Get<TestResultContainer>(uuid));
             return this;
         }
 
-        public AllureLifeCycle StopTestContainer(string uuid)
+        public AllureLifeсycle StopTestContainer(string uuid)
         {
             UpdateTestContainer(uuid, c => c.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds());
             return this;
         }
 
-        public AllureLifeCycle WriteTestContainer(string uuid)
+        public AllureLifeсycle WriteTestContainer(string uuid)
         {
             writer.Write(storage.Remove<TestResultContainer>(uuid));
             return this;
@@ -104,49 +104,42 @@ namespace Allure.Commons
         #endregion
 
         #region TestCase
-        public AllureLifeCycle ScheduleTestCase(string parentUuid, TestResult testResult)
+
+        public AllureLifeсycle StartTestCase(string parentUuid, TestResult testResult)
         {
-            UpdateTestContainer(parentUuid, c => c.children.Add(testResult.uuid));
-            ScheduleTestCase(testResult);
-            return this;
+            this.UpdateTestContainer(parentUuid, c => c.children.Add(testResult.uuid));
+            return StartTestCase(testResult);
         }
 
-        public AllureLifeCycle ScheduleTestCase(TestResult testResult)
+        public AllureLifeсycle StartTestCase(TestResult testResult)
         {
-            testResult.stage = Stage.scheduled;
-            storage.Put(testResult);
-            return this;
-        }
-
-        public AllureLifeCycle StartTestCase(string uuid)
-        {
-            var testResult = storage.Get<TestResult>(uuid);
             testResult.stage = Stage.running;
             testResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            storage.Put(testResult);
             storage.ClearStepContext();
-            storage.StartStep(uuid);
+            storage.StartStep(testResult.uuid);
             return this;
         }
 
-        public AllureLifeCycle UpdateTestCase(string uuid, Action<TestResult> update)
+        public AllureLifeсycle UpdateTestCase(string uuid, Action<TestResult> update)
         {
             update.Invoke(storage.Get<TestResult>(uuid));
             return this;
         }
 
-        public AllureLifeCycle UpdateTestCase(Action<TestResult> update)
+        public AllureLifeсycle UpdateTestCase(Action<TestResult> update)
         {
             UpdateTestCase(storage.GetRootStep(), update);
             return this;
         }
 
-        public AllureLifeCycle StopTestCase(Action<TestResult> beforeStop)
+        public AllureLifeсycle StopTestCase(Action<TestResult> beforeStop)
         {
             UpdateTestCase(beforeStop);
             return StopTestCase(storage.GetRootStep());
         }
 
-        public AllureLifeCycle StopTestCase(string uuid)
+        public AllureLifeсycle StopTestCase(string uuid)
         {
             var testResult = storage.Get<TestResult>(uuid);
             testResult.stage = Stage.finished;
@@ -155,7 +148,7 @@ namespace Allure.Commons
             return this;
         }
 
-        public AllureLifeCycle WriteTestCase(string uuid)
+        public AllureLifeсycle WriteTestCase(string uuid)
         {
             writer.Write(storage.Remove<TestResult>(uuid));
             return this;
@@ -165,13 +158,13 @@ namespace Allure.Commons
         #endregion
 
         #region Step
-        public AllureLifeCycle StartStep(string uuid, StepResult result)
+        public AllureLifeсycle StartStep(string uuid, StepResult result)
         {
             StartStep(storage.GetCurrentStep(), uuid, result);
             return this;
         }
 
-        public AllureLifeCycle StartStep(string parentUuid, string uuid, StepResult stepResult)
+        public AllureLifeсycle StartStep(string parentUuid, string uuid, StepResult stepResult)
         {
             stepResult.stage = Stage.running;
             stepResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
@@ -180,24 +173,24 @@ namespace Allure.Commons
             return this;
         }
 
-        public AllureLifeCycle UpdateStep(Action<StepResult> update)
+        public AllureLifeсycle UpdateStep(Action<StepResult> update)
         {
             update.Invoke(storage.Get<StepResult>(storage.GetCurrentStep()));
             return this;
         }
 
-        public AllureLifeCycle UpdateStep(string uuid, Action<StepResult> update)
+        public AllureLifeсycle UpdateStep(string uuid, Action<StepResult> update)
         {
             update.Invoke(storage.Get<StepResult>(uuid));
             return this;
         }
-        public AllureLifeCycle StopStep(Action<StepResult> beforeStop)
+        public AllureLifeсycle StopStep(Action<StepResult> beforeStop)
         {
             UpdateStep(beforeStop);
             return StopStep(storage.GetCurrentStep());
         }
 
-        public AllureLifeCycle StopStep(string uuid)
+        public AllureLifeсycle StopStep(string uuid)
         {
             var step = storage.Remove<StepResult>(uuid);
             step.stage = Stage.finished;
@@ -206,7 +199,7 @@ namespace Allure.Commons
             return this;
         }
 
-        public AllureLifeCycle StopStep()
+        public AllureLifeсycle StopStep()
         {
             StopStep(storage.GetCurrentStep());
             return this;
@@ -216,12 +209,12 @@ namespace Allure.Commons
 
         #region Attachment
 
-        public AllureLifeCycle AddAttachment(string name, string type, string path)
+        public AllureLifeсycle AddAttachment(string name, string type, string path)
         {
             var fileExtension = new FileInfo(path).Extension;
             return this.AddAttachment(name, type, File.ReadAllBytes(path), fileExtension);
         }
-        public AllureLifeCycle AddAttachment(string name, string type, byte[] content, string fileExtension = "")
+        public AllureLifeсycle AddAttachment(string name, string type, byte[] content, string fileExtension = "")
         {
             var source = $"{Guid.NewGuid().ToString("N")}{AllureConstants.ATTACHMENT_FILE_SUFFIX}{fileExtension}";
             var attachment = new Attachment()
@@ -239,6 +232,20 @@ namespace Allure.Commons
         {
             //writer.Write(attachmentSource, stream);
         }
+        #endregion
+
+        #region Extensions
+        public AllureLifeсycle AddScreenDiff(string expectedPng, string actualPng, string diffPng)
+        {
+            this
+                .AddAttachment("expected", "image/png", "expected.png")
+                .AddAttachment("actual", "image/png", "actual.png")
+                .AddAttachment("diff", "image/png", "diff.png")
+                .UpdateTestCase(x => x.labels.Add(Label.TestType("screenshotDiff")));
+
+            return this;
+        }
+
         #endregion
         private IAllureResultsWriter GetDefaultResultsWriter()
         {
