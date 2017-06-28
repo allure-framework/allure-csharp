@@ -30,7 +30,7 @@ namespace Allure.Commons.Storage
         }
         public T Remove<T>(string uuid)
         {
-            storage.Remove(uuid, out object value);
+            storage.TryRemove(uuid, out object value);
             return (T)value;
         }
         public void AddFixture(string uuid, FixtureResult fixtureResult)

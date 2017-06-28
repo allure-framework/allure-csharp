@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Allure.Commons.Test
+namespace Allure.Commons.Tests
 {
     enum Fixture { BeforeFeature, BeforeScenario, AfterFeature, AfterScenario }
     class DataGenerator
@@ -32,7 +32,6 @@ namespace Allure.Commons.Test
             {
                 Label.Feature("Feature 1"),
                 Label.Story("Story 2"),
-                Label.Host(),
                 Label.Thread()
             };
             return tr;

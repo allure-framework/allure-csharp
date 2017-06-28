@@ -252,7 +252,7 @@ namespace Allure.Commons
             var resultsFolder = configuration["allure:directory"]
                 ?? AllureConstants.DEFAULT_RESULTS_FOLDER;
 
-            var cleanup = bool.Parse(configuration["allure:cleanup"]);
+            bool.TryParse(configuration["allure:cleanup"], out bool cleanup);
 
             return new FileSystemResultsWriter(resultsFolder, cleanup);
         }

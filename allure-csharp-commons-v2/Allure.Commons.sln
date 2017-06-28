@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26606.0
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons", "Allure.Commons\Allure.Commons.csproj", "{C84000AF-0B78-4E87-B99B-064E15C601C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons.Test", "Allure.Commons.Test\Allure.Commons.Test.csproj", "{2F396982-C9DB-48D5-A8DD-B058BC5A3F42}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Commons.Tests", "Allure.Commons.Tests\Allure.Commons.Tests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F396982-C9DB-48D5-A8DD-B058BC5A3F42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F396982-C9DB-48D5-A8DD-B058BC5A3F42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F396982-C9DB-48D5-A8DD-B058BC5A3F42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F396982-C9DB-48D5-A8DD-B058BC5A3F42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

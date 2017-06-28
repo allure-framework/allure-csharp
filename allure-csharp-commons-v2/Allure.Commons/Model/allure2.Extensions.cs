@@ -23,11 +23,11 @@ namespace Allure.Commons
             name = "thread",
             value = System.Threading.Thread.CurrentThread.Name ?? System.Threading.Thread.CurrentThread.ManagedThreadId.ToString()
         };
-        public static Label Host() => new Label()
-        {
-            name = "host",
-            value = Environment.MachineName ?? "Unknown host"
-        };
+        //public static Label Host() => new Label()
+        //{
+        //    name = "host",
+        //    value = Environment.MachineName ?? "Unknown host"
+        //};
 
     }
 

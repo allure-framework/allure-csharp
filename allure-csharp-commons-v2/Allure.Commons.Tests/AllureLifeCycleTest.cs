@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Allure.Commons.Test
+namespace Allure.Commons.Tests
 {
     public class AllureLifeCycleTest
     {
@@ -66,7 +66,8 @@ namespace Allure.Commons.Test
 
                     .AddScreenDiff("expected.png", "actual.png", "diff.png")
 
-                    .StopTestCase(x => {
+                    .StopTestCase(x =>
+                    {
                         x.status = Status.broken;
                         x.statusDetails = new StatusDetails()
                         {

@@ -110,8 +110,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("childId", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<string> children
         {
             get
@@ -148,8 +146,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("before", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<FixtureResult> befores
         {
             get
@@ -162,8 +158,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("after", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<FixtureResult> afters
         {
             get
@@ -176,8 +170,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("link", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<Link> links
         {
             get
@@ -328,8 +320,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("step", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<StepResult> steps
         {
             get
@@ -342,8 +332,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("attachment", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<Attachment> attachments
         {
             get
@@ -356,8 +344,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("parameter", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<Parameter> parameters
         {
             get
@@ -682,8 +668,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("label", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<Label> labels
         {
             get
@@ -696,8 +680,6 @@ namespace Allure.Commons
             }
         }
 
-        [System.Xml.Serialization.XmlArrayAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("link", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = false)]
         public List<Link> links
         {
             get
