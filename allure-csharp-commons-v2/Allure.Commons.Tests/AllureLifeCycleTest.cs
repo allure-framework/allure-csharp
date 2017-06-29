@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -10,7 +11,7 @@ namespace Allure.Commons.Tests
     public class AllureLifeCycleTest
     {
         private readonly ITestOutputHelper output;
-        AllureLifecycle cycle = new AllureLifecycle();
+        static AllureLifecycle cycle = new AllureLifecycle();
 
         public AllureLifeCycleTest(ITestOutputHelper output)
         {

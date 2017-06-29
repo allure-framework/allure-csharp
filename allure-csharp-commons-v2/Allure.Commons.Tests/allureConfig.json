@@ -1,0 +1,5 @@
+﻿{
+  "allure": {
+    "cleanup": true
+  }
+}

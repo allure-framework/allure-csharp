@@ -11,9 +11,11 @@ namespace Allure.Commons
         private AllureStorage storage = new AllureStorage();
         private IAllureResultsWriter writer;
 
-        IConfigurationRoot configuration = new ConfigurationBuilder()
+        private IConfigurationRoot configuration = new ConfigurationBuilder()
             .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
             .Build();
+
+        public IConfiguration Configuration => configuration;
 
         public AllureLifecycle()
         {

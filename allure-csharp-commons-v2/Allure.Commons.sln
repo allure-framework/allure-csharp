@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons", "Allure.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Commons.Tests", "Allure.Commons.Tests\Allure.Commons.Tests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Configuration.Tests", "Allure.Configuration.Tests\Allure.Configuration.Tests.csproj", "{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
