@@ -1,19 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <APPVEYOR_BUILD_VERSION></APPVEYOR_BUILD_VERSION>
-  </PropertyGroup>
-  <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Version>$(APPVEYOR_BUILD_VERSION)</Version>
+    <Version>1.0.0.0</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
     <Description>.net standard implementation of Allure java-commons.</Description>
     <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/tree/master/allure-csharp-commons-v2</PackageProjectUrl>
+    <PackageTags>allure</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="allureConfig.json">
+    <None Update="allureConfig.json" Pack="true">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
