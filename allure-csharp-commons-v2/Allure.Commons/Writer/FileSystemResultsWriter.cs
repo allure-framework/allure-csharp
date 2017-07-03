@@ -13,13 +13,25 @@ namespace Allure.Commons.Writer
         JsonSerializer serializer = new JsonSerializer();
         internal FileSystemResultsWriter(string outputDirectory, bool cleanup)
         {
-            if (cleanup && Directory.Exists(outputDirectory))
-                foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
-                {
-                    file.Delete();
-                }
+            try
+            {
+                if (cleanup && Directory.Exists(outputDirectory))
+                    foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
+                    {
+                        file.Delete();
+                    }
 
-            Directory.CreateDirectory(outputDirectory);
+                Directory.CreateDirectory(outputDirectory);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                outputDirectory =
+                    Directory.CreateDirectory(
+                    Path.Combine(
+                        Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER))
+                    .FullName;
+            }
+
             this.outputDirectory = outputDirectory;
 
             serializer.NullValueHandling = NullValueHandling.Ignore;

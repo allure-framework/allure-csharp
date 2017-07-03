@@ -35,6 +35,7 @@ namespace Allure.Commons.Tests
                 var beforeScenario = DataGenerator.GetFixture(Fixture.BeforeScenario);
                 var afterScenario = DataGenerator.GetFixture(Fixture.AfterScenario);
                 var test = DataGenerator.GetTestResult();
+                var fixtureStep = DataGenerator.GetStep();
                 var step1 = DataGenerator.GetStep();
                 var step2 = DataGenerator.GetStep();
                 var step3 = DataGenerator.GetStep();
@@ -45,8 +46,12 @@ namespace Allure.Commons.Tests
                     .StartTestContainer(container)
 
                     .StartBeforeFixture(container.uuid, beforeFeature.uuid, beforeFeature.fixture)
-                    .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)
+                    
+                    .StartStep(fixtureStep.uuid, fixtureStep.step)
+                    .StopStep(x => x.status = Status.passed)
+                    
                     .AddAttachment("text file", "text/xml", txtAttach.path)
+                    .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)
                     .StopFixture(beforeFeature.uuid)
 
                     .StartBeforeFixture(container.uuid, beforeScenario.uuid, beforeScenario.fixture)

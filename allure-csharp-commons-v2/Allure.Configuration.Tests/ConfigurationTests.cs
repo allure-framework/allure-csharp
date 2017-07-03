@@ -63,9 +63,7 @@ namespace Allure.Configuration.Tests
 
         private static void RestoreConfig()
         {
-            var config = File.ReadAllText("testConfig.json");
-            if (!File.Exists(AllureConstants.CONFIG_FILENAME))
-                File.WriteAllText(AllureConstants.CONFIG_FILENAME, config);
+            File.Copy("testConfig.json", AllureConstants.CONFIG_FILENAME, true);
         }
     }
 }

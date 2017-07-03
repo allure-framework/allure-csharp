@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -32,10 +33,6 @@ namespace Allure.Commons.Storage
         {
             storage.TryRemove(uuid, out object value);
             return (T)value;
-        }
-        public void AddFixture(string uuid, FixtureResult fixtureResult)
-        {
-            Put(uuid, fixtureResult);
         }
         public void ClearStepContext()
         {

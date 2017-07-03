@@ -37,11 +37,11 @@ namespace Allure.Commons
             return this;
         }
 
-        private void StartFixture(string uuid, FixtureResult result)
+        private void StartFixture(string uuid, FixtureResult fixtureResult)
         {
-            storage.AddFixture(uuid, result);
-            result.stage = Stage.running;
-            result.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            storage.Put(uuid, fixtureResult);
+            fixtureResult.stage = Stage.running;
+            fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             storage.ClearStepContext();
             storage.StartStep(uuid);
         }
@@ -107,9 +107,9 @@ namespace Allure.Commons
 
         #region TestCase
 
-        public AllureLifecycle StartTestCase(string parentUuid, TestResult testResult)
+        public AllureLifecycle StartTestCase(string containerUuid, TestResult testResult)
         {
-            this.UpdateTestContainer(parentUuid, c => c.children.Add(testResult.uuid));
+            this.UpdateTestContainer(containerUuid, c => c.children.Add(testResult.uuid));
             return StartTestCase(testResult);
         }
 
@@ -131,8 +131,7 @@ namespace Allure.Commons
 
         public AllureLifecycle UpdateTestCase(Action<TestResult> update)
         {
-            UpdateTestCase(storage.GetRootStep(), update);
-            return this;
+            return UpdateTestCase(storage.GetRootStep(), update);
         }
 
         public AllureLifecycle StopTestCase(Action<TestResult> beforeStop)
@@ -154,7 +153,6 @@ namespace Allure.Commons
         {
             writer.Write(storage.Remove<TestResult>(uuid));
             return this;
-
         }
 
         #endregion
