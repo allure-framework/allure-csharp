@@ -45,6 +45,7 @@ namespace Allure.Configuration.Tests
             RestoreState(config);
 
             var expectedResultsFolder = Path.Combine(Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
+            Directory.CreateDirectory(expectedResultsFolder);
             File.WriteAllText(Path.Combine(expectedResultsFolder, Guid.NewGuid().ToString()), "");
 
             var allureCycle = new AllureLifecycle();

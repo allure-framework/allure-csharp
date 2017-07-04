@@ -9,6 +9,10 @@ namespace Allure.Commons
     {
         public static Label TestType(string value) => new Label() { name = "testType", value = value };
 
+        public static Label ParentSuite(string value) => new Label() { name = "parentSuite", value = value };
+        public static Label Suite(string value) => new Label() { name = "suite", value = value };
+        public static Label SubSuite(string value) => new Label() { name = "subSuite", value = value };
+
         public static Label Owner(string value) => new Label() { name = "owner", value = value };
         public static Label Severity(string value) => new Label() { name = "severity", value = value };
         public static Label Issue(string value) => new Label() { name = "issue", value = value };
@@ -23,11 +27,11 @@ namespace Allure.Commons
             name = "thread",
             value = System.Threading.Thread.CurrentThread.Name ?? System.Threading.Thread.CurrentThread.ManagedThreadId.ToString()
         };
-        //public static Label Host() => new Label()
-        //{
-        //    name = "host",
-        //    value = Environment.MachineName ?? "Unknown host"
-        //};
+        public static Label Host() => new Label()
+        {
+            name = "host",
+            value = Environment.MachineName ?? "Unknown host"
+        };
 
     }
 
