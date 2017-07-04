@@ -16,6 +16,7 @@ namespace Allure.Commons
             .Build();
 
         public IConfiguration Configuration => configuration;
+        public string Output => writer.Output;
 
         public AllureLifecycle()
         {
@@ -256,6 +257,5 @@ namespace Allure.Commons
 
             return new FileSystemResultsWriter(resultsFolder, cleanup);
         }
-
     }
 }
