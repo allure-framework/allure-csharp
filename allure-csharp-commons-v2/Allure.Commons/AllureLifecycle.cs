@@ -16,7 +16,6 @@ namespace Allure.Commons
             .Build();
 
         public IConfiguration Configuration => configuration;
-        public string Output => writer.Output;
 
         public AllureLifecycle()
         {

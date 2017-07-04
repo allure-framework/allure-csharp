@@ -3,8 +3,11 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
+[assembly: InternalsVisibleTo("Allure.Commons.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace Allure.Commons.Writer
 {
     class FileSystemResultsWriter : IAllureResultsWriter
@@ -12,7 +15,7 @@ namespace Allure.Commons.Writer
         private string outputDirectory;
         private JsonSerializer serializer = new JsonSerializer();
 
-        public string Output => outputDirectory;
+        public string ResultsDirectory => outputDirectory;
 
         internal FileSystemResultsWriter(string outputDirectory, bool cleanup)
         {
@@ -50,30 +53,35 @@ namespace Allure.Commons.Writer
 
         private string GetResultsDirectory(string outputDirectory, bool cleanup)
         {
-            var tempFile = Path.Combine(outputDirectory, Guid.NewGuid().ToString());
+            var parentDir = new DirectoryInfo(outputDirectory).Parent.FullName;
+            outputDirectory = HasDirectoryAccess(parentDir) ? outputDirectory :
+                Path.Combine(
+                        Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
+
+            Directory.CreateDirectory(outputDirectory);
+
+            if (cleanup)
+                foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
+                {
+                    file.Delete();
+                }
+
+            return new DirectoryInfo(outputDirectory).FullName;
+        }
+
+        internal virtual bool HasDirectoryAccess(string directory)
+        {
+            var tempFile = Path.Combine(directory, Guid.NewGuid().ToString());
             try
             {
-                Directory.CreateDirectory(outputDirectory);
                 File.WriteAllText(tempFile, string.Empty);
                 File.Delete(tempFile);
+                return true;
             }
             catch (UnauthorizedAccessException)
             {
-                outputDirectory =
-                    Directory.CreateDirectory(
-                    Path.Combine(
-                        Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER))
-                    .FullName;
+                return false;
             }
-            finally
-            {
-                if (cleanup)
-                    foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
-                    {
-                        file.Delete();
-                    }
-            }
-            return new DirectoryInfo(outputDirectory).FullName;
         }
     }
 }

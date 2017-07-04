@@ -13,6 +13,9 @@
     <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/tree/master/allure-csharp-commons-v2</PackageProjectUrl>
     <PackageTags>allure</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/allure-framework/allure-csharp/master/allure.net.png</PackageIconUrl>
+    <SignAssembly>False</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

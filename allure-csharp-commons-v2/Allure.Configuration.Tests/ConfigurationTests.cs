@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -15,14 +16,21 @@ namespace Allure.Configuration.Tests
         [Theory(DisplayName = "Should initialize using configuration defaults")]
         [InlineData(null)]
         [InlineData(@"{}")]
-
         public void Defaults(string config)
         {
             RestoreState(config);
 
             var allureCycle = new AllureLifecycle();
 
-            Assert.Equal(Path.Combine(Environment.CurrentDirectory, AllureConstants.DEFAULT_RESULTS_FOLDER), allureCycle.Output);
+        }
+
+        [Fact(DisplayName = "Should access Configuration")]
+        public void ShouldAccessConfigProperties()
+        {
+            var config = @"{""allure"":{""customKey"": ""customValue""}}";
+            RestoreState(config);
+            var cycle = new AllureLifecycle();
+            Assert.Equal("customValue", cycle.Configuration["allure:customKey"]);
 
         }
 
@@ -38,45 +46,6 @@ namespace Allure.Configuration.Tests
                 File.Delete(AllureConstants.CONFIG_FILENAME);
         }
 
-        [Theory(DisplayName = "Should cleanup temp results folder")]
-        [InlineData(@"{""allure"":{""directory"": ""c:\\windows\\allure-results"", ""cleanup"":  true}}")]
-        public void ShouldCleanupTempResultsFolder(string config)
-        {
-            RestoreState(config);
 
-            var expectedResultsFolder = Path.Combine(Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
-            Directory.CreateDirectory(expectedResultsFolder);
-            File.WriteAllText(Path.Combine(expectedResultsFolder, Guid.NewGuid().ToString()), "");
-
-            var allureCycle = new AllureLifecycle();
-
-            Assert.Empty(Directory.GetFiles(expectedResultsFolder));
-        }
-
-        [Theory(DisplayName = "Should cleanup existing results folder")]
-        [InlineData(@"{""allure"":{""cleanup"": true}}")]
-
-        public void ShouldCleanupExistingResultsFolder(string config)
-        {
-            RestoreState(config);
-
-            var expectedResultsFolder = AllureConstants.DEFAULT_RESULTS_FOLDER;
-            Directory.CreateDirectory(expectedResultsFolder);
-            File.WriteAllText(Path.Combine(expectedResultsFolder, Guid.NewGuid().ToString()), "");
-
-            var allureCycle = new AllureLifecycle();
-
-            Assert.Empty(Directory.GetFiles(expectedResultsFolder));
-        }
-
-        [Fact(DisplayName = "Should access Configuration")]
-        public void ShouldAccessConfigProperties()
-        {
-            var config = @"{""allure"":{""customKey"": ""customValue""}}";
-            RestoreState(config);
-            var cycle = new AllureLifecycle();
-            Assert.Equal("customValue", cycle.Configuration["allure:customKey"]);
-
-        }
     }
 }
