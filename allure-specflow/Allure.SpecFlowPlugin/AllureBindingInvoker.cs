@@ -32,13 +32,15 @@ namespace Allure.SpecFlowPlugin
             if (hook != null && hook.HookOrder != int.MinValue && hook.HookOrder != int.MaxValue)
             {
                 // create empty container to handle BeforeTestRun
-                var container = Allure.CreateContainer();
+                var container = new TestResultContainer();
                 try
                 {
                     switch (hook.HookType)
                     {
                         case HookType.BeforeTestRun:
-                            Allure.Lifecycle.StartTestContainer(container);
+                            //contextManager.FeatureContext.Get<AllureLifecycle>().StartTestContainer(container);
+                            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+
                             break;
 
                         case HookType.BeforeFeature:
@@ -66,18 +68,18 @@ namespace Allure.SpecFlowPlugin
                     };
 
                     if (hook.HookType.ToString().StartsWith("Before"))
-                        Allure.Lifecycle.StartBeforeFixture(
+                        contextManager.FeatureContext.Get<AllureLifecycle>().StartBeforeFixture(
                                 container.uuid,
                                 hook.GetHashCode().ToString(),
                                 fixture);
                     else
-                        Allure.Lifecycle.StartAfterFixture(
+                        contextManager.FeatureContext.Get<AllureLifecycle>().StartAfterFixture(
                                 container.uuid,
                                 hook.GetHashCode().ToString(),
                                 fixture);
 
-                    Allure.Lifecycle.StartStep(
-                        Allure.Uuid,
+                    contextManager.FeatureContext.Get<AllureLifecycle>().StartStep(
+                        contextManager.FeatureContext.Get<Allure>().Uuid,
                         new StepResult()
                         {
                             name = hook.Method.Name,
@@ -93,7 +95,7 @@ namespace Allure.SpecFlowPlugin
 
                     var result = base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
 
-                    Allure.Lifecycle
+                    contextManager.FeatureContext.Get<AllureLifecycle>()
                         .StopStep(x => x.status = Status.passed)
                         .StopFixture(x => x.status = Status.passed);
 
@@ -105,7 +107,7 @@ namespace Allure.SpecFlowPlugin
                 // Exit point. Stop and write scenario.
                 catch (Exception ex)
                 {
-                    Allure.Lifecycle
+                    contextManager.FeatureContext.Get<AllureLifecycle>()
                         .StopStep(x =>
                         {
                             x.status = Status.broken;
@@ -119,11 +121,11 @@ namespace Allure.SpecFlowPlugin
                     if (!(contextManager.ScenarioContext != null &&
                         contextManager.ScenarioContext.TryGetValue(out TestResult testCase)))
                     {
-                        testCase = Allure.GetScenario(contextManager.FeatureContext?.FeatureInfo, hook.HookType.ToString());
-                        Allure.Lifecycle.StartTestCase(container.uuid, testCase);
+                        testCase = contextManager.FeatureContext.Get<Allure>().GetScenario(contextManager.FeatureContext?.FeatureInfo, hook.HookType.ToString());
+                        contextManager.FeatureContext.Get<AllureLifecycle>().StartTestCase(container.uuid, testCase);
                     }
 
-                    Allure.Lifecycle
+                    contextManager.FeatureContext.Get<AllureLifecycle>()
                         .UpdateTestCase(testCase.uuid, x =>
                             {
                                 x.status = Status.broken;
@@ -145,61 +147,4 @@ namespace Allure.SpecFlowPlugin
         }
 
     }
-    //class AllureBindingInvoker : BindingInvoker
-    //{
-    //    public AllureBindingInvoker(SpecFlowConfiguration specFlowConfiguration, IErrorProvider errorProvider) :
-    //        base(specFlowConfiguration, errorProvider)
-    //    { }
-
-    //    public override object InvokeBinding(IBinding binding, IContextManager contextManager, object[] arguments, ITestTracer testTracer, out TimeSpan duration)
-    //    {
-    //        var hook = binding as HookBinding;
-    //        var step = binding as StepDefinitionBinding;
-    //        if (hook != null)
-    //        {
-    //            try
-    //            {
-    //                if (hook.HookType == HookType.BeforeFeature && hook.HookOrder == int.MinValue)
-    //                    AllureAdapter.Instance.StartSuite(contextManager.FeatureContext.FeatureInfo);
-
-    //                if (hook.HookType == HookType.AfterFeature && hook.HookOrder == int.MaxValue)
-    //                    AllureAdapter.Instance.FinishSuite(contextManager.FeatureContext.FeatureInfo);
-
-    //                return base.InvokeBinding(hook, contextManager, arguments, testTracer, out duration);
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                switch (hook.HookType)
-    //                {
-    //                    case HookType.BeforeTestRun:
-    //                    case HookType.BeforeFeature:
-    //                    case HookType.BeforeScenarioBlock:
-    //                        var scenarioInfo = new ScenarioInfo(hook.HookType.ToString());
-    //                        AllureAdapter.Instance.FailTestSuite(contextManager.FeatureContext.FeatureInfo, scenarioInfo, ex);
-    //                        break;
-
-    //                    case HookType.BeforeScenario:
-    //                        AllureAdapter.Instance.CancelTestCase(ex);
-    //                        break;
-
-    //                    case HookType.AfterScenario:
-    //                    case HookType.AfterStep:
-    //                        AllureAdapter.Instance.FinishTestCase(contextManager.ScenarioContext, ex);
-    //                        break;
-
-    //                    case HookType.BeforeStep:
-    //                    case HookType.AfterScenarioBlock:
-    //                    case HookType.AfterFeature:
-    //                    case HookType.AfterTestRun:
-    //                    default:
-    //                        break;
-    //                }
-    //                throw;
-    //            }
-
-    //        }
-
-    //        return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-    //    }
-    //}
 }

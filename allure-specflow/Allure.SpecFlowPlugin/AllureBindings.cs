@@ -23,14 +23,18 @@ namespace Allure.SpecFlowPlugin
         [BeforeFeature(Order = int.MinValue)]
         public static void BeforeFeature(FeatureContext featureContext)
         {
+            // Initialize Allure.Leficycle
+            featureContext.Set(new Allure());
+            featureContext.Set(new AllureLifecycle());
             // Starting point. Create feature container and fake scenario. Store in FeatureContext.
             var trc = new TestResultContainer()
             {
-                uuid = Allure.Uuid,
+                uuid = featureContext.Get<Allure>().Uuid,
                 name = featureContext.FeatureInfo.Title
             };
             featureContext.Set(trc);
-            Allure.Lifecycle.StartTestContainer(trc);
+
+            featureContext.Get<AllureLifecycle>().StartTestContainer(trc);
 
             // Create list of scenario containers
             featureContext.Set(new List<TestResultContainer>());
@@ -43,22 +47,11 @@ namespace Allure.SpecFlowPlugin
         public void BeforeScenario()
         {
             // Start empty scenario container
-            var scenarioContainer = Allure.CreateContainer();
-            Allure.Lifecycle.StartTestContainer(scenarioContainer);
+            var scenarioContainer = featureContext.Get<Allure>().CreateContainer();
+            featureContext.Get<AllureLifecycle>().StartTestContainer(scenarioContainer);
 
             // Save container to scenario context
             scenarioContext.Set(scenarioContainer);
-
-            //// Get container from FeatureContext
-            //if (featureContext.TryGetValue(out TestResultContainer featureContainer))
-            //{
-            //    // Copy BeforeFeature fixtures to scenario container
-            //    Allure.Lifecycle.UpdateTestContainer(scenarioContainer.uuid, x =>
-            //    {
-            //        x.start = featureContainer.start;
-            //        x.befores = featureContainer.befores;
-            //    });
-            //}
 
             // Add scenario container to feature list
             if (featureContext.TryGetValue(out List<TestResultContainer> scenarioContainers))
@@ -68,9 +61,9 @@ namespace Allure.SpecFlowPlugin
             }
 
             // Start scenario and save into ScenarioContext
-            var scenario = Allure.GetScenario(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo);
+            var scenario = featureContext.Get<Allure>().GetScenario(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo);
             scenarioContext.Set(scenario);
-            Allure.Lifecycle.StartTestCase(scenarioContainer.uuid, scenario);
+            featureContext.Get<AllureLifecycle>().StartTestCase(scenarioContainer.uuid, scenario);
         }
 
         [AfterScenario(Order = int.MaxValue)]
@@ -79,13 +72,13 @@ namespace Allure.SpecFlowPlugin
             // Write scenario
             if (scenarioContext.TryGetValue(out TestResult testCase))
             {
-                Allure.Lifecycle.WriteTestCase(testCase.uuid);
+                featureContext.Get<AllureLifecycle>().WriteTestCase(testCase.uuid);
                 scenarioContext.Remove(testCase.GetType().FullName);
             }
             // Stop container
             if (featureContext.TryGetValue(out List<TestResultContainer> scenarioContainers))
             {
-                Allure.Lifecycle.StopTestContainer(scenarioContainers.Last().uuid);
+                featureContext.Get<AllureLifecycle>().StopTestContainer(scenarioContainers.Last().uuid);
             }
 
         }
@@ -96,13 +89,13 @@ namespace Allure.SpecFlowPlugin
             if (featureContext.TryGetValue(out TestResultContainer featureContainer))
             {
                 // Write featureContainer
-                Allure.Lifecycle.WriteTestContainer(featureContainer.uuid);
+                featureContext.Get<AllureLifecycle>().WriteTestContainer(featureContainer.uuid);
 
                 // Write feature scenarios
                 if (featureContext.TryGetValue(out List<TestResultContainer> scenarioContainers) && scenarioContainers.Count > 0)
                 {
                     // Add BeforeFeature fixtures to the first scenario befores 
-                    Allure.Lifecycle
+                    featureContext.Get<AllureLifecycle>()
                         .UpdateTestContainer(scenarioContainers.First().uuid, x =>
                         {
                             x.start = featureContainer.start;
@@ -110,7 +103,7 @@ namespace Allure.SpecFlowPlugin
                         });
 
                     // Add AfterFeature fixtures to the last scenario afters 
-                    Allure.Lifecycle
+                    featureContext.Get<AllureLifecycle>()
                         .UpdateTestContainer(scenarioContainers.Last().uuid, x =>
                             {
                                 x.afters.AddRange(featureContainer.afters);
@@ -119,7 +112,7 @@ namespace Allure.SpecFlowPlugin
 
                     foreach (var container in scenarioContainers)
                     {
-                        Allure.Lifecycle.WriteTestContainer(container.uuid);
+                        featureContext.Get<AllureLifecycle>().WriteTestContainer(container.uuid);
                     }
                 }
                 

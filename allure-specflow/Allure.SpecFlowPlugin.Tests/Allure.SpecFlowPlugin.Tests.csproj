@@ -191,6 +191,9 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Default.srprofile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Test Data\Feature Hook.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
