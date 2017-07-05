@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecFlowPlugin", "Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj", "{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecFlowPlugin.Tests", "Allure.SpecFlowPlugin.Tests\Allure.SpecFlowPlugin.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Allure|Any CPU = Allure|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Allure|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Allure|Any CPU.Build.0 = Release|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Allure|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Allure|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
