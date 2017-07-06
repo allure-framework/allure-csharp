@@ -165,9 +165,7 @@
     <Compile Include="MsTestRunnerTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="allureConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="allureConfig.json" />
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="parallel.runsettings" />
