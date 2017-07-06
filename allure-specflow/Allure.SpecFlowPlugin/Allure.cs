@@ -2,63 +2,72 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TechTalk.SpecFlow;
+
+using HeyRed.Mime;
 
 namespace Allure.SpecFlowPlugin
 {
     public class Allure
     {
-        //private static readonly object lockObj = new object();
-        //private static AllureLifecycle cycle;
+        private AllureLifecycle cycle;
 
-        //public static AllureLifecycle Lifecycle => cycle;
-
-        //static Allure()
-        //{
-        //    lock (lockObj)
-        //    {
-        //        cycle = new AllureLifecycle();
-        //    }
-        //}
-
-        public  string ScenarioUuid(FeatureInfo FeatureInfo, ScenarioInfo ScenarioInfo) =>
-            $"{FeatureInfo.Title}.{ScenarioInfo.Title}";
-        public  string ContainerUuid(FeatureContext featureContext) =>
-            $"{featureContext.FeatureInfo.Title}";
-
-        public  string Uuid => Guid.NewGuid().ToString();
-
-        public  TestResultContainer CreateContainer()
+        public Allure Attach(string path, string name = null)
         {
-            return new TestResultContainer()
+            name = name ?? Path.GetFileName(path);
+            var type = MimeTypesMap.GetMimeType(path);
+            cycle.AddAttachment(name, type, path);
+            return this;
+        }
+        internal AllureLifecycle Lifecycle =>
+            cycle = cycle ?? new AllureLifecycle();
+        internal static TestResultContainer CreateScenarioContainer(ScenarioInfo scenarioInfo) =>
+            new TestResultContainer()
             {
-                uuid = Uuid
+                uuid = $"_{scenarioInfo.GetHashCode().ToString()}"
             };
-        }
-        public  TestResult GetScenario(FeatureInfo featureInfo, string name)
+
+        internal static string GetStepId(ScenarioContext context) =>
+            context.StepContext.StepInfo.GetHashCode().ToString();
+
+        internal static TestResultContainer CreateContainer() =>
+            new TestResultContainer()
+            {
+                uuid = Guid.NewGuid().ToString()
+            };
+
+        internal static TestResult CreateTestResult(FeatureInfo featureInfo, string name)
         {
-            return GetScenario(featureInfo, new ScenarioInfo(name, new string[0]));
+            return CreateTestResult(featureInfo, new ScenarioInfo(name, new string[0]));
         }
-        public  TestResult GetScenario(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
+        internal static TestResult CreateTestResult(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
         {
             featureInfo = featureInfo ?? new FeatureInfo(CultureInfo.CurrentCulture, string.Empty, string.Empty, new string[0]);
             var testResult = new TestResult()
             {
-                uuid = Uuid,
+                uuid = scenarioInfo.GetHashCode().ToString(),
                 name = scenarioInfo.Title,
                 fullName = scenarioInfo.Title,
                 labels = new List<Label>()
                 {
                     Label.Thread(),
                     Label.Host(),
-                    Label.Suite(featureInfo.Title)
+                    Label.Suite(featureInfo.Title),
                 }
+                .Union(GetTags(featureInfo, scenarioInfo)).ToList()
             };
 
             return testResult;
+        }
+        private static List<Label> GetTags(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
+        {
+            return scenarioInfo.Tags
+                .Union(featureInfo.Tags)
+                .Distinct(StringComparer.CurrentCultureIgnoreCase)
+                .Select(x => Label.Tag(x))
+                .ToList();
         }
     }
 }

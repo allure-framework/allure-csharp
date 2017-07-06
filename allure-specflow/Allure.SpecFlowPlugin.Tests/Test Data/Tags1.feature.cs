@@ -75,7 +75,7 @@ namespace Allure.SpecFlowPlugin.Tests.TestData
 #line 5
 this.ScenarioSetup(scenarioInfo);
 #line 6
- testRunner.Given("Step is \'hang\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -88,7 +88,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 8
 this.ScenarioSetup(scenarioInfo);
 #line 9
- testRunner.Given("Step is \'hang\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -103,7 +103,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 12
 this.ScenarioSetup(scenarioInfo);
 #line 13
- testRunner.Given("Step is \'hang\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

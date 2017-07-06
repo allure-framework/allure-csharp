@@ -65,13 +65,13 @@ namespace Allure.SpecFlowPlugin.Tests.TestData
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Should handle BeforeScenario failure")]
-        [NUnit.Framework.CategoryAttribute("BeforeScenarioFailed")]
-        [NUnit.Framework.CategoryAttribute("hooks")]
+        [NUnit.Framework.CategoryAttribute("BeforeScenario")]
+        [NUnit.Framework.CategoryAttribute("fail")]
         public virtual void ShouldHandleBeforeScenarioFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle BeforeScenario failure", new string[] {
-                        "BeforeScenarioFailed",
-                        "hooks"});
+                        "BeforeScenario",
+                        "fail"});
 #line 4
 this.ScenarioSetup(scenarioInfo);
 #line 5
@@ -84,13 +84,13 @@ this.ScenarioSetup(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Should handle BeforeStep failure")]
-        [NUnit.Framework.CategoryAttribute("BeforeStepFailed")]
-        [NUnit.Framework.CategoryAttribute("hooks")]
+        [NUnit.Framework.CategoryAttribute("BeforeStep")]
+        [NUnit.Framework.CategoryAttribute("fail")]
         public virtual void ShouldHandleBeforeStepFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle BeforeStep failure", new string[] {
-                        "BeforeStepFailed",
-                        "hooks"});
+                        "BeforeStep",
+                        "fail"});
 #line 9
 this.ScenarioSetup(scenarioInfo);
 #line 10
@@ -105,13 +105,13 @@ this.ScenarioSetup(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Should handle AfterStep failure")]
-        [NUnit.Framework.CategoryAttribute("AfterStepFailed")]
-        [NUnit.Framework.CategoryAttribute("hooks")]
+        [NUnit.Framework.CategoryAttribute("AfterStep")]
+        [NUnit.Framework.CategoryAttribute("fail")]
         public virtual void ShouldHandleAfterStepFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle AfterStep failure", new string[] {
-                        "AfterStepFailed",
-                        "hooks"});
+                        "AfterStep",
+                        "fail"});
 #line 15
 this.ScenarioSetup(scenarioInfo);
 #line 16
@@ -124,18 +124,18 @@ this.ScenarioSetup(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Should handle AfterScenario failure")]
-        [NUnit.Framework.CategoryAttribute("Attachment")]
-        [NUnit.Framework.CategoryAttribute("hooks")]
+        [NUnit.Framework.CategoryAttribute("AfterScenario")]
+        [NUnit.Framework.CategoryAttribute("fail")]
         public virtual void ShouldHandleAfterScenarioFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle AfterScenario failure", new string[] {
-                        "Attachment",
-                        "hooks"});
+                        "AfterScenario",
+                        "fail"});
 #line 20
 this.ScenarioSetup(scenarioInfo);
-#line 23
+#line 21
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 24
+#line 22
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();

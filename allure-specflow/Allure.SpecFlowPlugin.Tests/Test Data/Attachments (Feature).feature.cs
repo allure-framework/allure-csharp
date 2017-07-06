@@ -18,24 +18,24 @@ namespace Allure.SpecFlowPlugin.Tests.TestData
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.2.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("Feature Hooks")]
-    [NUnit.Framework.CategoryAttribute("fail")]
+    [NUnit.Framework.DescriptionAttribute("Attachments (Feature)")]
+    [NUnit.Framework.CategoryAttribute("attachment")]
     [NUnit.Framework.CategoryAttribute("BeforeFeature")]
     [NUnit.Framework.CategoryAttribute("AfterFeature")]
-    public partial class FeatureHooksFeature
+    public partial class AttachmentsFeatureFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Feature Hook.feature"
+#line 1 "Attachments (Feature).feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Feature Hooks", null, ProgrammingLanguage.CSharp, new string[] {
-                        "fail",
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Attachments (Feature)", null, ProgrammingLanguage.CSharp, new string[] {
+                        "attachment",
                         "BeforeFeature",
                         "AfterFeature"});
             testRunner.OnFeatureStart(featureInfo);
@@ -70,21 +70,16 @@ namespace Allure.SpecFlowPlugin.Tests.TestData
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Failed BeforeFeature")]
-        public virtual void FailedBeforeFeature()
+        [NUnit.Framework.DescriptionAttribute("With attachments")]
+        [NUnit.Framework.CategoryAttribute("attachment")]
+        [NUnit.Framework.CategoryAttribute("BeforeScenario")]
+        [NUnit.Framework.CategoryAttribute("AfterScenario")]
+        public virtual void WithAttachments()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed BeforeFeature", ((string[])(null)));
-#line 4
-this.ScenarioSetup(scenarioInfo);
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Failed AfterFeature")]
-        public virtual void FailedAfterFeature()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed AfterFeature", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("With attachments", new string[] {
+                        "attachment",
+                        "BeforeScenario",
+                        "AfterScenario"});
 #line 5
 this.ScenarioSetup(scenarioInfo);
 #line hidden

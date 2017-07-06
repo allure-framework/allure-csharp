@@ -1,4 +1,6 @@
-﻿@hooks @BeforeFeatureFailed
+﻿@fail @BeforeFeature @AfterFeature
 Feature: Feature Hooks
 
-Scenario: Should handle BeforeFeature failure
+Scenario: Failed BeforeFeature
+Scenario: Failed AfterFeature
+

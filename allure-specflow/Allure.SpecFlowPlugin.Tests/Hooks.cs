@@ -1,13 +1,17 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
 namespace Allure.SpecFlowPlugin.Tests
 {
+    public enum TestOutcome { passed, failed, broken, hang }
+
     [Binding]
     public class Hooks
     {
@@ -20,6 +24,44 @@ namespace Allure.SpecFlowPlugin.Tests
 
         }
 
+        [StepDefinition(@"Step is '(.*)'")]
+        public void StepResultIs(TestOutcome outcome)
+        {
+            Thread.Sleep(50);
+            switch (outcome)
+            {
+                case TestOutcome.passed:
+                    break;
+                case TestOutcome.failed:
+                    throw new AssertionException("This test is failed");
+                case TestOutcome.broken:
+                    throw new Exception("This test has error");
+                case TestOutcome.hang:
+                    Thread.Sleep(3000);
+                    break;
+                default:
+                    throw new ArgumentException("value is not supported");
+            }
+        }
+
+        [StepDefinition("Step with attachment")]
+        public void StepWithAttach()
+        {
+            var path = Guid.NewGuid().ToString();
+            File.WriteAllText(path, "hi there");
+            featureContext.Get<Allure>().Attach(path);
+        }
+
+        [StepDefinition("Step with table")]
+        public void StepWithTable(Table table)
+        {
+        }
+
+        [StepDefinition("Step with params: (.*), (.*), (.*)")]
+        public void StepWithArgs(int number, string text, DateTime date)
+        {
+        }
+
         [BeforeTestRun]
         public static void SetTestFolderForNUnit()
         {
@@ -27,61 +69,45 @@ namespace Allure.SpecFlowPlugin.Tests
             Environment.CurrentDirectory = dir;
         }
 
-        [BeforeFeature(tags: "BeforeFeatureFailed")]
-        public static void BeforeFeatureFail(FeatureContext context)
-        {
-            throw new Exception();
-        }
-
-        [BeforeFeature(Order = 1)]
-        public static void PassingBeforeFeatureHook()
-        {
-        }
 
         [BeforeScenario(Order = 1)]
-        public void BeforeScenarioPassed()
+        public void AllwaysPassingBeforeScenario()
         {
         }
 
-        [BeforeScenario(tags: "BeforeScenarioFailed", Order = 2)]
-        public void LetMeFailThis()
-        {
-            throw new Exception();
-        }
-
-        [BeforeScenario(Order = 3)]
-        public void BeforeScenarioPassedAgain()
+        [AfterScenario(Order = 1)]
+        public void AllwaysPassingAfterScenario()
         {
         }
 
-        [BeforeStep(tags: "BeforeStepFailed")]
-        public void BeforeStep()
+        [BeforeFeature(tags: "BeforeFeature")]
+        [AfterFeature(tags: "AfterFeature")]
+        public static void HandleFeature(FeatureContext featureContext)
         {
-            throw new Exception();
-
+            Handle(featureContext, featureContext.FeatureInfo.Tags);
         }
 
-        [AfterStep(tags: "AfterStepFailed")]
-        public void AfterStep()
+
+        [BeforeScenario(tags: "BeforeScenario")]
+        [AfterScenario(tags: "AfterScenario")]
+        [BeforeStep(tags: "BeforeStep")]
+        [AfterStep(tags: "AfterStep")]
+        public void HandleIt()
         {
-            throw new Exception();
+            Handle(featureContext, scenarioContext.ScenarioInfo.Tags);
         }
-
-        [AfterScenario(tags: "Attachment")]
-        public void PutAttachmentIntoContextAndFail()
+        private static void Handle(FeatureContext featurecontext, string[] tags)
         {
-            var types = new HashSet<string>() { "txt", "xml", "html", "png", "jpg", "json", "uri" };
-
-            foreach (var extension in types)
+            if (tags.Contains("attachment"))
             {
-                var path = $"test.{extension}";
-                File.WriteAllText(path, "http://yandex.ru");
-                //scenarioContext.AddAllureAttachment(path, extension);
-               // scenarioContext.AddAllureAttachment(path, extension);
-
+                var path = $"{Guid.NewGuid().ToString()}.txt";
+                File.WriteAllText(path, "hi there");
+                featurecontext.Get<Allure>()
+                    .Attach(path)
+                    .Attach(path, "text file");
             }
-
-            throw new Exception();
+            if (tags.Any(x => x.StartsWith("fail")))
+                throw new Exception("Wasted");
         }
 
     }

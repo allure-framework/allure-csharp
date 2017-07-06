@@ -18,26 +18,20 @@ namespace Allure.SpecFlowPlugin.Tests.TestData
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.2.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("Feature Hooks")]
-    [NUnit.Framework.CategoryAttribute("fail")]
-    [NUnit.Framework.CategoryAttribute("BeforeFeature")]
-    [NUnit.Framework.CategoryAttribute("AfterFeature")]
-    public partial class FeatureHooksFeature
+    [NUnit.Framework.DescriptionAttribute("Parameters")]
+    public partial class ParametersFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Feature Hook.feature"
+#line 1 "Parameters.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Feature Hooks", null, ProgrammingLanguage.CSharp, new string[] {
-                        "fail",
-                        "BeforeFeature",
-                        "AfterFeature"});
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Parameters", null, ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -70,23 +64,40 @@ namespace Allure.SpecFlowPlugin.Tests.TestData
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Failed BeforeFeature")]
-        public virtual void FailedBeforeFeature()
+        [NUnit.Framework.DescriptionAttribute("Scenario with parametrized steps")]
+        public virtual void ScenarioWithParametrizedSteps()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed BeforeFeature", ((string[])(null)));
-#line 4
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Scenario with parametrized steps", ((string[])(null)));
+#line 3
 this.ScenarioSetup(scenarioInfo);
 #line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Failed AfterFeature")]
-        public virtual void FailedAfterFeature()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed AfterFeature", ((string[])(null)));
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                        "name",
+                        "surname",
+                        "gender",
+                        "age"});
+            table1.AddRow(new string[] {
+                        "John",
+                        "Smith",
+                        "male",
+                        "30"});
+            table1.AddRow(new string[] {
+                        "\"Mary\",\"Ann\"",
+                        "Jane;",
+                        "female",
+                        "25"});
+            table1.AddRow(new string[] {
+                        "",
+                        "",
+                        "",
+                        ""});
+            table1.AddRow(new string[] {
+                        "Eric",
+                        "Cartman",
+                        ",",
+                        ",,"});
 #line 5
-this.ScenarioSetup(scenarioInfo);
+ testRunner.Given("Step with table", ((string)(null)), table1, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

@@ -1,24 +1,22 @@
 ﻿Feature: Scenario Hooks
 
-@BeforeScenarioFailed @hooks
+@BeforeScenario @fail
 Scenario: Should handle BeforeScenario failure
 	Given Step is 'passed'
 	Given Step is 'passed'
 
-@BeforeStepFailed @hooks
+@BeforeStep @fail
 Scenario: Should handle BeforeStep failure
 	Given Step is 'passed'
 	Given Step is 'passed'
 	Given Step is 'passed'
 
-@AfterStepFailed @hooks
+@AfterStep @fail
 Scenario: Should handle AfterStep failure
 	Given Step is 'passed'
 	Given Step is 'passed'
 
-@Attachment @hooks
+@AfterScenario @fail
 Scenario: Should handle AfterScenario failure
-with attachments
-
 	Given Step is 'passed'
 	Given Step is 'passed'
