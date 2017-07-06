@@ -8,6 +8,6 @@ build:
   project: .\allure-csharp-commons-v2\Allure.Commons.sln
   verbosity: minimal
 deploy_script:
-- cmd: >-
-    dotnet pack ./allure-csharp-commons-v2/Allure.Commons/Allure.Commons.csproj --version-suffix "dev"/p:Version=%APPVEYOR_BUILD_VERSION%
-    appveyor PushArtifact ./allure-csharp-commons-v2/Allure.Commons/bin/debug/Allure.Commons.%APPVEYOR_BUILD_VERSION%-dev.nupkg
+- cmd:
+  dotnet pack ./allure-csharp-commons-v2/Allure.Commons/Allure.Commons.csproj --version-suffix "dev"/p:Version=%APPVEYOR_BUILD_VERSION%\
+  appveyor PushArtifact ./allure-csharp-commons-v2/Allure.Commons/bin/debug/Allure.Commons.%APPVEYOR_BUILD_VERSION%-dev.nupkg
