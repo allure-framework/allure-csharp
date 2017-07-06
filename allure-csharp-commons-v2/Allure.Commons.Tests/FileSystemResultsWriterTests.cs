@@ -26,7 +26,7 @@ namespace Allure.Commons.Tests
         [InlineData(false)]
         public void ShouldCleanupExistingResultsFolder(bool cleanup)
         {
-            var resultsDirectory = AllureConstants.DEFAULT_RESULTS_FOLDER;
+            var resultsDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(resultsDirectory);
             File.WriteAllText(Path.Combine(resultsDirectory, Path.GetRandomFileName()), "");
 
