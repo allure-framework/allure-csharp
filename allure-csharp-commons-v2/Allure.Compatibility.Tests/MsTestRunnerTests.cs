@@ -38,7 +38,7 @@ namespace Allure.Compatibility.Tests
         }
     }
     [TestClass]
-    public class MsTestRunnerTests
+    public class MsTestRunnerTests1
     {
         static AllureLifecycle cycle = new AllureLifecycle();
 

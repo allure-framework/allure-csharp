@@ -1,6 +1,6 @@
 ﻿{
   "allure": {
     "directory": "allure-results",
-    "cleanup": true
+    "cleanup": false
   }
 }
