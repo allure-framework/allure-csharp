@@ -1,10 +1,11 @@
 ﻿Feature: Tags2
 
-@bar
+@testdata @bar
 Scenario: Bar 1
 
+@testdata 
 Scenario: Goo
 
-@foo
+@testdata @foo
 Scenario: Foo 3
 	Given Step is 'hang'

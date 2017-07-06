@@ -1,26 +1,26 @@
 ﻿Feature: Attachments
 
-@attachment @BeforeScenario @AfterScenario
+@testdata @attachment @BeforeScenario @AfterScenario
 Scenario: With attachments
 	Given Step with attachment
 	Given Step is 'passed'
 
-@fail @attachment @BeforeScenario
+@testdata @fail @attachment @BeforeScenario
 Scenario: Failed BeforeScenario with attachment
 	Given Step with attachment
 	Given Step is 'passed'
 
-@fail @attachment @AfterScenario
+@testdata @fail @attachment @AfterScenario
 Scenario: Failed AfterScenario with attachment
 	Given Step with attachment
 	Given Step is 'passed'
 
-@fail @attachment @BeforeStep
+@testdata @fail @attachment @BeforeStep
 Scenario: Failed BeforeStep with attachment
 	Given Step with attachment
 	Given Step is 'passed'
 
-@fail @attachment @AfterStep
+@testdata @fail @attachment @AfterStep
 Scenario: Failed AfterStep with attachment
 	Given Step with attachment
 	Given Step is 'passed'

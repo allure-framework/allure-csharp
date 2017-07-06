@@ -1,13 +1,14 @@
 ﻿@foo
 Feature: Tags1
 
-@bar
+@testdata @bar
 Scenario: Foo and Bar
 	Given Step is 'passed'
 
+@testdata 
 Scenario: Foo 1
 	Given Step is 'passed'
 
-@foo
+@testdata @foo
 Scenario: Foo 2
 	Given Step is 'passed'

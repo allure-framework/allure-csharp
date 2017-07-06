@@ -186,8 +186,8 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Test Data\Smoke.feature.cs">
-      <DependentUpon>Smoke.feature</DependentUpon>
+    <Compile Include="Test Data\Scenarios and Steps.feature.cs">
+      <DependentUpon>Scenarios and Steps.feature</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -236,9 +236,9 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Scenario Hooks.feature.cs</LastGenOutput>
     </None>
-    <None Include="Test Data\Smoke.feature">
+    <None Include="Test Data\Scenarios and Steps.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Smoke.feature.cs</LastGenOutput>
+      <LastGenOutput>Scenarios and Steps.feature.cs</LastGenOutput>
     </None>
     <None Include="Test Data\Tags1.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
