@@ -3,15 +3,11 @@ image: Visual Studio 2017
 nuget:
   project_feed: true
 before_build:
-- cmd: nuget restore ./allure-csharp-commons-v2/Allure.Commons.sln
+- cmd: nuget restore .\allure-csharp-commons-v2\Allure.Commons.sln
 build:
   project: .\allure-csharp-commons-v2\Allure.Commons.sln
   verbosity: minimal
-before_test:
-- cmd: appveyor PushArtifact .\allure-csharp-commons-v2\Allure.Commons\bin\debug\Allure.Commons.0.0.0-dev.nupkg
 deploy_script:
 - cmd: >-
-    dotnet pack ./allure-csharp-commons-v2/Allure.Commons/Allure.Commons.csproj /p:Version=%APPVEYOR_BUILD_VERSION%
-
-
-    appveyor PushArtifact .\allure-csharp-commons-v2\Allure.Commons\bin\debug\Allure.Commons.%APPVEYOR_BUILD_VERSION%.nupkg
+    dotnet pack .\allure-csharp-commons-v2\Allure.Commons\Allure.Commons.csproj /p:Version=%APPVEYOR_BUILD_VERSION%-dev
+    appveyor PushArtifact .\allure-csharp-commons-v2\Allure.Commons\bin\debug\Allure.Commons.%APPVEYOR_BUILD_VERSION%-dev.nupkg
