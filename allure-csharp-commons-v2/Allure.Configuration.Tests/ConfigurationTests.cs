@@ -1,13 +1,5 @@
 ﻿using Allure.Commons;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 namespace Allure.Configuration.Tests
 {
