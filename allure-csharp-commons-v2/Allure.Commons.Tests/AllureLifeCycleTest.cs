@@ -11,7 +11,7 @@ namespace Allure.Commons.Tests
     public class AllureLifeCycleTest
     {
         private readonly ITestOutputHelper output;
-        static AllureLifecycle cycle = new AllureLifecycle();
+        AllureLifecycle cycle = AllureLifecycle.Instance;
 
         public AllureLifeCycleTest(ITestOutputHelper output)
         {

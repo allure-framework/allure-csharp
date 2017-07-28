@@ -1,5 +1,6 @@
 ﻿using Allure.Commons.Storage;
 using Allure.Commons.Writer;
+using Castle.DynamicProxy;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
@@ -8,68 +9,32 @@ namespace Allure.Commons
 {
     public class AllureLifecycle
     {
-        private AllureStorage storage = new AllureStorage();
+        private AllureStorage storage;
         private IAllureResultsWriter writer;
+        private static AllureLifecycle instance;
 
-        private IConfigurationRoot configuration = new ConfigurationBuilder()
-            .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
-            .Build();
+        public IConfiguration Configuration { get; private set; }
+        public static AllureLifecycle Instance => instance = instance ?? CreateInstance();
 
-        public IConfiguration Configuration => configuration;
-
-        public AllureLifecycle()
+        protected AllureLifecycle(IConfigurationRoot configuration)
         {
-            writer = GetDefaultResultsWriter();
-        }
-
-        #region Fixture
-        public AllureLifecycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
-        {
-            UpdateTestContainer(parentUuid, container => container.befores.Add(result));
-            StartFixture(uuid, result);
-            return this;
+            this.Configuration = configuration;
+            this.writer = GetDefaultResultsWriter(configuration);
+            this.storage = new AllureStorage();
         }
 
-        public AllureLifecycle StartAfterFixture(string parentUuid, string uuid, FixtureResult result)
+        public static AllureLifecycle CreateInstance()
         {
-            UpdateTestContainer(parentUuid, container => container.afters.Add(result));
-            StartFixture(uuid, result);
-            return this;
-        }
+            var config = new ConfigurationBuilder()
+                .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
+                .Build();
 
-        private void StartFixture(string uuid, FixtureResult fixtureResult)
-        {
-            storage.Put(uuid, fixtureResult);
-            fixtureResult.stage = Stage.running;
-            fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.ClearStepContext();
-            storage.StartStep(uuid);
+            bool.TryParse(config["allure:logging"], out bool logging);
+            return (logging) ?
+                (AllureLifecycle)new ProxyGenerator().CreateClassProxy(typeof(AllureLifecycle),
+                    new object[] { config }, new LoggingInterceptor()) :
+                new AllureLifecycle(config);
         }
-        public AllureLifecycle UpdateFixture(Action<FixtureResult> update)
-        {
-            UpdateFixture(storage.GetRootStep(), update);
-            return this;
-        }
-        public AllureLifecycle UpdateFixture(string uuid, Action<FixtureResult> update)
-        {
-            update.Invoke(storage.Get<FixtureResult>(uuid));
-            return this;
-        }
-
-        public AllureLifecycle StopFixture(Action<FixtureResult> beforeStop)
-        {
-            UpdateFixture(beforeStop);
-            return StopFixture(storage.GetRootStep());
-        }
-        public AllureLifecycle StopFixture(string uuid)
-        {
-            var fixture = storage.Remove<FixtureResult>(uuid);
-            storage.ClearStepContext();
-            fixture.stage = Stage.finished;
-            fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            return this;
-        }
-        #endregion
 
         #region TestContainer
         public AllureLifecycle StartTestContainer(TestResultContainer container)
@@ -101,6 +66,47 @@ namespace Allure.Commons
         public AllureLifecycle WriteTestContainer(string uuid)
         {
             writer.Write(storage.Remove<TestResultContainer>(uuid));
+            return this;
+        }
+        #endregion
+
+        #region Fixture
+        public AllureLifecycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
+        {
+            UpdateTestContainer(parentUuid, container => container.befores.Add(result));
+            StartFixture(uuid, result);
+            return this;
+        }
+
+        public AllureLifecycle StartAfterFixture(string parentUuid, string uuid, FixtureResult result)
+        {
+            UpdateTestContainer(parentUuid, container => container.afters.Add(result));
+            StartFixture(uuid, result);
+            return this;
+        }
+
+        public AllureLifecycle UpdateFixture(Action<FixtureResult> update)
+        {
+            UpdateFixture(storage.GetRootStep(), update);
+            return this;
+        }
+        public AllureLifecycle UpdateFixture(string uuid, Action<FixtureResult> update)
+        {
+            update.Invoke(storage.Get<FixtureResult>(uuid));
+            return this;
+        }
+
+        public AllureLifecycle StopFixture(Action<FixtureResult> beforeStop)
+        {
+            UpdateFixture(beforeStop);
+            return StopFixture(storage.GetRootStep());
+        }
+        public AllureLifecycle StopFixture(string uuid)
+        {
+            var fixture = storage.Remove<FixtureResult>(uuid);
+            storage.ClearStepContext();
+            fixture.stage = Stage.finished;
+            fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             return this;
         }
         #endregion
@@ -247,7 +253,18 @@ namespace Allure.Commons
         }
 
         #endregion
-        private IAllureResultsWriter GetDefaultResultsWriter()
+
+
+        #region Privates
+        private void StartFixture(string uuid, FixtureResult fixtureResult)
+        {
+            storage.Put(uuid, fixtureResult);
+            fixtureResult.stage = Stage.running;
+            fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            storage.ClearStepContext();
+            storage.StartStep(uuid);
+        }
+        private IAllureResultsWriter GetDefaultResultsWriter(IConfigurationRoot configuration)
         {
             var resultsFolder = configuration["allure:directory"]
                 ?? AllureConstants.DEFAULT_RESULTS_FOLDER;
@@ -256,5 +273,8 @@ namespace Allure.Commons
 
             return new FileSystemResultsWriter(resultsFolder, cleanup);
         }
+
+        #endregion
+
     }
 }
