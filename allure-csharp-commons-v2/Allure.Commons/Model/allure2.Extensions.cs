@@ -5,6 +5,21 @@ using System.Threading;
 
 namespace Allure.Commons
 {
+    public partial class TestResultContainer
+    {
+        public override string ToString() => name ?? uuid;
+    }
+
+    public partial class TestResult
+    {
+        public override string ToString() => name ?? uuid;
+    }
+
+    public partial class FixtureResult
+    {
+        public override string ToString() => name;
+    }
+
     public partial class Label
     {
         public static Label TestType(string value) => new Label() { name = "testType", value = value };
