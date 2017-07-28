@@ -9,7 +9,7 @@ namespace Allure.Compatibility.Tests
     [TestClass]
     public class MsTestRunnerTests2
     {
-        static AllureLifecycle cycle = new AllureLifecycle();
+        static AllureLifecycle cycle = AllureLifecycle.Instance;
 
         [TestMethod]
         public void PassingTest1()
@@ -40,7 +40,7 @@ namespace Allure.Compatibility.Tests
     [TestClass]
     public class MsTestRunnerTests1
     {
-        static AllureLifecycle cycle = new AllureLifecycle();
+        static AllureLifecycle cycle = AllureLifecycle.Instance;
 
         [TestMethod]
         public void PassingTest1()

@@ -12,10 +12,10 @@ using System.Threading;
 namespace Allure.Compatibility.Tests
 {
     [TestFixture]
-    //[Parallelizable(ParallelScope.All)]
+    [SingleThreaded]
     public class NUnitRunnerTests
     {
-        static AllureLifecycle cycle = new AllureLifecycle();
+        static AllureLifecycle cycle = AllureLifecycle.Instance;
 
         [TestCase]
         public void PassingTest1()

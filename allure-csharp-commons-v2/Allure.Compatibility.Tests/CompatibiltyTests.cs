@@ -20,7 +20,7 @@ namespace Allure.Compatibility.Tests
         public void SetDir()
         {
             Environment.CurrentDirectory = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            cycle = new AllureLifecycle();
+            cycle = AllureLifecycle.Instance;
         }
         [Test]
         public void CycleSmokeTest()
