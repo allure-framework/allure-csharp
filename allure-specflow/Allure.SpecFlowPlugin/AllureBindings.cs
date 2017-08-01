@@ -59,7 +59,13 @@ namespace Allure.SpecFlowPlugin
         public void FirstAfterScenario()
         {
             // stop scenario
-            AllureLifecycle.Instance.StopTestCase(Allure.ScenarioId(scenarioContext));
+            AllureLifecycle.Instance
+                .UpdateTestCase(Allure.ScenarioId(scenarioContext),
+                    x=>
+                    {
+                        x.status = (x.status == Status.none) ? Status.passed : x.status;
+                    })
+                .StopTestCase(Allure.ScenarioId(scenarioContext));
         }
 
         [AfterScenario(Order = int.MaxValue)]

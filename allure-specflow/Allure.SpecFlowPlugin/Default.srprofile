@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TestProfile xmlns="http://www.specflow.org/schemas/plus/TestProfile/1.5">
   <Settings projectName="Allure.SpecFlowPlugin" projectId="{ecea4eb9-3871-4c3b-a821-c2f4eaf81d9a}" />
-  <Execution stopAfterFailures="0" testThreadCount="1" testSchedulingMode="Sequential" retryCount="0" />
+  <Execution stopAfterFailures="0" testThreadCount="10" testSchedulingMode="Sequential" retryCount="0" />
   <!-- For collecting by a SpecRun server update and enable the following element. For using the 
       collected statistics, set testSchedulingMode="Adaptive" attribute on the <Execution> element.
     <Server serverUrl="http://specrunserver:6365" publishResults="true" />
