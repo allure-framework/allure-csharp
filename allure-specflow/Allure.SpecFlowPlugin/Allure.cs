@@ -7,56 +7,50 @@ using System.Linq;
 using TechTalk.SpecFlow;
 
 using HeyRed.Mime;
+using TechTalk.SpecFlow.Infrastructure;
+using TechTalk.SpecFlow.Bindings;
 
 namespace Allure.SpecFlowPlugin
 {
-    public class Allure
+    public static class Allure
     {
-        private AllureLifecycle cycle;
-
-        public Allure Attach(string path, string name = null)
+        public static void Attach(string path, string name = null)
         {
             name = name ?? Path.GetFileName(path);
             var type = MimeTypesMap.GetMimeType(path);
-            cycle.AddAttachment(name, type, path);
-            return this;
+            Lifecycle.AddAttachment(name, type, path);
         }
-        internal AllureLifecycle Lifecycle =>
-            cycle = cycle ?? new AllureLifecycle();
-        internal static TestResultContainer CreateScenarioContainer(ScenarioInfo scenarioInfo) =>
-            new TestResultContainer()
-            {
-                uuid = $"_{scenarioInfo.GetHashCode().ToString()}"
-            };
+        internal static AllureLifecycle Lifecycle => AllureLifecycle.Instance;
+
+        internal static string FeatureId(FeatureContext context) => context?.FeatureInfo.GetHashCode().ToString();
+        internal static string ScenarioContainerId(ScenarioContext context) => context?.ScenarioInfo.GetHashCode().ToString();
+        internal static string ScenarioId(ScenarioContext context) => $"{ScenarioContainerId(context)}_";
+        internal static string NewId() => Guid.NewGuid().ToString();
+        internal static FixtureResult GetFixtureResult(HookBinding hook) => new FixtureResult()
+        {
+            name = $"{ hook.Method.Name} [order = {hook.HookOrder}]"
+        };
+
 
         internal static string GetStepId(ScenarioContext context) =>
             context.StepContext.StepInfo.GetHashCode().ToString();
 
-        internal static TestResultContainer CreateContainer() =>
-            new TestResultContainer()
-            {
-                uuid = Guid.NewGuid().ToString()
-            };
 
-        internal static TestResult CreateTestResult(FeatureInfo featureInfo, string name)
+        internal static TestResult GetTestResult(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
-            return CreateTestResult(featureInfo, new ScenarioInfo(name, new string[0]));
-        }
-        internal static TestResult CreateTestResult(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
-        {
-            featureInfo = featureInfo ?? new FeatureInfo(CultureInfo.CurrentCulture, string.Empty, string.Empty, new string[0]);
+            var featureInfo = featureContext?.FeatureInfo ?? new FeatureInfo(CultureInfo.CurrentCulture, string.Empty, string.Empty, new string[0]);
             var testResult = new TestResult()
             {
-                uuid = scenarioInfo.GetHashCode().ToString(),
-                name = scenarioInfo.Title,
-                fullName = scenarioInfo.Title,
+                uuid = ScenarioId(scenarioContext),
+                name = scenarioContext.ScenarioInfo.Title,
+                fullName = scenarioContext.ScenarioInfo.Title,
                 labels = new List<Label>()
                 {
                     Label.Thread(),
                     Label.Host(),
                     Label.Suite(featureInfo.Title),
                 }
-                .Union(GetTags(featureInfo, scenarioInfo)).ToList()
+                .Union(GetTags(featureInfo, scenarioContext.ScenarioInfo)).ToList()
             };
 
             return testResult;

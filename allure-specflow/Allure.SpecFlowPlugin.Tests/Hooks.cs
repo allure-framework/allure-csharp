@@ -49,7 +49,7 @@ namespace Allure.SpecFlowPlugin.Tests
         {
             var path = Guid.NewGuid().ToString();
             File.WriteAllText(path, "hi there");
-            featureContext.Get<Allure>().Attach(path);
+            Allure.Attach(path);
         }
 
         [StepDefinition("Step with table")]
@@ -102,9 +102,8 @@ namespace Allure.SpecFlowPlugin.Tests
             {
                 var path = $"{Guid.NewGuid().ToString()}.txt";
                 File.WriteAllText(path, "hi there");
-                featurecontext.Get<Allure>()
-                    .Attach(path)
-                    .Attach(path, "text file");
+                Allure.Attach(path);
+                Allure.Attach(path, "text file");
             }
             if (tags.Any(x => x.StartsWith("fail")))
                 throw new Exception("Wasted");
