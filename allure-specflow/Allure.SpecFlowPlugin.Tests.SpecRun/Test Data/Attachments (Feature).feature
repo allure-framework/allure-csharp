@@ -1,4 +1,4 @@
-﻿@attachment @BeforeFeature @AfterFeature
+﻿@ignore @attachment @BeforeFeature @AfterFeature
 Feature: Attachments (Feature)
 
 @testdata @attachment @BeforeScenario @AfterScenario

@@ -1,4 +1,5 @@
-﻿Feature: Invalid Steps
+﻿@ignore
+Feature: Invalid Steps
 
 @testdata
 Scenario: All steps are invalid

@@ -12,9 +12,3 @@ Scenario: Failed scenario
 	Given Step is 'passed'
 	Given Step is 'failed'
 	Given Step is 'passed'
-
-@testdata 
-Scenario: Broken scenario
-	Given Step is 'passed'
-	Given Step is 'broken'
-	Given Step is 'passed'

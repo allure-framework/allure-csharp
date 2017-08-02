@@ -7,8 +7,8 @@
     <ProjectGuid>{8EDF4429-251A-416D-BB68-93F227191BCF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Allure.SpecFlowPlugin.Tests</RootNamespace>
-    <AssemblyName>Allure.SpecFlowPlugin.Tests</AssemblyName>
+    <RootNamespace>Allure.SpecFlowPlugin.Tests.SpecRun</RootNamespace>
+    <AssemblyName>Allure.SpecFlowPlugin.Tests.SpecRun</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -236,9 +236,6 @@
     <None Include="packages.config" />
     <None Include="runtests.cmd" />
     <None Include="SpecRunTestProfile.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="SpecRunTestProfile_2011_09.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Test Data\Attachments %28Feature%29.feature">

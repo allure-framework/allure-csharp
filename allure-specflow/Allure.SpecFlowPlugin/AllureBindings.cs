@@ -32,26 +32,13 @@ namespace Allure.SpecFlowPlugin
             // write feature container in BindingInvoker
         }
 
-        [BeforeScenario(Order = int.MinValue)]
-        public void FirstBeforeScenario()
-        {
-            // start scenario container as child of feature container
-            AllureLifecycle.Instance.StartTestContainer(
-                Allure.FeatureContainerId(featureContext),
-                new TestResultContainer()
-                {
-                    uuid = Allure.ScenarioContainerId(scenarioContext)
-                });
-
-            
-        }
         [BeforeScenario(Order = int.MaxValue)]
         public void LastBeforeScenario()
         {
             // start scenario
             AllureLifecycle.Instance.StartTestCase(
-                Allure.ScenarioContainerId(scenarioContext),
-                Allure.GetTestResult(featureContext, scenarioContext)
+                Allure.FeatureContainerId(featureContext),
+                Allure.GetTestResult(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo)
             );
         }
 
@@ -60,23 +47,20 @@ namespace Allure.SpecFlowPlugin
         {
             // update status if empty and stop scenario
             AllureLifecycle.Instance
-                .UpdateTestCase(Allure.ScenarioId(scenarioContext),
+                .UpdateTestCase(Allure.ScenarioId(scenarioContext?.ScenarioInfo),
                     x=>
                     {
                         x.status = (x.status == Status.none) ? Status.passed : x.status;
                     })
-                .StopTestCase(Allure.ScenarioId(scenarioContext));
+                .StopTestCase(Allure.ScenarioId(scenarioContext?.ScenarioInfo));
         }
 
         [AfterScenario(Order = int.MaxValue)]
         public void LastAfterScenario()
         {
             // write scenario
-            // stop and write scenario container
             AllureLifecycle.Instance
-                .WriteTestCase(Allure.ScenarioId(scenarioContext))
-                .StopTestContainer(Allure.ScenarioContainerId(scenarioContext))
-                .WriteTestContainer(Allure.ScenarioContainerId(scenarioContext));
+                .WriteTestCase(Allure.ScenarioId(scenarioContext?.ScenarioInfo));
         }
     }
 }

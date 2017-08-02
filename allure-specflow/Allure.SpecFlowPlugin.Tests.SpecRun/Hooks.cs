@@ -10,7 +10,7 @@ using TechTalk.SpecFlow;
 
 namespace Allure.SpecFlowPlugin.Tests
 {
-    public enum TestOutcome { passed, failed, broken, hang }
+    public enum TestOutcome { passed, failed, hang }
 
     [Binding]
     public class Hooks
@@ -27,17 +27,14 @@ namespace Allure.SpecFlowPlugin.Tests
         [StepDefinition(@"Step is '(.*)'")]
         public void StepResultIs(TestOutcome outcome)
         {
-            Thread.Sleep(50);
             switch (outcome)
             {
                 case TestOutcome.passed:
                     break;
                 case TestOutcome.failed:
                     throw new AssertionException("This test is failed");
-                case TestOutcome.broken:
-                    throw new Exception("This test has error");
                 case TestOutcome.hang:
-                    Thread.Sleep(3000);
+                    Thread.Sleep(500);
                     break;
                 default:
                     throw new ArgumentException("value is not supported");
@@ -82,9 +79,9 @@ namespace Allure.SpecFlowPlugin.Tests
 
         [BeforeFeature(tags: "BeforeFeature")]
         [AfterFeature(tags: "AfterFeature")]
-        public static void HandleFeature(FeatureContext featureContext)
+        public static void HandleFeature()
         {
-            Handle(featureContext, featureContext.FeatureInfo.Tags);
+            Handle(null);
         }
 
 
@@ -94,18 +91,18 @@ namespace Allure.SpecFlowPlugin.Tests
         [AfterStep(tags: "AfterStep")]
         public void HandleIt()
         {
-            Handle(featureContext, scenarioContext.ScenarioInfo.Tags);
+            Handle(scenarioContext.ScenarioInfo.Tags);
         }
-        private static void Handle(FeatureContext featurecontext, string[] tags)
+        private static void Handle(string[] tags)
         {
-            if (tags.Contains("attachment"))
+            if (tags != null && tags.Contains("attachment"))
             {
                 var path = $"{Guid.NewGuid().ToString()}.txt";
                 File.WriteAllText(path, "hi there");
                 Allure.Attach(path);
                 Allure.Attach(path, "text file");
             }
-            if (tags.Any(x => x.StartsWith("fail")))
+            if (tags != null && tags.Any(x => x.StartsWith("fail")))
                 throw new Exception("Wasted");
         }
 

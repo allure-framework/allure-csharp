@@ -1,4 +1,4 @@
-﻿@fail @BeforeFeature @AfterFeature
+﻿@ignore @fail @BeforeFeature @AfterFeature
 Feature: Feature Hooks
 
 @testdata 

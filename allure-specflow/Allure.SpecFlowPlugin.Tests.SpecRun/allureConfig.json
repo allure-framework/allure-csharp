@@ -2,7 +2,6 @@
   "allure": {
     "directory": "allure-results",
     "cleanup": false,
-    "logging": true
-
+    "logging": false
   }
 }
