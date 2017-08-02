@@ -18,11 +18,10 @@ namespace Allure.SpecFlowPlugin
         {
             name = name ?? Path.GetFileName(path);
             var type = MimeTypesMap.GetMimeType(path);
-            Lifecycle.AddAttachment(name, type, path);
+            AllureLifecycle.Instance.AddAttachment(name, type, path);
         }
-        internal static AllureLifecycle Lifecycle => AllureLifecycle.Instance;
 
-        internal static string FeatureId(FeatureContext context) => context?.FeatureInfo.GetHashCode().ToString();
+        internal static string FeatureContainerId(FeatureContext context) => context?.FeatureInfo.GetHashCode().ToString();
         internal static string ScenarioContainerId(ScenarioContext context) => context?.ScenarioInfo.GetHashCode().ToString();
         internal static string ScenarioId(ScenarioContext context) => $"{ScenarioContainerId(context)}_";
         internal static string NewId() => Guid.NewGuid().ToString();
@@ -30,18 +29,13 @@ namespace Allure.SpecFlowPlugin
         {
             name = $"{ hook.Method.Name} [order = {hook.HookOrder}]"
         };
-
-
-        internal static string GetStepId(ScenarioContext context) =>
-            context.StepContext.StepInfo.GetHashCode().ToString();
-
-
         internal static TestResult GetTestResult(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             var featureInfo = featureContext?.FeatureInfo ?? new FeatureInfo(CultureInfo.CurrentCulture, string.Empty, string.Empty, new string[0]);
             var testResult = new TestResult()
             {
                 uuid = ScenarioId(scenarioContext),
+                historyId = scenarioContext.ScenarioInfo.Title,
                 name = scenarioContext.ScenarioInfo.Title,
                 fullName = scenarioContext.ScenarioInfo.Title,
                 labels = new List<Label>()
@@ -55,6 +49,7 @@ namespace Allure.SpecFlowPlugin
 
             return testResult;
         }
+
         private static List<Label> GetTags(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
         {
             return scenarioInfo.Tags

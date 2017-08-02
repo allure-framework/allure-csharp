@@ -1,4 +1,5 @@
 ﻿using Allure.Commons;
+using CsvHelper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +27,7 @@ namespace Allure.SpecFlowPlugin
             {
                 string containerId = (contextManager.ScenarioContext != null) ?
                     Allure.ScenarioContainerId(contextManager.ScenarioContext) :
-                    Allure.FeatureId(contextManager.FeatureContext);
+                    Allure.FeatureContainerId(contextManager.FeatureContext);
                 try
                 {
 
@@ -44,7 +45,7 @@ namespace Allure.SpecFlowPlugin
                                 );
                             else
                             {
-                                Allure.Lifecycle.StartTestContainer(new TestResultContainer()
+                                AllureLifecycle.Instance.StartTestContainer(new TestResultContainer()
                                 {
                                     uuid = containerId
                                 });
@@ -75,7 +76,7 @@ namespace Allure.SpecFlowPlugin
                                 );
                             else
                             {
-                                Allure.Lifecycle.WriteTestContainer(containerId);
+                                AllureLifecycle.Instance.WriteTestContainer(containerId);
                                 return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
                             }
                             break;
@@ -117,7 +118,7 @@ namespace Allure.SpecFlowPlugin
                     }
 
                     var result = base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-                    AllureLifecycle.Instance.StopFixture(x=>x.status = Status.passed);
+                    AllureLifecycle.Instance.StopFixture(x => x.status = Status.passed);
                     return result;
                 }
 
@@ -128,16 +129,16 @@ namespace Allure.SpecFlowPlugin
                     // create fake scenario
                     if (hook.HookType == HookType.BeforeScenario)
                     {
-                        Allure.Lifecycle
-                            .StartTestCase(containerId,
-                                Allure.GetTestResult(
-                                    contextManager.FeatureContext,
-                                    contextManager.ScenarioContext));
+                        AllureLifecycle.Instance.StartTestCase(
+                            containerId,
+                            Allure.GetTestResult(
+                                contextManager.FeatureContext,
+                                contextManager.ScenarioContext));
 
                     }
 
 
-                    Allure.Lifecycle.UpdateTestCase(
+                    AllureLifecycle.Instance.UpdateTestCase(
                         Allure.ScenarioId(contextManager.ScenarioContext),
                         x =>
                             {
@@ -174,6 +175,29 @@ namespace Allure.SpecFlowPlugin
                             name = $"{contextManager.StepContext.StepInfo.StepDefinitionType} {contextManager.StepContext.StepInfo.Text}"
                         });
 
+                    if (contextManager.StepContext.StepInfo.Table != null)
+                    {
+                        var csvFile = $"{Guid.NewGuid().ToString()}.csv";
+                        var a = contextManager.StepContext.StepInfo.Table.Rows.ToList();
+                        using (var csv = new CsvWriter(File.CreateText(csvFile)))
+                        {
+                            foreach (var item in contextManager.StepContext.StepInfo.Table.Header)
+                            {
+                                csv.WriteField(item);
+                            }
+                            csv.NextRecord();
+                            foreach (var row in contextManager.StepContext.StepInfo.Table.Rows)
+                            {
+                                foreach (var item in row.Values)
+                                {
+                                    csv.WriteField(item);
+                                }
+                                csv.NextRecord();
+                            }
+                        }
+                        AllureLifecycle.Instance.AddAttachment("table", "text/csv", csvFile);
+                    }
+
                     var result = base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
 
                     AllureLifecycle.Instance.StopStep(x => x.status = Status.passed);
@@ -182,7 +206,19 @@ namespace Allure.SpecFlowPlugin
                 }
                 catch (Exception ex)
                 {
-                    AllureLifecycle.Instance.StopStep(x => x.status = Status.failed);
+                    AllureLifecycle.Instance
+                        .StopStep(x => x.status = Status.failed)
+                        .UpdateTestCase(
+                        Allure.ScenarioId(contextManager.ScenarioContext),
+                            x =>
+                            {
+                                x.status = Status.failed;
+                                x.statusDetails = new StatusDetails()
+                                {
+                                    message = ex.Message,
+                                    trace = ex.StackTrace
+                                };
+                            });
 
                     throw;
                 }

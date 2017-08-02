@@ -1,5 +1,6 @@
 ﻿{
   "allure": {
-    "cleanup": true
+    "cleanup": true,
+    "logging": true
   }
 }
