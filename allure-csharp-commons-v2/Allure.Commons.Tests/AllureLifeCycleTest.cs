@@ -52,6 +52,7 @@ namespace Allure.Commons.Tests
                     .StopStep(x => x.status = Status.passed)
                     
                     .AddAttachment("text file", "text/xml", txtAttach.path)
+                    .AddAttachment(txtAttach.path)
                     .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)
                     .StopFixture(beforeFeature.uuid)
 

@@ -11,6 +11,8 @@ namespace Allure.SpecFlowPlugin
     [Binding]
     public class AllureBindings
     {
+        static AllureLifecycle allure = AllureLifecycle.Instance;
+
         private FeatureContext featureContext;
         private ScenarioContext scenarioContext;
 
@@ -36,9 +38,9 @@ namespace Allure.SpecFlowPlugin
         public void LastBeforeScenario()
         {
             // start scenario
-            AllureLifecycle.Instance.StartTestCase(
-                Allure.FeatureContainerId(featureContext),
-                Allure.GetTestResult(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo)
+            allure.StartTestCase(
+                AllureHelper.FeatureContainerId(featureContext),
+                AllureHelper.GetTestResult(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo)
             );
         }
 
@@ -47,12 +49,12 @@ namespace Allure.SpecFlowPlugin
         {
             // update status if empty and stop scenario
             AllureLifecycle.Instance
-                .UpdateTestCase(Allure.ScenarioId(scenarioContext?.ScenarioInfo),
+                .UpdateTestCase(AllureHelper.ScenarioId(scenarioContext?.ScenarioInfo),
                     x=>
                     {
                         x.status = (x.status == Status.none) ? Status.passed : x.status;
                     })
-                .StopTestCase(Allure.ScenarioId(scenarioContext?.ScenarioInfo));
+                .StopTestCase(AllureHelper.ScenarioId(scenarioContext?.ScenarioInfo));
         }
 
         [AfterScenario(Order = int.MaxValue)]
@@ -60,7 +62,7 @@ namespace Allure.SpecFlowPlugin
         {
             // write scenario
             AllureLifecycle.Instance
-                .WriteTestCase(Allure.ScenarioId(scenarioContext?.ScenarioInfo));
+                .WriteTestCase(AllureHelper.ScenarioId(scenarioContext?.ScenarioInfo));
         }
     }
 }

@@ -15,6 +15,8 @@ namespace Allure.SpecFlowPlugin
 {
     class AllureBindingInvoker : BindingInvoker
     {
+        static AllureLifecycle allure = AllureLifecycle.Instance;
+
         public AllureBindingInvoker(RuntimeConfiguration runtimeConfiguration, IErrorProvider errorProvider) : base(runtimeConfiguration, errorProvider)
         {
         }
@@ -25,23 +27,23 @@ namespace Allure.SpecFlowPlugin
             // process hook
             if (hook != null)
             {
-                string containerId = Allure.FeatureContainerId(contextManager.FeatureContext);
+                string containerId = AllureHelper.FeatureContainerId(contextManager.FeatureContext);
                 try
                 {
-                    string fixtureId = Allure.NewId();
+                    string fixtureId = AllureHelper.NewId();
 
                     switch (hook.HookType)
                     {
                         case HookType.BeforeFeature:
                             if (hook.HookOrder != int.MinValue)
-                                AllureLifecycle.Instance.StartBeforeFixture(
+                                allure.StartBeforeFixture(
                                     containerId,
                                     fixtureId,
-                                    Allure.GetFixtureResult(hook)
+                                    AllureHelper.GetFixtureResult(hook)
                                 );
                             else
                             {
-                                AllureLifecycle.Instance.StartTestContainer(new TestResultContainer()
+                                allure.StartTestContainer(new TestResultContainer()
                                 {
                                     uuid = containerId
                                 });
@@ -52,10 +54,10 @@ namespace Allure.SpecFlowPlugin
 
                         case HookType.BeforeScenario:
                             if (hook.HookOrder != int.MinValue && hook.HookOrder != int.MaxValue)
-                                AllureLifecycle.Instance.StartBeforeFixture(
+                                allure.StartBeforeFixture(
                                     containerId,
                                     fixtureId,
-                                    Allure.GetFixtureResult(hook)
+                                    AllureHelper.GetFixtureResult(hook)
                                 );
                             else
                                 return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
@@ -65,24 +67,24 @@ namespace Allure.SpecFlowPlugin
 
                         case HookType.AfterFeature:
                             if (hook.HookOrder != int.MaxValue)
-                                AllureLifecycle.Instance.StartAfterFixture(
+                                allure.StartAfterFixture(
                                     containerId,
                                     fixtureId,
-                                    Allure.GetFixtureResult(hook)
+                                    AllureHelper.GetFixtureResult(hook)
                                 );
                             else
                             {
-                                AllureLifecycle.Instance.WriteTestContainer(containerId);
+                                allure.WriteTestContainer(containerId);
                                 return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
                             }
                             break;
 
                         case HookType.AfterScenario:
                             if (hook.HookOrder != int.MinValue && hook.HookOrder != int.MaxValue)
-                                AllureLifecycle.Instance.StartAfterFixture(
+                                allure.StartAfterFixture(
                                     containerId,
                                     fixtureId,
-                                    Allure.GetFixtureResult(hook)
+                                    AllureHelper.GetFixtureResult(hook)
                                 );
                             else
                                 return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
@@ -90,18 +92,18 @@ namespace Allure.SpecFlowPlugin
                             break;
 
                         case HookType.BeforeStep:
-                            AllureLifecycle.Instance.StartBeforeFixture(
+                            allure.StartBeforeFixture(
                                 containerId,
                                 fixtureId,
-                                Allure.GetFixtureResult(hook)
+                                AllureHelper.GetFixtureResult(hook)
                             );
                             break;
 
                         case HookType.AfterStep:
-                            AllureLifecycle.Instance.StartAfterFixture(
+                            allure.StartAfterFixture(
                                 containerId,
                                 fixtureId,
-                                Allure.GetFixtureResult(hook)
+                                AllureHelper.GetFixtureResult(hook)
                         );
                             break;
 
@@ -114,26 +116,26 @@ namespace Allure.SpecFlowPlugin
                     }
 
                     var result = base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-                    AllureLifecycle.Instance.StopFixture(x => x.status = Status.passed);
+                    allure.StopFixture(x => x.status = Status.passed);
                     return result;
                 }
 
                 catch (Exception ex)
                 {
-                    AllureLifecycle.Instance.StopFixture(x => x.status = Status.broken);
+                    allure.StopFixture(x => x.status = Status.broken);
 
                     // create fake scenario
                     if (hook.HookType == HookType.BeforeScenario || hook.HookType == HookType.BeforeFeature)
                     {
-                        AllureLifecycle.Instance.StartTestCase(
+                        allure.StartTestCase(
                             containerId,
-                            Allure.GetTestResult(
+                            AllureHelper.GetTestResult(
                                 contextManager.FeatureContext?.FeatureInfo,
                                 contextManager.ScenarioContext?.ScenarioInfo));
                     }
 
-                    AllureLifecycle.Instance.UpdateTestCase(
-                        Allure.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo),
+                    allure.UpdateTestCase(
+                        AllureHelper.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo),
                         x =>
                             {
                                 x.status = Status.broken;
@@ -147,7 +149,7 @@ namespace Allure.SpecFlowPlugin
                     if (hook.HookType == HookType.AfterScenario)
                     {
                         AllureLifecycle.Instance
-                            .WriteTestCase(Allure.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo));
+                            .WriteTestCase(AllureHelper.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo));
                     }
 
                     throw;
@@ -160,8 +162,8 @@ namespace Allure.SpecFlowPlugin
                 try
                 {
                     var step = binding as StepDefinitionBinding;
-                    var stepId = Allure.NewId();
-                    AllureLifecycle.Instance.StartStep(stepId,
+                    var stepId = AllureHelper.NewId();
+                    allure.StartStep(stepId,
                         new StepResult()
                         {
                             name = $"{contextManager.StepContext.StepInfo.StepDefinitionType} {contextManager.StepContext.StepInfo.Text}"
@@ -187,12 +189,12 @@ namespace Allure.SpecFlowPlugin
                                 csv.NextRecord();
                             }
                         }
-                        AllureLifecycle.Instance.AddAttachment("table", "text/csv", csvFile);
+                        allure.AddAttachment("table", "text/csv", csvFile);
                     }
 
                     var result = base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
 
-                    AllureLifecycle.Instance.StopStep(x => x.status = Status.passed);
+                    allure.StopStep(x => x.status = Status.passed);
 
                     return result;
                 }
@@ -201,7 +203,7 @@ namespace Allure.SpecFlowPlugin
                     AllureLifecycle.Instance
                         .StopStep(x => x.status = Status.failed)
                         .UpdateTestCase(
-                        Allure.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo),
+                        AllureHelper.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo),
                             x =>
                             {
                                 x.status = Status.failed;

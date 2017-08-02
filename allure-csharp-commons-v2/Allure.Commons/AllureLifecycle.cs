@@ -1,6 +1,7 @@
 ﻿using Allure.Commons.Storage;
 using Allure.Commons.Writer;
 using Castle.DynamicProxy;
+using HeyRed.Mime;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
@@ -19,10 +20,15 @@ namespace Allure.Commons
         {
             get
             {
-                lock (lockobj)
+                if (instance == null)
                 {
-                    return instance = instance ?? CreateInstance();
+                    lock (lockobj)
+                    {
+                        instance = instance ?? CreateInstance();
+                    }
                 }
+
+                return instance;
             }
         }
         protected AllureLifecycle(IConfigurationRoot configuration)
@@ -245,10 +251,13 @@ namespace Allure.Commons
             return this;
         }
 
-        private void WriteAttachment(string source, byte[] content)
+        public virtual AllureLifecycle AddAttachment(string path, string name = null)
         {
-            //writer.Write(attachmentSource, stream);
+            name = name ?? Path.GetFileName(path);
+            var type = MimeTypesMap.GetMimeType(path);
+            return this.AddAttachment(name, type, path);
         }
+
         #endregion
 
         #region Extensions
