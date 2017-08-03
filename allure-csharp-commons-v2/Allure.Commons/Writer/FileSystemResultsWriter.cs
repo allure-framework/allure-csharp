@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 [assembly: InternalsVisibleTo("Allure.Commons.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -61,9 +62,14 @@ namespace Allure.Commons.Writer
             Directory.CreateDirectory(outputDirectory);
 
             if (cleanup)
-                foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
+                using (var mutex = new Mutex(false, "729dc988-0e9c-49d0-9e50-17e0df3cd82b"))
                 {
-                    file.Delete();
+                    mutex.WaitOne();
+                    foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
+                    {
+                        file.Delete();
+                    }
+                    mutex.ReleaseMutex();
                 }
 
             return new DirectoryInfo(outputDirectory).FullName;

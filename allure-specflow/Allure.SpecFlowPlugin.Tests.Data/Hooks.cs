@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Allure.Commons;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,11 +11,12 @@ using TechTalk.SpecFlow;
 
 namespace Allure.SpecFlowPlugin.Tests
 {
-    public enum TestOutcome { passed, failed, broken, hang }
+    public enum TestOutcome { passed, failed, hang }
 
     [Binding]
     public class Hooks
     {
+        static AllureLifecycle allure = AllureLifecycle.Instance;
         FeatureContext featureContext;
         ScenarioContext scenarioContext;
         public Hooks(FeatureContext featureContext, ScenarioContext scenarioContext)
@@ -27,17 +29,14 @@ namespace Allure.SpecFlowPlugin.Tests
         [StepDefinition(@"Step is '(.*)'")]
         public void StepResultIs(TestOutcome outcome)
         {
-            Thread.Sleep(50);
             switch (outcome)
             {
                 case TestOutcome.passed:
                     break;
                 case TestOutcome.failed:
                     throw new AssertionException("This test is failed");
-                case TestOutcome.broken:
-                    throw new Exception("This test has error");
                 case TestOutcome.hang:
-                    Thread.Sleep(3000);
+                    Thread.Sleep(500);
                     break;
                 default:
                     throw new ArgumentException("value is not supported");
@@ -49,7 +48,7 @@ namespace Allure.SpecFlowPlugin.Tests
         {
             var path = Guid.NewGuid().ToString();
             File.WriteAllText(path, "hi there");
-            featureContext.Get<Allure>().Attach(path);
+            allure.AddAttachment(path);
         }
 
         [StepDefinition("Step with table")]
@@ -82,9 +81,9 @@ namespace Allure.SpecFlowPlugin.Tests
 
         [BeforeFeature(tags: "BeforeFeature")]
         [AfterFeature(tags: "AfterFeature")]
-        public static void HandleFeature(FeatureContext featureContext)
+        public static void HandleFeature()
         {
-            Handle(featureContext, featureContext.FeatureInfo.Tags);
+            Handle(null);
         }
 
 
@@ -94,19 +93,18 @@ namespace Allure.SpecFlowPlugin.Tests
         [AfterStep(tags: "AfterStep")]
         public void HandleIt()
         {
-            Handle(featureContext, scenarioContext.ScenarioInfo.Tags);
+            Handle(scenarioContext.ScenarioInfo.Tags);
         }
-        private static void Handle(FeatureContext featurecontext, string[] tags)
+        private static void Handle(string[] tags)
         {
-            if (tags.Contains("attachment"))
+            if (tags != null && tags.Contains("attachment"))
             {
                 var path = $"{Guid.NewGuid().ToString()}.txt";
                 File.WriteAllText(path, "hi there");
-                featurecontext.Get<Allure>()
-                    .Attach(path)
-                    .Attach(path, "text file");
+                allure.AddAttachment(path);
+                allure.AddAttachment(path, "text file");
             }
-            if (tags.Any(x => x.StartsWith("fail")))
+            if (tags != null && tags.Any(x => x.StartsWith("fail")))
                 throw new Exception("Wasted");
         }
 

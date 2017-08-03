@@ -1,6 +1,6 @@
 ﻿Feature: Parameters
 
-@testdata 
+ 
 Scenario: Scenario with parametrized steps
 	
 	Given Step with table

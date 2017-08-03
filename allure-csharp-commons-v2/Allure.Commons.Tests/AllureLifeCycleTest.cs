@@ -11,7 +11,7 @@ namespace Allure.Commons.Tests
     public class AllureLifeCycleTest
     {
         private readonly ITestOutputHelper output;
-        AllureLifecycle cycle = AllureLifecycle.Instance;
+        
 
         public AllureLifeCycleTest(ITestOutputHelper output)
         {
@@ -29,6 +29,7 @@ namespace Allure.Commons.Tests
         {
             Parallel.For(0, 2, i =>
             {
+                AllureLifecycle cycle = AllureLifecycle.Instance;
                 var container = DataGenerator.GetTestResultContainer();
                 var beforeFeature = DataGenerator.GetFixture(Fixture.BeforeFeature);
                 var afterFeature = DataGenerator.GetFixture(Fixture.AfterFeature);
@@ -51,6 +52,7 @@ namespace Allure.Commons.Tests
                     .StopStep(x => x.status = Status.passed)
                     
                     .AddAttachment("text file", "text/xml", txtAttach.path)
+                    .AddAttachment(txtAttach.path)
                     .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)
                     .StopFixture(beforeFeature.uuid)
 

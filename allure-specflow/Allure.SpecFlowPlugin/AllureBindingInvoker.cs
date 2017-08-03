@@ -1,4 +1,5 @@
 ﻿using Allure.Commons;
+using CsvHelper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,97 +15,128 @@ namespace Allure.SpecFlowPlugin
 {
     class AllureBindingInvoker : BindingInvoker
     {
-        public AllureBindingInvoker(SpecFlowConfiguration specFlowConfiguration, IErrorProvider errorProvider) : base(specFlowConfiguration, errorProvider)
+        static AllureLifecycle allure = AllureLifecycle.Instance;
+
+        public AllureBindingInvoker(RuntimeConfiguration runtimeConfiguration, IErrorProvider errorProvider) : base(runtimeConfiguration, errorProvider)
         {
         }
-
         public override object InvokeBinding(IBinding binding, IContextManager contextManager, object[] arguments, ITestTracer testTracer, out TimeSpan duration)
         {
             var hook = binding as HookBinding;
 
-            // Skip Allure hooks
-            if (hook != null && hook.HookOrder != int.MinValue && hook.HookOrder != int.MaxValue)
+            // process hook
+            if (hook != null)
             {
-
-                var Allure = contextManager.FeatureContext?.Get<Allure>();
-
-                // create empty container to handle BeforeTestRun
-                var container = new TestResultContainer();
+                string containerId = AllureHelper.FeatureContainerId(contextManager.FeatureContext);
                 try
                 {
+                    string fixtureId = AllureHelper.NewId();
+
                     switch (hook.HookType)
                     {
                         case HookType.BeforeFeature:
-                        case HookType.AfterFeature:
-                            contextManager.FeatureContext.TryGetValue(out container);
+                            if (hook.HookOrder != int.MinValue)
+                                allure.StartBeforeFixture(
+                                    containerId,
+                                    fixtureId,
+                                    AllureHelper.GetFixtureResult(hook)
+                                );
+                            else
+                            {
+                                allure.StartTestContainer(new TestResultContainer()
+                                {
+                                    uuid = containerId
+                                });
+
+                                return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+                            }
                             break;
 
                         case HookType.BeforeScenario:
+                            if (hook.HookOrder != int.MinValue && hook.HookOrder != int.MaxValue)
+                                allure.StartBeforeFixture(
+                                    containerId,
+                                    fixtureId,
+                                    AllureHelper.GetFixtureResult(hook)
+                                );
+                            else
+                                return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+
+                            break;
+
+
+                        case HookType.AfterFeature:
+                            if (hook.HookOrder != int.MaxValue)
+                                allure.StartAfterFixture(
+                                    containerId,
+                                    fixtureId,
+                                    AllureHelper.GetFixtureResult(hook)
+                                );
+                            else
+                            {
+                                allure.WriteTestContainer(containerId);
+                                return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+                            }
+                            break;
+
                         case HookType.AfterScenario:
-                        case HookType.BeforeScenarioBlock:
-                        case HookType.AfterScenarioBlock:
-                            contextManager.ScenarioContext.TryGetValue(out container);
+                            if (hook.HookOrder != int.MinValue && hook.HookOrder != int.MaxValue)
+                                allure.StartAfterFixture(
+                                    containerId,
+                                    fixtureId,
+                                    AllureHelper.GetFixtureResult(hook)
+                                );
+                            else
+                                return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+
                             break;
 
                         case HookType.BeforeStep:
+                            allure.StartBeforeFixture(
+                                containerId,
+                                fixtureId,
+                                AllureHelper.GetFixtureResult(hook)
+                            );
+                            break;
+
                         case HookType.AfterStep:
-                            contextManager.ScenarioContext.TryGetValue(out container);
-                            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+                            allure.StartAfterFixture(
+                                containerId,
+                                fixtureId,
+                                AllureHelper.GetFixtureResult(hook)
+                        );
+                            break;
 
                         case HookType.BeforeTestRun:
                         case HookType.AfterTestRun:
+                        case HookType.BeforeScenarioBlock:
+                        case HookType.AfterScenarioBlock:
                         default:
                             return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
                     }
 
-
-                    var fixture = new FixtureResult()
-                    {
-                        name = $"{ hook.Method.Name} [order = {hook.HookOrder}]"
-                    };
-
-
-                    if (hook.HookType.ToString().StartsWith("Before"))
-                        Allure.Lifecycle.StartBeforeFixture(
-                                container.uuid,
-                                hook.GetHashCode().ToString(),
-                                fixture);
-                    else
-                        Allure.Lifecycle.StartAfterFixture(
-                                container.uuid,
-                                hook.GetHashCode().ToString(),
-                                fixture);
-
                     var result = base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-
-                    Allure.Lifecycle
-                        .StopFixture(x => x.status = Status.passed);
-
+                    allure.StopFixture(x => x.status = Status.passed);
                     return result;
-
-
                 }
 
-                // Exit point. Stop Fixture.
                 catch (Exception ex)
                 {
-                    if (!(hook.HookType == HookType.BeforeStep ^ hook.HookType == HookType.AfterStep))
-                        Allure.Lifecycle
-                            .StopFixture(x =>
-                            {
-                                x.status = Status.broken;
-                            });
+                    allure.StopFixture(x => x.status = Status.broken);
 
-                    // Create empty scenario if it doesn't exist.
-                    var testCase = Allure.CreateTestResult(contextManager.FeatureContext?.FeatureInfo, hook.HookType.ToString());
-                    Allure.Lifecycle.StartTestCase(container.uuid, testCase);
+                    // create fake scenario
+                    if (hook.HookType == HookType.BeforeScenario || hook.HookType == HookType.BeforeFeature)
+                    {
+                        allure.StartTestCase(
+                            containerId,
+                            AllureHelper.GetTestResult(
+                                contextManager.FeatureContext?.FeatureInfo,
+                                contextManager.ScenarioContext?.ScenarioInfo));
+                    }
 
-                    // Get scenario from ScenarioContext.
-                    contextManager.ScenarioContext?.TryGetValue(out testCase);
-
-                    // Stop and write scenario.
-                    Allure.Lifecycle
-                        .UpdateTestCase(testCase.uuid, x =>
+                    allure.UpdateTestCase(
+                        AllureHelper.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo),
+                        x =>
                             {
                                 x.status = Status.broken;
                                 x.statusDetails = new StatusDetails()
@@ -112,20 +144,80 @@ namespace Allure.SpecFlowPlugin
                                     message = ex.Message,
                                     trace = ex.StackTrace
                                 };
-                            })
-                        .StopTestCase(testCase.uuid)
-                        .WriteTestCase(testCase.uuid);
+                            });
 
-                    // clear step and scenario contexts
-                    contextManager.ScenarioContext?.StepContext?.Remove(typeof(StepResult).FullName);
-                    contextManager.ScenarioContext?.Remove(typeof(TestResult).FullName);
+                    if (hook.HookType == HookType.AfterScenario)
+                    {
+                        AllureLifecycle.Instance
+                            .WriteTestCase(AllureHelper.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo));
+                    }
 
                     throw;
                 }
             }
 
+            // process step
             else
-                return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+            {
+                try
+                {
+                    var step = binding as StepDefinitionBinding;
+                    var stepId = AllureHelper.NewId();
+                    allure.StartStep(stepId,
+                        new StepResult()
+                        {
+                            name = $"{contextManager.StepContext.StepInfo.StepDefinitionType} {contextManager.StepContext.StepInfo.Text}"
+                        });
+
+                    if (contextManager.StepContext.StepInfo.Table != null)
+                    {
+                        var csvFile = $"{Guid.NewGuid().ToString()}.csv";
+                        var a = contextManager.StepContext.StepInfo.Table.Rows.ToList();
+                        using (var csv = new CsvWriter(File.CreateText(csvFile)))
+                        {
+                            foreach (var item in contextManager.StepContext.StepInfo.Table.Header)
+                            {
+                                csv.WriteField(item);
+                            }
+                            csv.NextRecord();
+                            foreach (var row in contextManager.StepContext.StepInfo.Table.Rows)
+                            {
+                                foreach (var item in row.Values)
+                                {
+                                    csv.WriteField(item);
+                                }
+                                csv.NextRecord();
+                            }
+                        }
+                        allure.AddAttachment("table", "text/csv", csvFile);
+                    }
+
+                    var result = base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+
+                    allure.StopStep(x => x.status = Status.passed);
+
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    AllureLifecycle.Instance
+                        .StopStep(x => x.status = Status.failed)
+                        .UpdateTestCase(
+                        AllureHelper.ScenarioId(contextManager.ScenarioContext?.ScenarioInfo),
+                            x =>
+                            {
+                                x.status = Status.failed;
+                                x.statusDetails = new StatusDetails()
+                                {
+                                    message = ex.Message,
+                                    trace = ex.StackTrace
+                                };
+                            });
+
+                    throw;
+                }
+            }
         }
+
     }
 }

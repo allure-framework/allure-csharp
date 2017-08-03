@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TestProfile xmlns="http://www.specflow.org/schemas/plus/TestProfile/1.5">
-  <Settings projectName="Allure.SpecFlowPlugin.Tests"/>
-  <Execution stopAfterFailures="0" testThreadCount="1" testSchedulingMode="Sequential" retryCount="0"/>
+  <Settings projectName="Allure.SpecFlowPlugin.Tests.Data" projectId="{88c54923-b454-4918-886a-3b681aad951c}" />
+  <Execution retryCount="0" stopAfterFailures="0" testThreadCount="4" testSchedulingMode="Sequential" />
   <!-- For collecting by a SpecRun server update and enable the following element. For using the 
       collected statistics, set testSchedulingMode="Adaptive" attribute on the <Execution> element.
     <Server serverUrl="http://specrunserver:6365" publishResults="true" />
   -->
   <TestAssemblyPaths>
-    <TestAssemblyPath>Allure.SpecFlowPlugin.Tests.dll</TestAssemblyPath>
+    <TestAssemblyPath>Allure.SpecFlowPlugin.Tests.Data.dll</TestAssemblyPath>
   </TestAssemblyPaths>
   <DeploymentTransformation>
     <Steps>
