@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>SpecFlow.Allure</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
     <!--<licenseUrl></licenseUrl>-->
     <projectUrl>https://github.com/allure-framework/allure-csharp</projectUrl>
-    <!--<iconUrl></iconUrl>-->
+    <iconUrl>https://raw.githubusercontent.com/allure-framework/allure-csharp/master/img/allure-specflow.net.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes></releaseNotes>
