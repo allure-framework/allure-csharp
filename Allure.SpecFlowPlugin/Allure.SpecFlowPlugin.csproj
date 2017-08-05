@@ -178,6 +178,7 @@
     <None Include="Allure.SpecFlowPlugin.nuspec" />
     <None Include="allureConfig.json" />
     <None Include="App.config" />
+    <None Include="App.config.transform" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

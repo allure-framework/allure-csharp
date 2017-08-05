@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <specFlow>
+    <plugins>
+      <add name="Allure" type="Runtime" />
+    </plugins>
+    <stepAssemblies>
+      <stepAssembly assembly="Allure.SpecFlowPlugin" />
+    </stepAssemblies>
+  </specFlow>
+</configuration>

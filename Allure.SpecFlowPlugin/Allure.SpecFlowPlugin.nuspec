@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SpecFlow.Allure</id>
-    <version>$version$</version>
+    <version>$version$-preview</version>
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
@@ -15,4 +15,7 @@
     <copyright>Copyright 2017</copyright>
     <tags>specflow allure</tags>
   </metadata>
+  <files>
+    <file src="App.config.transform" target="content" />
+  </files>
 </package>
