@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26621.2
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons", "Allure.Commons\Allure.Commons.csproj", "{C84000AF-0B78-4E87-B99B-064E15C601C7}"
 EndProject
@@ -23,34 +23,57 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Compatibility.Tests"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Adapters|Any CPU = Adapters|Any CPU
+		Commons|Any CPU = Commons|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
+		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Commons|Any CPU.Build.0 = Commons|Any CPU
 		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C84000AF-0B78-4E87-B99B-064E15C601C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Commons|Any CPU.Build.0 = Commons|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
+		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Commons|Any CPU.Build.0 = Commons|Any CPU
 		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7990FA7-8FA5-4FF2-98AD-5740CAC9FFC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Adapters|Any CPU.Build.0 = Adapters|Any CPU
+		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
 		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Adapters|Any CPU.Build.0 = Adapters|Any CPU
+		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Adapters|Any CPU.Build.0 = Adapters|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
 		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Adapters|Any CPU.Build.0 = Adapters|Any CPU
+		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
 		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Release|Any CPU.ActiveCfg = Release|Any CPU
