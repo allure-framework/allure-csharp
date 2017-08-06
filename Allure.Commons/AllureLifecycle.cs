@@ -57,7 +57,7 @@ namespace Allure.Commons
         public virtual AllureLifecycle StartTestContainer(TestResultContainer container)
         {
             container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.Put(container);
+            storage.Put(container.uuid, container);
             return this;
         }
 
@@ -140,7 +140,7 @@ namespace Allure.Commons
         {
             testResult.stage = Stage.running;
             testResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.Put(testResult);
+            storage.Put(testResult.uuid, testResult);
             storage.ClearStepContext();
             storage.StartStep(testResult.uuid);
             return this;

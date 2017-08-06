@@ -20,14 +20,9 @@ namespace Allure.Commons.Storage
         {
             return (T)storage[uuid];
         }
-        public T Put<T>(T item)
-        {
-            dynamic obj = item;
-            return (T)storage.AddOrUpdate((string)obj.uuid, item, (key, value) => item);
-        }
         public T Put<T>(string uuid, T item)
         {
-            return (T)storage.AddOrUpdate(uuid, item, (key, value) => item);
+            return (T)storage.GetOrAdd(uuid, item);
         }
         public T Remove<T>(string uuid)
         {
