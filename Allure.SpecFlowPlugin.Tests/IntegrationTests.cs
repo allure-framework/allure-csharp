@@ -38,7 +38,7 @@ namespace Allure.SpecFlowPlugin.Tests
             process.WaitForExit();
 
             // parse allure suites
-            ParseAllureSuites(@"..\..\..\Allure.SpecFlowPlugin.Tests.Data\bin\debug\allure-results");
+            ParseAllureSuites(@"..\..\..\Allure.SpecFlowPlugin.Tests.Data\bin\allure-results");
         }
 
 
