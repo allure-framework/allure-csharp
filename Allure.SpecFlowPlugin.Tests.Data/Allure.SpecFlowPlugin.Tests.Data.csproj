@@ -52,7 +52,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Allure.Commons, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Allure.Commons.0.3.44\lib\netstandard1.5\Allure.Commons.dll</HintPath>
+      <HintPath>..\packages\Allure.Commons.2.0.6\lib\netstandard1.5\Allure.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Core, Version=4.1.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\packages\Castle.Core.4.1.1\lib\net45\Castle.Core.dll</HintPath>
@@ -191,18 +191,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Hooks.cs" />
-    <Compile Include="Test Data\Attachments %28Feature%29.feature.cs">
-      <DependentUpon>Attachments %28Feature%29.feature</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="Test Data\Attachments.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Attachments.feature</DependentUpon>
     </Compile>
-    <Compile Include="Test Data\Feature Hook.feature.cs">
-      <DependentUpon>Feature Hook.feature</DependentUpon>
+    <Compile Include="Test Data\After Feature Failure.feature.cs">
+      <DependentUpon>After Feature Failure.feature</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Test Data\Before Feature Failure.feature.cs">
+      <DependentUpon>Before Feature Failure.feature</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -211,10 +211,10 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Test Data\Parameters.feature.cs">
+    <Compile Include="Test Data\Step arguments.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Parameters.feature</DependentUpon>
+      <DependentUpon>Step arguments.feature</DependentUpon>
     </Compile>
     <Compile Include="Test Data\Scenario Hooks.feature.cs">
       <DependentUpon>Scenario Hooks.feature</DependentUpon>
@@ -226,13 +226,8 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Test Data\Tags1.feature.cs">
-      <DependentUpon>Tags1.feature</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Test Data\Tags2.feature.cs">
-      <DependentUpon>Tags2.feature</DependentUpon>
+    <Compile Include="Test Data\Tags.feature.cs">
+      <DependentUpon>Tags.feature</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -257,25 +252,25 @@
     <None Include="SpecRunTestProfile.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Test Data\Attachments %28Feature%29.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Attachments %28Feature%29.feature.cs</LastGenOutput>
-    </None>
     <None Include="Test Data\Attachments.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Attachments.feature.cs</LastGenOutput>
     </None>
-    <None Include="Test Data\Feature Hook.feature">
+    <None Include="Test Data\After Feature Failure.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Feature Hook.feature.cs</LastGenOutput>
+      <LastGenOutput>After Feature Failure.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Test Data\Before Feature Failure.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Before Feature Failure.feature.cs</LastGenOutput>
     </None>
     <None Include="Test Data\Invalid Steps.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Invalid Steps.feature.cs</LastGenOutput>
     </None>
-    <None Include="Test Data\Parameters.feature">
+    <None Include="Test Data\Step arguments.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Parameters.feature.cs</LastGenOutput>
+      <LastGenOutput>Step arguments.feature.cs</LastGenOutput>
     </None>
     <None Include="Test Data\Scenario Hooks.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -285,13 +280,9 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Scenarios and Steps.feature.cs</LastGenOutput>
     </None>
-    <None Include="Test Data\Tags1.feature">
+    <None Include="Test Data\Tags.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Tags1.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Test Data\Tags2.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Tags2.feature.cs</LastGenOutput>
+      <LastGenOutput>Tags.feature.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>

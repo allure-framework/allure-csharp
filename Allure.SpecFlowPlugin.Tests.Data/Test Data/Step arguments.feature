@@ -1,7 +1,7 @@
-﻿Feature: Parameters
+﻿Feature: Step arguments
 
  
-Scenario: Scenario with parametrized steps
+Scenario: Should parse table argument as csv-attachment
 	
 	Given Step with table
 		| name         | surname | gender | age |

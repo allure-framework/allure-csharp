@@ -63,14 +63,14 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
         
         [TechTalk.SpecRun.ScenarioAttribute("With attachments", new string[] {
                 "attachment",
-                "BeforeScenario",
-                "AfterScenario"}, SourceLine=3)]
+                "beforescenario",
+                "afterscenario"}, SourceLine=3)]
         public virtual void WithAttachments()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("With attachments", new string[] {
                         "attachment",
-                        "BeforeScenario",
-                        "AfterScenario"});
+                        "beforescenario",
+                        "afterscenario"});
 #line 4
 this.ScenarioSetup(scenarioInfo);
 #line 5
@@ -82,15 +82,15 @@ this.ScenarioSetup(scenarioInfo);
         }
         
         [TechTalk.SpecRun.ScenarioAttribute("Failed BeforeScenario with attachment", new string[] {
-                "fail",
+                "failed",
                 "attachment",
-                "BeforeScenario"}, SourceLine=8)]
+                "beforescenario"}, SourceLine=8)]
         public virtual void FailedBeforeScenarioWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed BeforeScenario with attachment", new string[] {
-                        "fail",
+                        "failed",
                         "attachment",
-                        "BeforeScenario"});
+                        "beforescenario"});
 #line 9
 this.ScenarioSetup(scenarioInfo);
 #line 10
@@ -102,15 +102,15 @@ this.ScenarioSetup(scenarioInfo);
         }
         
         [TechTalk.SpecRun.ScenarioAttribute("Failed AfterScenario with attachment", new string[] {
-                "fail",
+                "failed",
                 "attachment",
-                "AfterScenario"}, SourceLine=13)]
+                "afterscenario"}, SourceLine=13)]
         public virtual void FailedAfterScenarioWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed AfterScenario with attachment", new string[] {
-                        "fail",
+                        "failed",
                         "attachment",
-                        "AfterScenario"});
+                        "afterscenario"});
 #line 14
 this.ScenarioSetup(scenarioInfo);
 #line 15
@@ -122,15 +122,15 @@ this.ScenarioSetup(scenarioInfo);
         }
         
         [TechTalk.SpecRun.ScenarioAttribute("Failed BeforeStep with attachment", new string[] {
-                "fail",
+                "failed",
                 "attachment",
-                "BeforeStep"}, SourceLine=18)]
+                "beforestep"}, SourceLine=18)]
         public virtual void FailedBeforeStepWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed BeforeStep with attachment", new string[] {
-                        "fail",
+                        "failed",
                         "attachment",
-                        "BeforeStep"});
+                        "beforestep"});
 #line 19
 this.ScenarioSetup(scenarioInfo);
 #line 20
@@ -142,15 +142,15 @@ this.ScenarioSetup(scenarioInfo);
         }
         
         [TechTalk.SpecRun.ScenarioAttribute("Failed AfterStep with attachment", new string[] {
-                "fail",
+                "failed",
                 "attachment",
-                "AfterStep"}, SourceLine=23)]
+                "afterstep"}, SourceLine=23)]
         public virtual void FailedAfterStepWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed AfterStep with attachment", new string[] {
-                        "fail",
+                        "failed",
                         "attachment",
-                        "AfterStep"});
+                        "afterstep"});
 #line 24
 this.ScenarioSetup(scenarioInfo);
 #line 25

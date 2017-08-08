@@ -17,28 +17,20 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Attachments (Feature)", new string[] {
-            "attachment",
-            "BeforeFeature",
-            "AfterFeature"}, SourceFile="Test Data\\Attachments (Feature).feature", SourceLine=1)]
-    [TechTalk.SpecRun.IgnoreAttribute()]
-    public partial class AttachmentsFeatureFeature
+    [TechTalk.SpecRun.FeatureAttribute("Step arguments", SourceFile="Test Data\\Step arguments.feature", SourceLine=0)]
+    public partial class StepArgumentsFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Attachments (Feature).feature"
+#line 1 "Step arguments.feature"
 #line hidden
         
         [TechTalk.SpecRun.FeatureInitialize()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Attachments (Feature)", null, ProgrammingLanguage.CSharp, new string[] {
-                        "ignore",
-                        "attachment",
-                        "BeforeFeature",
-                        "AfterFeature"});
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Step arguments", null, ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -69,18 +61,40 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
             testRunner.CollectScenarioErrors();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("With attachments", new string[] {
-                "attachment",
-                "BeforeScenario",
-                "AfterScenario"}, SourceLine=4)]
-        public virtual void WithAttachments()
+        [TechTalk.SpecRun.ScenarioAttribute("Should parse table argument as csv-attachment", SourceLine=3)]
+        public virtual void ShouldParseTableArgumentAsCsv_Attachment()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("With attachments", new string[] {
-                        "attachment",
-                        "BeforeScenario",
-                        "AfterScenario"});
-#line 5
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should parse table argument as csv-attachment", ((string[])(null)));
+#line 4
 this.ScenarioSetup(scenarioInfo);
+#line hidden
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                        "name",
+                        "surname",
+                        "gender",
+                        "age"});
+            table1.AddRow(new string[] {
+                        "John",
+                        "Smith",
+                        "male",
+                        "30"});
+            table1.AddRow(new string[] {
+                        "\"Mary\",\"Ann\"",
+                        "Jane;",
+                        "female",
+                        "25"});
+            table1.AddRow(new string[] {
+                        "",
+                        "",
+                        "",
+                        ""});
+            table1.AddRow(new string[] {
+                        "Eric",
+                        "Cartman",
+                        ",",
+                        ",,"});
+#line 6
+ testRunner.Given("Step with table", ((string)(null)), table1, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

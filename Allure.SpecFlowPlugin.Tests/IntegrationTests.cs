@@ -50,6 +50,24 @@ namespace Allure.SpecFlowPlugin.Tests
             Assert.AreEqual(count, allureTestResults.Where(x => x.status == status).Count());
         }
 
+        [Test]
+        public void ShouldNotDuplicateBeforeFixtures()
+        {
+            foreach (var befores in allureContainers.Select(x => x.befores.Select(y => y.name)))
+            {
+                Assert.That(befores, Is.All.Unique);
+            }
+        }
+
+        [Test]
+        public void ShouldNotDuplicateAfterFixtures()
+        {
+            foreach (var afters in allureContainers.Select(x => x.afters.Select(y => y.name)))
+            {
+                Assert.That(afters, Is.All.Unique);
+            }
+        }
+
         private void ParseAllureSuites(string allureResultsDir)
         {
             var allureTestResultFiles = new DirectoryInfo(allureResultsDir).GetFiles("*-result.json");

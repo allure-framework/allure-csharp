@@ -11,16 +11,34 @@ namespace Allure.SpecFlowPlugin
     static class AllureHelper
     {
         private static ScenarioInfo emptyScenarioInfo = new ScenarioInfo(string.Empty);
-        private static FeatureInfo emptyFeatureInfo = new FeatureInfo(CultureInfo.CurrentCulture, string.Empty, string.Empty, new string[0]);
 
-        internal static string FeatureContainerId(FeatureContext context) => context?.FeatureInfo.GetHashCode().ToString();
-        internal static string ScenarioId(ScenarioInfo scenarioInfo) => (scenarioInfo == null) ?
-            emptyScenarioInfo.GetHashCode().ToString() : scenarioInfo.GetHashCode().ToString();
+        private static FeatureInfo emptyFeatureInfo = new FeatureInfo(
+            CultureInfo.CurrentCulture, string.Empty, string.Empty, new string[0]);
+
+        internal static string GetFeatureContainerId(FeatureInfo featureInfo)
+        {
+            var id = (featureInfo != null) ?
+                featureInfo.GetHashCode().ToString() :
+                emptyFeatureInfo.GetHashCode().ToString();
+
+            return $"{id}_feature";
+        }
+
+        internal static string GetScenarioId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) =>
+            (scenarioInfo != null) ?
+                scenarioInfo.GetHashCode().ToString() :
+                GetFeatureContainerId(featureInfo);
+
+        internal static string GetScenarioContainerId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) =>
+            $"{GetScenarioId(featureInfo, scenarioInfo)}_";
+
         internal static string NewId() => Guid.NewGuid().ToString();
+
         internal static FixtureResult GetFixtureResult(HookBinding hook) => new FixtureResult()
         {
-            name = $"{ hook.Method.Name} [order = {hook.HookOrder}]"
+            name = $"{ hook.Method.Name} [{hook.HookOrder}]"
         };
+
         internal static TestResult GetTestResult(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
         {
             featureInfo = featureInfo ?? emptyFeatureInfo;
@@ -28,7 +46,7 @@ namespace Allure.SpecFlowPlugin
 
             var testResult = new TestResult()
             {
-                uuid = ScenarioId(scenarioInfo),
+                uuid = GetScenarioId(featureInfo, scenarioInfo),
                 historyId = scenarioInfo.Title,
                 name = scenarioInfo.Title,
                 fullName = scenarioInfo.Title,

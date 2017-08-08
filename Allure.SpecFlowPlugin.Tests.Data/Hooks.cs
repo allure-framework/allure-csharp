@@ -61,6 +61,7 @@ namespace Allure.SpecFlowPlugin.Tests
         {
         }
 
+
         [BeforeTestRun]
         public static void SetTestFolderForNUnit()
         {
@@ -68,29 +69,32 @@ namespace Allure.SpecFlowPlugin.Tests
             Environment.CurrentDirectory = dir;
         }
 
-
-        [BeforeScenario(Order = 1)]
-        public void AllwaysPassingBeforeScenario()
+        [BeforeFeature("beforefeaturepassed", Order = 1)]
+        public static void PassedBeforeFeature()
         {
         }
 
-        [AfterScenario(Order = 1)]
-        public void AllwaysPassingAfterScenario()
+        [AfterFeature("afterfeaturepassed", Order = 1)]
+        public static void PassedAfterFeature()
         {
         }
 
-        [BeforeFeature(tags: "BeforeFeature")]
-        [AfterFeature(tags: "AfterFeature")]
-        public static void HandleFeature()
+        [BeforeFeature("beforefeaturefailed")]
+        public static void FailedBeforeFeature()
         {
-            Handle(null);
+            throw new Exception("Failed Before Feature");
         }
 
+        [AfterFeature("afterfeaturefailed")]
+        public static void FailedAfterFeature()
+        {
+            throw new Exception("Failed After Feature");
+        }
 
-        [BeforeScenario(tags: "BeforeScenario")]
-        [AfterScenario(tags: "AfterScenario")]
-        [BeforeStep(tags: "BeforeStep")]
-        [AfterStep(tags: "AfterStep")]
+        [BeforeScenario(tags: "beforescenario")]
+        [AfterScenario(tags: "afterscenario")]
+        [BeforeStep(tags: "beforestep")]
+        [AfterStep(tags: "afterstep")]
         public void HandleIt()
         {
             Handle(scenarioContext.ScenarioInfo.Tags);
@@ -104,7 +108,7 @@ namespace Allure.SpecFlowPlugin.Tests
                 allure.AddAttachment(path);
                 allure.AddAttachment(path, "text file");
             }
-            if (tags != null && tags.Any(x => x.StartsWith("fail")))
+            if (tags != null && tags.Any(x => x.EndsWith("failed")))
                 throw new Exception("Wasted");
         }
 

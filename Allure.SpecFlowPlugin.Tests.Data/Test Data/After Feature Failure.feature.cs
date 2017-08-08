@@ -17,28 +17,22 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Feature Hooks", new string[] {
-            "fail",
-            "BeforeFeature",
-            "AfterFeature"}, SourceFile="Test Data\\Feature Hook.feature", SourceLine=1)]
-    [TechTalk.SpecRun.IgnoreAttribute()]
-    public partial class FeatureHooksFeature
+    [TechTalk.SpecRun.FeatureAttribute("After Feature Failure", new string[] {
+            "afterfeaturefailed"}, SourceFile="Test Data\\After Feature Failure.feature", SourceLine=1)]
+    public partial class AfterFeatureFailureFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Feature Hook.feature"
+#line 1 "After Feature Failure.feature"
 #line hidden
         
         [TechTalk.SpecRun.FeatureInitialize()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Feature Hooks", null, ProgrammingLanguage.CSharp, new string[] {
-                        "ignore",
-                        "fail",
-                        "BeforeFeature",
-                        "AfterFeature"});
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "After Feature Failure", null, ProgrammingLanguage.CSharp, new string[] {
+                        "afterfeaturefailed"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -69,21 +63,21 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
             testRunner.CollectScenarioErrors();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Failed BeforeFeature", SourceLine=4)]
-        public virtual void FailedBeforeFeature()
+        [TechTalk.SpecRun.ScenarioAttribute("1", SourceLine=3)]
+        public virtual void _1()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed BeforeFeature", ((string[])(null)));
-#line 5
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("1", ((string[])(null)));
+#line 4
 this.ScenarioSetup(scenarioInfo);
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Failed AfterFeature", SourceLine=6)]
-        public virtual void FailedAfterFeature()
+        [TechTalk.SpecRun.ScenarioAttribute("2", SourceLine=5)]
+        public virtual void _2()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed AfterFeature", ((string[])(null)));
-#line 7
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("2", ((string[])(null)));
+#line 6
 this.ScenarioSetup(scenarioInfo);
 #line hidden
             this.ScenarioCleanup();

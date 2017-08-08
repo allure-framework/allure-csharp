@@ -16,6 +16,11 @@ namespace Allure.SpecFlowPlugin
         private FeatureContext featureContext;
         private ScenarioContext scenarioContext;
 
+        string featureContainerId => AllureHelper.GetFeatureContainerId(featureContext?.FeatureInfo);
+        string scenarioContainerId => featureContext.Get<TestResultContainer>()?.uuid;
+        string scenarioId => featureContext.Get<TestResult>()?.uuid;
+
+
         public AllureBindings(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
@@ -34,35 +39,31 @@ namespace Allure.SpecFlowPlugin
             // write feature container in BindingInvoker
         }
 
-        [BeforeScenario(Order = int.MaxValue)]
-        public void LastBeforeScenario()
+        [BeforeScenario(Order = int.MinValue)]
+        public void FirstBeforeScenario()
         {
-            // start scenario
-            allure.StartTestCase(
-                AllureHelper.FeatureContainerId(featureContext),
-                AllureHelper.GetTestResult(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo)
-            );
+            var scenarioContainer = new TestResultContainer()
+            {
+                uuid = AllureHelper.GetScenarioContainerId(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo)
+            };
+            allure.StartTestContainer(featureContainerId, scenarioContainer);
+            featureContext.Set(scenarioContainer);
+            featureContext.Get<HashSet<TestResultContainer>>().Add(scenarioContainer);
+
+            var scenario = AllureHelper.GetTestResult(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo);
+            allure.StartTestCase(scenarioContainerId, scenario);
+            featureContext.Set(scenario);
+            featureContext.Get<HashSet<TestResult>>().Add(scenario);
         }
 
         [AfterScenario(Order = int.MinValue)]
         public void FirstAfterScenario()
         {
-            // update status if empty and stop scenario
-            AllureLifecycle.Instance
-                .UpdateTestCase(AllureHelper.ScenarioId(scenarioContext?.ScenarioInfo),
-                    x=>
-                    {
-                        x.status = (x.status == Status.none) ? Status.passed : x.status;
-                    })
-                .StopTestCase(AllureHelper.ScenarioId(scenarioContext?.ScenarioInfo));
-        }
-
-        [AfterScenario(Order = int.MaxValue)]
-        public void LastAfterScenario()
-        {
-            // write scenario
-            AllureLifecycle.Instance
-                .WriteTestCase(AllureHelper.ScenarioId(scenarioContext?.ScenarioInfo));
+            // update status to passed if there were no step of binding failures
+            allure
+                .UpdateTestCase(scenarioId,
+                    x => x.status = (x.status != Status.none) ? x.status : Status.passed)
+                .StopTestCase(scenarioId);
         }
     }
 }

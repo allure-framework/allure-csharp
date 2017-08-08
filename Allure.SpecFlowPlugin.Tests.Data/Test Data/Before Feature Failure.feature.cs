@@ -17,20 +17,22 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Parameters", SourceFile="Test Data\\Parameters.feature", SourceLine=0)]
-    public partial class ParametersFeature
+    [TechTalk.SpecRun.FeatureAttribute("Before Feature Failure", new string[] {
+            "beforefeaturefailed"}, SourceFile="Test Data\\Before Feature Failure.feature", SourceLine=1)]
+    public partial class BeforeFeatureFailureFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Parameters.feature"
+#line 1 "Before Feature Failure.feature"
 #line hidden
         
         [TechTalk.SpecRun.FeatureInitialize()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Parameters", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Before Feature Failure", null, ProgrammingLanguage.CSharp, new string[] {
+                        "beforefeaturefailed"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -61,40 +63,12 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
             testRunner.CollectScenarioErrors();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Scenario with parametrized steps", SourceLine=3)]
-        public virtual void ScenarioWithParametrizedSteps()
+        [TechTalk.SpecRun.ScenarioAttribute("1", SourceLine=3)]
+        public virtual void _1()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Scenario with parametrized steps", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("1", ((string[])(null)));
 #line 4
 this.ScenarioSetup(scenarioInfo);
-#line hidden
-            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
-                        "name",
-                        "surname",
-                        "gender",
-                        "age"});
-            table1.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "male",
-                        "30"});
-            table1.AddRow(new string[] {
-                        "\"Mary\",\"Ann\"",
-                        "Jane;",
-                        "female",
-                        "25"});
-            table1.AddRow(new string[] {
-                        "",
-                        "",
-                        "",
-                        ""});
-            table1.AddRow(new string[] {
-                        "Eric",
-                        "Cartman",
-                        ",",
-                        ",,"});
-#line 6
- testRunner.Given("Step with table", ((string)(null)), table1, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

@@ -1,14 +1,13 @@
 ﻿@foo
-Feature: Tags1
+Feature: Tags
 
  @bar
 Scenario: Foo and Bar
 	Given Step is 'passed'
-
  
 Scenario: Foo 1
 	Given Step is 'passed'
 
- @foo
+@foo
 Scenario: Foo 2
 	Given Step is 'passed'
