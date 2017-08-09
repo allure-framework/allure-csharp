@@ -3,4 +3,4 @@
 
 ## [Allure.Commons](https://github.com/allure-framework/allure-csharp/wiki/Allure.Commons)  [![](http://img.shields.io/nuget/v/Allure.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Commons)
 
-## [SpecFlow Adapter](https://github.com/allure-framework/allure-csharp/wiki/SpecFlow-Adapter)  [![](http://img.shields.io/nuget/v/SpecFlow.Allure.svg?style=flat)](https://www.nuget.org/packages/SpecFlow.Allure)
+## [SpecFlow Adapter](https://github.com/allure-framework/allure-csharp/wiki/SpecFlow-Adapter)  [![](http://img.shields.io/nuget/vpre/SpecFlow.Allure.svg?style=flat)](https://www.nuget.org/packages/SpecFlow.Allure) [![NuGet](https://img.shields.io/nuget/dt/SpecFlow.Allure.svg)]()
