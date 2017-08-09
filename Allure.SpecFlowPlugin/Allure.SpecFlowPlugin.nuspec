@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SpecFlow.Allure</id>
-    <version>$version$-preview</version>
+    <version>$version$-preview2</version>
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
