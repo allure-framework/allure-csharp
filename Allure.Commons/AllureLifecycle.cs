@@ -16,7 +16,8 @@ namespace Allure.Commons
         private static AllureLifecycle instance;
 
         public IConfiguration Configuration { get; private set; }
-        public static AllureLifecycle Instance //=> instance = instance ?? CreateInstance();
+        public string ResultsDirectory => writer.ToString();
+        public static AllureLifecycle Instance
         {
             get
             {
@@ -261,13 +262,18 @@ namespace Allure.Commons
         #endregion
 
         #region Extensions
-        public virtual AllureLifecycle AddScreenDiff(string expectedPng, string actualPng, string diffPng)
+        public virtual void CleanupResultDirectory()
+        {
+            writer.CleanUp();
+        }
+
+        public virtual AllureLifecycle AddScreenDiff(string testCaseUuid, string expectedPng, string actualPng, string diffPng)
         {
             this
-                .AddAttachment("expected", "image/png", "expected.png")
-                .AddAttachment("actual", "image/png", "actual.png")
-                .AddAttachment("diff", "image/png", "diff.png")
-                .UpdateTestCase(x => x.labels.Add(Label.TestType("screenshotDiff")));
+                .AddAttachment(expectedPng, "expected")
+                .AddAttachment(actualPng, "actual")
+                .AddAttachment(diffPng, "diff")
+                .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
 
             return this;
         }
@@ -284,14 +290,12 @@ namespace Allure.Commons
             storage.ClearStepContext();
             storage.StartStep(uuid);
         }
-        private IAllureResultsWriter GetDefaultResultsWriter(IConfigurationRoot configuration)
+        internal virtual IAllureResultsWriter GetDefaultResultsWriter(IConfigurationRoot configuration)
         {
             var resultsFolder = configuration["allure:directory"]
                 ?? AllureConstants.DEFAULT_RESULTS_FOLDER;
 
-            bool.TryParse(configuration["allure:cleanup"], out bool cleanup);
-
-            return new FileSystemResultsWriter(resultsFolder, cleanup);
+            return new FileSystemResultsWriter(resultsFolder);
         }
 
         #endregion

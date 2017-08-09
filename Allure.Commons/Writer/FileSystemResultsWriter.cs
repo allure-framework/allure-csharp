@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,19 +14,21 @@ namespace Allure.Commons.Writer
 {
     class FileSystemResultsWriter : IAllureResultsWriter
     {
+        //private Logger logger = LogManager.GetCurrentClassLogger();
+
         private string outputDirectory;
         private JsonSerializer serializer = new JsonSerializer();
 
-        public string ResultsDirectory => outputDirectory;
-
-        internal FileSystemResultsWriter(string outputDirectory, bool cleanup)
+        internal FileSystemResultsWriter(string outputDirectory)
         {
-            this.outputDirectory = GetResultsDirectory(outputDirectory, cleanup);
+            this.outputDirectory = GetResultsDirectory(outputDirectory);
 
             serializer.NullValueHandling = NullValueHandling.Ignore;
             serializer.Formatting = Formatting.Indented;
             serializer.Converters.Add(new StringEnumConverter());
         }
+
+        public override string ToString() => outputDirectory;
 
         public void Write(TestResult testResult)
         {
@@ -40,39 +43,28 @@ namespace Allure.Commons.Writer
             var filePath = Path.Combine(outputDirectory, source);
             File.WriteAllBytes(filePath, content);
         }
+        public void CleanUp()
+        {
+            using (var mutex = new Mutex(false, "729dc988-0e9c-49d0-9e50-17e0df3cd82b"))
+            {
+                mutex.WaitOne();
+                var directory = new DirectoryInfo(outputDirectory);
+                foreach (var file in directory.GetFiles())
+                {
+                    file.Delete();
+                }
+                mutex.ReleaseMutex();
+            }
+        }
 
         protected string Write(object allureObject, string fileSuffix)
         {
-            dynamic obj = allureObject;
-            var filePath = Path.Combine(outputDirectory, $"{obj.uuid}{fileSuffix}");
+            var filePath = Path.Combine(outputDirectory, $"{Guid.NewGuid().ToString("N")}{fileSuffix}");
             using (StreamWriter fileStream = File.CreateText(filePath))
             {
                 serializer.Serialize(fileStream, allureObject);
             }
             return filePath;
-        }
-
-        private string GetResultsDirectory(string outputDirectory, bool cleanup)
-        {
-            var parentDir = new DirectoryInfo(outputDirectory).Parent.FullName;
-            outputDirectory = HasDirectoryAccess(parentDir) ? outputDirectory :
-                Path.Combine(
-                        Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
-
-            Directory.CreateDirectory(outputDirectory);
-
-            if (cleanup)
-                using (var mutex = new Mutex(false, "729dc988-0e9c-49d0-9e50-17e0df3cd82b"))
-                {
-                    mutex.WaitOne();
-                    foreach (var file in new DirectoryInfo(outputDirectory).GetFiles())
-                    {
-                        file.Delete();
-                    }
-                    mutex.ReleaseMutex();
-                }
-
-            return new DirectoryInfo(outputDirectory).FullName;
         }
 
         internal virtual bool HasDirectoryAccess(string directory)
@@ -89,5 +81,19 @@ namespace Allure.Commons.Writer
                 return false;
             }
         }
+
+        private string GetResultsDirectory(string outputDirectory)
+        {
+            var parentDir = new DirectoryInfo(outputDirectory).Parent.FullName;
+            outputDirectory = HasDirectoryAccess(parentDir) ? outputDirectory :
+                Path.Combine(
+                        Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
+
+            Directory.CreateDirectory(outputDirectory);
+
+            return new DirectoryInfo(outputDirectory).FullName;
+        }
+
+
     }
 }

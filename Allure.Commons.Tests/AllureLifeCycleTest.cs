@@ -18,6 +18,12 @@ namespace Allure.Commons.Tests
             this.output = output;
         }
 
+        [Fact(DisplayName = "ResultsDirectory propertt shouldn't be empty")]
+        public void CheckResultsDirectory()
+        {
+            Assert.NotNull(AllureLifecycle.Instance.ResultsDirectory);
+        }
+
         [Fact(DisplayName = "ExecutableItem.status default value should be 'none'")]
         public void ShouldSetDefaultStateAsNone()
         {
@@ -72,7 +78,7 @@ namespace Allure.Commons.Tests
                     .StartStep(step3.uuid, step3.step)
                     .StopStep(x => x.status = Status.skipped)
 
-                    .AddScreenDiff("expected.png", "actual.png", "diff.png")
+                    .AddScreenDiff(test.uuid, "expected.png", "actual.png", "diff.png")
 
                     .StopTestCase(x =>
                     {

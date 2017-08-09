@@ -12,22 +12,23 @@ namespace Allure.Commons
 
         internal LoggingInterceptor()
         {
-            logger.Info("New Allure Lifecycle");
+            logger.Info("Starting new Allure Lifecycle...");
         }
         public void Intercept(IInvocation invocation)
         {
             var message = new StringBuilder();
-            message
-                .Append($"[{invocation.InvocationTarget.GetHashCode()}] ")
-                .Append(invocation.Method.Name)
-                .Append(" (")
-                .Append(string.Join(", ", invocation.Arguments))
-                .Append(")");
-
-            logger.Info(message.ToString());
+            message.Append(invocation.Method.Name);
+            if (logger.IsDebugEnabled)
+                message
+                    .Append(" (")
+                    .Append(string.Join(", ", invocation.Arguments))
+                    .Append(")");
+            logger.Info(message);
             try
             {
                 invocation.Proceed();
+                if (!invocation.ReturnValue.ToString().EndsWith("Proxy"))
+                    logger.Debug(invocation.ReturnValue);
             }
             catch (Exception ex)
             {
