@@ -1,4 +1,5 @@
-﻿Feature: Attachments
+﻿@data
+Feature: Attachments
 
 @attachment @beforescenario @afterscenario
 Scenario: With attachments

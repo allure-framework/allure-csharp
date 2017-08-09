@@ -10,29 +10,31 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Allure.SpecFlowPlugin.Tests.Data.TestData
+namespace Tests.SpecRun.TestData
 {
     using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("After Feature Failure", new string[] {
-            "afterfeaturefailed"}, SourceFile="Test Data\\After Feature Failure.feature", SourceLine=1)]
-    public partial class AfterFeatureFailureFeature
+    [TechTalk.SpecRun.FeatureAttribute("Invalid Steps", new string[] {
+            "data"}, SourceFile="TestData\\Invalid Steps.feature", SourceLine=1)]
+    [TechTalk.SpecRun.IgnoreAttribute()]
+    public partial class InvalidStepsFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "After Feature Failure.feature"
+#line 1 "Invalid Steps.feature"
 #line hidden
         
         [TechTalk.SpecRun.FeatureInitialize()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "After Feature Failure", null, ProgrammingLanguage.CSharp, new string[] {
-                        "afterfeaturefailed"});
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Invalid Steps", null, ProgrammingLanguage.CSharp, new string[] {
+                        "data",
+                        "ignore"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -63,22 +65,32 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
             testRunner.CollectScenarioErrors();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("1", SourceLine=3)]
-        public virtual void _1()
+        [TechTalk.SpecRun.ScenarioAttribute("All steps are invalid", SourceLine=4)]
+        public virtual void AllStepsAreInvalid()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("1", ((string[])(null)));
-#line 4
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All steps are invalid", ((string[])(null)));
+#line 5
 this.ScenarioSetup(scenarioInfo);
+#line 6
+ testRunner.Given("I have entered 50 into the calculator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("2", SourceLine=5)]
-        public virtual void _2()
+        [TechTalk.SpecRun.ScenarioAttribute("Some steps are invalid", SourceLine=8)]
+        public virtual void SomeStepsAreInvalid()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("2", ((string[])(null)));
-#line 6
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Some steps are invalid", ((string[])(null)));
+#line 9
 this.ScenarioSetup(scenarioInfo);
+#line 10
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 11
+ testRunner.Given("I don\'t have such step", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 12
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 13
+ testRunner.And("I don\'t have such step too", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             this.ScenarioCleanup();
         }

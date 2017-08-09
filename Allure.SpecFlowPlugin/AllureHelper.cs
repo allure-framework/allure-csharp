@@ -21,18 +21,18 @@ namespace Allure.SpecFlowPlugin
                 featureInfo.GetHashCode().ToString() :
                 emptyFeatureInfo.GetHashCode().ToString();
 
-            return $"{id}_feature";
+            return $"__{id}";
         }
 
-        internal static string GetScenarioId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) =>
-            (scenarioInfo != null) ?
-                scenarioInfo.GetHashCode().ToString() :
-                GetFeatureContainerId(featureInfo);
+        internal static string GetScenarioId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) => NewId();
+            //(scenarioInfo != null) ?
+            //    scenarioInfo.GetHashCode().ToString() :
+            //    GetFeatureContainerId(featureInfo);
 
-        internal static string GetScenarioContainerId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) =>
-            $"{GetScenarioId(featureInfo, scenarioInfo)}_";
+        internal static string GetScenarioContainerId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) => $"_{NewId()}";
+            //$"{GetScenarioId(featureInfo, scenarioInfo)}_";
 
-        internal static string NewId() => Guid.NewGuid().ToString();
+        internal static string NewId() => Guid.NewGuid().ToString("N");
 
         internal static FixtureResult GetFixtureResult(HookBinding hook) => new FixtureResult()
         {

@@ -31,41 +31,53 @@ namespace Allure.SpecFlowPlugin.Tests
             var dir = Path.GetDirectoryName(typeof(IntegrationFixture).Assembly.Location);
             Environment.CurrentDirectory = dir;
 
-            //ParseSpecFlowFeatures();
+            var configuration = new DirectoryInfo(dir).Name;
+            var scenariosProject = "Tests.SpecRun";
+
+            var allureDirectory = $@"..\..\..\{scenariosProject}\bin\TestResults\allure-results";
+            if (Directory.Exists(allureDirectory))
+                Directory.Delete(allureDirectory, true);
 
             // run SpecFlow scenarios using SpecRun runner
-            var process = Process.Start(@"..\..\..\Allure.SpecFlowPlugin.Tests.Data\runtests.cmd");
+            var process = Process.Start($@"..\..\..\{scenariosProject}\bin\{configuration}\runtests.cmd");
             process.WaitForExit();
 
             // parse allure suites
-            ParseAllureSuites(@"..\..\..\Allure.SpecFlowPlugin.Tests.Data\bin\allure-results");
+            ParseAllureSuites(allureDirectory);
         }
 
 
-        [TestCase(Status.passed, 10)]
-        [TestCase(Status.failed, 1)]
-        [TestCase(Status.broken, 8)]
+        [TestCase(Status.passed, 8)]
+        [TestCase(Status.failed, 2)]
+        [TestCase(Status.broken, 18)]
         public void TestStatus(Status status, int count)
         {
-            Assert.AreEqual(count, allureTestResults.Where(x => x.status == status).Count());
+            var scenariosByStatus = allureTestResults.Where(x => x.status == status);
+            Assert.That(scenariosByStatus, Has.Exactly(count).Items);
         }
 
         [Test]
         public void ShouldNotDuplicateBeforeFixtures()
         {
-            foreach (var befores in allureContainers.Select(x => x.befores.Select(y => y.name)))
-            {
-                Assert.That(befores, Is.All.Unique);
-            }
+            var befores = allureContainers.Select(x => x.befores.Select(y => y.name));
+            Assert.That(befores, Is.All.Unique);
         }
 
         [Test]
         public void ShouldNotDuplicateAfterFixtures()
         {
-            foreach (var afters in allureContainers.Select(x => x.afters.Select(y => y.name)))
-            {
-                Assert.That(afters, Is.All.Unique);
-            }
+            var afters = allureContainers.Select(x => x.afters.Select(y => y.name));
+            Assert.That(afters, Is.All.Unique);
+        }
+
+        [Test]
+        public void AllScenariosWithFailureTagShouldBeBroken()
+        {
+            var withFailureTags = allureTestResults
+                .Where(x => x.labels
+                .Any(l => l.name == Label.Tag("").name && l.value.EndsWith("failed") && l.value != "afterfeaturefailed"))
+                .Select(x => x.status);
+            Assert.That(withFailureTags, Is.All.EqualTo(Status.broken));
         }
 
         private void ParseAllureSuites(string allureResultsDir)

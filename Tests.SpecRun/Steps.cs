@@ -1,5 +1,4 @@
 ﻿using Allure.Commons;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,17 +8,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
-namespace Allure.SpecFlowPlugin.Tests
+namespace Tests.SpecRun
 {
     public enum TestOutcome { passed, failed, hang }
 
     [Binding]
-    public class Hooks
+    public class Steps
     {
         static AllureLifecycle allure = AllureLifecycle.Instance;
         FeatureContext featureContext;
         ScenarioContext scenarioContext;
-        public Hooks(FeatureContext featureContext, ScenarioContext scenarioContext)
+        public Steps(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
@@ -34,10 +33,7 @@ namespace Allure.SpecFlowPlugin.Tests
                 case TestOutcome.passed:
                     break;
                 case TestOutcome.failed:
-                    throw new AssertionException("This test is failed");
-                case TestOutcome.hang:
-                    Thread.Sleep(500);
-                    break;
+                    throw new Exception("This test is failed");
                 default:
                     throw new ArgumentException("value is not supported");
             }
@@ -59,14 +55,6 @@ namespace Allure.SpecFlowPlugin.Tests
         [StepDefinition("Step with params: (.*), (.*), (.*)")]
         public void StepWithArgs(int number, string text, DateTime date)
         {
-        }
-
-
-        [BeforeTestRun]
-        public static void SetTestFolderForNUnit()
-        {
-            var dir = Path.GetDirectoryName(typeof(Hooks).Assembly.Location);
-            Environment.CurrentDirectory = dir;
         }
 
         [BeforeFeature("beforefeaturepassed", Order = 1)]
@@ -99,6 +87,7 @@ namespace Allure.SpecFlowPlugin.Tests
         {
             Handle(scenarioContext.ScenarioInfo.Tags);
         }
+
         private static void Handle(string[] tags)
         {
             if (tags != null && tags.Contains("attachment"))

@@ -1,12 +1,10 @@
-﻿Feature: Scenarios and Steps
+﻿@data
+Feature: Scenarios and Steps
 
- 
 Scenario: Empty scenario
-
  
 Scenario: Passed scenario
 	Given Step is 'passed'
-
  
 Scenario: Failed scenario
 	Given Step is 'passed'

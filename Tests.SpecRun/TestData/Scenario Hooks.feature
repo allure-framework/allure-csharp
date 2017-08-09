@@ -1,4 +1,5 @@
-﻿Feature: Scenario and Step Bindings
+﻿@data
+Feature: Scenario and Step Bindings
 
 @beforescenario @beforestep @failed
 Scenario: Should handle BeforeScenario and BeforeStep failure

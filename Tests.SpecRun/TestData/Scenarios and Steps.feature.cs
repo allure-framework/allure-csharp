@@ -10,14 +10,15 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Allure.SpecFlowPlugin.Tests.Data.TestData
+namespace Tests.SpecRun.TestData
 {
     using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Scenarios and Steps", SourceFile="Test Data\\Scenarios and Steps.feature", SourceLine=0)]
+    [TechTalk.SpecRun.FeatureAttribute("Scenarios and Steps", new string[] {
+            "data"}, SourceFile="TestData\\Scenarios and Steps.feature", SourceLine=1)]
     public partial class ScenariosAndStepsFeature
     {
         
@@ -30,7 +31,8 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Scenarios and Steps", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Scenarios and Steps", null, ProgrammingLanguage.CSharp, new string[] {
+                        "data"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -71,29 +73,29 @@ this.ScenarioSetup(scenarioInfo);
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Passed scenario", SourceLine=6)]
+        [TechTalk.SpecRun.ScenarioAttribute("Passed scenario", SourceLine=5)]
         public virtual void PassedScenario()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Passed scenario", ((string[])(null)));
-#line 7
+#line 6
 this.ScenarioSetup(scenarioInfo);
-#line 8
+#line 7
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Failed scenario", SourceLine=10)]
+        [TechTalk.SpecRun.ScenarioAttribute("Failed scenario", SourceLine=8)]
         public virtual void FailedScenario()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed scenario", ((string[])(null)));
-#line 11
+#line 9
 this.ScenarioSetup(scenarioInfo);
-#line 12
+#line 10
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 13
+#line 11
  testRunner.Given("Step is \'failed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 14
+#line 12
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();

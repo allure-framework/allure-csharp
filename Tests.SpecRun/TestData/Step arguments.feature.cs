@@ -10,14 +10,15 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Allure.SpecFlowPlugin.Tests.Data.TestData
+namespace Tests.SpecRun.TestData
 {
     using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Step arguments", SourceFile="Test Data\\Step arguments.feature", SourceLine=0)]
+    [TechTalk.SpecRun.FeatureAttribute("Step arguments", new string[] {
+            "data"}, SourceFile="TestData\\Step arguments.feature", SourceLine=1)]
     public partial class StepArgumentsFeature
     {
         
@@ -30,7 +31,8 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Step arguments", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Step arguments", null, ProgrammingLanguage.CSharp, new string[] {
+                        "data"});
             testRunner.OnFeatureStart(featureInfo);
         }
         

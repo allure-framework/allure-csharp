@@ -1,4 +1,4 @@
-﻿@ignore
+﻿@data @ignore
 Feature: Invalid Steps
 
 

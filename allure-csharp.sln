@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecFlowPlugin.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Compatibility.Tests", "Allure.Compatibility.Tests\Allure.Compatibility.Tests.csproj", "{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.SpecRun", "Tests.SpecRun\Tests.SpecRun.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Adapters|Any CPU = Adapters|Any CPU
@@ -69,6 +71,13 @@ Global
 		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Adapters|Any CPU.Build.0 = Adapters|Any CPU
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +89,7 @@ Global
 		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 		{E8F7661B-00F0-49EE-AA9A-5C48D63B1885} = {E0035B29-14C0-4270-B11F-DD2544D37FF6}
+		{9F2B97FF-6798-4A69-9520-CE3491396F3F} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54ACFEA9-DB76-4FC0-B216-B8033996DB79}

@@ -1,5 +1,5 @@
-﻿Feature: Step arguments
-
+﻿@data
+Feature: Step arguments
  
 Scenario: Should parse table argument as csv-attachment
 	

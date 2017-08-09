@@ -10,14 +10,15 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Allure.SpecFlowPlugin.Tests.Data.TestData
+namespace Tests.SpecRun.TestData
 {
     using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Attachments", SourceFile="Test Data\\Attachments.feature", SourceLine=0)]
+    [TechTalk.SpecRun.FeatureAttribute("Attachments", new string[] {
+            "data"}, SourceFile="TestData\\Attachments.feature", SourceLine=1)]
     public partial class AttachmentsFeature
     {
         
@@ -30,7 +31,8 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Attachments", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Attachments", null, ProgrammingLanguage.CSharp, new string[] {
+                        "data"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -64,18 +66,18 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
         [TechTalk.SpecRun.ScenarioAttribute("With attachments", new string[] {
                 "attachment",
                 "beforescenario",
-                "afterscenario"}, SourceLine=3)]
+                "afterscenario"}, SourceLine=4)]
         public virtual void WithAttachments()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("With attachments", new string[] {
                         "attachment",
                         "beforescenario",
                         "afterscenario"});
-#line 4
-this.ScenarioSetup(scenarioInfo);
 #line 5
- testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 6
+ testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 7
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -84,18 +86,18 @@ this.ScenarioSetup(scenarioInfo);
         [TechTalk.SpecRun.ScenarioAttribute("Failed BeforeScenario with attachment", new string[] {
                 "failed",
                 "attachment",
-                "beforescenario"}, SourceLine=8)]
+                "beforescenario"}, SourceLine=9)]
         public virtual void FailedBeforeScenarioWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed BeforeScenario with attachment", new string[] {
                         "failed",
                         "attachment",
                         "beforescenario"});
-#line 9
-this.ScenarioSetup(scenarioInfo);
 #line 10
- testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 11
+ testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 12
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -104,18 +106,18 @@ this.ScenarioSetup(scenarioInfo);
         [TechTalk.SpecRun.ScenarioAttribute("Failed AfterScenario with attachment", new string[] {
                 "failed",
                 "attachment",
-                "afterscenario"}, SourceLine=13)]
+                "afterscenario"}, SourceLine=14)]
         public virtual void FailedAfterScenarioWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed AfterScenario with attachment", new string[] {
                         "failed",
                         "attachment",
                         "afterscenario"});
-#line 14
-this.ScenarioSetup(scenarioInfo);
 #line 15
- testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 16
+ testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 17
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -124,18 +126,18 @@ this.ScenarioSetup(scenarioInfo);
         [TechTalk.SpecRun.ScenarioAttribute("Failed BeforeStep with attachment", new string[] {
                 "failed",
                 "attachment",
-                "beforestep"}, SourceLine=18)]
+                "beforestep"}, SourceLine=19)]
         public virtual void FailedBeforeStepWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed BeforeStep with attachment", new string[] {
                         "failed",
                         "attachment",
                         "beforestep"});
-#line 19
-this.ScenarioSetup(scenarioInfo);
 #line 20
- testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 21
+ testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 22
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -144,18 +146,18 @@ this.ScenarioSetup(scenarioInfo);
         [TechTalk.SpecRun.ScenarioAttribute("Failed AfterStep with attachment", new string[] {
                 "failed",
                 "attachment",
-                "afterstep"}, SourceLine=23)]
+                "afterstep"}, SourceLine=24)]
         public virtual void FailedAfterStepWithAttachment()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Failed AfterStep with attachment", new string[] {
                         "failed",
                         "attachment",
                         "afterstep"});
-#line 24
-this.ScenarioSetup(scenarioInfo);
 #line 25
- testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 26
+ testRunner.Given("Step with attachment", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 27
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();

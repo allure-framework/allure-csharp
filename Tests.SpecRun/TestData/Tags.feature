@@ -1,7 +1,7 @@
-﻿@foo
+﻿@data @foo
 Feature: Tags
 
- @bar
+@bar
 Scenario: Foo and Bar
 	Given Step is 'passed'
  

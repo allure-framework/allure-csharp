@@ -10,29 +10,31 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Allure.SpecFlowPlugin.Tests.Data.TestData
+namespace Tests.SpecRun.TestData
 {
     using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Before Feature Failure", new string[] {
-            "beforefeaturefailed"}, SourceFile="Test Data\\Before Feature Failure.feature", SourceLine=1)]
-    public partial class BeforeFeatureFailureFeature
+    [TechTalk.SpecRun.FeatureAttribute("Tags", new string[] {
+            "data",
+            "foo"}, SourceFile="TestData\\Tags.feature", SourceLine=1)]
+    public partial class TagsFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Before Feature Failure.feature"
+#line 1 "Tags.feature"
 #line hidden
         
         [TechTalk.SpecRun.FeatureInitialize()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Before Feature Failure", null, ProgrammingLanguage.CSharp, new string[] {
-                        "beforefeaturefailed"});
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Tags", null, ProgrammingLanguage.CSharp, new string[] {
+                        "data",
+                        "foo"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -63,12 +65,42 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
             testRunner.CollectScenarioErrors();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("1", SourceLine=3)]
-        public virtual void _1()
+        [TechTalk.SpecRun.ScenarioAttribute("Foo and Bar", new string[] {
+                "bar"}, SourceLine=4)]
+        public virtual void FooAndBar()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("1", ((string[])(null)));
-#line 4
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Foo and Bar", new string[] {
+                        "bar"});
+#line 5
 this.ScenarioSetup(scenarioInfo);
+#line 6
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [TechTalk.SpecRun.ScenarioAttribute("Foo 1", SourceLine=7)]
+        public virtual void Foo1()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Foo 1", ((string[])(null)));
+#line 8
+this.ScenarioSetup(scenarioInfo);
+#line 9
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [TechTalk.SpecRun.ScenarioAttribute("Foo 2", new string[] {
+                "foo"}, SourceLine=11)]
+        public virtual void Foo2()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Foo 2", new string[] {
+                        "foo"});
+#line 12
+this.ScenarioSetup(scenarioInfo);
+#line 13
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

@@ -10,14 +10,15 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Allure.SpecFlowPlugin.Tests.Data.TestData
+namespace Tests.SpecRun.TestData
 {
     using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [TechTalk.SpecRun.FeatureAttribute("Scenario and Step Bindings", SourceFile="Test Data\\Scenario Hooks.feature", SourceLine=0)]
+    [TechTalk.SpecRun.FeatureAttribute("Scenario and Step Bindings", new string[] {
+            "data"}, SourceFile="TestData\\Scenario Hooks.feature", SourceLine=1)]
     public partial class ScenarioAndStepBindingsFeature
     {
         
@@ -30,7 +31,8 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Scenario and Step Bindings", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Scenario and Step Bindings", null, ProgrammingLanguage.CSharp, new string[] {
+                        "data"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -64,18 +66,18 @@ namespace Allure.SpecFlowPlugin.Tests.Data.TestData
         [TechTalk.SpecRun.ScenarioAttribute("Should handle BeforeScenario and BeforeStep failure", new string[] {
                 "beforescenario",
                 "beforestep",
-                "failed"}, SourceLine=3)]
+                "failed"}, SourceLine=4)]
         public virtual void ShouldHandleBeforeScenarioAndBeforeStepFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle BeforeScenario and BeforeStep failure", new string[] {
                         "beforescenario",
                         "beforestep",
                         "failed"});
-#line 4
-this.ScenarioSetup(scenarioInfo);
 #line 5
- testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 6
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 7
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -83,17 +85,17 @@ this.ScenarioSetup(scenarioInfo);
         
         [TechTalk.SpecRun.ScenarioAttribute("Should handle BeforeScenario failure", new string[] {
                 "beforescenario",
-                "failed"}, SourceLine=8)]
+                "failed"}, SourceLine=9)]
         public virtual void ShouldHandleBeforeScenarioFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle BeforeScenario failure", new string[] {
                         "beforescenario",
                         "failed"});
-#line 9
-this.ScenarioSetup(scenarioInfo);
 #line 10
- testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 11
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 12
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -101,19 +103,19 @@ this.ScenarioSetup(scenarioInfo);
         
         [TechTalk.SpecRun.ScenarioAttribute("Should handle BeforeStep failure", new string[] {
                 "beforestep",
-                "failed"}, SourceLine=13)]
+                "failed"}, SourceLine=14)]
         public virtual void ShouldHandleBeforeStepFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle BeforeStep failure", new string[] {
                         "beforestep",
                         "failed"});
-#line 14
-this.ScenarioSetup(scenarioInfo);
 #line 15
- testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 16
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 17
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 18
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -121,17 +123,17 @@ this.ScenarioSetup(scenarioInfo);
         
         [TechTalk.SpecRun.ScenarioAttribute("Should handle AfterStep failure", new string[] {
                 "afterstep",
-                "failed"}, SourceLine=19)]
+                "failed"}, SourceLine=20)]
         public virtual void ShouldHandleAfterStepFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle AfterStep failure", new string[] {
                         "afterstep",
                         "failed"});
-#line 20
-this.ScenarioSetup(scenarioInfo);
 #line 21
- testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 22
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 23
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
@@ -139,17 +141,17 @@ this.ScenarioSetup(scenarioInfo);
         
         [TechTalk.SpecRun.ScenarioAttribute("Should handle AfterScenario failure", new string[] {
                 "afterscenario",
-                "failed"}, SourceLine=24)]
+                "failed"}, SourceLine=25)]
         public virtual void ShouldHandleAfterScenarioFailure()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle AfterScenario failure", new string[] {
                         "afterscenario",
                         "failed"});
-#line 25
-this.ScenarioSetup(scenarioInfo);
 #line 26
- testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+this.ScenarioSetup(scenarioInfo);
 #line 27
+ testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 28
  testRunner.Given("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             this.ScenarioCleanup();
