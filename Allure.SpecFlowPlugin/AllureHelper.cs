@@ -21,16 +21,8 @@ namespace Allure.SpecFlowPlugin
                 featureInfo.GetHashCode().ToString() :
                 emptyFeatureInfo.GetHashCode().ToString();
 
-            return $"__{id}";
+            return id;
         }
-
-        internal static string GetScenarioId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) => NewId();
-            //(scenarioInfo != null) ?
-            //    scenarioInfo.GetHashCode().ToString() :
-            //    GetFeatureContainerId(featureInfo);
-
-        internal static string GetScenarioContainerId(FeatureInfo featureInfo, ScenarioInfo scenarioInfo) => $"_{NewId()}";
-            //$"{GetScenarioId(featureInfo, scenarioInfo)}_";
 
         internal static string NewId() => Guid.NewGuid().ToString("N");
 
@@ -46,7 +38,7 @@ namespace Allure.SpecFlowPlugin
 
             var testResult = new TestResult()
             {
-                uuid = GetScenarioId(featureInfo, scenarioInfo),
+                uuid = NewId(),
                 historyId = scenarioInfo.Title,
                 name = scenarioInfo.Title,
                 fullName = scenarioInfo.Title,

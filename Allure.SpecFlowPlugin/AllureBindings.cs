@@ -44,7 +44,7 @@ namespace Allure.SpecFlowPlugin
         {
             var scenarioContainer = new TestResultContainer()
             {
-                uuid = AllureHelper.GetScenarioContainerId(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo)
+                uuid = AllureHelper.NewId()
             };
             allure.StartTestContainer(featureContainerId, scenarioContainer);
             featureContext.Set(scenarioContainer);

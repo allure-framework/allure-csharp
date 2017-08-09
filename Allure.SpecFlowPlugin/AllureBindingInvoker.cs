@@ -68,7 +68,7 @@ namespace Allure.SpecFlowPlugin
                                 // create fake scenario container
                                 scenarioContainer = new TestResultContainer()
                                 {
-                                    uuid = AllureHelper.GetScenarioContainerId(contextManager.FeatureContext?.FeatureInfo, contextManager.ScenarioContext?.ScenarioInfo)
+                                    uuid = AllureHelper.NewId()
                                 };
                                 allure.StartTestContainer(featureContainerId, scenarioContainer);
 
