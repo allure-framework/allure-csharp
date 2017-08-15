@@ -48,8 +48,10 @@ namespace Allure.SpecFlowPlugin.Tests
 
 
         [TestCase(Status.passed, 8)]
-        [TestCase(Status.failed, 2)]
-        [TestCase(Status.broken, 18)]
+        [TestCase(Status.failed, 1 * 2)]
+        [TestCase(Status.broken, 7 * 2 + 5)]
+        [TestCase(Status.skipped, 2)]
+
         public void TestStatus(Status status, int count)
         {
             var scenariosByStatus = allureTestResults.Where(x => x.status == status);

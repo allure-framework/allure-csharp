@@ -1,9 +1,10 @@
-﻿@data @ignore
+﻿@data
 Feature: Invalid Steps
 
 
 Scenario: All steps are invalid
-	Given I have entered 50 into the calculator
+	Given I don't have such step
+	And I don't have such step too
 
 
 Scenario: Some steps are invalid

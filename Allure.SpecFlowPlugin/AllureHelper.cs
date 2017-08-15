@@ -31,10 +31,10 @@ namespace Allure.SpecFlowPlugin
             name = $"{ hook.Method.Name} [{hook.HookOrder}]"
         };
 
-        internal static TestResult GetTestResult(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
+        internal static TestResult StartTestCase(string containerId, FeatureContext featureContext, ScenarioContext scenarioContext)
         {
-            featureInfo = featureInfo ?? emptyFeatureInfo;
-            scenarioInfo = scenarioInfo ?? emptyScenarioInfo;
+            var featureInfo = featureContext?.FeatureInfo ?? emptyFeatureInfo;
+            var scenarioInfo = scenarioContext?.ScenarioInfo ?? emptyScenarioInfo;
 
             var testResult = new TestResult()
             {
@@ -51,10 +51,38 @@ namespace Allure.SpecFlowPlugin
                 .Union(GetTags(featureInfo, scenarioInfo)).ToList()
             };
 
+            AllureLifecycle.Instance.StartTestCase(containerId, testResult);
+            scenarioContext?.Set(testResult);
+            featureContext.Get<HashSet<TestResult>>().Add(testResult);
+
             return testResult;
         }
+        internal static TestResult GetCurrentTestCase(ScenarioContext context)
+        {
+            context.TryGetValue( out TestResult testresult);
+            return testresult;
+        }
 
+        internal static TestResultContainer StartTestContainer(FeatureContext featureContext, ScenarioContext scenarioContext)
+        {
+            var containerId = GetFeatureContainerId(featureContext?.FeatureInfo);
 
+            var scenarioContainer = new TestResultContainer()
+            {
+                uuid = NewId()
+            };
+            AllureLifecycle.Instance.StartTestContainer(containerId, scenarioContainer);
+            scenarioContext?.Set(scenarioContainer);
+            featureContext.Get<HashSet<TestResultContainer>>().Add(scenarioContainer);
+
+            return scenarioContainer;
+        }
+
+        internal static TestResultContainer GetCurrentTestConainer(ScenarioContext context)
+        {
+            context.TryGetValue(out TestResultContainer testresultContainer);
+            return testresultContainer;
+        }
         private static List<Label> GetTags(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
         {
             return scenarioInfo.Tags

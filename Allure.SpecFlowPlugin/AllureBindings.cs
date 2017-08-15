@@ -16,11 +16,6 @@ namespace Allure.SpecFlowPlugin
         private FeatureContext featureContext;
         private ScenarioContext scenarioContext;
 
-        string featureContainerId => AllureHelper.GetFeatureContainerId(featureContext?.FeatureInfo);
-        string scenarioContainerId => featureContext.Get<TestResultContainer>()?.uuid;
-        string scenarioId => featureContext.Get<TestResult>()?.uuid;
-
-
         public AllureBindings(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
@@ -42,23 +37,23 @@ namespace Allure.SpecFlowPlugin
         [BeforeScenario(Order = int.MinValue)]
         public void FirstBeforeScenario()
         {
-            var scenarioContainer = new TestResultContainer()
-            {
-                uuid = AllureHelper.NewId()
-            };
-            allure.StartTestContainer(featureContainerId, scenarioContainer);
-            featureContext.Set(scenarioContainer);
-            featureContext.Get<HashSet<TestResultContainer>>().Add(scenarioContainer);
+            AllureHelper.StartTestContainer(featureContext, scenarioContext);
+            //AllureHelper.StartTestCase(scenarioContainer.uuid, featureContext, scenarioContext);
+        }
 
-            var scenario = AllureHelper.GetTestResult(featureContext?.FeatureInfo, scenarioContext?.ScenarioInfo);
-            allure.StartTestCase(scenarioContainerId, scenario);
-            featureContext.Set(scenario);
-            featureContext.Get<HashSet<TestResult>>().Add(scenario);
+        [BeforeScenario(Order = int.MaxValue)]
+        public void LastBeforeScenario()
+        {
+            // start scenario after last fixture and before the first step to have valid current step context in allure storage
+            var scenarioContainer = AllureHelper.GetCurrentTestConainer(scenarioContext);
+            AllureHelper.StartTestCase(scenarioContainer.uuid, featureContext, scenarioContext);
         }
 
         [AfterScenario(Order = int.MinValue)]
         public void FirstAfterScenario()
         {
+            var scenarioId = AllureHelper.GetCurrentTestCase(scenarioContext).uuid;
+
             // update status to passed if there were no step of binding failures
             allure
                 .UpdateTestCase(scenarioId,

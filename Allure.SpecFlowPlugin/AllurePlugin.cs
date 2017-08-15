@@ -19,8 +19,8 @@ namespace Allure.SpecFlowPlugin
             runtimePluginEvents.CustomizeGlobalDependencies += (sender, args) =>
                 args.ObjectContainer.RegisterTypeAs<AllureBindingInvoker, IBindingInvoker>();
 
-            //runtimePluginEvents.CustomizeTestThreadDependencies += (sender, args) =>
-            //    args.ObjectContainer.RegisterTypeAs<AllureTestTracer, ITestTracer>();
+            runtimePluginEvents.CustomizeTestThreadDependencies += (sender, args) =>
+                args.ObjectContainer.RegisterTypeAs<AllureTestTracerWrapper, ITestTracer>();
 
             //runtimePluginEvents.CustomizeTestThreadDependencies += (sender, args) =>
             //{
