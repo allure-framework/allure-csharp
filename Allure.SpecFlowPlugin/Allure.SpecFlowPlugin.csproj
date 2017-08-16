@@ -190,7 +190,6 @@
     <Compile Include="AllureBindingInvoker.cs" />
     <Compile Include="AllureBindings.cs" />
     <Compile Include="AllurePlugin.cs" />
-    <Compile Include="AllureTestExecutionEngine.cs" />
     <Compile Include="AllureTestTracerWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

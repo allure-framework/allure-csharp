@@ -21,17 +21,6 @@ namespace Allure.SpecFlowPlugin
 
             runtimePluginEvents.CustomizeTestThreadDependencies += (sender, args) =>
                 args.ObjectContainer.RegisterTypeAs<AllureTestTracerWrapper, ITestTracer>();
-
-            //runtimePluginEvents.CustomizeTestThreadDependencies += (sender, args) =>
-            //{
-            //    var registrations = args.ObjectContainer.GetType()
-            //    .GetField("registrations", BindingFlags.NonPublic | BindingFlags.Instance)
-            //    .GetValue(args.ObjectContainer);
-
-            //    args.ObjectContainer.RegisterTypeAs<TestExecutionEngine, ITestExecutionEngine>("CurrentTestExecutionEngine");
-            //    args.ObjectContainer.RegisterTypeAs<AllureTestExecutionEngine, ITestExecutionEngine>();
-
-            //};
         }
     }
 }
