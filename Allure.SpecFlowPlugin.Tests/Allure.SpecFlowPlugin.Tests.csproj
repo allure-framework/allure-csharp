@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Allure.Commons, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Allure.Commons.2.0.9\lib\netstandard1.5\Allure.Commons.dll</HintPath>
+      <HintPath>..\packages\Allure.Commons.2.1.0-preview1.1\lib\netstandard1.5\Allure.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Core, Version=4.1.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\packages\Castle.Core.4.1.1\lib\net45\Castle.Core.dll</HintPath>
