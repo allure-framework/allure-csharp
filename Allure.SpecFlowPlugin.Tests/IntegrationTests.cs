@@ -47,7 +47,7 @@ namespace Allure.SpecFlowPlugin.Tests
         }
 
 
-        [TestCase(Status.passed, 8)]
+        [TestCase(Status.passed, 9)]
         [TestCase(Status.failed, 1 * 2)]
         [TestCase(Status.broken, 7 * 2 + 5)]
         [TestCase(Status.skipped, 2)]
@@ -82,6 +82,15 @@ namespace Allure.SpecFlowPlugin.Tests
             Assert.That(withFailureTags, Is.All.EqualTo(Status.broken));
         }
 
+        [Test]
+        public void ShouldGroupNestedSteps()
+        {
+            var nestedSteps = allureTestResults
+                .First(x => x.name == "Shared Steps").steps
+                .SelectMany(x => x.steps);
+
+            Assert.That(nestedSteps, Has.Exactly(1).Items);
+        }
         private void ParseAllureSuites(string allureResultsDir)
         {
             var allureTestResultFiles = new DirectoryInfo(allureResultsDir).GetFiles("*-result.json");
