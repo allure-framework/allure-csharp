@@ -18,28 +18,21 @@ namespace Allure.Compatibility.Tests
         static AllureLifecycle cycle = AllureLifecycle.Instance;
 
         [TestCase]
-        public void PassingTest1()
+        public void AllureNUnit_1()
         {
             var name = "PassingTest1";
             var labels = new List<Label> { Label.Thread() };
             cycle.StartTestCase(new TestResult { uuid = name, name = name, labels = labels });
-
-            Thread.Sleep(500);
-
             cycle.StopTestCase(x => x.status = Status.passed);
             cycle.WriteTestCase(name);
         }
 
         [TestCase]
-        public void PassingTest2()
+        public void AllureNUnit_2()
         {
             var name = "PassingTest2";
             var labels = new List<Label> { Label.Thread() };
-
             cycle.StartTestCase(new TestResult { uuid = name, name = name, labels = labels });
-
-            Thread.Sleep(500);
-
             cycle.StopTestCase(x => x.status = Status.passed);
             cycle.WriteTestCase(name);
         }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.5</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyVersion>0.0.1.0</AssemblyVersion>
     <FileVersion>0.0.1.0</FileVersion>
     <Version>0.0.1</Version>
@@ -10,7 +10,7 @@
     <Company />
     <Product />
     <Description>.net standard implementation of Allure java-commons.</Description>
-    <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/tree/master/allure-csharp-commons-v2</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/wiki/Allure.Commons</PackageProjectUrl>
     <PackageTags>allure</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/allure-framework/allure-csharp/master/img/allure-net.png</PackageIconUrl>
     <SignAssembly>False</SignAssembly>
@@ -24,22 +24,17 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.2" />
-    <PackageReference Include="MimeTypesMap" Version="1.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="MimeTypesMap" Version="1.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="NLog" Version="5.0.0-beta09" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="allureConfig.json" Pack="true">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="NETStandard.Library" Version="1.6.1" />
   </ItemGroup>
 
 </Project>

@@ -107,9 +107,16 @@ this.ScenarioSetup(scenarioInfo);
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Shared Steps", ((string[])(null)));
 #line 14
 this.ScenarioSetup(scenarioInfo);
+#line hidden
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                        "feature",
+                        "scenario"});
+            table1.AddRow(new string[] {
+                        "Scenarios and Steps",
+                        "Passed scenario"});
 #line 15
- testRunner.Given("I execute the steps of \'Scenarios and Steps\'.\'Passed scenario\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 16
+ testRunner.Given("I execute the steps of:", ((string)(null)), table1, "Given ");
+#line 19
  testRunner.And("Step is \'passed\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             this.ScenarioCleanup();

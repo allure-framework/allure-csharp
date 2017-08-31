@@ -1,7 +1,7 @@
 ﻿using Allure.Commons;
 using System.IO;
 using Xunit;
-namespace Allure.Configuration.Tests
+namespace Allure.Commons.Tests.Configuration
 {
     public class ConfigurationTests
     {

@@ -12,5 +12,8 @@ Scenario: Failed scenario
 	Given Step is 'passed'
 
 Scenario: Shared Steps
-	Given I execute the steps of 'Scenarios and Steps'.'Passed scenario'
+	Given I execute the steps of:
+	| feature             | scenario        |
+	| Scenarios and Steps | Passed scenario |
+
 	And Step is 'passed'

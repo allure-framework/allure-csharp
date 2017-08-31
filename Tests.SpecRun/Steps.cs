@@ -1,6 +1,7 @@
 ﻿using Allure.Commons;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,19 +11,27 @@ using TechTalk.SpecFlow;
 
 namespace Tests.SpecRun
 {
-    public enum TestOutcome { passed, failed, hang }
+    public enum TestOutcome { passed, failed }
 
     [Binding]
     public class Steps
     {
         static AllureLifecycle allure = AllureLifecycle.Instance;
+
         FeatureContext featureContext;
         ScenarioContext scenarioContext;
+
         public Steps(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
 
+        }
+
+        private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data.Contains("Press <Ctrl+C> to exit"))
+                ((Process)sender).Kill();
         }
 
         [StepDefinition(@"Step is '(.*)'")]

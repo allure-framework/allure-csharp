@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecFlowPlugin", "Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj", "{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecFlowPlugin.Tests", "Allure.SpecFlowPlugin.Tests\Allure.SpecFlowPlugin.Tests.csproj", "{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.SpecRun", "Tests.SpecRun\Tests.SpecRun.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5193EF5B-82B9-4280-AA66-D108C378D4F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,5 +39,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D5A2DDB9-94D5-47C5-A997-EAABA52E6FCE}
 	EndGlobalSection
 EndGlobal

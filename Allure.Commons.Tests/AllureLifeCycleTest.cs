@@ -18,7 +18,7 @@ namespace Allure.Commons.Tests
             this.output = output;
         }
 
-        [Fact(DisplayName = "ResultsDirectory propertt shouldn't be empty")]
+        [Fact(DisplayName = "ResultsDirectory property shouldn't be empty")]
         public void CheckResultsDirectory()
         {
             Assert.NotNull(AllureLifecycle.Instance.ResultsDirectory);

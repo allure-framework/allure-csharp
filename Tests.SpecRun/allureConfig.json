@@ -1,6 +1,0 @@
-﻿{
-  "allure": {
-    "directory": "allure-results",
-    "logging": false
-  }
-}
