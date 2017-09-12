@@ -1,6 +1,5 @@
 ﻿using Allure.Commons.Storage;
 using Allure.Commons.Writer;
-using Castle.DynamicProxy;
 using HeyRed.Mime;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -41,17 +40,11 @@ namespace Allure.Commons
 
         public static AllureLifecycle CreateInstance()
         {
-
             var config = new ConfigurationBuilder()
-        .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
-        .Build();
+                .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
+                .Build();
 
-            bool.TryParse(config["allure:logging"], out bool logging);
-            return (logging) ?
-                (AllureLifecycle)new ProxyGenerator().CreateClassProxy(typeof(AllureLifecycle),
-                    new object[] { config }, new LoggingInterceptor()) :
-                new AllureLifecycle(config);
-
+            return new AllureLifecycle(config);
         }
 
         #region TestContainer

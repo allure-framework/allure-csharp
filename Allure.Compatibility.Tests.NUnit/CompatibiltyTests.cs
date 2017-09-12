@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Allure.Compatibility.Tests
+namespace Allure.Compatibility.Tests.NUnit
 {
     [TestFixture]
     public class CompatibiltyTests
@@ -21,13 +21,6 @@ namespace Allure.Compatibility.Tests
         {
             Environment.CurrentDirectory = Path.GetDirectoryName(this.GetType().Assembly.Location);
             cycle = AllureLifecycle.Instance;
-        }
-        [Test]
-        public void CycleSmokeTest()
-        {
-            cycle
-                .StartTestCase(new TestResult() { uuid = "test" })
-                .WriteTestCase("test");
         }
 
         [Test]

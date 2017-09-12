@@ -9,7 +9,7 @@ using System.Threading;
 
 [assembly: Parallelizable(ParallelScope.All)]
 
-namespace Allure.Compatibility.Tests
+namespace Allure.Compatibility.Tests.NUnit
 {
     [TestFixture]
     [SingleThreaded]
