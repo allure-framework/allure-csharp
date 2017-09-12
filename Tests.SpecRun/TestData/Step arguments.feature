@@ -1,8 +1,17 @@
 ﻿@data
 Feature: Step arguments
  
-Scenario: Should parse table argument as csv-attachment
+Scenario: Table arguments
+	Given Step with table
+		|1|2|
 	
+	Given Step with table
+		|1|2|3|
+	
+	Given Step with table
+		| name | surname | gender | age |
+		| John | Smith   | male   |     |
+
 	Given Step with table
 		| name         | surname | gender | age |
 		| John         | Smith   | male   | 30  |

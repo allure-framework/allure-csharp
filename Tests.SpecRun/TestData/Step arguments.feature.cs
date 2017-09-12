@@ -63,40 +63,66 @@ namespace Tests.SpecRun.TestData
             testRunner.CollectScenarioErrors();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Should parse table argument as csv-attachment", SourceLine=3)]
-        public virtual void ShouldParseTableArgumentAsCsv_Attachment()
+        [TechTalk.SpecRun.ScenarioAttribute("Table arguments", SourceLine=3)]
+        public virtual void TableArguments()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should parse table argument as csv-attachment", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Table arguments", ((string[])(null)));
 #line 4
 this.ScenarioSetup(scenarioInfo);
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                        "1",
+                        "2"});
+#line 5
+ testRunner.Given("Step with table", ((string)(null)), table1, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+                        "1",
+                        "2",
+                        "3"});
+#line 8
+ testRunner.Given("Step with table", ((string)(null)), table2, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "name",
                         "surname",
                         "gender",
                         "age"});
-            table1.AddRow(new string[] {
+            table3.AddRow(new string[] {
+                        "John",
+                        "Smith",
+                        "male",
+                        ""});
+#line 11
+ testRunner.Given("Step with table", ((string)(null)), table3, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+                        "name",
+                        "surname",
+                        "gender",
+                        "age"});
+            table4.AddRow(new string[] {
                         "John",
                         "Smith",
                         "male",
                         "30"});
-            table1.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "\"Mary\",\"Ann\"",
                         "Jane;",
                         "female",
                         "25"});
-            table1.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "",
                         "",
                         "",
                         ""});
-            table1.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "Eric",
                         "Cartman",
                         ",",
                         ",,"});
-#line 6
- testRunner.Given("Step with table", ((string)(null)), table1, "Given ");
+#line 15
+ testRunner.Given("Step with table", ((string)(null)), table4, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

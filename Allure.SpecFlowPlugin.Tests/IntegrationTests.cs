@@ -91,6 +91,19 @@ namespace Allure.SpecFlowPlugin.Tests
 
             Assert.That(nestedSteps, Has.Exactly(1).Items);
         }
+
+        [Test]
+        public void ShouldTreatOneRowTableAsStepParams()
+        {
+            var stepsWithParams = allureTestResults
+                .First(x => x.name == "Table arguments").steps
+                .Where(x => x.parameters.Count > 0);
+
+            Assert.That(stepsWithParams, Has.Exactly(1).Items);
+            Assert.That(stepsWithParams.First().parameters, Has.Exactly(4).Items);
+
+        }
+
         private void ParseAllureSuites(string allureResultsDir)
         {
             var allureTestResultFiles = new DirectoryInfo(allureResultsDir).GetFiles("*-result.json");

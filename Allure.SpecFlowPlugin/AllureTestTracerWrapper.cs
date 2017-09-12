@@ -65,19 +65,34 @@ namespace Allure.SpecFlowPlugin
                 name = $"{stepInstance.Keyword} {stepInstance.Text}"
             };
 
+            var table = stepInstance.TableArgument;
+
+            // add step params for 1 row table
+            if (table!= null && table.RowCount == 1)
+            {
+                var paramNames = table.Header.ToArray();
+                var parameters = new List<Parameter>();
+                for (int i = 0; i < table.Header.Count; i++)
+                {
+                    parameters.Add(new Parameter() { name = paramNames[i], value = table.Rows[0][i] });
+                }
+                stepResult.parameters = parameters;
+            }
+
             allure.StartStep(AllureHelper.NewId(), stepResult);
 
-            if (stepInstance.TableArgument != null)
+            // add csv table for multi-row table
+            if (table != null && table.RowCount != 1)
             {
                 var csvFile = $"{Guid.NewGuid().ToString()}.csv";
                 using (var csv = new CsvWriter(File.CreateText(csvFile)))
                 {
-                    foreach (var item in stepInstance.TableArgument.Header)
+                    foreach (var item in table.Header)
                     {
                         csv.WriteField(item);
                     }
                     csv.NextRecord();
-                    foreach (var row in stepInstance.TableArgument.Rows)
+                    foreach (var row in table.Rows)
                     {
                         foreach (var item in row.Values)
                         {
@@ -88,6 +103,7 @@ namespace Allure.SpecFlowPlugin
                 }
                 allure.AddAttachment("table", "text/csv", csvFile);
             }
+
         }
 
         private static void FailScenario(Exception ex)
