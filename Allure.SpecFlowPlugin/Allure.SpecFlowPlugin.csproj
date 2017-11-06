@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>SpecFlow.Allure</PackageId>
-    <Version>2.1.1</Version>
+    <Version>2.2.0</Version>
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
@@ -13,6 +13,9 @@
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <PackageTags>specflow allure</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>SpecFlow 2.2 support</PackageReleaseNotes>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
