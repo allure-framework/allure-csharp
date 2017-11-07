@@ -15,6 +15,7 @@ namespace Allure.SpecFlowPlugin
 {
     public class AllureTestTracerWrapper : TestTracer, ITestTracer
     {
+        readonly string noMatchingStepMessage = "No matching step definition found for the step";
         static AllureLifecycle allure = AllureLifecycle.Instance;
 
         public AllureTestTracerWrapper(ITraceListener traceListener, IStepFormatter stepFormatter,
@@ -58,8 +59,12 @@ namespace Allure.SpecFlowPlugin
             CultureInfo bindingCulture, List<BindingMatch> matchesWithoutScopeCheck)
         {
             TraceNoMatchingStepDefinition(stepInstance, targetLanguage, bindingCulture, matchesWithoutScopeCheck);
-            allure.StopStep(x => x.status = Status.skipped);
-            allure.UpdateTestCase(x => x.status = Status.skipped);
+            allure.StopStep(x => x.status = Status.broken);
+            allure.UpdateTestCase(x =>
+                {
+                    x.status = Status.broken;
+                    x.statusDetails = new StatusDetails { message = noMatchingStepMessage };
+                });
         }
 
         private static void StartStep(StepInstance stepInstance)
@@ -78,7 +83,7 @@ namespace Allure.SpecFlowPlugin
                 var parameters = new List<Parameter>();
                 for (int i = 0; i < table.Header.Count; i++)
                 {
-                    parameters.Add(new Parameter {name = paramNames[i], value = table.Rows[0][i]});
+                    parameters.Add(new Parameter { name = paramNames[i], value = table.Rows[0][i] });
                 }
                 stepResult.parameters = parameters;
             }

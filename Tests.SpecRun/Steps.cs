@@ -28,12 +28,6 @@ namespace Tests.SpecRun
 
         }
 
-        private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data.Contains("Press <Ctrl+C> to exit"))
-                ((Process)sender).Kill();
-        }
-
         [StepDefinition(@"Step is '(.*)'")]
         public void StepResultIs(TestOutcome outcome)
         {

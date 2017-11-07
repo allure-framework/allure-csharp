@@ -49,13 +49,13 @@ namespace Allure.SpecFlowPlugin.Tests
 
         [TestCase(Status.passed, 9)]
         [TestCase(Status.failed, 1 * 2)]
-        [TestCase(Status.broken, 7 * 2 + 5)]
-        [TestCase(Status.skipped, 2)]
+        [TestCase(Status.broken, 8 * 2 + 7)]
+        [TestCase(Status.skipped, 0)]
 
         public void TestStatus(Status status, int count)
         {
             var scenariosByStatus = allureTestResults.Where(x => x.status == status);
-            Assert.That(scenariosByStatus, Has.Exactly(count).Items);
+            Assert.That(scenariosByStatus, Has.Exactly(count).Items, scenariosByStatus.Count().ToString());
         }
 
         [Test]
