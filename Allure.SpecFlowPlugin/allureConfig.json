@@ -5,8 +5,8 @@
   "specflow": {
     "stepArguments": {
       "convertToParameters": "true",
-      "paramNameRegex": "^a.*",
-      "paramValueRegex": "^v.*"
+      "paramNameRegex": ".*",
+      "paramValueRegex": ".*"
     }
   }
 }

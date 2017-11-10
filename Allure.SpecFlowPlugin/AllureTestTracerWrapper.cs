@@ -1,10 +1,12 @@
 ﻿using Allure.Commons;
 using CsvHelper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
 using TechTalk.SpecFlow.BindingSkeletons;
@@ -17,6 +19,7 @@ namespace Allure.SpecFlowPlugin
     {
         readonly string noMatchingStepMessage = "No matching step definition found for the step";
         static AllureLifecycle allure = AllureLifecycle.Instance;
+        PluginConfiguration pluginConfiguration = new PluginConfiguration(allure.Configuration);
 
         public AllureTestTracerWrapper(ITraceListener traceListener, IStepFormatter stepFormatter,
             IStepDefinitionSkeletonProvider stepDefinitionSkeletonProvider, SpecFlowConfiguration specFlowConfiguration)
@@ -67,7 +70,7 @@ namespace Allure.SpecFlowPlugin
                 });
         }
 
-        private static void StartStep(StepInstance stepInstance)
+        private void StartStep(StepInstance stepInstance)
         {
             var stepResult = new StepResult
             {
@@ -75,23 +78,51 @@ namespace Allure.SpecFlowPlugin
             };
 
             var table = stepInstance.TableArgument;
+            bool isTableProcessed = (table == null);
 
-            // add step params for 1 row table
-            if (table != null && table.RowCount == 1)
+            // parse table as step params
+            if (table != null)
             {
-                var paramNames = table.Header.ToArray();
-                var parameters = new List<Parameter>();
-                for (int i = 0; i < table.Header.Count; i++)
+                var header = table.Header.ToArray();
+                if (pluginConfiguration.ConvertToParameters)
                 {
-                    parameters.Add(new Parameter { name = paramNames[i], value = table.Rows[0][i] });
+                    var parameters = new List<Parameter>();
+
+                    // add step params for 1 row table
+                    if (table.RowCount == 1)
+                    {
+                        for (int i = 0; i < table.Header.Count; i++)
+                        {
+                            parameters.Add(new Parameter { name = header[i], value = table.Rows[0][i] });
+                        }
+                        isTableProcessed = true;
+                    }
+
+                    // convert 2 column table into param-value
+                    else if (table.Header.Count == 2)
+                    {
+                        var paramNameMatch = pluginConfiguration.ParamNameRegex.IsMatch(header[0]);
+                        var paramValueMatch = pluginConfiguration.ParamValueRegex.IsMatch(header[1]);
+                        if (paramNameMatch && paramValueMatch)
+                        {
+                            for (int i = 0; i < table.RowCount; i++)
+                            {
+                                parameters.Add(new Parameter { name = table.Rows[i][0], value = table.Rows[i][1] });
+                            }
+
+                            isTableProcessed = true;
+                        }
+
+                    }
+
+                    stepResult.parameters = parameters;
                 }
-                stepResult.parameters = parameters;
             }
 
             allure.StartStep(AllureHelper.NewId(), stepResult);
 
-            // add csv table for multi-row table
-            if (table != null && table.RowCount != 1)
+            // add csv table for multi-row table if was not processed as params already
+            if (!isTableProcessed)
             {
                 var csvFile = $"{Guid.NewGuid().ToString()}.csv";
                 using (var csv = new CsvWriter(File.CreateText(csvFile)))
