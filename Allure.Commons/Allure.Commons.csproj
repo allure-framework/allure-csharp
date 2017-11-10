@@ -9,13 +9,14 @@
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
-    <Description>.net standard implementation of Allure java-commons.</Description>
+    <Description>.net standard implementation of Allure java-commons</Description>
     <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/wiki/Allure.Commons</PackageProjectUrl>
     <PackageTags>allure</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/allure-framework/allure-csharp/master/img/allure-net.png</PackageIconUrl>
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <PackageReleaseNotes>New Label and Link extensions</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Commons|AnyCPU'" />
