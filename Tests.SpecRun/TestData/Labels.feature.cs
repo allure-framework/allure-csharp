@@ -18,6 +18,7 @@ namespace Tests.SpecRun.TestData
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.2.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [TechTalk.SpecRun.FeatureAttribute("Labels", new string[] {
+            "labels",
             "core",
             "epic:v1.2",
             "owner:Vasya"}, SourceFile="TestData\\Labels.feature", SourceLine=1)]
@@ -34,6 +35,7 @@ namespace Tests.SpecRun.TestData
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Labels", null, ProgrammingLanguage.CSharp, new string[] {
+                        "labels",
                         "core",
                         "epic:v1.2",
                         "owner:Vasya"});
@@ -74,7 +76,8 @@ namespace Tests.SpecRun.TestData
                 "tms:234",
                 "package:com.company.accounting",
                 "class:main",
-                "method:getLedger"}, SourceLine=4)]
+                "method:getLedger",
+                "tag1"}, SourceLine=4)]
         public virtual void V1_2AccountingUi_CoreSeleniumTest1()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("[v1.2 accounting] [ui.core] Selenium test 1", new string[] {
@@ -84,7 +87,8 @@ namespace Tests.SpecRun.TestData
                         "tms:234",
                         "package:com.company.accounting",
                         "class:main",
-                        "method:getLedger"});
+                        "method:getLedger",
+                        "tag1"});
 #line 5
 this.ScenarioSetup(scenarioInfo);
 #line hidden

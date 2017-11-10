@@ -10,24 +10,27 @@
     },
     "grouping": {
       "suites": {
-        "parentSuite": "^parentSuite:?(.*)",
-        "suite": "^suite:?(.*)",
-        "subSuite": "^subSuite:?(.*)"
+        "parentSuite": "^parentSuite:?(.+)",
+        "suite": "^suite:?(.+)",
+        "subSuite": "^subSuite:?(.+)"
       },
       "behaviors": {
-        "epic": "^epic:?(.*)",
-        "story": "^story:?(.*)"
+        "epic": "^epic:?(.+)",
+        "story": "^story:?(.+)"
       },
       "packages": {
-        "package": "",
-        "testClass": "",
-        "testMethod": ""
+        "package": "^package:?(.+)",
+        "testClass": "^class:?(.+)",
+        "testMethod": "^method:?(.+)"
       }
     },
     "labels": {
-      "owner": "",
-      "severity": "",
-      "issue": ""
+      "owner": "^owner:?(.+)",
+      "severity": "^(normal|blocker|critical|minor|trivial)"
+    },
+    "links": {
+      "issue": "^issue:(\\d+)",
+      "tms": "^tms:(\\d+)"
     }
   }
 }

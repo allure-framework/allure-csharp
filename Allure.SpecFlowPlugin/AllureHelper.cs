@@ -52,9 +52,8 @@ namespace Allure.SpecFlowPlugin
                         Label.Host(),
                         Label.Feature(featureInfo.Title)
                     }
-                    .Union(tags)
-                    .Union(GetCustomLabelsFromTags(tags)).ToList(),
-                links = GetLinksFromTags(tags)
+                    .Union(tags.Item1).ToList(),
+                links = tags.Item2
             };
 
             AllureLifecycle.Instance.StartTestCase(containerId, testResult);
@@ -92,64 +91,84 @@ namespace Allure.SpecFlowPlugin
             return testresultContainer;
         }
 
-        private static List<Label> GetTags(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
+        private static Tuple<List<Label>, List<Link>> GetTags(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
         {
-            return scenarioInfo.Tags
+            var result = Tuple.Create(new List<Label>(), new List<Link>());
+
+            var tags = scenarioInfo.Tags
                 .Union(featureInfo.Tags)
-                .Distinct(StringComparer.CurrentCultureIgnoreCase)
-                .Select(Label.Tag)
-                .ToList();
-        }
+                .Distinct(StringComparer.CurrentCultureIgnoreCase);
 
-        private static List<Link> GetLinksFromTags(List<Label> tags)
-        {
-            var links = new List<Link>();
-            foreach (var tag in tags.Select(x => x.value))
+            foreach (var tag in tags)
             {
-                if (TryUpdateValueByMatch(config.IssueRegex, tag))
-                    links.Add(Link.Issue(tag));
-
-                if (TryUpdateValueByMatch(config.TmsRegex, tag))
-                    links.Add(Link.Tms(tag));
+                var tagValue = tag;
+                // issue
+                if (TryUpdateValueByMatch(config.IssueRegex, ref tagValue))
+                {
+                    result.Item2.Add(Link.Issue(tagValue)); continue;
+                }
+                // tms
+                if (TryUpdateValueByMatch(config.TmsRegex, ref tagValue))
+                {
+                    result.Item2.Add(Link.Tms(tagValue)); continue;
+                }
+                // parent suite
+                if (TryUpdateValueByMatch(config.ParentSuiteRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.ParentSuite(tagValue)); continue;
+                }
+                // suite
+                if (TryUpdateValueByMatch(config.SuiteRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.Suite(tagValue)); continue;
+                }
+                // sub suite
+                if (TryUpdateValueByMatch(config.SubSuiteRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.SubSuite(tagValue)); continue;
+                }
+                // epic
+                if (TryUpdateValueByMatch(config.EpicRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.Epic(tagValue)); continue;
+                }
+                // story
+                if (TryUpdateValueByMatch(config.StoryRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.Story(tagValue)); continue;
+                }
+                // package
+                if (TryUpdateValueByMatch(config.PackageRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.Package(tagValue)); continue;
+                }
+                // test class
+                if (TryUpdateValueByMatch(config.TestClassRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.TestClass(tagValue)); continue;
+                }
+                // test method
+                if (TryUpdateValueByMatch(config.TestMethodRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.TestMethod(tagValue)); continue;
+                }
+                // owner
+                if (TryUpdateValueByMatch(config.OwnerRegex, ref tagValue))
+                {
+                    result.Item1.Add(Label.Owner(tagValue)); continue;
+                }
+                // severity
+                if (TryUpdateValueByMatch(config.SeverityRegex, ref tagValue) && Enum.TryParse(tagValue, out SeverityLevel level))
+                {
+                    result.Item1.Add(Label.Severity(level)); continue;
+                }
+                // tag
+                result.Item1.Add(Label.Tag(tagValue));
             }
-            return links;
-
-        }
-        private static List<Label> GetCustomLabelsFromTags(List<Label> tags)
-        {
-            var labels = new List<Label>();
-            var label = new Label();
-            foreach (var tag in tags.Select(x => x.value))
-            {
-                if (TryUpdateValueByMatch(config.ParentSuiteRegex, tag))
-                    labels.Add(Label.ParentSuite(tag));
-                if (TryUpdateValueByMatch(config.SuiteRegex, tag))
-                    labels.Add(Label.Suite(tag));
-                if (TryUpdateValueByMatch(config.SubSuiteRegex, tag))
-                    labels.Add(Label.SubSuite(tag));
-
-                if (TryUpdateValueByMatch(config.EpicRegex, tag))
-                    labels.Add(Label.Epic(tag));
-                if (TryUpdateValueByMatch(config.StoryRegex, tag))
-                    labels.Add(Label.Story(tag));
-
-                if (TryUpdateValueByMatch(config.PackageRegex, tag))
-                    labels.Add(Label.Package(tag));
-                if (TryUpdateValueByMatch(config.TestClassRegex, tag))
-                    labels.Add(Label.TestClass(tag));
-                if (TryUpdateValueByMatch(config.TestMethodRegex, tag))
-                    labels.Add(Label.TestMethod(tag));
-
-                if (TryUpdateValueByMatch(config.OwnerRegex, tag))
-                    labels.Add(Label.Owner(tag));
-                if (TryUpdateValueByMatch(config.SeverityRegex, tag) && Enum.TryParse(tag, out SeverityLevel level))
-                    labels.Add(Label.Severity(level));
-            }
-
-            return labels;
+            return result;
         }
 
-        private static bool TryUpdateValueByMatch(Regex regex, string value)
+        private static bool TryUpdateValueByMatch(Regex regex, ref string value)
         {
             if (regex == null)
                 return false;

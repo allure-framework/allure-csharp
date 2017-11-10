@@ -43,7 +43,7 @@ namespace Allure.SpecFlowPlugin.Tests
         }
 
 
-        [TestCase(Status.passed, 9)]
+        [TestCase(Status.passed, 15)]
         [TestCase(Status.failed, 1 * 2)]
         [TestCase(Status.broken, 8 * 2 + 7)]
         [TestCase(Status.skipped, 0)]
@@ -96,10 +96,25 @@ namespace Allure.SpecFlowPlugin.Tests
                 .Where(x => x.parameters.Count > 0);
 
             Assert.That(stepsWithParams, Has.Exactly(2).Items);
-            //Assert.That(stepsWithParams.First().parameters, Has.Exactly(4).Items);
+        }
+        [Test]
+        public void ShouldParseTags()
+        {
+            var scenarios = allureTestResults
+                .Where(x => x.labels.Any(l => l.value == "labels"));
+
+            var labels = scenarios.SelectMany(x => x.labels);
+            Assert.Multiple(() =>
+            {
+                // ummatched tags
+                Assert.That(labels.Where(x => x.name == "tag"), Has.Exactly(scenarios.Count() + 1).Items);
+                // owner
+                Assert.That(labels.Where(x => x.value == "Vasya").Select(l=>l.name), 
+                    Has.Exactly(scenarios.Count()).Items.And.All.EqualTo("owner"));
+
+            });
 
         }
-
         private void ParseAllureSuites(string allureResultsDir)
         {
             var allureTestResultFiles = new DirectoryInfo(allureResultsDir).GetFiles("*-result.json");

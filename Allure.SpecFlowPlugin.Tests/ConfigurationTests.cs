@@ -14,21 +14,14 @@ namespace Allure.SpecFlowPlugin.Tests
     [NonParallelizable]
     public class ConfigurationTests
     {
-        [NonParallelizable]
         [TestCase(@"..\..\allureConfig.json", ExpectedResult = "^a.*")]
-        [TestCase(@"..\..\allureConfigEmpty.json", ExpectedResult = ".*")]
-        [TestCase(@"..\..\allureConfigWithInvalidRegex.json", ExpectedResult = ".*")]
-        public string ReadPluginConfiguration(string config)
+        [TestCase(@"..\..\allureConfigEmpty.json", ExpectedResult = null)]
+        [TestCase(@"..\..\allureConfigWithInvalidRegex.json", ExpectedResult = null)]
+        public string ParamNameRegex(string config)
         {
             File.Copy(config, "allureConfig.json", true);
             var configuration = new PluginConfiguration(AllureLifecycle.CreateInstance().Configuration);
-            Assert.Multiple(() =>
-            {
-                Assert.NotNull(configuration.ConvertToParameters);
-                Assert.NotNull(configuration.ParamNameRegex);
-                Assert.NotNull(configuration.ParamValueRegex);
-            });
-            return configuration.ParamNameRegex.ToString();
+            return configuration.ParamNameRegex?.ToString();
         }
     }
 }

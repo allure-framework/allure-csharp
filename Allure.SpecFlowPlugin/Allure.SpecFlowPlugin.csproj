@@ -13,11 +13,11 @@
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <PackageTags>specflow allure</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>
+    <PackageReleaseNotes>Configurable tags conversion to labels and links
       Configurable step table parameters conversion
       Scenarios with invalid step definitions are now marked as broken
       SpecFlow 2.2 support
-    </PackageReleaseNotes>
+</PackageReleaseNotes>
     <AssemblyVersion>2.2</AssemblyVersion>
     <FileVersion>2.2.0.0</FileVersion>
   </PropertyGroup>

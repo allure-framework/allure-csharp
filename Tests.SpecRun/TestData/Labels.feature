@@ -1,7 +1,7 @@
-﻿@core @epic:v1.2 @owner:Vasya
+﻿@labels @core @epic:v1.2 @owner:Vasya
 Feature: Labels
 
-@ui @story:accounting @123 @tms:234 @package:com.company.accounting @class:main @method:getLedger
+@ui @story:accounting @123 @tms:234 @package:com.company.accounting @class:main @method:getLedger @tag1
 Scenario: [v1.2 accounting] [ui.core] Selenium test 1
 
 @api @blocker @567 @999999
