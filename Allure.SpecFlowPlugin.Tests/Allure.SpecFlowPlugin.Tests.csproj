@@ -52,8 +52,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Allure.Commons, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Allure.Commons.2.1.1\lib\netstandard2.0\Allure.Commons.dll</HintPath>
+    <Reference Include="Allure.Commons, Version=2.2.0.7, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Allure.Commons.2.2.0.7\lib\netstandard2.0\Allure.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Configuration.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
