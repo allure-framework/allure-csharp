@@ -19,7 +19,7 @@ namespace Allure.SpecFlowPlugin
     {
         readonly string noMatchingStepMessage = "No matching step definition found for the step";
         static AllureLifecycle allure = AllureLifecycle.Instance;
-        PluginConfiguration pluginConfiguration = new PluginConfiguration(allure.Configuration);
+        static PluginConfiguration pluginConfiguration = new PluginConfiguration(allure.Configuration);
 
         public AllureTestTracerWrapper(ITraceListener traceListener, IStepFormatter stepFormatter,
             IStepDefinitionSkeletonProvider stepDefinitionSkeletonProvider, SpecFlowConfiguration specFlowConfiguration)
@@ -101,9 +101,9 @@ namespace Allure.SpecFlowPlugin
                     // convert 2 column table into param-value
                     else if (table.Header.Count == 2)
                     {
-                        var paramNameMatch = pluginConfiguration.ParamNameRegex.IsMatch(header[0]);
-                        var paramValueMatch = pluginConfiguration.ParamValueRegex.IsMatch(header[1]);
-                        if (paramNameMatch && paramValueMatch)
+                        var paramNameMatch = pluginConfiguration.ParamNameRegex?.IsMatch(header[0]);
+                        var paramValueMatch = pluginConfiguration.ParamValueRegex?.IsMatch(header[1]);
+                        if (paramNameMatch.HasValue && paramValueMatch.HasValue && paramNameMatch.Value && paramValueMatch.Value)
                         {
                             for (int i = 0; i < table.RowCount; i++)
                             {

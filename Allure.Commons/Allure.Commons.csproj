@@ -16,7 +16,7 @@
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
-    <PackageReleaseNotes>New Label and Link extensions</PackageReleaseNotes>
+    <PackageReleaseNotes>Label and Link extensions</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Commons|AnyCPU'" />

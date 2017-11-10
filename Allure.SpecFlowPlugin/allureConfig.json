@@ -5,8 +5,29 @@
   "specflow": {
     "stepArguments": {
       "convertToParameters": "true",
-      "paramNameRegex": ".*",
-      "paramValueRegex": ".*"
+      "paramNameRegex": "",
+      "paramValueRegex": ""
+    },
+    "grouping": {
+      "suites": {
+        "parentSuite": "^parentSuite:?(.*)",
+        "suite": "^suite:?(.*)",
+        "subSuite": "^subSuite:?(.*)"
+      },
+      "behaviors": {
+        "epic": "^epic:?(.*)",
+        "story": "^story:?(.*)"
+      },
+      "packages": {
+        "package": "",
+        "testClass": "",
+        "testMethod": ""
+      }
+    },
+    "labels": {
+      "owner": "",
+      "severity": "",
+      "issue": ""
     }
   }
 }
