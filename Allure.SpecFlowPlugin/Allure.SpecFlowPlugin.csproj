@@ -13,11 +13,10 @@
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <PackageTags>specflow allure</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Refactored exception parsing: Internal messages tree is now displayed in message text.
-      Configurable tags conversion to labels and links.
-      Configurable step table parameters conversion.
-      Scenarios with invalid step definitions are now marked as broken
-      SpecFlow 2.2 support
+    <PackageReleaseNotes>Step multiline argument is now parsed as txt step attachment.
+Refactored exception parsing: Internal exception messages are now displayed in message text.
+Some step arguments parsing improvements.
+     
 </PackageReleaseNotes>
     <AssemblyVersion>2.2</AssemblyVersion>
     <FileVersion>2.2.0.0</FileVersion>

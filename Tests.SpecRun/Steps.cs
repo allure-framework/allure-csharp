@@ -57,8 +57,8 @@ namespace Tests.SpecRun
         {
         }
 
-        [StepDefinition("Step with params: (.*), (.*), (.*)")]
-        public void StepWithArgs(int number, string text, DateTime date)
+        [StepDefinition("Step with params: (.*)")]
+        public void StepWithArgs(int number, string text)
         {
         }
 

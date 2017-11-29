@@ -42,3 +42,21 @@ Scenario: Table arguments
 		| "Mary","Ann" | Jane;   | female | 25  |
 		|              |         |        |     |
 		| Eric         | Cartman | ,      | ,,  |
+
+Scenario: Multiline arguments
+
+	Given Step with params: 123 
+		"""
+		<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
+		  <entity name="xts_consumptiontaxdetail">
+			<attribute name="xts_effectivestartdate" />
+			<attribute name="xts_consumptiontaxid" />
+			<attribute name="xts_rate" />
+			<order attribute="xts_effectivestartdate" descending="true" />
+			<filter type="and">
+			  <condition attribute="xts_effectivestartdate" operator="on-or-before" value="@vehiclePrice.xts_effectivestartdate" />
+			  <condition attribute="xts_consumptiontaxid" operator="eq" value="@vehiclePriceDetail.xts_consumptiontax1id" />
+			</filter>			
+		  </entity>
+		</fetch>
+		"""

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
@@ -77,6 +78,15 @@ namespace Allure.SpecFlowPlugin
                 name = $"{stepInstance.Keyword} {stepInstance.Text}"
             };
 
+
+            // parse MultilineTextArgument
+            if (stepInstance.MultilineTextArgument != null)
+                allure.AddAttachment(
+                    "multiline argument",
+                    "text/plain",
+                    Encoding.ASCII.GetBytes(stepInstance.MultilineTextArgument),
+                    ".txt");
+
             var table = stepInstance.TableArgument;
             bool isTableProcessed = (table == null);
 
@@ -123,8 +133,8 @@ namespace Allure.SpecFlowPlugin
             // add csv table for multi-row table if was not processed as params already
             if (!isTableProcessed)
             {
-                var csvFile = $"{Guid.NewGuid().ToString()}.csv";
-                using (var csv = new CsvWriter(File.CreateText(csvFile)))
+                using (var sw = new StringWriter())
+                using (var csv = new CsvWriter(sw))
                 {
                     foreach (var item in table.Header)
                     {
@@ -139,8 +149,9 @@ namespace Allure.SpecFlowPlugin
                         }
                         csv.NextRecord();
                     }
+                    allure.AddAttachment("table", "text/csv",
+                        Encoding.ASCII.GetBytes(sw.ToString()), ".csv");
                 }
-                allure.AddAttachment("table", "text/csv", csvFile);
             }
         }
 

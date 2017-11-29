@@ -43,7 +43,7 @@ namespace Allure.SpecFlowPlugin.Tests
         }
 
 
-        [TestCase(Status.passed, 15)]
+        [TestCase(Status.passed, 16)]
         [TestCase(Status.failed, 1 * 2)]
         [TestCase(Status.broken, 8 * 2 + 7)]
         [TestCase(Status.skipped, 0)]
