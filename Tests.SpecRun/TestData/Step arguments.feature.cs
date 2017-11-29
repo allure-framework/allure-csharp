@@ -84,75 +84,84 @@ this.ScenarioSetup(scenarioInfo);
  testRunner.Given("Step with table", ((string)(null)), table2, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
-                        "name",
-                        "surname",
-                        "gender",
-                        "age"});
+                        "attribute",
+                        "value"});
             table3.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "male",
-                        ""});
+                        "width",
+                        "10"});
 #line 15
  testRunner.Given("Step with table", ((string)(null)), table3, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
-                        "attribute",
-                        "value"});
-            table4.AddRow(new string[] {
-                        "width",
-                        "10"});
-            table4.AddRow(new string[] {
-                        "length",
-                        "20"});
-            table4.AddRow(new string[] {
-                        "height",
-                        "5"});
-#line 20
- testRunner.Given("Step with table", ((string)(null)), table4, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
-                        "param",
-                        "value"});
-            table5.AddRow(new string[] {
-                        "width",
-                        "10"});
-            table5.AddRow(new string[] {
-                        "length",
-                        "20"});
-            table5.AddRow(new string[] {
-                        "height",
-                        "5"});
-#line 27
- testRunner.Given("Step with table", ((string)(null)), table5, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "name",
                         "surname",
                         "gender",
                         "age"});
+            table4.AddRow(new string[] {
+                        "John",
+                        "Smith",
+                        "male",
+                        ""});
+#line 20
+ testRunner.Given("Step with table", ((string)(null)), table4, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+                        "attribute",
+                        "value"});
+            table5.AddRow(new string[] {
+                        "width",
+                        "10"});
+            table5.AddRow(new string[] {
+                        "length",
+                        "20"});
+            table5.AddRow(new string[] {
+                        "height",
+                        "5"});
+#line 25
+ testRunner.Given("Step with table", ((string)(null)), table5, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
+                        "param",
+                        "value"});
             table6.AddRow(new string[] {
+                        "width",
+                        "10"});
+            table6.AddRow(new string[] {
+                        "length",
+                        "20"});
+            table6.AddRow(new string[] {
+                        "height",
+                        "5"});
+#line 32
+ testRunner.Given("Step with table", ((string)(null)), table6, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
+                        "name",
+                        "surname",
+                        "gender",
+                        "age"});
+            table7.AddRow(new string[] {
                         "John",
                         "Smith",
                         "male",
                         "30"});
-            table6.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "\"Mary\",\"Ann\"",
                         "Jane;",
                         "female",
                         "25"});
-            table6.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "",
                         "",
                         "",
                         ""});
-            table6.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "Eric",
                         "Cartman",
                         ",",
                         ",,"});
-#line 34
- testRunner.Given("Step with table", ((string)(null)), table6, "Given ");
+#line 39
+ testRunner.Given("Step with table", ((string)(null)), table7, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

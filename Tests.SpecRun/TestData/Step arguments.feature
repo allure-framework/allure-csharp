@@ -10,13 +10,18 @@ Scenario: Table arguments
 	# no params
 	Given Step with table
 		|1|2|3|
-	
-	# 1 row: process as param value
+
+	# 2 columns with header match, 1 row: process as param value wihout header (width = 10)
+	Given Step with table
+		| attribute | value |
+		| width     | 10    |
+		
+	# 1 row: process as param value with header (name = John, surname = Smith, ...)
 	Given Step with table
 		| name | surname | gender | age |
 		| John | Smith   | male   |     |
 	
-	# 2 column with header match: process as param value
+	# 2 column with header match, N rows: process as param value wihout header (width = 10, length = 20, height = 5)
 	Given Step with table
 		| attribute | value |
 		| width     | 10    |

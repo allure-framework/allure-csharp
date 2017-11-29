@@ -88,18 +88,8 @@ namespace Allure.SpecFlowPlugin
                 {
                     var parameters = new List<Parameter>();
 
-                    // add step params for 1 row table
-                    if (table.RowCount == 1)
-                    {
-                        for (int i = 0; i < table.Header.Count; i++)
-                        {
-                            parameters.Add(new Parameter { name = header[i], value = table.Rows[0][i] });
-                        }
-                        isTableProcessed = true;
-                    }
-
                     // convert 2 column table into param-value
-                    else if (table.Header.Count == 2)
+                    if (table.Header.Count == 2)
                     {
                         var paramNameMatch = pluginConfiguration.ParamNameRegex?.IsMatch(header[0]);
                         var paramValueMatch = pluginConfiguration.ParamValueRegex?.IsMatch(header[1]);
@@ -113,6 +103,15 @@ namespace Allure.SpecFlowPlugin
                             isTableProcessed = true;
                         }
 
+                    }
+                    // add step params for 1 row table
+                    else if (table.RowCount == 1)
+                    {
+                        for (int i = 0; i < table.Header.Count; i++)
+                        {
+                            parameters.Add(new Parameter { name = header[i], value = table.Rows[0][i] });
+                        }
+                        isTableProcessed = true;
                     }
 
                     stepResult.parameters = parameters;

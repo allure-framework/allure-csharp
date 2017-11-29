@@ -89,13 +89,19 @@ namespace Allure.SpecFlowPlugin.Tests
         }
 
         [Test]
-        public void ShouldTreat2ColumnAnd1RowTableAsStepParams()
+        public void ShouldConvertTableToStepParams()
         {
-            var stepsWithParams = allureTestResults
-                .First(x => x.name == "Table arguments").steps
-                .Where(x => x.parameters.Count > 0);
+            var parameters = allureTestResults
+                .First(x => x.name == "Table arguments").steps.
+                SelectMany(s => s.parameters);
 
-            Assert.That(stepsWithParams, Has.Exactly(2).Items);
+            Assert.That(parameters.Select(x=>x.name), Has.Exactly(1).EqualTo("name"));
+            Assert.That(parameters.Select(x => x.name), Has.Exactly(1).EqualTo("surname"));
+            Assert.That(parameters.Select(x => x.name), Has.Exactly(2).EqualTo("width"));
+            Assert.That(parameters.Select(x => x.name), Has.Exactly(0).EqualTo("attribute"));
+
+
+
         }
         [Test]
         public void ShouldParseTags()
