@@ -13,8 +13,9 @@
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <PackageTags>specflow allure</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Configurable tags conversion to labels and links
-      Configurable step table parameters conversion
+    <PackageReleaseNotes>Refactored exception parsing: Internal messages tree is now displayed in message text.
+      Configurable tags conversion to labels and links.
+      Configurable step table parameters conversion.
       Scenarios with invalid step definitions are now marked as broken
       SpecFlow 2.2 support
 </PackageReleaseNotes>

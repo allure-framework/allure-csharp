@@ -151,11 +151,7 @@ namespace Allure.SpecFlowPlugin
                 x =>
                 {
                     x.status = (x.status != Status.none) ? x.status : Status.failed;
-                    x.statusDetails = new StatusDetails
-                    {
-                        message = ex.Message,
-                        trace = ex.StackTrace
-                    };
+                    x.statusDetails = AllureHelper.GetStatusDetails(ex);
                 });
         }
     }

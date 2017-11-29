@@ -36,7 +36,9 @@ namespace Tests.SpecRun
                 case TestOutcome.passed:
                     break;
                 case TestOutcome.failed:
-                    throw new Exception("This test is failed");
+                    throw new Exception("This test is failed", 
+                        new InvalidOperationException("Internal message", 
+                            new ArgumentException("One more message")));
                 default:
                     throw new ArgumentException("value is not supported");
             }

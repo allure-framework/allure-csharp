@@ -77,11 +77,8 @@ namespace Allure.SpecFlowPlugin
                                     .StopTestCase(x =>
                                     {
                                         x.status = Status.broken;
-                                        x.statusDetails = new StatusDetails
-                                        {
-                                            message = ex.Message,
-                                            trace = ex.StackTrace
-                                        };
+                                        x.statusDetails = AllureHelper.GetStatusDetails(ex);
+      
                                     })
                                     .WriteTestCase(scenario.uuid)
                                     .StopTestContainer(scenarioContainer.uuid)
@@ -108,11 +105,7 @@ namespace Allure.SpecFlowPlugin
                                     x =>
                                     {
                                         x.status = Status.broken;
-                                        x.statusDetails = new StatusDetails
-                                        {
-                                            message = ex.Message,
-                                            trace = ex.StackTrace
-                                        };
+                                        x.statusDetails = AllureHelper.GetStatusDetails(ex);
                                     });
                             throw;
                         }
@@ -147,11 +140,7 @@ namespace Allure.SpecFlowPlugin
                                     x =>
                                     {
                                         x.status = Status.broken;
-                                        x.statusDetails = new StatusDetails
-                                        {
-                                            message = ex.Message,
-                                            trace = ex.StackTrace
-                                        };
+                                        x.statusDetails = AllureHelper.GetStatusDetails(ex);
                                     });
                                 throw;
                             }
@@ -187,11 +176,7 @@ namespace Allure.SpecFlowPlugin
                                         x =>
                                         {
                                             x.status = Status.broken;
-                                            x.statusDetails = new StatusDetails
-                                            {
-                                                message = ex.Message,
-                                                trace = ex.StackTrace
-                                            };
+                                            x.statusDetails = AllureHelper.GetStatusDetails(ex);
                                         });
 
                                 WriteScenarios(contextManager);

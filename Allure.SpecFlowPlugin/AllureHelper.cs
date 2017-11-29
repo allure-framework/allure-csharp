@@ -91,6 +91,23 @@ namespace Allure.SpecFlowPlugin
             return testresultContainer;
         }
 
+        internal static StatusDetails GetStatusDetails(Exception ex)
+        {
+            return new StatusDetails
+            {
+                message = GetFullExceptionMessage(ex),
+                trace = ex.ToString()
+            };
+
+        }
+
+        private static string GetFullExceptionMessage(Exception ex)
+        {
+            return ex.Message +
+            (!string.IsNullOrWhiteSpace(ex.InnerException?.Message) ?
+                $" -> {GetFullExceptionMessage(ex.InnerException)}" : string.Empty);
+        }
+
         private static Tuple<List<Label>, List<Link>> GetTags(FeatureInfo featureInfo, ScenarioInfo scenarioInfo)
         {
             var result = Tuple.Create(new List<Label>(), new List<Link>());
