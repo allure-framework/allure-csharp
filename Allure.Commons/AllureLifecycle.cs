@@ -10,7 +10,7 @@ namespace Allure.Commons
 {
     public class AllureLifecycle
     {
-        private static object lockobj = new object();
+        private static readonly object lockobj = new object();
         private AllureStorage storage;
         private IAllureResultsWriter writer;
         private static AllureLifecycle instance;
@@ -279,14 +279,14 @@ namespace Allure.Commons
         private AllureConfiguration ReadJsonConfiguration()
         {
             AllureConfiguration config = new AllureConfiguration();
-            if (File.Exists(AllureConstants.CONFIG_FILENAME))
-            {
-                var jo = JObject.Parse(File.ReadAllText(AllureConstants.CONFIG_FILENAME));
-                this.Configuration = jo.ToString();
-                var allureSection = jo["allure"];
-                if (allureSection != null)
-                    config = allureSection?.ToObject<AllureConfiguration>();
-            }
+            var configFile = Path.Combine(Path.GetDirectoryName(typeof(AllureLifecycle).Assembly.Location),
+                AllureConstants.CONFIG_FILENAME);
+            var jo = JObject.Parse(File.ReadAllText(configFile));
+            this.Configuration = jo.ToString();
+            var allureSection = jo["allure"];
+            if (allureSection != null)
+                config = allureSection?.ToObject<AllureConfiguration>();
+
             return config;
         }
         #endregion

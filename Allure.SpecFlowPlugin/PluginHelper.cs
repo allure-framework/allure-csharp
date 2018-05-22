@@ -1,4 +1,5 @@
 ﻿using Allure.Commons;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,15 +10,23 @@ using TechTalk.SpecFlow.Bindings;
 
 namespace Allure.SpecFlowPlugin
 {
-    static class AllureHelper
+    public static class PluginHelper
     {
         static ScenarioInfo emptyScenarioInfo = new ScenarioInfo(string.Empty);
 
         static FeatureInfo emptyFeatureInfo = new FeatureInfo(
             CultureInfo.CurrentCulture, string.Empty, string.Empty);
 
-        static PluginConfiguration config = new PluginConfiguration(AllureLifecycle.Instance.Configuration);
+        internal static PluginConfiguration PluginConfiguration = GetConfiguration(AllureLifecycle.Instance.Configuration);
 
+        public static PluginConfiguration GetConfiguration(string allureConfiguration)
+        {
+            var config = new PluginConfiguration();
+            var specflowSection = JObject.Parse(allureConfiguration)["specflow"];
+            if (specflowSection != null)
+                config = specflowSection.ToObject<PluginConfiguration>();
+            return config;
+        }
         internal static string GetFeatureContainerId(FeatureInfo featureInfo)
         {
             var id = (featureInfo != null)
@@ -120,62 +129,62 @@ namespace Allure.SpecFlowPlugin
             {
                 var tagValue = tag;
                 // issue
-                if (TryUpdateValueByMatch(config.IssueRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.links.issue, ref tagValue))
                 {
                     result.Item2.Add(Link.Issue(tagValue)); continue;
                 }
                 // tms
-                if (TryUpdateValueByMatch(config.TmsRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.links.tms, ref tagValue))
                 {
                     result.Item2.Add(Link.Tms(tagValue)); continue;
                 }
                 // parent suite
-                if (TryUpdateValueByMatch(config.ParentSuiteRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.suites.parentSuite, ref tagValue))
                 {
                     result.Item1.Add(Label.ParentSuite(tagValue)); continue;
                 }
                 // suite
-                if (TryUpdateValueByMatch(config.SuiteRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.suites.suite, ref tagValue))
                 {
                     result.Item1.Add(Label.Suite(tagValue)); continue;
                 }
                 // sub suite
-                if (TryUpdateValueByMatch(config.SubSuiteRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.suites.subSuite, ref tagValue))
                 {
                     result.Item1.Add(Label.SubSuite(tagValue)); continue;
                 }
                 // epic
-                if (TryUpdateValueByMatch(config.EpicRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.behaviors.epic, ref tagValue))
                 {
                     result.Item1.Add(Label.Epic(tagValue)); continue;
                 }
                 // story
-                if (TryUpdateValueByMatch(config.StoryRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.behaviors.story, ref tagValue))
                 {
                     result.Item1.Add(Label.Story(tagValue)); continue;
                 }
                 // package
-                if (TryUpdateValueByMatch(config.PackageRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.packages.package, ref tagValue))
                 {
                     result.Item1.Add(Label.Package(tagValue)); continue;
                 }
                 // test class
-                if (TryUpdateValueByMatch(config.TestClassRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.packages.testClass, ref tagValue))
                 {
                     result.Item1.Add(Label.TestClass(tagValue)); continue;
                 }
                 // test method
-                if (TryUpdateValueByMatch(config.TestMethodRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.grouping.packages.testMethod, ref tagValue))
                 {
                     result.Item1.Add(Label.TestMethod(tagValue)); continue;
                 }
                 // owner
-                if (TryUpdateValueByMatch(config.OwnerRegex, ref tagValue))
+                if (TryUpdateValueByMatch(PluginConfiguration.labels.owner, ref tagValue))
                 {
                     result.Item1.Add(Label.Owner(tagValue)); continue;
                 }
                 // severity
-                if (TryUpdateValueByMatch(config.SeverityRegex, ref tagValue) && Enum.TryParse(tagValue, out SeverityLevel level))
+                if (TryUpdateValueByMatch(PluginConfiguration.labels.severity, ref tagValue) && Enum.TryParse(tagValue, out SeverityLevel level))
                 {
                     result.Item1.Add(Label.Severity(level)); continue;
                 }
@@ -185,8 +194,21 @@ namespace Allure.SpecFlowPlugin
             return result;
         }
 
-        private static bool TryUpdateValueByMatch(Regex regex, ref string value)
+        private static bool TryUpdateValueByMatch(string expression, ref string value)
         {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            Regex regex = null;
+            try
+            {
+                regex = new Regex(value, RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
             if (regex == null)
                 return false;
 

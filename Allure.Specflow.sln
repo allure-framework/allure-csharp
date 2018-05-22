@@ -22,12 +22,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Adapters|Any CPU.ActiveCfg = Adapters|Any CPU
-		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Adapters|Any CPU.Build.0 = Adapters|Any CPU
+		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Adapters|Any CPU.ActiveCfg = Debug|Any CPU
+		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Adapters|Any CPU.Build.0 = Debug|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Allure|Any CPU.ActiveCfg = Release|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Allure|Any CPU.Build.0 = Release|Any CPU
-		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Commons|Any CPU.ActiveCfg = Commons|Any CPU
-		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Commons|Any CPU.Build.0 = Commons|Any CPU
+		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Commons|Any CPU.ActiveCfg = Debug|Any CPU
+		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Commons|Any CPU.Build.0 = Debug|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Release|Any CPU.ActiveCfg = Release|Any CPU

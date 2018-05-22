@@ -1,12 +1,7 @@
 ﻿using Allure.Commons;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
 namespace Tests.SpecRun
@@ -36,8 +31,8 @@ namespace Tests.SpecRun
                 case TestOutcome.passed:
                     break;
                 case TestOutcome.failed:
-                    throw new Exception("This test is failed", 
-                        new InvalidOperationException("Internal message", 
+                    throw new Exception("This test is failed",
+                        new InvalidOperationException("Internal message",
                             new ArgumentException("One more message")));
                 default:
                     throw new ArgumentException("value is not supported");
