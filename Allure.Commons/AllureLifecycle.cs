@@ -15,7 +15,7 @@ namespace Allure.Commons
         private IAllureResultsWriter writer;
         private static AllureLifecycle instance;
 
-        public AllureConfiguration Configuration { get; private set; }
+        public string Configuration { get; private set; } = string.Empty;
         public string ResultsDirectory => writer.ToString();
         public static AllureLifecycle Instance
         {
@@ -25,24 +25,19 @@ namespace Allure.Commons
                 {
                     lock (lockobj)
                     {
-                        instance = instance ?? CreateInstance();
+                        instance = instance ?? new AllureLifecycle();
                     }
                 }
 
                 return instance;
             }
         }
-        protected AllureLifecycle(AllureConfiguration configuration)
+        public AllureLifecycle()
         {
-            this.Configuration = configuration;
-            this.writer = new FileSystemResultsWriter(configuration.Directory);
+            this.writer = new FileSystemResultsWriter(ReadJsonConfiguration().Directory);
             this.storage = new AllureStorage();
         }
 
-        public static AllureLifecycle CreateInstance()
-        {
-            return new AllureLifecycle(ReadJsonConfiguration());
-        }
 
         #region TestContainer
         public virtual AllureLifecycle StartTestContainer(TestResultContainer container)
@@ -281,12 +276,13 @@ namespace Allure.Commons
             storage.StartStep(uuid);
         }
 
-        private static AllureConfiguration ReadJsonConfiguration()
+        private AllureConfiguration ReadJsonConfiguration()
         {
             AllureConfiguration config = new AllureConfiguration();
             if (File.Exists(AllureConstants.CONFIG_FILENAME))
             {
                 var jo = JObject.Parse(File.ReadAllText(AllureConstants.CONFIG_FILENAME));
+                this.Configuration = jo.ToString();
                 var allureSection = jo["allure"];
                 if (allureSection != null)
                     config = allureSection?.ToObject<AllureConfiguration>();

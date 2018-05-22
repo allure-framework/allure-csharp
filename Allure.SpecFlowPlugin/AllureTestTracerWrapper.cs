@@ -1,6 +1,5 @@
 ﻿using Allure.Commons;
 using CsvHelper;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

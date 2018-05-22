@@ -10,13 +10,14 @@ namespace Allure.Commons.Tests.Configuration
         static object lockobj = new object();
 
         [TestCase(null)]
-        [TestCase(@"{}")]
         [TestCase(@"{""allure"":{""logging"": ""false""}}")]
+        [TestCase(@"{""allure"":{""directory"": ""allure-results""}}")]
+
         public void Defaults(string config)
         {
             RestoreState(config);
 
-            var allureCycle = AllureLifecycle.CreateInstance();
+            var allureCycle = new AllureLifecycle();
             Assert.Multiple(() =>
             {
                 Assert.IsInstanceOf<AllureLifecycle>(allureCycle);
@@ -31,7 +32,7 @@ namespace Allure.Commons.Tests.Configuration
         {
             var config = @"{""allure"":{""directory"": ""test""}}";
             RestoreState(config);
-            var allureCycle = AllureLifecycle.CreateInstance();
+            var allureCycle = new AllureLifecycle();
             Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "test"),
                 allureCycle.ResultsDirectory);
 
