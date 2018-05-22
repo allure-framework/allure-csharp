@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -13,11 +13,12 @@
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <PackageTags>specflow allure</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Step multiline argument is now parsed as txt step attachment.
-Refactored exception parsing: Internal exception messages are now displayed in message text.
-Some step arguments parsing improvements.
-     
-</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      Step multiline argument is now parsed as txt step attachment.
+      Refactored exception parsing: Internal exception messages are now displayed in message text.
+      Some step arguments parsing improvements.
+
+    </PackageReleaseNotes>
     <AssemblyVersion>2.2</AssemblyVersion>
     <FileVersion>2.2.0.0</FileVersion>
   </PropertyGroup>

@@ -1,23 +1,39 @@
-﻿using System.IO;
-using Xunit;
+﻿using NUnit.Framework;
+using System;
+using System.IO;
+
 namespace Allure.Commons.Tests.Configuration
 {
+    [TestFixture]
     public class ConfigurationTests
     {
         static object lockobj = new object();
 
-        [Theory(DisplayName = "Should initialize using configuration defaults")]
-        [InlineData(null)]
-        [InlineData(@"{}")]
-        [InlineData(@"{""allure"":{""logging"": ""false""}}")]
-
+        [TestCase(null)]
+        [TestCase(@"{}")]
+        [TestCase(@"{""allure"":{""logging"": ""false""}}")]
         public void Defaults(string config)
         {
             RestoreState(config);
 
             var allureCycle = AllureLifecycle.CreateInstance();
-            Assert.IsType<AllureLifecycle>(allureCycle);
+            Assert.Multiple(() =>
+            {
+                Assert.IsInstanceOf<AllureLifecycle>(allureCycle);
+                Assert.IsNotNull(allureCycle.Configuration);
+                Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, AllureConstants.DEFAULT_RESULTS_FOLDER),
+                    allureCycle.ResultsDirectory);
+            });
+        }
 
+        [Test, Description("Should set results directory from config")]
+        public void ShouldSetResultsDirectoryFromConfig()
+        {
+            var config = @"{""allure"":{""directory"": ""test""}}";
+            RestoreState(config);
+            var allureCycle = AllureLifecycle.CreateInstance();
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "test"),
+                allureCycle.ResultsDirectory);
 
         }
 
@@ -31,29 +47,19 @@ namespace Allure.Commons.Tests.Configuration
 
         //}
 
-        [Fact(DisplayName = "Should access Configuration")]
-        public void ShouldAccessConfigProperties()
-        {
-            var config = @"{""allure"":{""customKey"": ""customValue""}}";
-            RestoreState(config);
-            var cycle = AllureLifecycle.CreateInstance();
-            Assert.Equal("customValue", cycle.Configuration["allure:customKey"]);
-
-        }
-
         private static void RestoreState(string config)
         {
             lock (lockobj)
-                {
-                    if (Directory.Exists(AllureConstants.DEFAULT_RESULTS_FOLDER))
-                        Directory.Delete(AllureConstants.DEFAULT_RESULTS_FOLDER, true);
+            {
+                if (Directory.Exists(AllureConstants.DEFAULT_RESULTS_FOLDER))
+                    Directory.Delete(AllureConstants.DEFAULT_RESULTS_FOLDER, true);
 
-                    if (config != null)
-                        File.WriteAllText(AllureConstants.CONFIG_FILENAME, config);
-                    else
-                        if (File.Exists(AllureConstants.CONFIG_FILENAME))
-                        File.Delete(AllureConstants.CONFIG_FILENAME);
-                }
+                if (config != null)
+                    File.WriteAllText(AllureConstants.CONFIG_FILENAME, config);
+                else
+                    if (File.Exists(AllureConstants.CONFIG_FILENAME))
+                    File.Delete(AllureConstants.CONFIG_FILENAME);
+            }
         }
 
 

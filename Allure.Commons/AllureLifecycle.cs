@@ -1,7 +1,8 @@
-﻿using Allure.Commons.Storage;
+﻿using Allure.Commons.Configuration;
+using Allure.Commons.Storage;
 using Allure.Commons.Writer;
 using HeyRed.Mime;
-using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 
@@ -14,7 +15,7 @@ namespace Allure.Commons
         private IAllureResultsWriter writer;
         private static AllureLifecycle instance;
 
-        public IConfiguration Configuration { get; private set; }
+        public AllureConfiguration Configuration { get; private set; }
         public string ResultsDirectory => writer.ToString();
         public static AllureLifecycle Instance
         {
@@ -31,20 +32,16 @@ namespace Allure.Commons
                 return instance;
             }
         }
-        protected AllureLifecycle(IConfigurationRoot configuration)
+        protected AllureLifecycle(AllureConfiguration configuration)
         {
             this.Configuration = configuration;
-            this.writer = GetDefaultResultsWriter(configuration);
+            this.writer = new FileSystemResultsWriter(configuration.Directory);
             this.storage = new AllureStorage();
         }
 
         public static AllureLifecycle CreateInstance()
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
-                .Build();
-
-            return new AllureLifecycle(config);
+            return new AllureLifecycle(ReadJsonConfiguration());
         }
 
         #region TestContainer
@@ -283,14 +280,19 @@ namespace Allure.Commons
             storage.ClearStepContext();
             storage.StartStep(uuid);
         }
-        internal virtual IAllureResultsWriter GetDefaultResultsWriter(IConfigurationRoot configuration)
+
+        private static AllureConfiguration ReadJsonConfiguration()
         {
-            var resultsFolder = configuration["allure:directory"]
-                ?? AllureConstants.DEFAULT_RESULTS_FOLDER;
-
-            return new FileSystemResultsWriter(resultsFolder);
+            AllureConfiguration config = new AllureConfiguration();
+            if (File.Exists(AllureConstants.CONFIG_FILENAME))
+            {
+                var jo = JObject.Parse(File.ReadAllText(AllureConstants.CONFIG_FILENAME));
+                var allureSection = jo["allure"];
+                if (allureSection != null)
+                    config = allureSection?.ToObject<AllureConfiguration>();
+            }
+            return config;
         }
-
         #endregion
 
     }
