@@ -9,10 +9,8 @@ namespace Allure.Commons.Tests.Configuration
     {
         static object lockobj = new object();
 
-        [TestCase(null)]
         [TestCase(@"{""allure"":{""logging"": ""false""}}")]
         [TestCase(@"{""allure"":{""directory"": ""allure-results""}}")]
-
         public void Defaults(string config)
         {
             RestoreState(config);
@@ -27,6 +25,12 @@ namespace Allure.Commons.Tests.Configuration
             });
         }
 
+        [Test]
+        public void ShouldThrowExceptionIfConfigurationNotFound()
+        {
+            RestoreState(null);
+            Assert.Throws<FileNotFoundException>(() => new AllureLifecycle());
+        }
         [Test, Description("Should set results directory from config")]
         public void ShouldSetResultsDirectoryFromConfig()
         {

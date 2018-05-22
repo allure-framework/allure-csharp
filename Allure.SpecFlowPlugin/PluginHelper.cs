@@ -202,7 +202,7 @@ namespace Allure.SpecFlowPlugin
             Regex regex = null;
             try
             {
-                regex = new Regex(value, RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                regex = new Regex(expression, RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
             }
             catch (Exception)
             {

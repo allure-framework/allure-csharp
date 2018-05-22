@@ -101,7 +101,7 @@ namespace Allure.SpecFlowPlugin
                     if (table.Header.Count == 2)
                     {
                         var paramNameMatch = Regex.IsMatch(header[0], pluginConfiguration.stepArguments.paramNameRegex);
-                        var paramValueMatch = Regex.IsMatch(header[0], pluginConfiguration.stepArguments.paramValueRegex);
+                        var paramValueMatch = Regex.IsMatch(header[1], pluginConfiguration.stepArguments.paramValueRegex);
                         if (paramNameMatch && paramValueMatch)
                         {
                             for (int i = 0; i < table.RowCount; i++)
