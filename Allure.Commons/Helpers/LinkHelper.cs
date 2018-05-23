@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Allure.Commons.Helpers
@@ -20,7 +21,7 @@ namespace Allure.Commons.Helpers
                     var linkArray = linkTypeGroup.ToArray();
                     for (int i = 0; i < linkArray.Length; i++)
                     {
-                        linkArray[i].url = pattern.Replace(match, linkArray[i].url);
+                        linkArray[i].url = Uri.EscapeUriString(pattern.Replace(match, linkArray[i].url));
                     }
                 }
             }

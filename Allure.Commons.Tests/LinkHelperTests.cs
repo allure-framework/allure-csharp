@@ -41,7 +41,7 @@ namespace Allure.Commons.Tests
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("Empty Type"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://tms.com/"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://issue.com/"));
-                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://issue.com/Issue URL"));
+                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://issue.com/Issue%20URL"));
             });
         }
     }
