@@ -9,10 +9,18 @@ namespace Allure.SpecFlowPlugin.Tests
         [TestCase(@"allureConfigStepArguments.json")]
         [TestCase(@"allureConfigEmpty.json")]
         [TestCase(@"allureConfigWithInvalidRegex.json")]
-        public void ParamNameRegex(string json)
+        public void ShouldNotHaveNullParents(string json)
         {
             var config = PluginHelper.GetConfiguration(File.ReadAllText(json));
-            Assert.IsNotNull(config);
+            Assert.Multiple(() =>
+            {
+                Assert.That(config.grouping.behaviors, Is.Not.Null);
+                Assert.That(config.grouping.packages, Is.Not.Null);
+                Assert.That(config.grouping.suites, Is.Not.Null);
+                Assert.That(config.labels, Is.Not.Null);
+                Assert.That(config.links, Is.Not.Null);
+                Assert.That(config.stepArguments, Is.Not.Null);
+            });
         }
     }
 }

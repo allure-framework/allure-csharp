@@ -140,7 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="allureConfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config">
       <SubType>Designer</SubType>

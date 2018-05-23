@@ -17,7 +17,7 @@ namespace Allure.SpecFlowPlugin
         static FeatureInfo emptyFeatureInfo = new FeatureInfo(
             CultureInfo.CurrentCulture, string.Empty, string.Empty);
 
-        internal static PluginConfiguration PluginConfiguration = GetConfiguration(AllureLifecycle.Instance.Configuration);
+        internal static PluginConfiguration PluginConfiguration = GetConfiguration(AllureLifecycle.Instance.JsonConfiguration);
 
         public static PluginConfiguration GetConfiguration(string allureConfiguration)
         {
@@ -128,15 +128,20 @@ namespace Allure.SpecFlowPlugin
             foreach (var tag in tags)
             {
                 var tagValue = tag;
+                // link
+                if (TryUpdateValueByMatch(PluginConfiguration.links.link, ref tagValue))
+                {
+                    result.Item2.Add(new Link() { name = tagValue, url = tagValue }); continue;
+                }
                 // issue
                 if (TryUpdateValueByMatch(PluginConfiguration.links.issue, ref tagValue))
                 {
-                    result.Item2.Add(Link.Issue(tagValue)); continue;
+                    result.Item2.Add(Link.Issue(tagValue, tagValue)); continue;
                 }
                 // tms
                 if (TryUpdateValueByMatch(PluginConfiguration.links.tms, ref tagValue))
                 {
-                    result.Item2.Add(Link.Tms(tagValue)); continue;
+                    result.Item2.Add(Link.Tms(tagValue, tagValue)); continue;
                 }
                 // parent suite
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.suites.parentSuite, ref tagValue))
@@ -196,7 +201,7 @@ namespace Allure.SpecFlowPlugin
 
         private static bool TryUpdateValueByMatch(string expression, ref string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))
                 return false;
 
             Regex regex = null;

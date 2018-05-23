@@ -115,12 +115,14 @@ this.ScenarioSetup(scenarioInfo);
         
         [TechTalk.SpecRun.ScenarioAttribute("[v1.2] [api.core.create] Api test 2", new string[] {
                 "api",
-                "create"}, SourceLine=10)]
+                "create",
+                "link:http://google.com"}, SourceLine=10)]
         public virtual void V1_2Api_Core_CreateApiTest2()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("[v1.2] [api.core.create] Api test 2", new string[] {
                         "api",
-                        "create"});
+                        "create",
+                        "link:http://google.com"});
 #line 11
 this.ScenarioSetup(scenarioInfo);
 #line hidden

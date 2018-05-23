@@ -42,7 +42,6 @@ namespace Allure.SpecFlowPlugin.Tests
         [TestCase(Status.failed, 1 * 2)]
         [TestCase(Status.broken, 8 * 2 + 7)]
         [TestCase(Status.skipped, 0)]
-
         public void TestStatus(Status status, int count)
         {
             var scenariosByStatus = allureTestResults.Where(x => x.status == status);
@@ -116,6 +115,26 @@ namespace Allure.SpecFlowPlugin.Tests
             });
 
         }
+
+        [Test]
+        public void ShouldParseLinks()
+        {
+            var scenarios = allureTestResults
+                .Where(x => x.labels.Any(l => l.value == "labels"));
+
+            var links = scenarios.SelectMany(x => x.links);
+            Assert.Multiple(() =>
+            {
+                Assert.That(links.Select(x => x.url), Has.One.EqualTo("http://google.com"));
+                Assert.That(links.Where(x => x.type == "tms").Select(x => x.url), Has.One.EqualTo("https://example.org/234"));
+                Assert.That(links.Where(x => x.type == "issue").Select(x => x.url), Has.One.EqualTo("https://example.org/999999").And.One.EqualTo("https://example.org/123"));
+
+
+
+            });
+
+        }
+
         private void ParseAllureSuites(string allureResultsDir)
         {
             var allureTestResultFiles = new DirectoryInfo(allureResultsDir).GetFiles("*-result.json");

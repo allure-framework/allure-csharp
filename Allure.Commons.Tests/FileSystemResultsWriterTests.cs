@@ -1,4 +1,5 @@
-﻿using Allure.Commons.Writer;
+﻿using Allure.Commons.Configuration;
+using Allure.Commons.Writer;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -12,8 +13,12 @@ namespace Allure.Commons.Tests
         [Test, Description("Should use temp path if no access to output directory")]
         public void ShouldCleanupTempResultsFolder()
         {
+            var config = new AllureConfiguration()
+            {
+                Directory = Environment.CurrentDirectory
+            };
             var expectedDir = Path.Combine(Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
-            var moq = new Mock<FileSystemResultsWriter>(Environment.CurrentDirectory) { CallBase = true };
+            var moq = new Mock<FileSystemResultsWriter>(config) { CallBase = true };
             moq.Setup(x => x.HasDirectoryAccess(It.IsAny<string>())).Returns(false);
             Assert.AreEqual(expectedDir, moq.Object.ToString());
         }
@@ -22,10 +27,14 @@ namespace Allure.Commons.Tests
         public void Cleanup()
         {
             var resultsDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var config = new AllureConfiguration()
+            {
+                Directory = resultsDirectory
+            };
             Directory.CreateDirectory(resultsDirectory);
             File.WriteAllText(Path.Combine(resultsDirectory, Path.GetRandomFileName()), "");
 
-            new FileSystemResultsWriter(resultsDirectory).CleanUp();
+            new FileSystemResultsWriter(config).CleanUp();
             Assert.IsEmpty(Directory.GetFiles(resultsDirectory));
         }
     }

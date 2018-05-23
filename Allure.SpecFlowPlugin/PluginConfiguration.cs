@@ -3,10 +3,10 @@
 
     public class PluginConfiguration
     {
-        public Steparguments stepArguments { get; set; }
-        public Grouping grouping { get; set; }
-        public Labels labels { get; set; }
-        public Links links { get; set; }
+        public Steparguments stepArguments { get; set; } = new Steparguments();
+        public Grouping grouping { get; set; } = new Grouping();
+        public Labels labels { get; set; } = new Labels();
+        public Links links { get; set; } = new Links();
     }
 
     public class Steparguments
@@ -18,9 +18,9 @@
 
     public class Grouping
     {
-        public Suites suites { get; set; }
-        public Behaviors behaviors { get; set; }
-        public Packages packages { get; set; }
+        public Suites suites { get; set; } = new Suites();
+        public Behaviors behaviors { get; set; } = new Behaviors();
+        public Packages packages { get; set; } = new Packages();
     }
 
     public class Suites
@@ -51,6 +51,7 @@
 
     public class Links
     {
+        public string link { get; set; }
         public string issue { get; set; }
         public string tms { get; set; }
     }

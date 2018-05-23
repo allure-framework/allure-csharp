@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Allure.Commons.Configuration;
+using Allure.Commons.Helpers;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 
 [assembly: InternalsVisibleTo("Allure.Commons.Tests")]
@@ -15,12 +15,14 @@ namespace Allure.Commons.Writer
     {
         //private Logger logger = LogManager.GetCurrentClassLogger();
 
-        private string outputDirectory;
+        private readonly string outputDirectory;
+        private readonly AllureConfiguration configuration;
         private JsonSerializer serializer = new JsonSerializer();
 
-        internal FileSystemResultsWriter(string outputDirectory)
+        internal FileSystemResultsWriter(AllureConfiguration configuration)
         {
-            this.outputDirectory = GetResultsDirectory(outputDirectory);
+            this.configuration = configuration;
+            this.outputDirectory = GetResultsDirectory(configuration.Directory);
 
             serializer.NullValueHandling = NullValueHandling.Ignore;
             serializer.Formatting = Formatting.Indented;
@@ -31,10 +33,12 @@ namespace Allure.Commons.Writer
 
         public void Write(TestResult testResult)
         {
+            LinkHelper.UpdateLinks(testResult.links, configuration.Links);
             this.Write(testResult, AllureConstants.TEST_RESULT_FILE_SUFFIX);
         }
         public void Write(TestResultContainer testResult)
         {
+            LinkHelper.UpdateLinks(testResult.links, configuration.Links);
             this.Write(testResult, AllureConstants.TEST_RESULT_CONTAINER_FILE_SUFFIX);
         }
         public void Write(string source, byte[] content)

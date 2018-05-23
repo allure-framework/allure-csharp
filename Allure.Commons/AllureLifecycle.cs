@@ -15,7 +15,9 @@ namespace Allure.Commons
         private IAllureResultsWriter writer;
         private static AllureLifecycle instance;
 
-        public string Configuration { get; private set; } = string.Empty;
+        public string JsonConfiguration { get; private set; } = string.Empty;
+        public AllureConfiguration AllureConfiguration { get; private set; }
+
         public string ResultsDirectory => writer.ToString();
         public static AllureLifecycle Instance
         {
@@ -32,12 +34,18 @@ namespace Allure.Commons
                 return instance;
             }
         }
-        public AllureLifecycle()
+        public AllureLifecycle() : this(Path.Combine(Path.GetDirectoryName(
+            typeof(AllureLifecycle).Assembly.Location), AllureConstants.CONFIG_FILENAME))
         {
-            this.writer = new FileSystemResultsWriter(ReadJsonConfiguration().Directory);
-            this.storage = new AllureStorage();
         }
 
+        public AllureLifecycle(string jsonConfigurationFile)
+        {
+            this.JsonConfiguration = File.ReadAllText(jsonConfigurationFile);
+            this.AllureConfiguration = ReadJsonConfiguration(JsonConfiguration);
+            this.writer = new FileSystemResultsWriter(this.AllureConfiguration);
+            this.storage = new AllureStorage();
+        }
 
         #region TestContainer
         public virtual AllureLifecycle StartTestContainer(TestResultContainer container)
@@ -276,18 +284,16 @@ namespace Allure.Commons
             storage.StartStep(uuid);
         }
 
-        private AllureConfiguration ReadJsonConfiguration()
+        private AllureConfiguration ReadJsonConfiguration(string json)
         {
             AllureConfiguration config = new AllureConfiguration();
-            var configFile = Path.Combine(Path.GetDirectoryName(typeof(AllureLifecycle).Assembly.Location),
-                AllureConstants.CONFIG_FILENAME);
-            var jo = JObject.Parse(File.ReadAllText(configFile));
-            this.Configuration = jo.ToString();
+
+            var jo = JObject.Parse(json);
             var allureSection = jo["allure"];
             if (allureSection != null)
                 config = allureSection?.ToObject<AllureConfiguration>();
 
-            return config;
+            return AllureConfiguration = config;
         }
         #endregion
 
