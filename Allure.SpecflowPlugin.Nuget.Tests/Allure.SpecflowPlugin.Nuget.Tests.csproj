@@ -105,7 +105,9 @@
     <Compile Include="Steps.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="allureConfig.json" />
+    <None Include="allureConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="SpecFlowFeature.feature">

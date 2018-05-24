@@ -1,6 +1,11 @@
 ﻿{
   "allure": {
-    "directory": "allure-results"
+    "directory": "allure-results",
+    "links": [
+      "{link}",
+      "{issue}",
+      "{tms}"
+    ]
   },
   "specflow": {
     "stepArguments": {
