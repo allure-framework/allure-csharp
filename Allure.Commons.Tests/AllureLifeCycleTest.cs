@@ -1,36 +1,24 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
+﻿using NUnit.Framework;
 using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Allure.Commons.Tests
 {
+    [TestFixture]
     public class AllureLifeCycleTest
     {
-        private readonly ITestOutputHelper output;
-        
-
-        public AllureLifeCycleTest(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
-
-        [Fact(DisplayName = "ResultsDirectory property shouldn't be empty")]
+        [Test, Description("ResultsDirectory property shouldn't be empty")]
         public void CheckResultsDirectory()
         {
             Assert.NotNull(AllureLifecycle.Instance.ResultsDirectory);
         }
 
-        [Fact(DisplayName = "ExecutableItem.status default value should be 'none'")]
+        [Test, Description("ExecutableItem.status default value should be 'none'")]
         public void ShouldSetDefaultStateAsNone()
         {
-            Assert.Equal(Status.none, new TestResult().status);
+            Assert.AreEqual(Status.none, new TestResult().status);
         }
 
-        [Fact(DisplayName = "Integration Test")]
+        [Test, Description("Integration Test")]
         public void IntegrationTest()
         {
             Parallel.For(0, 2, i =>
@@ -53,10 +41,10 @@ namespace Allure.Commons.Tests
                     .StartTestContainer(container)
 
                     .StartBeforeFixture(container.uuid, beforeFeature.uuid, beforeFeature.fixture)
-                    
+
                     .StartStep(fixtureStep.uuid, fixtureStep.step)
                     .StopStep(x => x.status = Status.passed)
-                    
+
                     .AddAttachment("text file", "text/xml", txtAttach.path)
                     .AddAttachment(txtAttach.path)
                     .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)

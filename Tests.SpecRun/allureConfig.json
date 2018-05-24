@@ -1,6 +1,10 @@
 ﻿{
   "allure": {
-    "directory": "allure-results"
+    "directory": "allure-results",
+    "links": [
+      "https://example.org/{issue}",
+      "https://example.org/{tms}"
+    ]
   },
   "specflow": {
     "stepArguments": {
@@ -29,6 +33,7 @@
       "severity": "^(normal|blocker|critical|minor|trivial)"
     },
     "links": {
+      "link": "^link:(.+)",
       "issue": "^\\d+",
       "tms": "^tms:(\\d+)"
     }

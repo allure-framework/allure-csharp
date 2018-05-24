@@ -13,11 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "specflow", "specflow", "{9A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin", "Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj", "{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecFlowPlugin.Tests", "Allure.SpecFlowPlugin.Tests\Allure.SpecFlowPlugin.Tests.csproj", "{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin.Tests", "Allure.SpecFlowPlugin.Tests\Allure.SpecFlowPlugin.Tests.csproj", "{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.SpecRun", "Tests.SpecRun\Tests.SpecRun.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons.Tests.Configuration", "Allure.Commons.Tests.Configuration\Allure.Commons.Tests.Configuration.csproj", "{1A35FF11-260A-433E-8256-F2428B51A58E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,13 +60,6 @@ Global
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1A35FF11-260A-433E-8256-F2428B51A58E}.Adapters|Any CPU.ActiveCfg = Release|Any CPU
-		{1A35FF11-260A-433E-8256-F2428B51A58E}.Commons|Any CPU.ActiveCfg = Release|Any CPU
-		{1A35FF11-260A-433E-8256-F2428B51A58E}.Commons|Any CPU.Build.0 = Release|Any CPU
-		{1A35FF11-260A-433E-8256-F2428B51A58E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1A35FF11-260A-433E-8256-F2428B51A58E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1A35FF11-260A-433E-8256-F2428B51A58E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1A35FF11-260A-433E-8256-F2428B51A58E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,7 +70,6 @@ Global
 		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
-		{1A35FF11-260A-433E-8256-F2428B51A58E} = {E0035B29-14C0-4270-B11F-DD2544D37FF6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54ACFEA9-DB76-4FC0-B216-B8033996DB79}

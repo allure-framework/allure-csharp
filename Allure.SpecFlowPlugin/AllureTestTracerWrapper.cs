@@ -1,6 +1,5 @@
 ﻿using Allure.Commons;
 using CsvHelper;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -20,7 +19,7 @@ namespace Allure.SpecFlowPlugin
     {
         readonly string noMatchingStepMessage = "No matching step definition found for the step";
         static AllureLifecycle allure = AllureLifecycle.Instance;
-        static PluginConfiguration pluginConfiguration = new PluginConfiguration(allure.Configuration);
+        static PluginConfiguration pluginConfiguration = PluginHelper.PluginConfiguration;
 
         public AllureTestTracerWrapper(ITraceListener traceListener, IStepFormatter stepFormatter,
             IStepDefinitionSkeletonProvider stepDefinitionSkeletonProvider, SpecFlowConfiguration specFlowConfiguration)
@@ -94,16 +93,16 @@ namespace Allure.SpecFlowPlugin
             if (table != null)
             {
                 var header = table.Header.ToArray();
-                if (pluginConfiguration.ConvertToParameters)
+                if (pluginConfiguration.stepArguments.convertToParameters)
                 {
                     var parameters = new List<Parameter>();
 
                     // convert 2 column table into param-value
                     if (table.Header.Count == 2)
                     {
-                        var paramNameMatch = pluginConfiguration.ParamNameRegex?.IsMatch(header[0]);
-                        var paramValueMatch = pluginConfiguration.ParamValueRegex?.IsMatch(header[1]);
-                        if (paramNameMatch.HasValue && paramValueMatch.HasValue && paramNameMatch.Value && paramValueMatch.Value)
+                        var paramNameMatch = Regex.IsMatch(header[0], pluginConfiguration.stepArguments.paramNameRegex);
+                        var paramValueMatch = Regex.IsMatch(header[1], pluginConfiguration.stepArguments.paramValueRegex);
+                        if (paramNameMatch && paramValueMatch)
                         {
                             for (int i = 0; i < table.RowCount; i++)
                             {
@@ -128,7 +127,7 @@ namespace Allure.SpecFlowPlugin
                 }
             }
 
-            allure.StartStep(AllureHelper.NewId(), stepResult);
+            allure.StartStep(PluginHelper.NewId(), stepResult);
 
             // add csv table for multi-row table if was not processed as params already
             if (!isTableProcessed)
@@ -161,7 +160,7 @@ namespace Allure.SpecFlowPlugin
                 x =>
                 {
                     x.status = (x.status != Status.none) ? x.status : Status.failed;
-                    x.statusDetails = AllureHelper.GetStatusDetails(ex);
+                    x.statusDetails = PluginHelper.GetStatusDetails(ex);
                 });
         }
     }

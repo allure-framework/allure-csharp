@@ -1,79 +1,133 @@
-﻿using Allure.Commons;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-
-namespace Allure.SpecFlowPlugin
+﻿namespace Allure.SpecFlowPlugin
 {
+
     public class PluginConfiguration
     {
-        public bool ConvertToParameters { get; }
-        public Regex ParamNameRegex { get; }
-        public Regex ParamValueRegex { get; }
-
-        public Regex ParentSuiteRegex { get; }
-        public Regex SuiteRegex { get; }
-        public Regex SubSuiteRegex { get; }
-
-        public Regex EpicRegex { get; }
-        public Regex StoryRegex { get; }
-
-        public Regex PackageRegex { get; }
-        public Regex TestClassRegex { get; }
-        public Regex TestMethodRegex { get; }
-
-        public Regex OwnerRegex { get; }
-        public Regex SeverityRegex { get; }
-
-        public Regex IssueRegex { get; }
-        public Regex TmsRegex { get; }
-
-
-        public PluginConfiguration(IConfiguration configuration)
-        {
-
-            bool.TryParse(configuration["specflow:stepArguments:convertToParameters"], out bool convertToParameters);
-            ConvertToParameters = convertToParameters;
-
-            ParamNameRegex = ParseRegex(configuration["specflow:stepArguments:paramNameRegex"]);
-            ParamValueRegex = ParseRegex(configuration["specflow:stepArguments:paramValueRegex"]);
-
-            ParentSuiteRegex = ParseRegex(configuration["specflow:grouping:suites:parentSuite"]);
-            SuiteRegex = ParseRegex(configuration["specflow:grouping:suites:suite"]);
-            SubSuiteRegex = ParseRegex(configuration["specflow:grouping:suites:subSuite"]);
-
-            EpicRegex = ParseRegex(configuration["specflow:grouping:behaviors:epic"]);
-            StoryRegex = ParseRegex(configuration["specflow:grouping:behaviors:story"]);
-
-            PackageRegex = ParseRegex(configuration["specflow:grouping:packages:package"]);
-            TestClassRegex = ParseRegex(configuration["specflow:grouping:packages:testClass"]);
-            TestMethodRegex = ParseRegex(configuration["specflow:grouping:packages:testMethod"]);
-
-            OwnerRegex = ParseRegex(configuration["specflow:labels:owner"]);
-            SeverityRegex = ParseRegex(configuration["specflow:labels:severity"]);
-
-            IssueRegex = ParseRegex(configuration["specflow:links:issue"]);
-            TmsRegex = ParseRegex(configuration["specflow:links:tms"]);
-
-
-        }
-
-        private Regex ParseRegex(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
-            try
-            {
-                return new Regex(value,
-                    RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
-
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
+        public Steparguments stepArguments { get; set; } = new Steparguments();
+        public Grouping grouping { get; set; } = new Grouping();
+        public Labels labels { get; set; } = new Labels();
+        public Links links { get; set; } = new Links();
     }
+
+    public class Steparguments
+    {
+        public bool convertToParameters { get; set; }
+        public string paramNameRegex { get; set; }
+        public string paramValueRegex { get; set; }
+    }
+
+    public class Grouping
+    {
+        public Suites suites { get; set; } = new Suites();
+        public Behaviors behaviors { get; set; } = new Behaviors();
+        public Packages packages { get; set; } = new Packages();
+    }
+
+    public class Suites
+    {
+        public string parentSuite { get; set; }
+        public string suite { get; set; }
+        public string subSuite { get; set; }
+    }
+
+    public class Behaviors
+    {
+        public string epic { get; set; }
+        public string story { get; set; }
+    }
+
+    public class Packages
+    {
+        public string package { get; set; }
+        public string testClass { get; set; }
+        public string testMethod { get; set; }
+    }
+
+    public class Labels
+    {
+        public string owner { get; set; }
+        public string severity { get; set; }
+    }
+
+    public class Links
+    {
+        public string link { get; set; }
+        public string issue { get; set; }
+        public string tms { get; set; }
+    }
+
+
+
+    //public class PluginConfiguration
+    //{
+    //    public bool ConvertToParameters { get; }
+    //    public Regex ParamNameRegex { get; }
+    //    public Regex ParamValueRegex { get; }
+
+    //    public Regex ParentSuiteRegex { get; }
+    //    public Regex SuiteRegex { get; }
+    //    public Regex SubSuiteRegex { get; }
+
+    //    public Regex EpicRegex { get; }
+    //    public Regex StoryRegex { get; }
+
+    //    public Regex PackageRegex { get; }
+    //    public Regex TestClassRegex { get; }
+    //    public Regex TestMethodRegex { get; }
+
+    //    public Regex OwnerRegex { get; }
+    //    public Regex SeverityRegex { get; }
+
+    //    public Regex IssueRegex { get; }
+    //    public Regex TmsRegex { get; }
+
+
+    //    public PluginConfiguration(string allureConfiguration)
+    //    {
+    //        var sf = JObject.Parse(allureConfiguration)["specflow"];
+
+    //        var stepArguments = sf["stepArguments"];
+    //        ConvertToParameters = stepArguments["convertToParameters"].Value<bool>();
+    //        ParamNameRegex = ParseRegex((string)stepArguments["paramNameRegex"]);
+    //        ParamValueRegex = ParseRegex((string)stepArguments["paramValueRegex"]);
+
+    //        var grouping = sf["grouping"];
+    //        ParentSuiteRegex = ParseRegex((string)grouping["suites"]["parentSuite"]);
+    //        SuiteRegex = ParseRegex((string)grouping["suites"]["suite"]);
+    //        SubSuiteRegex = ParseRegex((string)grouping["suites"]["subSuite"]);
+
+    //        EpicRegex = ParseRegex((string)grouping["behaviors"]["epic"]);
+    //        StoryRegex = ParseRegex((string)grouping["behaviors"]["story"]);
+
+    //        PackageRegex = ParseRegex((string)grouping["packages"]["package"]);
+    //        TestClassRegex = ParseRegex((string)grouping["packages"]["testClass"]);
+    //        TestMethodRegex = ParseRegex((string)grouping["packages"]["testMethod"]);
+
+    //        var labels = sf["labels"];
+    //        OwnerRegex = ParseRegex((string)labels["owner"]);
+    //        SeverityRegex = ParseRegex((string)labels["severity"]);
+
+    //        var links = sf["links"];
+    //        IssueRegex = ParseRegex((string)links["issue"]);
+    //        TmsRegex = ParseRegex((string)links["tms"]);
+
+
+    //    }
+
+    //    private Regex ParseRegex(string value)
+    //    {
+    //        if (string.IsNullOrWhiteSpace(value))
+    //            return null;
+    //        try
+    //        {
+    //            return new Regex(value,
+    //                RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+    //        }
+    //        catch (Exception)
+    //        {
+    //            return null;
+    //        }
+    //    }
+    //}
 }

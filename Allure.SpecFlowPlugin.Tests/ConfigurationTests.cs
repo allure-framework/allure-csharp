@@ -1,27 +1,26 @@
-﻿using Allure.Commons;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
+﻿using NUnit.Framework;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Allure.SpecFlowPlugin.Tests
 {
     [TestFixture]
-    [NonParallelizable]
     public class ConfigurationTests
     {
-        [TestCase(@"..\..\allureConfig.json", ExpectedResult = "^a.*")]
-        [TestCase(@"..\..\allureConfigEmpty.json", ExpectedResult = null)]
-        [TestCase(@"..\..\allureConfigWithInvalidRegex.json", ExpectedResult = null)]
-        public string ParamNameRegex(string config)
+        [TestCase(@"allureConfigStepArguments.json")]
+        [TestCase(@"allureConfigEmpty.json")]
+        [TestCase(@"allureConfigWithInvalidRegex.json")]
+        public void ShouldNotHaveNullParents(string json)
         {
-            File.Copy(config, "allureConfig.json", true);
-            var configuration = new PluginConfiguration(AllureLifecycle.CreateInstance().Configuration);
-            return configuration.ParamNameRegex?.ToString();
+            var config = PluginHelper.GetConfiguration(File.ReadAllText(json));
+            Assert.Multiple(() =>
+            {
+                Assert.That(config.grouping.behaviors, Is.Not.Null);
+                Assert.That(config.grouping.packages, Is.Not.Null);
+                Assert.That(config.grouping.suites, Is.Not.Null);
+                Assert.That(config.labels, Is.Not.Null);
+                Assert.That(config.links, Is.Not.Null);
+                Assert.That(config.stepArguments, Is.Not.Null);
+            });
         }
     }
 }

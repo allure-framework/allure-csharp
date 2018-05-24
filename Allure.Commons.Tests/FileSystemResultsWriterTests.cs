@@ -1,35 +1,41 @@
-﻿using Allure.Commons.Writer;
+﻿using Allure.Commons.Configuration;
+using Allure.Commons.Writer;
 using Moq;
+using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Allure.Commons.Tests
 {
+    [TestFixture]
     public class FileSystemResultsWriterTests
     {
-        [Fact(DisplayName = "Should use temp path if no access to output directory")]
+        [Test, Description("Should use temp path if no access to output directory")]
         public void ShouldCleanupTempResultsFolder()
         {
+            var config = new AllureConfiguration()
+            {
+                Directory = Environment.CurrentDirectory
+            };
             var expectedDir = Path.Combine(Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
-            var moq = new Mock<FileSystemResultsWriter>(Environment.CurrentDirectory) { CallBase = true };
+            var moq = new Mock<FileSystemResultsWriter>(config) { CallBase = true };
             moq.Setup(x => x.HasDirectoryAccess(It.IsAny<string>())).Returns(false);
-            Assert.Equal(expectedDir, moq.Object.ToString());
+            Assert.AreEqual(expectedDir, moq.Object.ToString());
         }
 
-        [Fact(DisplayName = "Cleanup test")]
+        [Test, Description("Cleanup test")]
         public void Cleanup()
         {
             var resultsDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var config = new AllureConfiguration()
+            {
+                Directory = resultsDirectory
+            };
             Directory.CreateDirectory(resultsDirectory);
             File.WriteAllText(Path.Combine(resultsDirectory, Path.GetRandomFileName()), "");
 
-            new FileSystemResultsWriter(resultsDirectory).CleanUp();
-            Assert.Empty(Directory.GetFiles(resultsDirectory));
+            new FileSystemResultsWriter(config).CleanUp();
+            Assert.IsEmpty(Directory.GetFiles(resultsDirectory));
         }
     }
 }
