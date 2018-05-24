@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.SpecRun", "Tests.SpecRun\Tests.SpecRun.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecflowPlugin.Nuget.Tests", "Allure.SpecflowPlugin.Nuget.Tests\Allure.SpecflowPlugin.Nuget.Tests.csproj", "{85755452-928C-43A3-A020-00117B7A00E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Adapters|Any CPU = Adapters|Any CPU
@@ -60,6 +62,14 @@ Global
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Adapters|Any CPU.ActiveCfg = Release|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Adapters|Any CPU.Build.0 = Release|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Commons|Any CPU.ActiveCfg = Release|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Commons|Any CPU.Build.0 = Release|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85755452-928C-43A3-A020-00117B7A00E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +80,7 @@ Global
 		{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 		{9F2B97FF-6798-4A69-9520-CE3491396F3F} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
+		{85755452-928C-43A3-A020-00117B7A00E2} = {9AC8581F-7E9E-46B1-A30A-5A815966C820}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54ACFEA9-DB76-4FC0-B216-B8033996DB79}

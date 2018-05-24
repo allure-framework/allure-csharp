@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>SpecFlow.Allure</PackageId>
-    <Version>2.2.0.1</Version>
+    <Version>2.3.0</Version>
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
@@ -13,15 +13,20 @@
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <PackageTags>specflow allure</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>
-      Step multiline argument is now parsed as txt step attachment.
-      Refactored exception parsing: Internal exception messages are now displayed in message text.
-      Some step arguments parsing improvements.
-
-    </PackageReleaseNotes>
-    <AssemblyVersion>2.2</AssemblyVersion>
-    <FileVersion>2.2.0.0</FileVersion>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <AssemblyVersion>2.3</AssemblyVersion>
+    <FileVersion>2.3.0.0</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="allureConfig.json" />
+    <None Remove="App.config.transform" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="allureConfig.json" Pack="true" />
+    <Content Include="App.config.transform" Pack="true" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="7.1.0" />
@@ -30,13 +35,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="allureConfig.json" Pack="true">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="App.config.transform" Pack="true">
-      <!--<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>-->
-    </None>
   </ItemGroup>
 </Project>
