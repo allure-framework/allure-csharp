@@ -5,11 +5,6 @@ VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.SpecflowPlugin.Nuget.Tests", "Allure.SpecflowPlugin.Nuget.Tests\Allure.SpecflowPlugin.Nuget.Tests.csproj", "{85755452-928C-43A3-A020-00117B7A00E2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{74DC57C1-C99E-407D-B2FD-6A3EAACED9E1}"
-	ProjectSection(SolutionItems) = preProject
-		nuget.config = nuget.config
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
