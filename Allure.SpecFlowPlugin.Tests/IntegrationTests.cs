@@ -125,7 +125,7 @@ namespace Allure.SpecFlowPlugin.Tests
             var links = scenarios.SelectMany(x => x.links);
             Assert.Multiple(() =>
             {
-                Assert.That(links.Select(x => x.url), Has.One.EqualTo("http://google.com"));
+                Assert.That(links.Select(x => x.url), Has.One.EqualTo("http://example.org"));
                 Assert.That(links.Where(x => x.type == "tms").Select(x => x.url), Has.One.EqualTo("https://example.org/234"));
                 Assert.That(links.Where(x => x.type == "issue").Select(x => x.url), Has.One.EqualTo("https://example.org/999999").And.One.EqualTo("https://example.org/123"));
 

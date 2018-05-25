@@ -7,7 +7,7 @@ Scenario: [v1.2 accounting] [ui.core] Selenium test 1
 @api @blocker @567 @999999
 Scenario: [v1.2] [api.core] Api test 1
 
-@api @create @link:http://google.com 
+@api @create @link:http://example.org 
 Scenario: [v1.2] [api.core.create] Api test 2
 
 @api @update 
