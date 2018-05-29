@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
 using TechTalk.SpecFlow.BindingSkeletons;
@@ -15,77 +17,123 @@ namespace Allure.SpecFlowPlugin
 {
     public class AllureTestTracerWrapper : TestTracer, ITestTracer
     {
+        readonly string noMatchingStepMessage = "No matching step definition found for the step";
         static AllureLifecycle allure = AllureLifecycle.Instance;
+        static PluginConfiguration pluginConfiguration = PluginHelper.PluginConfiguration;
 
-        public AllureTestTracerWrapper(ITraceListener traceListener, IStepFormatter stepFormatter, IStepDefinitionSkeletonProvider stepDefinitionSkeletonProvider, RuntimeConfiguration runtimeConfiguration)
-            : base(traceListener, stepFormatter, stepDefinitionSkeletonProvider, runtimeConfiguration)
+        public AllureTestTracerWrapper(ITraceListener traceListener, IStepFormatter stepFormatter,
+            IStepDefinitionSkeletonProvider stepDefinitionSkeletonProvider, SpecFlowConfiguration specFlowConfiguration)
+            : base(traceListener, stepFormatter, stepDefinitionSkeletonProvider, specFlowConfiguration)
         {
         }
 
         void ITestTracer.TraceStep(StepInstance stepInstance, bool showAdditionalArguments)
         {
-            base.TraceStep(stepInstance, showAdditionalArguments);
+            TraceStep(stepInstance, showAdditionalArguments);
             StartStep(stepInstance);
         }
 
         void ITestTracer.TraceStepDone(BindingMatch match, object[] arguments, TimeSpan duration)
         {
-            base.TraceStepDone(match, arguments, duration);
+            TraceStepDone(match, arguments, duration);
             allure.StopStep(x => x.status = Status.passed);
         }
+
         void ITestTracer.TraceError(Exception ex)
         {
-            base.TraceError(ex);
+            TraceError(ex);
             allure.StopStep(x => x.status = Status.failed);
             FailScenario(ex);
         }
 
         void ITestTracer.TraceStepSkipped()
         {
-            base.TraceStepSkipped();
+            TraceStepSkipped();
             allure.StopStep(x => x.status = Status.skipped);
         }
 
         void ITestTracer.TraceStepPending(BindingMatch match, object[] arguments)
         {
-            base.TraceStepPending(match, arguments);
+            TraceStepPending(match, arguments);
             allure.StopStep(x => x.status = Status.skipped);
         }
 
-        void ITestTracer.TraceNoMatchingStepDefinition(StepInstance stepInstance, ProgrammingLanguage targetLanguage, CultureInfo bindingCulture, List<BindingMatch> matchesWithoutScopeCheck)
+        void ITestTracer.TraceNoMatchingStepDefinition(StepInstance stepInstance, ProgrammingLanguage targetLanguage,
+            CultureInfo bindingCulture, List<BindingMatch> matchesWithoutScopeCheck)
         {
-            base.TraceNoMatchingStepDefinition(stepInstance, targetLanguage, bindingCulture, matchesWithoutScopeCheck);
-            allure.StopStep(x => x.status = Status.skipped);
-            allure.UpdateTestCase(x => x.status = Status.skipped);
+            TraceNoMatchingStepDefinition(stepInstance, targetLanguage, bindingCulture, matchesWithoutScopeCheck);
+            allure.StopStep(x => x.status = Status.broken);
+            allure.UpdateTestCase(x =>
+                {
+                    x.status = Status.broken;
+                    x.statusDetails = new StatusDetails { message = noMatchingStepMessage };
+                });
         }
-        private static void StartStep(StepInstance stepInstance)
+
+        private void StartStep(StepInstance stepInstance)
         {
-            var stepResult = new StepResult()
+            var stepResult = new StepResult
             {
                 name = $"{stepInstance.Keyword} {stepInstance.Text}"
             };
 
-            var table = stepInstance.TableArgument;
 
-            // add step params for 1 row table
-            if (table!= null && table.RowCount == 1)
+            // parse MultilineTextArgument
+            if (stepInstance.MultilineTextArgument != null)
+                allure.AddAttachment(
+                    "multiline argument",
+                    "text/plain",
+                    Encoding.ASCII.GetBytes(stepInstance.MultilineTextArgument),
+                    ".txt");
+
+            var table = stepInstance.TableArgument;
+            bool isTableProcessed = (table == null);
+
+            // parse table as step params
+            if (table != null)
             {
-                var paramNames = table.Header.ToArray();
-                var parameters = new List<Parameter>();
-                for (int i = 0; i < table.Header.Count; i++)
+                var header = table.Header.ToArray();
+                if (pluginConfiguration.stepArguments.convertToParameters)
                 {
-                    parameters.Add(new Parameter() { name = paramNames[i], value = table.Rows[0][i] });
+                    var parameters = new List<Parameter>();
+
+                    // convert 2 column table into param-value
+                    if (table.Header.Count == 2)
+                    {
+                        var paramNameMatch = Regex.IsMatch(header[0], pluginConfiguration.stepArguments.paramNameRegex);
+                        var paramValueMatch = Regex.IsMatch(header[1], pluginConfiguration.stepArguments.paramValueRegex);
+                        if (paramNameMatch && paramValueMatch)
+                        {
+                            for (int i = 0; i < table.RowCount; i++)
+                            {
+                                parameters.Add(new Parameter { name = table.Rows[i][0], value = table.Rows[i][1] });
+                            }
+
+                            isTableProcessed = true;
+                        }
+
+                    }
+                    // add step params for 1 row table
+                    else if (table.RowCount == 1)
+                    {
+                        for (int i = 0; i < table.Header.Count; i++)
+                        {
+                            parameters.Add(new Parameter { name = header[i], value = table.Rows[0][i] });
+                        }
+                        isTableProcessed = true;
+                    }
+
+                    stepResult.parameters = parameters;
                 }
-                stepResult.parameters = parameters;
             }
 
-            allure.StartStep(AllureHelper.NewId(), stepResult);
+            allure.StartStep(PluginHelper.NewId(), stepResult);
 
-            // add csv table for multi-row table
-            if (table != null && table.RowCount != 1)
+            // add csv table for multi-row table if was not processed as params already
+            if (!isTableProcessed)
             {
-                var csvFile = $"{Guid.NewGuid().ToString()}.csv";
-                using (var csv = new CsvWriter(File.CreateText(csvFile)))
+                using (var sw = new StringWriter())
+                using (var csv = new CsvWriter(sw))
                 {
                     foreach (var item in table.Header)
                     {
@@ -100,10 +148,10 @@ namespace Allure.SpecFlowPlugin
                         }
                         csv.NextRecord();
                     }
+                    allure.AddAttachment("table", "text/csv",
+                        Encoding.ASCII.GetBytes(sw.ToString()), ".csv");
                 }
-                allure.AddAttachment("table", "text/csv", csvFile);
             }
-
         }
 
         private static void FailScenario(Exception ex)
@@ -112,11 +160,7 @@ namespace Allure.SpecFlowPlugin
                 x =>
                 {
                     x.status = (x.status != Status.none) ? x.status : Status.failed;
-                    x.statusDetails = new StatusDetails()
-                    {
-                        message = ex.Message,
-                        trace = ex.StackTrace
-                    };
+                    x.statusDetails = PluginHelper.GetStatusDetails(ex);
                 });
         }
     }

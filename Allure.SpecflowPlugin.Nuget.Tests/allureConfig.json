@@ -1,22 +1,18 @@
 ﻿{
   "allure": {
-    "directory": "allure-results",
-    "links": [
-      "https://example.org/{issue}",
-      "https://example.org/{tms}"
-    ]
+    "directory": "allure-results"
   },
   "specflow": {
     "stepArguments": {
       "convertToParameters": "true",
-      "paramNameRegex": "^a.*",
-      "paramValueRegex": "^v.*"
+      "paramNameRegex": "",
+      "paramValueRegex": ""
     },
     "grouping": {
       "suites": {
-        "parentSuite": "^(ui|api)",
-        "suite": "^(core|sales|aux)",
-        "subSuite": "^(create|update|delete)"
+        "parentSuite": "^parentSuite:?(.+)",
+        "suite": "^suite:?(.+)",
+        "subSuite": "^subSuite:?(.+)"
       },
       "behaviors": {
         "epic": "^epic:?(.+)",
@@ -33,8 +29,7 @@
       "severity": "^(normal|blocker|critical|minor|trivial)"
     },
     "links": {
-      "link": "^link:(.+)",
-      "issue": "^\\d+",
+      "issue": "^issue:(\\d+)",
       "tms": "^tms:(\\d+)"
     }
   }

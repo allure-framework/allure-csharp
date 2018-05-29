@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 
 namespace Allure.Commons
 {
+    public enum SeverityLevel { normal, blocker, critical, minor, trivial }
+
     public partial class TestResultContainer
     {
         public override string ToString() => name ?? uuid;
@@ -29,13 +28,16 @@ namespace Allure.Commons
         public static Label SubSuite(string value) => new Label() { name = "subSuite", value = value };
 
         public static Label Owner(string value) => new Label() { name = "owner", value = value };
-        public static Label Severity(string value) => new Label() { name = "severity", value = value };
-        public static Label Issue(string value) => new Label() { name = "issue", value = value };
+        public static Label Severity(SeverityLevel value) => new Label() { name = "severity", value = value.ToString() };
         public static Label Tag(string value) => new Label() { name = "tag", value = value };
 
         public static Label Epic(string value) => new Label() { name = "epic", value = value };
         public static Label Feature(string value) => new Label() { name = "feature", value = value };
         public static Label Story(string value) => new Label() { name = "story", value = value };
+
+        public static Label Package(string value) => new Label() { name = "package", value = value };
+        public static Label TestClass(string value) => new Label() { name = "testClass", value = value };
+        public static Label TestMethod(string value) => new Label() { name = "testMethod", value = value };
 
         public static Label Thread() => new Label()
         {
@@ -52,8 +54,11 @@ namespace Allure.Commons
 
     public partial class Link
     {
-        public static Link AddIssue(string name, string url) => new Link() { name = name, type = "issue", url = url };
-        public static Link AddTms(string name, string url) => new Link() { name = name, type = "tms", url = url };
+        public static Link Issue(string name, string url) => new Link() { name = name, type = "issue", url = url };
+        public static Link Issue(string name) => Issue(name, null);
+
+        public static Link Tms(string name, string url) => new Link() { name = name, type = "tms", url = url };
+        public static Link Tms(string name) => Tms(name, null);
 
     }
 }

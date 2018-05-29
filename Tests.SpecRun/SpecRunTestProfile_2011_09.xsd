@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema id="SpecRunTestProfile"
-    targetNamespace="http://www.specflow.org/schemas/plus/TestProfile/1.5"
+    targetNamespace="http://www.specrun.com/schemas/2011/09/TestProfile"
     elementFormDefault="qualified"
-    xmlns="http://www.specflow.org/schemas/plus/TestProfile/1.5"
+    xmlns="http://www.specrun.com/schemas/2011/09/TestProfile"
     xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:element name="TestProfile" type="TestProfile" />
@@ -72,6 +72,7 @@
 
     <xs:attribute name="copyAlsoToBaseFolder" type="xs:boolean" use="optional" default="false" />
     <xs:attribute name="disable" type="xs:boolean" use="optional" default="false" />
+    <xs:attribute name="existingFileHandlingStrategy" type="ExistingFileHandlingStrategy" use="optional" default="Default" />
   </xs:complexType>
   
   <!-- test targets -->
@@ -212,6 +213,14 @@
       <xs:enumeration value="SharedAppDomain" />
       <xs:enumeration value="AppDomain" />
       <xs:enumeration value="Process" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ExistingFileHandlingStrategy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="Overwrite"/>
+      <xs:enumeration value="IncrementFilename"/>
     </xs:restriction>
   </xs:simpleType>
   

@@ -1,12 +1,7 @@
 ﻿using Allure.Commons;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
 namespace Tests.SpecRun
@@ -28,12 +23,6 @@ namespace Tests.SpecRun
 
         }
 
-        private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data.Contains("Press <Ctrl+C> to exit"))
-                ((Process)sender).Kill();
-        }
-
         [StepDefinition(@"Step is '(.*)'")]
         public void StepResultIs(TestOutcome outcome)
         {
@@ -42,7 +31,9 @@ namespace Tests.SpecRun
                 case TestOutcome.passed:
                     break;
                 case TestOutcome.failed:
-                    throw new Exception("This test is failed");
+                    throw new Exception("This test is failed",
+                        new InvalidOperationException("Internal message",
+                            new ArgumentException("One more message")));
                 default:
                     throw new ArgumentException("value is not supported");
             }
@@ -61,8 +52,8 @@ namespace Tests.SpecRun
         {
         }
 
-        [StepDefinition("Step with params: (.*), (.*), (.*)")]
-        public void StepWithArgs(int number, string text, DateTime date)
+        [StepDefinition("Step with params: (.*)")]
+        public void StepWithArgs(int number, string text)
         {
         }
 

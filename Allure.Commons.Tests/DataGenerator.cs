@@ -53,8 +53,8 @@ namespace Allure.Commons.Tests
             trc.description = trc.uuid;
             trc.links = new List<Link>()
             {
-                Link.AddIssue(name : new Random().Next(999999).ToString(), url:"/bug"),
-                Link.AddTms(name : new Random().Next(999999).ToString(), url:"/test")
+                Link.Issue(name : new Random().Next(999999).ToString(), url:"/bug"),
+                Link.Tms(name : new Random().Next(999999).ToString(), url:"/test")
             };
             return trc;
         }

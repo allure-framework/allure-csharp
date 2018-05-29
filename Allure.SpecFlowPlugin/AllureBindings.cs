@@ -1,9 +1,4 @@
 ﻿using Allure.Commons;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
 namespace Allure.SpecFlowPlugin
@@ -37,7 +32,7 @@ namespace Allure.SpecFlowPlugin
         [BeforeScenario(Order = int.MinValue)]
         public void FirstBeforeScenario()
         {
-            AllureHelper.StartTestContainer(featureContext, scenarioContext);
+            PluginHelper.StartTestContainer(featureContext, scenarioContext);
             //AllureHelper.StartTestCase(scenarioContainer.uuid, featureContext, scenarioContext);
         }
 
@@ -45,14 +40,14 @@ namespace Allure.SpecFlowPlugin
         public void LastBeforeScenario()
         {
             // start scenario after last fixture and before the first step to have valid current step context in allure storage
-            var scenarioContainer = AllureHelper.GetCurrentTestConainer(scenarioContext);
-            AllureHelper.StartTestCase(scenarioContainer.uuid, featureContext, scenarioContext);
+            var scenarioContainer = PluginHelper.GetCurrentTestConainer(scenarioContext);
+            PluginHelper.StartTestCase(scenarioContainer.uuid, featureContext, scenarioContext);
         }
 
         [AfterScenario(Order = int.MinValue)]
         public void FirstAfterScenario()
         {
-            var scenarioId = AllureHelper.GetCurrentTestCase(scenarioContext).uuid;
+            var scenarioId = PluginHelper.GetCurrentTestCase(scenarioContext).uuid;
 
             // update status to passed if there were no step of binding failures
             allure

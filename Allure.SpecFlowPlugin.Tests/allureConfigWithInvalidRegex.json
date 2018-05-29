@@ -1,0 +1,12 @@
+﻿{
+  "allure": {
+    "directory": "allure-results"
+  },
+  "specflow": {
+    "stepArguments": {
+      "convertToParameters": "true",
+      "paramNameRegex": ".*(",
+      "paramValueRegex": ".*"
+    }
+  }
+}

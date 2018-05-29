@@ -1,7 +1,8 @@
-﻿using Allure.Commons.Storage;
+﻿using Allure.Commons.Configuration;
+using Allure.Commons.Storage;
 using Allure.Commons.Writer;
 using HeyRed.Mime;
-using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 
@@ -9,12 +10,14 @@ namespace Allure.Commons
 {
     public class AllureLifecycle
     {
-        private static object lockobj = new object();
+        private static readonly object lockobj = new object();
         private AllureStorage storage;
         private IAllureResultsWriter writer;
         private static AllureLifecycle instance;
 
-        public IConfiguration Configuration { get; private set; }
+        public string JsonConfiguration { get; private set; } = string.Empty;
+        public AllureConfiguration AllureConfiguration { get; private set; }
+
         public string ResultsDirectory => writer.ToString();
         public static AllureLifecycle Instance
         {
@@ -24,27 +27,24 @@ namespace Allure.Commons
                 {
                     lock (lockobj)
                     {
-                        instance = instance ?? CreateInstance();
+                        instance = instance ?? new AllureLifecycle();
                     }
                 }
 
                 return instance;
             }
         }
-        protected AllureLifecycle(IConfigurationRoot configuration)
+        public AllureLifecycle() : this(Path.Combine(Path.GetDirectoryName(
+            typeof(AllureLifecycle).Assembly.Location), AllureConstants.CONFIG_FILENAME))
         {
-            this.Configuration = configuration;
-            this.writer = GetDefaultResultsWriter(configuration);
-            this.storage = new AllureStorage();
         }
 
-        public static AllureLifecycle CreateInstance()
+        public AllureLifecycle(string jsonConfigurationFile)
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile(AllureConstants.CONFIG_FILENAME, optional: true)
-                .Build();
-
-            return new AllureLifecycle(config);
+            this.JsonConfiguration = File.ReadAllText(jsonConfigurationFile);
+            this.AllureConfiguration = ReadJsonConfiguration(JsonConfiguration);
+            this.writer = new FileSystemResultsWriter(this.AllureConfiguration);
+            this.storage = new AllureStorage();
         }
 
         #region TestContainer
@@ -283,14 +283,18 @@ namespace Allure.Commons
             storage.ClearStepContext();
             storage.StartStep(uuid);
         }
-        internal virtual IAllureResultsWriter GetDefaultResultsWriter(IConfigurationRoot configuration)
+
+        private AllureConfiguration ReadJsonConfiguration(string json)
         {
-            var resultsFolder = configuration["allure:directory"]
-                ?? AllureConstants.DEFAULT_RESULTS_FOLDER;
+            AllureConfiguration config = new AllureConfiguration();
 
-            return new FileSystemResultsWriter(resultsFolder);
+            var jo = JObject.Parse(json);
+            var allureSection = jo["allure"];
+            if (allureSection != null)
+                config = allureSection?.ToObject<AllureConfiguration>();
+
+            return AllureConfiguration = config;
         }
-
         #endregion
 
     }

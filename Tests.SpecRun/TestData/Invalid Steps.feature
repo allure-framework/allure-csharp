@@ -1,4 +1,4 @@
-﻿@data
+﻿@data @failed
 Feature: Invalid Steps
 
 
@@ -13,3 +13,8 @@ Scenario: Some steps are invalid
 	Given Step is 'passed'
 	And I don't have such step too
 
+Scenario: Failed step followed by invalid step
+	Given Step is 'failed'
+	Given I don't have such step
+	Given Step is 'passed'
+	And I don't have such step too

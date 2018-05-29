@@ -1,13 +1,10 @@
 ﻿using Allure.Commons;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Allure.SpecFlowPlugin.Tests
 {
@@ -27,19 +24,13 @@ namespace Allure.SpecFlowPlugin.Tests
         [OneTimeSetUp]
         public void Init()
         {
-            // setup current folder for nUnit engine
-            var dir = Path.GetDirectoryName(typeof(IntegrationFixture).Assembly.Location);
-            Environment.CurrentDirectory = dir;
-
-            var configuration = new DirectoryInfo(dir).Name;
-            var scenariosProject = "Tests.SpecRun";
-
-            var allureDirectory = $@"..\..\..\{scenariosProject}\bin\TestResults\allure-results";
+            var testDirectory = @"..\..\..\..\Tests.SpecRun\bin\debug";
+            var allureDirectory = $@"{testDirectory}\TestResults\allure-results";
             if (Directory.Exists(allureDirectory))
                 Directory.Delete(allureDirectory, true);
 
             // run SpecFlow scenarios using SpecRun runner
-            var process = Process.Start($@"..\..\..\{scenariosProject}\bin\{configuration}\runtests.cmd");
+            var process = Process.Start($@"{testDirectory}\\runtests.cmd");
             process.WaitForExit();
 
             // parse allure suites
@@ -47,15 +38,14 @@ namespace Allure.SpecFlowPlugin.Tests
         }
 
 
-        [TestCase(Status.passed, 9)]
+        [TestCase(Status.passed, 16)]
         [TestCase(Status.failed, 1 * 2)]
-        [TestCase(Status.broken, 7 * 2 + 5)]
-        [TestCase(Status.skipped, 2)]
-
+        [TestCase(Status.broken, 8 * 2 + 7)]
+        [TestCase(Status.skipped, 0)]
         public void TestStatus(Status status, int count)
         {
             var scenariosByStatus = allureTestResults.Where(x => x.status == status);
-            Assert.That(scenariosByStatus, Has.Exactly(count).Items);
+            Assert.That(scenariosByStatus, Has.Exactly(count).Items, scenariosByStatus.Count().ToString());
         }
 
         [Test]
@@ -93,14 +83,55 @@ namespace Allure.SpecFlowPlugin.Tests
         }
 
         [Test]
-        public void ShouldTreatOneRowTableAsStepParams()
+        public void ShouldConvertTableToStepParams()
         {
-            var stepsWithParams = allureTestResults
-                .First(x => x.name == "Table arguments").steps
-                .Where(x => x.parameters.Count > 0);
+            var parameters = allureTestResults
+                .First(x => x.name == "Table arguments").steps.
+                SelectMany(s => s.parameters);
 
-            Assert.That(stepsWithParams, Has.Exactly(1).Items);
-            Assert.That(stepsWithParams.First().parameters, Has.Exactly(4).Items);
+            Assert.That(parameters.Select(x => x.name), Has.Exactly(1).EqualTo("name"));
+            Assert.That(parameters.Select(x => x.name), Has.Exactly(1).EqualTo("surname"));
+            Assert.That(parameters.Select(x => x.name), Has.Exactly(2).EqualTo("width"));
+            Assert.That(parameters.Select(x => x.name), Has.Exactly(0).EqualTo("attribute"));
+
+
+
+        }
+        [Test]
+        public void ShouldParseTags()
+        {
+            var scenarios = allureTestResults
+                .Where(x => x.labels.Any(l => l.value == "labels"));
+
+            var labels = scenarios.SelectMany(x => x.labels);
+            Assert.Multiple(() =>
+            {
+                // ummatched tags
+                Assert.That(labels.Where(x => x.name == "tag"), Has.Exactly(scenarios.Count() + 1).Items);
+                // owner
+                Assert.That(labels.Where(x => x.value == "Vasya").Select(l => l.name),
+                    Has.Exactly(scenarios.Count()).Items.And.All.EqualTo("owner"));
+
+            });
+
+        }
+
+        [Test]
+        public void ShouldParseLinks()
+        {
+            var scenarios = allureTestResults
+                .Where(x => x.labels.Any(l => l.value == "labels"));
+
+            var links = scenarios.SelectMany(x => x.links);
+            Assert.Multiple(() =>
+            {
+                Assert.That(links.Select(x => x.url), Has.One.EqualTo("http://example.org"));
+                Assert.That(links.Where(x => x.type == "tms").Select(x => x.url), Has.One.EqualTo("https://example.org/234"));
+                Assert.That(links.Where(x => x.type == "issue").Select(x => x.url), Has.One.EqualTo("https://example.org/999999").And.One.EqualTo("https://example.org/123"));
+
+
+
+            });
 
         }
 
