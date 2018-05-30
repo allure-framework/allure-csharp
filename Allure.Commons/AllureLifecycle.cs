@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using Allure.Commons.Helpers;
+using HeyRed.Mime;
 
 namespace Allure.Commons
 {

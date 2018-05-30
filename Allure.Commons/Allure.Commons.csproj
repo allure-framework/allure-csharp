@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Content Include="allureConfig.json" Pack="true" />
+    <PackageReference Include="MimeTypesMap" Version="1.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
