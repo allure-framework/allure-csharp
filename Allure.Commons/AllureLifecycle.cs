@@ -1,10 +1,11 @@
 ﻿using Allure.Commons.Configuration;
 using Allure.Commons.Storage;
 using Allure.Commons.Writer;
-using HeyRed.Mime;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using Allure.Commons.Helpers;
+using HeyRed.Mime;
 
 namespace Allure.Commons
 {
