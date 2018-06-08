@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net45</TargetFramework>
     <PackageId>SpecFlow.Allure</PackageId>
     <Version>2.3.0</Version>
     <Authors>Alexander Bakanov</Authors>
