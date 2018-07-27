@@ -1,4 +1,5 @@
 ﻿using Allure.Commons;
+using Allure.SpecFlowPlugin;
 using System;
 using System.IO;
 using System.Linq;
@@ -97,8 +98,11 @@ namespace Tests.SpecRun
                 allure.AddAttachment(path);
                 allure.AddAttachment(path, "text file");
             }
-            if (tags != null && tags.Any(x => x.EndsWith("failed")))
-                throw new Exception("Wasted");
+            if (tags != null)
+                if (tags.Any(x => x.EndsWith("failed")))
+                    throw new Exception("Wasted");
+                else if (tags.Any(x => x == PluginHelper.IGNORE_EXCEPTION))
+                    throw new IgnoreException();
         }
 
     }

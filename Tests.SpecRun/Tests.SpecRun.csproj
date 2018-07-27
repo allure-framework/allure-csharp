@@ -85,6 +85,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IgnoreException.cs" />
     <Compile Include="Steps.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestData\After Feature Failure.feature.cs">
@@ -101,6 +102,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Before Feature Failure.feature</DependentUpon>
+    </Compile>
+    <Compile Include="TestData\Ignored.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Ignored.feature</DependentUpon>
     </Compile>
     <Compile Include="TestData\Invalid Steps.feature.cs">
       <AutoGen>True</AutoGen>
@@ -169,6 +175,10 @@
     <None Include="TestData\Before Feature Failure.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Before Feature Failure.feature.cs</LastGenOutput>
+    </None>
+    <None Include="TestData\Ignored.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Ignored.feature.cs</LastGenOutput>
     </None>
     <None Include="TestData\Invalid Steps.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

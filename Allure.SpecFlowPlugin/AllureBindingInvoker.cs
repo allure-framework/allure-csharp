@@ -78,7 +78,7 @@ namespace Allure.SpecFlowPlugin
                                     {
                                         x.status = Status.broken;
                                         x.statusDetails = PluginHelper.GetStatusDetails(ex);
-      
+
                                     })
                                     .WriteTestCase(scenario.uuid)
                                     .StopTestContainer(scenarioContainer.uuid)
@@ -91,25 +91,25 @@ namespace Allure.SpecFlowPlugin
 
                     case HookType.BeforeStep:
                     case HookType.AfterStep:
-                    {
-                        var scenario = PluginHelper.GetCurrentTestCase(contextManager.ScenarioContext);
+                        {
+                            var scenario = PluginHelper.GetCurrentTestCase(contextManager.ScenarioContext);
 
-                        try
-                        {
-                            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+                            try
+                            {
+                                return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+                            }
+                            catch (Exception ex)
+                            {
+                                allure
+                                    .UpdateTestCase(scenario.uuid,
+                                        x =>
+                                        {
+                                            x.status = Status.broken;
+                                            x.statusDetails = PluginHelper.GetStatusDetails(ex);
+                                        });
+                                throw;
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            allure
-                                .UpdateTestCase(scenario.uuid,
-                                    x =>
-                                    {
-                                        x.status = Status.broken;
-                                        x.statusDetails = PluginHelper.GetStatusDetails(ex);
-                                    });
-                            throw;
-                        }
-                    }
 
                     case HookType.BeforeScenario:
                     case HookType.AfterScenario:
@@ -129,7 +129,10 @@ namespace Allure.SpecFlowPlugin
                             }
                             catch (Exception ex)
                             {
-                                allure.StopFixture(x => x.status = Status.broken);
+                                var status = (ex.GetType().Name.Contains(PluginHelper.IGNORE_EXCEPTION)) ?
+                                        Status.skipped : Status.broken;
+
+                                allure.StopFixture(x => x.status = status);
 
                                 // get or add new scenario
                                 var scenario = PluginHelper.GetCurrentTestCase(contextManager.ScenarioContext) ??
@@ -139,7 +142,7 @@ namespace Allure.SpecFlowPlugin
                                 allure.UpdateTestCase(scenario.uuid,
                                     x =>
                                     {
-                                        x.status = Status.broken;
+                                        x.status = status;
                                         x.statusDetails = PluginHelper.GetStatusDetails(ex);
                                     });
                                 throw;
@@ -148,7 +151,7 @@ namespace Allure.SpecFlowPlugin
 
                     case HookType.AfterFeature:
                         if (hook.HookOrder == int.MaxValue)
-                            // finish point
+                        // finish point
                         {
                             WriteScenarios(contextManager);
                             allure

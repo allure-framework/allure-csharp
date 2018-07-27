@@ -12,6 +12,8 @@ namespace Allure.SpecFlowPlugin
 {
     public static class PluginHelper
     {
+        public static string IGNORE_EXCEPTION = "IgnoreException";
+
         static ScenarioInfo emptyScenarioInfo = new ScenarioInfo(string.Empty);
 
         static FeatureInfo emptyFeatureInfo = new FeatureInfo(
