@@ -13,10 +13,8 @@ namespace Allure.SpecFlowPlugin
     public static class PluginHelper
     {
         public static string IGNORE_EXCEPTION = "IgnoreException";
-
-        static ScenarioInfo emptyScenarioInfo = new ScenarioInfo(string.Empty);
-
-        static FeatureInfo emptyFeatureInfo = new FeatureInfo(
+        private static readonly ScenarioInfo emptyScenarioInfo = new ScenarioInfo(string.Empty, string.Empty);
+        private static FeatureInfo emptyFeatureInfo = new FeatureInfo(
             CultureInfo.CurrentCulture, string.Empty, string.Empty);
 
         internal static PluginConfiguration PluginConfiguration = GetConfiguration(AllureLifecycle.Instance.JsonConfiguration);
@@ -38,12 +36,18 @@ namespace Allure.SpecFlowPlugin
             return id;
         }
 
-        internal static string NewId() => Guid.NewGuid().ToString("N");
-
-        internal static FixtureResult GetFixtureResult(HookBinding hook) => new FixtureResult
+        internal static string NewId()
         {
-            name = $"{hook.Method.Name} [{hook.HookOrder}]"
-        };
+            return Guid.NewGuid().ToString("N");
+        }
+
+        internal static FixtureResult GetFixtureResult(HookBinding hook)
+        {
+            return new FixtureResult
+            {
+                name = $"{hook.Method.Name} [{hook.HookOrder}]"
+            };
+        }
 
         internal static TestResult StartTestCase(string containerId, FeatureContext featureContext,
             ScenarioContext scenarioContext)
