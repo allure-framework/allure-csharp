@@ -7,7 +7,7 @@ namespace Allure.Commons.Tests
     [TestFixture]
     public class ConfigurationTests
     {
-        string configFile;
+        private string configFile;
 
         [TestCase(@"{""allure"":{""logging"": ""false""}}")]
         [TestCase(@"{""allure"":{""directory"": ""allure-results""}}")]
@@ -54,15 +54,6 @@ namespace Allure.Commons.Tests
         {
             File.Delete(configFile);
         }
-        //[Theory(DisplayName = "Should instantiate Lifecycle with/without logging")]
-        //[InlineData(@"{""allure"":{""logging"": ""true""}}")]
-        //public void LoggerInitializingTest(string config)
-        //{
-        //    RestoreState(config);
-        //    var allureCycle = AllureLifecycle.CreateInstance();
-        //    Assert.IsNotType<AllureLifecycle>(allureCycle);
-
-        //}
 
         private string WriteConfig(string json)
         {

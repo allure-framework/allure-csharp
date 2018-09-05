@@ -1,11 +1,10 @@
 ﻿using Allure.Commons.Configuration;
+using Allure.Commons.Helpers;
 using Allure.Commons.Storage;
 using Allure.Commons.Writer;
-using Newtonsoft.Json.Linq;
+using HeyRed.Mime;
 using System;
 using System.IO;
-using Allure.Commons.Helpers;
-using HeyRed.Mime;
 
 namespace Allure.Commons
 {
@@ -42,10 +41,10 @@ namespace Allure.Commons
 
         public AllureLifecycle(string jsonConfigurationFile)
         {
-            this.JsonConfiguration = File.ReadAllText(jsonConfigurationFile);
-            this.AllureConfiguration = ReadJsonConfiguration(JsonConfiguration);
-            this.writer = new FileSystemResultsWriter(this.AllureConfiguration);
-            this.storage = new AllureStorage();
+            JsonConfiguration = File.ReadAllText(jsonConfigurationFile);
+            AllureConfiguration = AllureConfiguration.ReadFromJson(JsonConfiguration);
+            writer = new FileSystemResultsWriter(AllureConfiguration);
+            storage = new AllureStorage();
         }
 
         #region TestContainer
@@ -59,7 +58,7 @@ namespace Allure.Commons
         public virtual AllureLifecycle StartTestContainer(string parentUuid, TestResultContainer container)
         {
             UpdateTestContainer(parentUuid, c => c.children.Add(container.uuid));
-            this.StartTestContainer(container);
+            StartTestContainer(container);
             return this;
         }
 
@@ -127,7 +126,7 @@ namespace Allure.Commons
 
         public virtual AllureLifecycle StartTestCase(string containerUuid, TestResult testResult)
         {
-            this.UpdateTestContainer(containerUuid, c => c.children.Add(testResult.uuid));
+            UpdateTestContainer(containerUuid, c => c.children.Add(testResult.uuid));
             return StartTestCase(testResult);
         }
 
@@ -230,7 +229,7 @@ namespace Allure.Commons
         public virtual AllureLifecycle AddAttachment(string name, string type, string path)
         {
             var fileExtension = new FileInfo(path).Extension;
-            return this.AddAttachment(name, type, File.ReadAllBytes(path), fileExtension);
+            return AddAttachment(name, type, File.ReadAllBytes(path), fileExtension);
         }
         public virtual AllureLifecycle AddAttachment(string name, string type, byte[] content, string fileExtension = "")
         {
@@ -250,7 +249,7 @@ namespace Allure.Commons
         {
             name = name ?? Path.GetFileName(path);
             var type = MimeTypesMap.GetMimeType(path);
-            return this.AddAttachment(name, type, path);
+            return AddAttachment(name, type, path);
         }
 
         #endregion
@@ -263,11 +262,11 @@ namespace Allure.Commons
 
         public virtual AllureLifecycle AddScreenDiff(string testCaseUuid, string expectedPng, string actualPng, string diffPng)
         {
-            this
-                .AddAttachment(expectedPng, "expected")
-                .AddAttachment(actualPng, "actual")
-                .AddAttachment(diffPng, "diff")
-                .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
+
+            AddAttachment(expectedPng, "expected")
+            .AddAttachment(actualPng, "actual")
+            .AddAttachment(diffPng, "diff")
+            .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
 
             return this;
         }
@@ -285,17 +284,6 @@ namespace Allure.Commons
             storage.StartStep(uuid);
         }
 
-        private AllureConfiguration ReadJsonConfiguration(string json)
-        {
-            AllureConfiguration config = new AllureConfiguration();
-
-            var jo = JObject.Parse(json);
-            var allureSection = jo["allure"];
-            if (allureSection != null)
-                config = allureSection?.ToObject<AllureConfiguration>();
-
-            return AllureConfiguration = config;
-        }
         #endregion
 
     }

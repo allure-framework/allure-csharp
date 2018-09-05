@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons", "Allure.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Commons.Tests", "Allure.Commons.Tests\Allure.Commons.Tests.csproj", "{FC0F675E-B488-4894-BFD2-FB99484A2BA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Commons.Tests.Configuration", "Allure.Commons.Tests.Configuration\Allure.Commons.Tests.Configuration.csproj", "{50BA9453-0F74-4A0D-B354-D3605CC03922}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
