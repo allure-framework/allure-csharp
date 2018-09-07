@@ -27,6 +27,9 @@
     <ProjectReference Include="..\Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="allureConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Default.srprofile">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
