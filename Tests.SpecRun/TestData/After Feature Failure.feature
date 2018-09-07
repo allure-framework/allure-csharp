@@ -1,7 +1,7 @@
 ﻿@data @afterfeaturefailed
 Feature: After Feature Failure
  
-Scenario: 1
-Scenario: 2
+Scenario: After Feature Failure 1
+Scenario: After Feature Failure 2
 
 

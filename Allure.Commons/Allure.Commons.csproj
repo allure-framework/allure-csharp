@@ -19,10 +19,6 @@
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Commons|AnyCPU'" />
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Adapters|AnyCPU'" />
-
   <ItemGroup>
     <Content Include="allureConfig.json" Pack="true" />
     <PackageReference Include="MimeTypesMap" Version="1.0.3" />
