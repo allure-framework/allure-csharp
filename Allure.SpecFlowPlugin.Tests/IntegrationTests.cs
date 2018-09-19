@@ -11,14 +11,12 @@ namespace Allure.SpecFlowPlugin.Tests
     [TestFixture]
     public class IntegrationFixture
     {
-        const string SCENARIO_PATTERN = "Scenario:";
-        const string FEATURE_PATTERN = "Feature:";
-
-        HashSet<string> scenarioTitles = new HashSet<string>();
-        HashSet<TestResultContainer> allureContainers = new HashSet<TestResultContainer>();
-        HashSet<TestResult> allureTestResults = new HashSet<TestResult>();
-
-        HashSet<TestResultContainer> specflowSuites = new HashSet<TestResultContainer>();
+        private const string SCENARIO_PATTERN = "Scenario:";
+        private const string FEATURE_PATTERN = "Feature:";
+        private readonly HashSet<string> scenarioTitles = new HashSet<string>();
+        private HashSet<TestResultContainer> allureContainers = new HashSet<TestResultContainer>();
+        private HashSet<TestResult> allureTestResults = new HashSet<TestResult>();
+        private readonly HashSet<TestResultContainer> specflowSuites = new HashSet<TestResultContainer>();
 
 
         [OneTimeSetUp]
@@ -134,16 +132,21 @@ namespace Allure.SpecFlowPlugin.Tests
             });
 
         }
-
+        [Test]
+        public void ShouldReadHostNameFromConfigTitle()
+        {
+            var hostNames = allureTestResults.SelectMany(x => x.labels.Where(l => l.name == "host").Select(l => l.value)).Distinct();
+            Assert.That(hostNames, Has.One.Items.And.All.EqualTo("5994A3F7-AF84-46AD-9393-000BB45553CC"));
+        }
         private void ParseAllureSuites(string allureResultsDir)
         {
             var allureTestResultFiles = new DirectoryInfo(allureResultsDir).GetFiles("*-result.json");
             var allureContainerFiles = new DirectoryInfo(allureResultsDir).GetFiles("*-container.json");
-            JsonSerializer serializer = new JsonSerializer();
+            var serializer = new JsonSerializer();
 
             foreach (var fileInfo in allureContainerFiles)
             {
-                using (StreamReader file = File.OpenText(fileInfo.FullName))
+                using (var file = File.OpenText(fileInfo.FullName))
                 {
                     var container = (TestResultContainer)serializer.Deserialize(file, typeof(TestResultContainer));
                     allureContainers.Add(container);
@@ -152,7 +155,7 @@ namespace Allure.SpecFlowPlugin.Tests
 
             foreach (var fileInfo in allureTestResultFiles)
             {
-                using (StreamReader file = File.OpenText(fileInfo.FullName))
+                using (var file = File.OpenText(fileInfo.FullName))
                 {
                     var testResult = (TestResult)serializer.Deserialize(file, typeof(TestResult));
                     allureTestResults.Add(testResult);

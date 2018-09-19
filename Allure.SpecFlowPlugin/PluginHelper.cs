@@ -64,7 +64,7 @@ namespace Allure.SpecFlowPlugin
                 labels = new List<Label>
                     {
                         Label.Thread(),
-                        Label.Host(),
+                        string.IsNullOrWhiteSpace(AllureLifecycle.Instance.AllureConfiguration.Title) ? Label.Host() : Label.Host(AllureLifecycle.Instance.AllureConfiguration.Title),
                         Label.Feature(featureInfo.Title)
                     }
                     .Union(tags.Item1).ToList(),

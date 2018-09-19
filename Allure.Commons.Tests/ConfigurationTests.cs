@@ -49,6 +49,15 @@ namespace Allure.Commons.Tests
             return new AllureLifecycle(configFile).AllureConfiguration.Links.Count;
         }
 
+        [Test]
+        public void ShouldConfigureTitle()
+        {
+            var json = @"{""allure"":{""title"": ""hello Allure""}}";
+            configFile = WriteConfig(json);
+            var actualTitle = new AllureLifecycle(configFile).AllureConfiguration.Title;
+            Assert.AreEqual("hello Allure", actualTitle);
+        }
+
         [TearDown]
         public void TearDown()
         {

@@ -1,5 +1,6 @@
 ﻿{
   "allure": {
+    "title": "5994A3F7-AF84-46AD-9393-000BB45553CC",
     "directory": "allure-results",
     "links": [
       "https://example.org/{issue}",
