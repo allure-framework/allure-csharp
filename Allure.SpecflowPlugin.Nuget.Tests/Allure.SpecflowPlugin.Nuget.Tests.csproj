@@ -4,26 +4,32 @@
     <TargetFrameworks>net452</TargetFrameworks>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-  <PropertyGroup>
-    <!-- enable experimental support for net.sdk projects via feature flag -->
-    <SpecFlow_EnableDefaultCompileItems>true</SpecFlow_EnableDefaultCompileItems>
-    <!-- enable experimental support to warn if code behind files are exisiting without corresponding feature file -->
-    <SpecFlow_EnableWarnForFeatureCodeBehindFilesWithoutCorrespondingFeatureFile>true</SpecFlow_EnableWarnForFeatureCodeBehindFilesWithoutCorrespondingFeatureFile>
-    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
-    <SpecFlow_DeleteCodeBehindFilesOnCleanRebuild>true</SpecFlow_DeleteCodeBehindFilesOnCleanRebuild>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Remove="SpecFlowFeature.feature.cs" />
+    <SpecFlowFeatureFiles Remove="SpecFlowFeature1.feature" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="MSTest.TestAdapter" Version="1.3.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.3.0" />
-    <PackageReference Include="SpecFlow.Allure" Version="2.4.0.5" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="2.4.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageReference Include="SpecFlow.Allure" Version="2.4.2" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="2.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="SpecFlowFeature1.feature.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SpecFlowFeature1.feature</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="allureConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SpecFlowFeature1.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SpecFlowFeature1.feature.cs</LastGenOutput>
     </None>
   </ItemGroup>
 </Project>
