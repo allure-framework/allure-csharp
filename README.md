@@ -8,9 +8,21 @@ Can be targeted either by .net 4.6.* or .net standard 2.* projects.
 Use this library to create custom Allure adapters for .Net test frameworks.
 
 ### Configuration
-Allure lifecycle reads configuration from `allureConfig.json` file which should be placed to the same location with `Allure.Commons.dll`
+Allure lifecycle is configured via json file with default name `allureConfig.json`. There are 2 ways to specify config file location:
+werwer 
+-  set ALLURE_CONFIG environment variable to the full path of json config file. This option is preferable for .net core projects which utilize nuget libraries directly from nuget packages folder. See this example of setting it via code: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.Commons.NetCore.Tests/AllureConfigTests.cs#L13-L15
 
-Raw json configuration can be accessed from `AllureLifeCycle.Instance.JsonConfiguration` to extend configuration by adapters.
+- place `allureConfig.json` to the location of `Allure.Commons.dll`. This option can be used with .net classic projects which copy all referenced package libraries into binary folder.Do not forget to set 'Copy to Output Directory' property to 'Copy always' or 'Copy if newer' in your test project it into test output folder, or set it in .csproj:
+```
+<ItemGroup>
+<None Update="allureConfig.json">
+<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</None>
+</ItemGroup>
+```
+
+Raw json configuration can be accessed from `AllureLifeCycle.Instance.JsonConfiguration` to extend configuration by adapters. See extension example here: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.SpecFlowPlugin/PluginHelper.cs#L20-L29
+
 
 Base configuration params are stored in `AllureLifeCycle.Instance.Configuration`
 
@@ -76,9 +88,9 @@ Make sure your test project targets .net 4.6.1 or higher.
 
 Install the latest version of [Specflow.Allure](https://www.nuget.org/packages/SpecFlow.Allure) nuget package.
 ### Configuration
-The plugin can be configured via `allureConfig.json`. **Do not forget to copy it into test output folder.**
+The plugin uses Allure.Commons json configuration extended with custom sections.
 ### Custom host name
-In case if you want to customize host name which is displayed in Allure Timeline section, please configure `allure.title` property in your `allureConfig.json`
+In case if you want to customize host name which is displayed in Allure Timeline section, please configure `allure.title` property in json configuraion file.
 #### If you use NUnit
 Default value for allure.directory in allureConfig.json is "allure-results", default working directory in NUnit 3.* is the working directory of console runner. If you don't want to place allure results into NUnit default working folder please either set absolute path in allure.config or set working directory for NUnit in your test setup, e.g.:
 ``` csharp
