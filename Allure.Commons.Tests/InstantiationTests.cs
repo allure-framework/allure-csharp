@@ -7,8 +7,6 @@ namespace Allure.Commons.Tests
     [TestFixture]
     public class InstantiationTests
     {
-        private readonly string configFile;
-
         [SetUp]
         [TearDown]
         public void CleanConfig()
