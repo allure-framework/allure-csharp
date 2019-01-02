@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace Allure.Commons.NetCore.Tests
+namespace Allure.Commons.NetCore.Nuget.Tests
 {
     [TestFixture]
     public class AllureConfigTests

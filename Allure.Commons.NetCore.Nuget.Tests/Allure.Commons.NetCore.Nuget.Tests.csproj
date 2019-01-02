@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AssemblyName>Allure.Commons.NetCore.Nuget.Tests</AssemblyName>
+    <RootNamespace>Allure.Commons.NetCore.Nuget.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
