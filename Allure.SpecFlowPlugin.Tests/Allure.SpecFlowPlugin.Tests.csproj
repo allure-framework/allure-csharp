@@ -17,7 +17,7 @@
     <None Update="allureConfigStepArguments.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="allureConfigEmpty.json">
+    <None Update="allureConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="allureConfigWithInvalidRegex.json">

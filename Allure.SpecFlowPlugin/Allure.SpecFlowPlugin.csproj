@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net45</TargetFramework>
     <PackageId>SpecFlow.Allure</PackageId>
-    <Version>2.4.2.1</Version>
+    <Version>2.4.2.3</Version>
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
@@ -14,17 +14,13 @@
     <PackageTags>specflow allure</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <AssemblyVersion>2.4.2.1</AssemblyVersion>
-    <FileVersion>2.4.2.1</FileVersion>
+    <AssemblyVersion>2.4.2.3</AssemblyVersion>
+    <FileVersion>2.4.2.3</FileVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="allureConfig.json" />
-    <None Remove="App.config.transform" />
-  </ItemGroup>
 
   <ItemGroup>
-    <Content Include="allureConfig.json" Pack="true" />
+    <Content Include="allureConfig.Template.json" Pack="true" />
     <Content Include="App.config.transform" Pack="true" />
   </ItemGroup>
 

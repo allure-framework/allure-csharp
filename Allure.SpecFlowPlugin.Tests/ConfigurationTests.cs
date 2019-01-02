@@ -6,8 +6,8 @@ namespace Allure.SpecFlowPlugin.Tests
     [TestFixture]
     public class ConfigurationTests
     {
+        [TestCase(@"allureConfig.json")]
         [TestCase(@"allureConfigStepArguments.json")]
-        [TestCase(@"allureConfigEmpty.json")]
         [TestCase(@"allureConfigWithInvalidRegex.json")]
         public void ShouldNotHaveNullParents(string json)
         {
