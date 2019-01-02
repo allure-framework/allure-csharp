@@ -30,6 +30,7 @@ namespace Allure.Commons.Tests
         {
             Assert.Throws<FileNotFoundException>(() => new AllureLifecycle(Path.GetRandomFileName()));
         }
+
         [Test, Description("Should set results directory from config")]
         public void ShouldConfigureResultsDirectoryFromJson()
         {
@@ -61,7 +62,8 @@ namespace Allure.Commons.Tests
         [TearDown]
         public void TearDown()
         {
-            File.Delete(configFile);
+            if (configFile != null)
+                File.Delete(configFile);
         }
 
         private string WriteConfig(string json)

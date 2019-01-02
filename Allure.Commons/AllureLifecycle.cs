@@ -34,17 +34,18 @@ namespace Allure.Commons
                 return instance;
             }
         }
-        public AllureLifecycle() : this(Path.Combine(Path.GetDirectoryName(
-            typeof(AllureLifecycle).Assembly.Location), AllureConstants.CONFIG_FILENAME))
-        {
-        }
 
-        public AllureLifecycle(string jsonConfigurationFile)
+        public AllureLifecycle(string jsonConfigurationFile = null)
         {
-            JsonConfiguration = File.ReadAllText(jsonConfigurationFile);
+            if (jsonConfigurationFile != null)
+                JsonConfiguration = File.ReadAllText(jsonConfigurationFile);
+            else
+                JsonConfiguration = File.ReadAllText(GetDefaultJsonConfiguration());
+
             AllureConfiguration = AllureConfiguration.ReadFromJson(JsonConfiguration);
             writer = new FileSystemResultsWriter(AllureConfiguration);
             storage = new AllureStorage();
+
         }
 
         #region TestContainer
@@ -275,6 +276,25 @@ namespace Allure.Commons
 
 
         #region Privates
+        private string GetDefaultJsonConfiguration()
+        {
+            var envConfig = Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE);
+
+            if (envConfig != null && !File.Exists(envConfig))
+                throw new FileNotFoundException($"Couldn't find '{envConfig}' specified in {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable");
+
+            if (File.Exists(envConfig))
+                return envConfig;
+
+            var binaryFolder = Path.GetDirectoryName(typeof(AllureLifecycle).Assembly.Location);
+            var binaryConfig = Path.Combine(binaryFolder, AllureConstants.CONFIG_FILENAME);
+
+            if (!File.Exists(binaryConfig))
+                throw new FileNotFoundException($"Couldn't find Allure configuration file. Please either specify full path to {AllureConstants.CONFIG_FILENAME} in the {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable or place {AllureConstants.CONFIG_FILENAME} to the '{binaryFolder}' folder");
+
+            return binaryConfig;
+
+        }
         private void StartFixture(string uuid, FixtureResult fixtureResult)
         {
             storage.Put(uuid, fixtureResult);
