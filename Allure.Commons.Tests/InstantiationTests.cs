@@ -10,6 +10,7 @@ namespace Allure.Commons.Tests
         private readonly string configFile;
 
         [SetUp]
+        [TearDown]
         public void CleanConfig()
         {
             var defaultConfig = Path.Combine(
