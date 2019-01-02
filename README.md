@@ -8,7 +8,7 @@ Can be targeted either by .net 4.6.* or .net standard 2.* projects.
 Use this library to create custom Allure adapters for .Net test frameworks.
 
 ### Configuration
-Allure lifecycle is configured via json file with default name `allureConfig.json`. There are 2 ways to specify config file location: 
+Allure lifecycle is configured via json file with default name `allureConfig.json`. NuGet package installs `allureConfig.Template.json` which you can use as a template. There are 2 ways to specify config file location: 
 -  set ALLURE_CONFIG environment variable to the full path of json config file. This option is preferable for .net core projects which utilize nuget libraries directly from nuget packages folder. See this example of setting it via code: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.Commons.NetCore.Tests/AllureConfigTests.cs#L13-L15
 
 - place `allureConfig.json` to the location of `Allure.Commons.dll`. This option can be used with .net classic projects which copy all referenced package libraries into binary folder. Do not forget to set 'Copy to Output Directory' property to 'Copy always' or 'Copy if newer' in your test project or set it in .csproj:
