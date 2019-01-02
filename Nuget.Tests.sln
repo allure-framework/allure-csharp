@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Commons.NetCore.Tests", "Allure.Commons.NetCore.Tests\Allure.Commons.NetCore.Tests.csproj", "{7EDE0B2D-C2CC-4559-B936-E54EA7051649}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons.NetCore.Tests", "Allure.Commons.NetCore.Nuget.Tests\Allure.Commons.NetCore.Tests.csproj", "{ADCD7154-0918-4C58-8504-47F2934B5257}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +22,10 @@ Global
 		{85755452-928C-43A3-A020-00117B7A00E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85755452-928C-43A3-A020-00117B7A00E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85755452-928C-43A3-A020-00117B7A00E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7EDE0B2D-C2CC-4559-B936-E54EA7051649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7EDE0B2D-C2CC-4559-B936-E54EA7051649}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7EDE0B2D-C2CC-4559-B936-E54EA7051649}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7EDE0B2D-C2CC-4559-B936-E54EA7051649}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADCD7154-0918-4C58-8504-47F2934B5257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADCD7154-0918-4C58-8504-47F2934B5257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADCD7154-0918-4C58-8504-47F2934B5257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADCD7154-0918-4C58-8504-47F2934B5257}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
