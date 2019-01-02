@@ -7,6 +7,13 @@ namespace Allure.Commons.NetCore.Tests
     [TestFixture]
     public class AllureConfigTests
     {
+        [TearDown]
+        public void RemoveEnvVariable()
+        {
+            Environment.SetEnvironmentVariable(
+                AllureConstants.ALLURE_CONFIG_ENV_VARIABLE, null);
+        }
+
         [Test]
         public void ShouldReadAllureConfig()
         {
