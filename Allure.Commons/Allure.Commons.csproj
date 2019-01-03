@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
-    <AssemblyVersion>2.4.2.3</AssemblyVersion>
-    <FileVersion>2.4.2.3</FileVersion>
-    <Version>2.4.2.3</Version>
+    <AssemblyVersion>2.4.2.4</AssemblyVersion>
+    <FileVersion>2.4.2.4</FileVersion>
+    <Version>2.4.2.4</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Alexander Bakanov</Authors>
     <Company />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Allure.Commons.Helpers
 {
@@ -12,16 +13,15 @@ namespace Allure.Commons.Helpers
                 .Where(l => !string.IsNullOrWhiteSpace(l.type))
                 .GroupBy(l => l.type))
             {
-                var linkType = linkTypeGroup.Key.ToLower();
-                var match = $"{{{linkType}}}";
-                var pattern = patterns.FirstOrDefault(x => x.ToLower().Contains(match));
-                if (pattern != null)
+                var typePattern = $"{{{linkTypeGroup.Key}}}";
+                var linkPattern = patterns.FirstOrDefault(x => x.IndexOf(typePattern, StringComparison.CurrentCultureIgnoreCase) >= 0);
+                if (linkPattern != null)
                 {
-                    pattern = pattern.ToLower();
                     var linkArray = linkTypeGroup.ToArray();
-                    for (int i = 0; i < linkArray.Length; i++)
+                    for (var i = 0; i < linkArray.Length; i++)
                     {
-                        linkArray[i].url = Uri.EscapeUriString(pattern.Replace(match, linkArray[i].url));
+                        var replacedLink = Regex.Replace(linkPattern, typePattern, linkArray[i].url ?? string.Empty, RegexOptions.IgnoreCase);
+                        linkArray[i].url = Uri.EscapeUriString(replacedLink);
                     }
                 }
             }

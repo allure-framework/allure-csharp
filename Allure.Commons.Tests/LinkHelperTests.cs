@@ -6,7 +6,7 @@ using System.Linq;
 namespace Allure.Commons.Tests
 {
     [TestFixture]
-    class LinkHelperTests
+    internal class LinkHelperTests
     {
         [Test]
         public void UpdateLinksTest()
@@ -39,9 +39,9 @@ namespace Allure.Commons.Tests
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("123456"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("Custom Url"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("Empty Type"));
-                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://tms.com/"));
-                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://issue.com/"));
-                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://issue.com/Issue%20URL"));
+                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://TMS.com/"));
+                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://Issue.com/"));
+                Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://Issue.com/Issue%20URL"));
             });
         }
     }
