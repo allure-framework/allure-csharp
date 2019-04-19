@@ -140,7 +140,7 @@ namespace Allure.SpecFlowPlugin.Tests
             var labels = scenarios.SelectMany(x => x.labels);
             Assert.Multiple(() =>
             {
-                // ummatched tags
+                // unmatched tags
                 Assert.That(labels.Where(x => x.name == "tag"), Has.Exactly(scenarios.Count() + 1).Items);
                 // owner
                 Assert.That(labels.Where(x => x.value == "Vasya").Select(l => l.name),
