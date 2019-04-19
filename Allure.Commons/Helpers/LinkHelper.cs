@@ -14,13 +14,15 @@ namespace Allure.Commons.Helpers
                 .GroupBy(l => l.type))
             {
                 var typePattern = $"{{{linkTypeGroup.Key}}}";
-                var linkPattern = patterns.FirstOrDefault(x => x.IndexOf(typePattern, StringComparison.CurrentCultureIgnoreCase) >= 0);
+                var linkPattern = patterns.FirstOrDefault(x =>
+                    x.IndexOf(typePattern, StringComparison.CurrentCultureIgnoreCase) >= 0);
                 if (linkPattern != null)
                 {
                     var linkArray = linkTypeGroup.ToArray();
                     for (var i = 0; i < linkArray.Length; i++)
                     {
-                        var replacedLink = Regex.Replace(linkPattern, typePattern, linkArray[i].url ?? string.Empty, RegexOptions.IgnoreCase);
+                        var replacedLink = Regex.Replace(linkPattern, typePattern, linkArray[i].url ?? string.Empty,
+                            RegexOptions.IgnoreCase);
                         linkArray[i].url = Uri.EscapeUriString(replacedLink);
                     }
                 }

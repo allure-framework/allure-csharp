@@ -2,7 +2,7 @@
 
 namespace Tests.SpecRun
 {
-    class IgnoreException : Exception
+    internal class IgnoreException : Exception
     {
     }
 }

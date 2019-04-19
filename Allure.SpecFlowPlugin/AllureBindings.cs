@@ -6,10 +6,10 @@ namespace Allure.SpecFlowPlugin
     [Binding]
     public class AllureBindings
     {
-        static AllureLifecycle allure = AllureLifecycle.Instance;
+        private static readonly AllureLifecycle allure = AllureLifecycle.Instance;
 
-        private FeatureContext featureContext;
-        private ScenarioContext scenarioContext;
+        private readonly FeatureContext featureContext;
+        private readonly ScenarioContext scenarioContext;
 
         public AllureBindings(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
@@ -52,7 +52,7 @@ namespace Allure.SpecFlowPlugin
             // update status to passed if there were no step of binding failures
             allure
                 .UpdateTestCase(scenarioId,
-                    x => x.status = (x.status != Status.none) ? x.status : Status.passed)
+                    x => x.status = x.status != Status.none ? x.status : Status.passed)
                 .StopTestCase(scenarioId);
         }
     }
