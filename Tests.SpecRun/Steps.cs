@@ -1,27 +1,30 @@
-﻿using Allure.Commons;
-using Allure.SpecFlowPlugin;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+using Allure.Commons;
+using Allure.SpecFlowPlugin;
 using TechTalk.SpecFlow;
 
 namespace Tests.SpecRun
 {
-    public enum TestOutcome { passed, failed }
+    public enum TestOutcome
+    {
+        passed,
+        failed
+    }
 
     [Binding]
     public class Steps
     {
-        static AllureLifecycle allure = AllureLifecycle.Instance;
+        private static readonly AllureLifecycle allure = AllureLifecycle.Instance;
 
-        FeatureContext featureContext;
-        ScenarioContext scenarioContext;
+        private FeatureContext featureContext;
+        private readonly ScenarioContext scenarioContext;
 
         public Steps(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
-
         }
 
         [StepDefinition(@"Step is '(.*)'")]
@@ -98,12 +101,12 @@ namespace Tests.SpecRun
                 allure.AddAttachment(path);
                 allure.AddAttachment(path, "text file");
             }
+
             if (tags != null)
                 if (tags.Any(x => x.EndsWith("failed")))
                     throw new Exception("Wasted");
                 else if (tags.Any(x => x == PluginHelper.IGNORE_EXCEPTION))
                     throw new IgnoreException();
         }
-
     }
 }

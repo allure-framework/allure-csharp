@@ -1,8 +1,9 @@
-﻿using TechTalk.SpecFlow.Plugins;
+﻿using Allure.SpecFlowPlugin;
 using TechTalk.SpecFlow.Bindings;
+using TechTalk.SpecFlow.Plugins;
 using TechTalk.SpecFlow.Tracing;
 
-[assembly: RuntimePlugin(typeof(Allure.SpecFlowPlugin.AllurePlugin))]
+[assembly: RuntimePlugin(typeof(AllurePlugin))]
 
 namespace Allure.SpecFlowPlugin
 {

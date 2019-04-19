@@ -10,8 +10,5 @@
         public static string TEST_RESULT_CONTAINER_FILE_SUFFIX = "-container.json";
         public static string TEST_RUN_FILE_SUFFIX = "-testrun.json";
         public static string ATTACHMENT_FILE_SUFFIX = "-attachment";
-
-
-
     }
 }

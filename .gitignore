@@ -261,3 +261,5 @@ __pycache__/
 *.pyc
 
 *.feature.cs
+
+.DS_Store
