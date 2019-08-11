@@ -13,7 +13,7 @@
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="SpecFlow.Allure" Version="2.4.2.4" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="2.4.1" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.0.225" />
   </ItemGroup>
 
   <ItemGroup>
