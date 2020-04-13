@@ -1,9 +1,9 @@
-# Allure c# Integrations   ![](https://bakanych.visualstudio.com/_apis/public/build/definitions/60930d4b-6231-4f3e-a77f-40e16c32a13d/3/badge)
+# Allure c# Integrations   [![Build status](https://bakanych.visualstudio.com/Allure/_apis/build/status/Allure-CSharp)](https://bakanych.visualstudio.com/Allure/_build/latest?definitionId=3)
 
 ## Allure.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Commons)
 .Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
 
-Can be targeted either by .net 4.6.* or .net standard 2.* projects.
+Can be targeted either by legacy .net 4.5+ or .net standard 2.* projects.
 
 Use this library to create custom Allure adapters for .Net test frameworks.
 
@@ -80,13 +80,19 @@ Use `AllureLifecycle.Instance` property to access.
 
 
 ## SpecFlow Adapter  [![](http://img.shields.io/nuget/vpre/SpecFlow.Allure.svg?style=flat)](https://www.nuget.org/packages/SpecFlow.Allure) [![NuGet](https://img.shields.io/nuget/dt/SpecFlow.Allure.svg)](https://www.nuget.org/packages/SpecFlow.Allure)
-Currently supports [SpecFlow](http://specflow.org/) v2.1 - 2.4.
+Currently supports [SpecFlow](http://specflow.org/) v2.1 - 3.1.*
+
 Please use corresponding NuGet package version.
 ### Installation
-Make sure your test project targets .net 4.6.1 or higher.
 
-Install the latest version of [Specflow.Allure](https://www.nuget.org/packages/SpecFlow.Allure) nuget package.
+Install  [Specflow.Allure](https://www.nuget.org/packages/SpecFlow.Allure) nuget package according to your Specflow version.
 ### Configuration
+For Specflow 3 please add or update the following section in your specflow.json:
+ ```                  
+"stepAssemblies": [
+  { "assembly": "Allure.SpecFlowPlugin" }
+]
+```
 The plugin uses Allure.Commons json configuration extended with custom sections.
 ### Custom host name
 In case if you want to customize host name which is displayed in Allure Timeline section, please configure `allure.title` property in json configuraion file.

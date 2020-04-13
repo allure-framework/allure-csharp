@@ -1,0 +1,22 @@
+﻿Feature: Scenarios and Steps
+
+  @passed
+  Scenario: Empty scenario
+
+  @passed
+  Scenario: Passed scenario
+    Given Step is 'passed'
+
+  @failed
+  Scenario: Failed scenario
+    Given Step is 'passed'
+    Given Step is 'failed'
+    Given Step is 'passed'
+
+  @passed
+  Scenario: Shared Steps
+    Given I execute the steps of:
+      | feature             | scenario        |
+      | Scenarios and Steps | Passed scenario |
+
+    And Step is 'passed'
