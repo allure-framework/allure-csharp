@@ -1,0 +1,5 @@
+{
+  "stepAssemblies": [
+    { "assembly": "Allure.Test" },    { "assembly": "Allure.SpecFlowPlugin" }
+  ]
+}
