@@ -24,7 +24,7 @@ namespace Allure.SpecFlowPlugin.Tests
         public void Init()
         {
             var featuresDirectory = @"./../../../../Allure.Features/TestData";
-            var testDirectory = @"./../../../../Allure.Features/bin/Debug/netcoreapp3.0";
+            var testDirectory = @"./../../../../Allure.Features/bin/Debug/netcoreapp3.1";
             var allureDirectory = $@"{testDirectory}/allure-results";
             // if (Directory.Exists(allureDirectory))
             //     Directory.Delete(allureDirectory, true);
