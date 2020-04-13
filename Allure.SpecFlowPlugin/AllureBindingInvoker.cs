@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Allure.Commons;
@@ -227,7 +228,7 @@ namespace Allure.SpecFlowPlugin
             if (stepInfo.Table != null)
             {
                 var csvFile = $"{Guid.NewGuid().ToString()}.csv";
-                using (var csv = new CsvWriter(File.CreateText(csvFile)))
+                using (var csv = new CsvWriter(File.CreateText(csvFile),CultureInfo.InvariantCulture))
                 {
                     foreach (var item in stepInfo.Table.Header) csv.WriteField(item);
                     csv.NextRecord();

@@ -126,21 +126,19 @@ namespace Allure.SpecFlowPlugin
             allure.StartStep(PluginHelper.NewId(), stepResult);
 
             // add csv table for multi-row table if was not processed as params already
-            if (!isTableProcessed)
-                using (var sw = new StringWriter())
-                using (var csv = new CsvWriter(sw))
-                {
-                    foreach (var item in table.Header) csv.WriteField(item);
-                    csv.NextRecord();
-                    foreach (var row in table.Rows)
-                    {
-                        foreach (var item in row.Values) csv.WriteField(item);
-                        csv.NextRecord();
-                    }
+            if (isTableProcessed) return;
+            using var sw = new StringWriter();
+            using var csv = new CsvWriter(sw, CultureInfo.InvariantCulture);
+            foreach (var item in table.Header) csv.WriteField(item);
+            csv.NextRecord();
+            foreach (var row in table.Rows)
+            {
+                foreach (var item in row.Values) csv.WriteField(item);
+                csv.NextRecord();
+            }
 
-                    allure.AddAttachment("table", "text/csv",
-                        Encoding.ASCII.GetBytes(sw.ToString()), ".csv");
-                }
+            allure.AddAttachment("table", "text/csv",
+                Encoding.ASCII.GetBytes(sw.ToString()), ".csv");
         }
 
         private static void FailScenario(Exception ex)

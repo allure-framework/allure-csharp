@@ -5,8 +5,8 @@
     <PackageId>SpecFlow.Allure</PackageId>
     <Version>3.0.0</Version>
     <Authors>Alexander Bakanov</Authors>
-    <Company/>
-    <Product/>
+    <Company />
+    <Product />
     <Description>Generates Allure report result files for SpecFlow test run</Description>
     <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/wiki/SpecFlow-Adapter</PackageProjectUrl>
     <PackageIcon>allure-specflow.png</PackageIcon>
@@ -22,16 +22,16 @@
 
 
   <ItemGroup>
-    <Content Include="allureConfig.Template.json" Pack="true"/>
-    <None Include="./../img/allure-specflow.png" Pack="true" PackagePath="\"/>
+    <Content Include="allureConfig.Template.json" Pack="true" />
+    <None Include="./../img/allure-specflow.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="7.1.1"/>
-    <PackageReference Include="SpecFlow" Version="3.1.*"/>
+    <PackageReference Include="CsvHelper" Version="15.0.4" />
+    <PackageReference Include="SpecFlow" Version="3.1.97" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj"/>
+    <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj" />
   </ItemGroup>
 
 </Project>
