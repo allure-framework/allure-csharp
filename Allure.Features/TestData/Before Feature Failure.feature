@@ -1,4 +1,5 @@
-﻿@data @beforefeaturefailed
+﻿@beforefeaturefailed
 Feature: Before Feature Failure
- 
-Scenario: 1
+
+  @broken
+  Scenario: Unknown

@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Allure.Commons;
+using Gherkin;
+using Gherkin.Ast;
+using Gherkin.Stream;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -11,39 +15,55 @@ namespace Allure.SpecFlowPlugin.Tests
     [TestFixture]
     public class IntegrationFixture
     {
-        private const string SCENARIO_PATTERN = "Scenario:";
-        private const string FEATURE_PATTERN = "Feature:";
-        private readonly HashSet<string> scenarioTitles = new HashSet<string>();
         private readonly HashSet<TestResultContainer> allureContainers = new HashSet<TestResultContainer>();
         private readonly HashSet<TestResult> allureTestResults = new HashSet<TestResult>();
-        private readonly HashSet<TestResultContainer> specflowSuites = new HashSet<TestResultContainer>();
+        private IEnumerable<IGrouping<string, string>> scenariosByStatus;
 
 
         [OneTimeSetUp]
         public void Init()
         {
-            var testDirectory = @"..\..\..\..\Tests.SpecRun\bin\debug";
-            var allureDirectory = $@"{testDirectory}\TestResults\allure-results";
-            if (Directory.Exists(allureDirectory))
-                Directory.Delete(allureDirectory, true);
+            var featuresDirectory = @"./../../../../Allure.Features/TestData";
+            var testDirectory = @"./../../../../Allure.Features/bin/Debug/netcoreapp3.0";
+            var allureDirectory = $@"{testDirectory}/allure-results";
+            // if (Directory.Exists(allureDirectory))
+            //     Directory.Delete(allureDirectory, true);
 
             // run SpecFlow scenarios using SpecRun runner
-            var process = Process.Start($@"{testDirectory}\\runtests.cmd");
-            process.WaitForExit();
+            // var process = Process.Start($@"{testDirectory}\\runtests.cmd");
+            // process.WaitForExit();
 
             // parse allure suites
             ParseAllureSuites(allureDirectory);
+            ParseFeatures(featuresDirectory);
         }
 
 
-        [TestCase(Status.passed, 16)]
-        [TestCase(Status.failed, 1 * 2)]
-        [TestCase(Status.broken, 8 * 2 + 7)]
-        [TestCase(Status.skipped, 2)]
-        public void TestStatus(Status status, int count)
+        [TestCase(Status.passed)]
+        [TestCase(Status.failed)]
+        [TestCase(Status.broken)]
+        [TestCase(Status.skipped)]
+        public void TestStatus(Status status)
         {
-            var scenariosByStatus = allureTestResults.Where(x => x.status == status);
-            Assert.That(scenariosByStatus, Has.Exactly(count).Items, scenariosByStatus.Count().ToString());
+            var expected = scenariosByStatus.FirstOrDefault(x => x.Key == status.ToString()).ToList();
+            var actual = allureTestResults.Where(x => x.status == status).Select(x => x.name).ToList();
+            Assert.That(actual, Is.EquivalentTo(expected));
+        }
+
+
+        private void ParseFeatures(string featuresDir)
+        {
+            var parser = new Parser();
+            var scenarios = new List<Scenario>();
+            var features = new DirectoryInfo(featuresDir).GetFiles("*.feature");
+            scenarios.AddRange(features.SelectMany(f => parser.Parse(f.FullName).Feature.Children)
+                .Select(x => x as Scenario));
+
+            scenariosByStatus =
+                scenarios.GroupBy(x => x.Tags.FirstOrDefault(x =>
+                                               Enum.GetNames(typeof(Status)).Contains(x.Name.Replace("@", "")))?.Name
+                                           .Replace("@", "") ??
+                                       "_notag_", x => x.Name);
         }
 
         private void ParseAllureSuites(string allureResultsDir)
@@ -53,30 +73,20 @@ namespace Allure.SpecFlowPlugin.Tests
             var serializer = new JsonSerializer();
 
             foreach (var fileInfo in allureContainerFiles)
-                using (var file = File.OpenText(fileInfo.FullName))
-                {
-                    var container = (TestResultContainer) serializer.Deserialize(file, typeof(TestResultContainer));
-                    allureContainers.Add(container);
-                }
+            {
+                using var file = File.OpenText(fileInfo.FullName);
+                var container = (TestResultContainer) serializer.Deserialize(file, typeof(TestResultContainer));
+                allureContainers.Add(container);
+            }
 
             foreach (var fileInfo in allureTestResultFiles)
-                using (var file = File.OpenText(fileInfo.FullName))
-                {
-                    var testResult = (TestResult) serializer.Deserialize(file, typeof(TestResult));
-                    allureTestResults.Add(testResult);
-                }
+            {
+                using var file = File.OpenText(fileInfo.FullName);
+                var testResult = (TestResult) serializer.Deserialize(file, typeof(TestResult));
+                allureTestResults.Add(testResult);
+            }
         }
 
-        [Test]
-        public void AllScenariosWithFailureTagShouldBeBroken()
-        {
-            var withFailureTags = allureTestResults
-                .Where(x => x.labels
-                    .Any(l => l.name == Label.Tag("").name && l.value.EndsWith("failed") &&
-                              l.value != "afterfeaturefailed"))
-                .Select(x => x.status);
-            Assert.That(withFailureTags, Is.All.EqualTo(Status.broken));
-        }
 
         [Test]
         public void ShouldConvertTableToStepParams()
@@ -140,8 +150,8 @@ namespace Allure.SpecFlowPlugin.Tests
             var labels = scenarios.SelectMany(x => x.labels);
             Assert.Multiple(() =>
             {
-                // unmatched tags
-                Assert.That(labels.Where(x => x.name == "tag"), Has.Exactly(scenarios.Count() + 1).Items);
+                // all selected scenarios should have only 2 unmatched tags - "labels" and "passed". One scenario also has "tag1" as unmatched.
+                Assert.That(labels.Where(x => x.name == "tag"), Has.Exactly(scenarios.Count() * 2 + 1).Items);
                 // owner
                 Assert.That(labels.Where(x => x.value == "Vasya").Select(l => l.name),
                     Has.Exactly(scenarios.Count()).Items.And.All.EqualTo("owner"));

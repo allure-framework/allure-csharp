@@ -1,5 +1,13 @@
 {
   "stepAssemblies": [
-    { "assembly": "Allure.Test" },    { "assembly": "Allure.SpecFlowPlugin" }
+    {
+      "assembly": "Allure.Features"
+    },
+    {
+      "assembly": "Allure.SpecFlowPlugin"
+    },
+    {
+      "assembly": "SpecFlowSharedSteps"
+    }
   ]
 }

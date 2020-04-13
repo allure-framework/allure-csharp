@@ -1,7 +1,13 @@
-﻿@data @afterfeaturefailed
+﻿@afterfeaturefailed
 Feature: After Feature Failure
- 
-Scenario: After Feature Failure 1
-Scenario: After Feature Failure 2
+
+  @passed
+  Scenario: After Feature Failure 1
+    Given Step is 'passed'
+
+  @broken
+  Scenario: After Feature Failure 2
+    Given Step is 'failed'
+
 
 
