@@ -10,7 +10,7 @@
     <Description>.net implementation of Allure java-commons</Description>
     <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/wiki/Allure.Commons</PackageProjectUrl>
     <PackageTags>allure</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/allure-framework/allure-csharp/master/img/allure-net.png</PackageIconUrl>
+    <PackageIcon>allure-net.png</PackageIcon>
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
@@ -18,6 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="./../img/allure-net.png" Pack="true" PackagePath="\" />
     <Content Include="allureConfig.Template.json" Pack="true" />
     <PackageReference Include="MimeTypesMap" Version="1.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
