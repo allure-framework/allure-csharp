@@ -103,7 +103,7 @@ namespace Allure.Features
             }
 
             if (tags != null)
-                if (tags.Any(x => x.EndsWith("failed")))
+                if (tags.Any(x => x.EndsWith(Status.failed.ToString()) || x.EndsWith(Status.broken.ToString())))
                     throw new Exception("Wasted");
                 else if (tags.Any(x => x == PluginHelper.IGNORE_EXCEPTION))
                     throw new IgnoreException();

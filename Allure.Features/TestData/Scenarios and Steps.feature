@@ -1,19 +1,22 @@
-﻿@data
-Feature: Scenarios and Steps
+﻿Feature: Scenarios and Steps
 
-Scenario: Empty scenario
- 
-Scenario: Passed scenario
-	Given Step is 'passed'
- 
-Scenario: Failed scenario
-	Given Step is 'passed'
-	Given Step is 'failed'
-	Given Step is 'passed'
+  @passed
+  Scenario: Empty scenario
 
-Scenario: Shared Steps
-	Given I execute the steps of:
-	| feature             | scenario        |
-	| Scenarios and Steps | Passed scenario |
+  @passed
+  Scenario: Passed scenario
+    Given Step is 'passed'
 
-	And Step is 'passed'
+  @failed
+  Scenario: Failed scenario
+    Given Step is 'passed'
+    Given Step is 'failed'
+    Given Step is 'passed'
+
+  @passed
+  Scenario: Shared Steps
+    Given I execute the steps of:
+      | feature             | scenario        |
+      | Scenarios and Steps | Passed scenario |
+
+    And Step is 'passed'

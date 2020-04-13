@@ -62,7 +62,7 @@ namespace Allure.SpecFlowPlugin
                             {
                                 allure.StopFixture(x => x.status = Status.broken);
 
-                                // if BeforeFeature is failed execution is stopped. We need to create, update, stop and write everything here.
+                                // if BeforeFeature is failed, execution is already stopped. We need to create, update, stop and write everything here.
 
                                 // create fake scenario container
                                 var scenarioContainer =
