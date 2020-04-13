@@ -1,35 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452</TargetFrameworks>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <SpecFlowFeatureFiles Remove="SpecFlowFeature1.feature" />
-  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-    <PackageReference Include="SpecFlow.Allure" Version="2.4.2.4" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="2.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.97" />
+    <PackageReference Include="SpecFlow.NUnit" Version="3.1.97" />
+    <PackageReference Include="SpecFlow.Allure" Version="3.0.0" />
+
   </ItemGroup>
 
+
   <ItemGroup>
-    <Compile Update="SpecFlowFeature1.feature.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SpecFlowFeature1.feature</DependentUpon>
-    </Compile>
+    <Content Include="Allure.feature" />
+    <Content Include="allureConfig.json" CopyToOutputDirectory="Always" />
+    <Content Include="specflow.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="allureConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SpecFlowFeature1.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SpecFlowFeature1.feature.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+
+
 </Project>
