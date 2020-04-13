@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Allure.Test
+namespace Allure.Features
 {
     internal class IgnoreException : Exception
     {

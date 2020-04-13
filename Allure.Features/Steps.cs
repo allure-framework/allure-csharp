@@ -5,7 +5,7 @@ using Allure.Commons;
 using Allure.SpecFlowPlugin;
 using TechTalk.SpecFlow;
 
-namespace Allure.Test
+namespace Allure.Features
 {
     public enum TestOutcome
     {
