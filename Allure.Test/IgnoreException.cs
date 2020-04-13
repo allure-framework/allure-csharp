@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tests.SpecRun
+namespace Allure.Test
 {
     internal class IgnoreException : Exception
     {

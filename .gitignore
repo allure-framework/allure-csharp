@@ -263,3 +263,4 @@ __pycache__/
 *.feature.cs
 
 .DS_Store
+*mono_crash*
