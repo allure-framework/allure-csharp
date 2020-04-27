@@ -82,6 +82,8 @@ Use `AllureLifecycle.Instance` property to access.
 ## SpecFlow Adapter  [![](http://img.shields.io/nuget/vpre/SpecFlow.Allure.svg?style=flat)](https://www.nuget.org/packages/SpecFlow.Allure) [![NuGet](https://img.shields.io/nuget/dt/SpecFlow.Allure.svg)](https://www.nuget.org/packages/SpecFlow.Allure)
 Currently supports [SpecFlow](http://specflow.org/) v2.1 - 3.1.*
 
+See [Allure report](https://allure-secondary.z23.web.core.windows.net/) generated from https://github.com/allure-framework/allure-csharp/tree/master/Allure.Features
+
 Please use corresponding NuGet package version.
 ### Installation
 
