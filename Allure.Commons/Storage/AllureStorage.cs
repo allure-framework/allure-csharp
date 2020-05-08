@@ -6,11 +6,21 @@ namespace Allure.Commons.Storage
 {
     internal class AllureStorage
     {
-        private readonly ThreadLocal<LinkedList<string>> stepContext = new ThreadLocal<LinkedList<string>>(() =>
-        {
-            return new LinkedList<string>();
-        });
+#if !(NET45)
+        private readonly AsyncLocal<LinkedList<string>> stepContextLocal = new AsyncLocal<LinkedList<string>>();
 
+        private LinkedList<string> stepContext
+        {
+            get => stepContextLocal.Value ?? (stepContextLocal.Value = new LinkedList<string>());
+            set => stepContextLocal.Value = value;
+        }
+#else
+        // May throw errors when await is using
+        private readonly ThreadLocal<LinkedList<string>> stepContextLocal =
+            new ThreadLocal<LinkedList<string>>(() => new LinkedList<string>());
+
+        private LinkedList<string> stepContext => stepContextLocal.Value;
+#endif
         private readonly ConcurrentDictionary<string, object> storage = new ConcurrentDictionary<string, object>();
 
         public T Get<T>(string uuid)
@@ -31,27 +41,27 @@ namespace Allure.Commons.Storage
 
         public void ClearStepContext()
         {
-            stepContext.Value.Clear();
+            stepContext.Clear();
         }
 
         public void StartStep(string uuid)
         {
-            stepContext.Value.AddFirst(uuid);
+            stepContext.AddFirst(uuid);
         }
 
         public void StopStep()
         {
-            stepContext.Value.RemoveFirst();
+            stepContext.RemoveFirst();
         }
 
         public string GetRootStep()
         {
-            return stepContext.Value.Last?.Value;
+            return stepContext.Last?.Value;
         }
 
         public string GetCurrentStep()
         {
-            return stepContext.Value.First?.Value;
+            return stepContext.First?.Value;
         }
 
         public void AddStep(string parentUuid, string uuid, StepResult stepResult)
