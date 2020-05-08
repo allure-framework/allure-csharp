@@ -1,39 +1,19 @@
-﻿using Allure.Commons.Configuration;
+﻿using System;
+using System.IO;
+using Allure.Commons.Configuration;
 using Allure.Commons.Helpers;
 using Allure.Commons.Storage;
 using Allure.Commons.Writer;
 using HeyRed.Mime;
-using System;
-using System.IO;
 
 namespace Allure.Commons
 {
     public class AllureLifecycle
     {
         private static readonly object lockobj = new object();
-        private AllureStorage storage;
-        private IAllureResultsWriter writer;
         private static AllureLifecycle instance;
-
-        public string JsonConfiguration { get; private set; } = string.Empty;
-        public AllureConfiguration AllureConfiguration { get; private set; }
-
-        public string ResultsDirectory => writer.ToString();
-        public static AllureLifecycle Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (lockobj)
-                    {
-                        instance = instance ?? new AllureLifecycle();
-                    }
-                }
-
-                return instance;
-            }
-        }
+        private readonly AllureStorage storage;
+        private readonly IAllureResultsWriter writer;
 
         public AllureLifecycle(string jsonConfigurationFile = null)
         {
@@ -45,10 +25,29 @@ namespace Allure.Commons
             AllureConfiguration = AllureConfiguration.ReadFromJson(JsonConfiguration);
             writer = new FileSystemResultsWriter(AllureConfiguration);
             storage = new AllureStorage();
+        }
 
+        public string JsonConfiguration { get; } = string.Empty;
+        public AllureConfiguration AllureConfiguration { get; }
+
+        public string ResultsDirectory => writer.ToString();
+
+        public static AllureLifecycle Instance
+        {
+            get
+            {
+                if (instance == null)
+                    lock (lockobj)
+                    {
+                        instance = instance ?? new AllureLifecycle();
+                    }
+
+                return instance;
+            }
         }
 
         #region TestContainer
+
         public virtual AllureLifecycle StartTestContainer(TestResultContainer container)
         {
             container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
@@ -80,9 +79,11 @@ namespace Allure.Commons
             writer.Write(storage.Remove<TestResultContainer>(uuid));
             return this;
         }
+
         #endregion
 
         #region Fixture
+
         public virtual AllureLifecycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
         {
             UpdateTestContainer(parentUuid, container => container.befores.Add(result));
@@ -102,6 +103,7 @@ namespace Allure.Commons
             UpdateFixture(storage.GetRootStep(), update);
             return this;
         }
+
         public virtual AllureLifecycle UpdateFixture(string uuid, Action<FixtureResult> update)
         {
             update.Invoke(storage.Get<FixtureResult>(uuid));
@@ -113,6 +115,7 @@ namespace Allure.Commons
             UpdateFixture(beforeStop);
             return StopFixture(storage.GetRootStep());
         }
+
         public virtual AllureLifecycle StopFixture(string uuid)
         {
             var fixture = storage.Remove<FixtureResult>(uuid);
@@ -121,6 +124,7 @@ namespace Allure.Commons
             fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             return this;
         }
+
         #endregion
 
         #region TestCase
@@ -176,6 +180,7 @@ namespace Allure.Commons
         #endregion
 
         #region Step
+
         public virtual AllureLifecycle StartStep(string uuid, StepResult result)
         {
             StartStep(storage.GetCurrentStep(), uuid, result);
@@ -202,6 +207,7 @@ namespace Allure.Commons
             update.Invoke(storage.Get<StepResult>(uuid));
             return this;
         }
+
         public virtual AllureLifecycle StopStep(Action<StepResult> beforeStop)
         {
             UpdateStep(beforeStop);
@@ -232,10 +238,12 @@ namespace Allure.Commons
             var fileExtension = new FileInfo(path).Extension;
             return AddAttachment(name, type, File.ReadAllBytes(path), fileExtension);
         }
-        public virtual AllureLifecycle AddAttachment(string name, string type, byte[] content, string fileExtension = "")
+
+        public virtual AllureLifecycle AddAttachment(string name, string type, byte[] content,
+            string fileExtension = "")
         {
             var source = $"{Guid.NewGuid().ToString("N")}{AllureConstants.ATTACHMENT_FILE_SUFFIX}{fileExtension}";
-            var attachment = new Attachment()
+            var attachment = new Attachment
             {
                 name = name,
                 type = type,
@@ -256,18 +264,19 @@ namespace Allure.Commons
         #endregion
 
         #region Extensions
+
         public virtual void CleanupResultDirectory()
         {
             writer.CleanUp();
         }
 
-        public virtual AllureLifecycle AddScreenDiff(string testCaseUuid, string expectedPng, string actualPng, string diffPng)
+        public virtual AllureLifecycle AddScreenDiff(string testCaseUuid, string expectedPng, string actualPng,
+            string diffPng)
         {
-
             AddAttachment(expectedPng, "expected")
-            .AddAttachment(actualPng, "actual")
-            .AddAttachment(diffPng, "diff")
-            .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
+                .AddAttachment(actualPng, "actual")
+                .AddAttachment(diffPng, "diff")
+                .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
 
             return this;
         }
@@ -276,12 +285,14 @@ namespace Allure.Commons
 
 
         #region Privates
+
         private string GetDefaultJsonConfiguration()
         {
             var envConfig = Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE);
 
             if (envConfig != null && !File.Exists(envConfig))
-                throw new FileNotFoundException($"Couldn't find '{envConfig}' specified in {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable");
+                throw new FileNotFoundException(
+                    $"Couldn't find '{envConfig}' specified in {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable");
 
             if (File.Exists(envConfig))
                 return envConfig;
@@ -290,11 +301,12 @@ namespace Allure.Commons
             var binaryConfig = Path.Combine(binaryFolder, AllureConstants.CONFIG_FILENAME);
 
             if (!File.Exists(binaryConfig))
-                throw new FileNotFoundException($"Couldn't find Allure configuration file. Please either specify full path to {AllureConstants.CONFIG_FILENAME} in the {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable or place {AllureConstants.CONFIG_FILENAME} to the '{binaryFolder}' folder");
+                throw new FileNotFoundException(
+                    $"Couldn't find Allure configuration file. Please either specify full path to {AllureConstants.CONFIG_FILENAME} in the {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable or place {AllureConstants.CONFIG_FILENAME} to the '{binaryFolder}' folder");
 
             return binaryConfig;
-
         }
+
         private void StartFixture(string uuid, FixtureResult fixtureResult)
         {
             storage.Put(uuid, fixtureResult);
@@ -305,6 +317,5 @@ namespace Allure.Commons
         }
 
         #endregion
-
     }
 }

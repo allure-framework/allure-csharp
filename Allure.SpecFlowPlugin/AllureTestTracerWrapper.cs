@@ -1,12 +1,12 @@
-﻿using Allure.Commons;
-using CsvHelper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Allure.Commons;
+using CsvHelper;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
 using TechTalk.SpecFlow.BindingSkeletons;
@@ -17,9 +17,9 @@ namespace Allure.SpecFlowPlugin
 {
     public class AllureTestTracerWrapper : TestTracer, ITestTracer
     {
-        readonly string noMatchingStepMessage = "No matching step definition found for the step";
-        static AllureLifecycle allure = AllureLifecycle.Instance;
-        static PluginConfiguration pluginConfiguration = PluginHelper.PluginConfiguration;
+        private static readonly AllureLifecycle allure = AllureLifecycle.Instance;
+        private static readonly PluginConfiguration pluginConfiguration = PluginHelper.PluginConfiguration;
+        private readonly string noMatchingStepMessage = "No matching step definition found for the step";
 
         public AllureTestTracerWrapper(ITraceListener traceListener, IStepFormatter stepFormatter,
             IStepDefinitionSkeletonProvider stepDefinitionSkeletonProvider, SpecFlowConfiguration specFlowConfiguration)
@@ -64,10 +64,10 @@ namespace Allure.SpecFlowPlugin
             TraceNoMatchingStepDefinition(stepInstance, targetLanguage, bindingCulture, matchesWithoutScopeCheck);
             allure.StopStep(x => x.status = Status.broken);
             allure.UpdateTestCase(x =>
-                {
-                    x.status = Status.broken;
-                    x.statusDetails = new StatusDetails { message = noMatchingStepMessage };
-                });
+            {
+                x.status = Status.broken;
+                x.statusDetails = new StatusDetails {message = noMatchingStepMessage};
+            });
         }
 
         private void StartStep(StepInstance stepInstance)
@@ -87,7 +87,7 @@ namespace Allure.SpecFlowPlugin
                     ".txt");
 
             var table = stepInstance.TableArgument;
-            bool isTableProcessed = (table == null);
+            var isTableProcessed = table == null;
 
             // parse table as step params
             if (table != null)
@@ -101,25 +101,21 @@ namespace Allure.SpecFlowPlugin
                     if (table.Header.Count == 2)
                     {
                         var paramNameMatch = Regex.IsMatch(header[0], pluginConfiguration.stepArguments.paramNameRegex);
-                        var paramValueMatch = Regex.IsMatch(header[1], pluginConfiguration.stepArguments.paramValueRegex);
+                        var paramValueMatch =
+                            Regex.IsMatch(header[1], pluginConfiguration.stepArguments.paramValueRegex);
                         if (paramNameMatch && paramValueMatch)
                         {
-                            for (int i = 0; i < table.RowCount; i++)
-                            {
-                                parameters.Add(new Parameter { name = table.Rows[i][0], value = table.Rows[i][1] });
-                            }
+                            for (var i = 0; i < table.RowCount; i++)
+                                parameters.Add(new Parameter {name = table.Rows[i][0], value = table.Rows[i][1]});
 
                             isTableProcessed = true;
                         }
-
                     }
                     // add step params for 1 row table
                     else if (table.RowCount == 1)
                     {
-                        for (int i = 0; i < table.Header.Count; i++)
-                        {
-                            parameters.Add(new Parameter { name = header[i], value = table.Rows[0][i] });
-                        }
+                        for (var i = 0; i < table.Header.Count; i++)
+                            parameters.Add(new Parameter {name = header[i], value = table.Rows[0][i]});
                         isTableProcessed = true;
                     }
 
@@ -130,28 +126,19 @@ namespace Allure.SpecFlowPlugin
             allure.StartStep(PluginHelper.NewId(), stepResult);
 
             // add csv table for multi-row table if was not processed as params already
-            if (!isTableProcessed)
+            if (isTableProcessed) return;
+            using var sw = new StringWriter();
+            using var csv = new CsvWriter(sw, CultureInfo.InvariantCulture);
+            foreach (var item in table.Header) csv.WriteField(item);
+            csv.NextRecord();
+            foreach (var row in table.Rows)
             {
-                using (var sw = new StringWriter())
-                using (var csv = new CsvWriter(sw))
-                {
-                    foreach (var item in table.Header)
-                    {
-                        csv.WriteField(item);
-                    }
-                    csv.NextRecord();
-                    foreach (var row in table.Rows)
-                    {
-                        foreach (var item in row.Values)
-                        {
-                            csv.WriteField(item);
-                        }
-                        csv.NextRecord();
-                    }
-                    allure.AddAttachment("table", "text/csv",
-                        Encoding.ASCII.GetBytes(sw.ToString()), ".csv");
-                }
+                foreach (var item in row.Values) csv.WriteField(item);
+                csv.NextRecord();
             }
+
+            allure.AddAttachment("table", "text/csv",
+                Encoding.ASCII.GetBytes(sw.ToString()), ".csv");
         }
 
         private static void FailScenario(Exception ex)
@@ -159,7 +146,7 @@ namespace Allure.SpecFlowPlugin
             allure.UpdateTestCase(
                 x =>
                 {
-                    x.status = (x.status != Status.none) ? x.status : Status.failed;
+                    x.status = x.status != Status.none ? x.status : Status.failed;
                     x.statusDetails = PluginHelper.GetStatusDetails(ex);
                 });
         }

@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="Castle.Core" Version="4.4.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="SpecFlow" Version="3.1.97" />
+    <PackageReference Include="SpecFlow.SharedSteps" Version="3.0.7" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.97" />
+    <PackageReference Include="SpecFlow.NUnit" Version="3.1.97" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj" />
+    <ProjectReference Include="..\Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="allureConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="runtests.cmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="specflow.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestData\After Feature Failure.feature" />
+    <Content Include="TestData\Attachments.feature" />
+    <Content Include="TestData\Before Feature Failure.feature" />
+    <Content Include="TestData\Ignored.feature" />
+    <Content Include="TestData\Invalid Steps.feature" />
+    <Content Include="TestData\Labels.feature" />
+    <Content Include="TestData\Scenario Hooks.feature" />
+    <Content Include="TestData\Scenarios and Steps.feature" />
+    <Content Include="TestData\Step arguments.feature" />
+    <Content Include="TestData\Tags.feature" />
+    <Content Include="TestData\Фича с кириллицей.feature" />
+  </ItemGroup>
+</Project>
