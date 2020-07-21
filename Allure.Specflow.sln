@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin", "Al
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons", "Allure.Commons\Allure.Commons.csproj", "{F843E617-5CB2-4626-BB32-817781CEFF15}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Features", "Allure.Features\Allure.Features.csproj", "{599D8442-AB74-430A-BF20-BA6612BED37E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Adapters|Any CPU = Adapters|Any CPU
@@ -53,6 +55,16 @@ Global
 		{F843E617-5CB2-4626-BB32-817781CEFF15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F843E617-5CB2-4626-BB32-817781CEFF15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F843E617-5CB2-4626-BB32-817781CEFF15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Adapters|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Adapters|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Allure|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Allure|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Commons|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Commons|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

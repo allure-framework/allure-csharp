@@ -59,22 +59,25 @@ namespace Allure.SpecFlowPlugin
             var featureInfo = featureContext?.FeatureInfo ?? emptyFeatureInfo;
             var scenarioInfo = scenarioContext?.ScenarioInfo ?? emptyScenarioInfo;
             var tags = GetTags(featureInfo, scenarioInfo);
+            var parameters = GetParameters(scenarioInfo);
+            var title = scenarioInfo.Title;
             var testResult = new TestResult
             {
                 uuid = NewId(),
-                historyId = scenarioInfo.Title,
-                name = scenarioInfo.Title,
-                fullName = scenarioInfo.Title,
+                historyId = title + parameters.GetHashCode(),
+                name = title,
+                fullName = title,
                 labels = new List<Label>
-                    {
-                        Label.Thread(),
-                        string.IsNullOrWhiteSpace(AllureLifecycle.Instance.AllureConfiguration.Title)
+                {
+                    Label.Thread(),
+                    string.IsNullOrWhiteSpace(AllureLifecycle.Instance.AllureConfiguration.Title)
                             ? Label.Host()
                             : Label.Host(AllureLifecycle.Instance.AllureConfiguration.Title),
-                        Label.Feature(featureInfo.Title)
-                    }
+                    Label.Feature(featureInfo.Title)
+                }
                     .Union(tags.Item1).ToList(),
-                links = tags.Item2
+                links = tags.Item2,
+                parameters = parameters 
             };
 
             AllureLifecycle.Instance.StartTestCase(containerId, testResult);
@@ -239,6 +242,18 @@ namespace Allure.SpecFlowPlugin
             return result;
         }
 
+        private static List<Parameter> GetParameters(ScenarioInfo scenarioInfo)
+        {
+            var parameters = new List<Parameter>();
+            var argumentsEnumerator = scenarioInfo.Arguments.GetEnumerator();
+            while (argumentsEnumerator.MoveNext())
+            {
+                parameters.Add(new Parameter { name = argumentsEnumerator.Key.ToString(), value = argumentsEnumerator.Value.ToString() });
+            }
+            return parameters;
+          
+            
+        }
         private static bool TryUpdateValueByMatch(string expression, ref string value)
         {
             if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))

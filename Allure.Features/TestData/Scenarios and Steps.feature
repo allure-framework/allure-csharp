@@ -20,3 +20,14 @@
       | Scenarios and Steps | Passed scenario |
 
     And Step is 'passed'
+
+    @passed @examples
+    Scenario Outline: Scenario with examples
+    Given Step with table
+      | id   | <id>   |
+      | name | <name> |
+    
+    Examples: 
+      | id | name |
+      | 1  | John |
+      | 2  | Alex |
