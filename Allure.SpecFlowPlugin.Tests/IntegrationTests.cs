@@ -49,7 +49,6 @@ namespace Allure.SpecFlowPlugin.Tests
     private void ParseFeatures(string featuresDir)
     {
       var parser = new Parser();
-      var test = parser.Parse(@"C:\Users\manyc\Sources\Allure\allure-csharp\Allure.Features\TestData\Scenarios and Steps.feature").Feature.Children;
       var scenarios = new List<Scenario>();
       var features = new DirectoryInfo(featuresDir).GetFiles("*.feature");
       scenarios.AddRange(features.SelectMany(f =>
