@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Allure.Commons;
 using Allure.SpecFlowPlugin;
 using TechTalk.SpecFlow;
@@ -61,6 +62,19 @@ namespace Allure.Features
         {
         }
 
+        [BeforeTestRun]
+        public static void BeforeTestRun()
+        {
+            try
+            {
+                Directory.Delete(allure.ResultsDirectory, true);
+            }
+            catch (Exception)
+            {
+
+            }
+            Directory.CreateDirectory(allure.ResultsDirectory);
+        }
         [BeforeFeature("beforefeaturepassed", Order = 1)]
         public static void PassedBeforeFeature()
         {

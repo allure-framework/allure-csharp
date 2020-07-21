@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin.Tests", "Allure.SpecFlowPlugin.Tests\Allure.SpecFlowPlugin.Tests.csproj", "{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.SpecRun", "Tests.SpecRun\Tests.SpecRun.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5193EF5B-82B9-4280-AA66-D108C378D4F4}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,6 +13,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin", "Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj", "{6EE3D382-2BB5-4883-97AD-6D8A3E59A3F3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons", "Allure.Commons\Allure.Commons.csproj", "{F843E617-5CB2-4626-BB32-817781CEFF15}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Features", "Allure.Features\Allure.Features.csproj", "{599D8442-AB74-430A-BF20-BA6612BED37E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,16 +35,6 @@ Global
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Adapters|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Adapters|Any CPU.Build.0 = Debug|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Allure|Any CPU.ActiveCfg = Release|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Allure|Any CPU.Build.0 = Release|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Commons|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Commons|Any CPU.Build.0 = Debug|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F2B97FF-6798-4A69-9520-CE3491396F3F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6EE3D382-2BB5-4883-97AD-6D8A3E59A3F3}.Adapters|Any CPU.ActiveCfg = Debug|Any CPU
 		{6EE3D382-2BB5-4883-97AD-6D8A3E59A3F3}.Adapters|Any CPU.Build.0 = Debug|Any CPU
 		{6EE3D382-2BB5-4883-97AD-6D8A3E59A3F3}.Allure|Any CPU.ActiveCfg = Debug|Any CPU
@@ -65,6 +55,16 @@ Global
 		{F843E617-5CB2-4626-BB32-817781CEFF15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F843E617-5CB2-4626-BB32-817781CEFF15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F843E617-5CB2-4626-BB32-817781CEFF15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Adapters|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Adapters|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Allure|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Allure|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Commons|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Commons|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{599D8442-AB74-430A-BF20-BA6612BED37E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,17 +1,17 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.IO;
-using NUnit.Framework;
 
 namespace Allure.SpecFlowPlugin.Tests
 {
-    [SetUpFixture]
-    public class TestSetup
+  [SetUpFixture]
+  public class TestSetup
+  {
+    [OneTimeSetUp]
+    public void Setup()
     {
-        [OneTimeSetUp]
-        public void Setup()
-        {
-            // setup current folder for nUnit engine
-            Environment.CurrentDirectory = Path.GetDirectoryName(typeof(TestSetup).Assembly.Location);
-        }
+      // setup current folder for nUnit engine
+      Environment.CurrentDirectory = Path.GetDirectoryName(typeof(TestSetup).Assembly.Location);
     }
+  }
 }
