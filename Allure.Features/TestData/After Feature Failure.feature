@@ -6,7 +6,7 @@ Feature: After Feature Failure
     Given Step is 'passed'
 
   @broken
-  Scenario: After Feature Failure 2
+  Scenario: After Feature Failure 3
     Given Step is 'failed'
 
 
