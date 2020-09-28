@@ -30,7 +30,7 @@
     <None Include="./../img/allure-specflow.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="15.0.5" />
+    <PackageReference Include="CsvHelper" Version="15.0.6" />
     <PackageReference Include="SpecFlow" Version="3.3.57" />
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
   </ItemGroup>
