@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Allure.Commons;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Allure.Commons;
-using Newtonsoft.Json.Linq;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
 
@@ -18,7 +18,7 @@ namespace Allure.SpecFlowPlugin
     private static readonly ScenarioInfo emptyScenarioInfo = new ScenarioInfo("Unknown", string.Empty, Array.Empty<string>(), new OrderedDictionary());
 
     private static readonly FeatureInfo emptyFeatureInfo = new FeatureInfo(
-        CultureInfo.CurrentCulture, string.Empty, string.Empty);
+        CultureInfo.CurrentCulture, string.Empty, string.Empty, string.Empty);
 
     internal static PluginConfiguration PluginConfiguration =
         GetConfiguration(AllureLifecycle.Instance.JsonConfiguration);
@@ -257,9 +257,8 @@ namespace Allure.SpecFlowPlugin
       }
       var hash = (parameters.Count > 0) ? sb.ToString().GetDeterministicHashCode().ToString() : string.Empty;
       return (parameters, hash);
-
-
     }
+
     private static bool TryUpdateValueByMatch(string expression, ref string value)
     {
       if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))
