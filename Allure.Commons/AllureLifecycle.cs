@@ -25,6 +25,10 @@ namespace Allure.Commons
             AllureConfiguration = AllureConfiguration.ReadFromJson(JsonConfiguration);
             writer = new FileSystemResultsWriter(AllureConfiguration);
             storage = new AllureStorage();
+            lock (lockobj)
+            {
+                instance = this;
+            }
         }
 
         public string JsonConfiguration { get; } = string.Empty;
@@ -39,7 +43,8 @@ namespace Allure.Commons
                 if (instance == null)
                     lock (lockobj)
                     {
-                        instance = instance ?? new AllureLifecycle();
+                        if (instance == null)                        
+                            new AllureLifecycle();
                     }
 
                 return instance;
