@@ -181,16 +181,16 @@ namespace Allure.Commons
 
         #region Step
 
-        public virtual AllureLifecycle StartStep(string uuid, StepResult result)
+        public virtual AllureLifecycle StartStep(string uuid, StepResult result, DateTimeOffset? startTime = null)
         {
-            StartStep(storage.GetCurrentStep(), uuid, result);
+            StartStep(storage.GetCurrentStep(), uuid, result, startTime);
             return this;
         }
 
-        public virtual AllureLifecycle StartStep(string parentUuid, string uuid, StepResult stepResult)
+        public virtual AllureLifecycle StartStep(string parentUuid, string uuid, StepResult stepResult, DateTimeOffset? startTime = null)
         {
             stepResult.stage = Stage.running;
-            stepResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            stepResult.start = startTime?.ToUnixTimeMilliseconds() ?? DateTimeOffset.Now.ToUnixTimeMilliseconds();
             storage.StartStep(uuid);
             storage.AddStep(parentUuid, uuid, stepResult);
             return this;
@@ -208,17 +208,17 @@ namespace Allure.Commons
             return this;
         }
 
-        public virtual AllureLifecycle StopStep(Action<StepResult> beforeStop)
+        public virtual AllureLifecycle StopStep(Action<StepResult> beforeStop, DateTimeOffset? stopTime = null)
         {
             UpdateStep(beforeStop);
-            return StopStep(storage.GetCurrentStep());
+            return StopStep(storage.GetCurrentStep(), stopTime);
         }
 
-        public virtual AllureLifecycle StopStep(string uuid)
+        public virtual AllureLifecycle StopStep(string uuid, DateTimeOffset? stopTime = null)
         {
             var step = storage.Remove<StepResult>(uuid);
             step.stage = Stage.finished;
-            step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            step.stop = stopTime?.ToUnixTimeMilliseconds() ?? DateTimeOffset.Now.ToUnixTimeMilliseconds();
             storage.StopStep();
             return this;
         }
