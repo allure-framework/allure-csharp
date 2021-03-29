@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -20,18 +21,21 @@ namespace Allure.SpecFlowPlugin.Tests
     [OneTimeSetUp]
     public void Init()
     {
-      var featuresDirectory = @"./../../../../Allure.Features/TestData";
-      var testDirectory = @"./../../../../Allure.Features/bin/Debug/netcoreapp3.1";
-      var allureDirectory = $@"{testDirectory}/allure-results";
-      // if (Directory.Exists(allureDirectory))
-      //     Directory.Delete(allureDirectory, true);
-
-      // run SpecFlow scenarios using SpecRun runner
-      // var process = Process.Start($@"{testDirectory}\\runtests.cmd");
-      // process.WaitForExit();
+      var featuresProjectPath = Path.GetFullPath(
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"./../../../../Allure.Features"));
+      Process.Start(new ProcessStartInfo
+      {
+        WorkingDirectory = featuresProjectPath,
+        FileName = "dotnet",
+        Arguments = $"test"
+      }).WaitForExit();
+      var allureResultsDirectory = new DirectoryInfo(featuresProjectPath).GetDirectories("allure-results", SearchOption.AllDirectories)
+        .First();
+      var featuresDirectory = Path.Combine(featuresProjectPath, "TestData");
+    
 
       // parse allure suites
-      ParseAllureSuites(allureDirectory);
+      ParseAllureSuites(allureResultsDirectory.FullName);
       ParseFeatures(featuresDirectory);
     }
 

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
+    <OutputPath>bin</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,26 +23,10 @@
     <None Update="allureConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="runtests.cmd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Update="specflow.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="TestData\After Feature Failure.feature" />
-    <Content Include="TestData\Attachments.feature" />
-    <Content Include="TestData\Before Feature Failure.feature" />
-    <Content Include="TestData\Ignored.feature" />
-    <Content Include="TestData\Invalid Steps.feature" />
-    <Content Include="TestData\Labels.feature" />
-    <Content Include="TestData\Scenario Hooks.feature" />
-    <Content Include="TestData\Scenarios and Steps.feature" />
-    <Content Include="TestData\Step arguments.feature" />
-    <Content Include="TestData\Tags.feature" />
-    <Content Include="TestData\Фича с кириллицей.feature" />
   </ItemGroup>
 </Project>
