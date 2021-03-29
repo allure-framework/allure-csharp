@@ -1,4 +1,4 @@
-# Allure c# Integrations   [![Build status](https://bakanych.visualstudio.com/Allure/_apis/build/status/Allure-CSharp)](https://bakanych.visualstudio.com/Allure/_build/latest?definitionId=3)
+# Allure c# Integrations   ![Build status](https://bakanych.visualstudio.com/Allure/_apis/build/status/allure-framework.allure-csharp)
 
 ## Allure.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Commons)
 .Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
