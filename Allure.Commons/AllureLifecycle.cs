@@ -302,7 +302,7 @@ namespace Allure.Commons
             if (File.Exists(envConfig))
                 return envConfig;
 
-            var binaryFolder = Path.GetDirectoryName(typeof(AllureLifecycle).Assembly.Location);
+            var binaryFolder = AppDomain.CurrentDomain.BaseDirectory; 
             var binaryConfig = Path.Combine(binaryFolder, AllureConstants.CONFIG_FILENAME);
 
             if (!File.Exists(binaryConfig))
