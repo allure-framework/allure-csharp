@@ -1,78 +1,50 @@
 ﻿using NUnit.Framework;
 using System;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace Allure.Commons.Tests
 {
     [TestFixture]
     public class ConfigurationTests
     {
-        private string configFile;
-
         [TestCase(@"{""allure"":{""logging"": ""false""}}")]
         [TestCase(@"{""allure"":{""directory"": ""allure-results""}}")]
-        public void Defaults(string json)
+        public void ShouldConfigureDefaultValues(string json)
         {
-            configFile = WriteConfig(json);
-            var allureCycle = new AllureLifecycle(configFile);
+            var allureLifecycle = new AllureLifecycle(JObject.Parse(json));
             Assert.Multiple(() =>
             {
-                Assert.IsInstanceOf<AllureLifecycle>(allureCycle);
-                Assert.IsNotNull(allureCycle.JsonConfiguration);
+                Assert.IsInstanceOf<AllureLifecycle>(allureLifecycle);
+                Assert.IsNotNull(allureLifecycle.JsonConfiguration);
                 Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, AllureConstants.DEFAULT_RESULTS_FOLDER),
-                    allureCycle.ResultsDirectory);
-                Assert.IsNotNull(allureCycle.AllureConfiguration.Links);
+                    allureLifecycle.ResultsDirectory);
+                Assert.IsNotNull(allureLifecycle.AllureConfiguration.Links);
             });
-        }
-
-        [Test]
-        public void ShouldThrowExceptionIfConfigurationNotFound()
-        {
-            Assert.Throws<FileNotFoundException>(() => new AllureLifecycle(Path.GetRandomFileName()));
         }
 
         [Test, Description("Should set results directory from config")]
         public void ShouldConfigureResultsDirectoryFromJson()
         {
             var json = @"{""allure"":{""directory"": ""test""}}";
-            configFile = WriteConfig(json);
-            var allureCycle = new AllureLifecycle(configFile);
             Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "test"),
-                allureCycle.ResultsDirectory);
+                new AllureLifecycle(JObject.Parse(json)).ResultsDirectory);
         }
 
         [TestCase(@"{""allure"":{""links"":[ ""http://test//{}"" ] }}", ExpectedResult = 1)]
         [TestCase(@"{""allure"":{""links"":[ ""http://test//{}"", ""http://test//{}"" ] }}", ExpectedResult = 1)]
-        [TestCase(@"{""allure"":{""links"":[ ""http://test//{tms}"", ""http://test//{issue}"" ] }}", ExpectedResult = 2)]
+        [TestCase(@"{""allure"":{""links"":[ ""http://test//{tms}"", ""http://test//{issue}"" ] }}",
+            ExpectedResult = 2)]
         public int ShouldConfigureIssueLinkPatternFromJson(string json)
         {
-            configFile = WriteConfig(json);
-            return new AllureLifecycle(configFile).AllureConfiguration.Links.Count;
+            return new AllureLifecycle(JObject.Parse(json)).AllureConfiguration.Links.Count;
         }
 
         [Test]
         public void ShouldConfigureTitle()
         {
             var json = @"{""allure"":{""title"": ""hello Allure""}}";
-            configFile = WriteConfig(json);
-            var actualTitle = new AllureLifecycle(configFile).AllureConfiguration.Title;
-            Assert.AreEqual("hello Allure", actualTitle);
+            Assert.AreEqual("hello Allure", new AllureLifecycle(JObject.Parse(json)).AllureConfiguration.Title);
         }
-
-        [TearDown]
-        public void TearDown()
-        {
-            if (configFile != null)
-                File.Delete(configFile);
-        }
-
-        private string WriteConfig(string json)
-        {
-            var path = Path.GetTempFileName();
-            File.WriteAllText(path, json);
-            return path;
-        }
-
-
     }
 }

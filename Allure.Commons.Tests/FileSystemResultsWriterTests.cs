@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace Allure.Commons.Tests
 {
@@ -14,7 +15,7 @@ namespace Allure.Commons.Tests
         [Test, Description("Should use temp path if no access to output directory")]
         public void ShouldUseTempPathIfNoAccessToResultsDirectory()
         {
-            var config = AllureConfiguration.ReadFromJson(@"{allure:{}}");
+            var config = AllureConfiguration.ReadFromJObject(JObject.Parse(@"{allure:{}}"));
             var expectedDir = Path.Combine(Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
             var moq = new Mock<FileSystemResultsWriter>(config) { CallBase = true };
             moq.Setup(x => x.HasDirectoryAccess(It.IsAny<string>())).Returns(false);
@@ -26,7 +27,7 @@ namespace Allure.Commons.Tests
         {
             var resultsDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var json = $"{{\"allure\":{{\"directory\": {JsonConvert.ToString(resultsDirectory)}}}}}";
-            var config = AllureConfiguration.ReadFromJson(json);
+            var config = AllureConfiguration.ReadFromJObject(JObject.Parse(json));
             Directory.CreateDirectory(resultsDirectory);
             File.WriteAllText(Path.Combine(resultsDirectory, Path.GetRandomFileName()), "");
 

@@ -22,12 +22,10 @@ namespace Allure.Commons.Configuration
         public string Directory { get; } = "allure-results";
         public HashSet<string> Links { get; } = new HashSet<string>();
 
-        public static AllureConfiguration ReadFromJson(string json)
+        public static AllureConfiguration ReadFromJObject(JObject jObject)
         {
             var config = new AllureConfiguration();
-
-            var jo = JObject.Parse(json);
-            var allureSection = jo["allure"];
+            var allureSection = jObject["allure"];
             if (allureSection != null)
                 config = allureSection?.ToObject<AllureConfiguration>();
 

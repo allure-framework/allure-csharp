@@ -1,37 +1,41 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Allure.Commons.Configuration;
 using Allure.Commons.Helpers;
 using Allure.Commons.Storage;
 using Allure.Commons.Writer;
 using HeyRed.Mime;
+using Newtonsoft.Json.Linq;
+
+[assembly: InternalsVisibleTo("Allure.Commons.Tests")]
 
 namespace Allure.Commons
 {
     public class AllureLifecycle
     {
-        private static readonly object lockobj = new object();
+        private static readonly object Lockobj = new();
         private static AllureLifecycle instance;
         private readonly AllureStorage storage;
         private readonly IAllureResultsWriter writer;
 
-        public AllureLifecycle(string jsonConfigurationFile = null)
+        internal AllureLifecycle(): this(GetConfiguration())
         {
-            if (jsonConfigurationFile != null)
-                JsonConfiguration = File.ReadAllText(jsonConfigurationFile);
-            else
-                JsonConfiguration = File.ReadAllText(GetDefaultJsonConfiguration());
-
-            AllureConfiguration = AllureConfiguration.ReadFromJson(JsonConfiguration);
+        }
+        
+        internal AllureLifecycle(JObject config)
+        {
+            JsonConfiguration = config.ToString();
+            AllureConfiguration = AllureConfiguration.ReadFromJObject(config);
             writer = new FileSystemResultsWriter(AllureConfiguration);
             storage = new AllureStorage();
-            lock (lockobj)
+            lock (Lockobj)
             {
                 instance = this;
             }
         }
 
-        public string JsonConfiguration { get; } = string.Empty;
+        public string JsonConfiguration { get; private set; }
         public AllureConfiguration AllureConfiguration { get; }
 
         public string ResultsDirectory => writer.ToString();
@@ -41,9 +45,9 @@ namespace Allure.Commons
             get
             {
                 if (instance == null)
-                    lock (lockobj)
+                    lock (Lockobj)
                     {
-                        if (instance == null)                        
+                        if (instance == null)
                             new AllureLifecycle();
                     }
 
@@ -291,25 +295,24 @@ namespace Allure.Commons
 
         #region Privates
 
-        private string GetDefaultJsonConfiguration()
+        private static JObject GetConfiguration()
         {
-            var envConfig = Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE);
+            var jsonConfigPath = Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE);
 
-            if (envConfig != null && !File.Exists(envConfig))
+            if (jsonConfigPath != null && !File.Exists(jsonConfigPath))
                 throw new FileNotFoundException(
-                    $"Couldn't find '{envConfig}' specified in {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable");
+                    $"Couldn't find '{jsonConfigPath}' specified in {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable");
 
-            if (File.Exists(envConfig))
-                return envConfig;
+            if (File.Exists(jsonConfigPath))
+                return JObject.Parse(File.ReadAllText(jsonConfigPath));
 
-            var binaryFolder = AppDomain.CurrentDomain.BaseDirectory; 
-            var binaryConfig = Path.Combine(binaryFolder, AllureConstants.CONFIG_FILENAME);
+            var defaultJsonConfigPath =
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AllureConstants.CONFIG_FILENAME);
 
-            if (!File.Exists(binaryConfig))
-                throw new FileNotFoundException(
-                    $"Couldn't find Allure configuration file. Please either specify full path to {AllureConstants.CONFIG_FILENAME} in the {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable or place {AllureConstants.CONFIG_FILENAME} to the '{binaryFolder}' folder");
+            if (File.Exists(defaultJsonConfigPath))
+                return JObject.Parse(File.ReadAllText(defaultJsonConfigPath));
 
-            return binaryConfig;
+            return JObject.Parse("{}");
         }
 
         private void StartFixture(string uuid, FixtureResult fixtureResult)

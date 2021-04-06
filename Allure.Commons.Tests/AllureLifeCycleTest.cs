@@ -9,7 +9,7 @@ namespace Allure.Commons.Tests
         [Test, Description("ResultsDirectory property shouldn't be empty")]
         public void CheckResultsDirectory()
         {
-            Assert.NotNull(AllureLifecycle.Instance.ResultsDirectory);
+            Assert.NotNull(new AllureLifecycle().ResultsDirectory);
         }
 
         [Test, Description("ExecutableItem.status default value should be 'none'")]

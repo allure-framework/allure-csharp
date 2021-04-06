@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace Allure.Commons.Tests
 {
@@ -12,7 +13,7 @@ namespace Allure.Commons.Tests
         public void CleanConfig()
         {
             var defaultConfig = Path.Combine(
-                Path.GetDirectoryName(typeof(AllureLifecycle).Assembly.Location),
+                Path.GetDirectoryName(typeof(InstantiationTests).Assembly.Location),
                 AllureConstants.CONFIG_FILENAME);
             if (File.Exists(defaultConfig))
                 File.Delete(defaultConfig);
@@ -21,18 +22,19 @@ namespace Allure.Commons.Tests
         }
 
         [Test]
-        public void ShouldThrowIfConfigNotFoundInBinaryAndNotSpecifiedInEnvVariable()
+        public void ShouldStartWithEmptyConfiguration()
         {
-            Assert.Throws<FileNotFoundException>(() => { new AllureLifecycle(); });
+            Assert.IsInstanceOf<AllureLifecycle>(new AllureLifecycle());
+            Assert.AreEqual(new JObject().ToString(), new AllureLifecycle().JsonConfiguration);
         }
 
         [Test]
         public void ShouldThrowIfEnvVariableConfigNotFound()
         {
-            var tempdir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(tempdir);
+            var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
             Environment.SetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE,
-                Path.Combine(tempdir, AllureConstants.CONFIG_FILENAME));
+                Path.Combine(tempDirectory, AllureConstants.CONFIG_FILENAME));
 
             Assert.Throws<FileNotFoundException>(() => { new AllureLifecycle(); });
         }
@@ -40,24 +42,25 @@ namespace Allure.Commons.Tests
         [Test]
         public void ShouldReadConfigFromEnvironmentVariable()
         {
-            var configContent = @"{""allure"":{""directory"": ""env""}}";
+            var configuration = @"{""allure"":{""directory"": ""env""}}";
 
-            var tempdir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(tempdir);
-            var configFile = Path.Combine(tempdir, AllureConstants.CONFIG_FILENAME);
-            File.WriteAllText(configFile, configContent);
+            var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
+            var configFile = Path.Combine(tempDirectory, AllureConstants.CONFIG_FILENAME);
+            File.WriteAllText(configFile, configuration);
             Environment.SetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE, configFile);
 
             Assert.AreEqual("env", new AllureLifecycle().AllureConfiguration.Directory);
         }
 
         [Test]
-        public void ShouldReadConfigFromBinaryIfEnvVariableNotSpecified()
+        public void ShouldReadConfigFromAppDomainDirectoryIfEnvVariableNotSpecified()
         {
             var configContent = @"{""allure"":{""directory"": ""bin""}}";
+            Assert.IsNull(Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE));
             File.WriteAllText(AllureConstants.CONFIG_FILENAME, configContent);
+
             Assert.AreEqual("bin", new AllureLifecycle().AllureConfiguration.Directory);
         }
-
     }
 }
