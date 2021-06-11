@@ -14,7 +14,7 @@ namespace Allure.Commons
 {
     public class AllureLifecycle
     {
-        private static readonly object Lockobj = new();
+        private static readonly object Lockobj = new object();
         private static AllureLifecycle instance;
         private readonly AllureStorage storage;
         private readonly IAllureResultsWriter writer;
