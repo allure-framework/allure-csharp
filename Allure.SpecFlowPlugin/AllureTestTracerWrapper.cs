@@ -39,9 +39,9 @@ namespace Allure.SpecFlowPlugin
             allure.StopStep(x => x.status = Status.passed);
         }
 
-        void ITestTracer.TraceError(Exception ex)
+        void ITestTracer.TraceError(Exception ex, TimeSpan duration)
         {
-            TraceError(ex);
+            TraceError(ex, duration);
             allure.StopStep(x => x.status = Status.failed);
             FailScenario(ex);
         }
