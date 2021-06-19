@@ -279,8 +279,17 @@ namespace Allure.Commons
             writer.CleanUp();
         }
 
-        public virtual AllureLifecycle AddScreenDiff(string testCaseUuid, string expectedPng, string actualPng,
-            string diffPng)
+        public virtual AllureLifecycle AddScreenDiff(string expectedPng, string actualPng, string diffPng)
+        {
+            AddAttachment(expectedPng, "expected")
+                .AddAttachment(actualPng, "actual")
+                .AddAttachment(diffPng, "diff");
+            UpdateTestCase(storage.GetRootStep(), result => result.labels.Add(Label.TestType("screenshotDiff")));
+
+            return this;
+        }
+
+        public virtual AllureLifecycle AddScreenDiff(string testCaseUuid, string expectedPng, string actualPng, string diffPng)
         {
             AddAttachment(expectedPng, "expected")
                 .AddAttachment(actualPng, "actual")
