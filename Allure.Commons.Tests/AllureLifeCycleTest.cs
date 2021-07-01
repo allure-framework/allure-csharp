@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using System.Threading.Tasks;
 
 namespace Allure.Commons.Tests
@@ -34,6 +35,7 @@ namespace Allure.Commons.Tests
                 var step1 = DataGenerator.GetStep();
                 var step2 = DataGenerator.GetStep();
                 var step3 = DataGenerator.GetStep();
+                var step4 = DataGenerator.GetStep();
                 var txtAttach = DataGenerator.GetAttachment(".txt");
                 var txtAttachWithNoExt = DataGenerator.GetAttachment();
 
@@ -65,6 +67,9 @@ namespace Allure.Commons.Tests
 
                     .StartStep(step3.uuid, step3.step)
                     .StopStep(x => x.status = Status.skipped)
+                    
+                    .StartStep(step4.uuid, step4.step, DateTimeOffset.Now)
+                    .StopStep(step4.uuid, DateTimeOffset.Now)
 
                     .AddScreenDiff(test.uuid, "expected.png", "actual.png", "diff.png")
 
