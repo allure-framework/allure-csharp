@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection.Emit;
 
 namespace Allure.Commons
 {
@@ -37,76 +38,95 @@ namespace Allure.Commons
 
     public partial class Label
     {
+        public  static class LabelNames
+        {
+            public const string TestType = "testType";
+            public const string ParentSuite = "parentSuite";
+            public const string Suite = "suite";
+            public const string SubSuite = "subSuite";
+            public const string Owner = "owner";
+            public const string Severity = "severity";
+            public const string Tag = "tag";
+            public const string Epic = "epic";
+            public const string Feature = "feature";
+            public const string Story = "story";
+            public const string Package = "package";
+            public const string TestClass = "testClass";
+            public const string TestMethod = "testMethod";
+            public const string Thread = "thread";
+            public const string Host = "host";
+        }
+
         public static Label TestType(string value)
         {
-            return new Label {name = "testType", value = value};
+            return new Label {name = LabelNames.TestType , value = value};
         }
 
         public static Label ParentSuite(string value)
         {
-            return new Label {name = "parentSuite", value = value};
+            return new Label {name = LabelNames.ParentSuite, value = value};
         }
 
         public static Label Suite(string value)
         {
-            return new Label {name = "suite", value = value};
+            return new Label {name = LabelNames.Suite, value = value};
         }
 
         public static Label SubSuite(string value)
         {
-            return new Label {name = "subSuite", value = value};
+            return new Label {name = LabelNames.SubSuite, value = value};
         }
 
         public static Label Owner(string value)
         {
-            return new Label {name = "owner", value = value};
+            return new Label {name = LabelNames.Owner, value = value};
         }
 
         public static Label Severity(SeverityLevel value)
         {
-            return new Label {name = "severity", value = value.ToString()};
+            return new Label {name = LabelNames.Severity, value = value.ToString()};
         }
 
         public static Label Tag(string value)
         {
-            return new Label {name = "tag", value = value};
+            return new Label {name = LabelNames.Tag, value = value};
         }
 
         public static Label Epic(string value)
         {
-            return new Label {name = "epic", value = value};
+            return new Label {name = LabelNames.Epic, value = value};
         }
 
         public static Label Feature(string value)
         {
-            return new Label {name = "feature", value = value};
+            return new Label {name = LabelNames.Feature, value = value};
         }
 
         public static Label Story(string value)
         {
-            return new Label {name = "story", value = value};
+            return new Label {name = LabelNames.Story, value = value};
         }
 
         public static Label Package(string value)
         {
-            return new Label {name = "package", value = value};
+            return new Label {name = LabelNames.Package, value = value};
         }
 
         public static Label TestClass(string value)
         {
-            return new Label {name = "testClass", value = value};
+            return new Label {name = LabelNames.TestClass, value = value};
         }
 
         public static Label TestMethod(string value)
         {
-            return new Label {name = "testMethod", value = value};
+            return new Label {name = LabelNames.TestMethod, value = value};
         }
 
         public static Label Thread()
         {
             return new Label
             {
-                name = "thread",
+                name = LabelNames.Thread,
                 value = System.Threading.Thread.CurrentThread.Name ??
                         System.Threading.Thread.CurrentThread.ManagedThreadId.ToString()
             };
@@ -116,7 +136,7 @@ namespace Allure.Commons
         {
             return new Label
             {
-                name = "host",
+                name = LabelNames.Host,
                 value = Environment.MachineName ?? "Unknown host"
             };
         }
