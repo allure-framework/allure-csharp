@@ -6,7 +6,7 @@ namespace Allure.Commons.Storage
 {
     internal class AllureStorage
     {
-        private readonly ThreadLocal<LinkedList<string>> stepContext = new ThreadLocal<LinkedList<string>>(() =>
+        private readonly AsyncLocal<LinkedList<string>> stepContext = new AsyncLocal<LinkedList<string>>(() =>
         {
             return new LinkedList<string>();
         });
