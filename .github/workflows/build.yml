@@ -26,7 +26,9 @@ jobs:
       - name: 'Setup .NET Core SDK'
         uses: actions/setup-dotnet@v2.1.0
         with:
-          dotnet-version: 3.1.x
+          dotnet-version: |
+            3.1.x
+            6.0.x
       
       - name: 'Restore packages'
         run: dotnet restore ${{ env.SOLUTION_PATH }} --packages ${{ env.RESTORE_OUTPUT_PATH }}
