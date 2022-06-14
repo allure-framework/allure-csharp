@@ -1,0 +1,42 @@
+name: Build
+
+env:
+  SOLUTION_PATH: allure-csharp.sln
+  BUILD_CONFIGURATION: 'Release'
+  PACKAGE_OUTPUT_PATH: 'artifacts'
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - 'master'
+      - 'hotfix-*'
+
+jobs: 
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+        
+      - name: 'Setup .NET Core SDK'
+        uses: actions/setup-dotnet@v2.1.0
+        with:
+          dotnet-version: 6.0.x
+      
+      - name: 'Restore packages'
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+        
+      - name: 'Build project using dotnet'
+        run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
+        
+      - name: 'Run tests'
+        run: |
+          dotnet test Allure.Commons.Tests/Allure.Commons.Tests.csproj --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
+          dotnet test Allure.SpecFlowPlugin.Tests/Allure.SpecFlowPlugin.Tests.csproj --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
+        
+      - name: 'Pack project'
+        run: dotnet pack ${{ env.SOLUTION_PATH }} --no-restore --no-build --configuration ${{ env.BUILD_CONFIGURATION }} --include-symbols -p:PackageVersion=${{ env.PACKAGE_OUTPUT_PATH }} -p:PackageOutputPath=${{ env.PACKAGE_OUTPUT_PATH }}
