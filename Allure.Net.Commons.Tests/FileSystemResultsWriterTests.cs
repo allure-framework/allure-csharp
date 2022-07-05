@@ -1,5 +1,5 @@
-﻿using Allure.Commons.Configuration;
-using Allure.Commons.Writer;
+﻿using Allure.Net.Commons.Configuration;
+using Allure.Net.Commons.Writer;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
-namespace Allure.Commons.Tests
+namespace Allure.Net.Commons.Tests
 {
     [TestFixture]
     public class FileSystemResultsWriterTests

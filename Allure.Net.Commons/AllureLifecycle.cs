@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Allure.Commons.Configuration;
-using Allure.Commons.Helpers;
-using Allure.Commons.Storage;
-using Allure.Commons.Writer;
+using Allure.Net.Commons.Helpers;
+using Allure.Net.Commons.Configuration;
+using Allure.Net.Commons.Storage;
+using Allure.Net.Commons.Writer;
 using HeyRed.Mime;
 using Newtonsoft.Json.Linq;
 
-[assembly: InternalsVisibleTo("Allure.Commons.Tests")]
+[assembly: InternalsVisibleTo("Allure.Net.Commons.Tests")]
 
-namespace Allure.Commons
+namespace Allure.Net.Commons
 {
     public class AllureLifecycle
     {

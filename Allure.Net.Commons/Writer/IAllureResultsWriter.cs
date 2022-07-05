@@ -1,4 +1,4 @@
-﻿namespace Allure.Commons.Writer
+﻿namespace Allure.Net.Commons.Writer
 {
     internal interface IAllureResultsWriter
     {

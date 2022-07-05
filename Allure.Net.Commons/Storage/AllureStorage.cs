@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Allure.Commons.Storage
+namespace Allure.Net.Commons.Storage
 {
     internal class AllureStorage
     {
