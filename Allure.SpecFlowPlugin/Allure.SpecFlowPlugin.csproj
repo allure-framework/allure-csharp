@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj" />
+    <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
   </ItemGroup>
 
 </Project>

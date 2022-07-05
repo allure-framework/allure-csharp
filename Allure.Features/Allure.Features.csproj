@@ -16,7 +16,7 @@
     <PackageReference Include="SpecFlow.NUnit" Version="3.9.8" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj" />
+    <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
     <ProjectReference Include="..\Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj" />
   </ItemGroup>
   <ItemGroup>
