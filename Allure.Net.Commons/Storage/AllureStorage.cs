@@ -13,6 +13,8 @@ namespace Allure.Net.Commons.Storage
 
         private readonly ConcurrentDictionary<string, object> storage = new ConcurrentDictionary<string, object>();
 
+        private LinkedList<string> Steps => stepContext.Value;
+
         public T Get<T>(string uuid)
         {
             return (T) storage[uuid];
@@ -31,27 +33,27 @@ namespace Allure.Net.Commons.Storage
 
         public void ClearStepContext()
         {
-            stepContext.Value.Clear();
+            Steps.Clear();
         }
 
         public void StartStep(string uuid)
         {
-            stepContext.Value.AddFirst(uuid);
+            Steps.AddFirst(uuid);
         }
 
         public void StopStep()
         {
-            stepContext.Value.RemoveFirst();
+            Steps.RemoveFirst();
         }
 
         public string GetRootStep()
         {
-            return stepContext.Value.Last?.Value;
+            return Steps.Last?.Value;
         }
 
         public string GetCurrentStep()
         {
-            return stepContext.Value.First?.Value;
+            return Steps.First?.Value;
         }
 
         public void AddStep(string parentUuid, string uuid, StepResult stepResult)

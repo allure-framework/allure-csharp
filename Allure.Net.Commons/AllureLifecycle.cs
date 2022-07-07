@@ -45,11 +45,13 @@ namespace Allure.Net.Commons
             get
             {
                 if (instance == null)
+                {
                     lock (Lockobj)
                     {
                         if (instance == null)
                             new AllureLifecycle();
                     }
+                }
 
                 return instance;
             }
