@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Allure.Commons.Configuration
+namespace Allure.Net.Commons.Configuration
 {
     public class AllureConfiguration
     {

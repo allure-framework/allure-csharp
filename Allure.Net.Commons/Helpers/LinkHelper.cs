@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Allure.Commons.Helpers
+namespace Allure.Net.Commons.Helpers
 {
     public class LinkHelper
     {

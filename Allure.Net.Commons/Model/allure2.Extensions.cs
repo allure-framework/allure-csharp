@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Allure.Commons
+namespace Allure.Net.Commons
 {
     public enum SeverityLevel
     {

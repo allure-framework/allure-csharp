@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons", "Allure.Commons\Allure.Commons.csproj", "{C84000AF-0B78-4E87-B99B-064E15C601C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Net.Commons", "Allure.Net.Commons\Allure.Net.Commons.csproj", "{C84000AF-0B78-4E87-B99B-064E15C601C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Commons.Tests", "Allure.Commons.Tests\Allure.Commons.Tests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Net.Commons.Tests", "Allure.Net.Commons.Tests\Allure.Net.Commons.Tests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "commons", "commons", "{E0035B29-14C0-4270-B11F-DD2544D37FF6}"
 EndProject

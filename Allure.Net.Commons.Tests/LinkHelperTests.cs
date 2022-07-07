@@ -1,9 +1,9 @@
-﻿using Allure.Commons.Helpers;
+﻿using Allure.Net.Commons.Helpers;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Allure.Commons.Tests
+namespace Allure.Net.Commons.Tests
 {
     [TestFixture]
     internal class LinkHelperTests

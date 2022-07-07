@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Allure.Commons;
+using Allure.Net.Commons;
 using CsvHelper;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;

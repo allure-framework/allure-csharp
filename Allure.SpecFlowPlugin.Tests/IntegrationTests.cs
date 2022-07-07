@@ -1,4 +1,4 @@
-﻿using Allure.Commons;
+﻿using Allure.Net.Commons;
 using Gherkin;
 using Gherkin.Ast;
 using Newtonsoft.Json;
