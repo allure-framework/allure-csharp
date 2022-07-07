@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Threading.Tasks;
 
-namespace Allure.Commons.Tests
+namespace Allure.Net.Commons.Tests
 {
     [TestFixture]
     public class AllureLifeCycleTest

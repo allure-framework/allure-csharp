@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-    <PackageId>SpecFlow.Allure</PackageId>
-    <Version>3.1.0</Version>
+    <PackageId>Allure.Specflow</PackageId>
+    <Version>2.10.0</Version>
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Allure.Commons\Allure.Commons.csproj" />
+    <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
-namespace Allure.Commons.Tests
+namespace Allure.Net.Commons.Tests
 {
     [TestFixture]
     public class InstantiationTests
