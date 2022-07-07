@@ -1,0 +1,26 @@
+"theme:workflow":
+  - ".github/**"
+
+"theme:build":
+  - "*.sln"
+  - "**/*.csproj"
+  - ".gitignore"
+
+"theme:model":
+  - "allure-model/**"
+
+"theme:core":
+  - "Allure.Net.Commons/**"
+  - "Allure.Net.Commons.Tests/**"
+
+"theme:xunit":
+  - "Allure.XUnit/**"
+  - "Allure.XUnit.Tests/**"
+
+"theme:nunit":
+  - "Allure.NUnit/**"
+  - "Allure.NUnit.Tests/**"
+
+"theme:specflow":
+  - "Allure.SpecFlowPlugin/**"
+  - "Allure.SpecFlowPlugin.Tests/**"

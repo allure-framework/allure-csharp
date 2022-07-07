@@ -1,4 +1,4 @@
-﻿namespace Allure.Commons
+﻿namespace Allure.Net.Commons
 {
     public sealed class AllureConstants
     {

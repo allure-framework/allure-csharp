@@ -1,4 +1,4 @@
-﻿using Allure.Commons;
+﻿using Allure.Net.Commons;
 using TechTalk.SpecFlow;
 
 namespace Allure.SpecFlowPlugin

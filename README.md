@@ -1,6 +1,6 @@
-# Allure c# Integrations   ![Build status](https://bakanych.visualstudio.com/Allure/_apis/build/status/allure-framework.allure-csharp)
+# Allure C# Integrations   ![Build status](https://bakanych.visualstudio.com/Allure/_apis/build/status/allure-framework.allure-csharp)
 
-## Allure.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Commons)
+## Allure.Net.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Commons)
 .Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
 
 Can be targeted either by legacy .net 4.5+ or .net standard 2.* projects.
@@ -47,7 +47,7 @@ Link pattern placeholders will be replaced with URL value of corresponding link 
 `link(type: "issue", url: "BUG-01") => https://example.org/BUG-01`
 
 ### AllureLifecycle
-[AllureLifecycle](https://github.com/allure-framework/allure-csharp/blob/master/Allure.Commons/AllureLifecycle.cs) class provides methods for test engine events processing.
+[AllureLifecycle](https://github.com/allure-framework/allure-csharp/blob/main/Allure.Commons/AllureLifecycle.cs) class provides methods for test engine events processing.
 
 Use `AllureLifecycle.Instance` property to access.
 
@@ -83,7 +83,7 @@ Use `AllureLifecycle.Instance` property to access.
 ## SpecFlow Adapter  [![](http://img.shields.io/nuget/vpre/SpecFlow.Allure.svg?style=flat)](https://www.nuget.org/packages/SpecFlow.Allure) [![NuGet](https://img.shields.io/nuget/dt/SpecFlow.Allure.svg)](https://www.nuget.org/packages/SpecFlow.Allure)
 Currently supports [SpecFlow](http://specflow.org/) v2.1 - 3.1.*
 
-See [Allure report](https://allure-secondary.z23.web.core.windows.net/) generated from https://github.com/allure-framework/allure-csharp/tree/master/Allure.Features
+See [Allure report](https://allure-secondary.z23.web.core.windows.net/) generated from https://github.com/allure-framework/allure-csharp/tree/main/Allure.Features
 
 Please use corresponding NuGet package version.
 ### Installation
@@ -137,7 +137,7 @@ The plugin uses `allure:grouping` configuration section to parse tags with the r
 
 `^type:(ui|api)` : `@ui` or `@api` tags from regex pattern will be used for grouping.
 
-Check this [config example](https://github.com/allure-framework/allure-csharp/blob/master/Tests.SpecRun/allureConfig.json) as a starting point.
+Check this [config example](https://github.com/allure-framework/allure-csharp/blob/main/Tests.SpecRun/allureConfig.json) as a starting point.
 
 #### Links
 You can add links to your scenarios using tags. Tag and link patterns can be configured in `allureConfig.json`
@@ -205,12 +205,12 @@ With `specflow:stepArguments:convertToParameters` set to `true` the following ta
 <tr>
 <td>
 
-![](https://github.com/allure-framework/allure-csharp/blob/master/img/wiki-step-all.PNG)
+![](https://github.com/allure-framework/allure-csharp/blob/main/img/wiki-step-all.PNG)
 
 </td>
 <td>
 
-![](https://github.com/allure-framework/allure-csharp/blob/master/img/allure-step-all.PNG)
+![](https://github.com/allure-framework/allure-csharp/blob/main/img/allure-step-all.PNG)
 
 </td>
 </tr>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Allure.Commons.Tests
+namespace Allure.Net.Commons.Tests
 {
     enum Fixture { BeforeFeature, BeforeScenario, AfterFeature, AfterScenario }
     class DataGenerator

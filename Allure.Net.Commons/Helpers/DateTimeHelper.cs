@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Allure.Commons.Helpers
+namespace Allure.Net.Commons.Helpers
 {
     internal static class DateTimeHelper
     {

@@ -1,0 +1,39 @@
+name: Publish
+
+env:
+  SOLUTION_PATH: allure-csharp.sln
+  BUILD_CONFIGURATION: 'Release'
+  RESTORE_OUTPUT_PATH: 'packages'
+  PACKAGE_OUTPUT_PATH: 'artifacts'
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+
+      - name: 'Setup .NET Core SDK'
+        uses: actions/setup-dotnet@v2.1.0
+        with:
+          dotnet-version: |
+            3.1.x
+            6.0.x
+
+      - name: 'Restore packages'
+        run: dotnet restore ${{ env.SOLUTION_PATH }} --packages ${{ env.RESTORE_OUTPUT_PATH }}
+
+      - name: 'Build project using dotnet'
+        run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      - name: 'Pack project'
+        run: dotnet pack ${{ env.SOLUTION_PATH }} --no-restore --no-build --configuration ${{ env.BUILD_CONFIGURATION }} --include-symbols -p:PackageOutputPath=${{ env.PACKAGE_OUTPUT_PATH }}
+
+#      - name: 'NuGet publish'
+#        run: |
+#          dotnet nuget push "./**/*.nupkg" -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json
+#        env:
+#          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}

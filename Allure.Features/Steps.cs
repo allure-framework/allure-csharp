@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Allure.Commons;
+using Allure.Net.Commons;
 using Allure.SpecFlowPlugin;
 using TechTalk.SpecFlow;
 
