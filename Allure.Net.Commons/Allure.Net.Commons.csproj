@@ -2,13 +2,15 @@
 
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
-    <Version>3.0.0</Version>
+    <Version>2.10.0</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>Alexander Bakanov</Authors>
-    <Company />
+    <Authors>Alexander Bakanov, Nikolay Laptev</Authors>
+    <Company>Qameta Software</Company>
     <Product />
-    <Description>.net implementation of Allure java-commons</Description>
-    <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/wiki/Allure.Commons</PackageProjectUrl>
+    <Description>.NET implementation of Allure java-commons</Description>
+    <PackageProjectUrl>https://www.nuget.org/packages/Allure.Net.Commons</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>allure</PackageTags>
     <PackageIcon>allure-net.png</PackageIcon>
     <SignAssembly>False</SignAssembly>
