@@ -81,7 +81,7 @@ Use `AllureLifecycle.Instance` property to access.
 ### Integrations
 | Library | Examples | Author |
 |:------------------|:---:|:---:|
-| [Allure.Xunit]  (/Allure.XUnit)     |  [Examples](../Allure.XUnit.Examples)  | [Shumakov Ivan](https://github.com/IvanWR1995)    |
+| [Allure.Xunit](Allure.XUnit)     |  [Examples](Allure.XUnit.Examples)  | [Shumakov Ivan](https://github.com/IvanWR1995)    |
 
 
 
