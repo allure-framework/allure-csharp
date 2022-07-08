@@ -34,6 +34,6 @@ jobs:
 
       - name: 'NuGet publish'
         run: |
-          dotnet nuget push "./**/*.nupkg" -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push "./**/*.nupkg" -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
         env:
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
