@@ -16,18 +16,13 @@
 
     <ItemGroup>
         <PackageReference Include="AspectInjector" Version="2.7.3" />
+        <PackageReference Include="xunit.assert" Version="2.4.1" />
         <PackageReference Include="xunit.core" Version="2.4.1" />
         <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="xunit.assert">
-        <HintPath>..\..\..\.nuget\packages\xunit.assert\2.4.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>
