@@ -31,6 +31,7 @@ namespace Allure.Xunit
                 Steps.PassStep(ExecutableItem);
         }
 
+        [Obsolete("For named parameters use NameAttribute; For skipped parameters use SkipAttribute")]
         public T SetParameter(string name, object value)
         {
             var parameters = ExecutableItem.parameters ??= new List<Parameter>();
@@ -39,6 +40,7 @@ namespace Allure.Xunit
         }
 
 #if NETCOREAPP3_0_OR_GREATER
+        [Obsolete("For named parameters use NameAttribute; For skipped parameters use SkipAttribute")]
         public T SetParameter(object value, [CallerArgumentExpression("value")] string name = null)
         {
             return SetParameter(name, value);

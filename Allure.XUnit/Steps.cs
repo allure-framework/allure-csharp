@@ -102,6 +102,20 @@ namespace Allure.Xunit
             step.status = Status.failed;
             Log("Failed");
         }
+        
+        public static void BrokeStep()
+        {
+            BrokeStep(Current);
+        }
+        
+        public static void BrokeStep(ExecutableItem step)
+        {
+            StepsHierarchy.Value.Remove(step);
+            step.stage = Stage.finished;
+            step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            step.status = Status.broken;
+            Log("Broken");
+        }
 
         public static Task<T> Step<T>(string name, Func<Task<T>> action)
         {

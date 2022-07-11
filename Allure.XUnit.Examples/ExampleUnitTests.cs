@@ -46,7 +46,7 @@ namespace Allure.XUnit.Examples
         public async Task Test2()
         {
             Assert.True(1 == 1);
-            await AllureAttachments.File("allureConfig", @"./allureConfig.json");
+            AllureAttachments.File("allureConfig", @"./allureConfig.json");
         }
 
         [AllureXunit(DisplayName = "Another Test")]
