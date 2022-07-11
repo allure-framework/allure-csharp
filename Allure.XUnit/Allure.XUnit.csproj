@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <TargetFrameworks>netcoreapp2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+        <Company>Qameta Software</Company>
+        <PackageVersion>2.1.3</PackageVersion>
+        <Title>Allure.XUnit</Title>
+        <Authors>Shumakov Ivan</Authors>
+        <Description>Allure.XUnit</Description>
+        <PackageProjectUrl>https://github.com/Tinkoff/Allure.XUnit</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Tinkoff/Allure.XUnit</RepositoryUrl>
+        <PackageTags>allure; xunit;</PackageTags>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.core" Version="2.4.1" />
+        <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+    </ItemGroup>
+
+</Project>
