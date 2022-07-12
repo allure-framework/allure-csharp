@@ -26,7 +26,7 @@ namespace Allure.Xunit
             Environment.SetEnvironmentVariable(allureConfigEnvVariable, allureConfigPath);
         }
 
-        public static void StartTestCase(ITestCaseStarting testCaseStarting)
+        public static void StartTestContainer(ITestCaseStarting testCaseStarting)
         {
             if (testCaseStarting.TestCase is not ITestResultAccessor testResults)
             {
@@ -34,7 +34,16 @@ namespace Allure.Xunit
             }
 
             StartTestContainer(testCaseStarting.TestClass, testResults);
-            var testCase = testCaseStarting.TestCase;
+        }
+
+        public static void StartTestCase(ITestClassConstructionFinished testClassConstructionFinished)
+        {
+            if (testClassConstructionFinished.TestCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            var testCase = testClassConstructionFinished.TestCase;
             var uuid = NewUuid(testCase.DisplayName);
             testResults.TestResult = new()
             {

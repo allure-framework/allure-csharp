@@ -13,18 +13,9 @@ namespace Allure.XUnit
 {
     internal class AllureXunitTestCase : XunitTestCase, ITestResultAccessor
     {
-        private TestResult _testResult;
         public TestResultContainer TestResultContainer { get; set; }
 
-        public TestResult TestResult
-        {
-            get => _testResult;
-            set
-            {
-                Steps.Current = value;
-                _testResult = value;
-            }
-        }
+        public TestResult TestResult { get; set; }
 
 #pragma warning disable CS0618
         [EditorBrowsable(EditorBrowsableState.Never)]

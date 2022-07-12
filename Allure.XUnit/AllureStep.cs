@@ -10,10 +10,14 @@ namespace Allure.Xunit
         {
         }
 
-        private static ExecutableItem Init(string name)
+        /// <summary>
+        /// Creates a new step and return it's UUID
+        /// </summary>
+        /// <param name="name">The name of created step</param>
+        /// <returns>string: UUID</returns>
+        private static string Init(string name)
         {
-            Steps.StartStep(name);
-            return Steps.Current;
+            return Steps.StartStep(name);
         }
     }
 }

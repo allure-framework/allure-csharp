@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Allure.Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -19,15 +20,19 @@ namespace Allure.XUnit
 
         public bool QueueMessage(IMessageSinkMessage message)
         {
+            
             switch (message)
             {
-                case ITestCaseStarting testCaseStarting:
-                    AllureXunitHelper.StartTestCase(testCaseStarting);
-                    break;
                 case ITestStarting testStarting:
                     var testOutputHelper = new TestOutputHelper();
                     testOutputHelper.Initialize(this, testStarting.Test);
                     TestOutputHelper.Value = testOutputHelper;
+                    break;
+                case ITestCaseStarting testCaseStarting:
+                    AllureXunitHelper.StartTestContainer(testCaseStarting);
+                    break;
+                case ITestClassConstructionFinished testClassConstructionFinished:
+                    AllureXunitHelper.StartTestCase(testClassConstructionFinished);
                     break;
                 case ITestFailed testFailed:
                     AllureXunitHelper.MarkTestCaseAsFailed(testFailed);
