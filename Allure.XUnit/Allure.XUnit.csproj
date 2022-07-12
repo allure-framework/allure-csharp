@@ -4,9 +4,9 @@
         <IsPackable>true</IsPackable>
         <TargetFrameworks>netcoreapp2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
         <Company>Qameta Software</Company>
-        <PackageVersion>2.9.1-preview.2</PackageVersion>
+        <PackageVersion>2.9.1-preview.3</PackageVersion>
         <Title>Allure.XUnit</Title>
-        <Authors>Shumakov Ivan</Authors>
+        <Authors>Shumakov Ivan, Nikolay Laptev</Authors>
         <Description>Allure.XUnit</Description>
         <PackageProjectUrl>https://github.com/Tinkoff/Allure.XUnit</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Tinkoff/Allure.XUnit</RepositoryUrl>
