@@ -78,6 +78,11 @@ Use `AllureLifecycle.Instance` property to access.
 ### Troubleshooting
 ...
 
+### Integrations
+| Library | Examples | Author |
+|:------------------|:---:|:---:|
+| [Allure.XUnit](Allure.XUnit)     |  [Examples](Allure.XUnit.Examples)  | [Shumakov Ivan](https://github.com/IvanWR1995)    |
+
 
 
 ## SpecFlow Adapter  [![](http://img.shields.io/nuget/vpre/SpecFlow.Allure.svg?style=flat)](https://www.nuget.org/packages/SpecFlow.Allure) [![NuGet](https://img.shields.io/nuget/dt/SpecFlow.Allure.svg)](https://www.nuget.org/packages/SpecFlow.Allure)
