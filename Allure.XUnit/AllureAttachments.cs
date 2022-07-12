@@ -31,7 +31,7 @@ namespace Allure.XUnit
         public static async Task AddAttachment(string name, string type, byte[] content, string fileExtension)
         {
             var source = $"{Guid.NewGuid():N}{AllureConstants.ATTACHMENT_FILE_SUFFIX}{fileExtension}";
-            await System.IO.File.WriteAllBytesAsync(Path.Combine(AllureLifecycle.Instance.ResultsDirectory, source),
+            var task = System.IO.File.WriteAllBytesAsync(Path.Combine(AllureLifecycle.Instance.ResultsDirectory, source),
                 content);
             var attachments = Steps.Current.attachments ??= new();
             attachments.Add(new()
@@ -40,6 +40,7 @@ namespace Allure.XUnit
                 type = type,
                 source = source
             });
+            await task;
         }
     }
 }

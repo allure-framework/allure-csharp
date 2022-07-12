@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Allure.XUnit;
+using Allure.Xunit;
 using Allure.Xunit.Attributes;
 using Xunit;
 
-namespace Allure.Xunit.Examples;
+namespace Allure.XUnit.Examples;
 
+[Obsolete("See ExampleStepAttributes")]
 public class ExampleSteps : IAsyncLifetime
 {
     public Task InitializeAsync()
@@ -25,14 +26,14 @@ public class ExampleSteps : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    [AllureXunit]
+    [AllureXunit(Skip = "ExampleSteps is obsolete")]
     public async Task TestParameters()
     {
         WriteHello(42, 4242, "secret");
         await AddAttachment();
     }
 
-    [AllureXunit]
+    [AllureXunit(Skip = "ExampleSteps is obsolete")]
     public void TestFail()
     {
         using (new AllureStep("Test Fail"))

@@ -67,14 +67,27 @@ public class TestClass
 ```
 
 ## Steps
-There are two ways to describe steps:
-1. Use [`Steps`](Steps.cs) class for functional or imperative approach.
-2. Use `AllureStepAttribute`, `AllureBeforeAttribute`, `AllureAfterAttribute` for declarative approach.
+Use `AllureStepAttribute`, `AllureBeforeAttribute`, `AllureAfterAttribute`
 
-See [Examples](../Allure.XUnit.Examples/ExampleSteps.cs).
+See [Examples](../Allure.XUnit.Examples/ExampleStepAttributes.cs).
+
+### Allure.XUnit.StepExtensions deprecation
+There is no more need to use separate Allure.XUnit.StepExtensions package - you can simple remove it from dependencies and use attributes from [Allure.XUnit.Attributes.Steps namespace](Attributes/Steps) directly.
+
+```c#
+using Allure.XUnit.Attributes.Steps;
+
+...
+
+    [AllureStep("Check that {someNumber} is the answer to life, the universe, and everything")]
+    private void NestedStep([Name("number")] int someNumber, [Skip] bool skippedBoolean = true)
+    {
+        Assert.Equal(42, someNumber);
+    }
+```
 
 ## Attachments
-Use [`AllureAttachments`](AllureAttachments.cs) class with it's methods.
+Use [`AllureAttachments`](AllureAttachments.cs) class with it's methods. (AttachmentAttribute coming soon)
 
 ## Running
 
