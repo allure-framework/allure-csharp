@@ -34,6 +34,8 @@ jobs:
           cat ./Allure.Net.Commons/Allure.Net.Commons.csproj
           sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.releaseVersion }}</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
           cat ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.releaseVersion }}</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
+          cat ./Allure.XUnit/Allure.XUnit.csproj
       - name: "Commit release version and create tag"
         run: |
           git commit -am "release ${{ github.event.inputs.releaseVersion }}"
@@ -45,6 +47,8 @@ jobs:
           cat ./Allure.Net.Commons/Allure.Net.Commons.csproj
           sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
           cat ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
+          cat ./Allure.XUnit/Allure.XUnit.csproj
       - name: "Commit next development version and push it"
         run: |
           git commit -am "set next development version ${{ github.event.inputs.nextVersion }}"
