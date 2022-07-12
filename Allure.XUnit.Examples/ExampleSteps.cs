@@ -13,7 +13,7 @@ public class ExampleSteps : IAsyncLifetime
     {
         using (new AllureBefore("Initialization"))
         {
-            using (new AllureBefore("Nested"))
+            using (new AllureStep("Nested"))
             {
                 return Task.CompletedTask;
             }

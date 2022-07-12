@@ -33,17 +33,6 @@ namespace Allure.XUnit
             var allureAfterAttribute = metadata.GetCustomAttribute<AllureAfterAttribute>();
             var stepName = metadata.GetCustomAttribute<AllureStepBaseAttribute>().Name ?? name;
 
-            if (allureBeforeAttribute != null)
-            {
-                Steps.StartBeforeFixture(allureBeforeAttribute.Name ?? name);
-            }
-
-            if (allureAfterAttribute != null)
-            {
-                Steps.StartAfterFixture(allureAfterAttribute.Name ?? name);
-            }
-
-
             foreach (var parameterInfo in metadata.GetParameters())
             {
                 stepName = stepName?.Replace("{" + parameterInfo.Name + "}",
@@ -68,8 +57,17 @@ namespace Allure.XUnit
             {
                 if (allureBeforeAttribute == null && allureAfterAttribute == null)
                 {
-                    Steps.StartStep(stepName);
-                    Steps.Current.parameters = stepParameters;
+                    Steps.StartStep(stepName, step => step.parameters = stepParameters);
+                }
+                
+                if (allureBeforeAttribute != null)
+                {
+                    Steps.StartBeforeFixture(allureBeforeAttribute.Name ?? name);
+                }
+
+                if (allureAfterAttribute != null)
+                {
+                    Steps.StartAfterFixture(allureAfterAttribute.Name ?? name);
                 }
 
                 if (typeof(Task).IsAssignableFrom(returnType))
@@ -90,23 +88,53 @@ namespace Allure.XUnit
                         .Invoke(this, new object[] { target, args });
                 }
 
-                Steps.PassStep();
+                if (allureBeforeAttribute == null && allureAfterAttribute == null)
+                {
+                    Steps.PassStep();
+                }
+                else
+                {
+                    if (metadata.Name == "InitializeAsync")
+                    {
+                        // Workaround for IAsyncLifetime. Don't use it.
+                        Steps.StopFixtureSuppressTestCase(result => result.status = Status.passed);
+                    }
+                    else
+                    {
+                        Steps.StopFixture(result => result.status = Status.passed);
+                    }
+                }
             }
             catch (Exception e)
             {
-                Steps.Current.statusDetails = new StatusDetails
+                var exceptionStatusDetails = new StatusDetails
                 {
                     message = e.Message,
                     trace = e.StackTrace
                 };
 
-                if (e is XunitException)
+                if (allureBeforeAttribute == null && allureAfterAttribute == null)
                 {
-                    Steps.FailStep();
+                    if (e is XunitException)
+                    {
+                        Steps.FailStep(result => result.statusDetails = exceptionStatusDetails);
+                    }
+                    else
+                    {
+                        Steps.BrokeStep(result => result.statusDetails = exceptionStatusDetails);
+                    }
                 }
                 else
                 {
-                    Steps.BrokeStep();
+                    if (metadata.Name == "InitializeAsync")
+                    {
+                        // Workaround for IAsyncLifetime. Don't use it.
+                        Steps.StopFixtureSuppressTestCase(result => result.status = Status.failed);
+                    }
+                    else
+                    {
+                        Steps.StopFixture(result => result.status = Status.failed);
+                    }
                 }
 
                 throw;

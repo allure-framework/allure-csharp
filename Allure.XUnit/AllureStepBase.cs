@@ -11,12 +11,12 @@ namespace Allure.Xunit
 {
     public abstract class AllureStepBase<T> : IDisposable where T : AllureStepBase<T>
     {
-        protected AllureStepBase(ExecutableItem executableItem)
+        protected AllureStepBase(string uuid)
         {
-            ExecutableItem = executableItem;
+            UUID = uuid;
         }
 
-        private ExecutableItem ExecutableItem { get; }
+        private string UUID { get; }
 
         public void Dispose()
         {
@@ -26,16 +26,38 @@ namespace Allure.Xunit
             var failed = Marshal.GetExceptionCode() != 0;
 #endif
             if (failed)
-                Steps.FailStep(ExecutableItem);
+            {
+                if (this is AllureBefore || this is AllureAfter)
+                {
+                    Steps.StopFixtureSuppressTestCase(result => result.status = Status.failed);
+                }
+                else
+                {
+                    Steps.FailStep(UUID);
+                }
+            }
             else
-                Steps.PassStep(ExecutableItem);
+            {
+                if (this is AllureBefore || this is AllureAfter)
+                {
+                    Steps.StopFixtureSuppressTestCase(result => result.status = Status.passed);
+                }
+                else
+                {
+                    Steps.PassStep(UUID);
+                }
+            }
         }
 
         [Obsolete("For named parameters use NameAttribute; For skipped parameters use SkipAttribute")]
         public T SetParameter(string name, object value)
         {
-            var parameters = ExecutableItem.parameters ??= new List<Parameter>();
-            parameters.Add(new Parameter {name = name, value = value?.ToString()});
+            AllureLifecycle.Instance.UpdateStep(UUID,
+                result =>
+                {
+                    result.parameters ??= new List<Parameter>();
+                    result.parameters.Add(new Parameter { name = name, value = value?.ToString() });
+                });
             return (T) this;
         }
 
