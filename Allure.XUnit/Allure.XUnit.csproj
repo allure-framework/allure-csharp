@@ -12,6 +12,8 @@
         <RepositoryUrl>https://github.com/Tinkoff/Allure.XUnit</RepositoryUrl>
         <PackageTags>allure; xunit;</PackageTags>
         <LangVersion>9</LangVersion>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
