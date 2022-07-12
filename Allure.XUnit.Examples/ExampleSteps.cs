@@ -30,7 +30,7 @@ public class ExampleSteps : IAsyncLifetime
     public async Task TestParameters()
     {
         WriteHello(42, 4242, "secret");
-        AddAttachment();
+        await AddAttachment();
     }
 
     [AllureXunit(Skip = "ExampleSteps is obsolete")]
@@ -53,8 +53,8 @@ public class ExampleSteps : IAsyncLifetime
         }
     }
 
-    private static void AddAttachment()
+    private static async Task AddAttachment()
     {
-        AllureAttachments.Text("large json", "{}");
+        await AllureAttachments.Text("large json", "{}");
     }
 }
