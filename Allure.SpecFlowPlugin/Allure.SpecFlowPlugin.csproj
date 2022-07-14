@@ -4,6 +4,7 @@
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <PackageId>Allure.SpecFlow</PackageId>
     <Version>2.9.1-preview.4</Version>
+    <PackageVersion>2.9.1-preview.4</PackageVersion>
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
@@ -18,7 +19,6 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageVersion>2.9.1-preview.3</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
