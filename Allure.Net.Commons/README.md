@@ -1,3 +1,7 @@
+## Preview build
+**Changes**
+- Attachments uploads in background threads
+
 ## Allure.Net.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
 .Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
 

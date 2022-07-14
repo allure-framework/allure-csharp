@@ -1,3 +1,11 @@
+## Preview build
+**Changes**
+- AllureStep attribute reworked
+- AllureBefore attribute should work as expected
+- AllureAfter attribute should work as expected
+- Steps methods should be reworked either deprecated soon (Let's discuss!)
+- AllureAttachments marked as Obsolete - use Attachments instead
+
 # Allure.XUnit
 
 [![Nuget](https://img.shields.io/nuget/v/Allure.XUnit)](https://www.nuget.org/packages/Allure.XUnit/)
