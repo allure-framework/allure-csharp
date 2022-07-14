@@ -9,6 +9,7 @@
     <Product />
     <Description>.NET implementation of Allure java-commons</Description>
     <PackageProjectUrl>https://www.nuget.org/packages/Allure.Net.Commons</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>allure</PackageTags>
@@ -29,6 +30,7 @@
 
 
   <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
     <None Include="./../img/allure-net.png" Pack="true" PackagePath="\" />
     <Content Include="allureConfig.Template.json" Pack="true" />
     <PackageReference Include="MimeTypesMap" Version="1.0.8" />

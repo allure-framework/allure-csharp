@@ -8,14 +8,20 @@
         <Title>Allure.XUnit</Title>
         <Authors>Shumakov Ivan, Nikolay Laptev</Authors>
         <Description>Allure.XUnit</Description>
-        <PackageProjectUrl>https://github.com/Tinkoff/Allure.XUnit</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/Tinkoff/Allure.XUnit</RepositoryUrl>
+        <PackageProjectUrl>https://www.nuget.org/packages/Allure.XUnit</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
         <PackageTags>allure; xunit;</PackageTags>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>9</LangVersion>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+    
     <ItemGroup>
         <PackageReference Include="AspectInjector" Version="2.7.3" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />

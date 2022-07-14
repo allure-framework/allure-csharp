@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-    <PackageId>Allure.Specflow</PackageId>
+    <PackageId>Allure.SpecFlow</PackageId>
     <Version>2.9.1-preview.2</Version>
     <Authors>Alexander Bakanov</Authors>
     <Company />
     <Product />
     <Description>Generates Allure report result files for SpecFlow test run</Description>
-    <PackageProjectUrl>https://github.com/allure-framework/allure-csharp/wiki/SpecFlow-Adapter</PackageProjectUrl>
+    <PackageProjectUrl>https://www.nuget.org/packages/Allure.SpecFlow</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>allure-specflow.png</PackageIcon>
     <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
     <PackageTags>specflow allure</PackageTags>
@@ -27,6 +28,7 @@
 
 
   <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
     <Content Include="allureConfig.Template.json" Pack="true" />
     <None Include="./../img/allure-specflow.png" Pack="true" PackagePath="\" />
   </ItemGroup>
