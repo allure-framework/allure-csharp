@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>2.9.1-preview.4</AssemblyVersion>
+    <FileVersion>2.9.1-preview.4</FileVersion>
+    <Version>2.9.1-preview.4</Version>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Nick Chursin</Authors>
+    <Description>NUnit attributes extenstions for Allure</Description>
+    <PackageId>NUnit.Allure</PackageId>
+    <AssemblyName>NUnit.Allure</AssemblyName>
+    <RootNamespace>NUnit.Allure</RootNamespace>
+    <PackageProjectUrl>https://www.nuget.org/packages/Allure.NUnit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
+    <PackageTags>allure nunit</PackageTags>
+<!--    <PackageReleaseNotes>AllureStep fix for null - #46, Screen Diff Wrapper - #47</PackageReleaseNotes>-->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>Icon.Allure.NUnit.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspectInjector" Version="2.6.0" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="allureConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="./../img/Icon.Allure.NUnit.png" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="LICENSE.md" Pack="true" PackagePath="\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

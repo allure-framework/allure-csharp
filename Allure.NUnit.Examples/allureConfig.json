@@ -1,0 +1,13 @@
+﻿{
+	"allure": {
+		"directory": "allure-results",
+		"links": [
+			"https://github.com/nunit/docs/issues?utf8=✓&q={issue}",
+			"https://example.org/{tms}",
+			"{link}"
+		],
+		"brokenTestData": [
+			"System.Exception"
+		]
+	}
+}
