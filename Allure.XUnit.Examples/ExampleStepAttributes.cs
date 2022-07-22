@@ -40,7 +40,7 @@ public class ExampleStepAttributes : IDisposable
         SomeStep();
     }
     
-    [AllureXunit(DisplayName = "This test should be violet")]
+    [AllureXunit(DisplayName = "This test should be yellow")]
     public void TestBroken()
     {
         SomeStep();
