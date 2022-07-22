@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Allure.XUnit.Examples;
 
+[AllureSuite("StepAttributes")]
 public class ExampleStepAttributes : IDisposable
 {
     [AllureBefore("Initialization in constructor")]
@@ -28,6 +29,22 @@ public class ExampleStepAttributes : IDisposable
     [AllureXunit]
     public void TestSecond()
     {
+        SomeStep();
+    }
+
+    [AllureXunit(DisplayName = "This test should be red")]
+    public void TestFailed()
+    {
+        SomeStep();
+        FailingStep();
+        SomeStep();
+    }
+    
+    [AllureXunit(DisplayName = "This test should be violet")]
+    public void TestBroken()
+    {
+        SomeStep();
+        ExceptionStep();
         SomeStep();
     }
 
@@ -61,6 +78,18 @@ public class ExampleStepAttributes : IDisposable
     private void SomeStep()
     {
         Assert.True(true);
+    }
+
+    [AllureStep("Check that everytime you call this step it will fail")]
+    private void FailingStep()
+    {
+        Assert.True(false);
+    }
+    
+    [AllureStep("Check that everytime you call this step it will throw an exception")]
+    private void ExceptionStep()
+    {
+        throw new Exception("Oh my! This is exception!");
     }
 
     [AllureAfter("Cleanup by simple Dispose method")]

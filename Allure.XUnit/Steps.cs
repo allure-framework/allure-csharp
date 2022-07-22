@@ -42,8 +42,6 @@ namespace Allure.Xunit
                 start = DateTimeOffset.Now.ToUnixTimeMilliseconds()
             };
 
-            // Afters.Add(fixtureResult);
-
             AllureLifecycle.Instance.StartAfterFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
             Log($"Started After: {name}");
             return uuid;

@@ -7,6 +7,7 @@ using Xunit;
 namespace Allure.XUnit.Examples;
 
 [Obsolete("See ExampleStepAttributes")]
+[AllureSuite("ExampleSteps (Obsolete)")]
 public class ExampleSteps : IAsyncLifetime
 {
     public Task InitializeAsync()
