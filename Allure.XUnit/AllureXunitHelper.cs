@@ -6,6 +6,7 @@ using Allure.Net.Commons;
 using Allure.XUnit;
 using Allure.Xunit.Attributes;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Allure.Xunit
 {
@@ -26,7 +27,7 @@ namespace Allure.Xunit
             Environment.SetEnvironmentVariable(allureConfigEnvVariable, allureConfigPath);
         }
 
-        public static void StartTestCase(ITestCaseStarting testCaseStarting)
+        public static void StartTestContainer(ITestCaseStarting testCaseStarting)
         {
             if (testCaseStarting.TestCase is not ITestResultAccessor testResults)
             {
@@ -34,7 +35,16 @@ namespace Allure.Xunit
             }
 
             StartTestContainer(testCaseStarting.TestClass, testResults);
-            var testCase = testCaseStarting.TestCase;
+        }
+
+        public static void StartTestCase(ITestCaseMessage testCaseMessage)
+        {
+            if (testCaseMessage.TestCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            var testCase = testCaseMessage.TestCase;
             var uuid = NewUuid(testCase.DisplayName);
             testResults.TestResult = new()
             {
@@ -55,7 +65,7 @@ namespace Allure.Xunit
             AllureLifecycle.Instance.StartTestCase(testResults.TestResultContainer.uuid, testResults.TestResult);
         }
 
-        public static void MarkTestCaseAsFailed(ITestFailed testFailed)
+        public static void MarkTestCaseAsFailedOrBroken(ITestFailed testFailed)
         {
             if (testFailed.TestCase is not ITestResultAccessor testResults)
             {
@@ -65,6 +75,12 @@ namespace Allure.Xunit
             var statusDetails = testResults.TestResult.statusDetails ??= new();
             statusDetails.trace = string.Join('\n', testFailed.StackTraces);
             statusDetails.message = string.Join('\n', testFailed.Messages);
+
+            if (testFailed.ExceptionTypes.Any(exceptionType => !exceptionType.StartsWith("Xunit.Sdk.")))
+            {
+                testResults.TestResult.status = Status.broken;
+                return;
+            }
             testResults.TestResult.status = Status.failed;
         }
 
@@ -80,9 +96,19 @@ namespace Allure.Xunit
             testResults.TestResult.status = Status.passed;
         }
 
-        public static void FinishTestCase(ITestCaseFinished testCaseFinished)
+        public static void MarkTestCaseAsSkipped(ITestCaseMessage testCaseMessage)
         {
-            if (testCaseFinished.TestCase is not ITestResultAccessor testResults)
+            if (testCaseMessage.TestCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+            
+            testResults.TestResult.status = Status.skipped;
+        }
+
+        public static void FinishTestCase(ITestCaseMessage testCaseMessage)
+        {
+            if (testCaseMessage.TestCase is not ITestResultAccessor testResults)
             {
                 return;
             }

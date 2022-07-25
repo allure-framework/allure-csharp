@@ -21,21 +21,29 @@ namespace Allure.XUnit
         {
             switch (message)
             {
-                case ITestCaseStarting testCaseStarting:
-                    AllureXunitHelper.StartTestCase(testCaseStarting);
-                    break;
                 case ITestStarting testStarting:
                     var testOutputHelper = new TestOutputHelper();
                     testOutputHelper.Initialize(this, testStarting.Test);
                     TestOutputHelper.Value = testOutputHelper;
                     break;
+                case ITestCaseStarting testCaseStarting:
+                    AllureXunitHelper.StartTestContainer(testCaseStarting);
+                    break;
+                case ITestClassConstructionFinished testClassConstructionFinished:
+                    AllureXunitHelper.StartTestCase(testClassConstructionFinished);
+                    break;
                 case ITestFailed testFailed:
-                    AllureXunitHelper.MarkTestCaseAsFailed(testFailed);
+                    AllureXunitHelper.MarkTestCaseAsFailedOrBroken(testFailed);
                     break;
                 case ITestPassed testPassed:
                     AllureXunitHelper.MarkTestCaseAsPassed(testPassed);
                     break;
                 case ITestCaseFinished testCaseFinished:
+                    if (testCaseFinished.TestCase.SkipReason != null)
+                    {
+                        AllureXunitHelper.StartTestCase(testCaseFinished);
+                        AllureXunitHelper.MarkTestCaseAsSkipped(testCaseFinished);
+                    }
                     AllureXunitHelper.FinishTestCase(testCaseFinished);
                     break;
             }

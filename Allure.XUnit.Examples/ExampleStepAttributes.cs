@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Allure.Xunit.Attributes;
 using Allure.XUnit.Attributes.Steps;
@@ -5,22 +6,45 @@ using Xunit;
 
 namespace Allure.XUnit.Examples;
 
-public class ExampleStepAttributes : IAsyncLifetime
+[AllureSuite("StepAttributes")]
+public class ExampleStepAttributes : IDisposable
 {
-    [AllureBefore("Initialization")]
-    public Task InitializeAsync()
+    [AllureBefore("Initialization in constructor")]
+    public ExampleStepAttributes()
     {
+        AddAttachment();
         NestedStep(1);
         NestedStepReturningString("Second");
-        return Task.CompletedTask;
     }
 
     [AllureXunit]
-    public async Task Test()
+    public void Test()
     {
         WriteHelloStep(42, 4242, "secret");
         SomeStep();
-        await AddAttachmentAsync();
+        AddAttachment();
+        SomeStep();
+    }
+
+    [AllureXunit]
+    public void TestSecond()
+    {
+        SomeStep();
+    }
+
+    [AllureXunit(DisplayName = "This test should be red")]
+    public void TestFailed()
+    {
+        SomeStep();
+        FailingStep();
+        SomeStep();
+    }
+    
+    [AllureXunit(DisplayName = "This test should be yellow")]
+    public void TestBroken()
+    {
+        SomeStep();
+        ExceptionStep();
         SomeStep();
     }
 
@@ -31,16 +55,10 @@ public class ExampleStepAttributes : IAsyncLifetime
         NestedStepReturningString("Write hello nested step");
     }
 
-    [AllureStep("Add Attachment asynchronously")]
-    private async Task AddAttachmentAsync()
-    {
-        await AllureAttachments.Text("large json", "{}");
-    }
-
     [AllureStep("Add Attachment")]
     private void AddAttachment()
     {
-        AllureAttachments.Text("large json", "{}").GetAwaiter().GetResult();
+        Attachments.Text("Json file", "{\"id\":42,\"name\":\"Allure.XUnit\"}");
     }
 
     [AllureStep("Another nested step with \"{input}\"")]
@@ -62,13 +80,22 @@ public class ExampleStepAttributes : IAsyncLifetime
         Assert.True(true);
     }
 
-    [AllureAfter("Cleanup")]
-    public Task DisposeAsync()
+    [AllureStep("Check that everytime you call this step it will fail")]
+    private void FailingStep()
     {
-        NestedStepReturningString("Cleanup nested 1");
-        NestedStep(2);
-        
-        AllureMessageBus.TestOutputHelper.Value.WriteLine("Hello from dispose");
-        return Task.CompletedTask;
+        Assert.True(false);
+    }
+    
+    [AllureStep("Check that everytime you call this step it will throw an exception")]
+    private void ExceptionStep()
+    {
+        throw new Exception("Oh my! This is exception!");
+    }
+
+    [AllureAfter("Cleanup by simple Dispose method")]
+    public void Dispose()
+    {
+        NestedStepReturningString("Cleanup step");
+        AddAttachment();
     }
 }

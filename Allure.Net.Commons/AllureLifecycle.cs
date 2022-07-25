@@ -95,10 +95,24 @@ namespace Allure.Net.Commons
 
         #region Fixture
 
+        public virtual AllureLifecycle StartBeforeFixture(string parentUuid, FixtureResult result, out string uuid)
+        {
+            uuid = Guid.NewGuid().ToString("N");
+            StartBeforeFixture(parentUuid, uuid, result);
+            return this;
+        }
+
         public virtual AllureLifecycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
         {
             UpdateTestContainer(parentUuid, container => container.befores.Add(result));
             StartFixture(uuid, result);
+            return this;
+        }
+
+        public virtual AllureLifecycle StartAfterFixture(string parentUuid, FixtureResult result, out string uuid)
+        {
+            uuid = Guid.NewGuid().ToString("N");
+            StartAfterFixture(parentUuid, uuid, result);
             return this;
         }
 
@@ -192,6 +206,13 @@ namespace Allure.Net.Commons
 
         #region Step
 
+        public virtual AllureLifecycle StartStep(StepResult result, out string uuid)
+        {
+            uuid = Guid.NewGuid().ToString("N");
+            StartStep(storage.GetCurrentStep(), uuid, result);
+            return this;
+        }
+        
         public virtual AllureLifecycle StartStep(string uuid, StepResult result)
         {
             StartStep(storage.GetCurrentStep(), uuid, result);
@@ -244,6 +265,7 @@ namespace Allure.Net.Commons
 
         #region Attachment
 
+        // TODO: read file in background thread
         public virtual AllureLifecycle AddAttachment(string name, string type, string path)
         {
             var fileExtension = new FileInfo(path).Extension;

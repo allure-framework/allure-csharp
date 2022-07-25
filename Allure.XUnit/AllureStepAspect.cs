@@ -28,29 +28,13 @@ namespace Allure.XUnit
             [Argument(Source.ReturnType)] Type returnType)
         {
             object executionResult;
-
-            var allureBeforeAttribute = metadata.GetCustomAttribute<AllureBeforeAttribute>();
-            var allureAfterAttribute = metadata.GetCustomAttribute<AllureAfterAttribute>();
             var stepName = metadata.GetCustomAttribute<AllureStepBaseAttribute>().Name ?? name;
 
-            if (allureBeforeAttribute != null)
-            {
-                Steps.StartBeforeFixture(allureBeforeAttribute.Name ?? name);
-            }
+            stepName = metadata.GetParameters().Aggregate(stepName,
+                (current, parameterInfo) => current?.Replace("{" + parameterInfo.Name + "}",
+                    args[parameterInfo.Position]?.ToString() ?? "null"));
 
-            if (allureAfterAttribute != null)
-            {
-                Steps.StartAfterFixture(allureAfterAttribute.Name ?? name);
-            }
-
-
-            foreach (var parameterInfo in metadata.GetParameters())
-            {
-                stepName = stepName?.Replace("{" + parameterInfo.Name + "}",
-                    args[parameterInfo.Position]?.ToString() ?? "null");
-            }
-
-            List<Parameter> stepParameters = metadata.GetParameters()
+            var stepParameters = metadata.GetParameters()
                 .Select(x => (
                     name: x.GetCustomAttribute<NameAttribute>()?.Name ?? x.Name,
                     skip: x.GetCustomAttribute<SkipAttribute>() != null))
@@ -66,53 +50,138 @@ namespace Allure.XUnit
 
             try
             {
-                if (allureBeforeAttribute == null && allureAfterAttribute == null)
-                {
-                    Steps.StartStep(stepName);
-                    Steps.Current.parameters = stepParameters;
-                }
+                StartFixture(metadata, stepName);
+                StartStep(metadata, stepName, stepParameters);
 
-                if (typeof(Task).IsAssignableFrom(returnType))
-                {
-                    var syncResultType = returnType.IsConstructedGenericType
-                        ? returnType.GenericTypeArguments[0]
-                        : typeof(object);
-                    executionResult = AsyncHandler.MakeGenericMethod(syncResultType)
-                        .Invoke(this, new object[] { target, args });
-                }
-                else if (typeof(void).IsAssignableFrom(returnType))
-                {
-                    executionResult = target(args);
-                }
-                else
-                {
-                    executionResult = SyncHandler.MakeGenericMethod(returnType)
-                        .Invoke(this, new object[] { target, args });
-                }
+                executionResult = GetStepExecutionResult(returnType, target, args);
 
-                Steps.PassStep();
+                PassStep(metadata);
+                PassFixture(metadata);
             }
             catch (Exception e)
             {
-                Steps.Current.statusDetails = new StatusDetails
+                ThrowStep(metadata, e);
+                ThrowFixture(metadata, e);
+                throw;
+            }
+
+            return executionResult;
+        }
+
+        private static void StartStep(MethodBase metadata, string stepName, List<Parameter> stepParameters)
+        {
+            if (metadata.GetCustomAttribute<AllureStepAttribute>() != null)
+            {
+                Steps.StartStep(stepName, step => step.parameters = stepParameters);
+            }
+        }
+        
+        private static void PassStep(MethodBase metadata)
+        {
+            if (metadata.GetCustomAttribute<AllureStepAttribute>() != null)
+            {
+                Steps.PassStep();
+            }
+        }
+        
+        private static void ThrowStep(MethodBase metadata, Exception e)
+        {
+            if (metadata.GetCustomAttribute<AllureStepAttribute>() != null)
+            {
+                var exceptionStatusDetails = new StatusDetails
+                {
+                    message = e.Message,
+                    trace = e.StackTrace
+                };
+                
+                if (e is XunitException)
+                {
+                    Steps.FailStep(result => result.statusDetails = exceptionStatusDetails);
+                }
+                else
+                {
+                    Steps.BrokeStep(result => result.statusDetails = exceptionStatusDetails);
+                }
+            }
+        }
+        
+        private static void StartFixture(MethodBase metadata, string stepName)
+        {
+            if (metadata.GetCustomAttribute<AllureBeforeAttribute>() != null)
+            {
+                Steps.StartBeforeFixture(stepName);
+            }
+
+            if (metadata.GetCustomAttribute<AllureAfterAttribute>() != null)
+            {
+                Steps.StartAfterFixture(stepName);
+            }
+        }
+        
+        private static void PassFixture(MethodBase metadata)
+        {
+            if (metadata.GetCustomAttribute<AllureBeforeAttribute>() != null ||
+                metadata.GetCustomAttribute<AllureAfterAttribute>() != null)
+            {
+                if (metadata.Name == "InitializeAsync")
+                {
+                    Steps.StopFixtureSuppressTestCase(result => result.status = Status.passed);
+                }
+                else
+                {
+                    Steps.StopFixture(result => result.status = Status.passed);
+                }
+            }
+        }
+        
+        private static void ThrowFixture(MethodBase metadata, Exception e)
+        {
+            if (metadata.GetCustomAttribute<AllureBeforeAttribute>() != null ||
+                metadata.GetCustomAttribute<AllureAfterAttribute>() != null)
+            {
+                var exceptionStatusDetails = new StatusDetails
                 {
                     message = e.Message,
                     trace = e.StackTrace
                 };
 
-                if (e is XunitException)
+                if (metadata.Name == "InitializeAsync")
                 {
-                    Steps.FailStep();
+                    Steps.StopFixtureSuppressTestCase(result =>
+                    {
+                        result.status = e is XunitException ? Status.failed : Status.broken;
+                        result.statusDetails = exceptionStatusDetails;
+                    });
                 }
                 else
                 {
-                    Steps.BrokeStep();
+                    Steps.StopFixture(result =>
+                    {
+                        result.status = e is XunitException ? Status.failed : Status.broken;
+                        result.statusDetails = exceptionStatusDetails;
+                    });
                 }
+            }
+        }
 
-                throw;
+        private object GetStepExecutionResult(Type returnType, Func<object[], object> target, object[] args)
+        {
+            if (typeof(Task).IsAssignableFrom(returnType))
+            {
+                var syncResultType = returnType.IsConstructedGenericType
+                    ? returnType.GenericTypeArguments[0]
+                    : typeof(object);
+                return AsyncHandler.MakeGenericMethod(syncResultType)
+                    .Invoke(this, new object[] { target, args });
             }
 
-            return executionResult;
+            if (typeof(void).IsAssignableFrom(returnType))
+            {
+                return target(args);
+            }
+
+            return SyncHandler.MakeGenericMethod(returnType)
+                .Invoke(this, new object[] { target, args });
         }
 
         private static T WrapSync<T>(Func<object[], object> target, object[] args)

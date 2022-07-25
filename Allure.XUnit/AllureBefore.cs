@@ -10,10 +10,14 @@ namespace Allure.Xunit
         {
         }
 
-        private static ExecutableItem Init(string name)
+        /// <summary>
+        /// Starts Before fixture and return it's UUID
+        /// </summary>
+        /// <param name="name">The name of created fixture</param>
+        /// <returns>string: UUID</returns>
+        private static string Init(string name)
         {
-            Steps.StartBeforeFixture(name);
-            return Steps.Current;
+            return Steps.StartBeforeFixture(name);
         }
     }
 }
