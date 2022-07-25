@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
@@ -12,55 +11,64 @@ namespace Allure.Xunit
     public static class Steps
     {
         private static readonly AsyncLocal<ITestResultAccessor> TestResultAccessorAsyncLocal = new();
-        private static readonly AsyncLocal<List<ExecutableItem>> StepsHierarchy = new();
-
-        private static IList<FixtureResult> Befores =>
-            TestResultAccessor.TestResultContainer.befores ??= new List<FixtureResult>();
-
-        private static IList<FixtureResult> Afters =>
-            TestResultAccessor.TestResultContainer.afters ??= new List<FixtureResult>();
-
         internal static ITestResultAccessor TestResultAccessor
         {
             get => TestResultAccessorAsyncLocal.Value;
             set => TestResultAccessorAsyncLocal.Value = value;
         }
+        
+        #region Fixtures
 
-        public static ExecutableItem Current
+        public static string StartBeforeFixture(string name)
         {
-            get => StepsHierarchy.Value.LastOrDefault();
-            internal set => StepsHierarchy.Value = new List<ExecutableItem> { value };
-        }
-
-        public static void StartBeforeFixture(string name)
-        {
-            var fixtureResult = new FixtureResult
+            var fixtureResult = new FixtureResult()
             {
                 name = name,
                 stage = Stage.running,
                 start = DateTimeOffset.Now.ToUnixTimeMilliseconds()
             };
 
-            Befores.Add(fixtureResult);
-            StepsHierarchy.Value.Add(fixtureResult);
+            AllureLifecycle.Instance.StartBeforeFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
             Log($"Started Before: {name}");
+            return uuid;
         }
 
-        public static void StartAfterFixture(string name)
+        public static string StartAfterFixture(string name)
         {
-            var fixtureResult = new FixtureResult
+            var fixtureResult = new FixtureResult()
             {
                 name = name,
                 stage = Stage.running,
                 start = DateTimeOffset.Now.ToUnixTimeMilliseconds()
             };
 
-            Afters.Add(fixtureResult);
-            StepsHierarchy.Value.Add(fixtureResult);
+            AllureLifecycle.Instance.StartAfterFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
             Log($"Started After: {name}");
+            return uuid;
         }
 
-        public static void StartStep(string name)
+        public static void StopFixture(Action<FixtureResult> updateResults = null)
+        {
+            AllureLifecycle.Instance.StopFixture(result =>
+            {
+                result.stage = Stage.finished;
+                result.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                updateResults?.Invoke(result);
+            });
+        }
+        
+        public static void StopFixtureSuppressTestCase(Action<FixtureResult> updateResults = null)
+        {
+            var newTestResult = TestResultAccessor.TestResult;
+            StopFixture(updateResults);
+            AllureLifecycle.Instance.StartTestCase(TestResultAccessor.TestResultContainer.uuid, newTestResult);
+        }
+
+        #endregion
+
+        #region Steps
+
+        public static string StartStep(string name, Action<StepResult> updateResults = null)
         {
             var stepResult = new StepResult
             {
@@ -68,54 +76,77 @@ namespace Allure.Xunit
                 stage = Stage.running,
                 start = DateTimeOffset.Now.ToUnixTimeMilliseconds()
             };
-            var current = Current;
-            current.steps ??= new List<StepResult>();
-            current.steps.Add(stepResult);
-            StepsHierarchy.Value.Add(stepResult);
+            updateResults?.Invoke(stepResult);
+
+            AllureLifecycle.Instance.StartStep(stepResult, out var uuid);
             Log($"Started Step: {name}");
+            return uuid;
         }
 
-        public static void PassStep()
+        public static void PassStep(Action<StepResult> updateResults = null)
         {
-            PassStep(Current);
-        }
-
-        public static void PassStep(ExecutableItem step)
-        {
-            StepsHierarchy.Value.Remove(step);
-            step.stage = Stage.finished;
-            step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            step.status = Status.passed;
+            AllureLifecycle.Instance.StopStep(result =>
+            {
+                result.status = Status.passed;
+                updateResults?.Invoke(result);
+            });
             Log("Passed");
         }
 
-        public static void FailStep()
+        public static void PassStep(string uuid, Action<StepResult> updateResults = null)
         {
-            FailStep(Current);
+            AllureLifecycle.Instance.UpdateStep(uuid, result =>
+            {
+                result.status = Status.passed;
+                updateResults?.Invoke(result);
+            });
+            AllureLifecycle.Instance.StopStep(uuid);
+            Log("Passed");
         }
 
-        public static void FailStep(ExecutableItem step)
+        public static void FailStep(Action<StepResult> updateResults = null)
         {
-            StepsHierarchy.Value.Remove(step);
-            step.stage = Stage.finished;
-            step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            step.status = Status.failed;
+            AllureLifecycle.Instance.StopStep(result =>
+            {
+                result.status = Status.failed;
+                updateResults?.Invoke(result);
+            });
+            Log("Failed");
+        }
+
+        public static void FailStep(string uuid, Action<StepResult> updateResults = null)
+        {
+            AllureLifecycle.Instance.UpdateStep(uuid, result =>
+            {
+                result.status = Status.failed;
+                updateResults?.Invoke(result);
+            });
+            AllureLifecycle.Instance.StopStep(uuid);
             Log("Failed");
         }
         
-        public static void BrokeStep()
+        public static void BrokeStep(Action<StepResult> updateResults = null)
         {
-            BrokeStep(Current);
-        }
-        
-        public static void BrokeStep(ExecutableItem step)
-        {
-            StepsHierarchy.Value.Remove(step);
-            step.stage = Stage.finished;
-            step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            step.status = Status.broken;
+            AllureLifecycle.Instance.StopStep(result =>
+            {
+                result.status = Status.broken;
+                updateResults?.Invoke(result);
+            });
             Log("Broken");
         }
+        
+        public static void BrokeStep(string uuid, Action<StepResult> updateResults = null)
+        {
+            AllureLifecycle.Instance.UpdateStep(uuid, result =>
+            {
+                result.status = Status.broken;
+                updateResults?.Invoke(result);
+            });
+            AllureLifecycle.Instance.StopStep(uuid);
+            Log("Broken");
+        }
+
+        #endregion
 
         public static Task<T> Step<T>(string name, Func<Task<T>> action)
         {

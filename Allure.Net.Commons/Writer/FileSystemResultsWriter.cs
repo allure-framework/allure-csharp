@@ -17,6 +17,7 @@ namespace Allure.Net.Commons.Writer
     private readonly AllureConfiguration configuration;
     //private Logger logger = LogManager.GetCurrentClassLogger();
 
+    private static readonly object BytesWriterLock = new object();
     private readonly string outputDirectory;
     private readonly JsonSerializer serializer = new JsonSerializer();
 
@@ -44,8 +45,9 @@ namespace Allure.Net.Commons.Writer
 
     public void Write(string source, byte[] content)
     {
-      var filePath = Path.Combine(outputDirectory, source);
-      File.WriteAllBytes(filePath, content);
+      using var task = new WriteTask { Filepath = Path.Combine(outputDirectory, source), Content = content };
+      ThreadPool.QueueUserWorkItem(WriteBinary, task);
+      task.WaitOne();
     }
 
     public void CleanUp()
@@ -77,6 +79,25 @@ namespace Allure.Net.Commons.Writer
       return filePath;
     }
 
+    protected void WriteBinary(object writeTask)
+    {
+      if (writeTask is WriteTask task)
+      {
+        lock (BytesWriterLock)
+        {
+          using (var writer = new BinaryWriter(File.Open(task.Filepath, FileMode.Append, FileAccess.Write)))
+          {
+            writer.Write(task.Content);
+            task.Set();
+          }
+        }
+      }
+      else
+      {
+        throw new ArgumentException("Argument cannot be casted from WriteTask class", nameof(writeTask));
+      }
+    }
+
     internal virtual bool HasDirectoryAccess(string directory)
     {
       var tempFile = Path.Combine(directory, Guid.NewGuid().ToString());
@@ -103,6 +124,13 @@ namespace Allure.Net.Commons.Writer
       Directory.CreateDirectory(outputDirectory);
 
       return new DirectoryInfo(outputDirectory).FullName;
+    }
+
+    private class WriteTask : EventWaitHandle
+    {
+      internal WriteTask() : base(false, EventResetMode.ManualReset) { }
+      public string Filepath;
+      public byte[] Content;
     }
   }
 }
