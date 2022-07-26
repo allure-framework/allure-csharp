@@ -1,39 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
-    <Version>2.10-SNAPSHOT</Version>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>Alexander Bakanov, Nikolay Laptev</Authors>
-    <Company>Qameta Software</Company>
-    <Product />
-    <Description>.NET implementation of Allure java-commons</Description>
-    <PackageProjectUrl>https://www.nuget.org/packages/Allure.Net.Commons</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>allure</PackageTags>
-    <PackageIcon>allure-net.png</PackageIcon>
-    <SignAssembly>False</SignAssembly>
-    <DelaySign>False</DelaySign>
-    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>default</LangVersion>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+        <Version>2.10-SNAPSHOT</Version>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Authors>Alexander Bakanov, Nikolay Laptev</Authors>
+        <Company>Qameta Software</Company>
+        <Product/>
+        <Description>.NET implementation of Allure java-commons</Description>
+        <PackageProjectUrl>https://www.nuget.org/packages/Allure.Net.Commons</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>allure</PackageTags>
+        <PackageIcon>Allure-Color.png</PackageIcon>
+        <SignAssembly>False</SignAssembly>
+        <DelaySign>False</DelaySign>
+        <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+        <LangVersion>default</LangVersion>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+    </ItemGroup>
 
-
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\"/>
-    <None Include="./../img/allure-net.png" Pack="true" PackagePath="\" />
-    <Content Include="allureConfig.Template.json" Pack="true" />
-    <PackageReference Include="MimeTypesMap" Version="1.0.8" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+        <None Include="./../img/Allure-Color.png" Pack="true" PackagePath="\"/>
+        <Content Include="allureConfig.Template.json" Pack="true"/>
+        <PackageReference Include="MimeTypesMap" Version="1.0.8"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
+    </ItemGroup>
 
 </Project>
