@@ -8,10 +8,11 @@
         <Title>Allure.XUnit</Title>
         <Authors>Shumakov Ivan</Authors>
         <Description>Allure.XUnit</Description>
+        <PackageIcon>Allure-X-Color.png</PackageIcon>
         <PackageProjectUrl>https://www.nuget.org/packages/Allure.XUnit</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
-        <PackageTags>allure; xunit;</PackageTags>
+        <PackageTags>allure xunit</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>9</LangVersion>
         <IncludeSymbols>true</IncludeSymbols>
@@ -19,18 +20,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="README.md" Pack="true" PackagePath="\"/>
-    </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.7.3" />
-        <PackageReference Include="xunit.assert" Version="2.4.1" />
-        <PackageReference Include="xunit.core" Version="2.4.1" />
-        <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+        <None Include="./../img/Allure-X-Color.png" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AspectInjector" Version="2.7.3"/>
+        <PackageReference Include="xunit.assert" Version="2.4.1"/>
+        <PackageReference Include="xunit.core" Version="2.4.1"/>
+        <PackageReference Include="xunit.runner.reporters" Version="2.4.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
     </ItemGroup>
 
 </Project>
