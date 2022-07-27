@@ -37,7 +37,7 @@ jobs:
       - name: "Mark release as preview"
         if: ${{ inputs.prerelease }}
         run: |
-          echo "release_version=${{ inputs.releaseVersion }}-preview.{{ inputs.previewVersion }}" >> $GITHUB_ENV
+          echo "release_version=${{ inputs.releaseVersion }}-preview.${{ inputs.previewVersion }}" >> $GITHUB_ENV
 
       - name: "Configure CI Git User"
         run: |
