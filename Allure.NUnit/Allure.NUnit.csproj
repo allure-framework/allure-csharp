@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Version>2.10-SNAPSHOT</Version>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <Company>Qameta Software</Company>
+        <Authors>Nick Chursin</Authors>
+        <Description>NUnit attributes extenstions for Allure</Description>
+        <PackageId>Allure.NUnit</PackageId>
+        <AssemblyName>Allure.NUnit</AssemblyName>
+        <RootNamespace>NUnit.Allure</RootNamespace>
+        <PackageProjectUrl>https://www.nuget.org/packages/Allure.NUnit</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
+        <PackageTags>allure nunit</PackageTags>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>Allure-N-Color.png</PackageIcon>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AspectInjector" Version="2.6.0"/>
+        <PackageReference Include="NUnit" Version="3.13.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="allureConfig.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Include="./../img/Allure-N-Color.png" Pack="true" PackagePath="\"/>
+        <None Include="LICENSE.md" Pack="true" PackagePath="\"/>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+</Project>
