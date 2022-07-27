@@ -21,25 +21,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.6.0"/>
-        <PackageReference Include="NUnit" Version="3.13.2"/>
+        <PackageReference Include="AspectInjector" Version="2.6.0" />
+        <PackageReference Include="NUnit" Version="3.13.3" />
+        <PackageReference Include="NUnit.Engine.Api" Version="3.15.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="allureConfig.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Include="./../img/Allure-N-Color.png" Pack="true" PackagePath="\"/>
-        <None Include="LICENSE.md" Pack="true" PackagePath="\"/>
-        <None Include="README.md" Pack="true" PackagePath="\"/>
+        <None Include="./../img/Allure-N-Color.png" Pack="true" PackagePath="\" />
+        <None Include="LICENSE.md" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

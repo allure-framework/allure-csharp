@@ -56,6 +56,7 @@ namespace NUnit.Allure.Core
         /// <summary>
         /// Wraps Action into AllureStep.
         /// </summary>
+        [Obsolete("Use [AllureStep] method attribute")]
         public static void WrapInStep(this AllureLifecycle lifecycle, Action action, string stepName = "", [CallerMemberName] string callerName = "")
         {
             if (string.IsNullOrEmpty(stepName)) stepName = callerName;

@@ -1,13 +1,12 @@
-﻿using System;
 using AspectInjector.Broker;
 using NUnit.Allure.Core.Steps;
 
 namespace NUnit.Allure.Attributes
 {
     [Injection(typeof(AllureStepAspect))]
-    public class AllureStepAttribute : AllureStepBaseAttribute
+    public class AllureAfterAttribute : AllureStepBaseAttribute
     {
-        public AllureStepAttribute(string name = null) : base(name)
+        public AllureAfterAttribute(string name = null) : base(name)
         {
         }
     }

@@ -5,7 +5,7 @@ using Allure.Net.Commons;
 
 namespace NUnit.Allure.Core
 {
-    public static class Steps
+    public static class StepsHelper
     {
         private static readonly AsyncLocal<ITestResultAccessor> TestResultAccessorAsyncLocal =
             new AsyncLocal<ITestResultAccessor>();

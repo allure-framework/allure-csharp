@@ -1,6 +1,6 @@
 using System;
 
-namespace Allure.XUnit.Attributes.Steps
+namespace NUnit.Allure.Attributes
 {
     [AttributeUsage(AttributeTargets.Parameter)]
     public class NameAttribute : Attribute

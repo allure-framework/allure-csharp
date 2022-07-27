@@ -14,20 +14,14 @@ using TestResult = Allure.Net.Commons.TestResult;
 
 namespace NUnit.Allure.Core
 {
-    public sealed class AllureNUnitHelper
+    public sealed class AllureNUnitHelper : ITestResultAccessor
     {
-        public enum NUnitHelpMethodType
-        {
-            SetUp,
-            TearDown,
-            OneTimeSetup,
-            OneTimeTearDown
-        }
+        public TestResultContainer TestResultContainer { get; set; }
+        public TestResult TestResult { get; set; }
 
         private readonly ITest _test;
 
         private string _containerGuid;
-        private bool _isSetupFailed;
         private string _stepGuid;
 
         private StepResult _stepResult;
@@ -40,22 +34,23 @@ namespace NUnit.Allure.Core
 
         private static AllureLifecycle AllureLifecycle => AllureLifecycle.Instance;
 
-        private void StartTestContainer()
+        internal void StartTestContainer()
         {
+            StepsHelper.TestResultAccessor = this;
             var testFixture = GetTestFixture(_test);
             _containerGuid = string.Concat(Guid.NewGuid().ToString(), "-tc-", testFixture.Id);
-            var container = new TestResultContainer
+            TestResultContainer = new TestResultContainer
             {
                 uuid = _containerGuid,
                 name = _test.FullName
             };
-            AllureLifecycle.StartTestContainer(container);
+            AllureLifecycle.StartTestContainer(TestResultContainer);
         }
 
-        private void StartTestCase()
+        internal void StartTestCase()
         {
             _testResultGuid = string.Concat(Guid.NewGuid().ToString(), "-tr-", _test.Id);
-            var testResult = new TestResult
+            TestResult = new TestResult
             {
                 uuid = _testResultGuid,
                 name = _test.Name,
@@ -70,7 +65,7 @@ namespace NUnit.Allure.Core
                     Label.TestClass(_test.ClassName?.Substring(_test.ClassName.LastIndexOf('.') + 1))
                 }
             };
-            AllureLifecycle.StartTestCase(_containerGuid, testResult);
+            AllureLifecycle.StartTestCase(_containerGuid, TestResult);
         }
 
         private TestFixture GetTestFixture(ITest test)
@@ -87,157 +82,7 @@ namespace NUnit.Allure.Core
             return (TestFixture) currentTest;
         }
 
-        private IEnumerable<string> GetNUnitHelpMethods(NUnitHelpMethodType type, TestFixture fixture)
-        {
-            switch (type)
-            {
-                case NUnitHelpMethodType.SetUp:
-                    return fixture.SetUpMethods.Select(m => m.Name).ToList();
-                case NUnitHelpMethodType.TearDown:
-                    return fixture.TearDownMethods.Select(m => m.Name).ToList();
-                case NUnitHelpMethodType.OneTimeSetup:
-                    return fixture.OneTimeSetUpMethods.Select(m => m.Name).ToList();
-                case NUnitHelpMethodType.OneTimeTearDown:
-                    return fixture.OneTimeTearDownMethods.Select(m => m.Name).ToList();
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-        }
-
-        private void StartTestStep()
-        {
-            _stepGuid = string.Concat(Guid.NewGuid().ToString(), "-ts-", _test.Id);
-            _stepResult = new StepResult {name = _test.Name};
-            AllureLifecycle.StartStep(_stepGuid, _stepResult);
-        }
-
-        private List<FixtureResult> BuildFixtureResults(NUnitHelpMethodType type, TestFixture testFixture)
-        {
-            var fixtureResultsList = new HashSet<FixtureResult>();
-            var testResult = TestExecutionContext.CurrentContext.CurrentResult;
-
-            foreach (var method in GetNUnitHelpMethods(type, testFixture))
-            {
-                var fr = new FixtureResult {name = method};
-
-
-                if (fr.start == 0)
-                    fr.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                if (fr.stop == 0)
-                    fr.stop = fr.start;
-
-                if (testResult.StackTrace != null && testResult.StackTrace.Contains(method))
-                {
-                    AllureLifecycle.UpdateTestCase(x => x.description += $"\n{method} {type} method failed\n");
-                    fr.status = Status.failed;
-                    fr.statusDetails.message = testResult.Message;
-                    fr.statusDetails.trace = testResult.StackTrace;
-                    if (type == NUnitHelpMethodType.SetUp) _isSetupFailed = true;
-                }
-                else
-                {
-                    fr.status = Status.passed;
-                    if (type == NUnitHelpMethodType.OneTimeTearDown)
-                    {
-                        fr.statusDetails.message = "It's not possible to get status of OneTimeTearDown";
-                        fr.statusDetails.trace = "See Allure.NUnit wiki";
-                        fr.status = Status.none;
-                    }
-                }
-
-                try
-                {
-                    if (testFixture.HasChildren)
-                    {
-                        var properties = _test.Properties;
-                        if (properties.ContainsKey(method))
-                        {
-                            var methodProperty = (SetUpTearDownHelper) properties.Get(method);
-                            fr.start = methodProperty.StartTime;
-                            fr.stop = methodProperty.EndTime;
-                            fr.statusDetails.message = methodProperty.Exception?.Message;
-                            fr.statusDetails.trace = methodProperty.Exception?.StackTrace;
-                            if (!string.IsNullOrEmpty(methodProperty.CustomName)) fr.name = methodProperty.CustomName;
-                        }
-                        else
-                        {
-                            properties = GetTestFixture(_test).Properties;
-                            if (properties.ContainsKey(method))
-                            {
-                                var methodProperty = (SetUpTearDownHelper) properties.Get(method);
-                                fr.start = methodProperty.StartTime;
-                                fr.stop = methodProperty.EndTime;
-                                fr.statusDetails.message = methodProperty.Exception?.Message;
-                                fr.statusDetails.trace = methodProperty.Exception?.StackTrace;
-                                if (!string.IsNullOrEmpty(methodProperty.CustomName))
-                                    fr.name = methodProperty.CustomName;
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    //
-                }
-
-
-                fr.stage = Stage.finished;
-                fixtureResultsList.Add(fr);
-            }
-
-            return fixtureResultsList.ToList();
-        }
-
-        public void StopAll(bool isWrappedIntoStep)
-        {
-            var testFixture = GetTestFixture(_test);
-
-            var listSetups = new List<FixtureResult>();
-            listSetups.AddRange(BuildFixtureResults(NUnitHelpMethodType.OneTimeSetup, testFixture));
-            listSetups.AddRange(BuildFixtureResults(NUnitHelpMethodType.SetUp, testFixture));
-
-            var listTearDowns = new List<FixtureResult>();
-            listTearDowns.AddRange(BuildFixtureResults(NUnitHelpMethodType.TearDown, testFixture));
-            listTearDowns.AddRange(BuildFixtureResults(NUnitHelpMethodType.OneTimeTearDown, testFixture));
-
-            var result = TestExecutionContext.CurrentContext.CurrentResult;
-            try
-            {
-                if (isWrappedIntoStep)
-                    AllureLifecycle.StopStep(step =>
-                    {
-                        step.statusDetails = new StatusDetails
-                        {
-                            message = result.Message,
-                            trace = result.StackTrace
-                        };
-                        AllureLifecycle.AddAttachment("Console Output", "text/plain",
-                            Encoding.UTF8.GetBytes(result.Output), ".txt");
-                        if (_isSetupFailed)
-                        {
-                            step.status = Status.skipped;
-                            step.name +=
-                                $" skipped because of {listSetups.Select(sm => sm.name).FirstOrDefault()} failure";
-                        }
-                        else
-                        {
-                            step.status = GetNUnitStatus();
-                        }
-                    });
-
-                StopTestCase();
-
-                StopTestContainer(listSetups, listTearDowns);
-            }
-            catch (ArgumentNullException e)
-            {
-                Console.WriteLine(e.Message);
-                // Ignore already killed Allure dictionary 
-            }
-        }
-
-
-        private void StopTestCase()
+        internal void StopTestCase()
         {
             UpdateTestDataFromAttributes();
             for (var i = 0; i < _test.Arguments.Length; i++)
@@ -263,22 +108,10 @@ namespace NUnit.Allure.Core
             AllureLifecycle.WriteTestCase(_testResultGuid);
         }
 
-        private void StopTestContainer(List<FixtureResult> listSetups, List<FixtureResult> listTearDowns)
+        internal void StopTestContainer()
         {
-            AllureLifecycle.UpdateTestContainer(_containerGuid, cont =>
-            {
-                cont.befores.AddRange(listSetups);
-                cont.afters.AddRange(listTearDowns);
-            });
             AllureLifecycle.StopTestContainer(_containerGuid);
             AllureLifecycle.WriteTestContainer(_containerGuid);
-        }
-
-        public void StartAll(bool isWrappedIntoStep)
-        {
-            StartTestContainer();
-            StartTestCase();
-            if (isWrappedIntoStep) StartTestStep();
         }
 
         public static Status GetNUnitStatus()

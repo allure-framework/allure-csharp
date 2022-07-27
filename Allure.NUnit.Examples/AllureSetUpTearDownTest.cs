@@ -1,7 +1,5 @@
 using System;
-using System.Threading;
 using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -10,21 +8,19 @@ namespace Allure.NUnit.Examples
     public class AllureSetUpTearDownTest : BaseTest
     {
         [SetUp]
+        [AllureBefore("AllureBefore attribute description")]
         public void SetUp()
         {
             Console.WriteLine("I'm an unwrapped SetUp");
+            StepsExamples.Step1();
         }
 
         [TearDown]
+        [AllureAfter("AllureAfter attribute description")]
         public void TearDown()
         {
-            AllureExtensions.WrapSetUpTearDownParams(() =>
-            {
-                Thread.Sleep(750);
-                Console.WriteLine("Example of wrapped TearDown");
-            }, "Custom TearDown name here");
+            StepsExamples.Step3();
         }
-
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -42,6 +38,7 @@ namespace Allure.NUnit.Examples
         [AllureSubSuite("Test")]
         public void Test()
         {
+            StepsExamples.StepWithParams("first", "second");
         }
     }
 }

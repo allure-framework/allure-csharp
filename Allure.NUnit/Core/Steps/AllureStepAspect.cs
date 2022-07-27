@@ -1,55 +1,240 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Allure.Net.Commons;
 using AspectInjector.Broker;
 using NUnit.Allure.Attributes;
+using NUnit.Framework.Internal;
 
 namespace NUnit.Allure.Core.Steps
 {
     [Aspect(Scope.Global)]
     public class AllureStepAspect
     {
-        [Advice(Kind.Around, Targets = Target.Method)]
-        public object WrapStep(
-            [Argument(Source.Name)] string name,
-            [Argument(Source.Metadata)] MethodBase methodBase,
-            [Argument(Source.Arguments)] object[] arguments,
-            [Argument(Source.Target)] Func<object[], object> method)
-        {
-            var stepName = methodBase.GetCustomAttribute<AllureStepAttribute>().StepName;
+        private static readonly MethodInfo AsyncHandler =
+            typeof(AllureStepAspect).GetMethod(nameof(WrapAsync), BindingFlags.NonPublic | BindingFlags.Static);
 
-            for (var i = 0; i < arguments.Length; i++)
+        private static readonly MethodInfo SyncHandler =
+            typeof(AllureStepAspect).GetMethod(nameof(WrapSync), BindingFlags.NonPublic | BindingFlags.Static);
+        
+        [Advice(Kind.Around, Targets = Target.Method)]
+        public object Around([Argument(Source.Name)] string name,
+            [Argument(Source.Arguments)] object[] args,
+            [Argument(Source.Target)] Func<object[], object> target,
+            [Argument(Source.Metadata)] MethodBase metadata,
+            [Argument(Source.ReturnType)] Type returnType)
+        {
+            object executionResult;
+            var stepName = metadata.GetCustomAttribute<AllureStepBaseAttribute>().Name ?? name;
+
+            for (var i = 0; i < args.Length; i++)
             {
-              
-                stepName = stepName?.Replace("{" + i + "}", arguments[i]?.ToString() ?? "null");
+                stepName = stepName?.Replace("{" + i + "}", args[i]?.ToString() ?? "null");
+                if (stepName.Contains("{" + i + "}"))
+                {
+                    // TODO: provide error description link
+                    Console.Error.WriteLine("Indexed step arguments is obsolete. Use named arguments instead. ({0} -> {argumentName}) See: LINK_TO_ERROR");
+                }
             }
+            
+            stepName = metadata.GetParameters().Aggregate(stepName,
+                (current, parameterInfo) => current?.Replace("{" + parameterInfo.Name + "}",
+                    args[parameterInfo.Position]?.ToString() ?? "null"));
 
             var stepResult = string.IsNullOrEmpty(stepName)
-                ? new StepResult {name = name, parameters = AllureStepParameterHelper.CreateParameters(arguments)}
-                : new StepResult {name = stepName, parameters = AllureStepParameterHelper.CreateParameters(arguments)};
+                ? new StepResult {name = name, parameters = AllureStepParameterHelper.CreateParameters(args)}
+                : new StepResult {name = stepName, parameters = AllureStepParameterHelper.CreateParameters(args)};
 
-            object result;
+            var stepParameters = metadata.GetParameters()
+                .Select(x => (
+                    name: x.GetCustomAttribute<NameAttribute>()?.Name ?? x.Name,
+                    skip: x.GetCustomAttribute<SkipAttribute>() != null))
+                .Zip(args, (parameter, value) => parameter.skip
+                    ? null
+                    : new Parameter
+                    {
+                        name = parameter.name,
+                        value = value?.ToString()
+                    })
+                .Where(x => x != null)
+                .ToList();
+            
             try
             {
-                AllureLifecycle.Instance.StartStep(Guid.NewGuid().ToString(), stepResult);
-                result = method(arguments);
-                AllureLifecycle.Instance.StopStep(step => stepResult.status = Status.passed);
+                StartFixture(metadata, stepName);
+                StartStep(metadata, stepName, stepParameters);
+
+                executionResult = GetStepExecutionResult(returnType, target, args);
+
+                PassStep(metadata);
+                PassFixture(metadata);
             }
             catch (Exception e)
             {
-                AllureLifecycle.Instance.StopStep(step =>
-                {
-                    step.statusDetails = new StatusDetails
-                    {
-                        message = e.Message,
-                        trace = e.StackTrace
-                    };
-                    step.status = Status.failed;
-                });
+                ThrowStep(metadata, e);
+                ThrowFixture(metadata, e);
                 throw;
             }
 
-            return result;
+            return executionResult;
+            
+            // object result;
+            // try
+            // {
+            //     AllureLifecycle.Instance.StartStep(Guid.NewGuid().ToString(), stepResult);
+            //     result = target(args);
+            //     AllureLifecycle.Instance.StopStep(step => stepResult.status = Status.passed);
+            // }
+            // catch (Exception e)
+            // {
+            //     AllureLifecycle.Instance.StopStep(step =>
+            //     {
+            //         step.statusDetails = new StatusDetails
+            //         {
+            //             message = e.Message,
+            //             trace = e.StackTrace
+            //         };
+            //         step.status = Status.failed;
+            //     });
+            //     throw;
+            // }
+            //
+            // return result;
+        }
+        
+        private static void StartStep(MethodBase metadata, string stepName, List<Parameter> stepParameters)
+        {
+            if (metadata.GetCustomAttribute<AllureStepAttribute>() != null)
+            {
+                StepsHelper.StartStep(stepName, step => step.parameters = stepParameters);
+            }
+        }
+        
+        private static void PassStep(MethodBase metadata)
+        {
+            if (metadata.GetCustomAttribute<AllureStepAttribute>() != null)
+            {
+                StepsHelper.PassStep();
+            }
+        }
+        
+        private static void ThrowStep(MethodBase metadata, Exception e)
+        {
+            if (metadata.GetCustomAttribute<AllureStepAttribute>() != null)
+            {
+                var exceptionStatusDetails = new StatusDetails
+                {
+                    message = e.Message,
+                    trace = e.StackTrace
+                };
+                
+                if (e is NUnitException)
+                {
+                    StepsHelper.FailStep(result => result.statusDetails = exceptionStatusDetails);
+                }
+                else
+                {
+                    StepsHelper.BrokeStep(result => result.statusDetails = exceptionStatusDetails);
+                }
+            }
+        }
+        
+        private static void StartFixture(MethodBase metadata, string stepName)
+        {
+            if (metadata.GetCustomAttribute<AllureBeforeAttribute>() != null)
+            {
+                StepsHelper.StartBeforeFixture(stepName);
+            }
+
+            if (metadata.GetCustomAttribute<AllureAfterAttribute>() != null)
+            {
+                StepsHelper.StartAfterFixture(stepName);
+            }
+        }
+        
+        private static void PassFixture(MethodBase metadata)
+        {
+            if (metadata.GetCustomAttribute<AllureBeforeAttribute>() != null ||
+                metadata.GetCustomAttribute<AllureAfterAttribute>() != null)
+            {
+                StepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.passed);
+            }
+        }
+        
+        private static void ThrowFixture(MethodBase metadata, Exception e)
+        {
+            if (metadata.GetCustomAttribute<AllureBeforeAttribute>() != null ||
+                metadata.GetCustomAttribute<AllureAfterAttribute>() != null)
+            {
+                var exceptionStatusDetails = new StatusDetails
+                {
+                    message = e.Message,
+                    trace = e.StackTrace
+                };
+
+                if (metadata.Name == "InitializeAsync")
+                {
+                    StepsHelper.StopFixtureSuppressTestCase(result =>
+                    {
+                        result.status = e is NUnitException ? Status.failed : Status.broken;
+                        result.statusDetails = exceptionStatusDetails;
+                    });
+                }
+                else
+                {
+                    StepsHelper.StopFixture(result =>
+                    {
+                        result.status = e is NUnitException ? Status.failed : Status.broken;
+                        result.statusDetails = exceptionStatusDetails;
+                    });
+                }
+            }
+        }
+
+        private object GetStepExecutionResult(Type returnType, Func<object[], object> target, object[] args)
+        {
+            if (typeof(Task).IsAssignableFrom(returnType))
+            {
+                var syncResultType = returnType.IsConstructedGenericType
+                    ? returnType.GenericTypeArguments[0]
+                    : typeof(object);
+                return AsyncHandler.MakeGenericMethod(syncResultType)
+                    .Invoke(this, new object[] { target, args });
+            }
+
+            if (typeof(void).IsAssignableFrom(returnType))
+            {
+                return target(args);
+            }
+
+            return SyncHandler.MakeGenericMethod(returnType)
+                .Invoke(this, new object[] { target, args });
+        }
+
+        private static T WrapSync<T>(Func<object[], object> target, object[] args)
+        {
+            try
+            {
+                return (T)target(args);
+            }
+            catch (Exception e)
+            {
+                return default(T);
+            }
+        }
+
+        private static async Task<T> WrapAsync<T>(Func<object[], object> target, object[] args)
+        {
+            try
+            {
+                return await (Task<T>)target(args);
+            }
+            catch (Exception e)
+            {
+                return default(T);
+            }
         }
     }
 }
