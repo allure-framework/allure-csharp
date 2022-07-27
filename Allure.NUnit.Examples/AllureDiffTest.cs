@@ -29,7 +29,7 @@ namespace Allure.NUnit.Examples
 
         public static void AddDiffs()
         {
-            AllureLifecycle.Instance.AddScreenDiff("Icon.Allure.NUnit.png", "Icon.Allure.NUnit.png", "Icon.Allure.NUnit.png");
+            AllureLifecycle.Instance.AddScreenDiff("Allure-Color.png", "Allure-Color.png", "Allure-Color.png");
         }
     }
 }

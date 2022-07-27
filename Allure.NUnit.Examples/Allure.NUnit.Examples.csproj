@@ -20,7 +20,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="AllureIgnoredTest.cs" />
-    <None Include="./../img/Icon.Allure.NUnit.png" PackagePath="\">
+    <None Include="./../img/Allure-Color.png" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
