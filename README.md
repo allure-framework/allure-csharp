@@ -5,10 +5,11 @@
 
 ### Integrations
 
-| Library                      | Examples | Author |                                                   Release                                                   |                                                Preview build                                                |
-|:-----------------------------|:---:|:---:|:-----------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|
-| [Allure.XUnit](Allure.XUnit) |  [Examples](Allure.XUnit.Examples)  | [Shumakov Ivan](https://github.com/IvanWR1995)    |    [![Nuget](https://img.shields.io/nuget/v/Allure.XUnit)](https://www.nuget.org/packages/Allure.XUnit/)    |  [![Nuget](https://img.shields.io/nuget/vpre/Allure.XUnit)](https://www.nuget.org/packages/Allure.XUnit/)   |
-| [Allure.SpecFlow](Allure.SpecFlowPlugin) |  [Examples](Allure.Features)  |  Alexander Bakanov  | [![Nuget](https://img.shields.io/nuget/v/SpecFlow.Allure)](https://www.nuget.org/packages/SpecFlow.Allure/) | [![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow)](https://www.nuget.org/packages/Allure.SpecFlow/) |
+| Library                                  |             Examples              |                     Author                     |                                                   Release                                                   |                                                Preview build                                                |
+|:-----------------------------------------|:---------------------------------:|:----------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|
+| [Allure.XUnit](Allure.XUnit)             | [Examples](Allure.XUnit.Examples) | [Shumakov Ivan](https://github.com/IvanWR1995) |    [![Nuget](https://img.shields.io/nuget/v/Allure.XUnit)](https://www.nuget.org/packages/Allure.XUnit/)    |  [![Nuget](https://img.shields.io/nuget/vpre/Allure.XUnit)](https://www.nuget.org/packages/Allure.XUnit/)   |
+| [Allure.NUnit](Allure.NUnit)             | [Examples](Allure.NUnit.Examples) | [Nick Chursin](https://github.com/unickq)  |    [![Nuget](https://img.shields.io/nuget/v/Allure.NUnit)](https://www.nuget.org/packages/Allure.NUnit/)    |  [![Nuget](https://img.shields.io/nuget/vpre/Allure.NUnit)](https://www.nuget.org/packages/Allure.NUnit/)   |
+| [Allure.SpecFlow](Allure.SpecFlowPlugin) |    [Examples](Allure.Features)    |               Alexander Bakanov                | [![Nuget](https://img.shields.io/nuget/v/SpecFlow.Allure)](https://www.nuget.org/packages/SpecFlow.Allure/) | [![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow)](https://www.nuget.org/packages/Allure.SpecFlow/) |
 
 ## Allure.Net.Commons
 

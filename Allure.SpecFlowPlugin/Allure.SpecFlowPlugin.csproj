@@ -13,7 +13,7 @@
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
         <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
         <PackageTags>specflow allure</PackageTags>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <LangVersion>8</LangVersion>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>

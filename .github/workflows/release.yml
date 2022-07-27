@@ -9,6 +9,15 @@ on:
       nextVersion:
         description: "The next version in <MAJOR>.<MINOR> format WITHOUT SNAPSHOT SUFFIX"
         required: true
+      prerelease:
+        description: "Preview release"
+        required: true
+        type: boolean
+        default: false
+      previewVersion:
+        description: "Preview version number, integer"
+        required: false
+        default: "1"
 
 jobs:
   triage:
@@ -16,13 +25,19 @@ jobs:
     steps:
       - name: "Check release version"
         run: |
-          expr "${{ github.event.inputs.releaseVersion }}" : '[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*$'
+          expr "${{ inputs.releaseVersion }}" : '[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*$'
+          echo "release_version=${{ inputs.releaseVersion }}" >> $GITHUB_ENV
       - name: "Check next version"
         run: |
-          expr "${{ github.event.inputs.nextVersion }}" : '[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*$'
+          expr "${{ inputs.nextVersion }}" : '[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*$'
       - uses: actions/checkout@v3.0.2
         with:
           token: ${{ secrets.QAMETA_CI }}
+
+      - name: "Mark release as preview"
+        if: ${{ inputs.prerelease }}
+        run: |
+          echo "release_version=${{ inputs.releaseVersion }}-preview.{{ $inputs.previewVersion }}" >> $GITHUB_ENV
 
       - name: "Configure CI Git User"
         run: |
@@ -30,35 +45,40 @@ jobs:
           git config --global user.email qameta-ci@qameta.io
       - name: "Set release version"
         run: |
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.releaseVersion }}</Version>|g' ./Allure.Net.Commons/Allure.Net.Commons.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.Net.Commons/Allure.Net.Commons.csproj
           cat ./Allure.Net.Commons/Allure.Net.Commons.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.releaseVersion }}</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
           cat ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.releaseVersion }}</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
           cat ./Allure.XUnit/Allure.XUnit.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.NUnit/Allure.NUnit.csproj
+          cat ./Allure.NUnit/Allure.NUnit.csproj
       - name: "Commit release version and create tag"
         run: |
-          git commit -am "release ${{ github.event.inputs.releaseVersion }}"
-          git tag ${{ github.event.inputs.releaseVersion }}
-          git push origin ${{ github.event.inputs.releaseVersion }}
+          git commit -am "release ${{ env.release_version }}"
+          git tag ${{ env.release_version }}
+          git push origin ${{ env.release_version }}
       - name: "Set next development version"
         run: |
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.Net.Commons/Allure.Net.Commons.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.Net.Commons/Allure.Net.Commons.csproj
           cat ./Allure.Net.Commons/Allure.Net.Commons.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
           cat ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ github.event.inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
           cat ./Allure.XUnit/Allure.XUnit.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.NUnit/Allure.NUnit.csproj
+          cat ./Allure.NUnit/Allure.NUnit.csproj
       - name: "Commit next development version and push it"
         run: |
-          git commit -am "set next development version ${{ github.event.inputs.nextVersion }}"
+          git commit -am "set next development version ${{ inputs.nextVersion }}"
           git push origin ${{ github.ref }}
       - name: "Publish Github Release"
         uses: octokit/request-action@v2.x
         with:
           route: POST /repos/${{ github.repository }}/releases
-          tag_name: ${{ github.event.inputs.releaseVersion }}
+          tag_name: ${{ env.release_version }}
           generate_release_notes: true
           target_commitish: ${{ github.ref }}
+          prerelease: ${{ inputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.QAMETA_CI }}

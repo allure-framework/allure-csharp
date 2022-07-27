@@ -1,10 +1,8 @@
 # Allure NUnit adapter
-NUnit adapter for Allure Framework 
+NUnit adapter for Allure Framework
 
-[![build](https://github.com/unickq/allure-nunit/actions/workflows/dotnet.yml/badge.svg?branch=refactoring)](https://github.com/unickq/allure-nunit/actions/workflows/dotnet.yml)
-
-[![Nuget](https://img.shields.io/nuget/v/nunit.allure?label=nuget&style=flat)](https://www.nuget.org/packages/NUnit.Allure)
-[![Nuget pre](https://img.shields.io/nuget/vpre/nunit.allure?label=nuget%20pre&style=flat)](https://www.nuget.org/packages/NUnit.Allure)
+[![Nuget](https://img.shields.io/nuget/v/Allure.NUnit?style=flat)](https://www.nuget.org/packages/Allure.NUnit)
+[![Nuget pre](https://img.shields.io/nuget/vpre/Allure.Nunit?style=flat)](https://www.nuget.org/packages/Allure.NUnit)
 
 ![Nuget downloads](https://img.shields.io/nuget/dt/nunit.allure?label=downloads&style=flat)
 
