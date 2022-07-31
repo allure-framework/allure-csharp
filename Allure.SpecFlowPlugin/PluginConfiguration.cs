@@ -46,6 +46,7 @@
     {
         public string owner { get; set; }
         public string severity { get; set; }
+        public string label { get; set; }
     }
 
     public class Links
