@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
-        <Version>2.10-SNAPSHOT</Version>
+        <Version>2.9.1-preview.7-nunit-fixtures</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <Authors>Alexander Bakanov, Nikolay Laptev</Authors>
         <Company>Qameta Software</Company>
