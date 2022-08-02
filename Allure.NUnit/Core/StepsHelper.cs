@@ -146,6 +146,15 @@ namespace NUnit.Allure.Core
 
         #endregion
 
+        #region Misc
+
+        public static void UpdateTestResult(Action<TestResult> update)
+        {
+            AllureLifecycle.Instance.UpdateTestCase(TestResultAccessor.TestResult.uuid, update);
+        }
+
+        #endregion
+
         public static Task<T> Step<T>(string name, Func<Task<T>> action)
         {
             StartStep(name);

@@ -1,5 +1,8 @@
 using System;
+using System.IO;
+using Allure.Net.Commons;
 using NUnit.Allure.Attributes;
+using NUnit.Allure.Core;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -12,6 +15,13 @@ namespace Allure.NUnit.Examples
         public void SetUp()
         {
             Console.WriteLine("I'm an unwrapped SetUp");
+            StepsHelper.UpdateTestResult(tr =>
+            {
+                tr.name = "Some awesome name";
+            });
+            AllureLifecycle.Instance.AddAttachment(
+                Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"),
+                "AllureConfig.json");
             StepsExamples.Step1();
         }
 
@@ -20,6 +30,13 @@ namespace Allure.NUnit.Examples
         public void TearDown()
         {
             StepsExamples.Step3();
+            StepsHelper.UpdateTestResult(tr =>
+            {
+                tr.name = "Some awesome name (changed on teardown)";
+            });
+            AllureLifecycle.Instance.AddAttachment(
+                Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"),
+                "AllureConfig.json");
         }
 
         [OneTimeSetUp]
@@ -35,7 +52,7 @@ namespace Allure.NUnit.Examples
         }
 
         [Test]
-        [AllureSubSuite("Test")]
+        [AllureSubSuite("Test Subsuite")]
         public void Test()
         {
             StepsExamples.StepWithParams("first", "second");
