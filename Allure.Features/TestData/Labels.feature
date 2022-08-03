@@ -18,3 +18,6 @@ Feature: Labels
 
   @passed @epic:v.2.0 @story:security @package:com.company.security @class:main @method:getACL
   Scenario: [v1.2 / v.2.0 security] [core.update] [com.company.security.main.getACL] Get ACL test
+
+  @passed @api @epic:v.2.9 @story:customization @label:layer:unit
+  Scenario: [v2.9] [api.core.update] Api test 4

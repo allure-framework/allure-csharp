@@ -170,6 +170,16 @@ namespace Allure.SpecFlowPlugin.Tests
     }
 
     [Test]
+    public void ShouldParseCustomLabels()
+    {
+      var scenarios = allureTestResults
+        .Where(x => x.labels.Any(l => l.value == "labels"));
+
+      var labels = scenarios.SelectMany(x => x.labels);
+      Assert.That(labels.Where(x => x.name == "layer").Select(x => x.value), Has.All.EqualTo("unit"));
+    }
+
+    [Test]
     public void ShouldAddParametersForScenarioExamples()
     {
       var parameters = allureTestResults.Where(x => x.name == "Scenario with examples").SelectMany(x => x.parameters).ToArray();

@@ -111,6 +111,16 @@ Scenario: ....
 ```
 will set current scenario severity in Allure report as Blocker
 
+### Custom Labels
+In case you need to use some custom labels, they can be added simple way:
+``` cucumber
+@label:your_label_name:value
+Scenario: ....
+
+@label:layer:e2e
+Scenario: ....
+```
+
 #### Tables conversion
 Table arguments in SpecFlow steps can be converted either to step csv-attacments or step parameters in the Allure report. The conversion is configurable in `specflow:stepArguments` config section.
 With `specflow:stepArguments:convertToParameters` set to `true` the following table arguments will be represented as parameters:

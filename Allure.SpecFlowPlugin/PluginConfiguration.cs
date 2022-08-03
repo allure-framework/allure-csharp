@@ -46,6 +46,7 @@
     {
         public string owner { get; set; }
         public string severity { get; set; }
+        internal string label => "^label:([\\w]+):(.+)";
     }
 
     public class Links

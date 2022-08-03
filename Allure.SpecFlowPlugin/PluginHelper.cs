@@ -236,6 +236,15 @@ namespace Allure.SpecFlowPlugin
           continue;
         }
 
+        // custom labels
+        var regex = new Regex(PluginConfiguration.labels.label);
+        if (regex.IsMatch(tagValue))
+        {
+          var groups = regex.Match(tagValue).Groups;
+          result.Item1.Add(new Label {name = groups[1].Value, value = groups[2].Value});
+          continue;
+        }
+
         // tag
         result.Item1.Add(Label.Tag(tagValue));
       }
