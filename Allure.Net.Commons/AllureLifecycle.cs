@@ -163,7 +163,7 @@ namespace Allure.Net.Commons
         public virtual AllureLifecycle StartTestCase(TestResult testResult)
         {
             testResult.stage = Stage.running;
-            testResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            testResult.start = testResult.start == 0L ? DateTimeOffset.Now.ToUnixTimeMilliseconds() : testResult.start;
             storage.Put(testResult.uuid, testResult);
             storage.ClearStepContext();
             storage.StartStep(testResult.uuid);
