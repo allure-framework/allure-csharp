@@ -129,15 +129,6 @@ namespace Allure.Net.Commons
                 value = value
             };
         }
-        
-        public static Label CustomLabel(string key, string value)
-        {
-            return new Label
-            {
-                name = key,
-                value = value
-            };
-        }
     }
 
     public partial class Link

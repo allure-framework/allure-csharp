@@ -239,7 +239,7 @@ namespace Allure.SpecFlowPlugin
         // label
         if (GetLabelProps(PluginConfiguration.labels.label, tagValue, out var props))
         {
-          result.Item1.Add(Label.CustomLabel(props.Key, props.Value));
+          result.Item1.Add(new Label { name = props.Key, value = props.Value});
           continue;
         }
         

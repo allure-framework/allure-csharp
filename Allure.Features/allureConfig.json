@@ -32,7 +32,7 @@
     "labels": {
       "owner": "^owner:?(.+)",
       "severity": "^(normal|blocker|critical|minor|trivial)",
-      "label": "(.+)\\((.+)\\)"
+      "label": "^label:([\\w]+):(.+)"
     },
     "links": {
       "link": "^link:(.+)",

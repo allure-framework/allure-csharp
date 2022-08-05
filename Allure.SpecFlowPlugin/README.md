@@ -115,15 +115,15 @@ will set current scenario severity in Allure report as Blocker
 You can add Label for your scenarios using tags. It can be configured in `allureConfig.json`
 ``` json
  "labels": {
-      "label": "(.+)\\((.+)\\)"
+      "label": "^label:([\\w]+):(.+)"
     },
 ```
 The following scenario
 ``` cucumber
-@layer(e2e) @as_id(123)
+@label:layer:e2e: @label:as_id:123
 Scenario: ....
 ```
-will set current scenario Layer as Blocker and Id as 123 in Allure report
+will set current scenario Layer as e2e and Id as 123 in Allure report
 
 #### Tables conversion
 Table arguments in SpecFlow steps can be converted either to step csv-attacments or step parameters in the Allure report. The conversion is configurable in `specflow:stepArguments` config section.
