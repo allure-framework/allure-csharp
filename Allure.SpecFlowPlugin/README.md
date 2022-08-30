@@ -139,8 +139,8 @@ You can add attachments to an Allure report from your step bindings:
 ```csharp
 using Allure.Commons;
 ...
-AllureLifecycle.AddAttachment(path, "Attachment Title");
+AllureLifecycle.Instance.AddAttachment(path, "Attachment Title");
 // or
-AllureLifecycle.AddAttachment("Attachment Title", "application/txt", "path");
+AllureLifecycle.Instance.AddAttachment("Attachment Title", "application/txt", "path");
 // where "application/txt" - type of your attachment
 ```
