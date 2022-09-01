@@ -15,7 +15,7 @@ namespace NUnit.Allure.Attributes
 
         public override void UpdateTestResult(TestResult testResult)
         {
-            testResult.labels.Add(new Label {name = "AS_ID", value = Id.ToString()});
+            testResult.labels.Add(new Label {name = "ALLURE_ID", value = Id.ToString()});
         }
     }
 }
