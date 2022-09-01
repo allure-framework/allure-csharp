@@ -18,3 +18,6 @@ Feature: Labels
 
   @passed @epic:v.2.0 @story:security @package:com.company.security @class:main @method:getACL
   Scenario: [v1.2 / v.2.0 security] [core.update] [com.company.security.main.getACL] Get ACL test
+      
+  @passed @label:layer:e2e @label:as_id:9894 @label:custom_label:pepa
+  Scenario: Layer e2e (label)

@@ -31,7 +31,8 @@
     },
     "labels": {
       "owner": "^owner:?(.+)",
-      "severity": "^(normal|blocker|critical|minor|trivial)"
+      "severity": "^(normal|blocker|critical|minor|trivial)",
+      "label": "^label:([\\w]+):(.+)"
     },
     "links": {
       "link": "^link:(.+)",
