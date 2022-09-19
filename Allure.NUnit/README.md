@@ -37,6 +37,7 @@ public class Tests
     [AllureIssue("GitHub#1", "https://github.com/unickq/allure-nunit")]
     [AllureSeverity(SeverityLevel.critical)]
     [AllureFeature("Core")]
+    [AllureId(123)]
     public void EvenTest([Range(0, 5)] int value)
     {
         SayHello();
