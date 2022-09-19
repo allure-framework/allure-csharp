@@ -225,7 +225,7 @@ namespace Allure.Xunit
 
 
                     case AllureIdAttribute allureIdAttribute:
-                        var allureIdLabel = new Label {name = "as_id", value = allureIdAttribute.AllureId};
+                        var allureIdLabel = new Label {name = "ALLURE_ID", value = allureIdAttribute.AllureId};
                         testResult.labels.AddDistinct(allureIdLabel, false);
                         break;
 

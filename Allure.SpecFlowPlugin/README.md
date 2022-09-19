@@ -111,15 +111,19 @@ Scenario: ....
 ```
 will set current scenario severity in Allure report as Blocker
 
-### Custom Labels
-In case you need to use some custom labels, they can be added simple way:
+#### Label
+You can add Label for your scenarios using tags. It can be configured in `allureConfig.json`
+``` json
+ "labels": {
+      "label": "^label:([\\w]+):(.+)"
+    },
+```
+The following scenario
 ``` cucumber
-@label:your_label_name:value
-Scenario: ....
-
-@label:layer:e2e
+@label:layer:e2e: @label:as_id:123
 Scenario: ....
 ```
+will set current scenario Layer as e2e and Id as 123 in Allure report
 
 #### Tables conversion
 Table arguments in SpecFlow steps can be converted either to step csv-attacments or step parameters in the Allure report. The conversion is configurable in `specflow:stepArguments` config section.
@@ -149,8 +153,8 @@ You can add attachments to an Allure report from your step bindings:
 ```csharp
 using Allure.Commons;
 ...
-AllureLifecycle.AddAttachment(path, "Attachment Title");
+AllureLifecycle.Instance.AddAttachment(path, "Attachment Title");
 // or
-AllureLifecycle.AddAttachment("Attachment Title", "application/txt", "path");
+AllureLifecycle.Instance.AddAttachment("Attachment Title", "application/txt", "path");
 // where "application/txt" - type of your attachment
 ```

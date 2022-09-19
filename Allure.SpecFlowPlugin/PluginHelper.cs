@@ -236,15 +236,13 @@ namespace Allure.SpecFlowPlugin
           continue;
         }
 
-        // custom labels
-        var regex = new Regex(PluginConfiguration.labels.label);
-        if (regex.IsMatch(tagValue))
+        // label
+        if (GetLabelProps(PluginConfiguration.labels.label, tagValue, out var props))
         {
-          var groups = regex.Match(tagValue).Groups;
-          result.Item1.Add(new Label {name = groups[1].Value, value = groups[2].Value});
+          result.Item1.Add(new Label { name = props.Key, value = props.Value});
           continue;
         }
-
+        
         // tag
         result.Item1.Add(Label.Tag(tagValue));
       }
@@ -270,37 +268,66 @@ namespace Allure.SpecFlowPlugin
 
     private static bool TryUpdateValueByMatch(string expression, ref string value)
     {
-      if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))
+      var matchedGroups = GetMatchedGroups(expression, value);
+
+      if (!matchedGroups.Any()) return false;
+      
+      if (matchedGroups.Count == 1)
+        value = matchedGroups[0];
+      else
+        value = matchedGroups[1];
+      return true;
+    }
+
+    private static bool GetLabelProps(string expression, string value, out KeyValuePair<string, string> props)
+    {
+      props = default;
+       
+      var matchedGroups = GetMatchedGroups(expression, value);
+
+      if (matchedGroups.Count != 3)
         return false;
+      
+      props = new KeyValuePair<string, string>(matchedGroups[1], matchedGroups[2]);
+      return true;
+
+    }
+    
+    private static List<string> GetMatchedGroups(string expression, string value)
+    {
+      var matchedGroups = new List<string>();
+      if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))
+        return matchedGroups;
 
       Regex regex = null;
       try
       {
         regex = new Regex(expression,
-            RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+          RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
       }
       catch (Exception)
       {
-        return false;
+        return matchedGroups;
       }
 
       if (regex == null)
-        return false;
+        return matchedGroups;
 
       if (regex.IsMatch(value))
       {
         var groups = regex.Match(value).Groups;
-        if (groups?.Count == 1)
-          value = groups[0].Value;
-        else
-          value = groups[1].Value;
 
-        return true;
+        for (var i = 0; i < groups.Count; i++)
+        {
+          matchedGroups.Add(groups[i].Value);
+        }
+
+        return matchedGroups;
       }
 
-      return false;
+      return matchedGroups;
     }
-
+    
     private static int GetDeterministicHashCode(this string str)
     {
       unchecked
