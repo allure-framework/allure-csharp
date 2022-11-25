@@ -85,6 +85,8 @@ namespace NUnit.Allure.Core
         internal void StopTestCase()
         {
             UpdateTestDataFromAttributes();
+            AddConsoleOutputAttachment();
+            
             for (var i = 0; i < _test.Arguments.Length; i++)
             {
                 AllureLifecycle.UpdateTestCase(x => x.parameters.Add(new Parameter
@@ -174,6 +176,13 @@ namespace NUnit.Allure.Core
             {
                 AllureLifecycle.UpdateTestCase(a.UpdateTestResult);
             });
+        }
+
+        private void AddConsoleOutputAttachment()
+        {
+            var output = TestExecutionContext.CurrentContext.CurrentResult.Output;
+            AllureLifecycle.AddAttachment("Console Output", "text/plain", 
+                Encoding.UTF8.GetBytes(output), ".txt");
         }
 
         private IEnumerable<string> GetTestProperties(string name)
