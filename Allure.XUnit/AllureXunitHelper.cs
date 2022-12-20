@@ -102,7 +102,9 @@ namespace Allure.Xunit
             {
                 return;
             }
-            
+
+            var statusDetails = testResults.TestResult.statusDetails ??= new();
+            statusDetails.message = testCaseMessage.TestCase.SkipReason;
             testResults.TestResult.status = Status.skipped;
         }
 
