@@ -226,11 +226,18 @@ namespace Allure.Xunit
                         testResult.labels.AddDistinct("story", storyAttribute.Stories, storyAttribute.Overwrite);
                         break;
 
+                    case AllureNameAttribute nameAttribute:
+                        nameAttribute.UpdateTestResult(testResult);
+                        break;
+                    
+                    case AllureFullNameAttribute fullNameAttribute:
+                        fullNameAttribute.UpdateTestResult(testResult);
+                        break;
+                    
                     case AllureDescriptionAttribute descriptionAttribute:
                         testResult.description = descriptionAttribute.Description;
                         break;
-
-
+                    
                     case AllureIdAttribute allureIdAttribute:
                         var allureIdLabel = new Label {name = "ALLURE_ID", value = allureIdAttribute.AllureId};
                         testResult.labels.AddDistinct(allureIdLabel, false);
