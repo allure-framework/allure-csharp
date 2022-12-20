@@ -59,7 +59,14 @@ namespace Allure.Xunit
                     Label.TestClass(testCase.TestMethod.TestClass.Class.Name),
                     Label.TestMethod(testCase.DisplayName),
                     Label.Package(testCase.TestMethod.TestClass.Class.Name)
-                }
+                },
+                parameters = testCase.TestMethod.Method.GetParameters()
+                    .Zip(testCase.TestMethodArguments ?? Array.Empty<object>(), (param, value) => new Parameter
+                    {
+                        name = param.Name,
+                        value = value?.ToString() ?? "null"
+                    })
+                    .ToList()
             };
             UpdateTestDataFromAttributes(testResults.TestResult, testCase);
             AllureLifecycle.Instance.StartTestCase(testResults.TestResultContainer.uuid, testResults.TestResult);
