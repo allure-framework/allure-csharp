@@ -1,9 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Allure.XUnit.Examples.TestData
 {
     public class TestDataGenerators
     {
+        private static readonly object SyncLock = new();
+        private static readonly Random Random = new();
+        
         public static IEnumerable<object[]> Data =>
             new List<object[]>
             {
@@ -21,5 +26,20 @@ namespace Allure.XUnit.Examples.TestData
             new object[] {new MyTestClass {Test = 10}, new MyTestClass {Test = 11}}
         };
 
+        public static IEnumerable<object[]> RandomData =>
+            Enumerable.Range(0, 4).Select(_ => CreateTestData());
+
+        private static object[] CreateTestData()
+        {
+            return new object[] {GetRandomNumber(), GetRandomNumber(), GetRandomNumber()};
+        }
+
+        private static int GetRandomNumber()
+        {
+            lock(SyncLock) 
+            {
+                return Random.Next();
+            }
+        }
     }
 }

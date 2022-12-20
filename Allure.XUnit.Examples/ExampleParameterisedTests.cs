@@ -59,5 +59,19 @@ namespace Allure.XUnit.Examples
         {
             Assert.Equal(a.Test, b.Test);
         }
+        
+        [AllureXunitTheory]
+        [AllureName(nameof(TestTheoryWithMemberDataThatReturnsRandomData))]
+        [AllureFullName(nameof(TestTheoryWithMemberDataThatReturnsRandomData))]
+        [AllureParentSuite("AllTests")]
+        [AllureSuite("Test AllureXunitTheory")]
+        [AllureSubSuite("Test Test MemberData with random data")]
+        [MemberData(nameof(TestDataGenerators.RandomData), MemberType = typeof(TestDataGenerators))]
+        public void TestTheoryWithMemberDataThatReturnsRandomData(int value1, int value2, int expected)
+        {
+            var result = value1 + value2;
+
+            Assert.Equal(expected, result);
+        }
     }
 }
