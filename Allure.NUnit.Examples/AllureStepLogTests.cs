@@ -8,16 +8,16 @@ namespace Allure.NUnit.Examples
 {
     class StepActionLogger : IStepActionLogger
     {
-        private readonly string _preffix;
+        private readonly string _prefix;
 
-        public StepActionLogger(string preffix)
+        public StepActionLogger(string prefix)
         {
-            _preffix = preffix;
+            _prefix = prefix;
         }
         
         public void Log(string name)
         {
-            Console.WriteLine(_preffix + ": " + name);
+            Console.WriteLine(_prefix + ": " + name);
         }
     }
 
