@@ -7,6 +7,8 @@ namespace NUnit.Allure.Core
 {
     public static class StepsHelper
     {
+        public static IStepNotifier StepNotifier { get; set; }
+
         private static readonly AsyncLocal<ITestResultAccessor> TestResultAccessorAsyncLocal =
             new AsyncLocal<ITestResultAccessor>();
         internal static ITestResultAccessor TestResultAccessor
@@ -27,7 +29,7 @@ namespace NUnit.Allure.Core
             };
 
             AllureLifecycle.Instance.StartBeforeFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
-            Console.WriteLine($"Started Before: {name}");
+            StepNotifier?.BeforeStarted?.Log(name);
             return uuid;
         }
 
@@ -41,7 +43,7 @@ namespace NUnit.Allure.Core
             };
 
             AllureLifecycle.Instance.StartAfterFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
-            Console.WriteLine($"Started After: {name}");
+            StepNotifier.AfterStarted?.Log(name);
             return uuid;
         }
 
@@ -77,7 +79,7 @@ namespace NUnit.Allure.Core
             updateResults?.Invoke(stepResult);
 
             AllureLifecycle.Instance.StartStep(stepResult, out var uuid);
-            Console.WriteLine($"Started Step: {name}");
+            StepNotifier?.StepStarted?.Log(name);
             return uuid;
         }
 
@@ -87,8 +89,8 @@ namespace NUnit.Allure.Core
             {
                 result.status = Status.passed;
                 updateResults?.Invoke(result);
+                StepNotifier?.StepPassed?.Log(result.name);
             });
-            Console.WriteLine("Passed");
         }
 
         public static void PassStep(string uuid, Action<StepResult> updateResults = null)
@@ -97,9 +99,9 @@ namespace NUnit.Allure.Core
             {
                 result.status = Status.passed;
                 updateResults?.Invoke(result);
+                StepNotifier?.StepPassed?.Log(result.name);
             });
             AllureLifecycle.Instance.StopStep(uuid);
-            Console.WriteLine("Passed");
         }
 
         public static void FailStep(Action<StepResult> updateResults = null)
@@ -108,8 +110,8 @@ namespace NUnit.Allure.Core
             {
                 result.status = Status.failed;
                 updateResults?.Invoke(result);
+                StepNotifier?.StepFailed?.Log(result.name);
             });
-            Console.WriteLine("Failed");
         }
 
         public static void FailStep(string uuid, Action<StepResult> updateResults = null)
@@ -118,9 +120,9 @@ namespace NUnit.Allure.Core
             {
                 result.status = Status.failed;
                 updateResults?.Invoke(result);
+                StepNotifier?.StepFailed?.Log(result.name);
             });
             AllureLifecycle.Instance.StopStep(uuid);
-            Console.WriteLine("Failed");
         }
         
         public static void BrokeStep(Action<StepResult> updateResults = null)
@@ -129,8 +131,8 @@ namespace NUnit.Allure.Core
             {
                 result.status = Status.broken;
                 updateResults?.Invoke(result);
+                StepNotifier?.StepBroken?.Log(result.name);
             });
-            Console.WriteLine("Broken");
         }
         
         public static void BrokeStep(string uuid, Action<StepResult> updateResults = null)
@@ -139,9 +141,9 @@ namespace NUnit.Allure.Core
             {
                 result.status = Status.broken;
                 updateResults?.Invoke(result);
+                StepNotifier?.StepBroken?.Log(result.name);
             });
             AllureLifecycle.Instance.StopStep(uuid);
-            Console.WriteLine("Broken");
         }
 
         #endregion
