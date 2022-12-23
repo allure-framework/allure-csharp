@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Allure.Net.Commons;
+using NUnit.Allure;
 using NUnit.Allure.Attributes;
 using NUnit.Allure.Core;
 using NUnit.Framework;
@@ -19,9 +19,7 @@ namespace Allure.NUnit.Examples
             {
                 tr.name = "Some awesome name";
             });
-            AllureLifecycle.Instance.AddAttachment(
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"),
-                "AllureConfig.json");
+            Attachments.File("AllureConfig.json", Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"));
             StepsExamples.Step1();
         }
 
@@ -34,9 +32,7 @@ namespace Allure.NUnit.Examples
             {
                 tr.name = "Some awesome name (changed on teardown)";
             });
-            AllureLifecycle.Instance.AddAttachment(
-                Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"),
-                "AllureConfig.json");
+            Attachments.File("AllureConfig.json", Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"));
         }
 
         [OneTimeSetUp]

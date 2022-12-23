@@ -2,7 +2,7 @@ using System.Text;
 using Allure.Net.Commons;
 using HeyRed.Mime;
 
-namespace Allure.XUnit
+namespace NUnit.Allure
 {
     public abstract class Attachments
     {

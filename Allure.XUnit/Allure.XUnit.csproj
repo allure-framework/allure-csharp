@@ -33,14 +33,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.7.3" />
+        <PackageReference Include="AspectInjector" Version="2.8.1" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />
         <PackageReference Include="xunit.core" Version="2.4.1" />
         <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj">
+            <!-- todo: Remove Allure.Net.Commons references-->
+            <!-- <PrivateAssets>all</PrivateAssets>-->
+        </ProjectReference>
     </ItemGroup>
 
 </Project>

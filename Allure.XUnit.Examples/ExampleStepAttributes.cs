@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Allure.Xunit.Attributes;
 using Allure.XUnit.Attributes.Steps;
 using Xunit;
