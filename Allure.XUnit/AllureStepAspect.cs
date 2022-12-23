@@ -19,6 +19,8 @@ namespace Allure.XUnit
 
         private static readonly MethodInfo SyncHandler =
             typeof(AllureStepAspect).GetMethod(nameof(WrapSync), BindingFlags.NonPublic | BindingFlags.Static);
+        
+        private static readonly Type _voidTaskResult = Type.GetType("System.Threading.Tasks.VoidTaskResult");
 
         [Advice(Kind.Around)]
         public object Around([Argument(Source.Name)] string name,
@@ -170,7 +172,7 @@ namespace Allure.XUnit
             {
                 var syncResultType = returnType.IsConstructedGenericType
                     ? returnType.GenericTypeArguments[0]
-                    : typeof(object);
+                    : _voidTaskResult;
                 return AsyncHandler.MakeGenericMethod(syncResultType)
                     .Invoke(this, new object[] { target, args });
             }

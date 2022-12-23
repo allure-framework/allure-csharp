@@ -28,11 +28,28 @@ public static class AsyncStepsExamples
 [AllureSuite("Tests - Async Steps")]
 public class AllureAsyncStepTest : BaseTest
 {
+    private bool _isStep1Finished;
+
     [Test]
     [AllureName("Simple test with async steps")]
-    public async Task SimpleStepTest()
+    public async Task CookPizzaStepByStepTest()
     {
         await AsyncStepsExamples.PrepareDough();
         await AsyncStepsExamples.CookPizza();
+    }
+
+    [Test]
+    public async Task AwaitingStepsTaskCastTest()
+    {
+        await Step1();
+        Assert.That(_isStep1Finished, Is.True);
+    }
+
+    [AllureStep("Step1")]
+    public async Task Step1()
+    {
+        _isStep1Finished = false;
+        await Task.Delay(500);
+        _isStep1Finished = true;
     }
 }
