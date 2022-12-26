@@ -1,0 +1,24 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# indent_style             : { "tab", "space" }
+# indent_size              : { an integer }
+# tab_width                : { optional positive integer (defaults "indent_size" when "indent_size" is a number) }
+# end_of_line              : { "lf", "cr", "crlf" }
+# charset                  : { "latin1", "utf-8", "utf-16be", "utf-16le" }
+# trim_trailing_whitespace : { "true", "false" }
+# insert_final_newline     : { "true", "false" }
+# max_line_length          : { positive integers }
+
+root = true
+
+[*]
+trim_trailing_whitespace = true
+insert_final_newline = false
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{cs,csproj}]
+charset = utf-8-bom
+indent_style = space
+indent_size = 4
