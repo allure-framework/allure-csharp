@@ -43,7 +43,7 @@ namespace NUnit.Allure.Core
             };
 
             AllureLifecycle.Instance.StartAfterFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
-            StepLogger.AfterStarted?.Log(name);
+            StepLogger?.AfterStarted?.Log(name);
             return uuid;
         }
 
