@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CsvHelper" Version="27.1.0" />
+        <PackageReference Include="CsvHelper" Version="30.0.1" />
         <PackageReference Include="SpecFlow" Version="[3.9.8, 3.10)" />
         <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
     </ItemGroup>
