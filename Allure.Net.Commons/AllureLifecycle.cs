@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Allure.Net.Commons.Helpers;
+using System.Threading;
 using Allure.Net.Commons.Configuration;
+using Allure.Net.Commons.Helpers;
 using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.Writer;
 using HeyRed.Mime;
@@ -19,6 +20,9 @@ namespace Allure.Net.Commons
         private readonly AllureStorage storage;
         private readonly IAllureResultsWriter writer;
 
+        /// <summary> Method to get the key for separation the steps for different tests. </summary>
+        public static Func<string> CurrentTestIdGetter { get; set; } = () => Thread.CurrentThread.ManagedThreadId.ToString();
+
         internal AllureLifecycle(): this(GetConfiguration())
         {
         }
@@ -29,10 +33,6 @@ namespace Allure.Net.Commons
             AllureConfiguration = AllureConfiguration.ReadFromJObject(config);
             writer = new FileSystemResultsWriter(AllureConfiguration);
             storage = new AllureStorage();
-            lock (Lockobj)
-            {
-                instance = this;
-            }
         }
 
         public string JsonConfiguration { get; private set; }
@@ -49,7 +49,10 @@ namespace Allure.Net.Commons
                     lock (Lockobj)
                     {
                         if (instance == null)
-                            new AllureLifecycle();
+                        {
+                            var localInstance = new AllureLifecycle();
+                            Interlocked.Exchange(ref instance, localInstance);
+                        }
                     }
                 }
 

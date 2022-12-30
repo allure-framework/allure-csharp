@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -6,14 +7,14 @@ namespace Allure.Net.Commons.Storage
 {
     internal class AllureStorage
     {
-        private readonly ThreadLocal<LinkedList<string>> stepContext = new ThreadLocal<LinkedList<string>>(() =>
-        {
-            return new LinkedList<string>();
-        });
+        private readonly ConcurrentDictionary<string, LinkedList<string>> stepContext = new();
 
-        private readonly ConcurrentDictionary<string, object> storage = new ConcurrentDictionary<string, object>();
+        private readonly ConcurrentDictionary<string, object> storage = new();
 
-        private LinkedList<string> Steps => stepContext.Value;
+        private LinkedList<string> Steps => stepContext.GetOrAdd(
+            AllureLifecycle.CurrentTestIdGetter(),
+            new LinkedList<string>()
+        );
 
         public T Get<T>(string uuid)
         {
