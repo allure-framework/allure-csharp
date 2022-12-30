@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Allure.Net.Commons;
 using AspectInjector.Broker;
 using NUnit.Allure.Attributes;
+using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace NUnit.Allure.Core.Steps
@@ -62,16 +63,35 @@ namespace NUnit.Allure.Core.Steps
                     })
                 .Where(x => x != null)
                 .ToList();
-            
+
             try
             {
                 StartFixture(metadata, stepName);
                 StartStep(metadata, stepName, stepParameters);
 
                 executionResult = GetStepExecutionResult(returnType, target, args);
-
-                PassStep(metadata);
-                PassFixture(metadata);
+                if (typeof(Task).IsAssignableFrom(executionResult.GetType()))
+                {
+                    ((Task)executionResult).ContinueWith((task) =>
+                    {
+                        if (task.IsFaulted)
+                        {
+                            var e = task.Exception;
+                            ThrowStep(metadata, e?.InnerException);
+                            ThrowFixture(metadata, e?.InnerException);
+                        }
+                        else
+                        {
+                            PassStep(metadata);
+                            PassFixture(metadata);
+                        }
+                    });
+                }
+                else
+                {
+                    PassStep(metadata);
+                    PassFixture(metadata);
+                }
             }
             catch (Exception e)
             {
@@ -81,29 +101,6 @@ namespace NUnit.Allure.Core.Steps
             }
 
             return executionResult;
-            
-            // object result;
-            // try
-            // {
-            //     AllureLifecycle.Instance.StartStep(Guid.NewGuid().ToString(), stepResult);
-            //     result = target(args);
-            //     AllureLifecycle.Instance.StopStep(step => stepResult.status = Status.passed);
-            // }
-            // catch (Exception e)
-            // {
-            //     AllureLifecycle.Instance.StopStep(step =>
-            //     {
-            //         step.statusDetails = new StatusDetails
-            //         {
-            //             message = e.Message,
-            //             trace = e.StackTrace
-            //         };
-            //         step.status = Status.failed;
-            //     });
-            //     throw;
-            // }
-            //
-            // return result;
         }
         
         private static void StartStep(MethodBase metadata, string stepName, List<Parameter> stepParameters)
@@ -132,7 +129,7 @@ namespace NUnit.Allure.Core.Steps
                     trace = e.StackTrace
                 };
                 
-                if (e is NUnitException)
+                if (e is NUnitException || e is AssertionException)
                 {
                     StepsHelper.FailStep(result => result.statusDetails = exceptionStatusDetails);
                 }
@@ -217,26 +214,12 @@ namespace NUnit.Allure.Core.Steps
 
         private static T WrapSync<T>(Func<object[], object> target, object[] args)
         {
-            try
-            {
-                return (T)target(args);
-            }
-            catch (Exception e)
-            {
-                return default(T);
-            }
+            return (T)target(args);
         }
 
         private static async Task<T> WrapAsync<T>(Func<object[], object> target, object[] args)
         {
-            try
-            {
-                return await (Task<T>)target(args);
-            }
-            catch (Exception e)
-            {
-                return default(T);
-            }
+            return await (Task<T>)target(args);
         }
     }
 }
