@@ -70,7 +70,7 @@ namespace NUnit.Allure.Core.Steps
                 StartStep(metadata, stepName, stepParameters);
 
                 executionResult = GetStepExecutionResult(returnType, target, args);
-                if (typeof(Task).IsAssignableFrom(executionResult.GetType()))
+                if (executionResult != null && typeof(Task).IsAssignableFrom(executionResult.GetType()))
                 {
                     ((Task)executionResult).ContinueWith((task) =>
                     {
