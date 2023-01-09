@@ -3,11 +3,12 @@ using System.Collections.Concurrent;
 using Allure.Net.Commons;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 
 namespace NUnit.Allure.Core
 {
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
-    public class AllureNUnitAttribute : PropertyAttribute, ITestAction
+    public class AllureNUnitAttribute : PropertyAttribute, ITestAction, IApplyToContext
     {
         private readonly ConcurrentDictionary<string, AllureNUnitHelper> _allureNUnitHelper = new ConcurrentDictionary<string, AllureNUnitHelper>();
         private readonly bool _isWrappedIntoStep;
@@ -34,19 +35,41 @@ namespace NUnit.Allure.Core
         {
             var helper = new AllureNUnitHelper(test);
             _allureNUnitHelper.AddOrUpdate(test.Id, helper, (key, existing) => helper);
-            helper.StartTestContainer();
-            helper.StartTestCase();
+
+            if (test.IsSuite)
+            {
+                helper.SaveOneTimeResultToContext();
+                StepsHelper.StopFixture();
+            }
+            else
+            {
+                helper.StartTestContainer();
+                helper.AddOneTimeSetupResult();
+                helper.StartTestCase();
+            }
         }
 
         public void AfterTest(ITest test)
         {
             if (_allureNUnitHelper.TryGetValue(test.Id, out var helper))
             {
-                helper.StopTestCase();
+                if (!test.IsSuite)
+                {
+                    helper.StopTestCase();
+                }
+
                 helper.StopTestContainer();
             }
         }
 
-        public ActionTargets Targets => ActionTargets.Test;
+        public ActionTargets Targets => ActionTargets.Test | ActionTargets.Suite;
+
+        public void ApplyToContext(TestExecutionContext context)
+        {
+            var test = context.CurrentTest;
+            var helper = new AllureNUnitHelper(test);
+            helper.StartTestContainer();
+            StepsHelper.StartBeforeFixture($"fr-{test.Id}");
+        }
     }
 }
