@@ -127,8 +127,8 @@ namespace Allure.SpecFlowPlugin
 
             // add csv table for multi-row table if was not processed as params already
             if (isTableProcessed) return;
-            var ms = new MemoryStream();
-            var sw = new StreamWriter(ms, System.Text.Encoding.UTF8);
+            using var ms = new MemoryStream();
+            using var sw = new StreamWriter(ms, System.Text.Encoding.UTF8);
             using var csv = new CsvWriter(sw, CultureInfo.InvariantCulture);
             foreach (var item in table.Header) csv.WriteField(item);
             csv.NextRecord();
