@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.8.1" />
+        <PackageReference Include="AspectInjector" Version="2.8.1" PrivateAssets="All" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />
         <PackageReference Include="xunit.core" Version="2.4.1" />
         <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />

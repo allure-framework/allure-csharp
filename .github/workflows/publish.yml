@@ -30,7 +30,7 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
 
       - name: 'Pack project'
-        run: dotnet pack ${{ env.SOLUTION_PATH }} --no-restore --no-build --configuration ${{ env.BUILD_CONFIGURATION }} --include-symbols -p:PackageOutputPath=${{ env.PACKAGE_OUTPUT_PATH }}
+        run: dotnet pack ${{ env.SOLUTION_PATH }} --no-restore --no-build --configuration ${{ env.BUILD_CONFIGURATION }} --include-symbols --include-source -p:PackageOutputPath=${{ env.PACKAGE_OUTPUT_PATH }}
 
       - name: 'NuGet publish'
         run: |
