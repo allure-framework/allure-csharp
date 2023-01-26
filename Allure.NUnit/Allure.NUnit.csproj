@@ -17,6 +17,8 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>Allure-N-Color.png</PackageIcon>
         <IncludeSymbols>true</IncludeSymbols>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
