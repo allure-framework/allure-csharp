@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using Allure.Net.Commons;
 using AspectInjector.Broker;
@@ -16,12 +17,19 @@ namespace NUnit.Allure.Core.Steps
             [Argument(Source.Arguments)] object[] arguments,
             [Argument(Source.Target)] Func<object[], object> method)
         {
+            var parameterInfos = methodBase.GetParameters();
             var stepName = methodBase.GetCustomAttribute<AllureStepAttribute>().StepName;
+
+            var typeFormatters = AllureLifecycle.Instance.TypeFormatters;
 
             for (var i = 0; i < arguments.Length; i++)
             {
-              
-                stepName = stepName?.Replace("{" + i + "}", arguments[i]?.ToString() ?? "null");
+                var parameterType = parameterInfos.ElementAtOrDefault(i)?.ParameterType;
+                var typeFormatter = parameterType is null || !typeFormatters.ContainsKey(parameterType)
+                    ? null
+                    : typeFormatters[parameterType];
+                var formattedArgument = typeFormatter?.Format(arguments[i]) ?? arguments[i]?.ToString() ?? "null";
+                stepName = stepName?.Replace("{" + i + "}", formattedArgument);
             }
 
             var stepResult = string.IsNullOrEmpty(stepName)
