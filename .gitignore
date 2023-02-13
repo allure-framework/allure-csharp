@@ -265,3 +265,5 @@ __pycache__/
 .DS_Store
 *mono_crash*
 /.vscode
+
+.editorconfig
