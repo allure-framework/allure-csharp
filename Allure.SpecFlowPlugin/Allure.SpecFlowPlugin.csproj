@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
         <PackageId>Allure.SpecFlow</PackageId>
-        <Version>2.10-SNAPSHOT</Version>
+        <Version>2.9.4-preview.6</Version>
         <Authors>Alexander Bakanov</Authors>
         <Company>Qameta Software</Company>
         <Product />
