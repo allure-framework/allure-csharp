@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.8.1" PrivateAssets="All" />
+        <PackageReference Include="AspectInjector" Version="2.8.1" />
         <PackageReference Include="NUnit" Version="3.13.3" />
         <PackageReference Include="NUnit.Engine.Api" Version="3.15.2" />
     </ItemGroup>
