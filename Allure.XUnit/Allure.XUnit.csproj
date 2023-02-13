@@ -4,7 +4,7 @@
         <IsPackable>true</IsPackable>
         <TargetFrameworks>netcoreapp2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
         <Company>Qameta Software</Company>
-        <Version>2.10-SNAPSHOT</Version>
+        <Version>2.9.4-preview.5</Version>
         <Title>Allure.XUnit</Title>
         <Authors>Shumakov Ivan</Authors>
         <Description>Allure.XUnit</Description>
