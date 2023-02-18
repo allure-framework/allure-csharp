@@ -257,7 +257,7 @@ namespace NUnit.Allure.Core.Steps
             try
             {
                 stepUuid = BeforeTargetInvoke(metadata, stepName, stepParameters);
-                var result = await ((Task<T>)target(args)).ConfigureAwait(false);
+                var result = await ((Task<T>)target(args));
                 AfterTargetInvoke(stepUuid, metadata);
 
                 return result;
