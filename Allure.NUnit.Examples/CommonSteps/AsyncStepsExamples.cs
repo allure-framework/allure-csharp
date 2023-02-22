@@ -6,6 +6,8 @@ namespace Allure.NUnit.Examples.CommonSteps;
 
 public static class AsyncStepsExamples
 {
+    private static readonly Random Random = new();
+    
     [AllureStep("Prepare dough")]
     public static async Task PrepareDough()
     {
@@ -31,7 +33,8 @@ public static class AsyncStepsExamples
     }
     private static async Task AsyncMethod(string message)
     {
-        await Task.Delay(3);
+        var delay = Random.Next(50, 200);
+        await Task.Delay(delay);
         Console.WriteLine($"{message}");
     }
 }
