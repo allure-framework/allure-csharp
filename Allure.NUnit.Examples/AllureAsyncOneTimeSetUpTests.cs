@@ -18,6 +18,12 @@ namespace Allure.NUnit.Examples
 			await AsyncStepsExamples.CookPizza();
 		}
 
+		[SetUp]
+		public async Task SetUp()
+		{
+			await AsyncStepsExamples.PrepareDough();
+		}
+
 		[Test]
 		[AllureName("Test1")]
 		public async Task Test1()

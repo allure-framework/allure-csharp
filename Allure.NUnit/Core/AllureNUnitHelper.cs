@@ -240,7 +240,7 @@ namespace NUnit.Allure.Core
 
             fixtureResult = testFixture.Properties.Get("OneTimeSetUpResult") as FixtureResult;
 
-            if (fixtureResult != null)
+            if (fixtureResult != null && fixtureResult.steps.Any())
             {
                 AllureLifecycle.UpdateTestContainer(TestResultContainer.uuid, container =>
                 {
