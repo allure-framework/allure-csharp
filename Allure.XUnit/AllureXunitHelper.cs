@@ -5,8 +5,8 @@ using System.Linq;
 using Allure.Net.Commons;
 using Allure.XUnit;
 using Allure.Xunit.Attributes;
+using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Allure.Xunit
 {
@@ -49,9 +49,9 @@ namespace Allure.Xunit
             testResults.TestResult = new()
             {
                 uuid = uuid,
-                name = testCase.DisplayName,
+                name = BuildName(testCase),
                 historyId = testCase.DisplayName,
-                fullName = testCase.DisplayName,
+                fullName = BuildFullName(testCase),
                 labels = new()
                 {
                     Label.Thread(),
@@ -226,14 +226,6 @@ namespace Allure.Xunit
                         testResult.labels.AddDistinct("story", storyAttribute.Stories, storyAttribute.Overwrite);
                         break;
 
-                    case AllureNameAttribute nameAttribute:
-                        nameAttribute.UpdateTestResult(testResult);
-                        break;
-                    
-                    case AllureFullNameAttribute fullNameAttribute:
-                        fullNameAttribute.UpdateTestResult(testResult);
-                        break;
-                    
                     case AllureDescriptionAttribute descriptionAttribute:
                         testResult.description = descriptionAttribute.Description;
                         break;
@@ -253,6 +245,37 @@ namespace Allure.Xunit
                         break;
                 }
             }
+        }
+
+        private static string BuildName(ITestCase testCase)
+        {
+            var factAttribute = testCase.TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).SingleOrDefault();
+            if (factAttribute is null)
+            {
+                return BuildFullName(testCase);
+            }
+
+            var displayName = factAttribute.GetNamedArgument<string>("DisplayName");
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return BuildFullName(testCase);
+            }
+            
+            return displayName;
+        }
+        
+        private static string BuildFullName(ITestCase testCase)
+        {
+            var parameters = testCase.TestMethod.Method
+                .GetParameters()
+                .Select(parameter =>
+                    $"{parameter.ParameterType.ToRuntimeType().GetFullFormattedTypeName()} {parameter.Name}")
+                .ToArray();
+            var parametersSegment = parameters.Any()
+                ? $"({string.Join(", ", parameters)})"
+                : string.Empty;
+
+            return $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}{parametersSegment}";
         }
     }
 }
