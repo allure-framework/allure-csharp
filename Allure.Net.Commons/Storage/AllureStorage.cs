@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Allure.Net.Commons.Storage
 {
@@ -35,6 +33,7 @@ namespace Allure.Net.Commons.Storage
         public void ClearStepContext()
         {
             Steps.Clear();
+            stepContext.TryRemove(AllureLifecycle.CurrentTestIdGetter(), out _);
         }
 
         public void StartStep(string uuid)
