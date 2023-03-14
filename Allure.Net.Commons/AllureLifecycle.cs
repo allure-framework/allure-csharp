@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -15,6 +17,11 @@ namespace Allure.Net.Commons
 {
     public class AllureLifecycle
     {
+        private readonly Dictionary<Type, ITypeFormatter> typeFormatters = new();
+
+        public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
+            new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);
+
         private static readonly object Lockobj = new();
         private static AllureLifecycle instance;
         private readonly AllureStorage storage;
@@ -59,6 +66,12 @@ namespace Allure.Net.Commons
                 return instance;
             }
         }
+
+        public void AddTypeFormatter<T>(TypeFormatter<T> typeFormatter) =>
+            AddTypeFormatterImpl(typeof(T), typeFormatter);
+
+        private void AddTypeFormatterImpl(Type type, ITypeFormatter formatter) =>
+            typeFormatters[type] = formatter;
 
         #region TestContainer
 
