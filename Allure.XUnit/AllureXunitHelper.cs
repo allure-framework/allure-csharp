@@ -5,8 +5,8 @@ using System.Linq;
 using Allure.Net.Commons;
 using Allure.XUnit;
 using Allure.Xunit.Attributes;
+using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Allure.Xunit
 {
@@ -49,9 +49,9 @@ namespace Allure.Xunit
             testResults.TestResult = new()
             {
                 uuid = uuid,
-                name = testCase.DisplayName,
+                name = BuildName(testCase),
                 historyId = testCase.DisplayName,
-                fullName = testCase.DisplayName,
+                fullName = BuildFullName(testCase),
                 labels = new()
                 {
                     Label.Thread(),
@@ -59,7 +59,14 @@ namespace Allure.Xunit
                     Label.TestClass(testCase.TestMethod.TestClass.Class.Name),
                     Label.TestMethod(testCase.DisplayName),
                     Label.Package(testCase.TestMethod.TestClass.Class.Name)
-                }
+                },
+                parameters = testCase.TestMethod.Method.GetParameters()
+                    .Zip(testCase.TestMethodArguments ?? Array.Empty<object>(), (param, value) => new Parameter
+                    {
+                        name = param.Name,
+                        value = value?.ToString() ?? "null"
+                    })
+                    .ToList()
             };
             UpdateTestDataFromAttributes(testResults.TestResult, testCase);
             AllureLifecycle.Instance.StartTestCase(testResults.TestResultContainer.uuid, testResults.TestResult);
@@ -224,8 +231,7 @@ namespace Allure.Xunit
                     case AllureDescriptionAttribute descriptionAttribute:
                         testResult.description = descriptionAttribute.Description;
                         break;
-
-
+                    
                     case AllureIdAttribute allureIdAttribute:
                         var allureIdLabel = new Label {name = "ALLURE_ID", value = allureIdAttribute.AllureId};
                         testResult.labels.AddDistinct(allureIdLabel, false);
@@ -241,6 +247,37 @@ namespace Allure.Xunit
                         break;
                 }
             }
+        }
+
+        private static string BuildName(ITestCase testCase)
+        {
+            var factAttribute = testCase.TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).SingleOrDefault();
+            if (factAttribute is null)
+            {
+                return BuildFullName(testCase);
+            }
+
+            var displayName = factAttribute.GetNamedArgument<string>("DisplayName");
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return BuildFullName(testCase);
+            }
+            
+            return displayName;
+        }
+        
+        private static string BuildFullName(ITestCase testCase)
+        {
+            var parameters = testCase.TestMethod.Method
+                .GetParameters()
+                .Select(parameter =>
+                    $"{parameter.ParameterType.ToRuntimeType().GetFullFormattedTypeName()} {parameter.Name}")
+                .ToArray();
+            var parametersSegment = parameters.Any()
+                ? $"({string.Join(", ", parameters)})"
+                : string.Empty;
+
+            return $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}{parametersSegment}";
         }
     }
 }
