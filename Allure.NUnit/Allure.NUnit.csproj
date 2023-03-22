@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>2.9.5-preview.1</Version>
+        <Version>2.10-SNAPSHOT</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <Company>Qameta Software</Company>
         <Authors>Nick Chursin</Authors>
