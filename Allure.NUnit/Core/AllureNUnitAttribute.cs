@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using Allure.Net.Commons;
+using NUnit.Engine;
+using NUnit.Engine.Extensibility;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;

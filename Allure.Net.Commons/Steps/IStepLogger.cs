@@ -1,4 +1,4 @@
-namespace NUnit.Allure.Core
+namespace Allure.Net.Commons.Steps
 {
     public interface IStepLogger
     {

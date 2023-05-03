@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Steps;
 
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
@@ -29,22 +30,22 @@ namespace Allure.Xunit
             {
                 if (this is AllureBefore || this is AllureAfter)
                 {
-                    Steps.StopFixtureSuppressTestCase(result => result.status = Status.failed);
+                    CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.failed);
                 }
                 else
                 {
-                    Steps.FailStep(UUID);
+                    CoreStepsHelper.FailStep(UUID);
                 }
             }
             else
             {
                 if (this is AllureBefore || this is AllureAfter)
                 {
-                    Steps.StopFixtureSuppressTestCase(result => result.status = Status.passed);
+                    CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.passed);
                 }
                 else
                 {
-                    Steps.PassStep(UUID);
+                    CoreStepsHelper.PassStep(UUID);
                 }
             }
         }

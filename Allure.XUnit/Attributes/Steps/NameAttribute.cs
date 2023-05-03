@@ -1,15 +1,11 @@
-using System;
+using Allure.Net.Commons.Steps;
 
 namespace Allure.XUnit.Attributes.Steps
 {
-    [AttributeUsage(AttributeTargets.Parameter)]
-    public class NameAttribute : Attribute
+    public class NameAttribute : AbstractNameAttribute
     {
-        public NameAttribute(string name)
+        public NameAttribute(string name) : base(name)
         {
-            Name = name;
         }
-
-        public string Name { get; }
     }
 }

@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
-using Allure.Xunit;
+using Allure.Net.Commons.Steps;
+using Allure.Net.Commons.Storage;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -38,7 +39,7 @@ namespace Allure.XUnit
             ExceptionAggregator aggregator,
             CancellationTokenSource cancellationTokenSource)
         {
-            Steps.TestResultAccessor = this;
+            CoreStepsHelper.TestResultAccessor = this;
             messageBus = new AllureMessageBus(messageBus);
             var summary = await base.RunAsync(diagnosticMessageSink, messageBus, constructorArguments, aggregator,
                 cancellationTokenSource);

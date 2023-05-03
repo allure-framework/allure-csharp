@@ -1,9 +1,8 @@
-using System;
+using Allure.Net.Commons.Steps;
 
 namespace Allure.XUnit.Attributes.Steps
 {
-    [AttributeUsage(AttributeTargets.Parameter)]
-    public class SkipAttribute : Attribute
+    public class SkipAttribute : AbstractSkipAttribute
     {
     }
 }

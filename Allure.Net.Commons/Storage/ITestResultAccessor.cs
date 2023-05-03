@@ -1,6 +1,4 @@
-using Allure.Net.Commons;
-
-namespace NUnit.Allure.Core
+namespace Allure.Net.Commons.Storage
 {
     public interface ITestResultAccessor
     {

@@ -1,5 +1,5 @@
 using System;
-using Allure.Net.Commons;
+using Allure.Net.Commons.Steps;
 
 namespace Allure.Xunit
 {
@@ -17,7 +17,7 @@ namespace Allure.Xunit
         /// <returns>string: UUID</returns>
         private static string Init(string name)
         {
-            return Steps.StartBeforeFixture(name);
+            return CoreStepsHelper.StartBeforeFixture(name);
         }
     }
 }

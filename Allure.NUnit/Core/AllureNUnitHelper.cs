@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Storage;
 using Newtonsoft.Json.Linq;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
@@ -16,15 +17,11 @@ namespace NUnit.Allure.Core
 {
     public sealed class AllureNUnitHelper : ITestResultAccessor
     {
+        internal static List<Type> ExceptionTypes = new List<Type> { typeof(NUnitException), typeof(AssertionException) };
         public TestResultContainer TestResultContainer { get; set; }
         public TestResult TestResult { get; set; }
 
         private readonly ITest _test;
-
-        private string _containerGuid;
-        private string _stepGuid;
-
-        private StepResult _stepResult;
         private string _testResultGuid;
 
         public AllureNUnitHelper(ITest test)

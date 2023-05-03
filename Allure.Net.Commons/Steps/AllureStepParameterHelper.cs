@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Allure.Net.Commons;
 
-namespace NUnit.Allure.Core.Steps
+namespace Allure.Net.Commons.Steps
 {
     public static class AllureStepParameterHelper
     {
@@ -98,6 +97,24 @@ namespace NUnit.Allure.Core.Steps
             }
 
             return stepName;
+        }
+        
+        public static List<Parameter> GetStepParameters(MethodBase metadata, object[] args)
+        {
+            return metadata.GetParameters()
+                .Select(x => (
+                    name: x.GetCustomAttribute<AbstractNameAttribute>()?.Name ?? x.Name,
+                    skip: x.GetCustomAttribute<AbstractSkipAttribute>() != null))
+                .Zip(args,
+                    (parameter, value) => parameter.skip
+                        ? null
+                        : new Parameter
+                        {
+                            name = parameter.name,
+                            value = value?.ToString()
+                        })
+                .Where(x => x != null)
+                .ToList();
         }
 
         private static bool TrySplit(string s, char separator, out string[] parts)

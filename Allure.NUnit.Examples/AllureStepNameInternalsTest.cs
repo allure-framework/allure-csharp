@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using Allure.Net.Commons.Steps;
 using NUnit.Allure.Attributes;
-using NUnit.Allure.Core.Steps;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
