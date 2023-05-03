@@ -17,6 +17,9 @@ namespace NUnit.Allure.Core.Steps
         private static readonly MethodInfo AsyncHandler =
             typeof(AllureStepAspect).GetMethod(nameof(WrapAsync), BindingFlags.NonPublic | BindingFlags.Static);
 
+        private static readonly MethodInfo AsyncGenericHandler =
+            typeof(AllureStepAspect).GetMethod(nameof(WrapAsyncGeneric), BindingFlags.NonPublic | BindingFlags.Static);
+
         private static readonly MethodInfo SyncHandler =
             typeof(AllureStepAspect).GetMethod(nameof(WrapSync), BindingFlags.NonPublic | BindingFlags.Static);
 
@@ -42,10 +45,15 @@ namespace NUnit.Allure.Core.Steps
 
             if (_typeTask.IsAssignableFrom(returnType))
             {
+                if (returnType == _typeTask)
+                {
+                    return AsyncHandler.Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
+                }
+
                 var syncResultType = returnType.IsConstructedGenericType
                     ? returnType.GenericTypeArguments[0]
                     : _typeVoidTaskResult;
-                return AsyncHandler.MakeGenericMethod(syncResultType)
+                return AsyncGenericHandler.MakeGenericMethod(syncResultType)
                     .Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
             }
             else if (_typeVoid.IsAssignableFrom(returnType))
@@ -244,7 +252,30 @@ namespace NUnit.Allure.Core.Steps
             }
         }
 
-        private static async Task<T> WrapAsync<T>(
+        private static async Task WrapAsync(
+            Func<object[], object> target,
+            object[] args,
+            MethodBase metadata,
+            string stepName,
+            List<Parameter> stepParameters
+        )
+        {
+            string stepUuid = null;
+
+            try
+            {
+                stepUuid = BeforeTargetInvoke(metadata, stepName, stepParameters);
+                await ((Task)target(args)).ConfigureAwait(false);
+                AfterTargetInvoke(stepUuid, metadata);
+            }
+            catch (Exception e)
+            {
+                OnTargetInvokeException(stepUuid, metadata, e);
+                throw;
+            }
+        }
+
+        private static async Task<T> WrapAsyncGeneric<T>(
             Func<object[], object> target,
             object[] args,
             MethodBase metadata,
