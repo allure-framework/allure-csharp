@@ -63,8 +63,15 @@ namespace NUnit.Allure.Core.Steps
             }
             else
             {
-                return SyncHandler.MakeGenericMethod(returnType)
-                    .Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
+                try
+                {
+                    return SyncHandler.MakeGenericMethod(returnType)
+                        .Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
+                }
+                catch (TargetInvocationException e)
+                {
+                    throw e.InnerException ?? e;
+                }
             }
         }
 

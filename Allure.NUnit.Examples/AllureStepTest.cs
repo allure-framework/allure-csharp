@@ -27,6 +27,13 @@ namespace Allure.NUnit.Examples
             Console.WriteLine(firstParam);
             Console.WriteLine(lastParam);
         }
+
+        [AllureStep("This step should fail")]
+        public static int FailedStep()
+        {
+            var x = 1;
+            return 1 / (1 - x);
+        }
     }
 
     [AllureSuite("Tests - Steps")]
@@ -69,6 +76,13 @@ namespace Allure.NUnit.Examples
             StepsExamples.StepWithParams("0", "1");
             StepsExamples.StepWithParams(1, 2);
             StepsExamples.StepWithParams(new[] { 1, 3, 5}, "array");
+        }
+
+        [Test]
+        [AllureName("Should fail on step")]
+        public void TestWithFailedStep()
+        {
+            Assert.That(()=> StepsExamples.FailedStep(), Throws.TypeOf<DivideByZeroException>());
         }
     }
 }
