@@ -1,4 +1,4 @@
-﻿using Allure.Net.Commons.Steps;
+using Allure.Net.Commons.Steps;
 
 namespace Allure.Xunit
 {
