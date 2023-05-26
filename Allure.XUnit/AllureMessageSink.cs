@@ -31,6 +31,7 @@ namespace Allure.XUnit
                 this.OnTestClassConstructionFinished;
             this.Execution.TestFailedEvent += this.OnTestFailed;
             this.Execution.TestPassedEvent += this.OnTestPassed;
+            this.Execution.TestFinishedEvent += this.OnTestFinished;
             this.Execution.TestCaseFinishedEvent+= this.OnTestCaseFinished;
         }
 
@@ -90,6 +91,18 @@ namespace Allure.XUnit
             }
         }
 
+        void OnTestFinished(MessageHandlerArgs<ITestFinished> args)
+        {
+            var testCase = args.Message.TestCase;
+            if (testContainers.TryGetValue(testCase, out var container)
+                && testResults.TryGetValue(testCase, out var testResult))
+            {
+                AllureLifecycle.Instance.StopTestCase(testResult.uuid);
+                AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
+                testResults.Remove(testCase);
+            }
+        }
+
         void OnTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
         {
             TestResultContainer container = null;
@@ -109,8 +122,8 @@ namespace Allure.XUnit
             if (testContainers.TryGetValue(testCase, out container)
                 && testResults.TryGetValue(testCase, out testResult))
             {
-                AllureLifecycle.Instance.StopTestCase(testResult.uuid);
-                AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
+                //AllureLifecycle.Instance.StopTestCase(testResult.uuid);
+                //AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
                 AllureLifecycle.Instance.StopTestContainer(container.uuid);
                 AllureLifecycle.Instance.WriteTestContainer(container.uuid);
             }
