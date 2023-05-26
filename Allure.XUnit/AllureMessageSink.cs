@@ -21,7 +21,6 @@ namespace Allure.XUnit
 
         public AllureMessageSink(IRunnerLogger logger)
         {
-            AllureRunnerReporter.Log($"Sink with bag {this.testContainers.GetHashCode()} created");
             this.logger = logger;
 
             this.Runner.TestAssemblyExecutionStartingEvent +=
