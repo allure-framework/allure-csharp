@@ -16,8 +16,9 @@ namespace Allure.XUnit
     public class AllureMessageSink : TestMessageSink
     {
         IRunnerLogger logger;
-        Dictionary<ITestCase, TestResultContainer> testContainers = new();
-        Dictionary<ITestCase, TestResult> testResults = new();
+        Dictionary<ITest, TestResultContainer> testContainers = new();
+        Dictionary<ITest, TestResult> testResults = new();
+        Dictionary<ITest, object[]> testArguments = new();
 
         public AllureMessageSink(IRunnerLogger logger)
         {
@@ -26,7 +27,7 @@ namespace Allure.XUnit
             this.Runner.TestAssemblyExecutionStartingEvent +=
                 this.OnTestAssemblyExecutionStarting;
 
-            this.Execution.TestCaseStartingEvent += this.OnTestCaseStarting;
+            this.Execution.TestStartingEvent += this.OnTestStarting;
             this.Execution.TestClassConstructionFinishedEvent +=
                 this.OnTestClassConstructionFinished;
             this.Execution.TestFailedEvent += this.OnTestFailed;
@@ -40,33 +41,36 @@ namespace Allure.XUnit
         )
         {
             args.Message.ExecutionOptions.SetSynchronousMessageReporting(true);
-            AllureMessageSink.CurrentSink = this;
         }
 
-        void OnTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
+        internal void OnTestArgumentsCreated(ITest test, object[] arguments)
         {
+            testArguments.Add(test, arguments);
+        }
+
+        void OnTestStarting(MessageHandlerArgs<ITestStarting> args)
+        {
+            var test = args.Message.Test;
             var testClass = args.Message.TestClass;
-            var testCase = args.Message.TestCase;
             var container = new TestResultContainer
             {
                 uuid = NewUuid(testClass.Class.Name),
                 name = testClass.Class.Name
             };
-            this.testContainers.Add(testCase, container);
-            Steps.CurrentTestCase = testCase;
+            this.testContainers.Add(test, container);
+            Steps.CurrentTest = test;
             AllureLifecycle.Instance.StartTestContainer(container);
         }
 
         void OnTestClassConstructionFinished(
             MessageHandlerArgs<ITestClassConstructionFinished> args
-        ) => StartTestCase(args.Message.TestCase);
+        ) => StartAllureTestCase(args.Message.Test);
 
         void OnTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
             var message = args.Message;
-            var testCase = message.TestCase;
-            if (testContainers.TryGetValue(testCase, out var container)
-                && testResults.TryGetValue(testCase, out var testResult))
+            var test = message.Test;
+            if (testResults.TryGetValue(test, out var testResult))
             {
                 var statusDetails = testResult.statusDetails ??= new();
                 statusDetails.trace = string.Join('\n', message.StackTraces);
@@ -81,9 +85,8 @@ namespace Allure.XUnit
         void OnTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
             var message = args.Message;
-            var testCase = message.TestCase;
-            if (testContainers.TryGetValue(testCase, out var container)
-                && testResults.TryGetValue(testCase, out var testResult))
+            var test = message.Test;
+            if (testResults.TryGetValue(test, out var testResult))
             {
                 var statusDetails = testResult.statusDetails ??= new();
                 statusDetails.message = message.Output;
@@ -93,73 +96,99 @@ namespace Allure.XUnit
 
         void OnTestFinished(MessageHandlerArgs<ITestFinished> args)
         {
-            var testCase = args.Message.TestCase;
-            if (testContainers.TryGetValue(testCase, out var container)
-                && testResults.TryGetValue(testCase, out var testResult))
+            var test = args.Message.Test;
+            if (testResults.TryGetValue(test, out var testResult))
             {
+                this.AddAllureParameters(testResult, test);
                 AllureLifecycle.Instance.StopTestCase(testResult.uuid);
                 AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
-                testResults.Remove(testCase);
+                testResults.Remove(test);
+            }
+
+            if (testContainers.TryGetValue(test, out var container))
+            {
+                AllureLifecycle.Instance.StopTestContainer(container.uuid);
+                AllureLifecycle.Instance.WriteTestContainer(container.uuid);
+            }
+
+            if (testArguments.ContainsKey(test))
+            {
+                testArguments.Remove(test);
             }
         }
 
         void OnTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
         {
-            TestResultContainer container = null;
-            TestResult testResult = null;
             var testCase = args.Message.TestCase;
             if (testCase.SkipReason != null)
             {
-                StartTestCase(testCase);
-                if (testContainers.TryGetValue(testCase, out container)
-                    && testResults.TryGetValue(testCase, out testResult))
-                {
-                    var statusDetails = testResult.statusDetails ??= new();
-                    statusDetails.message = testCase.SkipReason;
-                    testResult.status = Status.skipped;
-                }
-            }
-            if (testContainers.TryGetValue(testCase, out container)
-                && testResults.TryGetValue(testCase, out testResult))
-            {
-                //AllureLifecycle.Instance.StopTestCase(testResult.uuid);
-                //AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
-                AllureLifecycle.Instance.StopTestContainer(container.uuid);
-                AllureLifecycle.Instance.WriteTestContainer(container.uuid);
+                var testResult = this.CreateTestResult(testCase, testCase.DisplayName);
+                var statusDetails = testResult.statusDetails ??= new();
+                statusDetails.message = testCase.SkipReason;
+                testResult.status = Status.skipped;
+                AllureLifecycle.Instance.StartTestCase(testResult);
+                AllureLifecycle.Instance.StopTestCase(testResult.uuid);
+                AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
             }
         }
 
-        void StartTestCase(ITestCase testCase)
+        void StartAllureTestCase(ITest test)
         {
-            if (testContainers.TryGetValue(testCase, out var container))
+            if (testContainers.TryGetValue(test, out var container))
             {
-                var testResult = new TestResult
-                {
-                    uuid = NewUuid(testCase.DisplayName),
-                    name = BuildName(testCase),
-                    historyId = testCase.DisplayName,
-                    fullName = BuildFullName(testCase),
-                    labels = new()
-                    {
-                        Label.Thread(),
-                        Label.Host(),
-                        Label.TestClass(testCase.TestMethod.TestClass.Class.Name),
-                        Label.TestMethod(testCase.DisplayName),
-                        Label.Package(testCase.TestMethod.TestClass.Class.Name)
-                    },
-                    parameters = testCase.TestMethod.Method.GetParameters().Zip(
-                        testCase.TestMethodArguments ?? Array.Empty<object>(),
-                        (param, value) => new Parameter
-                        {
-                            name = param.Name,
-                            value = value?.ToString() ?? "null"
-                        }
-                    ).ToList()
-                };
-                testResults.Add(testCase, testResult);
-                UpdateTestDataFromAttributes(testResult, testCase);
+                var testResult = this.CreateTestResult(
+                    test.TestCase,
+                    test.DisplayName
+                );
+                testResults.Add(test, testResult);
                 AllureLifecycle.Instance.StartTestCase(container.uuid, testResult);
             }
+        }
+
+        TestResult CreateTestResult(ITestCase testCase, string displayName)
+        {
+            var testResult = new TestResult
+            {
+                uuid = NewUuid(displayName),
+                name = BuildName(testCase),
+                historyId = displayName,
+                fullName = BuildFullName(testCase),
+                labels = new()
+                {
+                    Label.Thread(),
+                    Label.Host(),
+                    Label.TestClass(testCase.TestMethod.TestClass.Class.Name),
+                    Label.TestMethod(displayName),
+                    Label.Package(testCase.TestMethod.TestClass.Class.Name)
+                }
+            };
+            UpdateTestDataFromAttributes(testResult, testCase);
+            return testResult;
+        }
+
+        void AddAllureParameters(TestResult testResult, ITest test)
+        {
+            var testCase = test.TestCase;
+            var parameters = testCase.TestMethod.Method.GetParameters();
+            var arguments = ResolveTestArguments(test);
+            testResult.parameters = parameters.Zip(
+                arguments,
+                (param, value) => new Parameter
+                {
+                    name = param.Name,
+                    value = value?.ToString() ?? "null"
+                }
+            ).ToList();
+        }
+
+        object[] ResolveTestArguments(ITest test)
+        {
+            object[] arguments = null;
+            if (!testArguments.TryGetValue(test, out arguments))
+            {
+                arguments = test.TestCase.TestMethodArguments;
+            }
+            return arguments ?? Array.Empty<object>();
         }
 
         static string NewUuid(string name) =>
@@ -312,16 +341,14 @@ namespace Allure.XUnit
             }
         }
 
-        internal TestResultContainer GetTestResultContainer(ITestCase testCase)
+        internal TestResultContainer GetTestResultContainer(ITest test)
         {
-            return this.testContainers[testCase];
+            return this.testContainers[test];
         }
 
-        internal TestResult GetTestResult(ITestCase testCase)
+        internal TestResult GetTestResult(ITest test)
         {
-            return this.testResults[testCase];
+            return this.testResults[test];
         }
-
-        internal static AllureMessageSink CurrentSink { get; private set; }
     }
 }
