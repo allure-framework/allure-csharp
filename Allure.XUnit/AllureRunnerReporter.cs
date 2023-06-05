@@ -15,14 +15,21 @@ namespace Allure.XUnit
         {
             Instance = this;
             this.logger = logger;
-            return new AllureMessageSink(logger);
+            AllurePatcher.PatchXunit(logger);
+            var sink = new AllureMessageSink(logger);
+            if (CurrentSink is null)
+            {
+                CurrentSink = sink;
+            }
+            return sink;
         }
 
-        internal static void Log(string message)
+        internal static void Log(string message, params object[] args)
         {
             AllureRunnerReporter.Instance.logger.LogImportantMessage(
                 StackFrameInfo.None,
-                $"{i} {System.Threading.Thread.CurrentThread.ManagedThreadId} {message}"
+                $"{i} {System.Threading.Thread.CurrentThread.ManagedThreadId} {message}",
+                args
             );
             i++;
         }
@@ -30,6 +37,7 @@ namespace Allure.XUnit
         static int i = 0;
 
         internal static AllureRunnerReporter Instance { get; private set; }
+        internal static AllureMessageSink CurrentSink { get; private set; }
         IRunnerLogger logger;
     }
 }
