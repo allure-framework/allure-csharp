@@ -50,21 +50,31 @@ namespace Allure.XUnit
 
         void OnTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
-            var test = args.Message.Test;
-            var testClass = args.Message.TestClass;
-            var container = new TestResultContainer
-            {
-                uuid = NewUuid(testClass.Class.Name),
-                name = testClass.Class.Name
-            };
-            this.testContainers.Add(test, container);
+            var message = args.Message;
+            var test = message.Test;
             Steps.CurrentTest = test;
-            AllureLifecycle.Instance.StartTestContainer(container);
+            if (message.TestMethod.Method.IsStatic)
+            {
+                this.StartStaticAllureTestCase(test);
+            }
+            else
+            {
+                this.StartAllureContainer(test, message.TestClass.Class.Name);
+            }
         }
 
         void OnTestClassConstructionFinished(
             MessageHandlerArgs<ITestClassConstructionFinished> args
-        ) => StartAllureTestCase(args.Message.Test);
+        )
+        {
+            var message = args.Message;
+            var test = message.Test;
+            if (!testResults.ContainsKey(test)
+                && testContainers.TryGetValue(test, out var container))
+            {
+                this.StartAllureTestCase(test, container);
+            }
+        }
 
         void OnTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
@@ -109,6 +119,7 @@ namespace Allure.XUnit
             {
                 AllureLifecycle.Instance.StopTestContainer(container.uuid);
                 AllureLifecycle.Instance.WriteTestContainer(container.uuid);
+                testContainers.Remove(test);
             }
 
             if (testArguments.ContainsKey(test))
@@ -132,17 +143,36 @@ namespace Allure.XUnit
             }
         }
 
-        void StartAllureTestCase(ITest test)
+        TestResultContainer StartAllureContainer(ITest test, string className)
         {
-            if (testContainers.TryGetValue(test, out var container))
+            var container = new TestResultContainer
             {
-                var testResult = this.CreateTestResult(
-                    test.TestCase,
-                    test.DisplayName
-                );
-                testResults.Add(test, testResult);
-                AllureLifecycle.Instance.StartTestCase(container.uuid, testResult);
-            }
+                uuid = NewUuid(className),
+                name = className
+            };
+            this.testContainers.Add(test, container);
+            AllureLifecycle.Instance.StartTestContainer(container);
+            return container;
+        }
+
+        void StartAllureTestCase(
+            ITest test,
+            TestResultContainer container
+        ) => AllureLifecycle.Instance.StartTestCase(
+            container.uuid,
+            this.AddNewTestResult(test)
+        );
+
+        void StartStaticAllureTestCase(ITest test) =>
+            AllureLifecycle.Instance.StartTestCase(
+                this.AddNewTestResult(test)
+            );
+
+        TestResult AddNewTestResult(ITest test)
+        {
+            var result = this.CreateTestResult(test.TestCase, test.DisplayName);
+            testResults.Add(test, result);
+            return result;
         }
 
         TestResult CreateTestResult(ITestCase testCase, string displayName)
