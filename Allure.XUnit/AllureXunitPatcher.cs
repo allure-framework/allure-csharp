@@ -7,7 +7,7 @@ using Xunit.Sdk;
 
 namespace Allure.XUnit
 {
-    static class AllurePatcher
+    static class AllureXunitPatcher
     {
         const string ALLURE_ID = "io.qameta.allure.xunit";
         static bool isPatched = false;
@@ -40,8 +40,8 @@ namespace Allure.XUnit
                     patcher.Patch(
                         ctor,
                         postfix: new HarmonyMethod(
-                            typeof(AllurePatcher),
-                            nameof(AllurePatcher.OnTestRunnerCreated)
+                            typeof(AllureXunitPatcher),
+                            nameof(AllureXunitPatcher.OnTestRunnerCreated)
                         )
                     );
                     wasPatched = true;
