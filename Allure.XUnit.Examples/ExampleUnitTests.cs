@@ -28,8 +28,8 @@ namespace Allure.XUnit.Examples
         {
             Environment.CurrentDirectory = Path.GetDirectoryName(GetType().Assembly.Location);
         }
-    
-        [AllureXunit(DisplayName = "Test that 1 is not equals 1")]
+
+        [Fact(DisplayName = "Test that 1 is not equals 1")]
         [AllureDescription("My long test description; Lorem ipsum dolor sit amet.")]
         [AllureFeature("qwerty", "123")]
         [AllureTag("TAG-1")]
@@ -41,7 +41,7 @@ namespace Allure.XUnit.Examples
         }
 
 
-        [AllureXunit(DisplayName = "Test that 1 is equals 1")]
+        [Fact(DisplayName = "Test that 1 is equals 1")]
         [AllureSeverity(SeverityLevel.critical)]
         public async Task Test2()
         {
@@ -49,20 +49,26 @@ namespace Allure.XUnit.Examples
             Attachments.File("allureConfig", @"./allureConfig.json");
         }
 
-        [AllureXunit(DisplayName = "Another Test")]
+        [Fact(DisplayName = "Another Test")]
         public void Test3()
         {
             Assert.Empty(new List<int>() {1, 2, 3});
         }
 
-        [AllureXunit]
+        [Fact]
         [AllureTag(new[] {"TAG-8", "TAG-9", "TAG-10"}, true)]
         public void TestMultipleTagsWithOverwrite()
         {
             Assert.True(!false);
         }
 
-        [AllureXunit(DisplayName = "Test mapped to existing test case #1 in allure")]
+        [Fact]
+        public static void StaticTest()
+        {
+            Assert.True(true);
+        }
+
+        [Fact(DisplayName = "Test mapped to existing test case #1 in allure")]
         [AllureId("1")]
         public void TestAllureIdMapping()
         {
