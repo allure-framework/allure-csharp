@@ -35,14 +35,14 @@ public class ExampleSteps : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    [AllureXunit(Skip = "ExampleSteps is obsolete")]
+    [Fact(Skip = "ExampleSteps is obsolete")]
     public async Task TestParameters()
     {
         WriteHello(42, 4242, "secret");
         await AddAttachment();
     }
 
-    [AllureXunit(Skip = "ExampleSteps is obsolete")]
+    [Fact(Skip = "ExampleSteps is obsolete")]
     public void TestFail()
     {
         using (new AllureStep("Test Fail"))
