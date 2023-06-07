@@ -15,7 +15,7 @@ namespace Allure.XUnit
         {
             Instance = this;
             this.logger = logger;
-            AllurePatcher.PatchXunit(logger);
+            AllureXunitPatcher.PatchXunit(logger);
             var sink = new AllureMessageSink(logger);
             if (CurrentSink is null)
             {
