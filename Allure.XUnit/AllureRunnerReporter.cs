@@ -13,31 +13,12 @@ namespace Allure.XUnit
 
         public IMessageSink CreateMessageHandler(IRunnerLogger logger)
         {
-            Instance = this;
-            this.logger = logger;
             AllureXunitPatcher.PatchXunit(logger);
             var sink = new AllureMessageSink(logger);
-            if (CurrentSink is null)
-            {
-                CurrentSink = sink;
-            }
+            CurrentSink ??= sink;
             return sink;
         }
 
-        internal static void Log(string message, params object[] args)
-        {
-            AllureRunnerReporter.Instance.logger.LogImportantMessage(
-                StackFrameInfo.None,
-                $"{i} {System.Threading.Thread.CurrentThread.ManagedThreadId} {message}",
-                args
-            );
-            i++;
-        }
-
-        static int i = 0;
-
-        internal static AllureRunnerReporter Instance { get; private set; }
         internal static AllureMessageSink CurrentSink { get; private set; }
-        IRunnerLogger logger;
     }
 }
