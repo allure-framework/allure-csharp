@@ -232,14 +232,32 @@ namespace Allure.XUnit
             var parameters = testCase.TestMethod.Method.GetParameters();
             arguments ??= testCase.TestMethodArguments ?? Array.Empty<object>();
 
-            testResult.parameters = parameters.Zip(
-                arguments,
-                (param, value) => new Parameter
-                {
-                    name = param.Name,
-                    value = value?.ToString() ?? "null"
-                }
-            ).ToList();
+            if (parameters.Any() && !arguments.Any())
+            {
+                this.LogUnreportedTheoryArgs(test.DisplayName);
+            }
+            else
+            {
+                testResult.parameters = parameters.Zip(
+                    arguments,
+                    (param, value) => new Parameter
+                    {
+                        name = param.Name,
+                        value = value?.ToString() ?? "null"
+                    }
+                ).ToList();
+            }
+        }
+
+        void LogUnreportedTheoryArgs(string testName)
+        {
+            var message = $"Unable to attach arguments of {testName} to " +
+                "allure report";
+#if !DEBUG
+            message += ". You may try to compile the project in debug mode " +
+                "as a workaround";
+#endif
+            this.logger.LogWarning(message);
         }
 
         static string NewUuid(string name) =>
