@@ -1,10 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Allure.Xunit.Attributes
 {
     [Obsolete("Use [Xunit.Fact] instead")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class AllureXunitAttribute : FactAttribute
     {
     }

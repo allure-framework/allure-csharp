@@ -1,17 +1,11 @@
+using Allure.Net.Commons;
+using Allure.Net.Commons.Steps;
+using Allure.Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
-
-using Allure.Net.Commons;
-using Allure.Net.Commons.Steps;
-using Allure.XUnit.Attributes;
-using Allure.Xunit.Attributes;
-using Allure.Xunit;
 
 namespace Allure.XUnit
 {
@@ -49,16 +43,6 @@ namespace Allure.XUnit
             accessor.Arguments = arguments;
         }
 
-        AllureXunitTestResultAccessor GetOrCreateAllureResultAccessor(ITest test)
-        {
-            if (!this.allureTestData.TryGetValue(test, out var accessor))
-            {
-                accessor = new AllureXunitTestResultAccessor();
-                this.allureTestData[test] = accessor;
-            }
-            return accessor;
-        }
-
         void OnTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
             var message = args.Message;
@@ -69,12 +53,11 @@ namespace Allure.XUnit
 
             if (message.TestMethod.Method.IsStatic)
             {
-                accessor.TestResult = this.StartStaticAllureTestCase(test);
+                accessor.TestResult = AllureXunitHelper.StartStaticAllureTestCase(test);
             }
             else
             {
-                accessor.TestResultContainer = this.StartNewAllureContainer(
-                    test,
+                accessor.TestResultContainer = AllureXunitHelper.StartNewAllureContainer(
                     message.TestClass.Class.Name
                 );
             }
@@ -89,7 +72,10 @@ namespace Allure.XUnit
             var container = accessor.TestResultContainer;
             if (accessor.TestResult is null && container is not null)
             {
-                accessor.TestResult = this.StartAllureTestCase(test, container);
+                accessor.TestResult = AllureXunitHelper.StartAllureTestCase(
+                    test,
+                    container
+                );
             }
         }
 
@@ -101,13 +87,7 @@ namespace Allure.XUnit
 
             if (testResult is not null)
             {
-                var statusDetails = testResult.statusDetails ??= new();
-                statusDetails.trace = string.Join('\n', message.StackTraces);
-                statusDetails.message = string.Join('\n', message.Messages);
-
-                testResult.status = message.ExceptionTypes.Any(
-                    exceptionType => !exceptionType.StartsWith("Xunit.Sdk.")
-                ) ? Status.broken : Status.failed;
+                AllureXunitHelper.ApplyTestFailure(testResult, message);
             }
         }
 
@@ -119,9 +99,7 @@ namespace Allure.XUnit
 
             if (testResult is not null)
             {
-                var statusDetails = testResult.statusDetails ??= new();
-                statusDetails.message = message.Output;
-                testResult.status = Status.passed;
+                AllureXunitHelper.ApplyTestSuccess(testResult, message);
             }
         }
 
@@ -134,18 +112,14 @@ namespace Allure.XUnit
             if (testResult is not null)
             {
                 this.AddAllureParameters(testResult, test, accessor.Arguments);
-                AllureLifecycle.Instance.StopTestCase(testResult.uuid);
-                AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
+                AllureXunitHelper.ReportTestCase(testResult);
 
                 var container = accessor.TestResultContainer;
                 if (container is not null)
                 {
-                    AllureLifecycle.Instance.StopTestContainer(container.uuid);
-                    AllureLifecycle.Instance.WriteTestContainer(container.uuid);
+                    AllureXunitHelper.ReportTestContainer(container);
                 }
             }
-
-
         }
 
         void OnTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
@@ -153,73 +127,18 @@ namespace Allure.XUnit
             var testCase = args.Message.TestCase;
             if (testCase.SkipReason != null)
             {
-                var testResult = this.CreateTestResultByTestCase(testCase);
-                var statusDetails = testResult.statusDetails ??= new();
-                statusDetails.message = testCase.SkipReason;
-                testResult.status = Status.skipped;
-                AllureLifecycle.Instance.StartTestCase(testResult);
-                AllureLifecycle.Instance.StopTestCase(testResult.uuid);
-                AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
+                AllureXunitHelper.ReportSkippedTestCase(testCase);
             }
         }
 
-        TestResultContainer StartNewAllureContainer(
-            ITest test,
-            string className
-        )
+        AllureXunitTestResultAccessor GetOrCreateAllureResultAccessor(ITest test)
         {
-            var container = new TestResultContainer
+            if (!this.allureTestData.TryGetValue(test, out var accessor))
             {
-                uuid = NewUuid(className),
-                name = className
-            };
-            AllureLifecycle.Instance.StartTestContainer(container);
-            return container;
-        }
-
-        TestResult StartAllureTestCase(
-            ITest test,
-            TestResultContainer container
-        )
-        {
-            var testResult = this.CreateTestResultByTest(test);
-            AllureLifecycle.Instance.StartTestCase(container.uuid, testResult);
-            return testResult;
-        }
-
-        TestResult StartStaticAllureTestCase(ITest test)
-        {
-            var testResult = this.CreateTestResultByTest(test);
-            AllureLifecycle.Instance.StartTestCase(testResult);
-            return testResult;
-        }
-
-        TestResult CreateTestResultByTest(ITest test) =>
-            this.CreateTestResult(test.TestCase, test.DisplayName);
-
-        TestResult CreateTestResultByTestCase(ITestCase testCase) =>
-            this.CreateTestResult(testCase, testCase.DisplayName);
-
-        TestResult CreateTestResult(ITestCase testCase, string displayName)
-        {
-            var testMethod = testCase.TestMethod;
-            var testResult = new TestResult
-            {
-                uuid = NewUuid(displayName),
-                name = BuildName(testCase),
-                historyId = displayName,
-                fullName = BuildFullName(testCase),
-                labels = new()
-                {
-                    Label.Thread(),
-                    Label.Host(),
-                    Label.TestClass(testMethod.TestClass.Class.Name),
-                    Label.TestMethod(displayName),
-                    Label.Package(testMethod.TestClass.Class.Name)
-                }
-            };
-            UpdateTestDataFromAttributes(testResult, testMethod);
-            return testResult;
+                accessor = new AllureXunitTestResultAccessor();
+                this.allureTestData[test] = accessor;
+            }
+            return accessor;
         }
 
         void AddAllureParameters(
@@ -238,14 +157,7 @@ namespace Allure.XUnit
             }
             else
             {
-                testResult.parameters = parameters.Zip(
-                    arguments,
-                    (param, value) => new Parameter
-                    {
-                        name = param.Name,
-                        value = value?.ToString() ?? "null"
-                    }
-                ).ToList();
+                AllureXunitHelper.ApplyTestParameters(testResult, parameters, arguments);
             }
         }
 
@@ -258,155 +170,6 @@ namespace Allure.XUnit
                 "as a workaround";
 #endif
             this.logger.LogWarning(message);
-        }
-
-        static string NewUuid(string name) =>
-            string.Concat(Guid.NewGuid().ToString(), "-", name);
-
-        static string BuildName(ITestCase testCase) =>
-            testCase.TestMethod.Method.GetCustomAttributes(
-                typeof(FactAttribute)
-            ).SingleOrDefault()?.GetNamedArgument<string>(
-                "DisplayName"
-            ) ?? BuildFullName(testCase);
-
-        static string BuildFullName(ITestCase testCase)
-        {
-            var parameters = testCase.TestMethod.Method
-                .GetParameters()
-                .Select(parameter => string.Format(
-                    "{0} {1}",
-                    parameter
-                        .ParameterType
-                        .ToRuntimeType()
-                        .GetFullFormattedTypeName(),
-                    parameter.Name
-                )).ToArray();
-            var parametersSegment = parameters.Any()
-                ? $"({string.Join(", ", parameters)})"
-                : string.Empty;
-
-            return string.Format(
-                "{0}.{1}{2}",
-                testCase.TestMethod.TestClass.Class.Name,
-                testCase.TestMethod.Method.Name,
-                parametersSegment
-            );
-        }
-
-        static void UpdateTestDataFromAttributes(
-            TestResult testResult,
-            ITestMethod method
-        )
-        {
-            var classAttributes = method.TestClass.Class.GetCustomAttributes(
-                typeof(IAllureInfo)
-            );
-            var methodAttributes = method.Method.GetCustomAttributes(
-                typeof(IAllureInfo)
-            );
-
-            foreach (var attribute in classAttributes.Concat(methodAttributes))
-            {
-                switch (((IReflectionAttributeInfo) attribute).Attribute)
-                {
-                    case AllureFeatureAttribute featureAttribute:
-                        testResult.labels.AddDistinct(
-                            "feature",
-                            featureAttribute.Features,
-                            featureAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureLinkAttribute linkAttribute:
-                        testResult.links.Add(linkAttribute.Link);
-                        break;
-
-                    case AllureIssueAttribute issueAttribute:
-                        testResult.links.Add(issueAttribute.IssueLink);
-                        break;
-
-                    case AllureOwnerAttribute ownerAttribute:
-                        testResult.labels.AddDistinct(
-                            Label.Owner(ownerAttribute.Owner),
-                            ownerAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureSuiteAttribute suiteAttribute:
-                        testResult.labels.AddDistinct(
-                            Label.Suite(suiteAttribute.Suite),
-                            suiteAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureSubSuiteAttribute subSuiteAttribute:
-                        testResult.labels.AddDistinct(
-                            Label.SubSuite(subSuiteAttribute.SubSuite),
-                            subSuiteAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureEpicAttribute epicAttribute:
-                        testResult.labels.AddDistinct(
-                            Label.Epic(epicAttribute.Epic),
-                            epicAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureTagAttribute tagAttribute:
-                        testResult.labels.AddDistinct(
-                            "tag",
-                            tagAttribute.Tags,
-                            tagAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureSeverityAttribute severityAttribute:
-                        testResult.labels.AddDistinct(
-                            Label.Severity(severityAttribute.Severity),
-                            true
-                        );
-                        break;
-
-                    case AllureParentSuiteAttribute parentSuiteAttribute:
-                        testResult.labels.AddDistinct(
-                            Label.ParentSuite(parentSuiteAttribute.ParentSuite),
-                            parentSuiteAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureStoryAttribute storyAttribute:
-                        testResult.labels.AddDistinct(
-                            "story",
-                            storyAttribute.Stories,
-                            storyAttribute.Overwrite
-                        );
-                        break;
-
-                    case AllureDescriptionAttribute descriptionAttribute:
-                        testResult.description = descriptionAttribute.Description;
-                        break;
-
-                    case AllureIdAttribute allureIdAttribute:
-                        var allureIdLabel = new Label
-                        {
-                            name = "ALLURE_ID",
-                            value = allureIdAttribute.AllureId
-                        };
-                        testResult.labels.AddDistinct(allureIdLabel, false);
-                        break;
-
-                    case AllureLabelAttribute labelAttribute:
-                        var label = new Label()
-                        {
-                            name = labelAttribute.Label,
-                            value = labelAttribute.Value
-                        };
-                        testResult.labels.AddDistinct(label, labelAttribute.Overwrite);
-                        break;
-                }
-            }
         }
     }
 }
