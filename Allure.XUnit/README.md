@@ -95,11 +95,11 @@ Use [`AllureAttachments`](AllureAttachments.cs) class with its methods. (Attachm
 
 Just run `dotnet test`.
 
-`allure-results` directory with result appears after running tests in target directory.
+`allure-results` directory with result appears after running tests in the target directory.
 
 ## Known issues
 
-### Incompatibility with other runner reporters (#368)
+### Incompatibility with other runner reporters ([#368])
 
 Allure-xunit is implemented as an xunit runner reporter, hence it's incompatible
 with other runner reporters such as `teamcity`, `json` or `verbose` (from
@@ -124,10 +124,18 @@ Alternatively, you may add this setting to your `.runsettings` file:
 </RunSettings>
 ```
 
+Use this file from CLI:
+
+```shell
+dotnet test -s <path-to-.runsettings>
+```
+
+Or apply it via your IDE.
+
 ### Arguments of some theories might be unreported
 
 Under rare circumstances arguments of some theories might be missing in the
-report produced by allure-xunit. #369 contains some additional details.
+report produced by allure-xunit. Issue [#369] contains some additional details.
 
 If you are affected by this, you may switch to the `Debug` configuration as a
 workaround until we come up with a solution.
@@ -137,3 +145,5 @@ workaround until we come up with a solution.
 See [Examples](../Allure.XUnit.Examples).
 
 [xunit.runner.reporters]: https://www.nuget.org/packages/xunit.runner.reporters/
+[#368]: https://github.com/allure-framework/allure-csharp/issues/368
+[#369]: https://github.com/allure-framework/allure-csharp/issues/369
