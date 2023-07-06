@@ -357,12 +357,11 @@ namespace Allure.Xunit
         }
 
         #region Obsolete public methods
-        [Obsolete(
+        const string OBS_MSG_UNINTENDED_PUBLIC =
             "This method wasn't supposed to be in the public API. It's not " +
-            "relevant anymore and will be removed in a future release. You " +
-            "should create model classes by yourself and use " +
-            "AllureLyfecycle.Instance methods instead"
-        )]
+            "relevant anymore and will be removed in a future release";
+
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void StartTestContainer(
             ITestCaseStarting testCaseStarting
@@ -379,12 +378,7 @@ namespace Allure.Xunit
             );
         }
 
-        [Obsolete(
-            "This method wasn't supposed to be in the public API. It's not " +
-            "relevant anymore and will be removed in a future release. You " +
-            "should create model classes by yourself and use " +
-            "AllureLyfecycle.Instance methods instead"
-        )]
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void StartTestCase(ITestCaseMessage testCaseMessage)
         {
@@ -406,12 +400,7 @@ namespace Allure.Xunit
             );
         }
 
-        [Obsolete(
-            "This method wasn't supposed to be in the public API. It's not " +
-            "relevant anymore and will be removed in a future release. You " +
-            "should create model classes by yourself and use " +
-            "AllureLyfecycle.Instance methods instead"
-        )]
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void MarkTestCaseAsFailedOrBroken(ITestFailed testFailed)
         {
@@ -423,12 +412,7 @@ namespace Allure.Xunit
             ApplyTestFailure(testResults.TestResult, testFailed);
         }
 
-        [Obsolete(
-            "This method wasn't supposed to be in the public API. It's not " +
-            "relevant anymore and will be removed in a future release. You " +
-            "should create model classes by yourself and use " +
-            "AllureLyfecycle.Instance methods instead"
-        )]
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void MarkTestCaseAsPassed(ITestPassed testPassed)
         {
@@ -440,12 +424,7 @@ namespace Allure.Xunit
             ApplyTestSuccess(testResults.TestResult, testPassed);
         }
 
-        [Obsolete(
-            "This method wasn't supposed to be in the public API. It's not " +
-            "relevant anymore and will be removed in a future release. You " +
-            "should create model classes by yourself and use " +
-            "AllureLyfecycle.Instance methods instead"
-        )]
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void MarkTestCaseAsSkipped(
             ITestCaseMessage testCaseMessage
@@ -460,12 +439,7 @@ namespace Allure.Xunit
             ApplyTestSkip(testResults.TestResult, testCase.SkipReason);
         }
 
-        [Obsolete(
-            "This method wasn't supposed to be in the public API. It's not " +
-            "relevant anymore and will be removed in a future release. You " +
-            "should create model classes by yourself and use " +
-            "AllureLyfecycle.Instance methods instead"
-        )]
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void FinishTestCase(ITestCaseMessage testCaseMessage)
         {
