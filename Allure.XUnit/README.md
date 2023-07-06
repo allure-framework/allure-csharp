@@ -8,7 +8,6 @@ Allure.XUnit supports .NET Core 2.0 and later.
 
 ## Attributes:
 
-* AllureXunit
 * AllureDescription
 * AllureParentSuite
 * AllureFeature
@@ -22,11 +21,8 @@ Allure.XUnit supports .NET Core 2.0 and later.
 * AllureEpic
 * AllureLabel
 * AllureId
-* AllureXunitTheory - attribute for display parametrized tests. Use ```InlineData```, ```MemberData```, ```ClassData```,
-  XUnit attributes for pass parameters.
 
-All methods have to be tagged by attribute AllureXunit instead of Fact, or AllureXunitTheory instead of Theory for
-display in allure report. Other attributes are optional.
+All attributes are optional.
 
 ### Attributes usage
 
@@ -34,7 +30,6 @@ Most of the attributes can be used both on methods and classes.
 
 | Attribute | Method | Class |
 |:------------------|:---:|:---:|
-| AllureXunit       |  x  |     |
 | AllureDescription |  x  |     |
 | AllureParentSuite |  x  |  x  |
 | AllureFeature     |  x  |  x  |
@@ -47,7 +42,6 @@ Most of the attributes can be used both on methods and classes.
 | AllureLink        |  x  |  x  |
 | AllureEpic        |  x  |  x  |
 | AllureLabel       |  x  |  x  |
-| AllureXunitTheory |  x  |     |
 | AllureId          |  x  |     |
 
 To override attribute value you can use `overwrite` param in attribute definition.
@@ -58,7 +52,7 @@ Example:
 [AllureSuite("Suite A")]
 public class TestClass
 {
-    [AllureXunit(DisplayName = "Test Name")]
+    [Fact(DisplayName = "Test Name")]
     [AllureSuite("Suite B", overwrite: true))]
     public void TestMethod
     {
@@ -66,13 +60,21 @@ public class TestClass
 }
 ```
 
+### AllureXunit and AllureXunitTheory deprecation
+Previously all test methods had to be marked with the AllureXunit or 
+AllureXunitTheory attributes. There is no such need anymore.
+These attributes are still supported, but we advice you to use the built-in
+Fact and Theory attributes instead.
+
+The AllureXunit and AllureXunitTheory attributes might be removed in future releases.
+
 ## Steps
 Use `AllureStepAttribute`, `AllureBeforeAttribute`, `AllureAfterAttribute`
 
 See [Examples](../Allure.XUnit.Examples/ExampleStepAttributes.cs).
 
 ### Allure.XUnit.StepExtensions deprecation
-There is no more need to use separate Allure.XUnit.StepExtensions package - you can simple remove it from dependencies and use attributes from [Allure.XUnit.Attributes.Steps namespace](Attributes/Steps) directly.
+There is no more need to use separate Allure.XUnit.StepExtensions package - you can simply remove it from dependencies and use attributes from [Allure.XUnit.Attributes.Steps namespace](Attributes/Steps) directly.
 
 ```c#
 using Allure.XUnit.Attributes.Steps;
@@ -87,14 +89,61 @@ using Allure.XUnit.Attributes.Steps;
 ```
 
 ## Attachments
-Use [`AllureAttachments`](AllureAttachments.cs) class with it's methods. (AttachmentAttribute coming soon)
+Use [`AllureAttachments`](AllureAttachments.cs) class with its methods. (AttachmentAttribute coming soon)
 
 ## Running
 
 Just run `dotnet test`.
 
-`allure-results` directory with result appears after running tests in target directory.
+`allure-results` directory with result appears after running tests in the target directory.
+
+## Known issues
+
+### Incompatibility with other runner reporters ([#368])
+
+Allure-xunit is implemented as an xunit runner reporter, hence it's incompatible
+with other runner reporters such as `teamcity`, `json` or `verbose` (from
+[xunit.runner.reporters]). Only one reporter could be active at a time.
+
+If you have other reporter active but want to use allure-xunit, you have to
+manually enable the `allure` reporter by running `dotnet test` with the
+`RunConfiguration.ReporterSwitch` run setting set to `allure`:
+
+```shell
+dotnet test -- RunConfiguration.ReporterSwitch=allure
+```
+
+Alternatively, you may add this setting to your `.runsettings` file:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <ReporterSwitch>allure</ReporterSwitch>
+  </<RunConfiguration>
+</RunSettings>
+```
+
+Use this file from CLI:
+
+```shell
+dotnet test -s <path-to-.runsettings>
+```
+
+Or apply it via your IDE.
+
+### Arguments of some theories might be unreported
+
+Under rare circumstances arguments of some theories might be missing in the
+report produced by allure-xunit. Issue [#369] contains some additional details.
+
+If you are affected by this, you may switch to the `Debug` configuration as a
+workaround until we come up with a solution.
 
 ## Examples
 
-See [Examples](../Allure.XUnit.Examples)
+See [Examples](../Allure.XUnit.Examples).
+
+[xunit.runner.reporters]: https://www.nuget.org/packages/xunit.runner.reporters/
+[#368]: https://github.com/allure-framework/allure-csharp/issues/368
+[#369]: https://github.com/allure-framework/allure-csharp/issues/369

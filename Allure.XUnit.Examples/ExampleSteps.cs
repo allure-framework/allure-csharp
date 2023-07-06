@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Allure.Xunit;
 using Allure.Xunit.Attributes;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Allure.XUnit.Examples;
 
@@ -10,6 +11,13 @@ namespace Allure.XUnit.Examples;
 [AllureSuite("ExampleSteps (Obsolete)")]
 public class ExampleSteps : IAsyncLifetime
 {
+    ITestOutputHelper output;
+
+    public ExampleSteps(ITestOutputHelper output)
+    {
+        this.output = output;
+    }
+
     public Task InitializeAsync()
     {
         using (new AllureBefore("Initialization"))
@@ -27,14 +35,14 @@ public class ExampleSteps : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    [AllureXunit(Skip = "ExampleSteps is obsolete")]
+    [Fact(Skip = "ExampleSteps is obsolete")]
     public async Task TestParameters()
     {
         WriteHello(42, 4242, "secret");
         await AddAttachment();
     }
 
-    [AllureXunit(Skip = "ExampleSteps is obsolete")]
+    [Fact(Skip = "ExampleSteps is obsolete")]
     public void TestFail()
     {
         using (new AllureStep("Test Fail"))
@@ -46,11 +54,11 @@ public class ExampleSteps : IAsyncLifetime
         }
     }
 
-    private static void WriteHello(int parameter, int renameMe, string password)
+    private void WriteHello(int parameter, int renameMe, string password)
     {
         using (new AllureStep("Write Hello").SetParameter(parameter).SetParameter("value", renameMe))
         {
-            AllureMessageBus.TestOutputHelper.Value.WriteLine("Hello from Step");
+            this.output.WriteLine("Hello from Step");
         }
     }
 

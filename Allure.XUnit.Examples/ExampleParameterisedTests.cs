@@ -9,13 +9,12 @@ namespace Allure.XUnit.Examples
 {
     public class ExampleParameterisedTests
     {
-      
         public ExampleParameterisedTests()
         {
             Environment.CurrentDirectory = Path.GetDirectoryName(GetType().Assembly.Location);
         }
 
-        [AllureXunitTheory]
+        [Theory]
         [AllureParentSuite("AllTests")]
         [AllureSuite("Test AllureXunitTheory")]
         [AllureSubSuite("Test MemberData")]
@@ -23,11 +22,11 @@ namespace Allure.XUnit.Examples
         public void TestTheoryWithMemberDataProperty(int value1, int value2, int expected)
         {
             var result = value1 + value2;
-        
+
             Assert.Equal(expected, result);
         }
-        
-        [AllureXunitTheory]
+
+        [Theory]
         [AllureParentSuite("AllTests")]
         [AllureSuite("Test AllureXunitTheory")]
         [AllureSubSuite("Test ClassData")]
@@ -35,11 +34,11 @@ namespace Allure.XUnit.Examples
         public void TestTheoryWithClassData(int value1, int value2, int expected)
         {
             var result = value1 + value2;
-        
+
             Assert.Equal(expected, result);
         }
-        
-        [AllureXunitTheory]
+
+        [Theory]
         [AllureParentSuite("AllTests")]
         [AllureSuite("Test AllureXunitTheory")]
         [AllureSubSuite("Test InlineData")]
@@ -49,8 +48,8 @@ namespace Allure.XUnit.Examples
         {
             Assert.Equal(a, b);
         }
-        
-        [AllureXunitTheory]
+
+        [Theory]
         [AllureParentSuite("AllTests")]
         [AllureSuite("Test AllureXunitTheory")]
         [AllureSubSuite("Test MemberData with Custom Reference Type")]
@@ -60,8 +59,8 @@ namespace Allure.XUnit.Examples
         {
             Assert.Equal(a.Test, b.Test);
         }
-        
-        [AllureXunitTheory]
+
+        [Theory]
         [AllureParentSuite("AllTests")]
         [AllureSuite("Test AllureXunitTheory")]
         [AllureSubSuite("Test test MemberData with random data")]
@@ -73,7 +72,7 @@ namespace Allure.XUnit.Examples
             Assert.Equal(expected, result);
         }
 
-        [AllureXunitTheory]
+        [Theory]
         [AllureParentSuite("AllTests")]
         [AllureSuite("Test AllureXunitTheory")]
         [AllureSubSuite("Test test with generic arguments")]

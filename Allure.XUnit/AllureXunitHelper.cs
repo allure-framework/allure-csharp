@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Storage;
-using Allure.XUnit;
 using Allure.Xunit.Attributes;
+using Allure.XUnit;
 using Allure.XUnit.Attributes;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -15,148 +16,168 @@ namespace Allure.Xunit
 {
     public static class AllureXunitHelper
     {
-        internal static List<Type> ExceptionTypes = new List<Type> { typeof(XunitException) };
+        internal static List<Type> ExceptionTypes = new()
+        {
+            typeof(XunitException)
+        };
+
         static AllureXunitHelper()
         {
             const string allureConfigEnvVariable = "ALLURE_CONFIG";
             const string allureConfigName = "allureConfig.json";
 
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable(allureConfigEnvVariable)))
+            var allureConfigPath = Environment.GetEnvironmentVariable(
+                allureConfigEnvVariable
+            );
+            if (!string.IsNullOrEmpty(allureConfigPath))
             {
                 return;
             }
 
-            var allureConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, allureConfigName);
+            allureConfigPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                allureConfigName
+            );
 
-            Environment.SetEnvironmentVariable(allureConfigEnvVariable, allureConfigPath);
+            Environment.SetEnvironmentVariable(
+                allureConfigEnvVariable,
+                allureConfigPath
+            );
         }
 
-        public static void StartTestContainer(ITestCaseStarting testCaseStarting)
+        internal static TestResult StartStaticAllureTestCase(ITest test)
         {
-            if (testCaseStarting.TestCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            StartTestContainer(testCaseStarting.TestClass, testResults);
+            var testResult = CreateTestResultByTest(test);
+            AllureLifecycle.Instance.StartTestCase(testResult);
+            return testResult;
         }
 
-        public static void StartTestCase(ITestCaseMessage testCaseMessage)
+        internal static TestResultContainer StartNewAllureContainer(
+            string className
+        )
         {
-            if (testCaseMessage.TestCase is not ITestResultAccessor testResults)
+            var container = new TestResultContainer
             {
-                return;
-            }
+                uuid = NewUuid(className),
+                name = className
+            };
+            AllureLifecycle.Instance.StartTestContainer(container);
+            return container;
+        }
 
-            var testCase = testCaseMessage.TestCase;
-            var uuid = NewUuid(testCase.DisplayName);
-            testResults.TestResult = new()
+        internal static TestResult StartAllureTestCase(
+            ITest test,
+            TestResultContainer container
+        )
+        {
+            var testResult = CreateTestResultByTest(test);
+            AllureLifecycle.Instance.StartTestCase(container.uuid, testResult);
+            return testResult;
+        }
+
+        internal static void ApplyTestFailure(
+            TestResult testResult,
+            IFailureInformation failure
+        )
+        {
+            var statusDetails = testResult.statusDetails ??= new();
+            statusDetails.trace = string.Join('\n', failure.StackTraces);
+            statusDetails.message = string.Join('\n', failure.Messages);
+
+            testResult.status = failure.ExceptionTypes.Any(
+                exceptionType => !exceptionType.StartsWith("Xunit.Sdk.")
+            ) ? Status.broken : Status.failed;
+        }
+
+        internal static void ApplyTestSuccess(
+            TestResult testResult,
+            ITestResultMessage message
+        )
+        {
+            var statusDetails = testResult.statusDetails ??= new();
+            statusDetails.message = message.Output;
+            testResult.status = Status.passed;
+        }
+
+        internal static void ApplyTestParameters(
+            TestResult testResult,
+            IEnumerable<IParameterInfo> parameters,
+            object[] arguments
+        ) => testResult.parameters = parameters.Zip(
+            arguments,
+            (param, value) => new Parameter
             {
-                uuid = uuid,
+                name = param.Name,
+                value = value?.ToString() ?? "null"
+            }
+        ).ToList();
+
+        internal static void ReportTestCase(TestResult testResult)
+        {
+            AllureLifecycle.Instance.StopTestCase(testResult.uuid);
+            AllureLifecycle.Instance.WriteTestCase(testResult.uuid);
+        }
+
+        internal static void ReportTestContainer(TestResultContainer container)
+        {
+            AllureLifecycle.Instance.StopTestContainer(container.uuid);
+            AllureLifecycle.Instance.WriteTestContainer(container.uuid);
+        }
+
+        internal static void ReportSkippedTestCase(ITestCase testCase)
+        {
+            var testResult = CreateTestResultByTestCase(testCase);
+            ApplyTestSkip(testResult, testCase.SkipReason);
+            AllureLifecycle.Instance.StartTestCase(testResult);
+            ReportTestCase(testResult);
+        }
+
+        static TestResult CreateTestResultByTest(ITest test) =>
+            CreateTestResult(test.TestCase, test.DisplayName);
+
+        static TestResult CreateTestResultByTestCase(ITestCase testCase) =>
+            CreateTestResult(testCase, testCase.DisplayName);
+
+        static TestResult CreateTestResult(
+            ITestCase testCase,
+            string displayName
+        )
+        {
+            var testMethod = testCase.TestMethod;
+            var testResult = new TestResult
+            {
+                uuid = NewUuid(displayName),
                 name = BuildName(testCase),
-                historyId = testCase.DisplayName,
+                historyId = displayName,
                 fullName = BuildFullName(testCase),
                 labels = new()
                 {
                     Label.Thread(),
                     Label.Host(),
-                    Label.TestClass(testCase.TestMethod.TestClass.Class.Name),
-                    Label.TestMethod(testCase.DisplayName),
-                    Label.Package(testCase.TestMethod.TestClass.Class.Name)
-                },
-                parameters = testCase.TestMethod.Method.GetParameters()
-                    .Zip(testCase.TestMethodArguments ?? Array.Empty<object>(), (param, value) => new Parameter
-                    {
-                        name = param.Name,
-                        value = value?.ToString() ?? "null"
-                    })
-                    .ToList()
+                    Label.TestClass(testMethod.TestClass.Class.Name),
+                    Label.TestMethod(displayName),
+                    Label.Package(testMethod.TestClass.Class.Name)
+                }
             };
-            UpdateTestDataFromAttributes(testResults.TestResult, testCase);
-            AllureLifecycle.Instance.StartTestCase(testResults.TestResultContainer.uuid, testResults.TestResult);
+            UpdateTestDataFromAttributes(testResult, testMethod);
+            return testResult;
         }
 
-        public static void MarkTestCaseAsFailedOrBroken(ITestFailed testFailed)
+        static void ApplyTestSkip(
+            TestResult testResult,
+            string reason
+        )
         {
-            if (testFailed.TestCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            var statusDetails = testResults.TestResult.statusDetails ??= new();
-            statusDetails.trace = string.Join('\n', testFailed.StackTraces);
-            statusDetails.message = string.Join('\n', testFailed.Messages);
-
-            if (testFailed.ExceptionTypes.Any(exceptionType => !exceptionType.StartsWith("Xunit.Sdk.")))
-            {
-                testResults.TestResult.status = Status.broken;
-                return;
-            }
-            testResults.TestResult.status = Status.failed;
+            var statusDetails = testResult.statusDetails ??= new();
+            statusDetails.message = reason;
+            testResult.status = Status.skipped;
         }
 
-        public static void MarkTestCaseAsPassed(ITestPassed testPassed)
-        {
-            if (testPassed.TestCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            var statusDetails = testResults.TestResult.statusDetails ??= new();
-            statusDetails.message = testPassed.Output;
-            testResults.TestResult.status = Status.passed;
-        }
-
-        public static void MarkTestCaseAsSkipped(ITestCaseMessage testCaseMessage)
-        {
-            if (testCaseMessage.TestCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            var statusDetails = testResults.TestResult.statusDetails ??= new();
-            statusDetails.message = testCaseMessage.TestCase.SkipReason;
-            testResults.TestResult.status = Status.skipped;
-        }
-
-        public static void FinishTestCase(ITestCaseMessage testCaseMessage)
-        {
-            if (testCaseMessage.TestCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            AllureLifecycle.Instance.StopTestCase(testResults.TestResult.uuid);
-            AllureLifecycle.Instance.WriteTestCase(testResults.TestResult.uuid);
-            AllureLifecycle.Instance.StopTestContainer(testResults.TestResultContainer.uuid);
-            AllureLifecycle.Instance.WriteTestContainer(testResults.TestResultContainer.uuid);
-        }
-
-        private static void StartTestContainer(ITestClass testClass, ITestResultAccessor testResult)
-        {
-            var uuid = NewUuid(testClass.Class.Name);
-            testResult.TestResultContainer = new()
-            {
-                uuid = uuid,
-                name = testClass.Class.Name
-            };
-            AllureLifecycle.Instance.StartTestContainer(testResult.TestResultContainer);
-        }
-
-        private static string NewUuid(string name)
-        {
-            var uuid = string.Concat(Guid.NewGuid().ToString(), "-", name);
-            return uuid;
-        }
-
-        internal static void Log(string message)
-        {
-            AllureMessageBus.TestOutputHelper.Value.WriteLine("╬════════════════════════");
-            AllureMessageBus.TestOutputHelper.Value.WriteLine($"║ {message}");
-            AllureMessageBus.TestOutputHelper.Value.WriteLine("╬═══════════════");
-        }
-
-        private static void AddDistinct(this List<Label> labels, Label labelToInsert, bool overwrite)
+        static void AddDistinct(
+            this List<Label> labels,
+            Label labelToInsert,
+            bool overwrite
+        )
         {
             if (overwrite)
             {
@@ -166,7 +187,11 @@ namespace Allure.Xunit
             labels.Add(labelToInsert);
         }
 
-        private static void AddDistinct(this List<Label> labels, string labelName, string[] values, bool overwrite)
+        static void AddDistinct(
+            this List<Label> labels,
+            string labelName,
+            string[] values, bool overwrite
+        )
         {
             if (overwrite)
             {
@@ -179,17 +204,28 @@ namespace Allure.Xunit
             }
         }
 
-        private static void UpdateTestDataFromAttributes(TestResult testResult, ITestCase testCase)
+        static void UpdateTestDataFromAttributes(
+            TestResult testResult,
+            ITestMethod method
+        )
         {
-            var classAttributes = testCase.TestMethod.TestClass.Class.GetCustomAttributes(typeof(IAllureInfo));
-            var methodAttributes = testCase.TestMethod.Method.GetCustomAttributes(typeof(IAllureInfo));
+            var classAttributes = method.TestClass.Class.GetCustomAttributes(
+                typeof(IAllureInfo)
+            );
+            var methodAttributes = method.Method.GetCustomAttributes(
+                typeof(IAllureInfo)
+            );
 
             foreach (var attribute in classAttributes.Concat(methodAttributes))
             {
-                switch (((IReflectionAttributeInfo) attribute).Attribute)
+                switch (((IReflectionAttributeInfo)attribute).Attribute)
                 {
                     case AllureFeatureAttribute featureAttribute:
-                        testResult.labels.AddDistinct("feature", featureAttribute.Features, featureAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            "feature",
+                            featureAttribute.Features,
+                            featureAttribute.Overwrite
+                        );
                         break;
 
                     case AllureLinkAttribute linkAttribute:
@@ -201,43 +237,73 @@ namespace Allure.Xunit
                         break;
 
                     case AllureOwnerAttribute ownerAttribute:
-                        testResult.labels.AddDistinct(Label.Owner(ownerAttribute.Owner), ownerAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            Label.Owner(ownerAttribute.Owner),
+                            ownerAttribute.Overwrite
+                        );
                         break;
 
                     case AllureSuiteAttribute suiteAttribute:
-                        testResult.labels.AddDistinct(Label.Suite(suiteAttribute.Suite), suiteAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            Label.Suite(suiteAttribute.Suite),
+                            suiteAttribute.Overwrite
+                        );
                         break;
 
                     case AllureSubSuiteAttribute subSuiteAttribute:
-                        testResult.labels.AddDistinct(Label.SubSuite(subSuiteAttribute.SubSuite), subSuiteAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            Label.SubSuite(subSuiteAttribute.SubSuite),
+                            subSuiteAttribute.Overwrite
+                        );
                         break;
 
                     case AllureEpicAttribute epicAttribute:
-                        testResult.labels.AddDistinct(Label.Epic(epicAttribute.Epic), epicAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            Label.Epic(epicAttribute.Epic),
+                            epicAttribute.Overwrite
+                        );
                         break;
 
                     case AllureTagAttribute tagAttribute:
-                        testResult.labels.AddDistinct("tag", tagAttribute.Tags, tagAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            "tag",
+                            tagAttribute.Tags,
+                            tagAttribute.Overwrite
+                        );
                         break;
 
                     case AllureSeverityAttribute severityAttribute:
-                        testResult.labels.AddDistinct(Label.Severity(severityAttribute.Severity), true);
+                        testResult.labels.AddDistinct(
+                            Label.Severity(severityAttribute.Severity),
+                            true
+                        );
                         break;
 
                     case AllureParentSuiteAttribute parentSuiteAttribute:
-                        testResult.labels.AddDistinct(Label.ParentSuite(parentSuiteAttribute.ParentSuite), parentSuiteAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            Label.ParentSuite(parentSuiteAttribute.ParentSuite),
+                            parentSuiteAttribute.Overwrite
+                        );
                         break;
 
                     case AllureStoryAttribute storyAttribute:
-                        testResult.labels.AddDistinct("story", storyAttribute.Stories, storyAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            "story",
+                            storyAttribute.Stories,
+                            storyAttribute.Overwrite
+                        );
                         break;
 
                     case AllureDescriptionAttribute descriptionAttribute:
                         testResult.description = descriptionAttribute.Description;
                         break;
-                    
+
                     case AllureIdAttribute allureIdAttribute:
-                        var allureIdLabel = new Label {name = "ALLURE_ID", value = allureIdAttribute.AllureId};
+                        var allureIdLabel = new Label
+                        {
+                            name = "ALLURE_ID",
+                            value = allureIdAttribute.AllureId
+                        };
                         testResult.labels.AddDistinct(allureIdLabel, false);
                         break;
 
@@ -247,41 +313,145 @@ namespace Allure.Xunit
                             name = labelAttribute.Label,
                             value = labelAttribute.Value
                         };
-                        testResult.labels.AddDistinct(label, labelAttribute.Overwrite);
+                        testResult.labels.AddDistinct(
+                            label,
+                            labelAttribute.Overwrite
+                        );
                         break;
                 }
             }
         }
 
-        private static string BuildName(ITestCase testCase)
-        {
-            var factAttribute = testCase.TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).SingleOrDefault();
-            if (factAttribute is null)
-            {
-                return BuildFullName(testCase);
-            }
+        static string NewUuid(string name) =>
+            string.Concat(Guid.NewGuid().ToString(), "-", name);
 
-            var displayName = factAttribute.GetNamedArgument<string>("DisplayName");
-            if (string.IsNullOrWhiteSpace(displayName))
-            {
-                return BuildFullName(testCase);
-            }
-            
-            return displayName;
-        }
-        
-        private static string BuildFullName(ITestCase testCase)
+        static string BuildName(ITestCase testCase) =>
+            testCase.TestMethod.Method.GetCustomAttributes(
+                typeof(FactAttribute)
+            ).SingleOrDefault()?.GetNamedArgument<string>(
+                "DisplayName"
+            ) ?? BuildFullName(testCase);
+
+        static string BuildFullName(ITestCase testCase)
         {
             var parameters = testCase.TestMethod.Method
                 .GetParameters()
-                .Select(parameter =>
-                    $"{parameter.ParameterType.ToRuntimeType().GetFullFormattedTypeName()} {parameter.Name}")
-                .ToArray();
+                .Select(parameter => string.Format(
+                    "{0} {1}",
+                    parameter
+                        .ParameterType
+                        .ToRuntimeType()
+                        .GetFullFormattedTypeName(),
+                    parameter.Name
+                )).ToArray();
             var parametersSegment = parameters.Any()
                 ? $"({string.Join(", ", parameters)})"
                 : string.Empty;
 
-            return $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}{parametersSegment}";
+            return string.Format(
+                "{0}.{1}{2}",
+                testCase.TestMethod.TestClass.Class.Name,
+                testCase.TestMethod.Method.Name,
+                parametersSegment
+            );
         }
+
+        #region Obsolete public methods
+        const string OBS_MSG_UNINTENDED_PUBLIC =
+            "This method wasn't supposed to be in the public API. It's not " +
+            "relevant anymore and will be removed in a future release";
+
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void StartTestContainer(
+            ITestCaseStarting testCaseStarting
+        )
+        {
+            var testCase = testCaseStarting.TestCase;
+            if (testCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            testResults.TestResultContainer = StartNewAllureContainer(
+                testCaseStarting.TestClass.Class.Name
+            );
+        }
+
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void StartTestCase(ITestCaseMessage testCaseMessage)
+        {
+            var testCase = testCaseMessage.TestCase;
+            if (testCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            testResults.TestResult = CreateTestResultByTestCase(testCase);
+            ApplyTestParameters(
+                testResults.TestResult,
+                testCase.TestMethod.Method.GetParameters(),
+                testCase.TestMethodArguments
+            );
+            AllureLifecycle.Instance.StartTestCase(
+                testResults.TestResultContainer.uuid,
+                testResults.TestResult
+            );
+        }
+
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void MarkTestCaseAsFailedOrBroken(ITestFailed testFailed)
+        {
+            if (testFailed.TestCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            ApplyTestFailure(testResults.TestResult, testFailed);
+        }
+
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void MarkTestCaseAsPassed(ITestPassed testPassed)
+        {
+            if (testPassed.TestCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            ApplyTestSuccess(testResults.TestResult, testPassed);
+        }
+
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void MarkTestCaseAsSkipped(
+            ITestCaseMessage testCaseMessage
+        )
+        {
+            var testCase = testCaseMessage.TestCase;
+            if (testCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            ApplyTestSkip(testResults.TestResult, testCase.SkipReason);
+        }
+
+        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FinishTestCase(ITestCaseMessage testCaseMessage)
+        {
+            var testCase = testCaseMessage.TestCase;
+            if (testCase is not ITestResultAccessor testResults)
+            {
+                return;
+            }
+
+            ReportTestCase(testResults.TestResult);
+            ReportTestContainer(testResults.TestResultContainer);
+        }
+        #endregion
     }
 }

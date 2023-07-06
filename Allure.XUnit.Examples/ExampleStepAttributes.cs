@@ -16,7 +16,7 @@ public class ExampleStepAttributes : IDisposable
         NestedStepReturningString("Second");
     }
 
-    [AllureXunit]
+    [Fact]
     public void Test()
     {
         WriteHelloStep(42, 4242, "secret");
@@ -25,21 +25,21 @@ public class ExampleStepAttributes : IDisposable
         SomeStep();
     }
 
-    [AllureXunit]
+    [Fact]
     public void TestSecond()
     {
         SomeStep();
     }
 
-    [AllureXunit(DisplayName = "This test should be red")]
+    [Fact(DisplayName = "This test should be red")]
     public void TestFailed()
     {
         SomeStep();
         FailingStep();
         SomeStep();
     }
-    
-    [AllureXunit(DisplayName = "This test should be yellow")]
+
+    [Fact(DisplayName = "This test should be yellow")]
     public void TestBroken()
     {
         SomeStep();
@@ -84,7 +84,7 @@ public class ExampleStepAttributes : IDisposable
     {
         Assert.True(false);
     }
-    
+
     [AllureStep("Check that everytime you call this step it will throw an exception")]
     private void ExceptionStep()
     {
