@@ -37,6 +37,7 @@
         <Content Include="allureConfig.Template.json" Pack="true" />
         <PackageReference Include="MimeTypesMap" Version="1.0.8" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
     </ItemGroup>
 
 </Project>
