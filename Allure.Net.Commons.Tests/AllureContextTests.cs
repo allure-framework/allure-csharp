@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Allure.Net.Commons.Storage;
+﻿using Allure.Net.Commons.Storage;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.StorageTests
+namespace Allure.Net.Commons.Tests
 {
     class AllureContextTests
     {
@@ -25,31 +18,31 @@ namespace Allure.Net.Commons.Tests.StorageTests
             Assert.That(
                 () => ctx.CurrentContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "No container context has been set up."
+                    "No container context is active."
                 )
             );
             Assert.That(
                 () => ctx.CurrentFixture,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "No fixture context has been set up."
+                    "No fixture context is active."
                 )
             );
             Assert.That(
                 () => ctx.CurrentTest,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "No test context has been set up."
+                    "No test context is active."
                 )
             );
             Assert.That(
                 () => ctx.CurrentStep,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "No step context has been set up."
+                    "No step context is active."
                 )
             );
             Assert.That(
                 () => ctx.CurrentStepContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "No fixture, test, or step context has been set up."
+                    "No fixture, test, or step context is active."
                 )
             );
         }
@@ -67,6 +60,37 @@ namespace Allure.Net.Commons.Tests.StorageTests
         }
 
         [Test]
+        public void CanNotAddContainerIfTestIsSet()
+        {
+            var ctx = new AllureContext()
+                .WithTestContext(new());
+
+            Assert.That(
+                () => ctx.WithContainer(new()),
+                Throws.InvalidOperationException.With.Message.EqualTo(
+                    "Unable to change a container context because a test " +
+                        "context is active."
+                )
+            );
+        }
+
+        [Test]
+        public void CanNotAddContainerIfFixtureIsSet()
+        {
+            var ctx = new AllureContext()
+                .WithContainer(new())
+                .WithFixtureContext(new());
+
+            Assert.That(
+                () => ctx.WithContainer(new()),
+                Throws.InvalidOperationException.With.Message.EqualTo(
+                    "Unable to change a container context because a fixture " +
+                        "context is active."
+                )
+            );
+        }
+
+        [Test]
         public void CanNotRemoveContainerIfTestIsSet()
         {
             var ctx = new AllureContext()
@@ -76,8 +100,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
             Assert.That(
                 ctx.WithNoLastContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to exclude the latest container from the " +
-                        "context because a test context exists."
+                    "Unable to change a container context because a test " +
+                        "context is active."
                 )
             );
         }
@@ -145,8 +169,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
             Assert.That(
                 ctx.WithNoLastContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to exclude the latest container from the " +
-                        "context because no container context has been set up."
+                    "Unable to deactivate a container context " +
+                        "because it's inactive."
                 )
             );
         }
@@ -185,8 +209,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
                 () => ctx.WithFixtureContext(new()),
                 Throws.InvalidOperationException
                     .With.Message.EqualTo(
-                        "Unable to set up the fixture context because there " +
-                            "is no container context."
+                        "Unable to activate a fixture context because a " +
+                            "container context is inactive."
                     )
             );
         }
@@ -226,8 +250,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
             Assert.That(
                 ctx.WithNoLastContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to exclude the latest container from the " +
-                        "context because a fixture context exists."
+                    "Unable to change a container context because " +
+                        "a fixture context is active."
                 )
             );
         }
@@ -245,8 +269,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
                 () => ctx.WithFixtureContext(new()),
                 Throws.InvalidOperationException
                     .With.Message.EqualTo(
-                        "Unable to set up the fixture context " +
-                            "because another fixture context already exists."
+                        "Unable to activate a fixture context because " +
+                            "another fixture context is active."
                     )
             );
         }
@@ -273,8 +297,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
                 () => ctx.WithTestContext(new()),
                 Throws.InvalidOperationException
                     .With.Message.EqualTo(
-                        "Unable to set up the test context " +
-                            "because another test context already exists."
+                        "Unable to activate a test context because another " +
+                            "test context is active."
                     )
             );
         }
@@ -289,8 +313,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
             Assert.That(
                 () => ctx.WithTestContext(new()),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to set up the test context " +
-                        "because a fixture context is currently active."
+                    "Unable to activate a test context because a fixture " +
+                        "context is active."
                 )
             );
         }
@@ -358,8 +382,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
             Assert.That(
                 () => ctx.WithStep(new()),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to set up the step context because no test or" +
-                        "fixture context exists."
+                    "Unable to activate a step context because neither " +
+                        "test, nor fixture context is active."
                 )
             );
         }
@@ -372,8 +396,8 @@ namespace Allure.Net.Commons.Tests.StorageTests
             Assert.That(
                 () => ctx.WithNoLastStep(),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to exclude the latest step from the context " +
-                        "because no step context has been set up."
+                    "Unable to deactivate a step context because it's " +
+                        "already inactive."
                 )
             );
         }

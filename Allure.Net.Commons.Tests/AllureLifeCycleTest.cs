@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Threading.Tasks;
 
 namespace Allure.Net.Commons.Tests
@@ -92,7 +93,49 @@ namespace Allure.Net.Commons.Tests
                     .StopTestContainer(container.uuid)
                     .WriteTestContainer(container.uuid);
             });
+        }
 
+        [Test, Description("Test step should be correctly added even if a " +
+            "before fixture overlaps with the test")]
+        public void BeforeFixtureMayOverlapsWithTest()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            var container = new TestResultContainer
+            {
+                uuid = Guid.NewGuid().ToString()
+            };
+            var testResult = new TestResult
+            {
+                uuid = Guid.NewGuid().ToString()
+            };
+            var fixture = new FixtureResult { name = "fixture" };
+
+            lifecycle.StartTestContainer(container)
+                .StartTestCase(testResult)
+                .StartBeforeFixture(
+                    container.uuid,
+                    new(),
+                    out var fixtureId
+                ).StopFixture(fixtureId)
+                .StartStep(new(), out var stepId)
+                .StopStep()
+                .StopTestCase(testResult.uuid)
+                .StopTestContainer(container.uuid)
+                .WriteTestCase(testResult.uuid)
+                .WriteTestContainer(container.uuid);
+
+            Assert.That(writer.testContainers.Count, Is.EqualTo(1));
+            Assert.That(writer.testContainers[0].uuid, Is.EqualTo(container.uuid));
+
+            Assert.That(writer.testContainers[0].befores.Count, Is.EqualTo(1));
+            Assert.That(writer.testContainers[0].befores[0].name, Is.EqualTo("fixture"));
+
+            Assert.That(writer.testContainers[0].children.Count, Is.EqualTo(1));
+            Assert.That(writer.testContainers[0].children[0], Is.EqualTo(testResult.uuid));
+
+            Assert.That(writer.testResults.Count, Is.EqualTo(1));
+            Assert.That(writer.testResults[0].uuid, Is.EqualTo(testResult.uuid));
         }
     }
 }

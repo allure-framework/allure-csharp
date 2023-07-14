@@ -33,12 +33,25 @@ namespace Allure.Net.Commons
         internal AllureLifecycle(): this(GetConfiguration())
         {
         }
-        
-        internal AllureLifecycle(JObject config)
+
+        internal AllureLifecycle(
+            Func<AllureConfiguration, IAllureResultsWriter> writerFactory
+        ) : this(GetConfiguration(), writerFactory)
+        {
+        }
+
+        internal AllureLifecycle(JObject config): this(config, c => new FileSystemResultsWriter(c))
+        {
+        }
+
+        internal AllureLifecycle(
+            JObject config,
+            Func<AllureConfiguration, IAllureResultsWriter> writerFactory
+        )
         {
             JsonConfiguration = config.ToString();
             AllureConfiguration = AllureConfiguration.ReadFromJObject(config);
-            writer = new FileSystemResultsWriter(AllureConfiguration);
+            writer = writerFactory(AllureConfiguration);
             storage = new AllureStorage();
         }
 
