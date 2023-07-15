@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -69,6 +70,82 @@ namespace Allure.Net.Commons.Tests
             this.AssertTestWithSteps("test-1", "step-1", "step-2", "step-3");
         }
 
+        [Test]
+        public void ContextCapturedBySubThreads()
+        {
+            /*
+             * test               | Parent thread
+             *   - outer          | Parent thread
+             *     - inner-1      | Child thread 1
+             *       - inner-1-1  | Child thread 1
+             *       - inner-1-2  | Child thread 1
+             *     - inner-2      | Child thread 2
+             *       - inner-2-1  | Child thread 2
+             *       - inner-2-2  | Child thread 2
+             */
+            this.WrapInTest(
+                "test",
+                _ => this.WrapInStep(
+                    "outer",
+                    _ => RunThreads(
+                        () => this.AddSteps(
+                            ("inner-1", new object[] { "inner-1-1", "inner-1-2" })
+                        ),
+                        () => this.AddSteps(
+                            ("inner-2", new object[] { "inner-2-1", "inner-2-2" })
+                        )
+                    )
+                )
+            );
+
+            this.AssertTestWithSteps(
+                "test",
+                ("outer", new object[]
+                {
+                    ("inner-1", new object[] { "inner-1-1", "inner-1-2" }),
+                    ("inner-2", new object[] { "inner-2-1", "inner-2-2" })
+                })
+            );
+        }
+
+        [Test]
+        public async Task ContextCapturedBySubTasks()
+        {
+            /*
+             * test               | Parent task
+             *   - outer          | Parent task
+             *     - inner-1      | Child task 1
+             *       - inner-1-1  | Child task 1
+             *       - inner-1-2  | Child task 1
+             *     - inner-2      | Child task 2
+             *       - inner-2-1  | Child task 2
+             *       - inner-2-2  | Child task 2
+             */
+            await this.WrapInTestAsync(
+                "test",
+                async _ => await this.WrapInStepAsync(
+                    "outer",
+                    async _ => await Task.WhenAll(
+                        this.AddStepsAsync(
+                            ("inner-1", new object[] { "inner-1-1", "inner-1-2" })
+                        ),
+                        this.AddStepsAsync(
+                            ("inner-2", new object[] { "inner-2-1", "inner-2-2" })
+                        )
+                    )
+                )
+            );
+
+            this.AssertTestWithSteps(
+                "test",
+                ("outer", new object[]
+                {
+                    ("inner-1", new object[] { "inner-1-1", "inner-1-2" }),
+                    ("inner-2", new object[] { "inner-2-1", "inner-2-2" })
+                })
+            );
+        }
+
         async Task AddTestWithStepsAsync(string name, params object[] steps)
         {
             var uuid = Guid.NewGuid().ToString();
@@ -91,6 +168,28 @@ namespace Allure.Net.Commons.Tests
             this.lifecycle
                 .StopTestCase(uuid)
                 .WriteTestCase(uuid);
+        }
+
+        void WrapInStep(string stepName, Action<string> action)
+        {
+            this.lifecycle.StartStep(
+                new() { name = stepName },
+                out var stepId
+            );
+            action(stepId);
+            this.lifecycle
+                .StopStep();
+        }
+
+        async Task WrapInStepAsync(string stepName, Func<string, Task> action)
+        {
+            this.lifecycle.StartStep(
+                new() { name = stepName },
+                out var stepId
+            );
+            await action(stepId);
+            this.lifecycle
+                .StopStep();
         }
 
         async Task WrapInTestAsync(string testName, Func<string, Task> action)
