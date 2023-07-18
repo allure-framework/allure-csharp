@@ -5,11 +5,12 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
-using Allure.Net.Commons.Helpers;
 using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.Writer;
 using HeyRed.Mime;
 using Newtonsoft.Json.Linq;
+
+#nullable enable
 
 [assembly: InternalsVisibleTo("Allure.Net.Commons.Tests")]
 
@@ -22,13 +23,30 @@ namespace Allure.Net.Commons
         public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
             new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);
 
-        private static readonly object Lockobj = new();
-        private static AllureLifecycle instance;
+        private static readonly Lazy<AllureLifecycle> instance =
+            new(Initialize);
         private readonly AllureStorage storage;
         private readonly IAllureResultsWriter writer;
 
+
+        /// <summary>
+        /// Gets or sets an execution context of Allure. Use this property if
+        /// the context is set not in the same async domain where a
+        /// test/fixture function is executed.
+        /// </summary>
+        /// <remarks>
+        /// This property is intended to be used by Allure integrations with
+        /// test frameworks, not by end user's code.
+        /// </remarks>
+        public AllureContext Context
+        {
+            get => this.storage.CurrentContext;
+            set => this.storage.CurrentContext = value;
+        }
+
         /// <summary> Method to get the key for separation the steps for different tests. </summary>
-        public static Func<string> CurrentTestIdGetter { get; set; } = () => Thread.CurrentThread.ManagedThreadId.ToString();
+        public static Func<string> CurrentTestIdGetter { get; set; } =
+            () => Thread.CurrentThread.ManagedThreadId.ToString();
 
         internal AllureLifecycle(): this(GetConfiguration())
         {
@@ -56,29 +74,12 @@ namespace Allure.Net.Commons
         }
 
         public string JsonConfiguration { get; private set; }
+
         public AllureConfiguration AllureConfiguration { get; }
 
         public string ResultsDirectory => writer.ToString();
 
-        public static AllureLifecycle Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (Lockobj)
-                    {
-                        if (instance == null)
-                        {
-                            var localInstance = new AllureLifecycle();
-                            Interlocked.Exchange(ref instance, localInstance);
-                        }
-                    }
-                }
-
-                return instance;
-            }
-        }
+        public static AllureLifecycle Instance { get => instance.Value; }
 
         public void AddTypeFormatter<T>(TypeFormatter<T> typeFormatter) =>
             AddTypeFormatterImpl(typeof(T), typeFormatter);
@@ -91,7 +92,10 @@ namespace Allure.Net.Commons
         public virtual AllureLifecycle StartTestContainer(TestResultContainer container)
         {
             container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.Put(container.uuid, container);
+            this.storage.CurrentTestContainerOrNull?.children.Add(
+                container.uuid
+            );
+            storage.PutTestContainer(container);
             return this;
         }
 
@@ -102,27 +106,70 @@ namespace Allure.Net.Commons
             return this;
         }
 
+        public virtual AllureLifecycle UpdateTestContainer(Action<TestResultContainer> update)
+        {
+            update.Invoke(storage.CurrentTestContainer);
+            return this;
+        }
+
         public virtual AllureLifecycle UpdateTestContainer(string uuid, Action<TestResultContainer> update)
         {
             update.Invoke(storage.Get<TestResultContainer>(uuid));
             return this;
         }
 
+        public virtual AllureLifecycle StopTestContainer()
+        {
+            UpdateTestContainer(stopContainer);
+            return this;
+        }
+
         public virtual AllureLifecycle StopTestContainer(string uuid)
         {
-            UpdateTestContainer(uuid, c => c.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds());
+            UpdateTestContainer(uuid, stopContainer);
+            return this;
+        }
+
+        public virtual AllureLifecycle WriteTestContainer()
+        {
+            writer.Write(
+                storage.RemoveTestContainer()
+            );
             return this;
         }
 
         public virtual AllureLifecycle WriteTestContainer(string uuid)
         {
-            writer.Write(storage.Remove<TestResultContainer>(uuid));
+            writer.Write(
+                storage.RemoveTestContainer(uuid)
+            );
             return this;
         }
 
         #endregion
 
         #region Fixture
+
+        public virtual AllureLifecycle StartBeforeFixture(FixtureResult result)
+        {
+            UpdateTestContainer(container => container.befores.Add(result));
+            this.StartFixture(result);
+            return this;
+        }
+
+        public virtual AllureLifecycle StartBeforeFixture(FixtureResult result, out string uuid)
+        {
+            uuid = CreateUuid();
+            StartBeforeFixture(uuid, result);
+            return this;
+        }
+
+        public virtual AllureLifecycle StartBeforeFixture(string uuid, FixtureResult result)
+        {
+            UpdateTestContainer(container => container.befores.Add(result));
+            StartFixture(uuid, result);
+            return this;
+        }
 
         public virtual AllureLifecycle StartBeforeFixture(string parentUuid, FixtureResult result, out string uuid)
         {
@@ -138,9 +185,16 @@ namespace Allure.Net.Commons
             return this;
         }
 
+        public virtual AllureLifecycle StartAfterFixture(FixtureResult result)
+        {
+            this.UpdateTestContainer(c => c.afters.Add(result));
+            this.StartFixture(result);
+            return this;
+        }
+
         public virtual AllureLifecycle StartAfterFixture(string parentUuid, FixtureResult result, out string uuid)
         {
-            uuid = Guid.NewGuid().ToString("N");
+            uuid = CreateUuid();
             StartAfterFixture(parentUuid, uuid, result);
             return this;
         }
@@ -154,7 +208,7 @@ namespace Allure.Net.Commons
 
         public virtual AllureLifecycle UpdateFixture(Action<FixtureResult> update)
         {
-            UpdateFixture(storage.GetRootStep(), update);
+            update?.Invoke(storage.CurrentFixture);
             return this;
         }
 
@@ -167,13 +221,20 @@ namespace Allure.Net.Commons
         public virtual AllureLifecycle StopFixture(Action<FixtureResult> beforeStop)
         {
             UpdateFixture(beforeStop);
-            return StopFixture(storage.GetRootStep());
+            return this.StopFixture();
+        }
+
+        public virtual AllureLifecycle StopFixture()
+        {
+            var fixture = this.storage.RemoveFixture();
+            fixture.stage = Stage.finished;
+            fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            return this;
         }
 
         public virtual AllureLifecycle StopFixture(string uuid)
         {
-            var fixture = storage.Remove<FixtureResult>(uuid);
-            storage.ClearStepContext();
+            var fixture = this.storage.RemoveFixture(uuid);
             fixture.stage = Stage.finished;
             fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             return this;
@@ -191,43 +252,62 @@ namespace Allure.Net.Commons
 
         public virtual AllureLifecycle StartTestCase(TestResult testResult)
         {
+            this.storage.CurrentTestContainerOrNull?.children.Add(testResult.uuid);
             testResult.stage = Stage.running;
-            testResult.start = testResult.start == 0L ? DateTimeOffset.Now.ToUnixTimeMilliseconds() : testResult.start;
-            storage.Put(testResult.uuid, testResult);
-            storage.ClearStepContext();
-            storage.StartStep(testResult.uuid);
+            testResult.start = testResult.start == 0L
+                ? DateTimeOffset.Now.ToUnixTimeMilliseconds()
+                : testResult.start;
+            this.storage.PutTestCase(testResult);
             return this;
         }
 
-        public virtual AllureLifecycle UpdateTestCase(string uuid, Action<TestResult> update)
+        public virtual AllureLifecycle UpdateTestCase(
+            string uuid,
+            Action<TestResult> update
+        )
         {
-            update.Invoke(storage.Get<TestResult>(uuid));
+            var testResult = this.storage.Get<TestResult>(uuid);
+            update(testResult);
             return this;
         }
 
-        public virtual AllureLifecycle UpdateTestCase(Action<TestResult> update)
+        public virtual AllureLifecycle UpdateTestCase(
+            Action<TestResult> update
+        )
         {
-            return UpdateTestCase(storage.GetRootStep(), update);
+            update(this.storage.CurrentTest);
+            return this;
         }
 
-        public virtual AllureLifecycle StopTestCase(Action<TestResult> beforeStop)
+        public virtual AllureLifecycle StopTestCase(
+            Action<TestResult> beforeStop
+        )
         {
-            UpdateTestCase(beforeStop);
-            return StopTestCase(storage.GetRootStep());
+            var testResult = this.storage.CurrentTest;
+            beforeStop(testResult);
+            stopTestCase(testResult);
+            return this;
         }
 
-        public virtual AllureLifecycle StopTestCase(string uuid)
+        public virtual AllureLifecycle StopTestCase() =>
+            this.UpdateTestCase(stopTestCase);
+
+        public virtual AllureLifecycle StopTestCase(string uuid) =>
+            this.UpdateTestCase(uuid, stopTestCase);
+
+        public virtual AllureLifecycle WriteTestCase()
         {
-            var testResult = storage.Get<TestResult>(uuid);
-            testResult.stage = Stage.finished;
-            testResult.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.ClearStepContext();
+            this.writer.Write(
+                this.storage.RemoveTestCase()
+            );
             return this;
         }
 
         public virtual AllureLifecycle WriteTestCase(string uuid)
         {
-            writer.Write(storage.Remove<TestResult>(uuid));
+            this.writer.Write(
+                this.storage.RemoveTestCase(uuid)
+            );
             return this;
         }
 
@@ -235,31 +315,40 @@ namespace Allure.Net.Commons
 
         #region Step
 
+        public virtual AllureLifecycle StartStep(StepResult result)
+        {
+            result.stage = Stage.running;
+            result.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            this.storage.CurrentStepContainer.steps.Add(result);
+            this.storage.PutStep(result);
+            return this;
+        }
+
         public virtual AllureLifecycle StartStep(StepResult result, out string uuid)
         {
-            uuid = Guid.NewGuid().ToString("N");
-            StartStep(storage.GetCurrentStep(), uuid, result);
+            uuid = CreateUuid();
+            StartStep(this.storage.CurrentStepContainer, uuid, result);
             return this;
         }
         
-        public virtual AllureLifecycle StartStep(string uuid, StepResult result)
-        {
-            StartStep(storage.GetCurrentStep(), uuid, result);
-            return this;
-        }
+        public virtual AllureLifecycle StartStep(
+            string uuid,
+            StepResult result
+        ) => this.StartStep(this.storage.CurrentStepContainer, uuid, result);
 
-        public virtual AllureLifecycle StartStep(string parentUuid, string uuid, StepResult stepResult)
-        {
-            stepResult.stage = Stage.running;
-            stepResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.StartStep(uuid);
-            storage.AddStep(parentUuid, uuid, stepResult);
-            return this;
-        }
+        public virtual AllureLifecycle StartStep(
+            string parentUuid,
+            string uuid,
+            StepResult stepResult
+        ) => this.StartStep(
+            this.storage.Get<ExecutableItem>(parentUuid),
+            uuid,
+            stepResult
+        );
 
         public virtual AllureLifecycle UpdateStep(Action<StepResult> update)
         {
-            update.Invoke(storage.Get<StepResult>(storage.GetCurrentStep()));
+            update.Invoke(this.storage.CurrentStep);
             return this;
         }
 
@@ -271,22 +360,23 @@ namespace Allure.Net.Commons
 
         public virtual AllureLifecycle StopStep(Action<StepResult> beforeStop)
         {
-            UpdateStep(beforeStop);
-            return StopStep(storage.GetCurrentStep());
+            this.UpdateStep(beforeStop);
+            return this.StopStep();
         }
 
         public virtual AllureLifecycle StopStep(string uuid)
         {
-            var step = storage.Remove<StepResult>(uuid);
+            var step = this.storage.RemoveStep(uuid);
             step.stage = Stage.finished;
             step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.StopStep();
             return this;
         }
 
         public virtual AllureLifecycle StopStep()
         {
-            StopStep(storage.GetCurrentStep());
+            var step = this.storage.RemoveStep();
+            step.stage = Stage.finished;
+            step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             return this;
         }
 
@@ -304,7 +394,7 @@ namespace Allure.Net.Commons
         public virtual AllureLifecycle AddAttachment(string name, string type, byte[] content,
             string fileExtension = "")
         {
-            var source = $"{Guid.NewGuid().ToString("N")}{AllureConstants.ATTACHMENT_FILE_SUFFIX}{fileExtension}";
+            var source = $"{CreateUuid()}{AllureConstants.ATTACHMENT_FILE_SUFFIX}{fileExtension}";
             var attachment = new Attachment
             {
                 name = name,
@@ -312,13 +402,13 @@ namespace Allure.Net.Commons
                 source = source
             };
             writer.Write(source, content);
-            storage.Get<ExecutableItem>(storage.GetCurrentStep()).attachments.Add(attachment);
+            this.storage.CurrentStepContainer.attachments.Add(attachment);
             return this;
         }
 
-        public virtual AllureLifecycle AddAttachment(string path, string name = null)
+        public virtual AllureLifecycle AddAttachment(string path, string? name = null)
         {
-            name = name ?? Path.GetFileName(path);
+            name ??= Path.GetFileName(path);
             var type = MimeTypesMap.GetMimeType(path);
             return AddAttachment(name, type, path);
         }
@@ -348,6 +438,8 @@ namespace Allure.Net.Commons
 
         #region Privates
 
+        static AllureLifecycle Initialize() => new();
+
         private static JObject GetConfiguration()
         {
             var jsonConfigPath = Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE);
@@ -368,14 +460,46 @@ namespace Allure.Net.Commons
             return JObject.Parse("{}");
         }
 
-        private void StartFixture(string uuid, FixtureResult fixtureResult)
+        private void StartFixture(FixtureResult fixtureResult)
         {
-            storage.Put(uuid, fixtureResult);
+            storage.PutFixture(fixtureResult);
             fixtureResult.stage = Stage.running;
             fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            storage.ClearStepContext();
-            storage.StartStep(uuid);
         }
+
+        void StartFixture(string uuid, FixtureResult fixtureResult)
+        {
+            storage.PutFixture(uuid, fixtureResult);
+            fixtureResult.stage = Stage.running;
+            fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        }
+
+        AllureLifecycle StartStep(
+            ExecutableItem parent,
+            string uuid,
+            StepResult stepResult
+        )
+        {
+            stepResult.stage = Stage.running;
+            stepResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            parent.steps.Add(stepResult);
+            this.storage.PutStep(uuid, stepResult);
+            return this;
+        }
+
+        static readonly Action<TestResultContainer> stopContainer =
+            c => c.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+        static readonly Action<TestResult> stopTestCase =
+            tr =>
+            {
+                tr.stage = Stage.finished;
+                tr.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            };
+
+
+        static string CreateUuid() =>
+            Guid.NewGuid().ToString("N");
 
         #endregion
     }

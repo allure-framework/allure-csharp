@@ -17,7 +17,7 @@ namespace Allure.Net.Commons.Storage
     /// between different tests and steps that may potentially be run
     /// cuncurrently either by a test framework or by an end user.
     /// </remarks>
-    internal record class AllureContext
+    public record class AllureContext
     {
         /// <summary>
         /// A stack of fixture containers affecting subsequent tests.
@@ -27,7 +27,7 @@ namespace Allure.Net.Commons.Storage
         /// (including adding a fixture to or removing a fixture from the
         /// current container).
         /// </remarks>
-        public IImmutableStack<TestResultContainer> ContainerContext
+        internal IImmutableStack<TestResultContainer> ContainerContext
         {
             get;
             private init;
@@ -43,7 +43,7 @@ namespace Allure.Net.Commons.Storage
         /// instead of throwing it returns null if a fixture context isn't
         /// active.
         /// </remarks>
-        public FixtureResult? FixtureContext { get; private init; }
+        internal FixtureResult? FixtureContext { get; private init; }
 
         /// <summary>
         /// A test that is being executed.
@@ -55,7 +55,7 @@ namespace Allure.Net.Commons.Storage
         /// This property differs from <see cref="CurrentTest"/> in that
         /// instead of throwing it returns null if a test context isn't active.
         /// </remarks>
-        public TestResult? TestContext { get; private init; }
+        internal TestResult? TestContext { get; private init; }
 
         /// <summary>
         /// A stack of nested steps that are being executed.
@@ -63,7 +63,7 @@ namespace Allure.Net.Commons.Storage
         /// <remarks>
         /// Activating this context allows operations on the current step.
         /// </remarks>
-        public IImmutableStack<StepResult> StepContext
+        internal IImmutableStack<StepResult> StepContext
         {
             get;
             private init;
@@ -77,7 +77,7 @@ namespace Allure.Net.Commons.Storage
         /// context isn't active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        public TestResultContainer CurrentContainer
+        internal TestResultContainer CurrentContainer
         {
             get => this.ContainerContext.FirstOrDefault()
                 ?? throw new InvalidOperationException(
@@ -93,7 +93,7 @@ namespace Allure.Net.Commons.Storage
         /// context isn't active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        public FixtureResult CurrentFixture
+        internal FixtureResult CurrentFixture
         {
             get => this.FixtureContext ?? throw new InvalidOperationException(
                 "No fixture context is active."
@@ -108,7 +108,7 @@ namespace Allure.Net.Commons.Storage
         /// isn't active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        public TestResult CurrentTest
+        internal TestResult CurrentTest
         {
             get => this.TestContext ?? throw new InvalidOperationException(
                 "No test context is active."
@@ -123,7 +123,7 @@ namespace Allure.Net.Commons.Storage
         /// isn't active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        public StepResult CurrentStep
+        internal StepResult CurrentStep
         {
             get => this.StepContext.FirstOrDefault()
                 ?? throw new InvalidOperationException(
@@ -140,7 +140,7 @@ namespace Allure.Net.Commons.Storage
         /// fixture, nor test, nor step context is active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        public ExecutableItem CurrentStepContainer
+        internal ExecutableItem CurrentStepContainer
         {
             get => this.StepContext.FirstOrDefault() as ExecutableItem
                 ?? this.RootStepContainer
@@ -164,7 +164,7 @@ namespace Allure.Net.Commons.Storage
         /// (always active) container context.
         /// </returns>
         /// <exception cref="ArgumentNullException"/>
-        public AllureContext WithContainer(TestResultContainer container) =>
+        internal AllureContext WithContainer(TestResultContainer container) =>
             this.ValidateContainerContextCanBeModified() with
             {
                 ContainerContext = this.ContainerContext.Push(
@@ -188,7 +188,7 @@ namespace Allure.Net.Commons.Storage
         /// (possibly inactive) container context.
         /// </returns>
         /// <exception cref="InvalidOperationException"/>
-        public AllureContext WithNoLastContainer() =>
+        internal AllureContext WithNoLastContainer() =>
             this with
             {
                 ContainerContext = this.ValidateContainerCanBeRemoved()
@@ -209,7 +209,7 @@ namespace Allure.Net.Commons.Storage
         /// </returns>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
-        public AllureContext WithFixtureContext(FixtureResult fixtureResult) =>
+        internal AllureContext WithFixtureContext(FixtureResult fixtureResult) =>
             this with
             {
                 FixtureContext = this.ValidateNewFixtureContext(
@@ -224,7 +224,7 @@ namespace Allure.Net.Commons.Storage
         /// Creates a new <see cref="AllureContext"/> with inactive fixture and
         /// step contexts.
         /// </summary>
-        public AllureContext WithNoFixtureContext() =>
+        internal AllureContext WithNoFixtureContext() =>
             this with
             {
                 FixtureContext = null,
@@ -245,7 +245,7 @@ namespace Allure.Net.Commons.Storage
         /// </returns>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
-        public AllureContext WithTestContext(TestResult testResult) =>
+        internal AllureContext WithTestContext(TestResult testResult) =>
             this with
             {
                 TestContext = this.ValidateNewTestContext(
@@ -259,7 +259,7 @@ namespace Allure.Net.Commons.Storage
         /// Creates a new <see cref="AllureContext"/> with inactive test,
         /// fixture and step contexts.
         /// </summary>
-        public AllureContext WithNoTestContext() =>
+        internal AllureContext WithNoTestContext() =>
             this with
             {
                 FixtureContext = null,
@@ -283,7 +283,7 @@ namespace Allure.Net.Commons.Storage
         /// </returns>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
-        public AllureContext WithStep(StepResult stepResult) =>
+        internal AllureContext WithStep(StepResult stepResult) =>
             this with
             {
                 StepContext = this.StepContext.Push(
@@ -306,7 +306,7 @@ namespace Allure.Net.Commons.Storage
         /// (possibly inactive) step context.
         /// </returns>
         /// <exception cref="InvalidOperationException"/>
-        public AllureContext WithNoLastStep() =>
+        internal AllureContext WithNoLastStep() =>
             this with
             {
                 StepContext = this.StepContext.IsEmpty
@@ -330,7 +330,7 @@ namespace Allure.Net.Commons.Storage
             {
                 throw new InvalidOperationException(
                     "Unable to change a container context because a test " +
-                    "context is active."
+                        "context is active."
                 );
             }
 

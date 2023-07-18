@@ -50,7 +50,7 @@ namespace Allure.Net.Commons.Tests
         [Test]
         public void ParallelStepsOfTestAreIsolated()
         {
-            this.WrapInTest("test-1", _ => RunThreads(
+            this.WrapInTest("test-1", () => RunThreads(
                 () => this.AddStep("step-1"),
                 () => this.AddStep("step-2")
             ));
@@ -61,7 +61,7 @@ namespace Allure.Net.Commons.Tests
         [Test]
         public async Task AsyncStepsOfTestAreIsolated()
         {
-            await this.WrapInTestAsync("test-1", async _ => await Task.WhenAll(
+            await this.WrapInTestAsync("test-1", async () => await Task.WhenAll(
                 this.AddStepsAsync("step-1"),
                 this.AddStepsAsync("step-2"),
                 this.AddStepsAsync("step-3")
@@ -85,9 +85,9 @@ namespace Allure.Net.Commons.Tests
              */
             this.WrapInTest(
                 "test",
-                _ => this.WrapInStep(
+                () => this.WrapInStep(
                     "outer",
-                    _ => RunThreads(
+                    () => RunThreads(
                         () => this.AddSteps(
                             ("inner-1", new object[] { "inner-1-1", "inner-1-2" })
                         ),
@@ -123,9 +123,9 @@ namespace Allure.Net.Commons.Tests
              */
             await this.WrapInTestAsync(
                 "test",
-                async _ => await this.WrapInStepAsync(
+                async () => await this.WrapInStepAsync(
                     "outer",
-                    async _ => await Task.WhenAll(
+                    async () => await Task.WhenAll(
                         this.AddStepsAsync(
                             ("inner-1", new object[] { "inner-1-1", "inner-1-2" })
                         ),
@@ -158,55 +158,51 @@ namespace Allure.Net.Commons.Tests
                 .WriteTestCase(uuid);
         }
 
-        void WrapInTest(string testName, Action<string> action)
+        void WrapInTest(string testName, Action action)
         {
-            var uuid = Guid.NewGuid().ToString();
             this.lifecycle.StartTestCase(
-                new() { name = testName, uuid = uuid }
+                new() { name = testName, uuid = Guid.NewGuid().ToString() }
             );
-            action(uuid);
+            action();
             this.lifecycle
-                .StopTestCase(uuid)
-                .WriteTestCase(uuid);
+                .StopTestCase()
+                .WriteTestCase();
         }
 
-        void WrapInStep(string stepName, Action<string> action)
+        void WrapInStep(string stepName, Action action)
         {
             this.lifecycle.StartStep(
-                new() { name = stepName },
-                out var stepId
+                new() { name = stepName }
             );
-            action(stepId);
+            action();
             this.lifecycle
                 .StopStep();
         }
 
-        async Task WrapInStepAsync(string stepName, Func<string, Task> action)
+        async Task WrapInStepAsync(string stepName, Func<Task> action)
         {
             this.lifecycle.StartStep(
-                new() { name = stepName },
-                out var stepId
+                new() { name = stepName }
             );
-            await action(stepId);
+            await action();
             this.lifecycle
                 .StopStep();
         }
 
-        async Task WrapInTestAsync(string testName, Func<string, Task> action)
+        async Task WrapInTestAsync(string testName, Func<Task> action)
         {
-            var uuid = Guid.NewGuid().ToString();
             this.lifecycle.StartTestCase(
-                new() { name = testName, uuid = uuid }
+                new() { name = testName, uuid = Guid.NewGuid().ToString() }
             );
             await Task.Delay(1);
-            await action(uuid);
+            await action();
             this.lifecycle
-                .StopTestCase(uuid)
-                .WriteTestCase(uuid);
+                .StopTestCase()
+                .WriteTestCase();
         }
 
         void AddTestWithSteps(string name, params object[] steps) =>
-            this.WrapInTest(name, _ => this.AddSteps(steps));
+            this.WrapInTest(name, () => this.AddSteps(steps));
 
         async Task AddStepsAsync(params object[] steps)
         {
@@ -243,21 +239,20 @@ namespace Allure.Net.Commons.Tests
         void AddStep(string name)
         {
             this.lifecycle.StartStep(
-                new() { name = name },
-                out var _
+                new() { name = name }
             ).StopStep();
         }
 
         void AddStepWithSubsteps(string name, params object[] substeps)
         {
-            this.lifecycle.StartStep(new() { name = name }, out var _);
+            this.lifecycle.StartStep(new() { name = name });
             this.AddSteps(substeps);
             this.lifecycle.StopStep();
         }
 
         async Task AddStepWithSubstepsAsync(string name, params object[] substeps)
         {
-            this.lifecycle.StartStep(new() { name = name }, out var _);
+            this.lifecycle.StartStep(new() { name = name });
             await this.AddStepsAsync(substeps);
             this.lifecycle.StopStep();
         }
@@ -274,7 +269,7 @@ namespace Allure.Net.Commons.Tests
 
         void AssertSteps(List<StepResult> actualSteps, params object[] steps)
         {
-            var expectedCount = steps.Count();
+            var expectedCount = steps.Length;
             Assert.That(actualSteps.Count, Is.EqualTo(expectedCount));
             for (var i = 0; i < expectedCount; i++)
             {

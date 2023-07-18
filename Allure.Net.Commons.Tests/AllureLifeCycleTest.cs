@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Allure.Net.Commons.Storage;
+using NUnit.Framework;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Allure.Net.Commons.Tests
@@ -17,6 +19,19 @@ namespace Allure.Net.Commons.Tests
         public void ShouldSetDefaultStateAsNone()
         {
             Assert.AreEqual(Status.none, new TestResult().status);
+        }
+
+        [Test]
+        public void Way()
+        {
+            AsyncLocal<string> myContext = new();
+            myContext.Value = "Outer";
+            Parallel.For(0, 2, i =>
+            {
+                Console.WriteLine(myContext.Value);
+                myContext.Value = $"Inner {i}";
+            });
+            Console.WriteLine(myContext.Value);
         }
 
         [Test, Description("Integration Test")]
@@ -95,7 +110,7 @@ namespace Allure.Net.Commons.Tests
             });
         }
 
-        [Test, Description("Test step should be correctly added even if a " +
+        [Test, Description("A test step should be correctly added even if a " +
             "before fixture overlaps with the test")]
         public void BeforeFixtureMayOverlapsWithTest()
         {
@@ -113,17 +128,14 @@ namespace Allure.Net.Commons.Tests
 
             lifecycle.StartTestContainer(container)
                 .StartTestCase(testResult)
-                .StartBeforeFixture(
-                    container.uuid,
-                    new(),
-                    out var fixtureId
-                ).StopFixture(fixtureId)
-                .StartStep(new(), out var stepId)
+                .StartBeforeFixture(fixture)
+                .StopFixture()
+                .StartStep(new())
                 .StopStep()
-                .StopTestCase(testResult.uuid)
-                .StopTestContainer(container.uuid)
-                .WriteTestCase(testResult.uuid)
-                .WriteTestContainer(container.uuid);
+                .StopTestCase()
+                .StopTestContainer()
+                .WriteTestCase()
+                .WriteTestContainer();
 
             Assert.That(writer.testContainers.Count, Is.EqualTo(1));
             Assert.That(writer.testContainers[0].uuid, Is.EqualTo(container.uuid));
@@ -136,6 +148,28 @@ namespace Allure.Net.Commons.Tests
 
             Assert.That(writer.testResults.Count, Is.EqualTo(1));
             Assert.That(writer.testResults[0].uuid, Is.EqualTo(testResult.uuid));
+        }
+
+        [Test]
+        public async Task AllureContextCouldBeAssigned()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            AllureContext context = null;
+            await Task.Factory.StartNew(() =>
+            {
+                lifecycle.StartTestCase(new()
+                {
+                    uuid = Guid.NewGuid().ToString()
+                });
+                context = lifecycle.Context;
+            });
+            lifecycle.Context = context;
+
+            lifecycle.StopTestCase();
+            lifecycle.WriteTestCase();
+
+            Assert.That(writer.testResults, Is.Not.Empty);
         }
     }
 }
