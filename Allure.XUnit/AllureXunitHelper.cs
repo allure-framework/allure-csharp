@@ -12,6 +12,8 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
+#nullable enable
+
 namespace Allure.Xunit
 {
     public static class AllureXunitHelper

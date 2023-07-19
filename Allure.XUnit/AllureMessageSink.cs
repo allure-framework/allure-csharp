@@ -8,6 +8,8 @@ using Allure.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable enable
+
 namespace Allure.XUnit
 {
     public class AllureMessageSink : TestMessageSink
@@ -172,10 +174,6 @@ namespace Allure.XUnit
                 AllureXunitHelper.ApplyTestParameters(parameters, arguments);
             }
         }
-
-        AllureContext GetTestContext(ITest test) =>
-            this.GetOrCreateTestData(test).Context
-                ?? AllureLifecycle.Instance.Context;
 
         void CaptureTestContext(ITest test) =>
             this.GetOrCreateTestData(test).Context =
