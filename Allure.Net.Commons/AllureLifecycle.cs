@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.Writer;
@@ -85,10 +85,6 @@ namespace Allure.Net.Commons
             }
         }
 
-        /// <summary> Method to get the key for separation the steps for different tests. </summary>
-        public static Func<string> CurrentTestIdGetter { get; set; } =
-            () => Thread.CurrentThread.ManagedThreadId.ToString();
-
         internal AllureLifecycle(): this(GetConfiguration())
         {
         }
@@ -99,7 +95,8 @@ namespace Allure.Net.Commons
         {
         }
 
-        internal AllureLifecycle(JObject config): this(config, c => new FileSystemResultsWriter(c))
+        internal AllureLifecycle(JObject config)
+            : this(config, c => new FileSystemResultsWriter(c))
         {
         }
 
@@ -130,7 +127,9 @@ namespace Allure.Net.Commons
 
         #region TestContainer
 
-        public virtual AllureLifecycle StartTestContainer(TestResultContainer container)
+        public virtual AllureLifecycle StartTestContainer(
+            TestResultContainer container
+        )
         {
             container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             var parent = this.storage.CurrentTestContainerOrNull;
@@ -145,26 +144,11 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle StartTestContainer(string parentUuid, TestResultContainer container)
-        {
-            UpdateTestContainer(parentUuid, c => c.children.Add(container.uuid));
-            StartTestContainer(container);
-            return this;
-        }
-
-        public virtual AllureLifecycle UpdateTestContainer(Action<TestResultContainer> update)
+        public virtual AllureLifecycle UpdateTestContainer(
+            Action<TestResultContainer> update
+        )
         {
             var container = this.storage.CurrentTestContainer;
-            lock (this.monitor)
-            {
-                update.Invoke(container);
-            }
-            return this;
-        }
-
-        public virtual AllureLifecycle UpdateTestContainer(string uuid, Action<TestResultContainer> update)
-        {
-            var container = this.storage.Get<TestResultContainer>(uuid);
             lock (this.monitor)
             {
                 update.Invoke(container);
@@ -178,24 +162,10 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle StopTestContainer(string uuid)
-        {
-            UpdateTestContainer(uuid, stopContainer);
-            return this;
-        }
-
         public virtual AllureLifecycle WriteTestContainer()
         {
             var container = this.storage.CurrentTestContainer;
             this.storage.RemoveTestContainer();
-            this.writer.Write(container);
-            return this;
-        }
-
-        public virtual AllureLifecycle WriteTestContainer(string uuid)
-        {
-            var container = this.storage.Get<TestResultContainer>(uuid);
-            this.storage.RemoveTestContainer(uuid);
             this.writer.Write(container);
             return this;
         }
@@ -211,34 +181,6 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle StartBeforeFixture(FixtureResult result, out string uuid)
-        {
-            uuid = CreateUuid();
-            StartBeforeFixture(uuid, result);
-            return this;
-        }
-
-        public virtual AllureLifecycle StartBeforeFixture(string uuid, FixtureResult result)
-        {
-            UpdateTestContainer(container => container.befores.Add(result));
-            StartFixture(uuid, result);
-            return this;
-        }
-
-        public virtual AllureLifecycle StartBeforeFixture(string parentUuid, FixtureResult result, out string uuid)
-        {
-            uuid = CreateUuid();
-            StartBeforeFixture(parentUuid, uuid, result);
-            return this;
-        }
-
-        public virtual AllureLifecycle StartBeforeFixture(string parentUuid, string uuid, FixtureResult result)
-        {
-            UpdateTestContainer(parentUuid, container => container.befores.Add(result));
-            StartFixture(uuid, result);
-            return this;
-        }
-
         public virtual AllureLifecycle StartAfterFixture(FixtureResult result)
         {
             this.UpdateTestContainer(c => c.afters.Add(result));
@@ -246,21 +188,9 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle StartAfterFixture(string parentUuid, FixtureResult result, out string uuid)
-        {
-            uuid = CreateUuid();
-            StartAfterFixture(parentUuid, uuid, result);
-            return this;
-        }
-
-        public virtual AllureLifecycle StartAfterFixture(string parentUuid, string uuid, FixtureResult result)
-        {
-            UpdateTestContainer(parentUuid, container => container.afters.Add(result));
-            StartFixture(uuid, result);
-            return this;
-        }
-
-        public virtual AllureLifecycle UpdateFixture(Action<FixtureResult> update)
+        public virtual AllureLifecycle UpdateFixture(
+            Action<FixtureResult> update
+        )
         {
             var fixture = this.storage.CurrentFixture;
             lock (this.monitor)
@@ -270,17 +200,9 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle UpdateFixture(string uuid, Action<FixtureResult> update)
-        {
-            var fixture = this.storage.Get<FixtureResult>(uuid);
-            lock (this.monitor)
-            {
-                update.Invoke(fixture);
-            }
-            return this;
-        }
-
-        public virtual AllureLifecycle StopFixture(Action<FixtureResult> beforeStop)
+        public virtual AllureLifecycle StopFixture(
+            Action<FixtureResult> beforeStop
+        )
         {
             this.UpdateFixture(beforeStop);
             return this.StopFixture();
@@ -297,26 +219,9 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle StopFixture(string uuid)
-        {
-            this.UpdateFixture(fixture =>
-            {
-                fixture.stage = Stage.finished;
-                fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            });
-            this.storage.RemoveFixture(uuid);
-            return this;
-        }
-
         #endregion
 
         #region TestCase
-
-        public virtual AllureLifecycle StartTestCase(string containerUuid, TestResult testResult)
-        {
-            UpdateTestContainer(containerUuid, c => c.children.Add(testResult.uuid));
-            return StartTestCase(testResult);
-        }
 
         public virtual AllureLifecycle StartTestCase(TestResult testResult)
         {
@@ -333,19 +238,6 @@ namespace Allure.Net.Commons
                 ? DateTimeOffset.Now.ToUnixTimeMilliseconds()
                 : testResult.start;
             this.storage.PutTestCase(testResult);
-            return this;
-        }
-
-        public virtual AllureLifecycle UpdateTestCase(
-            string uuid,
-            Action<TestResult> update
-        )
-        {
-            var testResult = this.storage.Get<TestResult>(uuid);
-            lock (this.monitor)
-            {
-                update(testResult);
-            }
             return this;
         }
 
@@ -372,21 +264,10 @@ namespace Allure.Net.Commons
         public virtual AllureLifecycle StopTestCase() =>
             this.UpdateTestCase(stopTestCase);
 
-        public virtual AllureLifecycle StopTestCase(string uuid) =>
-            this.UpdateTestCase(uuid, stopTestCase);
-
         public virtual AllureLifecycle WriteTestCase()
         {
             var testResult = this.storage.CurrentTest;
             this.storage.RemoveTestCase();
-            this.writer.Write(testResult);
-            return this;
-        }
-
-        public virtual AllureLifecycle WriteTestCase(string uuid)
-        {
-            var testResult = this.storage.Get<TestResult>(uuid);
-            this.storage.RemoveTestCase(uuid);
             this.writer.Write(testResult);
             return this;
         }
@@ -408,41 +289,9 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle StartStep(StepResult result, out string uuid)
-        {
-            uuid = CreateUuid();
-            StartStep(this.storage.CurrentStepContainer, uuid, result);
-            return this;
-        }
-        
-        public virtual AllureLifecycle StartStep(
-            string uuid,
-            StepResult result
-        ) => this.StartStep(this.storage.CurrentStepContainer, uuid, result);
-
-        public virtual AllureLifecycle StartStep(
-            string parentUuid,
-            string uuid,
-            StepResult stepResult
-        ) => this.StartStep(
-            this.storage.Get<ExecutableItem>(parentUuid),
-            uuid,
-            stepResult
-        );
-
         public virtual AllureLifecycle UpdateStep(Action<StepResult> update)
         {
             var stepResult = this.storage.CurrentStep;
-            lock (this.monitor)
-            {
-                update.Invoke(stepResult);
-            }
-            return this;
-        }
-
-        public virtual AllureLifecycle UpdateStep(string uuid, Action<StepResult> update)
-        {
-            var stepResult = storage.Get<StepResult>(uuid);
             lock (this.monitor)
             {
                 update.Invoke(stepResult);
@@ -454,17 +303,6 @@ namespace Allure.Net.Commons
         {
             this.UpdateStep(beforeStop);
             return this.StopStep();
-        }
-
-        public virtual AllureLifecycle StopStep(string uuid)
-        {
-            this.UpdateStep(uuid, step =>
-            {
-                step.stage = Stage.finished;
-                step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            });
-            this.storage.RemoveStep(uuid);
-            return this;
         }
 
         public virtual AllureLifecycle StopStep()
@@ -483,16 +321,25 @@ namespace Allure.Net.Commons
         #region Attachment
 
         // TODO: read file in background thread
-        public virtual AllureLifecycle AddAttachment(string name, string type, string path)
+        public virtual AllureLifecycle AddAttachment(
+            string name,
+            string type,
+            string path
+        )
         {
             var fileExtension = new FileInfo(path).Extension;
             return AddAttachment(name, type, File.ReadAllBytes(path), fileExtension);
         }
 
-        public virtual AllureLifecycle AddAttachment(string name, string type, byte[] content,
-            string fileExtension = "")
+        public virtual AllureLifecycle AddAttachment(
+            string name,
+            string type,
+            byte[] content,
+            string fileExtension = ""
+        )
         {
-            var source = $"{CreateUuid()}{AllureConstants.ATTACHMENT_FILE_SUFFIX}{fileExtension}";
+            var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
+            var source = $"{CreateUuid()}{suffix}{fileExtension}";
             var attachment = new Attachment
             {
                 name = name,
@@ -508,7 +355,10 @@ namespace Allure.Net.Commons
             return this;
         }
 
-        public virtual AllureLifecycle AddAttachment(string path, string? name = null)
+        public virtual AllureLifecycle AddAttachment(
+            string path,
+            string? name = null
+        )
         {
             name ??= Path.GetFileName(path);
             var type = MimeTypesMap.GetMimeType(path);
@@ -522,17 +372,6 @@ namespace Allure.Net.Commons
         public virtual void CleanupResultDirectory()
         {
             writer.CleanUp();
-        }
-
-        public virtual AllureLifecycle AddScreenDiff(string testCaseUuid, string expectedPng, string actualPng,
-            string diffPng)
-        {
-            AddAttachment(expectedPng, "expected")
-                .AddAttachment(actualPng, "actual")
-                .AddAttachment(diffPng, "diff")
-                .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
-
-            return this;
         }
 
         public virtual AllureLifecycle AddScreenDiff(
@@ -555,20 +394,33 @@ namespace Allure.Net.Commons
 
         private static JObject GetConfiguration()
         {
-            var jsonConfigPath = Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE);
+            var configEnvVarName = AllureConstants.ALLURE_CONFIG_ENV_VARIABLE;
+            var jsonConfigPath = Environment.GetEnvironmentVariable(
+                configEnvVarName
+            );
 
             if (jsonConfigPath != null && !File.Exists(jsonConfigPath))
+            {
                 throw new FileNotFoundException(
-                    $"Couldn't find '{jsonConfigPath}' specified in {AllureConstants.ALLURE_CONFIG_ENV_VARIABLE} environment variable");
+                    $"Couldn't find '{jsonConfigPath}' specified " +
+                        $"in {configEnvVarName} environment variable"
+                );
+            }
 
             if (File.Exists(jsonConfigPath))
+            {
                 return JObject.Parse(File.ReadAllText(jsonConfigPath));
+            }
 
-            var defaultJsonConfigPath =
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AllureConstants.CONFIG_FILENAME);
+            var defaultJsonConfigPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                AllureConstants.CONFIG_FILENAME
+            );
 
             if (File.Exists(defaultJsonConfigPath))
+            {
                 return JObject.Parse(File.ReadAllText(defaultJsonConfigPath));
+            }
 
             return JObject.Parse("{}");
         }
@@ -619,6 +471,355 @@ namespace Allure.Net.Commons
 
         static string CreateUuid() =>
             Guid.NewGuid().ToString("N");
+
+        #endregion
+
+        #region Obsolete
+
+        [Obsolete(
+            "This property is a rudimentary part of the API. It has no " +
+                "effect and will be removed soon"
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Func<string>? CurrentTestIdGetter { get; set; }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartTestContainer(
+            string parentUuid,
+            TestResultContainer container
+        )
+        {
+            UpdateTestContainer(parentUuid, c => c.children.Add(container.uuid));
+            StartTestContainer(container);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle UpdateTestContainer(
+            string uuid,
+            Action<TestResultContainer> update
+        )
+        {
+            var container = this.storage.Get<TestResultContainer>(uuid);
+            lock (this.monitor)
+            {
+                update.Invoke(container);
+            }
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StopTestContainer(string uuid)
+        {
+            UpdateTestContainer(uuid, stopContainer);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle WriteTestContainer(string uuid)
+        {
+            var container = this.storage.Get<TestResultContainer>(uuid);
+            this.storage.RemoveTestContainer(uuid);
+            this.writer.Write(container);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartBeforeFixture(
+            FixtureResult result,
+            out string uuid
+        )
+        {
+            uuid = CreateUuid();
+            StartBeforeFixture(uuid, result);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartBeforeFixture(
+            string uuid,
+            FixtureResult result
+        )
+        {
+            UpdateTestContainer(container => container.befores.Add(result));
+            StartFixture(uuid, result);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartBeforeFixture(
+            string parentUuid,
+            FixtureResult result,
+            out string uuid
+        )
+        {
+            uuid = CreateUuid();
+            StartBeforeFixture(parentUuid, uuid, result);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartBeforeFixture(
+            string parentUuid,
+            string uuid,
+            FixtureResult result
+        )
+        {
+            UpdateTestContainer(parentUuid, container => container.befores.Add(result));
+            StartFixture(uuid, result);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartAfterFixture(
+            string parentUuid,
+            FixtureResult result,
+            out string uuid
+        )
+        {
+            uuid = CreateUuid();
+            StartAfterFixture(parentUuid, uuid, result);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartAfterFixture(
+            string parentUuid,
+            string uuid,
+            FixtureResult result
+        )
+        {
+            UpdateTestContainer(
+                parentUuid,
+                container => container.afters.Add(result)
+            );
+            StartFixture(uuid, result);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle UpdateFixture(
+            string uuid,
+            Action<FixtureResult> update
+        )
+        {
+            var fixture = this.storage.Get<FixtureResult>(uuid);
+            lock (this.monitor)
+            {
+                update.Invoke(fixture);
+            }
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StopFixture(string uuid)
+        {
+            this.UpdateFixture(fixture =>
+            {
+                fixture.stage = Stage.finished;
+                fixture.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            });
+            this.storage.RemoveFixture(uuid);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartTestCase(
+            string containerUuid,
+            TestResult testResult
+        )
+        {
+            UpdateTestContainer(
+                containerUuid,
+                c => c.children.Add(testResult.uuid)
+            );
+            return StartTestCase(testResult);
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle UpdateTestCase(
+            string uuid,
+            Action<TestResult> update
+        )
+        {
+            var testResult = this.storage.Get<TestResult>(uuid);
+            lock (this.monitor)
+            {
+                update(testResult);
+            }
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StopTestCase(string uuid) =>
+            this.UpdateTestCase(uuid, stopTestCase);
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle WriteTestCase(string uuid)
+        {
+            var testResult = this.storage.Get<TestResult>(uuid);
+            this.storage.RemoveTestCase(uuid);
+            this.writer.Write(testResult);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartStep(
+            StepResult result,
+            out string uuid
+        )
+        {
+            uuid = CreateUuid();
+            StartStep(this.storage.CurrentStepContainer, uuid, result);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartStep(
+            string uuid,
+            StepResult result
+        ) => this.StartStep(this.storage.CurrentStepContainer, uuid, result);
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StartStep(
+            string parentUuid,
+            string uuid,
+            StepResult stepResult
+        ) => this.StartStep(
+            this.storage.Get<ExecutableItem>(parentUuid),
+            uuid,
+            stepResult
+        );
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle UpdateStep(
+            string uuid,
+            Action<StepResult> update
+        )
+        {
+            var stepResult = storage.Get<StepResult>(uuid);
+            lock (this.monitor)
+            {
+                update.Invoke(stepResult);
+            }
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle StopStep(string uuid)
+        {
+            this.UpdateStep(uuid, step =>
+            {
+                step.stage = Stage.finished;
+                step.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            });
+            this.storage.RemoveStep(uuid);
+            return this;
+        }
+
+        [Obsolete(
+            "Lifecycle methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual AllureLifecycle AddScreenDiff(
+            string testCaseUuid,
+            string expectedPng,
+            string actualPng,
+            string diffPng
+        )
+        {
+            AddAttachment(expectedPng, "expected")
+                .AddAttachment(actualPng, "actual")
+                .AddAttachment(diffPng, "diff")
+                .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
+
+            return this;
+        }
 
         #endregion
     }

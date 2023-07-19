@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 
@@ -64,53 +65,18 @@ namespace Allure.Net.Commons.Storage
                 c => c.WithContainer(container)
             );
 
-        public void PutTestContainer(
-            string uuid,
-            TestResultContainer container
-        ) => this.PutAndUpdateContext(
-            uuid,
-            container,
-            c => c.WithContainer(container)
-        );
-
         public void RemoveTestContainer() => this.UpdateContext(
             c => c.WithNoLastContainer()
         );
 
-        public void RemoveTestContainer(string uuid) =>
-            this.RemoveAndUpdateContext<TestResultContainer>(
-                uuid,
-                c => ContextWithNoContainer(c, uuid)
-            );
-
         public void PutFixture(FixtureResult fixture) =>
             this.UpdateContext(c => c.WithFixtureContext(fixture));
-
-        public void PutFixture(string uuid, FixtureResult fixture) =>
-            this.PutAndUpdateContext(
-                uuid,
-                fixture,
-                c => c.WithFixtureContext(fixture)
-            );
 
         public void RemoveFixture() =>
             this.UpdateContext(c => c.WithNoFixtureContext());
 
-        public void RemoveFixture(string uuid)
-            => this.RemoveAndUpdateContext<FixtureResult>(
-                uuid,
-                c => c.WithNoFixtureContext()
-            );
-
         public void PutTestCase(TestResult testResult) =>
             this.UpdateContext(
-                c => c.WithTestContext(testResult)
-            );
-
-        public void PutTestCase(string uuid, TestResult testResult) =>
-            this.PutAndUpdateContext(
-                uuid,
-                testResult,
                 c => c.WithTestContext(testResult)
             );
 
@@ -119,33 +85,14 @@ namespace Allure.Net.Commons.Storage
                 c => c.WithNoTestContext()
             );
 
-        public void RemoveTestCase(string uuid) =>
-            this.RemoveAndUpdateContext<TestResult>(
-                uuid,
-                c => c.WithNoTestContext()
-            );
-
         public void PutStep(StepResult stepResult) =>
             this.UpdateContext(
-                c => c.WithStep(stepResult)
-            );
-
-        public void PutStep(string uuid, StepResult stepResult) =>
-            this.PutAndUpdateContext(
-                uuid,
-                stepResult,
                 c => c.WithStep(stepResult)
             );
 
         public void RemoveStep() => this.UpdateContext(
             c => c.WithNoLastStep()
         );
-
-        public void RemoveStep(string uuid) =>
-            this.RemoveAndUpdateContext<StepResult>(
-                uuid,
-                c => this.ContextWithNoStep(c, uuid)
-            );
 
         void PutAndUpdateContext<T>(
             string uuid,
@@ -217,5 +164,103 @@ namespace Allure.Net.Commons.Storage
             }
             return context;
         }
+
+        #region Obsolete
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void PutTestContainer(
+            string uuid,
+            TestResultContainer container
+        ) => this.PutAndUpdateContext(
+            uuid,
+            container,
+            c => c.WithContainer(container)
+        );
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void RemoveTestContainer(string uuid) =>
+            this.RemoveAndUpdateContext<TestResultContainer>(
+                uuid,
+                c => ContextWithNoContainer(c, uuid)
+            );
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void PutFixture(string uuid, FixtureResult fixture) =>
+            this.PutAndUpdateContext(
+                uuid,
+                fixture,
+                c => c.WithFixtureContext(fixture)
+            );
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void RemoveFixture(string uuid)
+            => this.RemoveAndUpdateContext<FixtureResult>(
+                uuid,
+                c => c.WithNoFixtureContext()
+            );
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void PutTestCase(string uuid, TestResult testResult) =>
+            this.PutAndUpdateContext(
+                uuid,
+                testResult,
+                c => c.WithTestContext(testResult)
+            );
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void RemoveTestCase(string uuid) =>
+            this.RemoveAndUpdateContext<TestResult>(
+                uuid,
+                c => c.WithNoTestContext()
+            );
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void PutStep(string uuid, StepResult stepResult) =>
+            this.PutAndUpdateContext(
+                uuid,
+                stepResult,
+                c => c.WithStep(stepResult)
+            );
+
+        [Obsolete(
+            "Storage methods with explicit uuids are obsolete. Use " +
+                "their counterparts without uuids to manipulate the context."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void RemoveStep(string uuid) =>
+            this.RemoveAndUpdateContext<StepResult>(
+                uuid,
+                c => this.ContextWithNoStep(c, uuid)
+            );
+
+        #endregion
     }
 }

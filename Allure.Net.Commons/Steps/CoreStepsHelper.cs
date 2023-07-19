@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Storage;
@@ -9,13 +10,12 @@ namespace Allure.Net.Commons.Steps
     {
         public static IStepLogger StepLogger { get; set; }
 
-        private static readonly AsyncLocal<ITestResultAccessor> TestResultAccessorAsyncLocal = new();
-
-        public static ITestResultAccessor TestResultAccessor
-        {
-            get => TestResultAccessorAsyncLocal.Value;
-            set => TestResultAccessorAsyncLocal.Value = value;
-        }
+        [Obsolete(
+            "This property is a rudimentary part of the API. It has no " +
+                "effect and will be removed soon"
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static ITestResultAccessor TestResultAccessor { get; set; }
 
         #region Fixtures
 
