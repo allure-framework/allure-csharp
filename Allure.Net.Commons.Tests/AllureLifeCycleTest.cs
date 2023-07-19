@@ -151,7 +151,7 @@ namespace Allure.Net.Commons.Tests
         }
 
         [Test]
-        public async Task AllureContextCouldBeAssigned()
+        public async Task ContextCapturingTest()
         {
             var writer = new InMemoryResultsWriter();
             var lifecycle = new AllureLifecycle(_ => writer);
@@ -164,12 +164,32 @@ namespace Allure.Net.Commons.Tests
                 });
                 context = lifecycle.Context;
             });
-            lifecycle.Context = context;
-
-            lifecycle.StopTestCase();
-            lifecycle.WriteTestCase();
+            lifecycle.RunInContext(context, () =>
+            {
+                lifecycle.StopTestCase();
+                lifecycle.WriteTestCase();
+            });
 
             Assert.That(writer.testResults, Is.Not.Empty);
+        }
+
+        [Test]
+        public async Task ContextCapturingHasNoEffectIfContextIsNull()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            await Task.Factory.StartNew(() =>
+            {
+                lifecycle.StartTestCase(new()
+                {
+                    uuid = Guid.NewGuid().ToString()
+                });
+            });
+
+            Assert.That(() => lifecycle.RunInContext(null, () =>
+            {
+                lifecycle.StopTestCase();
+            }), Throws.InvalidOperationException);
         }
     }
 }

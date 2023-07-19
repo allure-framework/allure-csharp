@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 
 #nullable enable
 
@@ -19,6 +20,26 @@ namespace Allure.Net.Commons.Storage
     /// </remarks>
     public record class AllureContext
     {
+        /// <summary>
+        /// Returns true if a container context is active.
+        /// </summary>
+        public bool HasContainer => !this.ContainerContext.IsEmpty;
+
+        /// <summary>
+        /// Returns true if a fixture context is active.
+        /// </summary>
+        public bool HasFixture => this.FixtureContext is not null;
+
+        /// <summary>
+        /// Returns true if a test context is active.
+        /// </summary>
+        public bool HasTest => this.TestContext is not null;
+
+        /// <summary>
+        /// Returns true if a step context is active.
+        /// </summary>
+        public bool HasStep => !this.StepContext.IsEmpty;
+
         /// <summary>
         /// A stack of fixture containers affecting subsequent tests.
         /// </summary>
@@ -93,12 +114,10 @@ namespace Allure.Net.Commons.Storage
         /// context isn't active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        internal FixtureResult CurrentFixture
-        {
-            get => this.FixtureContext ?? throw new InvalidOperationException(
+        internal FixtureResult CurrentFixture =>
+            this.FixtureContext ?? throw new InvalidOperationException(
                 "No fixture context is active."
             );
-        }
 
         /// <summary>
         /// A test that is being executed.
@@ -108,12 +127,10 @@ namespace Allure.Net.Commons.Storage
         /// isn't active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        internal TestResult CurrentTest
-        {
-            get => this.TestContext ?? throw new InvalidOperationException(
+        internal TestResult CurrentTest =>
+            this.TestContext ?? throw new InvalidOperationException(
                 "No test context is active."
             );
-        }
 
         /// <summary>
         /// A step that is being executed.
@@ -123,13 +140,11 @@ namespace Allure.Net.Commons.Storage
         /// isn't active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        internal StepResult CurrentStep
-        {
-            get => this.StepContext.FirstOrDefault()
+        internal StepResult CurrentStep =>
+            this.StepContext.FirstOrDefault()
                 ?? throw new InvalidOperationException(
                     "No step context is active."
                 );
-        }
 
         /// <summary>
         /// A step container a next step should be put in.
@@ -140,13 +155,26 @@ namespace Allure.Net.Commons.Storage
         /// fixture, nor test, nor step context is active.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        internal ExecutableItem CurrentStepContainer
-        {
-            get => this.StepContext.FirstOrDefault() as ExecutableItem
+        internal ExecutableItem CurrentStepContainer =>
+            this.StepContext.FirstOrDefault() as ExecutableItem
                 ?? this.RootStepContainer
                 ?? throw new InvalidOperationException(
                     "No fixture, test, or step context is active."
                 );
+
+        protected virtual bool PrintMembers(StringBuilder stringBuilder)
+        {
+            var containers =
+                RepresentStack(this.ContainerContext, c => c.name);
+            var fixture = this.FixtureContext?.name ?? "null";
+            var test = this.TestContext?.name ?? "null";
+            var steps = RepresentStack(this.StepContext, s => s.name);
+
+            stringBuilder.AppendFormat("Containers = [{0}], ", containers);
+            stringBuilder.AppendFormat("Fixture = {0}, ", fixture);
+            stringBuilder.AppendFormat("Test = {0}, ", test);
+            stringBuilder.AppendFormat("Steps = [{0}]", steps);
+            return true;
         }
 
         /// <summary>
@@ -309,11 +337,12 @@ namespace Allure.Net.Commons.Storage
         internal AllureContext WithNoLastStep() =>
             this with
             {
-                StepContext = this.StepContext.IsEmpty
-                    ? throw new InvalidOperationException(
+                StepContext = this.HasStep
+                    ? this.StepContext.Pop()
+                    : throw new InvalidOperationException(
                         "Unable to deactivate a step context because it's " +
                             "already inactive."
-                    ) : this.StepContext.Pop()
+                    )
             };
 
         AllureContext ValidateContainerContextCanBeModified()
@@ -339,7 +368,7 @@ namespace Allure.Net.Commons.Storage
 
         AllureContext ValidateContainerCanBeRemoved()
         {
-            if (this.ContainerContext.IsEmpty)
+            if (!this.HasContainer)
             {
                 throw new InvalidOperationException(
                     "Unable to deactivate a container context because it's " +
@@ -357,7 +386,7 @@ namespace Allure.Net.Commons.Storage
 
         FixtureResult ValidateNewFixtureContext(FixtureResult fixture)
         {
-            if (this.ContainerContext.IsEmpty)
+            if (!this.HasContainer)
             {
                 throw new InvalidOperationException(
                     "Unable to activate a fixture context " +
@@ -365,7 +394,7 @@ namespace Allure.Net.Commons.Storage
                 );
             }
 
-            if (this.FixtureContext is not null)
+            if (this.HasFixture)
             {
                 throw new InvalidOperationException(
                     "Unable to activate a fixture context " +
@@ -378,7 +407,7 @@ namespace Allure.Net.Commons.Storage
 
         TestResult ValidateNewTestContext(TestResult testResult)
         {
-            if (this.FixtureContext is not null)
+            if (this.HasFixture)
             {
                 throw new InvalidOperationException(
                     "Unable to activate a test context " +
@@ -386,7 +415,7 @@ namespace Allure.Net.Commons.Storage
                 );
             }
 
-            if (this.TestContext is not null)
+            if (this.HasTest)
             {
                 throw new InvalidOperationException(
                     "Unable to activate a test context " +
@@ -399,15 +428,23 @@ namespace Allure.Net.Commons.Storage
 
         StepResult ValidateNewStep(StepResult stepResult)
         {
-            if (this.RootStepContainer is null)
+            if (!this.HasTest && !this.HasFixture)
             {
                 throw new InvalidOperationException(
-                    "Unable to activate a step context because neither test, " +
-                        "nor fixture context is active."
+                    "Unable to activate a step context because neither " +
+                        "test, nor fixture context is active."
                 );
             }
 
             return stepResult;
         }
+
+        static string RepresentStack<T>(
+            IImmutableStack<T> stack,
+            Func<T, string> projection
+        ) => string.Join(
+            " <- ",
+            stack.Select(projection)
+        );
     }
 }

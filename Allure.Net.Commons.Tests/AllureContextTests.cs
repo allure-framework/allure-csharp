@@ -14,6 +14,10 @@ namespace Allure.Net.Commons.Tests
             Assert.That(ctx.FixtureContext, Is.Null);
             Assert.That(ctx.TestContext, Is.Null);
             Assert.That(ctx.StepContext, Is.Empty);
+            Assert.That(ctx.HasContainer, Is.False);
+            Assert.That(ctx.HasFixture, Is.False);
+            Assert.That(ctx.HasTest, Is.False);
+            Assert.That(ctx.HasStep, Is.False);
 
             Assert.That(
                 () => ctx.CurrentContainer,
@@ -54,6 +58,7 @@ namespace Allure.Net.Commons.Tests
 
             var ctx = new AllureContext().WithTestContext(test);
 
+            Assert.That(ctx.HasTest, Is.True);
             Assert.That(ctx.TestContext, Is.SameAs(test));
             Assert.That(ctx.CurrentTest, Is.SameAs(test));
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(test));
@@ -115,6 +120,7 @@ namespace Allure.Net.Commons.Tests
                 .WithTestContext(test)
                 .WithNoTestContext();
 
+            Assert.That(ctx.HasTest, Is.False);
             Assert.That(ctx.TestContext, Is.Null);
             Assert.That(
                 () => ctx.CurrentStepContainer,
@@ -140,6 +146,7 @@ namespace Allure.Net.Commons.Tests
 
             var ctx = new AllureContext().WithContainer(container);
 
+            Assert.That(ctx.HasContainer, Is.True);
             Assert.That(ctx.ContainerContext, Is.EqualTo(new[] { container }));
             Assert.That(ctx.CurrentContainer, Is.SameAs(container));
         }
@@ -182,6 +189,7 @@ namespace Allure.Net.Commons.Tests
                 .WithContainer(new())
                 .WithNoLastContainer();
 
+            Assert.That(ctx.HasContainer, Is.False);
             Assert.That(ctx.ContainerContext, Is.Empty);
         }
 
@@ -235,6 +243,7 @@ namespace Allure.Net.Commons.Tests
                 .WithContainer(new())
                 .WithFixtureContext(fixture);
 
+            Assert.That(ctx.HasFixture, Is.True);
             Assert.That(ctx.FixtureContext, Is.SameAs(fixture));
             Assert.That(ctx.CurrentFixture, Is.SameAs(fixture));
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(fixture));
@@ -330,6 +339,7 @@ namespace Allure.Net.Commons.Tests
                 .WithFixtureContext(new())
                 .WithNoTestContext();
 
+            Assert.That(ctx.HasFixture, Is.False);
             Assert.That(ctx.FixtureContext, Is.Null);
             Assert.That(
                 () => ctx.CurrentStepContainer,
@@ -360,6 +370,7 @@ namespace Allure.Net.Commons.Tests
                 .WithFixtureContext(fixture)
                 .WithNoFixtureContext();
 
+            Assert.That(ctx.HasFixture, Is.False);
             Assert.That(ctx.FixtureContext, Is.Null);
         }
 
@@ -411,6 +422,7 @@ namespace Allure.Net.Commons.Tests
                 .WithFixtureContext(new())
                 .WithStep(step);
 
+            Assert.That(ctx.HasStep, Is.True);
             Assert.That(ctx.StepContext, Is.EqualTo(new[] { step }));
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(step));
         }
@@ -423,6 +435,7 @@ namespace Allure.Net.Commons.Tests
                 .WithTestContext(new())
                 .WithStep(step);
 
+            Assert.That(ctx.HasStep, Is.True);
             Assert.That(ctx.StepContext, Is.EqualTo(new[] { step }));
             Assert.That(ctx.CurrentStep, Is.SameAs(step));
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(step));
@@ -468,6 +481,7 @@ namespace Allure.Net.Commons.Tests
                 .WithStep(new())
                 .WithNoLastStep();
 
+            Assert.That(ctx.HasStep, Is.False);
             Assert.That(ctx.StepContext, Is.Empty);
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(test));
         }
@@ -495,6 +509,7 @@ namespace Allure.Net.Commons.Tests
                 .WithStep(new())
                 .WithNoFixtureContext();
 
+            Assert.That(ctx.HasStep, Is.False);
             Assert.That(ctx.StepContext, Is.Empty);
         }
 
@@ -506,6 +521,7 @@ namespace Allure.Net.Commons.Tests
                 .WithStep(new())
                 .WithNoTestContext();
 
+            Assert.That(ctx.HasStep, Is.False);
             Assert.That(ctx.StepContext, Is.Empty);
         }
 
@@ -521,7 +537,58 @@ namespace Allure.Net.Commons.Tests
                 .WithStep(new())
                 .WithFixtureContext(new());
 
+            Assert.That(ctx.HasStep, Is.False);
             Assert.That(ctx.StepContext, Is.Empty);
+        }
+
+        [Test]
+        public void ContextToString()
+        {
+            Assert.That(
+                new AllureContext().ToString(),
+                Is.EqualTo("AllureContext { Containers = [], Fixture = null, Test = null, Steps = [] }")
+            );
+            Assert.That(
+                new AllureContext()
+                    .WithContainer(new() { name = "c" })
+                    .ToString(),
+                Is.EqualTo("AllureContext { Containers = [c], Fixture = null, Test = null, Steps = [] }")
+            );
+            Assert.That(
+                new AllureContext()
+                    .WithContainer(new() { name = "c1" })
+                    .WithContainer(new() { name = "c2" })
+                    .ToString(),
+                Is.EqualTo("AllureContext { Containers = [c2 <- c1], Fixture = null, Test = null, Steps = [] }")
+            );
+            Assert.That(
+                new AllureContext()
+                    .WithTestContext(new() { name = "t" })
+                    .ToString(),
+                Is.EqualTo("AllureContext { Containers = [], Fixture = null, Test = t, Steps = [] }")
+            );
+            Assert.That(
+                new AllureContext()
+                    .WithContainer(new() { name = "c" })
+                    .WithFixtureContext(new() { name = "f" })
+                    .ToString(),
+                Is.EqualTo("AllureContext { Containers = [c], Fixture = f, Test = null, Steps = [] }")
+            );
+            Assert.That(
+                new AllureContext()
+                    .WithTestContext(new() { name = "t" })
+                    .WithStep(new() { name = "s" })
+                    .ToString(),
+                Is.EqualTo("AllureContext { Containers = [], Fixture = null, Test = t, Steps = [s] }")
+            );
+            Assert.That(
+                new AllureContext()
+                    .WithTestContext(new() { name = "t" })
+                    .WithStep(new() { name = "s1" })
+                    .WithStep(new() { name = "s2" })
+                    .ToString(),
+                Is.EqualTo("AllureContext { Containers = [], Fixture = null, Test = t, Steps = [s2 <- s1] }")
+            );
         }
     }
 }

@@ -12,12 +12,7 @@ namespace Allure.Xunit
 {
     public abstract class AllureStepBase<T> : IDisposable where T : AllureStepBase<T>
     {
-        protected AllureStepBase(string uuid)
-        {
-            UUID = uuid;
-        }
-
-        private string UUID { get; }
+        protected AllureStepBase() { }
 
         public void Dispose()
         {
@@ -28,37 +23,24 @@ namespace Allure.Xunit
 #endif
             if (failed)
             {
-                if (this is AllureBefore || this is AllureAfter)
-                {
-                    CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.failed);
-                }
-                else
-                {
-                    CoreStepsHelper.FailStep(UUID);
-                }
+                CoreStepsHelper.FailStep();
             }
             else
             {
-                if (this is AllureBefore || this is AllureAfter)
-                {
-                    CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.passed);
-                }
-                else
-                {
-                    CoreStepsHelper.PassStep(UUID);
-                }
+                CoreStepsHelper.PassStep();
             }
         }
 
         [Obsolete("For named parameters use NameAttribute; For skipped parameters use SkipAttribute")]
         public T SetParameter(string name, object value)
         {
-            AllureLifecycle.Instance.UpdateStep(UUID,
+            AllureLifecycle.Instance.UpdateStep(
                 result =>
                 {
                     result.parameters ??= new List<Parameter>();
                     result.parameters.Add(new Parameter { name = name, value = value?.ToString() });
-                });
+                }
+            );
             return (T) this;
         }
 

@@ -16,7 +16,8 @@ namespace Allure.Net.Commons.Storage
         public AllureContext CurrentContext
         {
             get => this.context.Value ??= new();
-            set => this.context.Value = value;
+            set => this.context.Value = value
+                ?? throw new ArgumentNullException(nameof(CurrentContext));
         }
 
         public AllureStorage()
@@ -24,35 +25,23 @@ namespace Allure.Net.Commons.Storage
             this.CurrentContext = new();
         }
 
-        public TestResultContainer? CurrentTestContainerOrNull
-        {
-            get => this.CurrentContext.ContainerContext.FirstOrDefault();
-        }
+        public TestResultContainer? CurrentTestContainerOrNull =>
+            this.CurrentContext.ContainerContext.FirstOrDefault();
 
-        public TestResultContainer CurrentTestContainer
-        {
-            get => this.CurrentContext.CurrentContainer;
-        }
+        public TestResultContainer CurrentTestContainer =>
+            this.CurrentContext.CurrentContainer;
 
-        public FixtureResult CurrentFixture
-        {
-            get => this.CurrentContext.CurrentFixture;
-        }
-        
-        public TestResult CurrentTest
-        {
-            get => this.CurrentContext.CurrentTest;
-        }
-        
-        public ExecutableItem CurrentStepContainer
-        {
-            get => this.CurrentContext.CurrentStepContainer;
-        }
-        
-        public StepResult CurrentStep
-        {
-            get => this.CurrentContext.CurrentStep;
-        }
+        public FixtureResult CurrentFixture =>
+            this.CurrentContext.CurrentFixture;
+
+        public TestResult CurrentTest =>
+            this.CurrentContext.CurrentTest;
+
+        public ExecutableItem CurrentStepContainer =>
+            this.CurrentContext.CurrentStepContainer;
+
+        public StepResult CurrentStep =>
+            this.CurrentContext.CurrentStep;
 
         public T Get<T>(string uuid)
         {

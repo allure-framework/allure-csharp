@@ -30,16 +30,13 @@ namespace Allure.Net.Commons
 
         /// <summary>
         /// Protects mutations of shared allure model objects against data
-        /// races that may otherwise occur because of multithreaded access to
-        /// the AllureLifecycle's singleton.
+        /// races that may otherwise occur because of multithreaded access.
         /// </summary>
         readonly object monitor = new();
 
 
         /// <summary>
-        /// Gets or sets an execution context of Allure. Use this property if
-        /// the context is set not in the same async domain where it should
-        /// later be accessed.
+        /// Captures the current context of Allure's execution.
         /// </summary>
         /// <remarks>
         /// This property is intended to be used by Allure integrations with
@@ -48,7 +45,44 @@ namespace Allure.Net.Commons
         public AllureContext Context
         {
             get => this.storage.CurrentContext;
-            set => this.storage.CurrentContext = value;
+            private set => this.storage.CurrentContext = value;
+        }
+
+        /// <summary>
+        /// Runs the specified code in the specified context restoring it
+        /// before returning. Use this method if you need to access the context
+        /// somewhere outside the async execution context the allure context
+        /// has been set in.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended to be used by Allure integrations with
+        /// test frameworks, not by end user's code.
+        /// </remarks>
+        /// <param name="context">
+        /// A context that was previously captured with <see cref="Context"/>.
+        /// </param>
+        /// <param name="action">A code to run.</param>
+        public void RunInContext(
+            AllureContext? context,
+            Action<AllureContext> action
+        )
+        {
+            if (context is null || context == this.Context)
+            {
+                action(this.Context);
+                return;
+            }
+
+            var originalContext = this.Context;
+            try
+            {
+                this.Context = context;
+                action(context);
+            }
+            finally
+            {
+                this.Context = originalContext;
+            }
         }
 
         /// <summary> Method to get the key for separation the steps for different tests. </summary>
