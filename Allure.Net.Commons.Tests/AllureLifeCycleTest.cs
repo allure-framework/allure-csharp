@@ -56,33 +56,33 @@ namespace Allure.Net.Commons.Tests
                 cycle
                     .StartTestContainer(container)
 
-                    .StartBeforeFixture(container.uuid, beforeFeature.uuid, beforeFeature.fixture)
+                    .StartBeforeFixture(beforeFeature.fixture)
 
-                    .StartStep(fixtureStep.uuid, fixtureStep.step)
+                    .StartStep(fixtureStep.step)
                     .StopStep(x => x.status = Status.passed)
 
                     .AddAttachment("text file", "text/xml", txtAttach.path)
                     .AddAttachment(txtAttach.path)
-                    .UpdateFixture(beforeFeature.uuid, f => f.status = Status.passed)
-                    .StopFixture(beforeFeature.uuid)
+                    .UpdateFixture(f => f.status = Status.passed)
+                    .StopFixture()
 
-                    .StartBeforeFixture(container.uuid, beforeScenario.uuid, beforeScenario.fixture)
-                    .UpdateFixture(beforeScenario.uuid, f => f.status = Status.passed)
-                    .StopFixture(beforeScenario.uuid)
+                    .StartBeforeFixture(beforeScenario.fixture)
+                    .UpdateFixture(f => f.status = Status.passed)
+                    .StopFixture()
 
-                    .StartTestCase(container.uuid, test)
+                    .StartTestCase(test)
 
-                    .StartStep(step1.uuid, step1.step)
+                    .StartStep(step1.step)
                     .StopStep(x => x.status = Status.passed)
 
-                    .StartStep(step2.uuid, step2.step)
+                    .StartStep(step2.step)
                     .AddAttachment("unknown file", "text/xml", txtAttachWithNoExt.content)
                     .StopStep(x => x.status = Status.broken)
 
-                    .StartStep(step3.uuid, step3.step)
+                    .StartStep(step3.step)
                     .StopStep(x => x.status = Status.skipped)
 
-                    .AddScreenDiff(test.uuid, "expected.png", "actual.png", "diff.png")
+                    .AddScreenDiff("expected.png", "actual.png", "diff.png")
 
                     .StopTestCase(x =>
                     {
@@ -97,16 +97,16 @@ namespace Allure.Net.Commons.Tests
                         };
                     })
 
-                    .StartAfterFixture(container.uuid, afterScenario.uuid, afterScenario.fixture)
-                    .UpdateFixture(afterScenario.uuid, f => f.status = Status.passed)
-                    .StopFixture(afterScenario.uuid)
+                    .StartAfterFixture(afterScenario.fixture)
+                    .UpdateFixture(f => f.status = Status.passed)
+                    .StopFixture()
 
-                    .StartAfterFixture(container.uuid, afterFeature.uuid, afterFeature.fixture)
+                    .StartAfterFixture(afterFeature.fixture)
                     .StopFixture(f => f.status = Status.passed)
 
-                    .WriteTestCase(test.uuid)
-                    .StopTestContainer(container.uuid)
-                    .WriteTestContainer(container.uuid);
+                    .WriteTestCase()
+                    .StopTestContainer()
+                    .WriteTestContainer();
             });
         }
 

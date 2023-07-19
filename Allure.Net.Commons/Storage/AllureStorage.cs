@@ -71,19 +71,24 @@ namespace Allure.Net.Commons.Storage
         }
 
         public void PutTestContainer(TestResultContainer container) =>
-            this.PutAndUpdateContext(
-                container.uuid,
-                container,
+            this.UpdateContext(
                 c => c.WithContainer(container)
             );
 
-        public TestResultContainer RemoveTestContainer() =>
-            this.RemoveAndUpdateContext<TestResultContainer>(
-                this.CurrentTestContainer.uuid,
-                c => c.WithNoLastContainer()
-            );
+        public void PutTestContainer(
+            string uuid,
+            TestResultContainer container
+        ) => this.PutAndUpdateContext(
+            uuid,
+            container,
+            c => c.WithContainer(container)
+        );
 
-        public TestResultContainer RemoveTestContainer(string uuid) =>
+        public void RemoveTestContainer() => this.UpdateContext(
+            c => c.WithNoLastContainer()
+        );
+
+        public void RemoveTestContainer(string uuid) =>
             this.RemoveAndUpdateContext<TestResultContainer>(
                 uuid,
                 c => ContextWithNoContainer(c, uuid)
@@ -99,39 +104,36 @@ namespace Allure.Net.Commons.Storage
                 c => c.WithFixtureContext(fixture)
             );
 
-        public FixtureResult RemoveFixture()
-        {
-            var fixture = this.CurrentFixture;
+        public void RemoveFixture() =>
             this.UpdateContext(c => c.WithNoFixtureContext());
-            return fixture;
-        }
 
-        public FixtureResult RemoveFixture(string uuid)
+        public void RemoveFixture(string uuid)
             => this.RemoveAndUpdateContext<FixtureResult>(
                 uuid,
-                c => ReferenceEquals(
-                    c.CurrentFixture,
-                    this.Get<FixtureResult>(uuid)
-                ) ? c.WithNoFixtureContext() : c
+                c => c.WithNoFixtureContext()
             );
 
         public void PutTestCase(TestResult testResult) =>
+            this.UpdateContext(
+                c => c.WithTestContext(testResult)
+            );
+
+        public void PutTestCase(string uuid, TestResult testResult) =>
             this.PutAndUpdateContext(
-                testResult.uuid,
+                uuid,
                 testResult,
                 c => c.WithTestContext(testResult)
             );
 
-        public TestResult RemoveTestCase() =>
-            this.RemoveAndUpdateContext<TestResult>(
-                this.CurrentTest.uuid,
+        public void RemoveTestCase() =>
+            this.UpdateContext(
                 c => c.WithNoTestContext()
             );
 
-        public TestResult RemoveTestCase(string uuid) =>
+        public void RemoveTestCase(string uuid) =>
             this.RemoveAndUpdateContext<TestResult>(
                 uuid,
-                c => c.CurrentTest.uuid == uuid ? c.WithNoTestContext() : c
+                c => c.WithNoTestContext()
             );
 
         public void PutStep(StepResult stepResult) =>
@@ -146,63 +148,35 @@ namespace Allure.Net.Commons.Storage
                 c => c.WithStep(stepResult)
             );
 
-        public StepResult RemoveStep()
-        {
-            var step = this.CurrentStep;
-            this.UpdateContext(c => c.WithNoLastStep());
-            return step;
-        }
+        public void RemoveStep() => this.UpdateContext(
+            c => c.WithNoLastStep()
+        );
 
-        public StepResult RemoveStep(string uuid) =>
+        public void RemoveStep(string uuid) =>
             this.RemoveAndUpdateContext<StepResult>(
                 uuid,
                 c => this.ContextWithNoStep(c, uuid)
             );
 
-        T PutAndUpdateContext<T>(
+        void PutAndUpdateContext<T>(
             string uuid,
             T value,
             Func<AllureContext, AllureContext> updateFn
         ) where T : notnull
         {
-            var result = this.Put(uuid, value);
+            this.Put(uuid, value);
             this.UpdateContext(updateFn);
-            return result;
         }
 
-        T RemoveAndUpdateContext<T>(string uuid, Func<AllureContext, AllureContext> updateFn)
+        void RemoveAndUpdateContext<T>(string uuid, Func<AllureContext, AllureContext> updateFn)
         {
             this.UpdateContext(updateFn);
-            return this.Remove<T>(uuid);
+            this.Remove<T>(uuid);
         }
 
         void UpdateContext(Func<AllureContext, AllureContext> updateFn)
         {
             this.CurrentContext = updateFn(this.CurrentContext);
-        }
-
-        AllureContext ContextWithNoStep(AllureContext context, string  uuid)
-        {
-            var stepResult = this.Get<StepResult>(uuid);
-            var stepsToPushAgain = new Stack<StepResult>();
-            while (!ReferenceEquals(context.CurrentStep, stepResult))
-            {
-                stepsToPushAgain.Push(context.CurrentStep);
-                context = context.WithNoLastStep();
-                if (context.StepContext.IsEmpty)
-                {
-                    throw new InvalidOperationException(
-                        $"Step {stepResult.name} is not in the current context"
-                    );
-                }
-            }
-            while (stepsToPushAgain.Any())
-            {
-                context = context.WithStep(
-                    stepsToPushAgain.Pop()
-                );
-            }
-            return context;
         }
 
         static AllureContext ContextWithNoContainer(
@@ -226,6 +200,30 @@ namespace Allure.Net.Commons.Storage
             {
                 context = context.WithContainer(
                     containersToPushAgain.Pop()
+                );
+            }
+            return context;
+        }
+
+        AllureContext ContextWithNoStep(AllureContext context, string uuid)
+        {
+            var stepResult = this.Get<StepResult>(uuid);
+            var stepsToPushAgain = new Stack<StepResult>();
+            while (!ReferenceEquals(context.CurrentStep, stepResult))
+            {
+                stepsToPushAgain.Push(context.CurrentStep);
+                context = context.WithNoLastStep();
+                if (context.StepContext.IsEmpty)
+                {
+                    throw new InvalidOperationException(
+                        $"Step {stepResult.name} is not in the current context"
+                    );
+                }
+            }
+            while (stepsToPushAgain.Any())
+            {
+                context = context.WithStep(
+                    stepsToPushAgain.Pop()
                 );
             }
             return context;

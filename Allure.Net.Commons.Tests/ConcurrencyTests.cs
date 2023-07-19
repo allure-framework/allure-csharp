@@ -13,6 +13,7 @@ namespace Allure.Net.Commons.Tests
     {
         InMemoryResultsWriter writer;
         AllureLifecycle lifecycle;
+        int writes = 0;
 
         [SetUp]
         public void SetUp()
@@ -83,17 +84,21 @@ namespace Allure.Net.Commons.Tests
              *       - inner-2-1  | Child thread 2
              *       - inner-2-2  | Child thread 2
              */
+            var sync = new ManualResetEventSlim();
+
             this.WrapInTest(
                 "test",
                 () => this.WrapInStep(
                     "outer",
                     () => RunThreads(
-                        () => this.AddSteps(
-                            ("inner-1", new object[] { "inner-1-1", "inner-1-2" })
-                        ),
-                        () => this.AddSteps(
-                            ("inner-2", new object[] { "inner-2-1", "inner-2-2" })
-                        )
+                        BindEventSet(() => this.AddSteps((
+                            "inner-1",
+                            new object[] { "inner-1-1", "inner-1-2" }
+                        )), sync),
+                        BindEventWait (() => this.AddSteps((
+                            "inner-2",
+                            new object[] { "inner-2-1", "inner-2-2" }
+                        )), sync)
                     )
                 )
             );
@@ -146,16 +151,38 @@ namespace Allure.Net.Commons.Tests
             );
         }
 
+        static Action BindEventSet(Action fn, ManualResetEventSlim @event) => () =>
+        {
+            try
+            {
+                fn();
+            }
+            finally
+            {
+                @event.Set();
+            }
+        };
+
+        static Action BindEventWait(Action fn, ManualResetEventSlim @event) => () =>
+        {
+            @event.Wait();
+            fn();
+        };
+
         async Task AddTestWithStepsAsync(string name, params object[] steps)
         {
-            var uuid = Guid.NewGuid().ToString();
             this.lifecycle
-                .StartTestCase(new() { name = name, uuid = uuid });
+                .StartTestCase(new()
+                {
+                    name = name,
+                    uuid = Guid.NewGuid().ToString()
+                });
             await Task.Delay(1);
             await this.AddStepsAsync(steps);
             this.lifecycle
-                .StopTestCase(uuid)
-                .WriteTestCase(uuid);
+                .StopTestCase()
+                .WriteTestCase();
+            writes++;
         }
 
         void WrapInTest(string testName, Action action)
