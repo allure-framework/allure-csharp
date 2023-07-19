@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+		<LangVersion>11</LangVersion>
         <Version>2.10-SNAPSHOT</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <Company>Qameta Software</Company>

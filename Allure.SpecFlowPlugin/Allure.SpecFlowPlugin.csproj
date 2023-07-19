@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+        <LangVersion>11</LangVersion>
         <PackageId>Allure.SpecFlow</PackageId>
         <Version>2.10-SNAPSHOT</Version>
         <Authors>Alexander Bakanov</Authors>
@@ -14,7 +15,6 @@
         <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
         <PackageTags>specflow allure</PackageTags>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <LangVersion>8</LangVersion>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
