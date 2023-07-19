@@ -16,7 +16,7 @@ namespace Allure.Net.Commons.Steps
             get => TestResultAccessorAsyncLocal.Value;
             set => TestResultAccessorAsyncLocal.Value = value;
         }
-        
+
         #region Fixtures
 
         public static string StartBeforeFixture(string name)
@@ -28,7 +28,11 @@ namespace Allure.Net.Commons.Steps
                 start = DateTimeOffset.Now.ToUnixTimeMilliseconds()
             };
 
-            AllureLifecycle.Instance.StartBeforeFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
+            AllureLifecycle.Instance.StartBeforeFixture(
+                AllureLifecycle.Instance.Context.CurrentContainer.uuid,
+                fixtureResult,
+                out var uuid
+            );
             StepLogger?.BeforeStarted?.Log(name);
             return uuid;
         }
@@ -42,7 +46,11 @@ namespace Allure.Net.Commons.Steps
                 start = DateTimeOffset.Now.ToUnixTimeMilliseconds()
             };
 
-            AllureLifecycle.Instance.StartAfterFixture(TestResultAccessor.TestResultContainer.uuid, fixtureResult, out var uuid);
+            AllureLifecycle.Instance.StartAfterFixture(
+                AllureLifecycle.Instance.Context.CurrentContainer.uuid,
+                fixtureResult,
+                out var uuid
+            );
             StepLogger?.AfterStarted?.Log(name);
             return uuid;
         }
@@ -59,9 +67,12 @@ namespace Allure.Net.Commons.Steps
         
         public static void StopFixtureSuppressTestCase(Action<FixtureResult> updateResults = null)
         {
-            var newTestResult = TestResultAccessor.TestResult;
+            var newTestResult = AllureLifecycle.Instance.Context.CurrentTest;
             StopFixture(updateResults);
-            AllureLifecycle.Instance.StartTestCase(TestResultAccessor.TestResultContainer.uuid, newTestResult);
+            AllureLifecycle.Instance.StartTestCase(
+                AllureLifecycle.Instance.Context.CurrentContainer.uuid,
+                newTestResult
+            );
         }
 
         #endregion
@@ -152,7 +163,10 @@ namespace Allure.Net.Commons.Steps
 
         public static void UpdateTestResult(Action<TestResult> update)
         {
-            AllureLifecycle.Instance.UpdateTestCase(TestResultAccessor.TestResult.uuid, update);
+            AllureLifecycle.Instance.UpdateTestCase(
+                AllureLifecycle.Instance.Context.CurrentTest.uuid,
+                update
+            );
         }
 
         #endregion

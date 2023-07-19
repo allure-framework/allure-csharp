@@ -173,7 +173,7 @@ namespace Allure.Net.Commons
 
         public virtual AllureLifecycle StartBeforeFixture(string parentUuid, FixtureResult result, out string uuid)
         {
-            uuid = Guid.NewGuid().ToString("N");
+            uuid = CreateUuid();
             StartBeforeFixture(parentUuid, uuid, result);
             return this;
         }
