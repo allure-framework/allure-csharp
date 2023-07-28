@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Allure.Net.Commons;
 using Allure.Xunit;
 using Allure.Xunit.Attributes;
+using Allure.XUnit.Attributes.Steps;
 using Xunit;
 
 namespace Allure.XUnit.Examples

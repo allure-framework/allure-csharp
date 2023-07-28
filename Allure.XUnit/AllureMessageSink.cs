@@ -106,22 +106,22 @@ namespace Allure.XUnit
         void OnTestFailed(MessageHandlerArgs<ITestFailed> args) =>
             this.RunInTestContext(
                 args.Message.Test,
-                _ => AllureXunitHelper.ApplyTestFailure(args.Message)
+                () => AllureXunitHelper.ApplyTestFailure(args.Message)
             );
 
         void OnTestPassed(MessageHandlerArgs<ITestPassed> args) =>
             this.RunInTestContext(
                 args.Message.Test,
-                _ => AllureXunitHelper.ApplyTestSuccess(args.Message)
+                () => AllureXunitHelper.ApplyTestSuccess(args.Message)
             );
 
         void OnTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
             var message = args.Message;
             var test = message.Test;
-            this.UpdateTestContext(test, ctx =>
+            this.UpdateTestContext(test, () =>
             {
-                if (!ctx.HasTest)
+                if (!AllureLifecycle.Instance.Context.HasTest)
                 {
                     AllureXunitHelper.StartAllureTestCase(test);
                 }
@@ -135,7 +135,7 @@ namespace Allure.XUnit
             var test = args.Message.Test;
             var arguments = this.allureTestData[test].Arguments;
 
-            this.RunInTestContext(test, _ =>
+            this.RunInTestContext(test, () =>
             {
                 this.AddAllureParameters(test, arguments);
                 AllureXunitHelper.ReportCurrentTestCase();
@@ -179,20 +179,16 @@ namespace Allure.XUnit
             this.GetOrCreateTestData(test).Context =
                 AllureLifecycle.Instance.Context;
 
-        void RunInTestContext(ITest test, Action<AllureContext> action) =>
+        AllureContext RunInTestContext(ITest test, Action action) =>
             AllureLifecycle.Instance.RunInContext(
                 this.GetOrCreateTestData(test).Context,
                 action
             );
 
-        void UpdateTestContext(ITest test, Action<AllureContext> action) =>
-            this.RunInTestContext(
+        void UpdateTestContext(ITest test, Action action) =>
+            this.GetOrCreateTestData(test).Context = this.RunInTestContext(
                 test,
-                ctx =>
-                {
-                    action(ctx);
-                    this.CaptureTestContext(test);
-                }
+                action
             );
 
         void LogUnreportedTheoryArgs(string testName)
