@@ -13,7 +13,6 @@ namespace NUnit.Allure.Attributes
     public class AllureDisplayIgnoredAttribute : NUnitAttribute, ITestAction
     {
         private readonly string _suiteName;
-        private string _ignoredContainerId;
 
         public AllureDisplayIgnoredAttribute(string suiteNameForIgnoredTests = "Ignored")
         {
@@ -22,13 +21,11 @@ namespace NUnit.Allure.Attributes
 
         public void BeforeTest(ITest suite)
         {
-            _ignoredContainerId = suite.Id + "-ignored";
-            var fixture = new TestResultContainer
+            AllureLifecycle.Instance.StartTestContainer(new()
             {
-                uuid = _ignoredContainerId,
+                uuid = suite.Id + "-ignored",
                 name = suite.ClassName
-            };
-            AllureLifecycle.Instance.StartTestContainer(fixture);
+            });
         }
 
         public void AfterTest(ITest suite)
@@ -37,12 +34,19 @@ namespace NUnit.Allure.Attributes
             if (suite.HasChildren)
             {
                 var ignoredTests =
-                    GetAllTests(suite).Where(t => t.RunState == RunState.Ignored || t.RunState == RunState.Skipped);
+                    GetAllTests(suite).Where(
+                        t => t.RunState == RunState.Ignored
+                            || t.RunState == RunState.Skipped
+                    );
                 foreach (var test in ignoredTests)
                 {
-                    AllureLifecycle.Instance.UpdateTestContainer(_ignoredContainerId, t => t.children.Add(test.Id));
+                    AllureLifecycle.Instance.UpdateTestContainer(
+                        t => t.children.Add(test.Id)
+                    );
 
-                    var reason = test.Properties.Get(PropertyNames.SkipReason).ToString();
+                    var reason = test.Properties.Get(
+                        PropertyNames.SkipReason
+                    ).ToString();
 
                     var ignoredTestResult = new TestResult
                     {
@@ -66,12 +70,12 @@ namespace NUnit.Allure.Attributes
                         }
                     };
                     AllureLifecycle.Instance.StartTestCase(ignoredTestResult);
-                    AllureLifecycle.Instance.StopTestCase(ignoredTestResult.uuid);
-                    AllureLifecycle.Instance.WriteTestCase(ignoredTestResult.uuid);
+                    AllureLifecycle.Instance.StopTestCase();
+                    AllureLifecycle.Instance.WriteTestCase();
                 }
 
-                AllureLifecycle.Instance.StopTestContainer(_ignoredContainerId);
-                AllureLifecycle.Instance.WriteTestContainer(_ignoredContainerId);
+                AllureLifecycle.Instance.StopTestContainer();
+                AllureLifecycle.Instance.WriteTestContainer();
             }
         }
 

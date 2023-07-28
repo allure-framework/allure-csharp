@@ -6,10 +6,14 @@ namespace NUnit.Allure.Core
 {
     internal class AllureExtendedConfiguration : AllureConfiguration
     {
-        public HashSet<string> BrokenTestData { get; set; } = new HashSet<string>();
+        public HashSet<string> BrokenTestData { get; set; } = new();
 
         [JsonConstructor]
-        protected AllureExtendedConfiguration(string title, string directory, HashSet<string> links) : base(title,
+        protected AllureExtendedConfiguration(
+            string title,
+            string directory,
+            HashSet<string> links
+        ) : base(title,
             directory, links)
         {
         }

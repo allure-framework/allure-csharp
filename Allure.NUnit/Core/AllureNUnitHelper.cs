@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
-using Allure.Net.Commons.Storage;
 using Newtonsoft.Json.Linq;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
@@ -15,14 +14,15 @@ using TestResult = Allure.Net.Commons.TestResult;
 
 namespace NUnit.Allure.Core
 {
-    public sealed class AllureNUnitHelper : ITestResultAccessor
+    public sealed class AllureNUnitHelper
     {
-        internal static List<Type> ExceptionTypes = new List<Type> { typeof(NUnitException), typeof(AssertionException) };
-        public TestResultContainer TestResultContainer { get; set; }
-        public TestResult TestResult { get; set; }
+        internal static List<Type> ExceptionTypes = new()
+        {
+            typeof(NUnitException),
+            typeof(AssertionException)
+        };
 
         private readonly ITest _test;
-        private string _testResultGuid;
 
         public AllureNUnitHelper(ITest test)
         {
@@ -33,21 +33,22 @@ namespace NUnit.Allure.Core
 
         internal void StartTestContainer()
         {
-            StepsHelper.TestResultAccessor = this;
-            TestResultContainer = new TestResultContainer
+            AllureLifecycle.StartTestContainer(new()
             {
                 uuid = ContainerId,
                 name = _test.FullName
-            };
-            AllureLifecycle.StartTestContainer(TestResultContainer);
+            });
         }
 
         internal void StartTestCase()
         {
-            _testResultGuid = string.Concat(Guid.NewGuid().ToString(), "-tr-", _test.Id);
-            TestResult = new TestResult
+            var testResult = new TestResult
             {
-                uuid = _testResultGuid,
+                uuid = string.Concat(
+                    Guid.NewGuid().ToString(),
+                    "-tr-",
+                    _test.Id
+                ),
                 name = _test.Name,
                 historyId = _test.FullName,
                 fullName = _test.FullName,
@@ -55,12 +56,21 @@ namespace NUnit.Allure.Core
                 {
                     Label.Thread(),
                     Label.Host(),
-                    Label.Package(_test.ClassName?.Substring(0, _test.ClassName.LastIndexOf('.'))),
+                    Label.Package(
+                        _test.ClassName?.Substring(
+                            0,
+                            _test.ClassName.LastIndexOf('.')
+                        )
+                    ),
                     Label.TestMethod(_test.MethodName),
-                    Label.TestClass(_test.ClassName?.Substring(_test.ClassName.LastIndexOf('.') + 1))
+                    Label.TestClass(
+                        _test.ClassName?.Substring(
+                            _test.ClassName.LastIndexOf('.') + 1
+                        )
+                    )
                 }
             };
-            AllureLifecycle.StartTestCase(ContainerId, TestResult);
+            AllureLifecycle.StartTestCase(testResult);
         }
 
         private TestFixture GetTestFixture(ITest test)
@@ -70,7 +80,10 @@ namespace NUnit.Allure.Core
             while (isTestSuite != true)
             {
                 currentTest = currentTest.Parent;
-                if (currentTest is ParameterizedMethodSuite) currentTest = currentTest.Parent;
+                if (currentTest is ParameterizedMethodSuite)
+                {
+                    currentTest = currentTest.Parent;
+                }
                 isTestSuite = currentTest.IsSuite;
             }
 
@@ -84,31 +97,42 @@ namespace NUnit.Allure.Core
             
             for (var i = 0; i < _test.Arguments.Length; i++)
             {
-                AllureLifecycle.UpdateTestCase(x => x.parameters.Add(new Parameter
-                {
-                    // ReSharper disable once AccessToModifiedClosure
-                    name = $"Param #{i}",
-                    // ReSharper disable once AccessToModifiedClosure                   
-                    value = _test.Arguments[i] == null ? "NULL" : _test.Arguments[i].ToString()
-                }));
+                AllureLifecycle.UpdateTestCase(
+                    x => x.parameters.Add(
+                        new Parameter
+                        {
+                            // ReSharper disable once AccessToModifiedClosure
+                            name = $"Param #{i}",
+                            // ReSharper disable once AccessToModifiedClosure                   
+                            value = _test.Arguments[i] == null
+                                ? "NULL"
+                                : _test.Arguments[i].ToString()
+                        }
+                    )
+                );
             }
 
-            AllureLifecycle.UpdateTestCase(x => x.statusDetails = new StatusDetails
-            {
-                message = string.IsNullOrWhiteSpace(TestContext.CurrentContext.Result.Message)
-                ? TestContext.CurrentContext.Test.Name 
-                : TestContext.CurrentContext.Result.Message,
-                trace = TestContext.CurrentContext.Result.StackTrace
-            });
+            AllureLifecycle.UpdateTestCase(
+                x => x.statusDetails = new StatusDetails
+                {
+                    message = string.IsNullOrWhiteSpace(
+                        TestContext.CurrentContext.Result.Message
+                    ) ? TestContext.CurrentContext.Test.Name 
+                        : TestContext.CurrentContext.Result.Message,
+                    trace = TestContext.CurrentContext.Result.StackTrace
+                }
+            );
 
-            AllureLifecycle.StopTestCase(testCase => testCase.status = GetNUnitStatus());
-            AllureLifecycle.WriteTestCase(_testResultGuid);
+            AllureLifecycle.StopTestCase(
+                testCase => testCase.status = GetNUnitStatus()
+            );
+            AllureLifecycle.WriteTestCase();
         }
 
         internal void StopTestContainer()
         {
-            AllureLifecycle.StopTestContainer(ContainerId);
-            AllureLifecycle.WriteTestContainer(ContainerId);
+            AllureLifecycle.StopTestContainer();
+            AllureLifecycle.WriteTestContainer();
         }
 
         public static Status GetNUnitStatus()
@@ -121,11 +145,18 @@ namespace NUnit.Allure.Core
                 var allureSection = jo["allure"];
                 try
                 {
-                    var config = allureSection?.ToObject<AllureExtendedConfiguration>();
+                    var config = allureSection
+                        ?.ToObject<AllureExtendedConfiguration>();
                     if (config?.BrokenTestData != null)
+                    {
                         foreach (var word in config.BrokenTestData)
+                        {
                             if (result.Message.Contains(word))
+                            {
                                 return Status.broken;
+                            }
+                        }
+                    }
                 }
                 catch (Exception)
                 {
@@ -155,16 +186,34 @@ namespace NUnit.Allure.Core
         private void UpdateTestDataFromAttributes()
         {
             foreach (var p in GetTestProperties(PropertyNames.Description))
-                AllureLifecycle.UpdateTestCase(x => x.description += $"{p}\n");
+            {
+                AllureLifecycle.UpdateTestCase(
+                    x => x.description += $"{p}\n"
+                );
+            }
 
             foreach (var p in GetTestProperties(PropertyNames.Author))
-                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Owner(p)));
+            {
+                AllureLifecycle.UpdateTestCase(
+                    x => x.labels.Add(Label.Owner(p))
+                );
+            }
 
             foreach (var p in GetTestProperties(PropertyNames.Category))
-                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Tag(p)));
+            {
+                AllureLifecycle.UpdateTestCase(
+                    x => x.labels.Add(Label.Tag(p))
+                );
+            }
 
-            var attributes = _test.Method.GetCustomAttributes<AllureTestCaseAttribute>(true).ToList();
-            attributes.AddRange(GetTestFixture(_test).GetCustomAttributes<AllureTestCaseAttribute>(true).ToList());
+            var attributes = _test.Method
+                .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                .ToList();
+            attributes.AddRange(
+                GetTestFixture(_test)
+                    .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                    .ToList()
+            );
 
             attributes.ForEach(a =>
             {
@@ -174,21 +223,37 @@ namespace NUnit.Allure.Core
 
         private void AddConsoleOutputAttachment()
         {
-            var output = TestExecutionContext.CurrentContext.CurrentResult.Output;
-            AllureLifecycle.AddAttachment("Console Output", "text/plain", 
-                Encoding.UTF8.GetBytes(output), ".txt");
+            var output = TestExecutionContext
+                .CurrentContext
+                .CurrentResult
+                .Output;
+            AllureLifecycle.AddAttachment(
+                "Console Output",
+                "text/plain", 
+                Encoding.UTF8.GetBytes(output),
+                ".txt"
+            );
         }
 
         private IEnumerable<string> GetTestProperties(string name)
         {
             var list = new List<string>();
             var currentTest = _test;
-            while (currentTest.GetType() != typeof(TestSuite) && currentTest.GetType() != typeof(TestAssembly))
+            while (currentTest.GetType() != typeof(TestSuite)
+                && currentTest.GetType() != typeof(TestAssembly))
             {
                 if (currentTest.Properties.ContainsKey(name))
+                {
                     if (currentTest.Properties[name].Count > 0)
+                    {
                         for (var i = 0; i < currentTest.Properties[name].Count; i++)
-                            list.Add(currentTest.Properties[name][i].ToString());
+                        {
+                            list.Add(
+                                currentTest.Properties[name][i].ToString()
+                            );
+                        }
+                    }
+                }
 
                 currentTest = currentTest.Parent;
             }
@@ -206,12 +271,18 @@ namespace NUnit.Allure.Core
         
         public void SaveOneTimeResultToContext()
         {
-            var currentResult = TestExecutionContext.CurrentContext.CurrentResult;
+            var currentResult = TestExecutionContext
+                .CurrentContext
+                .CurrentResult;
 
             if (!string.IsNullOrEmpty(currentResult.Output))
             {
-                AllureLifecycle.Instance.AddAttachment("Console Output", "text/plain",
-                    Encoding.UTF8.GetBytes(currentResult.Output), ".txt");    
+                AllureLifecycle.Instance.AddAttachment(
+                    "Console Output",
+                    "text/plain",
+                    Encoding.UTF8.GetBytes(currentResult.Output),
+                    ".txt"
+                );
             }
 
             FixtureResult fixtureResult = null;
@@ -226,20 +297,26 @@ namespace NUnit.Allure.Core
                 fixtureResult = fr;
             });
             
-            var testFixture = GetTestFixture(TestExecutionContext.CurrentContext.CurrentTest);
+            var testFixture = GetTestFixture(
+                TestExecutionContext.CurrentContext.CurrentTest
+            );
             testFixture.Properties.Set("OneTimeSetUpResult", fixtureResult);
         }
         
         public void AddOneTimeSetupResult()
         {
-            var testFixture = GetTestFixture(TestExecutionContext.CurrentContext.CurrentTest);
+            var testFixture = GetTestFixture(
+                TestExecutionContext.CurrentContext.CurrentTest
+            );
             FixtureResult fixtureResult = null;
 
-            fixtureResult = testFixture.Properties.Get("OneTimeSetUpResult") as FixtureResult;
+            fixtureResult = testFixture.Properties.Get(
+                "OneTimeSetUpResult"
+            ) as FixtureResult;
 
             if (fixtureResult != null && fixtureResult.steps.Any())
             {
-                AllureLifecycle.UpdateTestContainer(TestResultContainer.uuid, container =>
+                AllureLifecycle.UpdateTestContainer(container =>
                 {
                     container.befores.Add(fixtureResult);
                 });
