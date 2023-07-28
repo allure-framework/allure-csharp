@@ -11,14 +11,15 @@ namespace Allure.Net.Commons.Storage
 {
     internal class AllureStorage
     {
-        readonly ConcurrentDictionary<string, object> storage = new();
         readonly AsyncLocal<AllureContext> context = new();
 
         public AllureContext CurrentContext
         {
             get => this.context.Value ??= new();
             set => this.context.Value = value
-                ?? throw new ArgumentNullException(nameof(CurrentContext));
+                ?? throw new ArgumentNullException(
+                    nameof(this.CurrentContext)
+                );
         }
 
         public AllureStorage()
@@ -43,22 +44,6 @@ namespace Allure.Net.Commons.Storage
 
         public StepResult CurrentStep =>
             this.CurrentContext.CurrentStep;
-
-        public T Get<T>(string uuid)
-        {
-            return (T) storage[uuid];
-        }
-
-        public T Put<T>(string uuid, T item) where T: notnull
-        {
-            return (T) storage.GetOrAdd(uuid, item);
-        }
-
-        public T Remove<T>(string uuid)
-        {
-            storage.TryRemove(uuid, out var value);
-            return (T) value;
-        }
 
         public void PutTestContainer(TestResultContainer container) =>
             this.UpdateContext(
@@ -94,78 +79,34 @@ namespace Allure.Net.Commons.Storage
             c => c.WithNoLastStep()
         );
 
-        void PutAndUpdateContext<T>(
-            string uuid,
-            T value,
-            Func<AllureContext, AllureContext> updateFn
-        ) where T : notnull
-        {
-            this.Put(uuid, value);
-            this.UpdateContext(updateFn);
-        }
-
-        void RemoveAndUpdateContext<T>(string uuid, Func<AllureContext, AllureContext> updateFn)
-        {
-            this.UpdateContext(updateFn);
-            this.Remove<T>(uuid);
-        }
-
         void UpdateContext(Func<AllureContext, AllureContext> updateFn)
         {
             this.CurrentContext = updateFn(this.CurrentContext);
         }
 
-        static AllureContext ContextWithNoContainer(
-            AllureContext context,
-            string uuid
-        )
+        #region Obsoleted
+
+        [Obsolete]
+        readonly ConcurrentDictionary<string, object> storage = new();
+
+        [Obsolete]
+        public T Get<T>(string uuid)
         {
-            var containersToPushAgain = new Stack<TestResultContainer>();
-            while (context.CurrentContainer.uuid != uuid)
-            {
-                containersToPushAgain.Push(context.CurrentContainer);
-                context = context.WithNoLastContainer();
-                if (context.ContainerContext.IsEmpty)
-                {
-                    throw new InvalidOperationException(
-                        $"Container {uuid} is not in the current context"
-                    );
-                }
-            }
-            while (containersToPushAgain.Any())
-            {
-                context = context.WithContainer(
-                    containersToPushAgain.Pop()
-                );
-            }
-            return context;
+            return (T)storage[uuid];
         }
 
-        AllureContext ContextWithNoStep(AllureContext context, string uuid)
+        [Obsolete]
+        public T Put<T>(string uuid, T item) where T : notnull
         {
-            var stepResult = this.Get<StepResult>(uuid);
-            var stepsToPushAgain = new Stack<StepResult>();
-            while (!ReferenceEquals(context.CurrentStep, stepResult))
-            {
-                stepsToPushAgain.Push(context.CurrentStep);
-                context = context.WithNoLastStep();
-                if (context.StepContext.IsEmpty)
-                {
-                    throw new InvalidOperationException(
-                        $"Step {stepResult.name} is not in the current context"
-                    );
-                }
-            }
-            while (stepsToPushAgain.Any())
-            {
-                context = context.WithStep(
-                    stepsToPushAgain.Pop()
-                );
-            }
-            return context;
+            return (T)storage.GetOrAdd(uuid, item);
         }
 
-        #region Obsolete
+        [Obsolete]
+        public T Remove<T>(string uuid)
+        {
+            storage.TryRemove(uuid, out var value);
+            return (T)value;
+        }
 
         [Obsolete(
             "Storage methods with explicit uuids are obsolete. Use " +
@@ -260,6 +201,78 @@ namespace Allure.Net.Commons.Storage
                 uuid,
                 c => this.ContextWithNoStep(c, uuid)
             );
+
+        [Obsolete]
+        void PutAndUpdateContext<T>(
+            string uuid,
+            T value,
+            Func<AllureContext, AllureContext> updateFn
+        ) where T : notnull
+        {
+            this.Put(uuid, value);
+            this.UpdateContext(updateFn);
+        }
+
+        [Obsolete]
+        void RemoveAndUpdateContext<T>(string uuid, Func<AllureContext, AllureContext> updateFn)
+        {
+            this.UpdateContext(updateFn);
+            this.Remove<T>(uuid);
+        }
+
+        [Obsolete]
+        static AllureContext ContextWithNoContainer(
+            AllureContext context,
+            string uuid
+        )
+        {
+            var containersToPushAgain = new Stack<TestResultContainer>();
+            while (context.CurrentContainer.uuid != uuid)
+            {
+                containersToPushAgain.Push(context.CurrentContainer);
+                context = context.WithNoLastContainer();
+                if (context.ContainerContext.IsEmpty)
+                {
+                    throw new InvalidOperationException(
+                        $"Container {uuid} is not in the current context"
+                    );
+                }
+            }
+            context = context.WithNoLastContainer();
+            while (containersToPushAgain.Any())
+            {
+                context = context.WithContainer(
+                    containersToPushAgain.Pop()
+                );
+            }
+            return context;
+        }
+
+        [Obsolete]
+        AllureContext ContextWithNoStep(AllureContext context, string uuid)
+        {
+            var stepResult = this.Get<StepResult>(uuid);
+            var stepsToPushAgain = new Stack<StepResult>();
+            while (!ReferenceEquals(context.CurrentStep, stepResult))
+            {
+                stepsToPushAgain.Push(context.CurrentStep);
+                context = context.WithNoLastStep();
+                if (context.StepContext.IsEmpty)
+                {
+                    throw new InvalidOperationException(
+                        $"Step {stepResult.name} is not in the current context"
+                    );
+                }
+            }
+            context = context.WithNoLastStep();
+            while (stepsToPushAgain.Any())
+            {
+                context = context.WithStep(
+                    stepsToPushAgain.Pop()
+                );
+            }
+            return context;
+        }
 
         #endregion
     }

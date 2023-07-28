@@ -21,19 +21,6 @@ namespace Allure.Net.Commons.Tests
             Assert.AreEqual(Status.none, new TestResult().status);
         }
 
-        [Test]
-        public void Way()
-        {
-            AsyncLocal<string> myContext = new();
-            myContext.Value = "Outer";
-            Parallel.For(0, 2, i =>
-            {
-                Console.WriteLine(myContext.Value);
-                myContext.Value = $"Inner {i}";
-            });
-            Console.WriteLine(myContext.Value);
-        }
-
         [Test, Description("Integration Test")]
         public void IntegrationTest()
         {
@@ -155,7 +142,7 @@ namespace Allure.Net.Commons.Tests
         {
             var writer = new InMemoryResultsWriter();
             var lifecycle = new AllureLifecycle(_ => writer);
-            AllureContext context = null;
+            AllureContext context = null, modifiedContext = null;
             await Task.Factory.StartNew(() =>
             {
                 lifecycle.StartTestCase(new()
@@ -164,13 +151,14 @@ namespace Allure.Net.Commons.Tests
                 });
                 context = lifecycle.Context;
             });
-            lifecycle.RunInContext(context, () =>
+            modifiedContext = lifecycle.RunInContext(context, () =>
             {
                 lifecycle.StopTestCase();
                 lifecycle.WriteTestCase();
             });
 
             Assert.That(writer.testResults, Is.Not.Empty);
+            Assert.That(modifiedContext.HasTest, Is.False);
         }
 
         [Test]

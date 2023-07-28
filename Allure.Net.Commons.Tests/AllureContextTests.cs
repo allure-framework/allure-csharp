@@ -1,4 +1,5 @@
-﻿using Allure.Net.Commons.Storage;
+﻿using System;
+using Allure.Net.Commons.Storage;
 using NUnit.Framework;
 
 namespace Allure.Net.Commons.Tests
@@ -15,9 +16,11 @@ namespace Allure.Net.Commons.Tests
             Assert.That(ctx.TestContext, Is.Null);
             Assert.That(ctx.StepContext, Is.Empty);
             Assert.That(ctx.HasContainer, Is.False);
+            Assert.That(ctx.ContainerContextDepth, Is.Zero);
             Assert.That(ctx.HasFixture, Is.False);
             Assert.That(ctx.HasTest, Is.False);
             Assert.That(ctx.HasStep, Is.False);
+            Assert.That(ctx.StepContextDepth, Is.Zero);
 
             Assert.That(
                 () => ctx.CurrentContainer,
@@ -73,8 +76,8 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 () => ctx.WithContainer(new()),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to change a container context because a test " +
-                        "context is active."
+                    "Unable to change the container context because the " +
+                        "test context is active."
                 )
             );
         }
@@ -89,8 +92,8 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 () => ctx.WithContainer(new()),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to change a container context because a fixture " +
-                        "context is active."
+                    "Unable to change the container context because the " +
+                        "fixture context is active."
                 )
             );
         }
@@ -105,8 +108,8 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 ctx.WithNoLastContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to change a container context because a test " +
-                        "context is active."
+                    "Unable to change the container context because the " +
+                        "test context is active."
                 )
             );
         }
@@ -147,6 +150,7 @@ namespace Allure.Net.Commons.Tests
             var ctx = new AllureContext().WithContainer(container);
 
             Assert.That(ctx.HasContainer, Is.True);
+            Assert.That(ctx.ContainerContextDepth, Is.EqualTo(1));
             Assert.That(ctx.ContainerContext, Is.EqualTo(new[] { container }));
             Assert.That(ctx.CurrentContainer, Is.SameAs(container));
         }
@@ -165,6 +169,7 @@ namespace Allure.Net.Commons.Tests
                 ctx.ContainerContext,
                 Is.EqualTo(new[] { container2, container1 })
             );
+            Assert.That(ctx.ContainerContextDepth, Is.EqualTo(2));
             Assert.That(ctx.CurrentContainer, Is.SameAs(container2));
         }
 
@@ -176,8 +181,8 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 ctx.WithNoLastContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to deactivate a container context " +
-                        "because it's inactive."
+                    "Unable to deactivate the container context because " +
+                        "it is not active."
                 )
             );
         }
@@ -190,6 +195,7 @@ namespace Allure.Net.Commons.Tests
                 .WithNoLastContainer();
 
             Assert.That(ctx.HasContainer, Is.False);
+            Assert.That(ctx.ContainerContextDepth, Is.Zero);
             Assert.That(ctx.ContainerContext, Is.Empty);
         }
 
@@ -204,6 +210,7 @@ namespace Allure.Net.Commons.Tests
 
             Assert.That(ctx.ContainerContext, Is.EqualTo(new[] { container }));
             Assert.That(ctx.CurrentContainer, Is.SameAs(container));
+            Assert.That(ctx.ContainerContextDepth, Is.EqualTo(1));
         }
 
         [Test]
@@ -217,8 +224,8 @@ namespace Allure.Net.Commons.Tests
                 () => ctx.WithFixtureContext(new()),
                 Throws.InvalidOperationException
                     .With.Message.EqualTo(
-                        "Unable to activate a fixture context because a " +
-                            "container context is inactive."
+                        "Unable to activate the fixture context because " +
+                            "the container context is not active."
                     )
             );
         }
@@ -259,8 +266,8 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 ctx.WithNoLastContainer,
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to change a container context because " +
-                        "a fixture context is active."
+                    "Unable to change the container context because the " +
+                        "fixture context is active."
                 )
             );
         }
@@ -278,8 +285,8 @@ namespace Allure.Net.Commons.Tests
                 () => ctx.WithFixtureContext(new()),
                 Throws.InvalidOperationException
                     .With.Message.EqualTo(
-                        "Unable to activate a fixture context because " +
-                            "another fixture context is active."
+                        "Unable to activate the fixture context because " +
+                            "it's already active."
                     )
             );
         }
@@ -306,8 +313,8 @@ namespace Allure.Net.Commons.Tests
                 () => ctx.WithTestContext(new()),
                 Throws.InvalidOperationException
                     .With.Message.EqualTo(
-                        "Unable to activate a test context because another " +
-                            "test context is active."
+                        "Unable to activate the test context because " +
+                            "it is already active."
                     )
             );
         }
@@ -322,8 +329,8 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 () => ctx.WithTestContext(new()),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to activate a test context because a fixture " +
-                        "context is active."
+                    "Unable to activate the test context because the " +
+                        "fixture context is active."
                 )
             );
         }
@@ -393,7 +400,7 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 () => ctx.WithStep(new()),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to activate a step context because neither " +
+                    "Unable to activate the step context because neither " +
                         "test, nor fixture context is active."
                 )
             );
@@ -407,8 +414,8 @@ namespace Allure.Net.Commons.Tests
             Assert.That(
                 () => ctx.WithNoLastStep(),
                 Throws.InvalidOperationException.With.Message.EqualTo(
-                    "Unable to deactivate a step context because it's " +
-                        "already inactive."
+                    "Unable to deactivate the step context because it " +
+                        "isn't active."
                 )
             );
         }
@@ -424,6 +431,7 @@ namespace Allure.Net.Commons.Tests
 
             Assert.That(ctx.HasStep, Is.True);
             Assert.That(ctx.StepContext, Is.EqualTo(new[] { step }));
+            Assert.That(ctx.StepContextDepth, Is.EqualTo(1));
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(step));
         }
 
@@ -452,6 +460,7 @@ namespace Allure.Net.Commons.Tests
                 .WithStep(step2);
 
             Assert.That(ctx.StepContext, Is.EqualTo(new[] { step2, step1 }));
+            Assert.That(ctx.StepContextDepth, Is.EqualTo(2));
             Assert.That(ctx.CurrentStep, Is.SameAs(step2));
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(step2));
         }
@@ -469,6 +478,7 @@ namespace Allure.Net.Commons.Tests
 
             Assert.That(ctx.StepContext, Is.EqualTo(new[] { step1 }));
             Assert.That(ctx.CurrentStep, Is.SameAs(step1));
+            Assert.That(ctx.StepContextDepth, Is.EqualTo(1));
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(step1));
         }
 
@@ -483,6 +493,7 @@ namespace Allure.Net.Commons.Tests
 
             Assert.That(ctx.HasStep, Is.False);
             Assert.That(ctx.StepContext, Is.Empty);
+            Assert.That(ctx.StepContextDepth, Is.Zero);
             Assert.That(ctx.CurrentStepContainer, Is.SameAs(test));
         }
 
@@ -588,6 +599,13 @@ namespace Allure.Net.Commons.Tests
                     .WithStep(new() { name = "s2" })
                     .ToString(),
                 Is.EqualTo("AllureContext { Containers = [], Fixture = null, Test = t, Steps = [s2 <- s1] }")
+            );
+            Assert.That(
+                new AllureContext()
+                    .WithContainer(new() { uuid = "c" })
+                    .WithTestContext(new() { uuid = "t" })
+                    .ToString(),
+                Is.EqualTo("AllureContext { Containers = [c], Fixture = null, Test = t, Steps = [] }")
             );
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -18,12 +19,21 @@ namespace Allure.Net.Commons.Storage
     /// between different tests and steps that may potentially be run
     /// cuncurrently either by a test framework or by an end user.
     /// </remarks>
+    [DebuggerDisplay(
+        "Containers = {ContainerContextDepth}, HasFixture = {HasFixture}, " +
+            "HasTest = {HasTest}, Steps = {StepContextDepth}"
+    )]
     public record class AllureContext
     {
         /// <summary>
         /// Returns true if a container context is active.
         /// </summary>
         public bool HasContainer => !this.ContainerContext.IsEmpty;
+
+        /// <summary>
+        /// Returns the number of containers in the container context.
+        /// </summary>
+        public int ContainerContextDepth => this.ContainerContext.Count();
 
         /// <summary>
         /// Returns true if a fixture context is active.
@@ -39,6 +49,11 @@ namespace Allure.Net.Commons.Storage
         /// Returns true if a step context is active.
         /// </summary>
         public bool HasStep => !this.StepContext.IsEmpty;
+
+        /// <summary>
+        /// Returns the number of steps in the step context.
+        /// </summary>
+        public int StepContextDepth => this.StepContext.Count();
 
         /// <summary>
         /// A stack of fixture containers affecting subsequent tests.
@@ -162,12 +177,18 @@ namespace Allure.Net.Commons.Storage
                     "No fixture, test, or step context is active."
                 );
 
+        /// <summary>
+        /// Used by <see cref="ToString"/> to serialize proeprties of the
+        /// context.
+        /// </summary>
         protected virtual bool PrintMembers(StringBuilder stringBuilder)
         {
             var containers =
-                RepresentStack(this.ContainerContext, c => c.name);
+                RepresentStack(this.ContainerContext, c => c.name ?? c.uuid);
             var fixture = this.FixtureContext?.name ?? "null";
-            var test = this.TestContext?.name ?? "null";
+            var test = this.TestContext?.name
+                ?? this.TestContext?.uuid
+                ?? "null";
             var steps = RepresentStack(this.StepContext, s => s.name);
 
             stringBuilder.AppendFormat("Containers = [{0}], ", containers);
@@ -225,9 +246,12 @@ namespace Allure.Net.Commons.Storage
 
         /// <summary>
         /// Creates a new <see cref="AllureContext"/> with the active fixture
-        /// context that is set to the specified fixture. Requires an active
-        /// container context.
+        /// context that is set to the specified fixture. Requires the
+        /// container context to be active.
         /// </summary>
+        /// <remarks>
+        /// Only one fixture context can be active at a time.
+        /// </remarks>
         /// <param name="fixtureResult">
         /// A new fixture context.
         /// </param>
@@ -340,8 +364,8 @@ namespace Allure.Net.Commons.Storage
                 StepContext = this.HasStep
                     ? this.StepContext.Pop()
                     : throw new InvalidOperationException(
-                        "Unable to deactivate a step context because it's " +
-                            "already inactive."
+                        "Unable to deactivate the step context because it " +
+                            "isn't active."
                     )
             };
 
@@ -350,7 +374,7 @@ namespace Allure.Net.Commons.Storage
             if (this.FixtureContext is not null)
             {
                 throw new InvalidOperationException(
-                    "Unable to change a container context because a " +
+                    "Unable to change the container context because the " +
                         "fixture context is active."
                 );
             }
@@ -358,8 +382,8 @@ namespace Allure.Net.Commons.Storage
             if (this.TestContext is not null)
             {
                 throw new InvalidOperationException(
-                    "Unable to change a container context because a test " +
-                        "context is active."
+                    "Unable to change the container context because the " +
+                        "test context is active."
                 );
             }
 
@@ -371,8 +395,8 @@ namespace Allure.Net.Commons.Storage
             if (!this.HasContainer)
             {
                 throw new InvalidOperationException(
-                    "Unable to deactivate a container context because it's " +
-                        "inactive."
+                    "Unable to deactivate the container context because it " +
+                        "is not active."
                 );
             }
 
@@ -389,16 +413,16 @@ namespace Allure.Net.Commons.Storage
             if (!this.HasContainer)
             {
                 throw new InvalidOperationException(
-                    "Unable to activate a fixture context " +
-                        "because a container context is inactive."
+                    "Unable to activate the fixture context " +
+                        "because the container context is not active."
                 );
             }
 
             if (this.HasFixture)
             {
                 throw new InvalidOperationException(
-                    "Unable to activate a fixture context " +
-                        "because another fixture context is active."
+                    "Unable to activate the fixture context " +
+                        "because it's already active."
                 );
             }
 
@@ -410,16 +434,16 @@ namespace Allure.Net.Commons.Storage
             if (this.HasFixture)
             {
                 throw new InvalidOperationException(
-                    "Unable to activate a test context " +
-                        "because a fixture context is active."
+                    "Unable to activate the test context " +
+                        "because the fixture context is active."
                 );
             }
 
             if (this.HasTest)
             {
                 throw new InvalidOperationException(
-                    "Unable to activate a test context " +
-                        "because another test context is active."
+                    "Unable to activate the test context " +
+                        "because it is already active."
                 );
             }
 
@@ -431,7 +455,7 @@ namespace Allure.Net.Commons.Storage
             if (!this.HasTest && !this.HasFixture)
             {
                 throw new InvalidOperationException(
-                    "Unable to activate a step context because neither " +
+                    "Unable to activate the step context because neither " +
                         "test, nor fixture context is active."
                 );
             }

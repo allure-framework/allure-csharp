@@ -16,6 +16,18 @@ using Newtonsoft.Json.Linq;
 
 namespace Allure.Net.Commons
 {
+    /// <summary>
+    /// A facade that allows to control the Allure context, set up allure model
+    /// objects and emit output files.
+    /// </summary>
+    /// <remarks>
+    /// This class is primarily intended to be used by a test framework
+    /// integration. We don't advice to use it from test code unless strictly
+    /// necessary.<br></br>
+    /// NOTE: Modifications of the Allure context persist until either some
+    /// method has affect them, or the execution context is restored to the
+    /// point beyond the call that had introduced them.
+    /// </remarks>
     public class AllureLifecycle
     {
         private readonly Dictionary<Type, ITypeFormatter> typeFormatters = new();
@@ -32,16 +44,12 @@ namespace Allure.Net.Commons
         /// Protects mutations of shared allure model objects against data
         /// races that may otherwise occur because of multithreaded access.
         /// </summary>
-        readonly object monitor = new();
+        readonly object modelMonitor = new();
 
 
         /// <summary>
-        /// Captures the current context of Allure's execution.
+        /// Captures the current value of Allure context.
         /// </summary>
-        /// <remarks>
-        /// This property is intended to be used by Allure integrations with
-        /// test frameworks, not by end user's code.
-        /// </remarks>
         public AllureContext Context
         {
             get => this.storage.CurrentContext;
@@ -49,35 +57,34 @@ namespace Allure.Net.Commons
         }
 
         /// <summary>
-        /// Runs the specified code in the specified context restoring it
-        /// before returning. Use this method if you need to access the context
-        /// somewhere outside the async execution context the allure context
-        /// has been set in.
+        /// Binds the provided value as the current Allure context and executes
+        /// the specified function. The context is then restored to the initial
+        /// value. This allows the Allure context to bypass .NET execution
+        /// context boundaries.
         /// </summary>
-        /// <remarks>
-        /// This method is intended to be used by Allure integrations with
-        /// test frameworks, not by end user's code.
-        /// </remarks>
         /// <param name="context">
         /// A context that was previously captured with <see cref="Context"/>.
+        /// If it is null, the code is executed in the current context.
         /// </param>
         /// <param name="action">A code to run.</param>
-        public void RunInContext(
+        /// <returns>The context after the code is executed.</returns>
+        public AllureContext RunInContext(
             AllureContext? context,
-            Action<AllureContext> action
+            Action action
         )
         {
-            if (context is null || context == this.Context)
+            if (context is null)
             {
-                action(this.Context);
-                return;
+                action();
+                return this.Context;
             }
 
             var originalContext = this.Context;
             try
             {
                 this.Context = context;
-                action(context);
+                action();
+                return this.Context;
             }
             finally
             {
@@ -127,45 +134,73 @@ namespace Allure.Net.Commons
 
         #region TestContainer
 
+        /// <summary>
+        /// Starts a new test container and pushes it into the container
+        /// context making the container context active. The container becomes
+        /// the current one in the current execution context.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Can't be called if the fixture or the test context is active.
+        /// </remarks>
+        /// <param name="container">A new test container to start.</param>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StartTestContainer(
             TestResultContainer container
         )
         {
             container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            var parent = this.storage.CurrentTestContainerOrNull;
-            if (parent is not null)
-            {
-                lock (this.monitor)
-                {
-                    parent.children.Add(container.uuid);
-                }
-            }
-            storage.PutTestContainer(container);
+            this.storage.PutTestContainer(container.uuid, container);
             return this;
         }
 
+        /// <summary>
+        /// Applies the specified update function to the current test container.
+        /// </summary>
+        /// <remarks>
+        /// Requires the container context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle UpdateTestContainer(
             Action<TestResultContainer> update
         )
         {
             var container = this.storage.CurrentTestContainer;
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update.Invoke(container);
             }
             return this;
         }
 
+        /// <summary>
+        /// Stops the current test container.
+        /// </summary>
+        /// <remarks>
+        /// Requires the container context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StopTestContainer()
         {
             UpdateTestContainer(stopContainer);
             return this;
         }
 
+        /// <summary>
+        /// Writes the current test container and removes it from the context.
+        /// If there are another test containers in the context, the most
+        /// recently started one becomes the current container in the current
+        /// execution context. Otherwise the container context is deactivated.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires the container context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle WriteTestContainer()
         {
             var container = this.storage.CurrentTestContainer;
-            this.storage.RemoveTestContainer();
+            this.storage.RemoveTestContainer(container.uuid);
             this.writer.Write(container);
             return this;
         }
@@ -174,13 +209,35 @@ namespace Allure.Net.Commons
 
         #region Fixture
 
+        /// <summary>
+        /// Starts a new before fixture and activates the fixture context with
+        /// it. The fixture is set as the current one in the current execution
+        /// context. Does nothing if the fixture context is already active.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires the container context to be active.
+        /// </remarks>
+        /// <param name="result">A new fixture.</param>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StartBeforeFixture(FixtureResult result)
         {
-            UpdateTestContainer(container => container.befores.Add(result));
+            this.UpdateTestContainer(container => container.befores.Add(result));
             this.StartFixture(result);
             return this;
         }
 
+        /// <summary>
+        /// Starts a new after fixture and activates the fixture context with
+        /// it. The fixture is set as the current one in the current execution
+        /// context. Does nothing if the fixture context is already active.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires the container context to be active.
+        /// </remarks>
+        /// <param name="result">A new fixture.</param>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StartAfterFixture(FixtureResult result)
         {
             this.UpdateTestContainer(c => c.afters.Add(result));
@@ -188,18 +245,36 @@ namespace Allure.Net.Commons
             return this;
         }
 
+        /// <summary>
+        /// Applies the specified update function to the current fixture.
+        /// </summary>
+        /// <remarks>
+        /// Requires the fixture context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle UpdateFixture(
             Action<FixtureResult> update
         )
         {
             var fixture = this.storage.CurrentFixture;
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update.Invoke(fixture);
             }
             return this;
         }
 
+        /// <summary>
+        /// Stops the current fixture and deactivates the fixture context.
+        /// </summary>
+        /// <param name="beforeStop">
+        /// A function applied to the fixture result before it is stopped.
+        /// </param>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Required the fixture context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StopFixture(
             Action<FixtureResult> beforeStop
         )
@@ -208,6 +283,14 @@ namespace Allure.Net.Commons
             return this.StopFixture();
         }
 
+        /// <summary>
+        /// Stops the current fixture and deactivates the fixture context.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Required the fixture context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StopFixture()
         {
             this.UpdateFixture(fixture =>
@@ -223,36 +306,64 @@ namespace Allure.Net.Commons
 
         #region TestCase
 
+        /// <summary>
+        /// Starts a new test and activates the test context with it. The test
+        /// becomes the current one in the current execution context.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires the test context to be active.
+        /// </remarks>
+        /// <param name="testResult">A new test case.</param>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StartTestCase(TestResult testResult)
         {
-            var container = this.storage.CurrentTestContainerOrNull;
-            if (container is not null)
+            var uuid = testResult.uuid;
+            var containers = this.storage.CurrentContext.ContainerContext;
+            lock (this.modelMonitor)
             {
-                lock (this.monitor)
+                foreach (TestResultContainer container in containers)
                 {
-                    container.children.Add(testResult.uuid);
+                    container.children.Add(uuid);
                 }
             }
             testResult.stage = Stage.running;
             testResult.start = testResult.start == 0L
                 ? DateTimeOffset.Now.ToUnixTimeMilliseconds()
                 : testResult.start;
-            this.storage.PutTestCase(testResult);
+            this.storage.PutTestCase(uuid, testResult);
             return this;
         }
 
+        /// <summary>
+        /// Applies the specified update function to the current test.
+        /// </summary>
+        /// <remarks>
+        /// Requires the test context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle UpdateTestCase(
             Action<TestResult> update
         )
         {
             var testResult = this.storage.CurrentTest;
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update(testResult);
             }
             return this;
         }
 
+        /// <summary>
+        /// Stops the current test.
+        /// </summary>
+        /// <remarks>
+        /// Requires the test context to be active.
+        /// </remarks>
+        /// <param name="beforeStop">
+        /// A function applied to the test result before it is stopped.
+        /// </param>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StopTestCase(
             Action<TestResult> beforeStop
         ) => this.UpdateTestCase(testResult =>
@@ -261,13 +372,34 @@ namespace Allure.Net.Commons
             stopTestCase(testResult);
         });
 
+        /// <summary>
+        /// Stops the current test.
+        /// </summary>
+        /// <remarks>
+        /// Requires the test context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StopTestCase() =>
             this.UpdateTestCase(stopTestCase);
 
+        /// <summary>
+        /// Writes the current test and removes it from the context. The test
+        /// context is then deactivated.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires the test context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle WriteTestCase()
         {
             var testResult = this.storage.CurrentTest;
-            this.storage.RemoveTestCase();
+            string uuid;
+            lock (this.modelMonitor)
+            {
+                uuid = testResult.uuid;
+            }
+            this.storage.RemoveTestCase(uuid);
             this.writer.Write(testResult);
             return this;
         }
@@ -276,12 +408,23 @@ namespace Allure.Net.Commons
 
         #region Step
 
+        /// <summary>
+        /// Starts a new step and pushes it into the step context making the
+        /// step context active. The step becomes the current one in the
+        /// current execution context.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires either the fixture or the test context to be active.
+        /// </remarks>
+        /// <param name="result">A new step.</param>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StartStep(StepResult result)
         {
             result.stage = Stage.running;
             result.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             var parent = this.storage.CurrentStepContainer;
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 parent.steps.Add(result);
             }
@@ -289,22 +432,54 @@ namespace Allure.Net.Commons
             return this;
         }
 
+        /// <summary>
+        /// Applies the specified update function to the current step.
+        /// </summary>
+        /// <remarks>
+        /// Requires the step context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle UpdateStep(Action<StepResult> update)
         {
             var stepResult = this.storage.CurrentStep;
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update.Invoke(stepResult);
             }
             return this;
         }
 
+        /// <summary>
+        /// Stops the current step and removes it from the context. If there
+        /// are another steps in the context, the most recently started one
+        /// becomes the current step in the current execution context.
+        /// Otherwise the step context is deactivated.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires the step context to be active.
+        /// </remarks>
+        /// <param name="beforeStop">
+        /// A function that is applied to the step result before it is stopped.
+        /// </param>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StopStep(Action<StepResult> beforeStop)
         {
             this.UpdateStep(beforeStop);
             return this.StopStep();
         }
 
+        /// <summary>
+        /// Stops the current step and removes it from the context. If there
+        /// are another steps in the context, the most recently started one
+        /// becomes the current step in the current execution context.
+        /// Otherwise the step context is deactivated.
+        /// </summary>
+        /// <remarks>
+        /// This method modifies the Allure context.<br></br>
+        /// Requires the step context to be active.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         public virtual AllureLifecycle StopStep()
         {
             this.UpdateStep(step =>
@@ -348,7 +523,7 @@ namespace Allure.Net.Commons
             };
             this.writer.Write(source, content);
             var target = this.storage.CurrentStepContainer;
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 target.attachments.Add(attachment);
             }
@@ -432,32 +607,6 @@ namespace Allure.Net.Commons
             fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
 
-        void StartFixture(string uuid, FixtureResult fixtureResult)
-        {
-            this.storage.PutFixture(uuid, fixtureResult);
-            lock (this.monitor)
-            {
-                fixtureResult.stage = Stage.running;
-                fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            }
-        }
-
-        AllureLifecycle StartStep(
-            ExecutableItem parent,
-            string uuid,
-            StepResult stepResult
-        )
-        {
-            stepResult.stage = Stage.running;
-            stepResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            lock (this.monitor)
-            {
-                parent.steps.Add(stepResult);
-            }
-            this.storage.PutStep(uuid, stepResult);
-            return this;
-        }
-
         static readonly Action<TestResultContainer> stopContainer =
             c => c.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
@@ -474,7 +623,7 @@ namespace Allure.Net.Commons
 
         #endregion
 
-        #region Obsolete
+        #region Obsoleted
 
         [Obsolete(
             "This property is a rudimentary part of the API. It has no " +
@@ -493,8 +642,9 @@ namespace Allure.Net.Commons
             TestResultContainer container
         )
         {
+            container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             UpdateTestContainer(parentUuid, c => c.children.Add(container.uuid));
-            StartTestContainer(container);
+            this.storage.PutTestContainer(container.uuid, container);
             return this;
         }
 
@@ -509,7 +659,7 @@ namespace Allure.Net.Commons
         )
         {
             var container = this.storage.Get<TestResultContainer>(uuid);
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update.Invoke(container);
             }
@@ -521,11 +671,8 @@ namespace Allure.Net.Commons
                 "their counterparts without uuids to manipulate the context."
         )]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual AllureLifecycle StopTestContainer(string uuid)
-        {
+        public virtual AllureLifecycle StopTestContainer(string uuid) =>
             UpdateTestContainer(uuid, stopContainer);
-            return this;
-        }
 
         [Obsolete(
             "Lifecycle methods with explicit uuids are obsolete. Use " +
@@ -648,7 +795,7 @@ namespace Allure.Net.Commons
         )
         {
             var fixture = this.storage.Get<FixtureResult>(uuid);
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update.Invoke(fixture);
             }
@@ -699,7 +846,7 @@ namespace Allure.Net.Commons
         )
         {
             var testResult = this.storage.Get<TestResult>(uuid);
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update(testResult);
             }
@@ -778,7 +925,7 @@ namespace Allure.Net.Commons
         )
         {
             var stepResult = storage.Get<StepResult>(uuid);
-            lock (this.monitor)
+            lock (this.modelMonitor)
             {
                 update.Invoke(stepResult);
             }
@@ -818,6 +965,34 @@ namespace Allure.Net.Commons
                 .AddAttachment(diffPng, "diff")
                 .UpdateTestCase(testCaseUuid, x => x.labels.Add(Label.TestType("screenshotDiff")));
 
+            return this;
+        }
+
+        [Obsolete]
+        void StartFixture(string uuid, FixtureResult fixtureResult)
+        {
+            this.storage.PutFixture(uuid, fixtureResult);
+            lock (this.modelMonitor)
+            {
+                fixtureResult.stage = Stage.running;
+                fixtureResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            }
+        }
+
+        [Obsolete]
+        AllureLifecycle StartStep(
+            ExecutableItem parent,
+            string uuid,
+            StepResult stepResult
+        )
+        {
+            stepResult.stage = Stage.running;
+            stepResult.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            lock (this.modelMonitor)
+            {
+                parent.steps.Add(stepResult);
+            }
+            this.storage.PutStep(uuid, stepResult);
             return this;
         }
 
