@@ -14,30 +14,35 @@ namespace Allure.SpecFlowPlugin.Tests
   [TestFixture]
   public class IntegrationFixture
   {
-    private readonly HashSet<TestResultContainer> allureContainers = new HashSet<TestResultContainer>();
-    private readonly HashSet<TestResult> allureTestResults = new HashSet<TestResult>();
-    private IEnumerable<IGrouping<string, string>> scenariosByStatus;
+    private readonly HashSet<TestResultContainer> allureContainers = new();
+    private readonly HashSet<TestResult> allureTestResults = new();
+    private IDictionary<string, List<string>> scenariosByStatus;
 
-    [OneTimeSetUp]
-    public void Init()
-    {
-      var featuresProjectPath = Path.GetFullPath(
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"./../../../../Allure.Features"));
-      Process.Start(new ProcessStartInfo
-      {
-        WorkingDirectory = featuresProjectPath,
-        FileName = "dotnet",
-        Arguments = $"test"
-      }).WaitForExit();
-      var allureResultsDirectory = new DirectoryInfo(featuresProjectPath).GetDirectories("allure-results", SearchOption.AllDirectories)
-        .First();
-      var featuresDirectory = Path.Combine(featuresProjectPath, "TestData");
-    
+        [OneTimeSetUp]
+        public void Init()
+        {
+            var featuresProjectPath = Path.GetFullPath(
+                Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    @"./../../../../Allure.Features"
+                )
+            );
+            Process.Start(new ProcessStartInfo
+            {
+                WorkingDirectory = featuresProjectPath,
+                FileName = "dotnet",
+                Arguments = $"test"
+            }).WaitForExit();
+            var allureResultsDirectory = new DirectoryInfo(featuresProjectPath)
+                  .GetDirectories("allure-results", SearchOption.AllDirectories)
+              .First();
+            var featuresDirectory = Path.Combine(featuresProjectPath, "TestData");
 
-      // parse allure suites
-      ParseAllureSuites(allureResultsDirectory.FullName);
-      ParseFeatures(featuresDirectory);
-    }
+
+            // parse allure suites
+            ParseAllureSuites(allureResultsDirectory.FullName);
+            ParseFeatures(featuresDirectory);
+        }
 
     [TestCase(Status.passed)]
     [TestCase(Status.failed)]
@@ -45,38 +50,49 @@ namespace Allure.SpecFlowPlugin.Tests
     [TestCase(Status.skipped)]
     public void TestStatus(Status status)
     {
-      var expected = scenariosByStatus.FirstOrDefault(x => x.Key == status.ToString()).ToList();
+      var expected = scenariosByStatus[status.ToString()];
       var actual = allureTestResults.Where(x => x.status == status).Select(x => x.name).ToList();
       Assert.That(actual, Is.EquivalentTo(expected));
     }
 
-    private void ParseFeatures(string featuresDir)
-    {
-      var parser = new Parser();
-      var scenarios = new List<Scenario>();
-      var features = new DirectoryInfo(featuresDir).GetFiles("*.feature");
-      scenarios.AddRange(features.SelectMany(f =>
-      {
-        var children = parser.Parse(f.FullName).Feature.Children.ToList();
-        var scenarioOutlines = children.Where(x => (x as dynamic).Examples.Length > 0).ToList();
-        foreach (var s in scenarioOutlines)
+        private void ParseFeatures(string featuresDir)
         {
-          var examplesCount = ((s as dynamic).Examples as dynamic)[0].TableBody.Length;
-          for (int i = 1; i < examplesCount; i++)
-          {
-            children.Add(s);
-          }
-        }
-        return children;
-      })
-          .Select(x => x as Scenario));
+            var parser = new Parser();
+            var scenarios = new List<Scenario>();
+            var features = new DirectoryInfo(featuresDir).GetFiles("*.feature");
+            scenarios.AddRange(features.SelectMany(f =>
+            {
+                var children = parser.Parse(f.FullName).Feature.Children.ToList();
+                var scenarioOutlines = children.Where(
+                    x => (x as dynamic).Examples.Length > 0
+                ).ToList();
+                foreach (var s in scenarioOutlines)
+                {
+                    var examplesCount = (s as dynamic).Examples[0]
+                        .TableBody.Length;
+                    for (int i = 1; i < examplesCount; i++)
+                    {
+                        children.Add(s);
+                    }
+                }
+                return children;
+            })
+                .Select(x => x as Scenario));
 
-      scenariosByStatus =
-          scenarios.GroupBy(x => x.Tags.FirstOrDefault(x =>
-                                         Enum.GetNames(typeof(Status)).Contains(x.Name.Replace("@", "")))?.Name
-                                     .Replace("@", "") ??
-                                 "_notag_", x => x.Name);
-    }
+            scenariosByStatus = scenarios.GroupBy(
+                x => x.Tags.FirstOrDefault(
+                    x => Enum.GetNames(
+                        typeof(Status)
+                    ).Contains(
+                        x.Name.Replace("@", "")
+                    )
+                )?.Name.Replace("@", "") ?? "_notag_",
+                x => x.Name
+              ).ToDictionary(g => g.Key, g => g.ToList());
+
+            // Extra unknown scenario for testing an exception in AfterFeature
+            scenariosByStatus["broken"].Add("Unknown");
+        }
 
     private void ParseAllureSuites(string allureResultsDir)
     {
