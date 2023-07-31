@@ -651,17 +651,21 @@ public class AllureLifecycle
 
     #region Obsoleted
 
-    [Obsolete(
-        "This property is a rudimentary part of the API. It has no " +
-            "effect and will be removed soon"
-    )]
+    internal const string EXPLICIT_STATE_MGMT_OBSOLETE =
+        "Explicit allure state management is obsolete. Methods with " +
+            "explicit uuid parameters will be removed in the future. Use " +
+            "their counterparts without uuids to manipulate the current" +
+            " context.";
+
+    internal const string API_RUDIMENT_OBSOLETE_MSG =
+        "This is a rudimentary part of the API. It has no " +
+            "effect and will be removed in the future.";
+
+    [Obsolete(API_RUDIMENT_OBSOLETE_MSG)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Func<string>? CurrentTestIdGetter { get; set; }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartTestContainer(
         string parentUuid,
@@ -676,10 +680,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle UpdateTestContainer(
         string uuid,
@@ -694,18 +695,12 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StopTestContainer(string uuid) =>
         this.UpdateTestContainer(uuid, stopContainer);
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle WriteTestContainer(string uuid)
     {
@@ -715,10 +710,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartBeforeFixture(
         FixtureResult result,
@@ -730,10 +722,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartBeforeFixture(
         string uuid,
@@ -745,10 +734,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartBeforeFixture(
         string parentUuid,
@@ -761,10 +747,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartBeforeFixture(
         string parentUuid,
@@ -777,10 +760,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartAfterFixture(
         string parentUuid,
@@ -793,10 +773,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartAfterFixture(
         string parentUuid,
@@ -809,10 +786,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle UpdateFixture(
         string uuid,
@@ -827,10 +801,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StopFixture(string uuid)
     {
@@ -843,10 +814,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartTestCase(
         string containerUuid,
@@ -860,10 +828,7 @@ public class AllureLifecycle
         return this.StartTestCase(testResult);
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle UpdateTestCase(
         string uuid,
@@ -878,18 +843,12 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StopTestCase(string uuid) =>
         this.UpdateTestCase(uuid, stopAllureItem);
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle WriteTestCase(string uuid)
     {
@@ -902,10 +861,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartStep(
         StepResult result,
@@ -917,20 +873,14 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartStep(
         string uuid,
         StepResult result
     ) => this.StartStep(this.Context.CurrentStepContainer, uuid, result);
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StartStep(
         string parentUuid,
@@ -942,10 +892,7 @@ public class AllureLifecycle
         stepResult
     );
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle UpdateStep(
         string uuid,
@@ -960,10 +907,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StopStep(string uuid)
     {
@@ -973,10 +917,7 @@ public class AllureLifecycle
         return this;
     }
 
-    [Obsolete(
-        "Lifecycle methods with explicit uuids are obsolete. Use " +
-            "their counterparts without uuids to manipulate the context."
-    )]
+    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle AddScreenDiff(
         string testCaseUuid,
@@ -1016,6 +957,7 @@ public class AllureLifecycle
         return this;
     }
 
+    [Obsolete]
     static AllureContext ContextWithNoContainer(
         AllureContext context,
         string uuid
@@ -1043,6 +985,7 @@ public class AllureLifecycle
         return context;
     }
 
+    [Obsolete]
     static AllureContext ContextWithNoStep(
         AllureContext context,
         StepResult stepResult
