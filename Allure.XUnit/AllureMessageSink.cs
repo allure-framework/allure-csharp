@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Allure.Net.Commons;
-using Allure.Net.Commons.Storage;
 using Allure.Xunit;
 using Xunit;
 using Xunit.Abstractions;

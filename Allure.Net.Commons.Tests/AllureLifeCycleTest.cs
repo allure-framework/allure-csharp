@@ -1,8 +1,6 @@
-﻿using Allure.Net.Commons.Storage;
-using NUnit.Framework;
-using System;
-using System.Threading;
+﻿using System;
 using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace Allure.Net.Commons.Tests
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using Allure.Net.Commons.Storage;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Allure.Net.Commons.Tests
 {

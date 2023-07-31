@@ -1,4 +1,4 @@
-using Allure.Net.Commons.Storage;
+using Allure.Net.Commons;
 
 namespace Allure.XUnit
 {
