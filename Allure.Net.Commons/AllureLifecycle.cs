@@ -548,6 +548,16 @@ public class AllureLifecycle
         writer.CleanUp();
     }
 
+    /// <summary>
+    /// Attaches screen diff images to the current test case.
+    /// </summary>
+    /// <remarks>
+    /// Requires the test context to be active.
+    /// </remarks>
+    /// <param name="expectedPng">A path to the actual screen.</param>
+    /// <param name="actualPng">A path to the expected screen.</param>
+    /// <param name="diffPng">A path to the screen diff.</param>
+    /// <exception cref="InvalidOperationException"/>
     public virtual AllureLifecycle AddScreenDiff(
         string expectedPng,
         string actualPng,

@@ -238,16 +238,19 @@ public class CoreStepsHelper
             "in the future. Use the StopFixture method instead."
     )]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void StopFixtureSuppressTestCase() => StopFixture();
-
-    [Obsolete(
-        "This method is a rudimentary part of the API and will be removed " +
-            "in the future. Use the StopFixture method instead."
-    )]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public static void StopFixtureSuppressTestCase(
-        Action<FixtureResult> updateResults
-    ) => StopFixture(updateResults);
+        Action<FixtureResult>? updateResults = null
+    )
+    {
+        if (updateResults == null)
+        {
+            StopFixture();
+        }
+        else
+        {
+            StopFixture(updateResults);
+        }
+    }
 
     [Obsolete(AllureLifecycle.EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
