@@ -331,7 +331,7 @@ public class AllureLifecycle
         }
         this.storage.Put(uuid, testResult);
         this.UpdateContext(c => c.WithTestContext(testResult));
-        this.UpdateTestCase(startAllureItemIfNotStarted);
+        this.UpdateTestCase(startAllureItem);
         return this;
     }
 
@@ -622,16 +622,7 @@ public class AllureLifecycle
         item =>
         {
             item.stage = Stage.running;
-            item.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        };
-
-    static readonly Action<ExecutableItem> startAllureItemIfNotStarted =
-        item =>
-        {
-            item.stage = Stage.running;
-            item.stop = item.stop == 0L
-                ? DateTimeOffset.Now.ToUnixTimeMilliseconds()
-                : item.stop;
+            item.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         };
 
     static readonly Action<ExecutableItem> stopAllureItem =
