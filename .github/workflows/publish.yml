@@ -14,14 +14,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.5.3
 
       - name: 'Setup .NET Core SDK'
-        uses: actions/setup-dotnet@v2.1.0
+        uses: actions/setup-dotnet@v3.2.0
         with:
           dotnet-version: |
             3.1.x
             6.0.x
+            7.0.x
 
       - name: 'Restore packages'
         run: dotnet restore ${{ env.SOLUTION_PATH }} --packages ${{ env.RESTORE_OUTPUT_PATH }}
