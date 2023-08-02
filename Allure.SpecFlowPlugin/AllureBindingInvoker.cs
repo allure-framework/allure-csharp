@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using Allure.Net.Commons;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
@@ -360,7 +361,17 @@ namespace Allure.SpecFlowPlugin
             // to indicate the error.
             if (!featureContext.ContainsKey(PLACEHOLDER_TESTCASE_KEY))
             {
-                PluginHelper.StartTestCase(featureContext.FeatureInfo, null);
+                PluginHelper.StartTestCase(featureContext.FeatureInfo, new(
+                    "Feature hook failure placeholder",
+                    string.Format(
+                        "This is a placeholder scenario to indicate an " +
+                            "exception occured in a feature-level fixture " +
+                            "of '{0}'",
+                        featureContext.FeatureInfo.Title
+                    ),
+                    Array.Empty<string>(),
+                    new OrderedDictionary()
+                ));
 
                 allure
                     .StopTestCase(makeBroken)

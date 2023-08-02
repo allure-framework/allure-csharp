@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,19 +13,6 @@ namespace Allure.SpecFlowPlugin
     public static class PluginHelper
     {
         public static string IGNORE_EXCEPTION = "IgnoreException";
-        private static readonly ScenarioInfo emptyScenarioInfo = new(
-            "Unknown",
-            string.Empty,
-            Array.Empty<string>(),
-            new OrderedDictionary()
-        );
-
-        private static readonly FeatureInfo emptyFeatureInfo = new(
-            CultureInfo.CurrentCulture,
-            string.Empty,
-            string.Empty,
-            string.Empty
-        );
 
         internal static PluginConfiguration PluginConfiguration =
             GetConfiguration(AllureLifecycle.Instance.JsonConfiguration);
@@ -50,9 +35,7 @@ namespace Allure.SpecFlowPlugin
 
         internal static string GetFeatureContainerId(
             FeatureInfo featureInfo
-        ) => featureInfo != null
-            ? featureInfo.GetHashCode().ToString()
-            : emptyFeatureInfo.GetHashCode().ToString();
+        ) => featureInfo.GetHashCode().ToString();
 
         internal static string NewId() => Guid.NewGuid().ToString("N");
 
@@ -70,11 +53,9 @@ namespace Allure.SpecFlowPlugin
 
         internal static void StartTestCase(
             FeatureInfo featureInfo,
-            ScenarioInfo? scenarioInfo
+            ScenarioInfo scenarioInfo
         )
         {
-            featureInfo ??= emptyFeatureInfo;
-            scenarioInfo ??= emptyScenarioInfo;
             var tags = GetTags(featureInfo, scenarioInfo);
             var parameters = GetParameters(scenarioInfo);
             var title = scenarioInfo.Title;

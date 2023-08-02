@@ -90,8 +90,8 @@ namespace Allure.SpecFlowPlugin.Tests
                 x => x.Name
               ).ToDictionary(g => g.Key, g => g.ToList());
 
-            // Extra unknown scenario for testing an exception in AfterFeature
-            scenariosByStatus["broken"].Add("Unknown");
+            // Extra placeholder scenario for testing an exception in AfterFeature
+            scenariosByStatus["broken"].Add("Feature hook failure placeholder");
         }
 
     private void ParseAllureSuites(string allureResultsDir)
