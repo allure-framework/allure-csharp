@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Reflection;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Allure.Net.Commons;
 using NUnit.Framework.Internal;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NUnit.Allure.Core
 {
@@ -204,5 +203,17 @@ namespace NUnit.Allure.Core
                 throw;
             }
         }
+
+        [Obsolete(
+            "Use AllureLifecycle.AddScreenDiff instance method instead to " +
+                "add a screen diff to the current test."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void AddScreenDiff(
+            this AllureLifecycle lifecycle,
+            string expected,
+            string actual,
+            string diff
+        ) => lifecycle.AddScreenDiff(expected, actual, diff);
     }
 }
