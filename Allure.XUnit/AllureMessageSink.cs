@@ -1,18 +1,21 @@
-using Allure.Net.Commons;
-using Allure.Net.Commons.Steps;
-using Allure.Xunit;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 using Xunit.Abstractions;
+
+#nullable enable
 
 namespace Allure.XUnit
 {
     public class AllureMessageSink : TestMessageSink
     {
-        IRunnerLogger logger;
-        Dictionary<ITest, AllureXunitTestResultAccessor> allureTestData = new();
+        readonly IRunnerLogger logger;
+        readonly ConcurrentDictionary<ITest, AllureXunitTestData> allureTestData
+            = new();
 
         public AllureMessageSink(IRunnerLogger logger)
         {
@@ -26,8 +29,36 @@ namespace Allure.XUnit
                 this.OnTestClassConstructionFinished;
             this.Execution.TestFailedEvent += this.OnTestFailed;
             this.Execution.TestPassedEvent += this.OnTestPassed;
+            this.Execution.TestSkippedEvent += this.OnTestSkipped;
             this.Execution.TestFinishedEvent += this.OnTestFinished;
-            this.Execution.TestCaseFinishedEvent+= this.OnTestCaseFinished;
+        }
+
+        public override bool OnMessageWithTypes(
+            IMessageSinkMessage message,
+            HashSet<string> messageTypes
+        )
+        {
+            try
+            {
+                this.logger.LogMessage(message.GetType().Name);
+                return base.OnMessageWithTypes(message, messageTypes);
+            }
+            catch (Exception e)
+            {
+                if (message is ITestCaseMessage testCaseMessage)
+                {
+                    this.logger.LogError(
+                        "Error during execution of {0}: {1}",
+                        testCaseMessage.TestCase.DisplayName,
+                        e
+                    );
+                }
+                else
+                {
+                    this.logger.LogError(e.ToString());
+                }
+                return false;
+            }
         }
 
         void OnTestAssemblyExecutionStarting(
@@ -37,27 +68,22 @@ namespace Allure.XUnit
             args.Message.ExecutionOptions.SetSynchronousMessageReporting(true);
         }
 
-        internal void OnTestArgumentsCreated(ITest test, object[] arguments)
-        {
-            var accessor = this.GetOrCreateAllureResultAccessor(test);
-            accessor.Arguments = arguments;
-        }
+        internal void OnTestArgumentsCreated(ITest test, object[] arguments) =>
+            this.GetOrCreateTestData(test).Arguments = arguments;
 
         void OnTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
             var message = args.Message;
             var test = message.Test;
-            var accessor = this.GetOrCreateAllureResultAccessor(test);
 
-            CoreStepsHelper.TestResultAccessor = accessor;
-
-            if (message.TestMethod.Method.IsStatic)
+            if (IsStaticTestMethod(message))
             {
-                accessor.TestResult = AllureXunitHelper.StartStaticAllureTestCase(test);
+                AllureXunitHelper.StartStaticAllureTestCase(test);
+                this.CaptureTestContext(test);
             }
             else
             {
-                accessor.TestResultContainer = AllureXunitHelper.StartNewAllureContainer(
+                AllureXunitHelper.StartNewAllureContainer(
                     message.TestClass.Class.Name
                 );
             }
@@ -67,89 +93,76 @@ namespace Allure.XUnit
             MessageHandlerArgs<ITestClassConstructionFinished> args
         )
         {
-            var test = args.Message.Test;
-            var accessor = this.allureTestData[test];
-            var container = accessor.TestResultContainer;
-            if (accessor.TestResult is null && container is not null)
+            var message = args.Message;
+            var test = message.Test;
+            if (!IsStaticTestMethod(message))
             {
-                accessor.TestResult = AllureXunitHelper.StartAllureTestCase(
-                    test,
-                    container
-                );
+                AllureXunitHelper.StartAllureTestCase(test);
+                this.CaptureTestContext(test);
             }
         }
 
-        void OnTestFailed(MessageHandlerArgs<ITestFailed> args)
+        void OnTestFailed(MessageHandlerArgs<ITestFailed> args) =>
+            this.RunInTestContext(
+                args.Message.Test,
+                () => AllureXunitHelper.ApplyTestFailure(args.Message)
+            );
+
+        void OnTestPassed(MessageHandlerArgs<ITestPassed> args) =>
+            this.RunInTestContext(
+                args.Message.Test,
+                () => AllureXunitHelper.ApplyTestSuccess(args.Message)
+            );
+
+        void OnTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
             var message = args.Message;
             var test = message.Test;
-            var testResult = this.allureTestData[test].TestResult;
-
-            if (testResult is not null)
+            this.UpdateTestContext(test, () =>
             {
-                AllureXunitHelper.ApplyTestFailure(testResult, message);
-            }
-        }
-
-        void OnTestPassed(MessageHandlerArgs<ITestPassed> args)
-        {
-            var message = args.Message;
-            var test = message.Test;
-            var testResult = this.allureTestData[test].TestResult;
-
-            if (testResult is not null)
-            {
-                AllureXunitHelper.ApplyTestSuccess(testResult, message);
-            }
+                if (!AllureLifecycle.Instance.Context.HasTest)
+                {
+                    AllureXunitHelper.StartAllureTestCase(test);
+                }
+                AllureXunitHelper.ApplyTestSkip(message);
+            });
         }
 
         void OnTestFinished(MessageHandlerArgs<ITestFinished> args)
         {
+            var message = args.Message;
             var test = args.Message.Test;
-            var accessor = this.allureTestData[test];
-            this.allureTestData.Remove(test);
-            var testResult = accessor.TestResult;
-            if (testResult is not null)
-            {
-                this.AddAllureParameters(testResult, test, accessor.Arguments);
-                AllureXunitHelper.ReportTestCase(testResult);
+            var arguments = this.allureTestData[test].Arguments;
 
-                var container = accessor.TestResultContainer;
-                if (container is not null)
+            this.RunInTestContext(test, () =>
+            {
+                this.AddAllureParameters(test, arguments);
+                AllureXunitHelper.ReportCurrentTestCase();
+                if (!IsStaticTestMethod(message))
                 {
-                    AllureXunitHelper.ReportTestContainer(container);
+                    AllureXunitHelper.ReportCurrentTestContainer();
                 }
-            }
+            });
+
+            this.allureTestData.Remove(test, out _);
         }
 
-        void OnTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
+        AllureXunitTestData GetOrCreateTestData(ITest test)
         {
-            var testCase = args.Message.TestCase;
-            if (testCase.SkipReason != null)
+            if (!this.allureTestData.TryGetValue(test, out var data))
             {
-                AllureXunitHelper.ReportSkippedTestCase(testCase);
+                data = new AllureXunitTestData();
+                this.allureTestData[test] = data;
             }
+            return data;
         }
 
-        AllureXunitTestResultAccessor GetOrCreateAllureResultAccessor(ITest test)
-        {
-            if (!this.allureTestData.TryGetValue(test, out var accessor))
-            {
-                accessor = new AllureXunitTestResultAccessor();
-                this.allureTestData[test] = accessor;
-            }
-            return accessor;
-        }
-
-        void AddAllureParameters(
-            TestResult testResult,
-            ITest test,
-            object[] arguments
-        )
+        void AddAllureParameters(ITest test, object[] arguments)
         {
             var testCase = test.TestCase;
             var parameters = testCase.TestMethod.Method.GetParameters();
-            arguments ??= testCase.TestMethodArguments ?? Array.Empty<object>();
+            arguments ??= testCase.TestMethodArguments
+                ?? Array.Empty<object>();
 
             if (parameters.Any() && !arguments.Any())
             {
@@ -157,9 +170,25 @@ namespace Allure.XUnit
             }
             else
             {
-                AllureXunitHelper.ApplyTestParameters(testResult, parameters, arguments);
+                AllureXunitHelper.ApplyTestParameters(parameters, arguments);
             }
         }
+
+        void CaptureTestContext(ITest test) =>
+            this.GetOrCreateTestData(test).Context =
+                AllureLifecycle.Instance.Context;
+
+        AllureContext RunInTestContext(ITest test, Action action) =>
+            AllureLifecycle.Instance.RunInContext(
+                this.GetOrCreateTestData(test).Context,
+                action
+            );
+
+        void UpdateTestContext(ITest test, Action action) =>
+            this.GetOrCreateTestData(test).Context = this.RunInTestContext(
+                test,
+                action
+            );
 
         void LogUnreportedTheoryArgs(string testName)
         {
@@ -171,5 +200,8 @@ namespace Allure.XUnit
 #endif
             this.logger.LogWarning(message);
         }
+
+        static bool IsStaticTestMethod(ITestMethodMessage message) =>
+            message.TestMethod.Method.IsStatic;
     }
 }

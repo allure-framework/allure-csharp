@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
+using System.Collections.Specialized;
 using Allure.Net.Commons;
-using CsvHelper;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
 using TechTalk.SpecFlow.Configuration;
@@ -12,245 +8,448 @@ using TechTalk.SpecFlow.ErrorHandling;
 using TechTalk.SpecFlow.Infrastructure;
 using TechTalk.SpecFlow.Tracing;
 
+
 namespace Allure.SpecFlowPlugin
 {
+    using AllureBindingCall = Func<
+        IBinding,
+        IContextManager,
+        object[],
+        ITestTracer,
+        (object, TimeSpan)
+    >;
+
     internal class AllureBindingInvoker : BindingInvoker
     {
-        private static readonly AllureLifecycle allure = AllureLifecycle.Instance;
+        const string PLACEHOLDER_TESTCASE_KEY =
+            "Allure.SpecFlowPlugin.HAS_PLACEHOLDER_TESTCASE";
 
-        public AllureBindingInvoker(SpecFlowConfiguration specFlowConfiguration, IErrorProvider errorProvider,
-            ISynchronousBindingDelegateInvoker synchronousBindingDelegateInvoker) : base(
-            specFlowConfiguration, errorProvider, synchronousBindingDelegateInvoker)
+        static readonly AllureLifecycle allure = AllureLifecycle.Instance;
+
+        public AllureBindingInvoker(
+            SpecFlowConfiguration specFlowConfiguration,
+            IErrorProvider errorProvider,
+            ISynchronousBindingDelegateInvoker synchronousBindingDelegateInvoker
+        ) : base(
+            specFlowConfiguration,
+            errorProvider,
+            synchronousBindingDelegateInvoker
+        )
         {
         }
 
-        public override object InvokeBinding(IBinding binding, IContextManager contextManager, object[] arguments,
-            ITestTracer testTracer, out TimeSpan duration)
+        public override object InvokeBinding(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            out TimeSpan duration
+        )
         {
-            // process hook
             if (binding is HookBinding hook)
             {
-                var featureContainerId = PluginHelper.GetFeatureContainerId(contextManager.FeatureContext?.FeatureInfo);
-
-                switch (hook.HookType)
-                {
-                    case HookType.BeforeFeature:
-                        if (hook.HookOrder == int.MinValue)
-                        {
-                            // starting point
-                            var featureContainer = new TestResultContainer
-                            {
-                                uuid = PluginHelper.GetFeatureContainerId(contextManager.FeatureContext?.FeatureInfo)
-                            };
-                            allure.StartTestContainer(featureContainer);
-
-                            contextManager.FeatureContext.Set(new HashSet<TestResultContainer>());
-                            contextManager.FeatureContext.Set(new HashSet<TestResult>());
-
-                            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-                        }
-                        else
-                        {
-                            try
-                            {
-                                StartFixture(hook, featureContainerId);
-                                var result = base.InvokeBinding(binding, contextManager, arguments, testTracer,
-                                    out duration);
-                                allure.StopFixture(x => x.status = Status.passed);
-                                return result;
-                            }
-                            catch (Exception ex)
-                            {
-                                allure.StopFixture(x => x.status = Status.broken);
-
-                                // if BeforeFeature is failed, execution is already stopped. We need to create, update, stop and write everything here.
-
-                                // create fake scenario container
-                                var scenarioContainer =
-                                    PluginHelper.StartTestContainer(contextManager.FeatureContext, null);
-
-                                // start fake scenario
-                                var scenario = PluginHelper.StartTestCase(scenarioContainer.uuid,
-                                    contextManager.FeatureContext, null);
-
-                                // update, stop and write
-                                allure
-                                    .StopTestCase(x =>
-                                    {
-                                        x.status = Status.broken;
-                                        x.statusDetails = PluginHelper.GetStatusDetails(ex);
-                                    })
-                                    .WriteTestCase(scenario.uuid)
-                                    .StopTestContainer(scenarioContainer.uuid)
-                                    .WriteTestContainer(scenarioContainer.uuid)
-                                    .StopTestContainer(featureContainerId)
-                                    .WriteTestContainer(featureContainerId);
-
-                                throw;
-                            }
-                        }
-
-                    case HookType.BeforeStep:
-                    case HookType.AfterStep:
-                    {
-                        var scenario = PluginHelper.GetCurrentTestCase(contextManager.ScenarioContext);
-
-                        try
-                        {
-                            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-                        }
-                        catch (Exception ex)
-                        {
-                            allure
-                                .UpdateTestCase(scenario.uuid,
-                                    x =>
-                                    {
-                                        x.status = Status.broken;
-                                        x.statusDetails = PluginHelper.GetStatusDetails(ex);
-                                    });
-                            throw;
-                        }
-                    }
-
-                    case HookType.BeforeScenario:
-                    case HookType.AfterScenario:
-                        if (hook.HookOrder == int.MinValue || hook.HookOrder == int.MaxValue)
-                        {
-                            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-                        }
-                        else
-                        {
-                            var scenarioContainer = PluginHelper.GetCurrentTestConainer(contextManager.ScenarioContext);
-
-                            try
-                            {
-                                StartFixture(hook, scenarioContainer.uuid);
-                                var result = base.InvokeBinding(binding, contextManager, arguments, testTracer,
-                                    out duration);
-                                allure.StopFixture(x => x.status = Status.passed);
-                                return result;
-                            }
-                            catch (Exception ex)
-                            {
-                                var status = ex.GetType().Name.Contains(PluginHelper.IGNORE_EXCEPTION)
-                                    ? Status.skipped
-                                    : Status.broken;
-
-                                allure.StopFixture(x => x.status = status);
-
-                                // get or add new scenario
-                                var scenario = PluginHelper.GetCurrentTestCase(contextManager.ScenarioContext) ??
-                                               PluginHelper.StartTestCase(scenarioContainer.uuid,
-                                                   contextManager.FeatureContext, contextManager.ScenarioContext);
-
-                                allure.UpdateTestCase(scenario.uuid,
-                                    x =>
-                                    {
-                                        x.status = status;
-                                        x.statusDetails = PluginHelper.GetStatusDetails(ex);
-                                    });
-                                throw;
-                            }
-                        }
-
-                    case HookType.AfterFeature:
-                        if (hook.HookOrder == int.MaxValue)
-                            // finish point
-                        {
-                            WriteScenarios(contextManager);
-                            allure
-                                .StopTestContainer(featureContainerId)
-                                .WriteTestContainer(featureContainerId);
-
-                            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-                        }
-                        else
-                        {
-                            try
-                            {
-                                StartFixture(hook, featureContainerId);
-                                var result = base.InvokeBinding(binding, contextManager, arguments, testTracer,
-                                    out duration);
-                                allure.StopFixture(x => x.status = Status.passed);
-                                return result;
-                            }
-                            catch (Exception ex)
-                            {
-                                var scenario = contextManager.FeatureContext.Get<HashSet<TestResult>>().Last();
-                                allure
-                                    .StopFixture(x => x.status = Status.broken)
-                                    .UpdateTestCase(scenario.uuid,
-                                        x =>
-                                        {
-                                            x.status = Status.broken;
-                                            x.statusDetails = PluginHelper.GetStatusDetails(ex);
-                                        });
-
-                                WriteScenarios(contextManager);
-
-                                allure
-                                    .StopTestContainer(featureContainerId)
-                                    .WriteTestContainer(featureContainerId);
-
-                                throw;
-                            }
-                        }
-
-                    case HookType.BeforeScenarioBlock:
-                    case HookType.AfterScenarioBlock:
-                    case HookType.BeforeTestRun:
-                    case HookType.AfterTestRun:
-                    default:
-                        return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
-                }
+                (var result, duration) = this.ProcessHook(
+                    binding,
+                    contextManager,
+                    arguments,
+                    testTracer,
+                    hook
+                );
+                return result;
             }
-
-            return base.InvokeBinding(binding, contextManager, arguments, testTracer, out duration);
+            return base.InvokeBinding(
+                binding,
+                contextManager,
+                arguments,
+                testTracer,
+                out duration
+            );
         }
 
-        private void StartFixture(HookBinding hook, string containerId)
-        {
-            if (hook.HookType.ToString().StartsWith("Before"))
-                allure.StartBeforeFixture(containerId, PluginHelper.NewId(), PluginHelper.GetFixtureResult(hook));
-            else
-                allure.StartAfterFixture(containerId, PluginHelper.NewId(), PluginHelper.GetFixtureResult(hook));
-        }
-
-        private static void StartStep(StepInfo stepInfo, string containerId)
-        {
-            var stepResult = new StepResult
+        (object, TimeSpan) ProcessHook(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        ) =>
+            IsAllureHook(hook) ? this.InvokeAllureBinding(
+                binding,
+                contextManager,
+                arguments,
+                testTracer,
+                hook
+            ) : hook.HookType switch
             {
-                name = $"{stepInfo.StepDefinitionType} {stepInfo.Text}"
+                HookType.BeforeFeature =>
+                    this.MakeFixtureFromBeforeFeatureHook(
+                        binding,
+                        contextManager,
+                        arguments,
+                        testTracer,
+                        hook
+                    ),
+                HookType.BeforeScenario =>
+                    this.MakeFixtureFromBeforeScenarioHook(
+                        binding,
+                        contextManager,
+                        arguments,
+                        testTracer,
+                        hook
+                    ),
+                HookType.BeforeStep or HookType.AfterStep =>
+                    this.ProcessStepHook(
+                        binding,
+                        contextManager,
+                        arguments,
+                        testTracer
+                    ),
+                HookType.AfterScenario =>
+                    this.MakeFixtureFromAfterScenarioHook(
+                        binding,
+                        contextManager,
+                        arguments,
+                        testTracer,
+                        hook
+                    ),
+                HookType.AfterFeature =>
+                    this.MakeFixtureFromAfterFeatureHook(
+                        binding,
+                        contextManager,
+                        arguments,
+                        testTracer,
+                        hook
+                    ),
+                _ => this.CallBaseInvokeBinding(
+                    binding,
+                    contextManager,
+                    arguments,
+                    testTracer
+                )
             };
 
-            allure.StartStep(containerId, PluginHelper.NewId(), stepResult);
-
-            if (stepInfo.Table != null)
+        (object, TimeSpan) ProcessStepHook(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer
+        )
+        {
+            try
             {
-                var csvFile = $"{Guid.NewGuid().ToString()}.csv";
-                using (var csv = new CsvWriter(File.CreateText(csvFile),CultureInfo.InvariantCulture))
-                {
-                    foreach (var item in stepInfo.Table.Header) csv.WriteField(item);
-                    csv.NextRecord();
-                    foreach (var row in stepInfo.Table.Rows)
-                    {
-                        foreach (var item in row.Values) csv.WriteField(item);
-                        csv.NextRecord();
-                    }
-                }
-
-                allure.AddAttachment("table", "text/csv", csvFile);
+                return this.CallBaseInvokeBinding(
+                    binding,
+                    contextManager,
+                    arguments,
+                    testTracer
+                );
+            }
+            catch (Exception ex)
+            {
+                ReportStepError(ex);
+                throw;
             }
         }
 
-        private static void WriteScenarios(IContextManager contextManager)
-        {
-            foreach (var s in contextManager.FeatureContext.Get<HashSet<TestResult>>()) allure.WriteTestCase(s.uuid);
+        (object, TimeSpan) MakeFixtureFromBeforeFeatureHook(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        ) =>
+            this.MakeFixtureFromFeatureHook(
+                StartBeforeFixture,
+                _ => { },
+                binding,
+                contextManager,
+                arguments,
+                testTracer,
+                hook
+            );
 
-            foreach (var c in contextManager.FeatureContext.Get<HashSet<TestResultContainer>>())
-                allure
-                    .StopTestContainer(c.uuid)
-                    .WriteTestContainer(c.uuid);
+        (object, TimeSpan) MakeFixtureFromAfterFeatureHook(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        ) =>
+            PluginHelper.UseCapturedAllureContext(
+                contextManager.FeatureContext,
+                () => this.MakeFixtureFromFeatureHook(
+                    StartAfterFixture,
+                    _ => AllureBindings.LastAfterFeature(),
+                    binding,
+                    contextManager,
+                    arguments,
+                    testTracer,
+                    hook
+                )
+            );
+
+        (object, TimeSpan) MakeFixtureFromFeatureHook(
+            Action<HookBinding> startFixture,
+            Action<FeatureContext> callLastHook,
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        )
+        {
+            object result;
+            TimeSpan duration;
+
+            startFixture(hook);
+            try
+            {
+                result = base.InvokeBinding(
+                    binding,
+                    contextManager,
+                    arguments,
+                    testTracer,
+                    out duration
+                );
+            }
+            catch (Exception ex)
+            {
+                var featureContext = contextManager.FeatureContext;
+                ReportFeatureFixtureError(featureContext, ex);
+                callLastHook(featureContext);
+                throw;
+            }
+            allure.StopFixture(MakePassed);
+
+            return (result, duration);
         }
+
+        (object, TimeSpan) MakeFixtureFromBeforeScenarioHook(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        ) =>
+            this.MakeFixtureFromScenarioHook(
+                AllureBindings.LastBeforeScenario,
+                StartBeforeFixture,
+                binding,
+                contextManager,
+                arguments,
+                testTracer,
+                hook
+            );
+
+        (object, TimeSpan) MakeFixtureFromAfterScenarioHook(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        ) =>
+            this.MakeFixtureFromScenarioHook(
+                (_, sc) => AllureBindings.LastAfterScenario(sc),
+                StartAfterFixture,
+                binding,
+                contextManager,
+                arguments,
+                testTracer,
+                hook
+            );
+
+        (object, TimeSpan) MakeFixtureFromScenarioHook(
+            Action<FeatureContext, ScenarioContext> callLastHook,
+            Action<HookBinding> startFixture,
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        )
+        {
+            (object, TimeSpan) result;
+
+            startFixture(hook);
+            try
+            {
+                result = this.CallBaseInvokeBinding(
+                    binding,
+                    contextManager,
+                    arguments,
+                    testTracer
+                );
+            }
+            catch (Exception ex)
+            {
+                ReportScenarioFixtureError(ex);
+
+                // SpecFlow doesn't call the remained hooks in case of an
+                // exception is thrown. We have to call them explicitly to
+                // ensure side effects on the Allure context are properly
+                // applied.
+                callLastHook(
+                    contextManager.FeatureContext,
+                    contextManager.ScenarioContext
+                );
+
+                throw;
+            }
+
+            allure.StopFixture(MakePassed);
+            return result;
+        }
+
+        (object, TimeSpan) InvokeAllureBinding(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        ) =>
+            this.ResolveAllureBindingCall(hook)(
+                binding,
+                contextManager,
+                arguments,
+                testTracer
+            );
+
+        AllureBindingCall ResolveAllureBindingCall(HookBinding hook) =>
+            hook.HookType is HookType.AfterFeature
+                ? this.CallBaseInvokeBindingInFeatureContext
+                : this.CallBaseInvokeBinding;
+
+        (object, TimeSpan) CallBaseInvokeBinding(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer
+        ) =>
+            (base.InvokeBinding(
+                binding,
+                contextManager,
+                arguments,
+                testTracer,
+                out var duration
+            ), duration);
+
+        (object, TimeSpan) CallBaseInvokeBindingInFeatureContext(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer
+        ) =>
+            PluginHelper.UseCapturedAllureContext(
+                contextManager.FeatureContext,
+                () => this.CallBaseInvokeBinding(
+                    binding,
+                    contextManager,
+                    arguments,
+                    testTracer
+                )
+            );
+
+        static void ReportFeatureFixtureError(
+            FeatureContext featureContext,
+            Exception error
+        )
+        {
+            var makeBroken = WrapMakeBroken(error);
+            allure.StopFixture(makeBroken);
+
+            // Create one placeholder test case per failed feature-level hook
+            // to indicate the error.
+            if (!featureContext.ContainsKey(PLACEHOLDER_TESTCASE_KEY))
+            {
+                PluginHelper.StartTestCase(featureContext.FeatureInfo, new(
+                    "Feature hook failure placeholder",
+                    string.Format(
+                        "This is a placeholder scenario to indicate an " +
+                            "exception occured in a feature-level fixture " +
+                            "of '{0}'",
+                        featureContext.FeatureInfo.Title
+                    ),
+                    Array.Empty<string>(),
+                    new OrderedDictionary()
+                ));
+
+                allure
+                    .StopTestCase(makeBroken)
+                    .WriteTestCase();
+
+                featureContext.Add(PLACEHOLDER_TESTCASE_KEY, true);
+            }
+        }
+
+        static void ReportScenarioFixtureError(Exception error)
+        {
+            var status = PluginHelper.IsIgnoreException(error)
+                ? Status.skipped
+                : Status.broken;
+            var statusDetails = PluginHelper.GetStatusDetails(error);
+
+            allure.StopFixture(
+                PluginHelper.WrapStatusUpdate(status, statusDetails)
+            );
+
+            // If there is a scenario with no previous error, we update its
+            // status here (this is the case for AfterScenraio hooks).
+            // Otherwise (BeforeScenario) the scenario is updated later based
+            // on the information provided by SpecFlow.
+            if (allure.Context.HasTest)
+            {
+                allure.UpdateTestCase(
+                    PluginHelper.WrapStatusOverwrite(
+                        status,
+                        statusDetails,
+                        Status.none,
+                        Status.passed
+                    )
+                );
+            }
+        }
+
+        static void ReportStepError(Exception error)
+        {
+            if (allure.Context.HasStep)
+            {
+                MakeStepBroken(error);
+            }
+            MakeTestCaseBroken(error);
+        }
+
+        static void StartBeforeFixture(HookBinding hook) =>
+            allure.StartBeforeFixture(
+                PluginHelper.GetFixtureResult(hook)
+            );
+
+        static void StartAfterFixture(HookBinding hook) =>
+            allure.StartAfterFixture(
+                PluginHelper.GetFixtureResult(hook)
+            );
+
+        static bool IsAllureHook(HookBinding hook) =>
+            hook.Method.Type.FullName == typeof(AllureBindings).FullName;
+
+        static Action<ExecutableItem> WrapMakeBroken(Exception error) =>
+            PluginHelper.WrapStatusOverwrite(
+                Status.broken,
+                PluginHelper.GetStatusDetails(error),
+                Status.none,
+                Status.passed
+            );
+
+        static void MakePassed(ExecutableItem item) =>
+            item.status = Status.passed;
+
+        static void MakeTestCaseBroken(Exception error) =>
+            allure.UpdateTestCase(
+                WrapMakeBroken(error)
+            );
+
+        static void MakeStepBroken(Exception error) =>
+            allure.UpdateStep(
+                WrapMakeBroken(error)
+            );
     }
 }

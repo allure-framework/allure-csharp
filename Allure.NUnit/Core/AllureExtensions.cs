@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Reflection;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Allure.Net.Commons;
 using NUnit.Framework.Internal;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NUnit.Allure.Core
 {
@@ -58,15 +57,22 @@ namespace NUnit.Allure.Core
         /// Wraps Action into AllureStep.
         /// </summary>
         [Obsolete("Use [AllureStep] method attribute")]
-        public static void WrapInStep(this AllureLifecycle lifecycle, Action action, string stepName = "", [CallerMemberName] string callerName = "")
+        public static void WrapInStep(
+            this AllureLifecycle lifecycle,
+            Action action,
+            string stepName = "",
+            [CallerMemberName] string callerName = ""
+        )
         {
-            if (string.IsNullOrEmpty(stepName)) stepName = callerName;
+            if (string.IsNullOrEmpty(stepName))
+            {
+                stepName = callerName;
+            }
 
-            var id = Guid.NewGuid().ToString();
             var stepResult = new StepResult {name = stepName};
             try
             {
-                lifecycle.StartStep(id, stepResult);
+                lifecycle.StartStep(stepResult);
                 action.Invoke();
                 lifecycle.StopStep(step => stepResult.status = Status.passed);
             }
@@ -88,14 +94,22 @@ namespace NUnit.Allure.Core
         /// <summary>
         /// Wraps Func into AllureStep.
         /// </summary>
-        public static T WrapInStep<T>(this AllureLifecycle lifecycle, Func<T> func, string stepName = "", [CallerMemberName] string callerName = "")
+        public static T WrapInStep<T>(
+            this AllureLifecycle lifecycle,
+            Func<T> func,
+            string stepName = "",
+            [CallerMemberName] string callerName = ""
+        )
         {
-            if (string.IsNullOrEmpty(stepName)) stepName = callerName;
-            var id = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(stepName))
+            {
+                stepName = callerName;
+            }
+
             var stepResult = new StepResult {name = stepName};
             try
             {
-                lifecycle.StartStep(id, stepResult);
+                lifecycle.StartStep(stepResult);
                 var result = func.Invoke();
                 lifecycle.StopStep(step => stepResult.status = Status.passed);
                 return result;
@@ -125,13 +139,15 @@ namespace NUnit.Allure.Core
             [CallerMemberName] string callerName = ""
         )
         {
-            if (string.IsNullOrEmpty(stepName)) stepName = callerName;
+            if (string.IsNullOrEmpty(stepName))
+            {
+                stepName = callerName;
+            }
 
-            var id = Guid.NewGuid().ToString();
             var stepResult = new StepResult { name = stepName };
             try
             {
-                lifecycle.StartStep(id, stepResult);
+                lifecycle.StartStep(stepResult);
                 await action();
                 lifecycle.StopStep(step => stepResult.status = Status.passed);
             }
@@ -160,12 +176,15 @@ namespace NUnit.Allure.Core
             [CallerMemberName] string callerName = ""
         )
         {
-            if (string.IsNullOrEmpty(stepName)) stepName = callerName;
-            var id = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(stepName))
+            {
+                stepName = callerName;
+            }
+
             var stepResult = new StepResult { name = stepName };
             try
             {
-                lifecycle.StartStep(id, stepResult);
+                lifecycle.StartStep(stepResult);
                 var result = await func();
                 lifecycle.StopStep(step => stepResult.status = Status.passed);
                 return result;
@@ -185,15 +204,16 @@ namespace NUnit.Allure.Core
             }
         }
 
-        /// <summary>
-        /// AllureNUnit AddScreenDiff wrapper method.
-        /// </summary>
-        public static void AddScreenDiff(this AllureLifecycle lifecycle, string expected, string actual, string diff)
-        {
-            var storageMain = lifecycle.GetType().GetField("storage", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(lifecycle);
-            var storageInternal = storageMain.GetType().GetField("storage", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(storageMain);
-            var keys = (storageInternal as System.Collections.Concurrent.ConcurrentDictionary<string, object>).Keys.ToList();
-            AllureLifecycle.Instance.AddScreenDiff(keys.Find(key => key.Contains("-tr-")), expected, actual, diff);
-        }
+        [Obsolete(
+            "Use AllureLifecycle.AddScreenDiff instance method instead to " +
+                "add a screen diff to the current test."
+        )]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void AddScreenDiff(
+            this AllureLifecycle lifecycle,
+            string expected,
+            string actual,
+            string diff
+        ) => lifecycle.AddScreenDiff(expected, actual, diff);
     }
 }

@@ -2,4 +2,4 @@
 Feature: Before Feature Failure
 
   @broken
-  Scenario: Unknown
+  Scenario: Feature hook failure placeholder

@@ -28,25 +28,23 @@ namespace Allure.Net.Commons.Steps
         
         public static List<Type> ExceptionTypes { get; set; }
 
-        private static string StartStep(MethodBase metadata, string stepName, List<Parameter> stepParameters)
+        private static void StartStep(MethodBase metadata, string stepName, List<Parameter> stepParameters)
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                return CoreStepsHelper.StartStep(stepName, step => step.parameters = stepParameters);
+                CoreStepsHelper.StartStep(stepName, step => step.parameters = stepParameters);
             }
-
-            return null;
         }
 
-        private static void PassStep(string uuid, MethodBase metadata)
+        private static void PassStep(MethodBase metadata)
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                CoreStepsHelper.PassStep(uuid);
+                CoreStepsHelper.PassStep();
             }
         }
 
-        private static void ThrowStep(string uuid, MethodBase metadata, Exception e)
+        private static void ThrowStep(MethodBase metadata, Exception e)
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
@@ -58,25 +56,23 @@ namespace Allure.Net.Commons.Steps
                 
                 if (ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e)))
                 {
-                    CoreStepsHelper.FailStep(uuid, result => result.statusDetails = exceptionStatusDetails);
+                    CoreStepsHelper.FailStep(result => result.statusDetails = exceptionStatusDetails);
                     return;
                 }
-                CoreStepsHelper.BrokeStep(uuid, result => result.statusDetails = exceptionStatusDetails);
+                CoreStepsHelper.BrokeStep(result => result.statusDetails = exceptionStatusDetails);
             }
         }
 
-        private static void StartFixture(MethodBase metadata, string stepName)
+        private static void StartFixture(MethodBase metadata, string fixtureName)
         {
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null)
             {
-                Console.Out.WriteLine("QWAQWA");
-                // throw new Exception("BEFORE FIXTURE");
-                CoreStepsHelper.StartBeforeFixture(stepName);
+                CoreStepsHelper.StartBeforeFixture(fixtureName);
             }
 
             if (metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                CoreStepsHelper.StartAfterFixture(stepName);
+                CoreStepsHelper.StartAfterFixture(fixtureName);
             }
         }
 
@@ -85,15 +81,8 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                if (metadata.Name == "InitializeAsync")
-                {
-                    CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.passed);
-                }
-                else
-                {
-                    CoreStepsHelper.StopFixture(result => result.status = Status.passed);
-                }
-                
+                CoreStepsHelper.StopFixture(result => result.status = Status.passed);
+
                 // TODO: NUnit doing it this way: to be reviewed (!) DO NOT MERGE
                 // CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.passed);
             }
@@ -110,47 +99,33 @@ namespace Allure.Net.Commons.Steps
                     trace = e.StackTrace
                 };
 
-                if (metadata.Name == "InitializeAsync")
+                CoreStepsHelper.StopFixture(result =>
                 {
-                    CoreStepsHelper.StopFixtureSuppressTestCase(result =>
-                    {
-                        result.status = ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e))
-                            ? Status.failed 
-                            : Status.broken;
-                        result.statusDetails = exceptionStatusDetails;
-                    });
-                }
-                else
-                {
-                    CoreStepsHelper.StopFixture(result =>
-                    {
-                        result.status = ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e)) 
-                            ? Status.failed 
-                            : Status.broken;
-                        result.statusDetails = exceptionStatusDetails;
-                    });
-                }
+                    result.status = ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e))
+                        ? Status.failed
+                        : Status.broken;
+                    result.statusDetails = exceptionStatusDetails;
+                });
             }
         }
 
         // ------------------------------
 
-        private static string BeforeTargetInvoke(MethodBase metadata, string stepName, List<Parameter> stepParameters)
+        private static void BeforeTargetInvoke(MethodBase metadata, string stepName, List<Parameter> stepParameters)
         {
             StartFixture(metadata, stepName);
-            var stepUuid = StartStep(metadata, stepName, stepParameters);
-            return stepUuid;
+            StartStep(metadata, stepName, stepParameters);
         }
 
-        private static void AfterTargetInvoke(string stepUuid, MethodBase metadata)
+        private static void AfterTargetInvoke(MethodBase metadata)
         {
-            PassStep(stepUuid, metadata);
+            PassStep(metadata);
             PassFixture(metadata);
         }
 
-        private static void OnTargetInvokeException(string stepUuid, MethodBase metadata, Exception e)
+        private static void OnTargetInvokeException(MethodBase metadata, Exception e)
         {
-            ThrowStep(stepUuid, metadata, e);
+            ThrowStep(metadata, e);
             ThrowFixture(metadata, e);
         }
 
@@ -164,19 +139,17 @@ namespace Allure.Net.Commons.Steps
             List<Parameter> stepParameters
         )
         {
-            string stepUuid = null;
-
             try
             {
-                stepUuid = BeforeTargetInvoke(metadata, stepName, stepParameters);
+                BeforeTargetInvoke(metadata, stepName, stepParameters);
                 var result = (T)target(args);
-                AfterTargetInvoke(stepUuid, metadata);
+                AfterTargetInvoke(metadata);
 
                 return result;
             }
             catch (Exception e)
             {
-                OnTargetInvokeException(stepUuid, metadata, e);
+                OnTargetInvokeException(metadata, e);
                 throw;
             }
         }
@@ -189,17 +162,15 @@ namespace Allure.Net.Commons.Steps
             List<Parameter> stepParameters
         )
         {
-            string stepUuid = null;
-
             try
             {
-                stepUuid = BeforeTargetInvoke(metadata, stepName, stepParameters);
+                BeforeTargetInvoke(metadata, stepName, stepParameters);
                 target(args);
-                AfterTargetInvoke(stepUuid, metadata);
+                AfterTargetInvoke(metadata);
             }
             catch (Exception e)
             {
-                OnTargetInvokeException(stepUuid, metadata, e);
+                OnTargetInvokeException(metadata, e);
                 throw;
             }
         }
@@ -212,17 +183,15 @@ namespace Allure.Net.Commons.Steps
             List<Parameter> stepParameters
         )
         {
-            string stepUuid = null;
-
             try
             {
-                stepUuid = BeforeTargetInvoke(metadata, stepName, stepParameters);
+                BeforeTargetInvoke(metadata, stepName, stepParameters);
                 await ((Task)target(args)).ConfigureAwait(false);
-                AfterTargetInvoke(stepUuid, metadata);
+                AfterTargetInvoke(metadata);
             }
             catch (Exception e)
             {
-                OnTargetInvokeException(stepUuid, metadata, e);
+                OnTargetInvokeException(metadata, e);
                 throw;
             }
         }
@@ -235,19 +204,17 @@ namespace Allure.Net.Commons.Steps
             List<Parameter> stepParameters
         )
         {
-            string stepUuid = null;
-
             try
             {
-                stepUuid = BeforeTargetInvoke(metadata, stepName, stepParameters);
+                BeforeTargetInvoke(metadata, stepName, stepParameters);
                 var result = await ((Task<T>)target(args)).ConfigureAwait(false);
-                AfterTargetInvoke(stepUuid, metadata);
+                AfterTargetInvoke(metadata);
 
                 return result;
             }
             catch (Exception e)
             {
-                OnTargetInvokeException(stepUuid, metadata, e);
+                OnTargetInvokeException(metadata, e);
                 throw;
             }
         }

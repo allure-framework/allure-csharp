@@ -12,7 +12,7 @@
     Given Step is 'passed'
     And I don't have such step too
 
-  @broken
+  @failed
   Scenario: Failed step followed by invalid step
     Given Step is 'failed'
     Given I don't have such step

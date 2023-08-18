@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using Allure.Net.Commons;
-using NUnit.Engine;
-using NUnit.Engine.Extensibility;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -12,21 +9,11 @@ namespace NUnit.Allure.Core
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
     public class AllureNUnitAttribute : PropertyAttribute, ITestAction, IApplyToContext
     {
-        private readonly ConcurrentDictionary<string, AllureNUnitHelper> _allureNUnitHelper = new ConcurrentDictionary<string, AllureNUnitHelper>();
-        private readonly bool _isWrappedIntoStep;
-
-        static AllureNUnitAttribute()
-        {
-            //!_! This is essential for async tests.
-            //!_! Async tests are working on different threads, so
-            //!_! default ManagedThreadId-separated behaviour in some cases fails on cross-thread execution.
-            AllureLifecycle.CurrentTestIdGetter = () => TestContext.CurrentContext.Test.FullName;
-        }
+        private readonly ConcurrentDictionary<string, AllureNUnitHelper> _allureNUnitHelper = new();
 
         [Obsolete("wrapIntoStep parameter is obsolete. Use [AllureStep] method attribute")]
         public AllureNUnitAttribute(bool wrapIntoStep = true)
         {
-            _isWrappedIntoStep = wrapIntoStep;
         }
         
         public AllureNUnitAttribute()
@@ -36,7 +23,11 @@ namespace NUnit.Allure.Core
         public void BeforeTest(ITest test)
         {
             var helper = new AllureNUnitHelper(test);
-            _allureNUnitHelper.AddOrUpdate(test.Id, helper, (key, existing) => helper);
+            _allureNUnitHelper.AddOrUpdate(
+                test.Id,
+                helper,
+                (key, existing) => helper
+            );
 
             if (test.IsSuite)
             {
@@ -64,7 +55,8 @@ namespace NUnit.Allure.Core
             }
         }
 
-        public ActionTargets Targets => ActionTargets.Test | ActionTargets.Suite;
+        public ActionTargets Targets =>
+            ActionTargets.Test | ActionTargets.Suite;
 
         public void ApplyToContext(TestExecutionContext context)
         {
