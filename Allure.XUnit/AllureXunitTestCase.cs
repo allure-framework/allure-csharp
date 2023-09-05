@@ -11,7 +11,7 @@ using Xunit.Sdk;
 
 namespace Allure.XUnit
 {
-    internal class AllureXunitTestCase : XunitTestCase, ITestResultAccessor
+    public class AllureXunitTestCase : XunitTestCase, ITestResultAccessor
     {
         public TestResultContainer TestResultContainer { get; set; }
 
