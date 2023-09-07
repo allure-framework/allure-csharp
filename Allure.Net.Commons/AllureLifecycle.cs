@@ -136,6 +136,25 @@ public class AllureLifecycle
         }
     }
 
+    /// <summary>
+    /// Binds the provided value as the current Allure context. This allows the
+    /// Allure context to bypass .NET execution context boundaries. Use this
+    /// function in a highly concurrent environments where framework hooks and
+    /// user's test functions might all be run in different execution contexts.
+    /// For other scenarios consider using <see cref="RunInContext"/> first.
+    /// </summary>
+    /// <param name="context">
+    /// A context that was previously captured with <see cref="Context"/>.
+    /// It can't be null.
+    /// </param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void RestoreContext(AllureContext context)
+    {
+        this.Context = context ?? throw new ArgumentNullException(
+            nameof(context)
+        );
+    }
+
     #region TestContainer
 
     /// <summary>
