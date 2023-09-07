@@ -57,20 +57,32 @@ namespace NUnit.Allure.Core
                     Label.Thread(),
                     Label.Host(),
                     Label.Package(
-                        _test.ClassName?.Substring(
-                            0,
-                            _test.ClassName.LastIndexOf('.')
-                        )
+                        GetNamespace(_test.ClassName)
                     ),
                     Label.TestMethod(_test.MethodName),
                     Label.TestClass(
-                        _test.ClassName?.Substring(
-                            _test.ClassName.LastIndexOf('.') + 1
-                        )
+                        GetClassName(_test.ClassName)
                     )
                 }
             };
             AllureLifecycle.StartTestCase(testResult);
+        }
+
+        static string GetNamespace(string classFullName)
+        {
+            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
+            return lastDotIndex == -1 ? null : classFullName.Substring(
+                0,
+                lastDotIndex
+            );
+        }
+
+        static string GetClassName(string classFullName)
+        {
+            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
+            return lastDotIndex == -1 ? classFullName : classFullName.Substring(
+                lastDotIndex + 1
+            );
         }
 
         private TestFixture GetTestFixture(ITest test)
