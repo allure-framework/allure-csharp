@@ -2,29 +2,25 @@
 
     <PropertyGroup>
         <TargetFrameworks>netcoreapp2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
-        <LangVersion>11</LangVersion>
         <IsPackable>true</IsPackable>
-        <Company>Qameta Software</Company>
-        <Version>2.10-SNAPSHOT</Version>
         <Title>Allure.XUnit</Title>
         <Authors>Shumakov Ivan</Authors>
         <Description>Allure.XUnit</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
         <PackageProjectUrl>https://www.nuget.org/packages/Allure.XUnit</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
         <PackageTags>allure xunit</PackageTags>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <IncludeSymbols>true</IncludeSymbols>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <AspectInjector_Enabled>true</AspectInjector_Enabled>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);PackAllureXunitReportersFiles</TargetsForTfmSpecificBuildOutput>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AspectInjector" Version="2.8.2" />
         <PackageReference Include="Lib.Harmony" Version="2.3.0-prerelease.2" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-        <PackageReference Include="xunit.runner.utility" Version="2.4.2" />
+        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,10 +33,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.8.1" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />
         <PackageReference Include="xunit.core" Version="2.4.1" />
-        <PackageReference Include="xunit.runner.reporters" Version="2.4.2" />
+        <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -49,5 +44,12 @@
             <!-- <PrivateAssets>all</PrivateAssets>-->
         </ProjectReference>
     </ItemGroup>
+
+    <Target Name="PackAllureXunitReportersFiles">
+        <ItemGroup>
+            <BuildOutputInPackage Include="./../Allure.XUnit.Reporters/bin/$(Configuration)/$(TargetFramework)/Allure.XUnit.reporters.dll" />
+            <BuildOutputInPackage Include="./../Allure.XUnit.Reporters/bin/$(Configuration)/$(TargetFramework)/Allure.XUnit.reporters.pdb" />
+        </ItemGroup>
+    </Target>
 
 </Project>

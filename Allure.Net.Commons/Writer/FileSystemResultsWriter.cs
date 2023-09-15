@@ -1,14 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-
-[assembly: InternalsVisibleTo("Allure.Net.Commons.Tests")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace Allure.Net.Commons.Writer
 {

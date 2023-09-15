@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Storage;
@@ -13,8 +12,6 @@ using HeyRed.Mime;
 using Newtonsoft.Json.Linq;
 
 #nullable enable
-
-[assembly: InternalsVisibleTo("Allure.Net.Commons.Tests")]
 
 namespace Allure.Net.Commons;
 
