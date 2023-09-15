@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetName>Allure.XUnit.reporters</TargetName>
+        <TargetFrameworks>netcoreapp2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
+        <ProjectReference Include="..\Allure.XUnit\Allure.XUnit.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -77,7 +77,7 @@ namespace Allure.XUnit
             object[] testMethodArguments
         )
         {
-            if (AllureRunnerReporter.CurrentSink is null)
+            if (AllureMessageSink.CurrentSink is null)
             {
                 logger.LogWarning(
                     "Unable to get current message sink from the test " +
@@ -87,7 +87,7 @@ namespace Allure.XUnit
             }
             else
             {
-                AllureRunnerReporter.CurrentSink.OnTestArgumentsCreated(
+                AllureMessageSink.CurrentSink.OnTestArgumentsCreated(
                     test,
                     testMethodArguments
                 );

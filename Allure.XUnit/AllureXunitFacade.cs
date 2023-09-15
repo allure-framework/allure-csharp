@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,23 +9,16 @@ using Xunit.Abstractions;
 
 namespace Allure.XUnit
 {
-    public class AllureRunnerReporter : IRunnerReporter
+    public static class AllureXunitFacade
     {
-        public string Description { get; } = "allure-xunit";
-
-        public bool IsEnvironmentallyEnabled { get; } = true;
-
-        public string RunnerSwitch { get; } = "allure";
-
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+        public static IMessageSink CreateAllureXunitMessageHandler(
+            IRunnerLogger logger
+        )
         {
             AllureXunitPatcher.PatchXunit(logger);
             var sink = new AllureMessageSink(logger);
-            CurrentSink ??= sink;
             return TryWrapSecondReporter(logger, sink);
         }
-
-        internal static AllureMessageSink? CurrentSink { get; private set; }
 
         static IMessageSink TryWrapSecondReporter(
             IRunnerLogger logger,
@@ -48,7 +41,7 @@ namespace Allure.XUnit
             );
 
         static IRunnerReporter? ResolveReporter() =>
-            AllureXunitConfiguration.CurrentConfig.XunitReporter switch
+            AllureXunitConfiguration.CurrentConfig.XunitRunnerReporter switch
             {
                 "none" => null,
                 "auto" => ResolveAutoReporter(),
@@ -73,7 +66,7 @@ namespace Allure.XUnit
         static IRunnerReporter? TryCreateReporterByType(Type? reporterType) =>
             reporterType is null
                 ? null
-                : ((IRunnerReporter)Activator.CreateInstance(reporterType));
+                : (Activator.CreateInstance(reporterType) as IRunnerReporter);
 
         static IRunnerReporter? TryCreateReporterByName(string reporterName) =>
             (
@@ -90,20 +83,35 @@ namespace Allure.XUnit
             where IsPotentialReporterAssembly(assembly)
             from type in assembly.GetTypes()
             where IsReporterType(type)
-            select (IRunnerReporter)Activator.CreateInstance(type);
+            select Activator.CreateInstance(type) as IRunnerReporter;
 
+        /// <summary>
+        /// Save some time skipping core assemblies. Allure.* assemblies are
+        /// skipped as well, because there is only one reporter there and it
+        /// has already been picked at the time this code is run.
+        /// </summary>
         static bool IsPotentialReporterAssembly(Assembly assembly) =>
-            !assembly.FullName.StartsWith("System.")
+            assembly?.FullName is not null
                 &&
-            !assembly.FullName.StartsWith("Microsoft.");
+            ASSEMBLY_PREFIXES_TO_SKIP.All(
+                a => !assembly.FullName.StartsWith(
+                    a,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            );
 
         static bool IsReporterType(Type type) =>
             type.GetInterfaces().Contains(typeof(IRunnerReporter))
                 &&
             !type.IsAbstract
                 &&
-            !type.IsGenericTypeDefinition
-                &&
-            type != typeof(AllureRunnerReporter);
+            !type.IsGenericTypeDefinition;
+
+        static readonly string[] ASSEMBLY_PREFIXES_TO_SKIP = new[]
+        {
+            "System.",
+            "Microsoft.",
+            "Allure."
+        };
     }
 }

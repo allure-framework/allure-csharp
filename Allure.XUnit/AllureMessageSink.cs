@@ -29,6 +29,8 @@ namespace Allure.XUnit
             this.Execution.TestPassedEvent += this.OnTestPassed;
             this.Execution.TestSkippedEvent += this.OnTestSkipped;
             this.Execution.TestFinishedEvent += this.OnTestFinished;
+
+            CurrentSink ??= this;
         }
 
         void OnTestAssemblyExecutionStarting(
@@ -173,5 +175,7 @@ namespace Allure.XUnit
 
         static bool IsStaticTestMethod(ITestMethodMessage message) =>
             message.TestMethod.Method.IsStatic;
+
+        public static AllureMessageSink? CurrentSink { get; private set; }
     }
 }

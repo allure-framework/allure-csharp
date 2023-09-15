@@ -12,7 +12,7 @@ namespace Allure.XUnit
 {
     internal class AllureXunitConfiguration : AllureConfiguration
     {
-        public string XunitReporter { get; set; } = "auto";
+        public string XunitRunnerReporter { get; set; } = "auto";
 
         [JsonConstructor]
         protected AllureXunitConfiguration(
