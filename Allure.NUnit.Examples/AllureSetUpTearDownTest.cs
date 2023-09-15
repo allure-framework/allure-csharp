@@ -36,12 +36,14 @@ namespace Allure.NUnit.Examples
         }
 
         [OneTimeSetUp]
+        [AllureBefore("OneTimeSetUp AllureBefore attribute description")]
         public void OneTimeSetUp()
         {
             Console.WriteLine("I'm an unwrapped OneTimeSetUp");
         }
 
         [OneTimeTearDown]
+        [AllureAfter("OneTimeTearDown AllureAfter attribute description")]
         public void OneTimeTearDown()
         {
             Console.WriteLine("I'm an unwrapped OneTimeTearDown");
