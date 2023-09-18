@@ -16,7 +16,7 @@
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
     </PropertyGroup>
 
-    <!-- AspectInjector is explicitly enabled for projects with aspects/injections -->
+    <!-- AspectInjector should be explicitly enabled for projects with aspects/injections -->
     <PropertyGroup>
         <AspectInjector_Enabled>false</AspectInjector_Enabled>
     </PropertyGroup>
