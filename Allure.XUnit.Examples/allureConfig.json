@@ -5,6 +5,6 @@
       "https://example.org/{issue}",
       "https://example.org/{tms}"
     ],
-    "xunitReporter": "auto"
+    "xunitRunnerReporter": "auto"
   }
 }
