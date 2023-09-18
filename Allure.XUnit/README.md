@@ -194,8 +194,11 @@ Use [`AllureAttachments`](AllureAttachments.cs) class with its methods. (Attachm
 ## Known issues and limitations
 
 ### allureConfig.json is required even if no config properties are present
+
 The configuration file must be present in the output directory. Allure.XUnit
 throws otherwise. This requirement will be lifted in the near future.
+
+Here is the issue to track the progress: [#381].
 
 ### Arguments of some theories might be unreported
 
@@ -210,3 +213,4 @@ workaround until we come up with a solution.
 See [Examples](../Allure.XUnit.Examples).
 
 [#369]: https://github.com/allure-framework/allure-csharp/issues/369
+[#381]: https://github.com/allure-framework/allure-csharp/issues/381
