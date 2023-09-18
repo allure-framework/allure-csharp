@@ -16,37 +16,40 @@ namespace Allure.XUnit
         )
         {
             AllureXunitPatcher.PatchXunit(logger);
-            var sink = new AllureMessageSink(logger);
-            return TryWrapSecondReporter(logger, sink);
+            var secondReporter = ResolveSecondReporter();
+            var (startupMessage, sink) = ResolveMessageAndSink(
+                new AllureMessageSink(logger),
+                secondReporter,
+                logger
+            );
+            logger.LogImportantMessage(startupMessage);
+            return sink;
         }
 
-        static IMessageSink TryWrapSecondReporter(
-            IRunnerLogger logger,
-            AllureMessageSink allureSink
-        ) =>
-            TryWrapResolvedReporter(
-                logger,
-                allureSink,
-                ResolveReporter()
-            );
-
-        static IMessageSink TryWrapResolvedReporter(
-            IRunnerLogger logger,
-            AllureMessageSink allureSink,
-            IRunnerReporter? secondReporter
-        ) =>
-            secondReporter is null ? allureSink : new ComposedMessageSink(
-                allureSink,
-                secondReporter.CreateMessageHandler(logger)
-            );
-
-        static IRunnerReporter? ResolveReporter() =>
+        static IRunnerReporter? ResolveSecondReporter() =>
             AllureXunitConfiguration.CurrentConfig.XunitRunnerReporter switch
             {
                 "none" => null,
                 "auto" => ResolveAutoReporter(),
                 string reporterName => ResolveExplicitReporter(reporterName)
             };
+
+        static (string, IMessageSink) ResolveMessageAndSink(
+            AllureMessageSink allureSink,
+            IRunnerReporter? secondReporter,
+            IRunnerLogger logger
+        ) =>
+            secondReporter is null ? (
+                ALLURE_REPORTER_ON_MSG,
+                allureSink
+            ) : (
+                $"{ALLURE_REPORTER_ON_MSG}. " +
+                    $"Secondary reporter: {secondReporter.RunnerSwitch}",
+                new ComposedMessageSink(
+                    allureSink,
+                    secondReporter.CreateMessageHandler(logger)
+                )
+            );
 
         static IRunnerReporter? ResolveAutoReporter() =>
             (
@@ -113,5 +116,7 @@ namespace Allure.XUnit
             "Microsoft.",
             "Allure."
         };
+
+        const string ALLURE_REPORTER_ON_MSG = "Allure reporter enabled";
     }
 }
