@@ -2,11 +2,109 @@
 
 [![Nuget](https://img.shields.io/nuget/v/Allure.XUnit)](https://www.nuget.org/packages/Allure.XUnit/)
 
-Allure.XUnit is library for display xunit tests in Allure report.
+Allure.XUnit is a library for display xunit tests in Allure report.
 
-Allure.XUnit supports .NET Core 2.0 and later.
+Allure.XUnit supports .NET Core 2.0 or later, and any .NET runtime compatible
+with .NET Standard 2.1.
+
+## How to run
+
+Install the Allure.XUnit package and create `allureConfig.json`. Here is the
+basic content of the config:
+
+```json
+{
+    "allure": {}
+}
+```
+
+Make sure the config is copied to the output directory:
+
+  - In Visual Studio select the file and the following properties:
+      - Build Action: Content
+      - Copy to Output Directory: Always/Copy if newer
+    OR
+  - In the `.csproj` file make sure the following entry exists:
+    ```xml
+    <ItemGroup>
+        <Content Include="allureConfig.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    ```
+
+Then, run the tests as usual. In many cases allure should start automatically.
+The result files are created in the `allure-results` directory in the
+target directory.
+If that didn't happen, check out the `Running tests in a CI pipeline` section.
+
+### Running tests in a CI pipeline
+
+There might be a chance another xunit reporter kicks in disabling allure. This
+typically happens in a CI pipeline when a pipeline-specific reporter detects
+the CI environment and signals xunit that it's ready to be used. Xunit's
+reporter pick is unreliable in such a case.
+
+If that happens, you should explicitly tell xunit to use the `allure` reporter.
+How exactly - depends on what runner you use. For the most popular one -
+`xunit.runner.visualstudio` - you either specify it via the CLI argument:
+
+```
+dotnet test -- RunConfiguration.ReporterSwitch=allure
+```
+
+Or use a `.runsettings` file:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <ReporterSwitch>allure</ReporterSwitch>
+  </<RunConfiguration>
+</RunSettings>
+```
+
+Now pass the file to `dotnet test`:
+
+```
+dotnet test -s <path-to-.runsettings-file>
+```
+
+Or specify its path using your IDE.
+
+By default Allure.XUnit tries to use additional environmentally enabled
+reporter (if any), so your tests are reported both to allure and, say,
+TeamCity. Due to how xunit configuration works, that behavior occures
+regardless of xunit's `NoAutoReporters` setting. If you want to disable this
+behavior, check out the `Configuring a secondary reporter` section.
+
+### Configuring a secondary reporter
+
+Use the `xunitRunnerReporter` property of `allureConfig.json` to control
+an additional reporter used by Allure.XUnit:
+
+```json
+{
+    "allure": {
+        "xunitRunnerReporter": "auto|none|<switch>|<AQ-classname>"
+    }
+}
+```
+
+We support the following values:
+  - `auto` - default value. Allure.XUnit uses the first environmentally
+    enabled reporter it finds.
+  - `none` - use this value to disable an additional reporter.
+  - `<switch>` - Allure.XUnit looks for the reporter with the specified
+    runner switch. If such reporter exists, it's used. Otherwise, the error is
+    thrown.
+  - `<AQ-classname>` - the assembly qualified class name is used to find the
+    reporter's class. If no such class can be found, the error is thrown.
+
 
 ## Attributes:
+
+The following attributes are at your disposal:
 
 * AllureDescription
 * AllureParentSuite
@@ -74,7 +172,9 @@ Use `AllureStepAttribute`, `AllureBeforeAttribute`, `AllureAfterAttribute`
 See [Examples](../Allure.XUnit.Examples/ExampleStepAttributes.cs).
 
 ### Allure.XUnit.StepExtensions deprecation
-There is no more need to use separate Allure.XUnit.StepExtensions package - you can simply remove it from dependencies and use attributes from [Allure.XUnit.Attributes.Steps namespace](Attributes/Steps) directly.
+There is no more need to use separate Allure.XUnit.StepExtensions package. You
+should remove it from dependencies and use attributes from
+[Allure.XUnit.Attributes.Steps namespace](Attributes/Steps) directly.
 
 ```c#
 using Allure.XUnit.Attributes.Steps;
@@ -91,46 +191,11 @@ using Allure.XUnit.Attributes.Steps;
 ## Attachments
 Use [`AllureAttachments`](AllureAttachments.cs) class with its methods. (AttachmentAttribute coming soon)
 
-## Running
+## Known issues and limitations
 
-Just run `dotnet test`.
-
-`allure-results` directory with result appears after running tests in the target directory.
-
-## Known issues
-
-### Incompatibility with other runner reporters ([#368])
-
-Allure-xunit is implemented as an xunit runner reporter, hence it's incompatible
-with other runner reporters such as `teamcity`, `json` or `verbose` (from
-[xunit.runner.reporters]). Only one reporter could be active at a time.
-
-If you have other reporter active but want to use allure-xunit, you have to
-manually enable the `allure` reporter by running `dotnet test` with the
-`RunConfiguration.ReporterSwitch` run setting set to `allure`:
-
-```shell
-dotnet test -- RunConfiguration.ReporterSwitch=allure
-```
-
-Alternatively, you may add this setting to your `.runsettings` file:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<RunSettings>
-  <RunConfiguration>
-    <ReporterSwitch>allure</ReporterSwitch>
-  </<RunConfiguration>
-</RunSettings>
-```
-
-Use this file from CLI:
-
-```shell
-dotnet test -s <path-to-.runsettings>
-```
-
-Or apply it via your IDE.
+### allureConfig.json is required even if no config properties are present
+The configuration file must be present in the output directory. Allure.XUnit
+throws otherwise. This requirement will be lifted in the near future.
 
 ### Arguments of some theories might be unreported
 
@@ -144,6 +209,4 @@ workaround until we come up with a solution.
 
 See [Examples](../Allure.XUnit.Examples).
 
-[xunit.runner.reporters]: https://www.nuget.org/packages/xunit.runner.reporters/
-[#368]: https://github.com/allure-framework/allure-csharp/issues/368
 [#369]: https://github.com/allure-framework/allure-csharp/issues/369
