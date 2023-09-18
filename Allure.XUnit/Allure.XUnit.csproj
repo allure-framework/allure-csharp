@@ -10,7 +10,6 @@
         <PackageProjectUrl>https://www.nuget.org/packages/Allure.XUnit</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>allure xunit</PackageTags>
-        <AspectInjector_Enabled>true</AspectInjector_Enabled>
     </PropertyGroup>
 
     <PropertyGroup>

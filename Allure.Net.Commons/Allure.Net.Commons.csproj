@@ -10,7 +10,6 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>allure</PackageTags>
         <PackageIcon>Allure-Color.png</PackageIcon>
-        <AspectInjector_Enabled>true</AspectInjector_Enabled>
     </PropertyGroup>
 
     <ItemGroup>

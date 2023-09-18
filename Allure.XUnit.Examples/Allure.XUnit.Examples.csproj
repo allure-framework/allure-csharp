@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <AspectInjector_Enabled>true</AspectInjector_Enabled>
     </PropertyGroup>
 
     <ItemGroup>
