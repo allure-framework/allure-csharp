@@ -2,36 +2,25 @@
 
     <PropertyGroup>
         <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
-        <LangVersion>11</LangVersion>
+        <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
         <PackageId>Allure.SpecFlow</PackageId>
-        <Version>2.10-SNAPSHOT</Version>
         <Authors>Alexander Bakanov</Authors>
-        <Company>Qameta Software</Company>
         <Product />
         <Description>Generates Allure report result files for SpecFlow test run</Description>
         <PackageProjectUrl>https://www.nuget.org/packages/Allure.SpecFlow</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
-        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
         <PackageTags>specflow allure</PackageTags>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />
         <Content Include="allureConfig.Template.json" Pack="true" />
         <None Include="./../img/Allure-SF-Color.png" Pack="true" PackagePath="\" />
         <None Update="LICENSE.md">
-          <Pack>true</Pack>
-          <PackagePath>/</PackagePath>
+            <Pack>true</Pack>
+            <PackagePath>/</PackagePath>
         </None>
     </ItemGroup>
 

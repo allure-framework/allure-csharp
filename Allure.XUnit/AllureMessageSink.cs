@@ -11,16 +11,14 @@ using Xunit.Abstractions;
 
 namespace Allure.XUnit
 {
-    public class AllureMessageSink : TestMessageSink
+    public class AllureMessageSink :
+        DefaultRunnerReporterWithTypesMessageHandler
     {
-        readonly IRunnerLogger logger;
-        readonly ConcurrentDictionary<ITest, AllureXunitTestData> allureTestData
-            = new();
+        readonly ConcurrentDictionary<ITest, AllureXunitTestData>
+            allureTestData = new();
 
-        public AllureMessageSink(IRunnerLogger logger)
+        public AllureMessageSink(IRunnerLogger logger) : base(logger)
         {
-            this.logger = logger;
-
             this.Runner.TestAssemblyExecutionStartingEvent +=
                 this.OnTestAssemblyExecutionStarting;
 
@@ -31,34 +29,8 @@ namespace Allure.XUnit
             this.Execution.TestPassedEvent += this.OnTestPassed;
             this.Execution.TestSkippedEvent += this.OnTestSkipped;
             this.Execution.TestFinishedEvent += this.OnTestFinished;
-        }
 
-        public override bool OnMessageWithTypes(
-            IMessageSinkMessage message,
-            HashSet<string> messageTypes
-        )
-        {
-            try
-            {
-                this.logger.LogMessage(message.GetType().Name);
-                return base.OnMessageWithTypes(message, messageTypes);
-            }
-            catch (Exception e)
-            {
-                if (message is ITestCaseMessage testCaseMessage)
-                {
-                    this.logger.LogError(
-                        "Error during execution of {0}: {1}",
-                        testCaseMessage.TestCase.DisplayName,
-                        e
-                    );
-                }
-                else
-                {
-                    this.logger.LogError(e.ToString());
-                }
-                return false;
-            }
+            CurrentSink ??= this;
         }
 
         void OnTestAssemblyExecutionStarting(
@@ -198,10 +170,12 @@ namespace Allure.XUnit
             message += ". You may try to compile the project in debug mode " +
                 "as a workaround";
 #endif
-            this.logger.LogWarning(message);
+            this.Logger.LogWarning(message);
         }
 
         static bool IsStaticTestMethod(ITestMethodMessage message) =>
             message.TestMethod.Method.IsStatic;
+
+        public static AllureMessageSink? CurrentSink { get; private set; }
     }
 }

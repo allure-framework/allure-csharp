@@ -1,13 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Net.Commons", "Allure.Net.Commons\Allure.Net.Commons.csproj", "{C84000AF-0B78-4E87-B99B-064E15C601C7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Net.Commons.Tests", "Allure.Net.Commons.Tests\Allure.Net.Commons.Tests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "commons", "commons", "{E0035B29-14C0-4270-B11F-DD2544D37FF6}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "specflow", "specflow", "{9AC8581F-7E9E-46B1-A30A-5A815966C820}"
 EndProject
@@ -15,19 +18,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin", "Al
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin.Tests", "Allure.SpecFlowPlugin.Tests\Allure.SpecFlowPlugin.Tests.csproj", "{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.Features", "Allure.Features\Allure.Features.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Features", "Allure.Features\Allure.Features.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "allure-xunit", "allure-xunit", "{138A76FC-B163-423C-8FF8-D374F1C7EC2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.XUnit", "Allure.XUnit\Allure.XUnit.csproj", "{D278CE6B-F3D1-4FEF-BE5F-5AC6F6C53879}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.XUnit", "Allure.XUnit\Allure.XUnit.csproj", "{D278CE6B-F3D1-4FEF-BE5F-5AC6F6C53879}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.XUnit.Examples", "Allure.XUnit.Examples\Allure.XUnit.Examples.csproj", "{38CF463E-F564-477D-A853-407F0648E0DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.XUnit.Examples", "Allure.XUnit.Examples\Allure.XUnit.Examples.csproj", "{38CF463E-F564-477D-A853-407F0648E0DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "allure-nunit", "allure-nunit", "{D0D75FDF-4884-4AC1-868F-B3F248CB74ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.NUnit", "Allure.NUnit\Allure.NUnit.csproj", "{81F804C5-C437-4079-9731-97C6A2A86C48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.NUnit", "Allure.NUnit\Allure.NUnit.csproj", "{81F804C5-C437-4079-9731-97C6A2A86C48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allure.NUnit.Examples", "Allure.NUnit.Examples\Allure.NUnit.Examples.csproj", "{77893A8D-4313-4211-AFF1-642E866A07C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.NUnit.Examples", "Allure.NUnit.Examples\Allure.NUnit.Examples.csproj", "{77893A8D-4313-4211-AFF1-642E866A07C7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.XUnit.Reporters", "Allure.XUnit.Reporters\Allure.XUnit.Reporters.csproj", "{5A5F20A0-9728-4554-8CD7-850698A0061F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -104,6 +109,14 @@ Global
 		{77893A8D-4313-4211-AFF1-642E866A07C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77893A8D-4313-4211-AFF1-642E866A07C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77893A8D-4313-4211-AFF1-642E866A07C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Adapters|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Adapters|Any CPU.Build.0 = Debug|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Commons|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Commons|Any CPU.Build.0 = Debug|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A5F20A0-9728-4554-8CD7-850698A0061F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +131,7 @@ Global
 		{38CF463E-F564-477D-A853-407F0648E0DD} = {138A76FC-B163-423C-8FF8-D374F1C7EC2F}
 		{81F804C5-C437-4079-9731-97C6A2A86C48} = {D0D75FDF-4884-4AC1-868F-B3F248CB74ED}
 		{77893A8D-4313-4211-AFF1-642E866A07C7} = {D0D75FDF-4884-4AC1-868F-B3F248CB74ED}
+		{5A5F20A0-9728-4554-8CD7-850698A0061F} = {138A76FC-B163-423C-8FF8-D374F1C7EC2F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54ACFEA9-DB76-4FC0-B216-B8033996DB79}

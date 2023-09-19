@@ -4,6 +4,7 @@
     "links": [
       "https://example.org/{issue}",
       "https://example.org/{tms}"
-    ]
+    ],
+    "xunitRunnerReporter": "auto"
   }
 }

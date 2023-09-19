@@ -45,14 +45,8 @@ jobs:
           git config --global user.email qameta-ci@qameta.io
       - name: "Set release version"
         run: |
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.Net.Commons/Allure.Net.Commons.csproj
-          cat ./Allure.Net.Commons/Allure.Net.Commons.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
-          cat ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
-          cat ./Allure.XUnit/Allure.XUnit.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Allure.NUnit/Allure.NUnit.csproj
-          cat ./Allure.NUnit/Allure.NUnit.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ env.release_version }}</Version>|g' ./Directory.Build.props
+          cat ./Directory.Build.props
       - name: "Commit release version and create tag"
         run: |
           git commit -am "release ${{ env.release_version }}"
@@ -60,14 +54,8 @@ jobs:
           git push origin ${{ env.release_version }}
       - name: "Set next development version"
         run: |
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.Net.Commons/Allure.Net.Commons.csproj
-          cat ./Allure.Net.Commons/Allure.Net.Commons.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
-          cat ./Allure.SpecFlowPlugin/Allure.SpecFlowPlugin.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.XUnit/Allure.XUnit.csproj
-          cat ./Allure.XUnit/Allure.XUnit.csproj
-          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Allure.NUnit/Allure.NUnit.csproj
-          cat ./Allure.NUnit/Allure.NUnit.csproj
+          sed -i -e '/<PropertyGroup>/,/<\/PropertyGroup>/ s|<Version>[0-9a-zA-Z.|-]*</Version>|<Version>${{ inputs.nextVersion }}-SNAPSHOT</Version>|g' ./Directory.Build.props
+          cat ./Directory.Build.props
       - name: "Commit next development version and push it"
         run: |
           git commit -am "set next development version ${{ inputs.nextVersion }}"
