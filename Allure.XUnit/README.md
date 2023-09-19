@@ -20,7 +20,7 @@ basic content of the config:
 
 Make sure the config is copied to the output directory:
 
-  - In Visual Studio select the file and the following properties:
+  - In Visual Studio select the file and set the following properties:
       - Build Action: Content
       - Copy to Output Directory: Always/Copy if newer
     OR
