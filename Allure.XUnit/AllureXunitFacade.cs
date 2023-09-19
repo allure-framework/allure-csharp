@@ -58,13 +58,19 @@ namespace Allure.XUnit
                 select reporter
             ).FirstOrDefault();
 
-        static IRunnerReporter ResolveExplicitReporter(string reporterName) =>
-            TryCreateReporterByType(
-                Type.GetType(reporterName)
-            ) ?? TryCreateReporterByName(reporterName)
-                ?? throw new InvalidOperationException(
+        static IRunnerReporter ResolveExplicitReporter(string reporterName)
+        {
+            var reporterType = Type.GetType(reporterName);
+            var resolvedReporter = TryCreateReporterByType(reporterType);
+            resolvedReporter ??= TryCreateReporterByName(reporterName);
+            if (resolvedReporter is null)
+            {
+                throw new InvalidOperationException(
                     $"Can't load the {reporterName} reporter"
                 );
+            }
+            return resolvedReporter;
+        }
 
         static IRunnerReporter? TryCreateReporterByType(Type? reporterType) =>
             reporterType is null
