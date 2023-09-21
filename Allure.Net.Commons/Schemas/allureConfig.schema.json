@@ -1,0 +1,29 @@
+﻿{
+  "type": "object",
+  "properties": {
+    "allure": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "directory": {
+          "type": "string",
+          "default": "allure-results",
+          "description": "The absolute or relative path to an output directory where allure result files will be written."
+        },
+        "links": {
+          "type": "array",
+          "description": "An array containing link patterns. Each pattern must contain a link type placeholder in the form of {link-type}.",
+          "examples": [
+            "https://github.com/allure-framework/allure-csharp/issues/{issue}",
+            "https://example.org/{tms}"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
