@@ -16,7 +16,7 @@
             "xunit.runner.reporters.netcoreapp10, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
           ],
           "default": "auto",
-          "oneOf": [
+          "anyOf": [
             {
               "type": "string",
               "enum": [ "none", "auto" ]
