@@ -1,0 +1,33 @@
+﻿{
+  "allOf": [
+    {
+      "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/selective-run/Allure.Net.Commons/Schemas/allureConfig.schema.json"
+    }
+  ],
+  "properties": {
+    "allure": {
+      "properties": {
+        "xunitRunnerReporter": {
+          "description": "An xUnit runner reporter that will be run in addition to allure-xunit.",
+          "examples": [
+            "auto",
+            "none",
+            "teamcity",
+            "xunit.runner.reporters.netcoreapp10, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+          ],
+          "default": "auto",
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [ "none", "auto" ]
+            },
+            {
+              "type": "string",
+              "description": "The runner switch or the assembly qualified class name of a runner reporter."
+            }
+          ]
+        }
+      }
+    }
+  }
+}

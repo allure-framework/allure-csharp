@@ -1,3 +1,4 @@
 ﻿{
+  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/selective-run/Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json",
   "allure": {}
 }

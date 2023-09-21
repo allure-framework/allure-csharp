@@ -1,0 +1,108 @@
+﻿{
+  "allOf": [
+    {
+      "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/selective-run/Allure.Net.Commons/Schemas/allureConfig.schema.json"
+    }
+  ],
+  "properties": {
+    "specflow": {
+      "type": "object",
+      "properties": {
+        "stepArguments": {
+          "type": "object",
+          "properties": {
+            "convertToParameters": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string",
+                  "enum": [ "true", "false" ]
+                }
+              ]
+            },
+            "paramNameRegex": {
+              "type": "string"
+            },
+            "paramValueRegex": {
+              "type": "string"
+            }
+          }
+        },
+        "grouping": {
+          "type": "object",
+          "properties": {
+            "suites": {
+              "type": "object",
+              "properties": {
+                "parentSuite": {
+                  "type": "string"
+                },
+                "suite": {
+                  "type": "string"
+                },
+                "subSuite": {
+                  "type": "string"
+                }
+              }
+            },
+            "behaviors": {
+              "type": "object",
+              "properties": {
+                "epic": {
+                  "type": "string"
+                },
+                "story": {
+                  "type": "string"
+                }
+              }
+            },
+            "packages": {
+              "type": "object",
+              "properties": {
+                "package": {
+                  "type": "string"
+                },
+                "testClass": {
+                  "type": "string"
+                },
+                "testMethod": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "labels": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          }
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "link": {
+              "type": "string"
+            },
+            "issue": {
+              "type": "string"
+            },
+            "tms": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
