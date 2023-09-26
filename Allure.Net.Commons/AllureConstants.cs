@@ -10,5 +10,11 @@
         public const string TEST_RESULT_CONTAINER_FILE_SUFFIX = "-container.json";
         public static string TEST_RUN_FILE_SUFFIX = "-testrun.json";
         public const string ATTACHMENT_FILE_SUFFIX = "-attachment";
+
+        public const string OLD_ALLURE_ID_LABEL_NAME = "AS_ID";
+        public const string NEW_ALLURE_ID_LABEL_NAME = "ALLURE_ID";
+
+        public const string OLD_ALLURE_TESTPLAN_ENV_NAME = "AS_TESTPLAN_PATH";
+        public const string NEW_ALLURE_TESTPLAN_ENV_NAME = "ALLURE_TESTPLAN_PATH";
     }
 }
