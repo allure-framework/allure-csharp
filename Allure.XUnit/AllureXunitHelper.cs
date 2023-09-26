@@ -177,7 +177,7 @@ namespace Allure.Xunit
 
         private static void UpdateTestDataFromAttributes(TestResult testResult, ITestCase testCase)
         {
-            var classAttributes = testCase.TestMethod.TestClass.Class.GetCustomAttributes(typeof(IAllureInfo));
+            var classAttributes = GetCustomAttributesRecursive(testCase.TestMethod.TestClass.Class, typeof(IAllureInfo));
             var methodAttributes = testCase.TestMethod.Method.GetCustomAttributes(typeof(IAllureInfo));
 
             foreach (var attribute in classAttributes.Concat(methodAttributes))
@@ -278,6 +278,25 @@ namespace Allure.Xunit
                 : string.Empty;
 
             return $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}{parametersSegment}";
+        }
+
+        private static IEnumerable<IAttributeInfo> GetCustomAttributesRecursive(ITypeInfo typeInfo, Type attributeType)
+        {
+            foreach (var type in GetInheritanceTree(typeInfo).Reverse())
+            {
+                foreach (var attribute in type.GetCustomAttributes(attributeType.AssemblyQualifiedName))
+                    yield return attribute;
+            }
+
+            static IEnumerable<ITypeInfo> GetInheritanceTree(ITypeInfo typeInfo)
+            {
+                var currentType = typeInfo;
+                while (currentType.ToRuntimeType() != typeof(object))
+                {
+                    yield return currentType;
+                    currentType = currentType.BaseType;
+                }
+            }
         }
     }
 }
