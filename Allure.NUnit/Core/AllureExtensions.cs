@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
+using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 
 namespace NUnit.Allure.Core
@@ -203,6 +204,15 @@ namespace NUnit.Allure.Core
                 throw;
             }
         }
+
+        internal const string DESELECTED_BY_TESTPLAN_KEY
+            = "DESELECTED_BY_TESTPLAN";
+
+        static internal void Deselect(this ITest test) =>
+            test.Properties.Add(DESELECTED_BY_TESTPLAN_KEY, true);
+
+        static internal bool IsDeselected(this ITest test) =>
+            test.Properties.ContainsKey(DESELECTED_BY_TESTPLAN_KEY);
 
         [Obsolete(
             "Use AllureLifecycle.AddScreenDiff instance method instead to " +
