@@ -37,7 +37,9 @@ public class AllureTestPlan
     /// </param>
     /// <returns>true if the test should be executed. false otherwise.</returns>
     public bool IsMatch(string fullName, string? allureId) =>
-        this.IsFullNameMatch(fullName) || this.IsAllureIdMatch(allureId);
+        this.IsDefaultTestplanMatch()
+            || this.IsFullNameMatch(fullName)
+            || this.IsAllureIdMatch(allureId);
 
     /// <summary>
     /// Creates the testplan from a JSON string.
@@ -62,12 +64,12 @@ public class AllureTestPlan
     }
 
     /// <summary>
-    /// Extracts the id from a test result. If there is no id associated,
-    /// returns null.
+    /// Finds an Allure id in a sequence of labels. If no id exists, returns
+    /// null.
     /// </summary>
-    public static string? GetAllureId(TestResult testResult) =>
-        FindLabel(testResult, AllureConstants.NEW_ALLURE_ID_LABEL_NAME)
-            ?? FindLabel(testResult, AllureConstants.OLD_ALLURE_ID_LABEL_NAME);
+    public static string? GetAllureId(IEnumerable<Label> labels) =>
+        FindLabel(labels, AllureConstants.NEW_ALLURE_ID_LABEL_NAME)
+            ?? FindLabel(labels, AllureConstants.OLD_ALLURE_ID_LABEL_NAME);
 
     /// <summary>
     /// A testplan that doesn't filter any test.
@@ -93,8 +95,8 @@ public class AllureTestPlan
             File.ReadAllText(testPlanPath, Encoding.UTF8)
         );
 
-    static string? FindLabel(TestResult testResult, string labelName) =>
-        testResult.labels.FirstOrDefault(
+    static string? FindLabel(IEnumerable<Label> labels, string labelName) =>
+        labels.FirstOrDefault(
             l => labelName.Equals(l.name, StringComparison.OrdinalIgnoreCase)
         )?.value;
 
@@ -117,6 +119,8 @@ public class AllureTestPlan
             StringComparer.Ordinal
         );
     }
+
+    bool IsDefaultTestplanMatch() => !this.tests.Any();
 
     bool IsAllureIdMatch(string? allureId) =>
         allureId is not null && this.allIds.Contains(allureId);

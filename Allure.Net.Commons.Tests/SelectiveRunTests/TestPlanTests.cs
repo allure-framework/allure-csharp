@@ -1,5 +1,6 @@
 ﻿using Allure.Net.Commons.TestPlan;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 
 #nullable enable
@@ -11,14 +12,14 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
         [TestCase("null")]
         [TestCase("{}")]
         [TestCase("{\"tests\": []}")]
-        public void EmptyTestPlan(string json)
+        public void EmptyTestPlanEnablesAllTests(string json)
         {
             var testPlan = AllureTestPlan.FromJson(json);
 
             Assert.That(testPlan, Is.Not.Null);
             Assert.That(
                 testPlan.IsMatch("", null),
-                Is.False
+                Is.True
             );
         }
 
@@ -217,22 +218,19 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
         {
             Assert.That(
                 AllureTestPlan.GetAllureId(
-                    CreateTestCaseWithLabels(labels)
+                    CreateLabels(labels)
                 ),
                 Is.EqualTo(expectedAllureId)
             );
         }
 
-        static TestResult CreateTestCaseWithLabels(params string[] labels) =>
-            new()
-            {
-                labels = Enumerable.Range(0, labels.Length / 2).Select(
-                    i => new Label()
-                    {
-                        name = labels[2 * i],
-                        value = labels[2 * i + 1]
-                    }
-                ).ToList()
-            };
+        static IEnumerable<Label> CreateLabels(params string[] labels) =>
+            Enumerable.Range(0, labels.Length / 2).Select(
+                i => new Label()
+                {
+                    name = labels[2 * i],
+                    value = labels[2 * i + 1]
+                }
+            );
     }
 }
