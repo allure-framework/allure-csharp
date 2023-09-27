@@ -187,6 +187,42 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             );
         }
 
+        [Test]
+        public void TestResultMatchShorthandTest(
+            [Values(
+                "[]",
+                "[{\"id\": \"100\"}]",
+                "[{\"selector\": \"a\"}]",
+                "[{\"selector\": \"a\", \"id\": \"100\"}]",
+                "[{\"id\": \"100\"}, {\"id\": \"101\"}]",
+                "[{\"selector\": \"a\"}, {\"selector\": \"b\"}]",
+                "[{\"id\": \"100\"}, {\"selector\": \"a\"}]",
+                "[{\"selector\": \"a\", \"id\": \"100\"}, {\"selector\": \"b\", \"id\": \"101\"}]"
+            )] string testPlanItemsJson,
+            [Values("a", "b", "c")] string fullNameOfTestCase,
+            [Values("100", "101", "102")] string allureIdOfTestCase
+        )
+        {
+            var testResult = new TestResult
+            {
+                fullName = fullNameOfTestCase,
+                labels = allureIdOfTestCase is null ? new() : new()
+                {
+                    new() { name = "ALLURE_ID", value = allureIdOfTestCase }
+                }
+            };
+            var testPlan = AllureTestPlan.FromJson(
+                $"{{\"tests\": {testPlanItemsJson}}}"
+            );
+
+            Assert.That(
+                testPlan.IsMatch(testResult),
+                Is.EqualTo(
+                    testPlan.IsMatch(fullNameOfTestCase, allureIdOfTestCase)
+                )
+            );
+        }
+
         [TestCase(new string[] { }, null)]
         [TestCase(new[] { "ALLURE_ID", "100" }, "100")]
         [TestCase(new[] { "l1", "v1" }, null)]

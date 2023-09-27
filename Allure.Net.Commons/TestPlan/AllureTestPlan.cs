@@ -42,6 +42,16 @@ public class AllureTestPlan
             || this.IsAllureIdMatch(allureId);
 
     /// <summary>
+    /// A shorthand for <see cref="IsMatch(string, string?)"/> with the
+    /// fullName and the allure id taken from the provided test result.
+    /// </summary>
+    public bool IsMatch(TestResult testResult) =>
+        this.IsMatch(
+            testResult.fullName,
+            GetAllureId(testResult.labels)
+        );
+
+    /// <summary>
     /// Creates the testplan from a JSON string.
     /// </summary>
     public static AllureTestPlan FromJson(string jsonContent) =>
