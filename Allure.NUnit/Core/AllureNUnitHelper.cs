@@ -191,12 +191,7 @@ namespace NUnit.Allure.Core
         }
 
         static bool IsSelectedByTestPlan(TestResult testResult) =>
-            TestPlan.Value.IsMatch(
-                testResult.fullName,
-                AllureTestPlan.GetAllureId(
-                    testResult.labels ?? Enumerable.Empty<Label>()
-                )
-            );
+            TestPlan.Value.IsMatch(testResult);
 
         IEnumerable<AllureTestCaseAttribute> IterateAllAllureAttribites() =>
             this._test.Method
