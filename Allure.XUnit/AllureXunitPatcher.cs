@@ -13,6 +13,19 @@ namespace Allure.XUnit
         static bool isPatched = false;
         static IRunnerLogger logger;
 
+        static AllureMessageSink CurrentSink
+        {
+            get
+            {
+                var sink = AllureMessageSink.CurrentSink;
+                if (sink is null)
+                {
+                    logger.LogWarning("Unable to get current message sink.");
+                }
+                return sink;
+            }
+        }
+
         public static void PatchXunit(IRunnerLogger runnerLogger)
         {
             if (isPatched)
@@ -39,9 +52,13 @@ namespace Allure.XUnit
                 {
                     patcher.Patch(
                         ctor,
+                        prefix: new HarmonyMethod(
+                            typeof(AllureXunitPatcher),
+                            nameof(OnTestRunnerCreating)
+                        ),
                         postfix: new HarmonyMethod(
                             typeof(AllureXunitPatcher),
-                            nameof(AllureXunitPatcher.OnTestRunnerCreated)
+                            nameof(OnTestRunnerCreated)
                         )
                     );
                     wasPatched = true;
@@ -72,26 +89,18 @@ namespace Allure.XUnit
             }
         }
 
+        static void OnTestRunnerCreating(ITest test, ref string skipReason)
+        {
+            if (!CurrentSink.SelectByTestPlan(test))
+            {
+                skipReason = "Deselected by the testplan.";
+            }
+        }
+
         static void OnTestRunnerCreated(
             ITest test,
             object[] testMethodArguments
-        )
-        {
-            if (AllureMessageSink.CurrentSink is null)
-            {
-                logger.LogWarning(
-                    "Unable to get current message sink from the test " +
-                        "runner's hook of the {0} test",
-                    test.DisplayName
-                );
-            }
-            else
-            {
-                AllureMessageSink.CurrentSink.OnTestArgumentsCreated(
-                    test,
-                    testMethodArguments
-                );
-            }
-        }
+        ) =>
+            CurrentSink.OnTestArgumentsCreated(test, testMethodArguments);
     }
 }

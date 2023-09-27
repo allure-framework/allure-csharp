@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Allure.Net.Commons;
+using Allure.Net.Commons.TestPlan;
 using Allure.Xunit;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,6 +15,16 @@ namespace Allure.XUnit
     public class AllureMessageSink :
         DefaultRunnerReporterWithTypesMessageHandler
     {
+        static readonly Lazy<AllureTestPlan> lazyTestPlan
+            = new(AllureTestPlan.FromEnvironment);
+
+        static AllureTestPlan TestPlan { get => lazyTestPlan.Value; }
+
+        static AllureContext AllureContext
+        {
+            get => AllureLifecycle.Instance.Context;
+        }
+
         readonly ConcurrentDictionary<ITest, AllureXunitTestData>
             allureTestData = new();
 
@@ -40,6 +51,16 @@ namespace Allure.XUnit
             args.Message.ExecutionOptions.SetSynchronousMessageReporting(true);
         }
 
+        internal bool SelectByTestPlan(ITest test)
+        {
+            var associatedData = this.GetOrCreateTestData(test);
+            var testResult = AllureXunitHelper.CreateTestResultByTest(test);
+            var isSelected = TestPlan.IsMatch(testResult);
+            associatedData.TestResult = testResult;
+            associatedData.IsSelected = isSelected;
+            return isSelected;
+        }
+
         internal void OnTestArgumentsCreated(ITest test, object[] arguments) =>
             this.GetOrCreateTestData(test).Arguments = arguments;
 
@@ -47,17 +68,24 @@ namespace Allure.XUnit
         {
             var message = args.Message;
             var test = message.Test;
+            var testData = this.GetOrCreateTestData(test);
 
-            if (IsStaticTestMethod(message))
+            if (testData.IsSelected)
             {
-                AllureXunitHelper.StartStaticAllureTestCase(test);
-                this.CaptureTestContext(test);
-            }
-            else
-            {
-                AllureXunitHelper.StartNewAllureContainer(
-                    message.TestClass.Class.Name
-                );
+                if (IsStaticTestMethod(message))
+                {
+                    AllureXunitHelper.StartAllureTestCase(
+                        test,
+                        testData.TestResult
+                    );
+                    this.CaptureTestContext(test);
+                }
+                else
+                {
+                    AllureXunitHelper.StartNewAllureContainer(
+                        message.TestClass.Class.Name
+                    );
+                }
             }
         }
 
@@ -67,9 +95,11 @@ namespace Allure.XUnit
         {
             var message = args.Message;
             var test = message.Test;
+            
             if (!IsStaticTestMethod(message))
             {
-                AllureXunitHelper.StartAllureTestCase(test);
+                var testResult = this.GetOrCreateTestData(test).TestResult;
+                AllureXunitHelper.StartAllureTestCase(test, testResult);
                 this.CaptureTestContext(test);
             }
         }
@@ -90,31 +120,41 @@ namespace Allure.XUnit
         {
             var message = args.Message;
             var test = message.Test;
-            this.UpdateTestContext(test, () =>
+            var testData = this.GetOrCreateTestData(test);
+            if (testData.IsSelected)
             {
-                if (!AllureLifecycle.Instance.Context.HasTest)
+                this.UpdateTestContext(test, () =>
                 {
-                    AllureXunitHelper.StartAllureTestCase(test);
-                }
-                AllureXunitHelper.ApplyTestSkip(message);
-            });
+                    if (!AllureContext.HasTest)
+                    {
+                        AllureXunitHelper.StartAllureTestCase(
+                            test,
+                            testData.TestResult
+                        );
+                    }
+                    AllureXunitHelper.ApplyTestSkip(message);
+                });
+            }
         }
 
         void OnTestFinished(MessageHandlerArgs<ITestFinished> args)
         {
             var message = args.Message;
             var test = args.Message.Test;
-            var arguments = this.allureTestData[test].Arguments;
+            var testData = this.GetOrCreateTestData(test);
 
-            this.RunInTestContext(test, () =>
+            if (testData.IsSelected)
             {
-                this.AddAllureParameters(test, arguments);
-                AllureXunitHelper.ReportCurrentTestCase();
-                if (!IsStaticTestMethod(message))
+                this.RunInTestContext(test, () =>
                 {
-                    AllureXunitHelper.ReportCurrentTestContainer();
-                }
-            });
+                    this.AddAllureParameters(test, testData.Arguments);
+                    AllureXunitHelper.ReportCurrentTestCase();
+                    if (!IsStaticTestMethod(message))
+                    {
+                        AllureXunitHelper.ReportCurrentTestContainer();
+                    }
+                });
+            }
 
             this.allureTestData.Remove(test, out _);
         }
@@ -129,7 +169,7 @@ namespace Allure.XUnit
             return data;
         }
 
-        void AddAllureParameters(ITest test, object[] arguments)
+        void AddAllureParameters(ITest test, object[]? arguments)
         {
             var testCase = test.TestCase;
             var parameters = testCase.TestMethod.Method.GetParameters();
@@ -148,7 +188,7 @@ namespace Allure.XUnit
 
         void CaptureTestContext(ITest test) =>
             this.GetOrCreateTestData(test).Context =
-                AllureLifecycle.Instance.Context;
+                AllureContext;
 
         AllureContext RunInTestContext(ITest test, Action action) =>
             AllureLifecycle.Instance.RunInContext(
