@@ -35,12 +35,17 @@ namespace NUnit.Allure.Core
 
                 if (!test.IsSuite)
                 {
-                    helper.StartTestContainer(); // A container for SetUp/TearDown methods
-                    helper.StartTestCase();
+                    helper.PrepareTestContext();
                 }
             });
 
-        public void AfterTest(ITest test) =>
+        public void AfterTest(ITest test)
+        {
+            if (test.IsDeselected())
+            {
+                return;
+            }
+
             RunHookInRestoredAllureContext(test, () =>
             {
                 if (_allureNUnitHelper.TryGetValue(test.Id, out var helper))
@@ -52,14 +57,17 @@ namespace NUnit.Allure.Core
                     }
                     else if (IsSuiteWithNoAfterFixtures(test))
                     {
-                        // If a test fixture contains a OneTimeTearDown method
-                        // with the [AllureAfter] attribute, the corresponding
-                        // container is closed in StopContainerAspect instead.
+                        // If a test class has no class-scope after-feature
+                        // (i.e., a method with both [OneTimeTearDown] and
+                        // [AllureAfter]), the class-scope container is closed
+                        // here. Otherwise, it's closed in StopContainerAspect
+                        // instead.
                         helper.StopTestContainer();
                     }
                 }
             });
-
+        }
+        
         public ActionTargets Targets =>
             ActionTargets.Test | ActionTargets.Suite;
 

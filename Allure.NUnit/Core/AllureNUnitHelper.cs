@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
+using Allure.Net.Commons.TestPlan;
 using Newtonsoft.Json.Linq;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
@@ -31,6 +33,9 @@ namespace NUnit.Allure.Core
 
         private static AllureLifecycle AllureLifecycle => AllureLifecycle.Instance;
 
+        static Lazy<AllureTestPlan> TestPlan { get; }
+            = new(AllureTestPlan.FromEnvironment);
+
         internal void StartTestContainer()
         {
             AllureLifecycle.StartTestContainer(new()
@@ -40,73 +45,26 @@ namespace NUnit.Allure.Core
             });
         }
 
-        internal void StartTestCase()
+        internal void PrepareTestContext()
         {
-            var testResult = new TestResult
+            var testResult = this.CreateTestResult();
+            if (IsSelectedByTestPlan(testResult))
             {
-                uuid = string.Concat(
-                    Guid.NewGuid().ToString(),
-                    "-tr-",
-                    _test.Id
-                ),
-                name = _test.Name,
-                historyId = _test.FullName,
-                fullName = _test.FullName,
-                labels = new List<Label>
-                {
-                    Label.Thread(),
-                    Label.Host(),
-                    Label.Package(
-                        GetNamespace(_test.ClassName)
-                    ),
-                    Label.TestMethod(_test.MethodName),
-                    Label.TestClass(
-                        GetClassName(_test.ClassName)
-                    )
-                }
-            };
-            AllureLifecycle.StartTestCase(testResult);
-        }
-
-        static string GetNamespace(string classFullName)
-        {
-            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
-            return lastDotIndex == -1 ? null : classFullName.Substring(
-                0,
-                lastDotIndex
-            );
-        }
-
-        static string GetClassName(string classFullName)
-        {
-            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
-            return lastDotIndex == -1 ? classFullName : classFullName.Substring(
-                lastDotIndex + 1
-            );
-        }
-
-        private TestFixture GetTestFixture(ITest test)
-        {
-            var currentTest = test;
-            var isTestSuite = currentTest.IsSuite;
-            while (isTestSuite != true)
-            {
-                currentTest = currentTest.Parent;
-                if (currentTest is ParameterizedMethodSuite)
-                {
-                    currentTest = currentTest.Parent;
-                }
-                isTestSuite = currentTest.IsSuite;
+                this.StartTestContainer(); // A container for SetUp/TearDown methods
+                AllureLifecycle.StartTestCase(testResult);
             }
-
-            return (TestFixture) currentTest;
+            else
+            {
+                this._test.Deselect();
+                Assert.Ignore("Deselected by the testplan.");
+            }
         }
 
         internal void StopTestCase()
         {
-            UpdateTestDataFromAttributes();
+            UpdateTestDataFromNUnitProperties();
             AddConsoleOutputAttachment();
-            
+
             for (var i = 0; i < _test.Arguments.Length; i++)
             {
                 AllureLifecycle.UpdateTestCase(
@@ -129,7 +87,7 @@ namespace NUnit.Allure.Core
                 {
                     message = string.IsNullOrWhiteSpace(
                         TestContext.CurrentContext.Result.Message
-                    ) ? TestContext.CurrentContext.Test.Name 
+                    ) ? TestContext.CurrentContext.Test.Name
                         : TestContext.CurrentContext.Result.Message,
                     trace = TestContext.CurrentContext.Result.StackTrace
                 }
@@ -195,7 +153,94 @@ namespace NUnit.Allure.Core
             return Status.passed;
         }
 
-        private void UpdateTestDataFromAttributes()
+        TestResult CreateTestResult()
+        {
+            var testResult = new TestResult
+            {
+                uuid = string.Concat(
+                    Guid.NewGuid().ToString(),
+                    "-tr-",
+                    _test.Id
+                ),
+                name = _test.Name,
+                historyId = _test.FullName,
+                fullName = _test.FullName,
+                labels = new List<Label>
+                {
+                    Label.Thread(),
+                    Label.Host(),
+                    Label.Package(
+                        GetNamespace(_test.ClassName)
+                    ),
+                    Label.TestMethod(_test.MethodName),
+                    Label.TestClass(
+                        GetClassName(_test.ClassName)
+                    )
+                }
+            };
+            this.UpdateTestDataFromAllureAttributes(testResult);
+            return testResult;
+        }
+
+        void UpdateTestDataFromAllureAttributes(TestResult testResult)
+        {
+            foreach (var attribute in this.IterateAllAllureAttribites())
+            {
+                attribute.UpdateTestResult(testResult);
+            }
+        }
+
+        static bool IsSelectedByTestPlan(TestResult testResult) =>
+            TestPlan.Value.IsMatch(
+                testResult.fullName,
+                AllureTestPlan.GetAllureId(
+                    testResult.labels ?? Enumerable.Empty<Label>()
+                )
+            );
+
+        IEnumerable<AllureTestCaseAttribute> IterateAllAllureAttribites() =>
+            this._test.Method
+                .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                .Concat(
+                    this.GetTestFixture(this._test)
+                        .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                );
+
+        static string GetNamespace(string classFullName)
+        {
+            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
+            return lastDotIndex == -1 ? null : classFullName.Substring(
+                0,
+                lastDotIndex
+            );
+        }
+
+        static string GetClassName(string classFullName)
+        {
+            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
+            return lastDotIndex == -1 ? classFullName : classFullName.Substring(
+                lastDotIndex + 1
+            );
+        }
+
+        private TestFixture GetTestFixture(ITest test)
+        {
+            var currentTest = test;
+            var isTestSuite = currentTest.IsSuite;
+            while (isTestSuite != true)
+            {
+                currentTest = currentTest.Parent;
+                if (currentTest is ParameterizedMethodSuite)
+                {
+                    currentTest = currentTest.Parent;
+                }
+                isTestSuite = currentTest.IsSuite;
+            }
+
+            return (TestFixture) currentTest;
+        }
+
+        private void UpdateTestDataFromNUnitProperties()
         {
             foreach (var p in GetTestProperties(PropertyNames.Description))
             {
@@ -217,20 +262,6 @@ namespace NUnit.Allure.Core
                     x => x.labels.Add(Label.Tag(p))
                 );
             }
-
-            var attributes = _test.Method
-                .GetCustomAttributes<AllureTestCaseAttribute>(true)
-                .ToList();
-            attributes.AddRange(
-                GetTestFixture(_test)
-                    .GetCustomAttributes<AllureTestCaseAttribute>(true)
-                    .ToList()
-            );
-
-            attributes.ForEach(a =>
-            {
-                AllureLifecycle.UpdateTestCase(a.UpdateTestResult);
-            });
         }
 
         private void AddConsoleOutputAttachment()
@@ -280,7 +311,9 @@ namespace NUnit.Allure.Core
         }
 
         private string ContainerId => $"tc-{_test.Id}";
-        
+
+        [Obsolete("Not intended as a part of the public API")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void SaveOneTimeResultToContext()
         {
             var currentResult = TestExecutionContext
@@ -314,7 +347,9 @@ namespace NUnit.Allure.Core
             );
             testFixture.Properties.Set("OneTimeSetUpResult", fixtureResult);
         }
-        
+
+        [Obsolete("Not intended as a part of the public API")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void AddOneTimeSetupResult()
         {
             var testFixture = GetTestFixture(
