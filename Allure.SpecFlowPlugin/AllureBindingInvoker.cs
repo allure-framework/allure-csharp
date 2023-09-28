@@ -73,13 +73,28 @@ namespace Allure.SpecFlowPlugin
             ITestTracer testTracer,
             HookBinding hook
         ) =>
-            IsAllureHook(hook) ? this.InvokeAllureBinding(
+            IsAllureHook(hook) ? this.InvokeAllureHookBinding(
                 binding,
                 contextManager,
                 arguments,
                 testTracer,
                 hook
-            ) : hook.HookType switch
+            ) : this.MakeFixtureFromFeatureOrScenarioHook(
+                binding,
+                contextManager,
+                arguments,
+                testTracer,
+                hook
+            );
+
+        (object, TimeSpan) MakeFixtureFromFeatureOrScenarioHook(
+            IBinding binding,
+            IContextManager contextManager,
+            object[] arguments,
+            ITestTracer testTracer,
+            HookBinding hook
+        ) =>
+            hook.HookType switch
             {
                 HookType.BeforeFeature =>
                     this.MakeFixtureFromBeforeFeatureHook(
@@ -300,7 +315,7 @@ namespace Allure.SpecFlowPlugin
             return result;
         }
 
-        (object, TimeSpan) InvokeAllureBinding(
+        (object, TimeSpan) InvokeAllureHookBinding(
             IBinding binding,
             IContextManager contextManager,
             object[] arguments,
