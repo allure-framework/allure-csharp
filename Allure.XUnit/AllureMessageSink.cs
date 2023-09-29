@@ -15,10 +15,10 @@ namespace Allure.XUnit
     public class AllureMessageSink :
         DefaultRunnerReporterWithTypesMessageHandler
     {
-        static readonly Lazy<AllureTestPlan> lazyTestPlan
-            = new(AllureTestPlan.FromEnvironment);
-
-        static AllureTestPlan TestPlan { get => lazyTestPlan.Value; }
+        static AllureTestPlan TestPlan
+        {
+            get => AllureLifecycle.Instance.TestPlan;
+        }
 
         static AllureContext AllureContext
         {
@@ -55,7 +55,7 @@ namespace Allure.XUnit
         {
             var associatedData = this.GetOrCreateTestData(test);
             var testResult = AllureXunitHelper.CreateTestResultByTest(test);
-            var isSelected = TestPlan.IsMatch(testResult);
+            var isSelected = TestPlan.IsSelected(testResult);
             associatedData.TestResult = testResult;
             associatedData.IsSelected = isSelected;
             return isSelected;

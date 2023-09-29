@@ -33,9 +33,6 @@ namespace NUnit.Allure.Core
 
         private static AllureLifecycle AllureLifecycle => AllureLifecycle.Instance;
 
-        static Lazy<AllureTestPlan> TestPlan { get; }
-            = new(AllureTestPlan.FromEnvironment);
-
         internal void StartTestContainer()
         {
             AllureLifecycle.StartTestContainer(new()
@@ -191,7 +188,7 @@ namespace NUnit.Allure.Core
         }
 
         static bool IsSelectedByTestPlan(TestResult testResult) =>
-            TestPlan.Value.IsMatch(testResult);
+            AllureLifecycle.TestPlan.IsSelected(testResult);
 
         IEnumerable<AllureTestCaseAttribute> IterateAllAllureAttribites() =>
             this._test.Method
