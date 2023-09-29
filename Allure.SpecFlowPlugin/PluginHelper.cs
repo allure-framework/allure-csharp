@@ -13,6 +13,7 @@ namespace Allure.SpecFlowPlugin
     public static class PluginHelper
     {
         public static string IGNORE_EXCEPTION = "IgnoreException";
+        const string LABELS_AND_LINKS_CACHE_KEY = "LABELS_AND_LINKS";
 
         internal static PluginConfiguration PluginConfiguration =
             GetConfiguration(AllureLifecycle.Instance.JsonConfiguration);
@@ -53,10 +54,31 @@ namespace Allure.SpecFlowPlugin
 
         internal static void StartTestCase(
             FeatureInfo featureInfo,
+            ScenarioContext scenarioContext
+        ) =>
+            StartTestCase(
+                featureInfo,
+                scenarioContext.ScenarioInfo,
+                GetOrParseLabelsAndLinks(featureInfo, scenarioContext)
+            );
+
+        internal static void StartTestCase(
+            FeatureInfo featureInfo,
             ScenarioInfo scenarioInfo
+        ) =>
+            StartTestCase(
+                featureInfo,
+                scenarioInfo,
+                ParseLabelsAndLinks(featureInfo, scenarioInfo)
+            );
+
+        internal static void StartTestCase(
+            FeatureInfo featureInfo,
+            ScenarioInfo scenarioInfo,
+            (List<Label>, List<Link>) allureMetadata
         )
         {
-            var tags = GetTags(featureInfo, scenarioInfo);
+            var (labels, links) = allureMetadata;
             var parameters = GetParameters(scenarioInfo);
             var title = scenarioInfo.Title;
             var testResult = new TestResult
@@ -75,12 +97,32 @@ namespace Allure.SpecFlowPlugin
                     ),
                     Label.Feature(featureInfo.Title)
                 }
-                    .Union(tags.Item1).ToList(),
-                links = tags.Item2,
+                    .Union(labels).ToList(),
+                links = links,
                 parameters = parameters.parameters
             };
 
             AllureLifecycle.Instance.StartTestCase(testResult);
+        }
+
+        internal static (List<Label> labels, List<Link> links) GetOrParseLabelsAndLinks(
+            FeatureInfo featureInfo,
+            ScenarioContext scenarioContext
+        )
+        {
+            var cacheHit = scenarioContext.TryGetValue(
+                LABELS_AND_LINKS_CACHE_KEY,
+                out (List<Label>, List<Link>) items
+            );
+            if (!cacheHit)
+            {
+                items = ParseLabelsAndLinks(
+                    featureInfo,
+                    scenarioContext.ScenarioInfo
+                );
+                scenarioContext.Set(items, LABELS_AND_LINKS_CACHE_KEY);
+            }
+            return items;
         }
 
         internal static StatusDetails GetStatusDetails(Exception ex) =>
@@ -232,12 +274,13 @@ namespace Allure.SpecFlowPlugin
                     : string.Empty
             );
 
-        static Tuple<List<Label>, List<Link>> GetTags(
+        static (List<Label> labels, List<Link> links) ParseLabelsAndLinks(
             FeatureInfo featureInfo,
             ScenarioInfo scenarioInfo
         )
         {
-            var result = Tuple.Create(new List<Label>(), new List<Link>());
+            var labels = new List<Label>();
+            var links = new List<Link>();
 
             var tags = scenarioInfo.Tags
                 .Union(featureInfo.Tags)
@@ -249,7 +292,7 @@ namespace Allure.SpecFlowPlugin
                 // link
                 if (TryUpdateValueByMatch(PluginConfiguration.links.link, ref tagValue))
                 {
-                    result.Item2.Add(new()
+                    links.Add(new()
                     {
                         name = tagValue,
                         url = tagValue
@@ -260,7 +303,7 @@ namespace Allure.SpecFlowPlugin
                 // issue
                 if (TryUpdateValueByMatch(PluginConfiguration.links.issue, ref tagValue))
                 {
-                    result.Item2.Add(
+                    links.Add(
                         Link.Issue(tagValue, tagValue)
                     );
                     continue;
@@ -269,7 +312,7 @@ namespace Allure.SpecFlowPlugin
                 // tms
                 if (TryUpdateValueByMatch(PluginConfiguration.links.tms, ref tagValue))
                 {
-                    result.Item2.Add(
+                    links.Add(
                         Link.Tms(tagValue, tagValue)
                     );
                     continue;
@@ -278,7 +321,7 @@ namespace Allure.SpecFlowPlugin
                 // parent suite
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.suites.parentSuite, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.ParentSuite(tagValue)
                     );
                     continue;
@@ -287,7 +330,7 @@ namespace Allure.SpecFlowPlugin
                 // suite
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.suites.suite, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.Suite(tagValue)
                     );
                     continue;
@@ -296,7 +339,7 @@ namespace Allure.SpecFlowPlugin
                 // sub suite
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.suites.subSuite, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.SubSuite(tagValue)
                     );
                     continue;
@@ -305,7 +348,7 @@ namespace Allure.SpecFlowPlugin
                 // epic
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.behaviors.epic, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.Epic(tagValue)
                     );
                     continue;
@@ -314,7 +357,7 @@ namespace Allure.SpecFlowPlugin
                 // story
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.behaviors.story, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.Story(tagValue)
                     );
                     continue;
@@ -323,7 +366,7 @@ namespace Allure.SpecFlowPlugin
                 // package
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.packages.package, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.Package(tagValue)
                     );
                     continue;
@@ -332,7 +375,7 @@ namespace Allure.SpecFlowPlugin
                 // test class
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.packages.testClass, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.TestClass(tagValue)
                     );
                     continue;
@@ -341,7 +384,7 @@ namespace Allure.SpecFlowPlugin
                 // test method
                 if (TryUpdateValueByMatch(PluginConfiguration.grouping.packages.testMethod, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.TestMethod(tagValue)
                     );
                     continue;
@@ -350,7 +393,7 @@ namespace Allure.SpecFlowPlugin
                 // owner
                 if (TryUpdateValueByMatch(PluginConfiguration.labels.owner, ref tagValue))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.Owner(tagValue)
                     );
                     continue;
@@ -360,7 +403,7 @@ namespace Allure.SpecFlowPlugin
                 if (TryUpdateValueByMatch(PluginConfiguration.labels.severity, ref tagValue) &&
                     Enum.TryParse(tagValue, out SeverityLevel level))
                 {
-                    result.Item1.Add(
+                    labels.Add(
                         Label.Severity(level)
                     );
                     continue;
@@ -369,7 +412,7 @@ namespace Allure.SpecFlowPlugin
                 // label
                 if (GetLabelProps(PluginConfiguration.labels.label, tagValue, out var props))
                 {
-                    result.Item1.Add(new()
+                    labels.Add(new()
                     {
                         name = props.Key,
                         value = props.Value
@@ -378,12 +421,12 @@ namespace Allure.SpecFlowPlugin
                 }
 
                 // tag
-                result.Item1.Add(
+                labels.Add(
                     Label.Tag(tagValue)
                 );
             }
 
-            return result;
+            return (labels, links);
         }
 
         static (List<Parameter> parameters, string hash) GetParameters(

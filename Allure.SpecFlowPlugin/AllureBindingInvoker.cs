@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Specialized;
 using Allure.Net.Commons;
+using Allure.SpecFlowPlugin.SelectiveRun;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
 using TechTalk.SpecFlow.Configuration;
 using TechTalk.SpecFlow.ErrorHandling;
 using TechTalk.SpecFlow.Infrastructure;
 using TechTalk.SpecFlow.Tracing;
-
+using TechTalk.SpecFlow.UnitTestProvider;
 
 namespace Allure.SpecFlowPlugin
 {
@@ -29,13 +30,17 @@ namespace Allure.SpecFlowPlugin
         public AllureBindingInvoker(
             SpecFlowConfiguration specFlowConfiguration,
             IErrorProvider errorProvider,
-            ISynchronousBindingDelegateInvoker synchronousBindingDelegateInvoker
+            ISynchronousBindingDelegateInvoker synchronousBindingDelegateInvoker,
+            IUnitTestRuntimeProvider unitTestRuntimeProvider
         ) : base(
             specFlowConfiguration,
             errorProvider,
             synchronousBindingDelegateInvoker
         )
         {
+            AllureSpecFlowPatcher.EnsureTestPlanSupportInjected(
+                unitTestRuntimeProvider
+            );
         }
 
         public override object InvokeBinding(
@@ -376,17 +381,20 @@ namespace Allure.SpecFlowPlugin
             // to indicate the error.
             if (!featureContext.ContainsKey(PLACEHOLDER_TESTCASE_KEY))
             {
-                PluginHelper.StartTestCase(featureContext.FeatureInfo, new(
-                    "Feature hook failure placeholder",
-                    string.Format(
-                        "This is a placeholder scenario to indicate an " +
-                            "exception occured in a feature-level fixture " +
-                            "of '{0}'",
-                        featureContext.FeatureInfo.Title
-                    ),
-                    Array.Empty<string>(),
-                    new OrderedDictionary()
-                ));
+                PluginHelper.StartTestCase(
+                    featureContext.FeatureInfo,
+                    new ScenarioInfo(
+                        "Feature hook failure placeholder",
+                        string.Format(
+                            "This is a placeholder scenario to indicate an " +
+                                "exception occured in a feature-level " +
+                                "fixture of '{0}'",
+                            featureContext.FeatureInfo.Title
+                        ),
+                        Array.Empty<string>(),
+                        new OrderedDictionary()
+                    )
+                );
 
                 allure
                     .StopTestCase(makeBroken)
