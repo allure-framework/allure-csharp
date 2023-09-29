@@ -36,17 +36,17 @@ public class AllureTestPlan
     /// Use <see cref="GetAllureId"/> to get it from the test result.
     /// </param>
     /// <returns>true if the test should be executed. false otherwise.</returns>
-    public bool IsMatch(string fullName, string? allureId) =>
+    public bool IsSelected(string fullName, string? allureId) =>
         this.IsDefaultTestplanMatch()
             || this.IsFullNameMatch(fullName)
             || this.IsAllureIdMatch(allureId);
 
     /// <summary>
-    /// A shorthand for <see cref="IsMatch(string, string?)"/> with the
+    /// A shorthand for <see cref="IsSelected(string, string?)"/> with the
     /// fullName and the allure id taken from the provided test result.
     /// </summary>
-    public bool IsMatch(TestResult testResult) =>
-        this.IsMatch(
+    public bool IsSelected(TestResult testResult) =>
+        this.IsSelected(
             testResult.fullName,
             GetAllureId(testResult.labels)
         );

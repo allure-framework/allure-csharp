@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Storage;
+using Allure.Net.Commons.TestPlan;
 using Allure.Net.Commons.Writer;
 using HeyRed.Mime;
 using Newtonsoft.Json.Linq;
@@ -39,6 +40,8 @@ public class AllureLifecycle
     readonly AllureStorage storage;
     readonly AsyncLocal<AllureContext> context = new();
 
+    readonly Lazy<AllureTestPlan> lazyTestPlan;
+
     readonly IAllureResultsWriter writer;
 
     /// <summary>
@@ -57,30 +60,46 @@ public class AllureLifecycle
         private set => this.context.Value = value;
     }
 
+    /// <summary>
+    /// The current testplan. If no testplan was specified, the default one is
+    /// used that doesn't filter any test.
+    /// </summary>
+    public AllureTestPlan TestPlan { get => this.lazyTestPlan.Value; }
+
     internal AllureLifecycle() : this(GetConfiguration())
     {
     }
 
     internal AllureLifecycle(
         Func<AllureConfiguration, IAllureResultsWriter> writerFactory
-    ) : this(GetConfiguration(), writerFactory)
+    ) : this(
+        GetConfiguration(),
+        writerFactory,
+        AllureTestPlan.FromEnvironment
+    )
     {
     }
 
-    internal AllureLifecycle(JObject config)
-        : this(config, c => new FileSystemResultsWriter(c))
+    internal AllureLifecycle(JObject config) : this(
+        config,
+        c => new FileSystemResultsWriter(c),
+        AllureTestPlan.FromEnvironment
+    )
     {
+
     }
 
     internal AllureLifecycle(
         JObject config,
-        Func<AllureConfiguration, IAllureResultsWriter> writerFactory
+        Func<AllureConfiguration, IAllureResultsWriter> writerFactory,
+        Func<AllureTestPlan> testPlanFactory
     )
     {
         JsonConfiguration = config.ToString();
         AllureConfiguration = AllureConfiguration.ReadFromJObject(config);
         writer = writerFactory(AllureConfiguration);
         storage = new AllureStorage();
+        lazyTestPlan = new(testPlanFactory);
     }
 
     public string JsonConfiguration { get; private set; }

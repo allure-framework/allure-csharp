@@ -18,7 +18,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
 
             Assert.That(testPlan, Is.Not.Null);
             Assert.That(
-                testPlan.IsMatch("", null),
+                testPlan.IsSelected("", null),
                 Is.True
             );
         }
@@ -35,7 +35,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             var testPlan = AllureTestPlan.FromJson(testPlanJson);
 
             Assert.That(
-                testPlan.IsMatch(
+                testPlan.IsSelected(
                     "",
                     allureIdOfTestCase
                 ),
@@ -56,7 +56,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             var testPlan = AllureTestPlan.FromJson(testPlanJson);
 
             Assert.That(
-                testPlan.IsMatch(
+                testPlan.IsSelected(
                     fullNameOfTestCase,
                     null
                 ),
@@ -81,7 +81,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             var testPlan = AllureTestPlan.FromJson(testPlanJson);
 
             Assert.That(
-                testPlan.IsMatch(
+                testPlan.IsSelected(
                     fullNameOfTestCase,
                     allureIdOfTestCase
                 ),
@@ -102,7 +102,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             var testPlan = AllureTestPlan.FromJson(testPlanJson);
 
             Assert.That(
-                testPlan.IsMatch(
+                testPlan.IsSelected(
                     "",
                     allureIdOfTestCase
                 ),
@@ -123,7 +123,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             var testPlan = AllureTestPlan.FromJson(testPlanJson);
 
             Assert.That(
-                testPlan.IsMatch(
+                testPlan.IsSelected(
                     fullNameOfTestCase,
                     null
                 ),
@@ -148,7 +148,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             var testPlan = AllureTestPlan.FromJson(testPlanJson);
 
             Assert.That(
-                testPlan.IsMatch(
+                testPlan.IsSelected(
                     fullNameOfTestCase,
                     allureIdOfTestCase
                 ),
@@ -179,7 +179,7 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             var testPlan = AllureTestPlan.FromJson(testPlanJson);
 
             Assert.That(
-                testPlan.IsMatch(
+                testPlan.IsSelected(
                     fullNameOfTestCase,
                     allureIdOfTestCase
                 ),
@@ -216,9 +216,9 @@ namespace Allure.Net.Commons.Tests.SelectiveRunTests
             );
 
             Assert.That(
-                testPlan.IsMatch(testResult),
+                testPlan.IsSelected(testResult),
                 Is.EqualTo(
-                    testPlan.IsMatch(fullNameOfTestCase, allureIdOfTestCase)
+                    testPlan.IsSelected(fullNameOfTestCase, allureIdOfTestCase)
                 )
             );
         }
