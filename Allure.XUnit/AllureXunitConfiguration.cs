@@ -1,10 +1,9 @@
-﻿using Allure.Net.Commons;
+﻿using System;
+using System.Collections.Generic;
+using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 #nullable enable
 
@@ -16,9 +15,9 @@ namespace Allure.XUnit
 
         [JsonConstructor]
         protected AllureXunitConfiguration(
-            string title,
-            string directory,
-            HashSet<string> links
+            string? title,
+            string? directory,
+            HashSet<string>? links
         ) : base(title, directory, links)
         {
         }
@@ -34,8 +33,6 @@ namespace Allure.XUnit
         static AllureXunitConfiguration ParseCurrentConfig() => JObject.Parse(
             AllureLifecycle.Instance.JsonConfiguration
         )["allure"]?.ToObject<AllureXunitConfiguration>()
-            ?? throw new FileNotFoundException(
-                "allureConfig.json not found"
-            );
+            ?? new AllureXunitConfiguration(null, null, null);
     }
 }
