@@ -16,10 +16,12 @@ nuget package according to your Specflow version.
 
 For Specflow 3 please add or update the following section in your specflow.json:
 
- ```                  
-"stepAssemblies": [
-  { "assembly": "Allure.SpecFlowPlugin" }
-]
+```json      
+{
+  "stepAssemblies": [
+    { "assembly": "Allure.SpecFlowPlugin" }
+  ]
+}
 ```
 
 The plugin uses allureConfig.json extended with custom sections that are
