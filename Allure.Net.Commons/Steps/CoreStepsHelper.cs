@@ -148,11 +148,8 @@ public class CoreStepsHelper
 
     #endregion
 
-    public static async Task<T> Step<T>(string name, Func<Task<T>> action) =>
-        await ExecuteStep(name, action);
-
-    public static T Step<T>(string name, Func<T> action) =>
-        ExecuteStep(name, action);
+    public static void Step(string name) =>
+        Step(name, () => { });
 
     public static void Step(string name, Action action)
     {
@@ -163,21 +160,18 @@ public class CoreStepsHelper
         });
     }
 
+    public static T Step<T>(string name, Func<T> action) =>
+        ExecuteStep(name, action);
+
     public static async Task Step(string name, Func<Task> action) =>
-        await ExecuteStep(name, async () =>
+        await ExecuteStepAsync(name, async () =>
         {
             await action();
             return Task.FromResult<object?>(null);
         });
 
-    public static void Step(string name) =>
-        Step(name, () => { });
-
-    public static async Task<T> Before<T>(string name, Func<Task<T>> action) =>
-        await ExecuteFixture(name, StartBeforeFixture, action);
-
-    public static T Before<T>(string name, Func<T> action) =>
-        ExecuteFixture(name, StartBeforeFixture, action);
+    public static async Task<T> Step<T>(string name, Func<Task<T>> action) =>
+        await ExecuteStepAsync(name, action);
 
     public static void Before(string name, Action action) =>
         Before(name, () =>
@@ -186,18 +180,18 @@ public class CoreStepsHelper
             return null as object;
         });
 
+    public static T Before<T>(string name, Func<T> action) =>
+        ExecuteFixture(name, StartBeforeFixture, action);
+
     public static async Task Before(string name, Func<Task> action) =>
-        await ExecuteFixture(name, StartBeforeFixture, async () =>
+        await ExecuteFixtureAsync(name, StartBeforeFixture, async () =>
         {
             await action();
             return Task.FromResult<object?>(null);
         });
 
-    public static async Task<T> After<T>(string name, Func<Task<T>> action) =>
-        await ExecuteFixture(name, StartAfterFixture, action);
-
-    public static T After<T>(string name, Func<T> action) =>
-        ExecuteFixture(name, StartAfterFixture, action);
+    public static async Task<T> Before<T>(string name, Func<Task<T>> action) =>
+        await ExecuteFixtureAsync(name, StartBeforeFixture, action);
 
     public static void After(string name, Action action) =>
         After(name, () =>
@@ -206,12 +200,18 @@ public class CoreStepsHelper
             return null as object;
         });
 
+    public static T After<T>(string name, Func<T> action) =>
+        ExecuteFixture(name, StartAfterFixture, action);
+
     public static async Task After(string name, Func<Task> action) =>
-        await ExecuteFixture(name, StartAfterFixture, async () =>
+        await ExecuteFixtureAsync(name, StartAfterFixture, async () =>
         {
             await action();
             return Task.FromResult<object?>(null);
         });
+
+    public static async Task<T> After<T>(string name, Func<Task<T>> action) =>
+        await ExecuteFixtureAsync(name, StartAfterFixture, action);
 
     static T ExecuteStep<T>(string name, Func<T> action) =>
         ExecuteAction(
@@ -222,11 +222,11 @@ public class CoreStepsHelper
             FailStep
         );
 
-    static async Task<T> ExecuteStep<T>(
+    static async Task<T> ExecuteStepAsync<T>(
         string name,
         Func<Task<T>> action
     ) =>
-        await ExecuteAction(
+        await ExecuteActionAsync(
             () => StartStep(name),
             action,
             PassStep,
@@ -246,19 +246,19 @@ public class CoreStepsHelper
             FailFixture
         );
 
-    static async Task<T> ExecuteFixture<T>(
+    static async Task<T> ExecuteFixtureAsync<T>(
         string name,
         Action<string> startFixture,
         Func<Task<T>> action
     ) =>
-        await ExecuteAction(
+        await ExecuteActionAsync(
             () => startFixture(name),
             action,
             PassFixture,
             FailFixture
         );
 
-    private static async Task<T> ExecuteAction<T>(
+    private static async Task<T> ExecuteActionAsync<T>(
         Action start,
         Func<Task<T>> action,
         Action pass,
