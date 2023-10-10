@@ -60,19 +60,13 @@ namespace Allure.Xunit
             return container;
         }
 
-        internal static TestResult StartStaticAllureTestCase(ITest test)
-        {
-            var testResult = CreateTestResultByTest(test);
-            AllureLifecycle.Instance.StartTestCase(testResult);
-            return testResult;
-        }
-
-        internal static TestResult StartAllureTestCase(ITest test)
-        {
-            var testResult = CreateTestResultByTest(test);
-            AllureLifecycle.Instance.StartTestCase(testResult);
-            return testResult;
-        }
+        internal static void StartAllureTestCase(
+            ITest test,
+            TestResult? testResult
+        ) =>
+            AllureLifecycle.Instance.StartTestCase(
+                testResult ?? CreateTestResultByTest(test)
+            );
 
         internal static void ApplyTestFailure(IFailureInformation failure)
         {
@@ -149,19 +143,8 @@ namespace Allure.Xunit
             AllureLifecycle.Instance.WriteTestContainer();
         }
 
-        internal static void ReportSkippedTestCase(ITestCase testCase)
-        {
-            var testResult = CreateTestResultByTestCase(testCase);
-            ApplyTestSkip(testResult, testCase.SkipReason);
-            AllureLifecycle.Instance.StartTestCase(testResult);
-            ReportCurrentTestCase();
-        }
-
-        static TestResult CreateTestResultByTest(ITest test) =>
+        internal static TestResult CreateTestResultByTest(ITest test) =>
             CreateTestResult(test.TestCase, test.DisplayName);
-
-        static TestResult CreateTestResultByTestCase(ITestCase testCase) =>
-            CreateTestResult(testCase, testCase.DisplayName);
 
         static TestResult CreateTestResult(
             ITestCase testCase,
@@ -420,6 +403,9 @@ namespace Allure.Xunit
                 testCase.TestMethodArguments
             );
         }
+
+        static TestResult CreateTestResultByTestCase(ITestCase testCase) =>
+            CreateTestResult(testCase, testCase.DisplayName);
 
         [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
         [EditorBrowsable(EditorBrowsableState.Never)]
