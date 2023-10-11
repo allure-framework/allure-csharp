@@ -110,6 +110,11 @@ namespace Allure.Net.Commons
             return new Label {name = "feature", value = value};
         }
 
+        public static Label Framework(string value)
+        {
+            return new Label { name = "framework", value = value };
+        }
+
         public static Label Story(string value)
         {
             return new Label {name = "story", value = value};
