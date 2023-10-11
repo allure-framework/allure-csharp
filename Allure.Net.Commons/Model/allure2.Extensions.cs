@@ -24,6 +24,18 @@ namespace Allure.Net.Commons
 
     public partial class TestResult
     {
+        /// <summary>
+        /// Creates a new parameter and puts it into the test parameter list.
+        /// Uses
+        /// <see cref="FormatFunctions.Format(object?, IReadOnlyDictionary{Type, ITypeFormatter})"/>
+        /// to convert parameter's value to a string.
+        /// </summary>
+        /// <param name="name">The name of a new parameter.</param>
+        /// <param name="value">The original value of a new parameter.</param>
+        /// <param name="formatters">
+        /// The list of formatters to use to serialize the parameter's value to
+        /// a string. Usually, this comes from <see cref="AllureLifecycle.TypeFormatters"/>
+        /// </param>
         public void AddParameter(
             string name,
             object value,

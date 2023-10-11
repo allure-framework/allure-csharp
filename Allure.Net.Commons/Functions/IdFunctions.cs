@@ -46,9 +46,22 @@ public static class IdFunctions
         return $"{className}.{methodName}{typeParametersDecl}({parameterTypes})";
     }
 
+    /// <summary>
+    /// Creates a testCaseId value. testCaseId has a fixed length and depends
+    /// only on a given fullName. The fullName shouldn't depend on test parameters.
+    /// </summary>
     public static string CreateTestCaseId(string fullName) =>
         ToMD5(fullName);
 
+    /// <summary>
+    /// Creates a historyId value to be used by Allure Reporter. historyId has a
+    /// fixed length and depends on a fullName and parameters of a test.
+    /// Howewer, it doesn't depend on parametrs order as well as on parameter
+    /// names in general. Parameters are sorted alphabetically by their names.
+    /// Then, only the values are used to produce the final historyId value.
+    /// </summary>
+    /// <param name="fullName">The fullName of a test.</param>
+    /// <param name="parameters">The parameters of a test.</param>
     public static string CreateHistoryId(
         string fullName,
         IEnumerable<Parameter> parameters
