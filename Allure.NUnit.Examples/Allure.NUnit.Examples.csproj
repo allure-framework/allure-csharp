@@ -16,9 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Resource Include="allureConfig.json">
+        <Content Include="allureConfig.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Resource>
+        </Content>
         <Resource Include="AllureIgnoredTest.cs" />
         <None Include="./../img/Allure-Color.png" PackagePath="\">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
