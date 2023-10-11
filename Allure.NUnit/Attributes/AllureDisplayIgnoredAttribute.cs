@@ -1,19 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Allure.Net.Commons;
+using NUnit.Allure.Core;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using TestResult = Allure.Net.Commons.TestResult;
+
+#nullable enable
 
 namespace NUnit.Allure.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class AllureDisplayIgnoredAttribute : NUnitAttribute, ITestAction
     {
-        private readonly string _suiteName;
+        private readonly string? _suiteName = null;
 
+        public AllureDisplayIgnoredAttribute(){}
+
+        [Obsolete("Allure attributes are now supported for ignored tests. Use them instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public AllureDisplayIgnoredAttribute(string suiteNameForIgnoredTests = "Ignored")
         {
             _suiteName = suiteNameForIgnoredTests;
@@ -40,38 +48,7 @@ namespace NUnit.Allure.Attributes
                     );
                 foreach (var test in ignoredTests)
                 {
-                    AllureLifecycle.Instance.UpdateTestContainer(
-                        t => t.children.Add(test.Id)
-                    );
-
-                    var reason = test.Properties.Get(
-                        PropertyNames.SkipReason
-                    ).ToString();
-
-                    var ignoredTestResult = new TestResult
-                    {
-                        uuid = test.Id,
-                        name = test.Name,
-                        fullName = test.FullName,
-                        status = Status.skipped,
-                        statusDetails = new StatusDetails
-                        {
-                            message = test.Name
-                        },
-                        labels = new List<Label>
-                        {
-                            Label.Suite(_suiteName),
-                            Label.SubSuite(reason),
-                            Label.Thread(),
-                            Label.Host(),
-                            Label.TestClass(test.ClassName),
-                            Label.TestMethod(test.MethodName),
-                            Label.Package(test.ClassName)
-                        }
-                    };
-                    AllureLifecycle.Instance.StartTestCase(ignoredTestResult);
-                    AllureLifecycle.Instance.StopTestCase();
-                    AllureLifecycle.Instance.WriteTestCase();
+                    this.EmitResultForIgnoredTest(test);
                 }
 
                 AllureLifecycle.Instance.StopTestContainer();
@@ -84,6 +61,37 @@ namespace NUnit.Allure.Attributes
         private static IEnumerable<ITest> GetAllTests(ITest test)
         {
             return test.Tests.Concat(test.Tests.SelectMany(GetAllTests));
+        }
+
+        void EmitResultForIgnoredTest(ITest test)
+        {
+            AllureLifecycle.Instance.UpdateTestContainer(
+                        t => t.children.Add(test.Id)
+                    );
+
+            var reason = test.Properties.Get(
+                PropertyNames.SkipReason
+            )?.ToString() ?? "";
+
+            var ignoredTestResult = AllureNUnitHelper.CreateTestResult(test);
+            ignoredTestResult.status = Status.skipped;
+            ignoredTestResult.statusDetails = new() { message = test.Name };
+            this.ApplyLegacySuiteLabels(ignoredTestResult, reason);
+            AllureLifecycle.Instance.StartTestCase(ignoredTestResult);
+            AllureLifecycle.Instance.StopTestCase();
+            AllureLifecycle.Instance.WriteTestCase();
+        }
+
+        void ApplyLegacySuiteLabels(TestResult testResult, string reason)
+        {
+            if (!string.IsNullOrWhiteSpace(this._suiteName))
+            {
+                testResult.labels.AddRange(new[]
+                {
+                    Label.Suite(this._suiteName),
+                    Label.SubSuite(reason)
+                });
+            }
         }
     }
 }
