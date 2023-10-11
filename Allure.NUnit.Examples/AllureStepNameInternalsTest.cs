@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Allure.Net.Commons;
 using Allure.Net.Commons.Steps;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
@@ -22,10 +24,10 @@ namespace Allure.NUnit.Examples
 
         [TestCase("", ExpectedResult = "")]
         [TestCase(null, ExpectedResult = "")]
-        [TestCase("{0} - {1} - {2} - {3} - {100} - {-100}", ExpectedResult = "Super Mario - Allure.NUnit.Examples.AllureStepNameInternalsTest+LocalTestClass - 12345 - {3} - {100} - {-100}")]
-        [TestCase("{id} - {0}", ExpectedResult = "12345 - Super Mario")]
-        [TestCase("{id} - {name} ({request})", ExpectedResult = "12345 - Super Mario (Allure.NUnit.Examples.AllureStepNameInternalsTest+LocalTestClass)")]
-        [TestCase("{id} - {request.TestField} - {request.TestProp}", ExpectedResult = "12345 - FieldValue - PropValue")]
+        [TestCase("{0} - {1} - {2} - {3} - {100} - {-100}", ExpectedResult = "\"Super Mario\" - {\"TestField\":\"FieldValue\",\"TestProp\":\"PropValue\"} - 12345 - {3} - {100} - {-100}")]
+        [TestCase("{id} - {0}", ExpectedResult = "12345 - \"Super Mario\"")]
+        [TestCase("{id} - {name} ({request})", ExpectedResult = "12345 - \"Super Mario\" ({\"TestField\":\"FieldValue\",\"TestProp\":\"PropValue\"})")]
+        [TestCase("{id} - {request.TestField} - {request.TestProp}", ExpectedResult = "12345 - \"FieldValue\" - \"PropValue\"")]
         [TestCase("{notExistingParameter} - {request.NotExistingField}", ExpectedResult = "{notExistingParameter} - {request.NotExistingField}")]
         public string ApplyValues_Test(string stepNamePattern)
         {
@@ -41,14 +43,19 @@ namespace Allure.NUnit.Examples
                 12345, // id = {2}
             };
 
-            return AllureStepParameterHelper.GetStepName(stepNamePattern, methodBase, arguments);
+            return AllureStepParameterHelper.GetStepName(
+                stepNamePattern,
+                methodBase,
+                arguments,
+                new Dictionary<Type, ITypeFormatter>()
+            );
         }
 
         [TestCase("", ExpectedResult = "")]
         [TestCase(null, ExpectedResult = "")]
-        [TestCase("{0} - {1} - {2} - {3} - {100} - {-100}", ExpectedResult = "Super Mario - null - 12345 - {3} - {100} - {-100}")]
-        [TestCase("{id} - {0}", ExpectedResult = "12345 - Super Mario")]
-        [TestCase("{id} - {name} ({request})", ExpectedResult = "12345 - Super Mario (null)")]
+        [TestCase("{0} - {1} - {2} - {3} - {100} - {-100}", ExpectedResult = "\"Super Mario\" - null - 12345 - {3} - {100} - {-100}")]
+        [TestCase("{id} - {0}", ExpectedResult = "12345 - \"Super Mario\"")]
+        [TestCase("{id} - {name} ({request})", ExpectedResult = "12345 - \"Super Mario\" (null)")]
         [TestCase("{id} - {request.TestField} - {request.TestProp}", ExpectedResult = "12345 - {request.TestField} - {request.TestProp}")]
         [TestCase("{notExistingParameter} - {request.NotExistingField}", ExpectedResult = "{notExistingParameter} - {request.NotExistingField}")]
         public string ApplyNullValues_Test(string stepNamePattern)
@@ -61,7 +68,12 @@ namespace Allure.NUnit.Examples
                 12345, // id = {2}
             };
 
-            return AllureStepParameterHelper.GetStepName(stepNamePattern, methodBase, arguments);
+            return AllureStepParameterHelper.GetStepName(
+                stepNamePattern,
+                methodBase,
+                arguments,
+                new Dictionary<Type, ITypeFormatter>()
+            );
         }
     }
 }

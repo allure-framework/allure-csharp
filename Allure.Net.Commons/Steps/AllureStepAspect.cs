@@ -229,9 +229,19 @@ namespace Allure.Net.Commons.Steps
             [Argument(Source.ReturnType)] Type returnType
         )
         {
+            var formatters = AllureLifecycle.Instance.TypeFormatters;
             var stepNamePattern = metadata.GetCustomAttribute<AbstractStepBaseAttribute>().Name ?? name;
-            var stepName = AllureStepParameterHelper.GetStepName(stepNamePattern, metadata, args);
-            var stepParameters = AllureStepParameterHelper.GetStepParameters(metadata, args);
+            var stepName = AllureStepParameterHelper.GetStepName(
+                stepNamePattern,
+                metadata,
+                args,
+                formatters
+            );
+            var stepParameters = AllureStepParameterHelper.GetStepParameters(
+                metadata,
+                args,
+                formatters
+            );
             
             if (TypeTask.IsAssignableFrom(returnType))
             {
