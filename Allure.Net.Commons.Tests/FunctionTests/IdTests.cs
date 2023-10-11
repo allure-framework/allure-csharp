@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Allure.Net.Commons.Functions;
 using NUnit.Framework;
@@ -127,4 +128,203 @@ class IdTests
                 "Generic.List`1[V])"
         ));
     }
+
+    [Test]
+    public void TestCaseIdHasFixedLength()
+    {
+        Assert.That(
+            IdFunctions.CreateTestCaseId("full-name"),
+            Has.Length.EqualTo(
+                IdFunctions.CreateTestCaseId("other full-name").Length
+            )
+        );
+    }
+
+    [Test]
+    public void TestCasesFromSameFullNamesAreSame()
+    {
+        // I.e., no randomness involved
+
+        Assert.That(
+            IdFunctions.CreateTestCaseId("full-name"),
+            Is.EqualTo(
+                IdFunctions.CreateTestCaseId("full-name")
+            )
+        );
+    }
+
+    [Test]
+    public void TestCasesFromDifferentFullNamesDiffer()
+    {
+        // Note: a hash collision is still possible though
+
+        Assert.That(
+            IdFunctions.CreateTestCaseId("full-name"),
+            Is.Not.EqualTo(
+                IdFunctions.CreateTestCaseId("other full-name")
+            )
+        );
+    }
+
+    [Test]
+    public void HistoryIdDiffersForDifferentFullNames()
+    {
+        // Note: a hash collision is still possible though
+
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name-1",
+                Enumerable.Empty<Parameter>()
+            ),
+            Is.Not.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name-2",
+                    Enumerable.Empty<Parameter>()
+                )
+            )
+        );
+    }
+
+    [Test]
+    public void HistoryIdHasFixedLength()
+    {
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                Enumerable.Empty<Parameter>()
+            ),
+            Has.Length.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "other full-name",
+                    Enumerable.Empty<Parameter>()
+                ).Length
+            )
+        );
+    }
+
+    [Test]
+    public void HistoryIdDiffersIfParametersCountsDiffer()
+    {
+        // Note: a hash collision is still possible though
+
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                Enumerable.Empty<Parameter>()
+            ),
+            Is.Not.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name",
+                    CreateParameters(("p", "v"))
+                )
+            )
+        );
+
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                CreateParameters(("p1", "v1"))
+            ),
+            Is.Not.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name",
+                    CreateParameters(
+                        ("p1", "v1"),
+                        ("p2", "v2")
+                    )
+                )
+            )
+        );
+    }
+
+    [Test]
+    public void HistoryIdDiffersIfParameterValuesAreDifferent()
+    {
+        // Note: a hash collision is still possible though
+
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                CreateParameters(("p1", "v1"))
+            ),
+            Is.Not.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name",
+                    CreateParameters(
+                        ("p1", "v2")
+                    )
+                )
+            )
+        );
+
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                CreateParameters(
+                    ("p1", "v1"),
+                    ("p2", "v2")
+                )
+            ),
+            Is.Not.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name",
+                    CreateParameters(
+                        ("p1", "v1"),
+                        ("p1", "v3")
+                    )
+                )
+            )
+        );
+    }
+
+    [Test]
+    public void HistoryIdNotDependOnParameterOrder()
+    {
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                CreateParameters(
+                    ("p1", "v1"),
+                    ("p2", "v2")
+                )
+            ),
+            Is.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name",
+                    CreateParameters(
+                        ("p2", "v2"),
+                        ("p1", "v1")
+                    )
+                )
+            )
+        );
+    }
+
+    [Test]
+    public void HistoryIdNotDependOnParameterNames()
+    {
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                CreateParameters(
+                    ("a", "v1"),
+                    ("c", "v2")
+                )
+            ),
+            Is.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name",
+                    CreateParameters(
+                        ("b", "v1"),
+                        ("d", "v2")
+                    )
+                )
+            )
+        );
+    }
+
+    static IEnumerable<Parameter> CreateParameters(
+        params (string, string)[] values
+    ) =>
+        values.Select(v => new Parameter{ name = v.Item1, value = v.Item2 });
 }

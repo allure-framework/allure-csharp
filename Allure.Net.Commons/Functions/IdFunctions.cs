@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace Allure.Net.Commons.Functions;
 
@@ -42,6 +44,44 @@ public static class IdFunctions
         var typeParametersDecl = SerializeTypeParameterTypeList(typeParameters);
         var parameterTypes = SerializeParameterTypes(method.GetParameters());
         return $"{className}.{methodName}{typeParametersDecl}({parameterTypes})";
+    }
+
+    public static string CreateTestCaseId(string fullName) =>
+        ToMD5(fullName);
+
+    public static string CreateHistoryId(
+        string fullName,
+        IEnumerable<Parameter> parameters
+    ) =>
+        ToMD5(
+            JsonConvert.SerializeObject(
+                new
+                {
+                    fullName,
+                    parameters = parameters.OrderBy(p => p.name)
+                        .Select(p => p.value)
+                }
+            )
+        );
+
+    static string ToMD5(string input)
+    {
+        using var md5 = System.Security.Cryptography.MD5.Create();
+        var inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
+        var outputBytes = md5.ComputeHash(inputBytes);
+        return ToHexString(outputBytes);
+    }
+
+    static string ToHexString(byte[] inputBytes)
+    {
+        var sb = new StringBuilder();
+        foreach (byte b in inputBytes)
+        {
+            sb.Append(
+                b.ToString("x2")
+            );
+        }
+        return sb.ToString();
     }
 
     static string SerializeParameterTypes(

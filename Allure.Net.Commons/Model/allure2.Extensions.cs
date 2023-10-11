@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Allure.Net.Commons.Functions;
 
 namespace Allure.Net.Commons
 {
@@ -21,6 +24,19 @@ namespace Allure.Net.Commons
 
     public partial class TestResult
     {
+        public void AddParameter(
+            string name,
+            object value,
+            IReadOnlyDictionary<Type, ITypeFormatter> formatters
+        ) =>
+            this.parameters.Add(
+                new()
+                {
+                    name = name,
+                    value = FormatFunctions.Format(value, formatters)
+                }
+            );
+
         public override string ToString()
         {
             return name ?? uuid;

@@ -81,10 +81,7 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                CoreStepsHelper.StopFixture(result => result.status = Status.passed);
-
-                // TODO: NUnit doing it this way: to be reviewed (!) DO NOT MERGE
-                // CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.passed);
+                CoreStepsHelper.PassFixture(result => result.status = Status.passed);
             }
         }
 
