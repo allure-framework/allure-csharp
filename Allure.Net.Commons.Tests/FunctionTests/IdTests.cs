@@ -20,6 +20,18 @@ class IdTests
         );
     }
 
+    [TestCase(typeof(IdTests), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests")]
+    [TestCase(typeof(ClassWithoutNamespace), "Allure.Net.Commons.Tests:ClassWithoutNamespace")]
+    [TestCase(typeof(MyClass), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass")]
+    [TestCase(typeof(MyClass<>), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]")]
+    public void TestFullNameFromClass(Type targetClass, string expectedFullName)
+    {
+        Assert.That(
+            IdFunctions.CreateFullName(targetClass),
+            Is.EqualTo(expectedFullName)
+        );
+    }
+
     class MyClass
     {
         internal void ParameterlessMethod() { }

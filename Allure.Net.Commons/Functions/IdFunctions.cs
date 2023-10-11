@@ -18,7 +18,19 @@ public static class IdFunctions
     public static string CreateUUID() => Guid.NewGuid().ToString();
 
     /// <summary>
-    /// Creates a string that unuquely describes a given method.
+    /// Creates a fully-qualified class name that uniquely identifies a given
+    /// class.
+    /// </summary>
+    /// <remarks>
+    /// A fully-qualified name of a type includes the assembly name, the
+    /// namespace and the class name (can be a nested class).
+    /// </remarks>
+    /// <param name="targetClass">The type of a class.</param>
+    public static string CreateFullName(Type targetClass) =>
+        SerializeNonParameterClass(targetClass);
+
+    /// <summary>
+    /// Creates a string that unuquely identifies a given method.
     /// </summary>
     /// <remarks>
     /// For a given test method the full name includes:
@@ -124,10 +136,13 @@ public static class IdFunctions
         {
             return type.Name;
         }
-        return GetUniqueTypeName(type) + SerializeTypeParameterTypeList(
+        return SerializeNonParameterClass(type);
+    }
+
+    static string SerializeNonParameterClass(Type type) =>
+        GetUniqueTypeName(type) + SerializeTypeParameterTypeList(
             type.GetGenericArguments()
         );
-    }
 
     static string GetUniqueTypeName(Type type) =>
         IsSystemType(type)
