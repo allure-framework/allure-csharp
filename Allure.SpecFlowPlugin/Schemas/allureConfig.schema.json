@@ -1,7 +1,7 @@
 ﻿{
   "allOf": [
     {
-      "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/selective-run/Allure.Net.Commons/Schemas/allureConfig.schema.json"
+      "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/identifiers-fix/Allure.Net.Commons/Schemas/allureConfig.schema.json"
     }
   ],
   "properties": {
