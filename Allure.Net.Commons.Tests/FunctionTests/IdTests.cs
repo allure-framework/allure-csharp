@@ -52,63 +52,64 @@ class IdTests
 
     [TestCase(
         nameof(MyClass.ParameterlessMethod),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.ParameterlessMethod()",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass.ParameterlessMethod()",
         TestName = "ParameterlessMethod"
     )]
     [TestCase(
         nameof(MyClass.MethodWithParameterOfBuiltInType),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithParameterOfBuiltInType(System.Int32)",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithParameterOfBuiltInType(System.Int32)",
         TestName = "MethodWithParameterOfBuiltInType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithParameterOfUserType),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithParameterOfUserType(Allure.Net." +
-            "Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass)",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithParameterOfUserType(" +
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ")",
         TestName = "MethodWithParameterOfUserType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithTwoParameters),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithTwoParameters(System.Int32,Allure." +
-            "Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass)",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithTwoParameters(" +
+                "System.Int32," +
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ")",
         TestName = "MethodWithTwoParameters"
     )]
     [TestCase(
         nameof(MyClass.MethodWithRefParameter),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithRefParameter(System.Int32&)",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithRefParameter(System.Int32&)",
         TestName = "MethodWithRefParameter"
     )]
     [TestCase(
         nameof(MyClass.MethodWithGenericParameter),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithGenericParameter[T]()",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithGenericParameter[T]()",
         TestName = "MethodWithGenericParameter"
     )]
     [TestCase(
         nameof(MyClass.MethodWithArgumentOfGenericType),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithArgumentOfGenericType[T](T)",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithArgumentOfGenericType[T](T)",
         TestName = "MethodWithArgumentOfGenericType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithArgumentOfTypeParametrizedByGenericType),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithArgumentOfTypeParametrizedByGenericType" +
-            "[T](System.Collections.Generic.Dictionary`2[System.Int32,T])",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithArgumentOfTypeParametrizedByGenericType[T](" +
+                "System.Collections.Generic.Dictionary`2[System.Int32,T]" +
+            ")",
         TestName = "MethodWithArgumentOfTypeParametrizedByGenericType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithArgumentOfGenericUserType),
-        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-            "IdTests+MyClass.MethodWithArgumentOfGenericUserType" +
-            "[T](Allure.Net.Commons.Tests:Allure.Net.Commons.Tests." +
-            "FunctionTests.IdTests+MyClass`1[T])",
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+            ".MethodWithArgumentOfGenericUserType[T](" +
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]" +
+            ")",
         TestName = "MethodWithArgumentOfGenericUserType"
     )]
     public void FullNameFromMethod(string methodName, string expectedFullName)
@@ -134,10 +135,11 @@ class IdTests
         var actualFullName = IdFunctions.CreateFullName(method);
 
         Assert.That(actualFullName, Is.EqualTo(
-            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests." +
-                "IdTests+MyClass`1[T].GenericMethodOfGenericClass[V]" +
-                "(System.Collections.Generic.List`1[T],System.Collections." +
-                "Generic.List`1[V])"
+            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]" +
+                ".GenericMethodOfGenericClass[V](" +
+                    "System.Collections.Generic.List`1[T]," +
+                    "System.Collections.Generic.List`1[V]" +
+                ")"
         ));
     }
 

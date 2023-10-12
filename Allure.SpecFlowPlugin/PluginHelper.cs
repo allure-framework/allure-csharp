@@ -261,36 +261,9 @@ namespace Allure.SpecFlowPlugin
                     scenarioTitle,
                     parametersHash
                 );
+                return;
             }
-            else
-            {
-                SetNewTestResultIdentifiers(
-                    testRunnerManager,
-                    featureInfo,
-                    testResult,
-                    scenarioTitle
-                );
-            }
-        }
 
-        static void SetLegacyTestResultIdentifiers(
-            TestResult testResult,
-            string scenarioTitle,
-            string parametersHash
-        )
-        {
-            testResult.uuid = NewId();
-            testResult.historyId = scenarioTitle + parametersHash;
-            testResult.fullName = scenarioTitle;
-        }
-
-        static void SetNewTestResultIdentifiers(
-            ITestRunnerManager testRunnerManager,
-            FeatureInfo featureInfo,
-            TestResult testResult,
-            string scenarioTitle
-        )
-        {
             testResult.uuid = IdFunctions.CreateUUID();
             testResult.fullName = CreateFullName(
                 testRunnerManager,
@@ -304,6 +277,17 @@ namespace Allure.SpecFlowPlugin
                 testResult.fullName,
                 testResult.parameters
             );
+        }
+
+        static void SetLegacyTestResultIdentifiers(
+            TestResult testResult,
+            string scenarioTitle,
+            string parametersHash
+        )
+        {
+            testResult.uuid = NewId();
+            testResult.historyId = scenarioTitle + parametersHash;
+            testResult.fullName = scenarioTitle;
         }
 
         static string CreateFullName(

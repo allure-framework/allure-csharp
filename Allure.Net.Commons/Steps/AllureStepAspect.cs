@@ -81,7 +81,7 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                CoreStepsHelper.PassFixture(result => result.status = Status.passed);
+                CoreStepsHelper.PassFixture();
             }
         }
 

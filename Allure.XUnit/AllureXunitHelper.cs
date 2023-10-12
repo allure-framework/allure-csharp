@@ -230,11 +230,17 @@ namespace Allure.Xunit
             if (AllureLifecycle.Instance.AllureConfiguration.UseLegacyIds)
             {
                 SetLegacyTestResultIdentifiers(testCase, displayName, testResult);
+                return;
             }
-            else
-            {
-                SetNewTestResultIdentifiers(testCase, testResult);
-            }
+
+            testResult.uuid = IdFunctions.CreateUUID();
+            testResult.fullName = IdFunctions.CreateFullName(
+                testCase.TestMethod.Method.ToRuntimeMethod()
+            );
+            testResult.testCaseId = IdFunctions.CreateTestCaseId(
+                testResult.fullName
+            );
+            // historyId is set later, when test arguments are received
         }
 
         static void UpdateHistoryId(TestResult testResult)
@@ -257,21 +263,6 @@ namespace Allure.Xunit
             testResult.uuid = NewUuid(displayName);
             testResult.fullName = BuildFullName(testCase);
             testResult.historyId = displayName;
-        }
-
-        static void SetNewTestResultIdentifiers(
-            ITestCase testCase,
-            TestResult testResult
-        )
-        {
-            testResult.uuid = IdFunctions.CreateUUID();
-            testResult.fullName = IdFunctions.CreateFullName(
-                testCase.TestMethod.Method.ToRuntimeMethod()
-            );
-            testResult.testCaseId = IdFunctions.CreateTestCaseId(
-                testResult.fullName
-            );
-            // historyId is set later, when test arguments are received
         }
 
         static void UpdateTestDataFromAttributes(

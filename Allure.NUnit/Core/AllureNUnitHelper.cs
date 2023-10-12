@@ -171,15 +171,9 @@ namespace NUnit.Allure.Core
             if (AllureLifecycle.AllureConfiguration.UseLegacyIds)
             {
                 SetLegacyIdentifiers(test, testResult);
+                return;
             }
-            else
-            {
-                SetNewIdentifiers(test, testResult);
-            }
-        }
 
-        static void SetNewIdentifiers(ITest test, TestResult testResult)
-        {
             testResult.uuid = IdFunctions.CreateUUID();
             testResult.fullName = IdFunctions.CreateFullName(
                 test.Method.MethodInfo
