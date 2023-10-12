@@ -115,6 +115,11 @@ namespace Allure.Net.Commons
             return new Label { name = "framework", value = value };
         }
 
+        public static Label Language()
+        {
+            return new Label { name = "language", value = "C#" };
+        }
+
         public static Label Story(string value)
         {
             return new Label {name = "story", value = value};

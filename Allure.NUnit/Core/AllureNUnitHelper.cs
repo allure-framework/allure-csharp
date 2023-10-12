@@ -92,14 +92,15 @@ namespace NUnit.Allure.Core
                 {
                     Label.Thread(),
                     Label.Host(),
+                    Label.Language(),
+                    Label.Framework("NUnit 3"),
                     Label.Package(
                         GetNamespace(test.ClassName)
                     ),
                     Label.TestMethod(test.MethodName),
                     Label.TestClass(
                         GetClassName(test.ClassName)
-                    ),
-                    Label.Framework("NUnit 3")
+                    )
                 }
             };
             UpdateTestDataFromAllureAttributes(test, testResult);
