@@ -60,7 +60,7 @@ public class ExampleStepAttributes : IDisposable
         Attachments.Text("Json file", "{\"id\":42,\"name\":\"Allure.XUnit\"}");
     }
 
-    [AllureStep("Another nested step with \"{input}\"")]
+    [AllureStep("Another nested step with {input}")]
     private string NestedStepReturningString([Name("Input text parameter")] string input)
     {
         Assert.True(true);
