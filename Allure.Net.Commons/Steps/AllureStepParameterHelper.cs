@@ -46,6 +46,18 @@ namespace Allure.Net.Commons.Steps
         public static string GetStepName(
             string stepName,
             MethodBase methodBase,
+            object[] arguments
+        ) =>
+            GetStepName(
+                stepName,
+                methodBase,
+                arguments,
+                new Dictionary<Type, ITypeFormatter>()
+            );
+
+        public static string GetStepName(
+            string stepName,
+            MethodBase methodBase,
             object[] arguments,
             IReadOnlyDictionary<Type, ITypeFormatter> formatters
         )
@@ -115,7 +127,17 @@ namespace Allure.Net.Commons.Steps
 
             return stepName;
         }
-        
+
+        public static List<Parameter> GetStepParameters(
+            MethodBase metadata,
+            object[] args
+        ) =>
+            GetStepParameters(
+                metadata,
+                args,
+                new Dictionary<Type, ITypeFormatter>()
+            );
+
         public static List<Parameter> GetStepParameters(
             MethodBase metadata,
             object[] args,
