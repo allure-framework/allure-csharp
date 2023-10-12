@@ -1,0 +1,22 @@
+﻿{
+  "type": "object",
+  "properties": {
+    "tests": {
+      "type": "array",
+      "description": "An array of selectors each specifying a test to run. All other tests will be skipped.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of a test (usually assigned by TestOps)."
+          },
+          "selector": {
+            "type": "string",
+            "description": "The fullName of a test."
+          }
+        }
+      }
+    }
+  }
+}

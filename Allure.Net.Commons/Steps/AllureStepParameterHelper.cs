@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Allure.Net.Commons.Functions;
 
 namespace Allure.Net.Commons.Steps
 {
@@ -42,7 +43,24 @@ namespace Allure.Net.Commons.Steps
             }
         }
 
-        public static string GetStepName(string stepName, MethodBase methodBase, object[] arguments)
+        public static string GetStepName(
+            string stepName,
+            MethodBase methodBase,
+            object[] arguments
+        ) =>
+            GetStepName(
+                stepName,
+                methodBase,
+                arguments,
+                new Dictionary<Type, ITypeFormatter>()
+            );
+
+        public static string GetStepName(
+            string stepName,
+            MethodBase methodBase,
+            object[] arguments,
+            IReadOnlyDictionary<Type, ITypeFormatter> formatters
+        )
         {
             var initialStepName = stepName;
 
@@ -66,7 +84,10 @@ namespace Allure.Net.Commons.Steps
                 )
                 {
                     //!_! apply {paramIndex} placeholder - i.e. {0}, {1}, ...
-                    stepName = stepName?.Replace(match.Value, value1?.ToString() ?? "null");
+                    stepName = stepName?.Replace(
+                        match.Value,
+                        FormatFunctions.Format(value1, formatters)
+                    );
                     showIndexWarning = true;
                 }
                 else if (parameterIndex.TryGetValue(pattern, out var parameter1) &&
@@ -74,12 +95,20 @@ namespace Allure.Net.Commons.Steps
                 )
                 {
                     //!_! apply {paramName} placeholder - i.e. {requestId}, {isDelete}, ...
-                    stepName = stepName?.Replace(match.Value, value2?.ToString() ?? "null");
+                    stepName = stepName?.Replace(
+                        match.Value,
+                        FormatFunctions.Format(value2, formatters)
+                    );
                 }
                 else if (TrySplit(pattern, '.', out var parts) &&
                     parts.Length == 2 &&
                     parameterIndex.TryGetValue(parts[0], out var parameter2) &&
-                    TryGetValue(arguments[parameter2.Position], parts[1], out var value3)
+                    TryGetValue(
+                        formatters,
+                        arguments[parameter2.Position],
+                        parts[1],
+                        out var value3
+                    )
                 )
                 {
                     //!_! apply {paramName.fieldOrProperty} placeholder - i.e. {request.Id}, ...
@@ -98,8 +127,22 @@ namespace Allure.Net.Commons.Steps
 
             return stepName;
         }
-        
-        public static List<Parameter> GetStepParameters(MethodBase metadata, object[] args)
+
+        public static List<Parameter> GetStepParameters(
+            MethodBase metadata,
+            object[] args
+        ) =>
+            GetStepParameters(
+                metadata,
+                args,
+                new Dictionary<Type, ITypeFormatter>()
+            );
+
+        public static List<Parameter> GetStepParameters(
+            MethodBase metadata,
+            object[] args,
+            IReadOnlyDictionary<Type, ITypeFormatter> formatters
+        )
         {
             return metadata.GetParameters()
                 .Select(x => (
@@ -111,7 +154,7 @@ namespace Allure.Net.Commons.Steps
                         : new Parameter
                         {
                             name = parameter.name,
-                            value = value?.ToString()
+                            value = FormatFunctions.Format(value, formatters)
                         })
                 .Where(x => x != null)
                 .ToList();
@@ -136,7 +179,12 @@ namespace Allure.Net.Commons.Steps
         }
 
         /// <summary> Getting the value of field or property </summary>
-        private static bool TryGetValue(object obj, string name, out string value)
+        private static bool TryGetValue(
+            IReadOnlyDictionary<Type, ITypeFormatter> formatters,
+            object obj,
+            string name,
+            out string value
+        )
         {
             value = Unknown;
             if (obj == null) return false;
@@ -144,14 +192,20 @@ namespace Allure.Net.Commons.Steps
             var field = obj.GetType()?.GetField(name);
             if (field != null)
             {
-                value = field.GetValue(obj)?.ToString() ?? Null;
+                value = FormatFunctions.Format(
+                    field.GetValue(obj),
+                    formatters
+                );
                 return true;
             }
 
             var prop = obj.GetType()?.GetProperty(name);
             if (prop != null)
             {
-                value = prop.GetValue(obj, null)?.ToString() ?? Null;
+                value = FormatFunctions.Format(
+                    prop.GetValue(obj, null),
+                    formatters
+                );
                 return true;
             }
 

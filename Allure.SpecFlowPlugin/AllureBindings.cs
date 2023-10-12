@@ -35,12 +35,14 @@ namespace Allure.SpecFlowPlugin
 
         [BeforeScenario(Order = int.MaxValue)]
         public static void LastBeforeScenario(
+            ITestRunnerManager testRunnerManager,
             FeatureContext featureContext,
             ScenarioContext scenarioContext
         ) =>
             PluginHelper.StartTestCase(
+                testRunnerManager,
                 featureContext.FeatureInfo,
-                scenarioContext.ScenarioInfo
+                scenarioContext
             );
 
         [AfterScenario(Order = int.MinValue)]

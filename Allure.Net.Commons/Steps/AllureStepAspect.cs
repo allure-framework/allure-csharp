@@ -81,10 +81,7 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                CoreStepsHelper.StopFixture(result => result.status = Status.passed);
-
-                // TODO: NUnit doing it this way: to be reviewed (!) DO NOT MERGE
-                // CoreStepsHelper.StopFixtureSuppressTestCase(result => result.status = Status.passed);
+                CoreStepsHelper.PassFixture();
             }
         }
 
@@ -232,9 +229,19 @@ namespace Allure.Net.Commons.Steps
             [Argument(Source.ReturnType)] Type returnType
         )
         {
+            var formatters = AllureLifecycle.Instance.TypeFormatters;
             var stepNamePattern = metadata.GetCustomAttribute<AbstractStepBaseAttribute>().Name ?? name;
-            var stepName = AllureStepParameterHelper.GetStepName(stepNamePattern, metadata, args);
-            var stepParameters = AllureStepParameterHelper.GetStepParameters(metadata, args);
+            var stepName = AllureStepParameterHelper.GetStepName(
+                stepNamePattern,
+                metadata,
+                args,
+                formatters
+            );
+            var stepParameters = AllureStepParameterHelper.GetStepParameters(
+                metadata,
+                args,
+                formatters
+            );
             
             if (TypeTask.IsAssignableFrom(returnType))
             {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Allure.Net.Commons.Steps;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests;
+namespace Allure.Net.Commons.Tests.StepTests;
 
 class StepAndFixtureFunctionTests
 {

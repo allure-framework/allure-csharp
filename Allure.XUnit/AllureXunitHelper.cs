@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Storage;
 using Allure.Xunit.Attributes;
 using Allure.XUnit;
@@ -51,11 +52,7 @@ namespace Allure.Xunit
             string className
         )
         {
-            var container = new TestResultContainer
-            {
-                uuid = NewUuid(className),
-                name = className
-            };
+            var container = CreateContainer(className);
             AllureLifecycle.Instance.StartTestContainer(container);
             return container;
         }
@@ -121,13 +118,17 @@ namespace Allure.Xunit
                 (param, value) => new Parameter
                 {
                     name = param.Name,
-                    value = value?.ToString() ?? "null"
+                    value = FormatFunctions.Format(
+                        value,
+                        AllureLifecycle.Instance.TypeFormatters
+                    )
                 }
             ).ToList();
 
             AllureLifecycle.Instance.UpdateTestCase(testResult =>
             {
                 testResult.parameters = parametersList;
+                UpdateHistoryId(testResult);
             });
         }
 
@@ -146,6 +147,14 @@ namespace Allure.Xunit
         internal static TestResult CreateTestResultByTest(ITest test) =>
             CreateTestResult(test.TestCase, test.DisplayName);
 
+        static TestResultContainer CreateContainer(string className) => new()
+        {
+            uuid = AllureLifecycle.Instance.AllureConfiguration.UseLegacyIds
+                ? NewUuid(className)
+                : IdFunctions.CreateUUID(),
+            name = className
+        };
+
         static TestResult CreateTestResult(
             ITestCase testCase,
             string displayName
@@ -154,19 +163,19 @@ namespace Allure.Xunit
             var testMethod = testCase.TestMethod;
             var testResult = new TestResult
             {
-                uuid = NewUuid(displayName),
                 name = BuildName(testCase),
-                historyId = displayName,
-                fullName = BuildFullName(testCase),
                 labels = new()
                 {
                     Label.Thread(),
                     Label.Host(),
+                    Label.Language(),
+                    Label.Framework("xUnit.net"),
                     Label.TestClass(testMethod.TestClass.Class.Name),
                     Label.TestMethod(displayName),
-                    Label.Package(testMethod.TestClass.Class.Name)
+                    Label.Package(testMethod.TestClass.Class.Name),
                 }
             };
+            SetTestResultIdentifiers(testCase, displayName, testResult);
             UpdateTestDataFromAttributes(testResult, testMethod);
             return testResult;
         }
@@ -210,6 +219,50 @@ namespace Allure.Xunit
             {
                 labels.Add(new Label {name = labelName, value = value});
             }
+        }
+
+        static void SetTestResultIdentifiers(
+            ITestCase testCase,
+            string displayName,
+            TestResult testResult
+        )
+        {
+            if (AllureLifecycle.Instance.AllureConfiguration.UseLegacyIds)
+            {
+                SetLegacyTestResultIdentifiers(testCase, displayName, testResult);
+                return;
+            }
+
+            testResult.uuid = IdFunctions.CreateUUID();
+            testResult.fullName = IdFunctions.CreateFullName(
+                testCase.TestMethod.Method.ToRuntimeMethod()
+            );
+            testResult.testCaseId = IdFunctions.CreateTestCaseId(
+                testResult.fullName
+            );
+            // historyId is set later, when test arguments are received
+        }
+
+        static void UpdateHistoryId(TestResult testResult)
+        {
+            if (!AllureLifecycle.Instance.AllureConfiguration.UseLegacyIds)
+            {
+                testResult.historyId = IdFunctions.CreateHistoryId(
+                    testResult.fullName,
+                    testResult.parameters
+                );
+            }
+        }
+
+        static void SetLegacyTestResultIdentifiers(
+            ITestCase testCase,
+            string displayName,
+            TestResult testResult
+        )
+        {
+            testResult.uuid = NewUuid(displayName);
+            testResult.fullName = BuildFullName(testCase);
+            testResult.historyId = displayName;
         }
 
         static void UpdateTestDataFromAttributes(
