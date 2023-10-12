@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Functions;
 using Newtonsoft.Json.Linq;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
@@ -49,44 +50,48 @@ namespace Allure.SpecFlowPlugin
         internal static void StartTestContainer() =>
             AllureLifecycle.Instance.StartTestContainer(new()
             {
-                uuid = NewId()
+                uuid = AllureLifecycle.Instance.AllureConfiguration.UseLegacyIds
+                    ? NewId()
+                    : IdFunctions.CreateUUID()
             });
 
         internal static void StartTestCase(
+            ITestRunnerManager testRunnerManager,
             FeatureInfo featureInfo,
             ScenarioContext scenarioContext
         ) =>
             StartTestCase(
+                testRunnerManager,
                 featureInfo,
                 scenarioContext.ScenarioInfo,
                 GetOrParseLabelsAndLinks(featureInfo, scenarioContext)
             );
 
         internal static void StartTestCase(
+            ITestRunnerManager testRunnerManager,
             FeatureInfo featureInfo,
             ScenarioInfo scenarioInfo
         ) =>
             StartTestCase(
+                testRunnerManager,
                 featureInfo,
                 scenarioInfo,
                 ParseLabelsAndLinks(featureInfo, scenarioInfo)
             );
 
         internal static void StartTestCase(
+            ITestRunnerManager testRunnerManager,
             FeatureInfo featureInfo,
             ScenarioInfo scenarioInfo,
             (List<Label>, List<Link>) allureMetadata
         )
         {
             var (labels, links) = allureMetadata;
-            var parameters = GetParameters(scenarioInfo);
+            var (parameters, parametersHash) = GetParameters(scenarioInfo);
             var title = scenarioInfo.Title;
             var testResult = new TestResult
             {
-                uuid = NewId(),
-                historyId = title + parameters.hash,
                 name = title,
-                fullName = title,
                 labels = new List<Label>
                 {
                     Label.Thread(),
@@ -95,12 +100,21 @@ namespace Allure.SpecFlowPlugin
                     ) ? Label.Host() : Label.Host(
                         AllureLifecycle.Instance.AllureConfiguration.Title
                     ),
+                    Label.Language(),
+                    Label.Framework("SpecFlow"),
                     Label.Feature(featureInfo.Title)
                 }
                     .Union(labels).ToList(),
                 links = links,
-                parameters = parameters.parameters
+                parameters = parameters
             };
+            SetTestResultIdentifiers(
+                testRunnerManager,
+                featureInfo,
+                testResult,
+                title,
+                parametersHash
+            );
 
             AllureLifecycle.Instance.StartTestCase(testResult);
         }
@@ -231,6 +245,85 @@ namespace Allure.SpecFlowPlugin
                     test.statusDetails
                 )
             );
+
+        static void SetTestResultIdentifiers(
+            ITestRunnerManager testRunnerManager,
+            FeatureInfo featureInfo,
+            TestResult testResult,
+            string scenarioTitle,
+            string parametersHash
+        )
+        {
+            if (AllureLifecycle.Instance.AllureConfiguration.UseLegacyIds)
+            {
+                SetLegacyTestResultIdentifiers(
+                    testResult,
+                    scenarioTitle,
+                    parametersHash
+                );
+            }
+            else
+            {
+                SetNewTestResultIdentifiers(
+                    testRunnerManager,
+                    featureInfo,
+                    testResult,
+                    scenarioTitle
+                );
+            }
+        }
+
+        static void SetLegacyTestResultIdentifiers(
+            TestResult testResult,
+            string scenarioTitle,
+            string parametersHash
+        )
+        {
+            testResult.uuid = NewId();
+            testResult.historyId = scenarioTitle + parametersHash;
+            testResult.fullName = scenarioTitle;
+        }
+
+        static void SetNewTestResultIdentifiers(
+            ITestRunnerManager testRunnerManager,
+            FeatureInfo featureInfo,
+            TestResult testResult,
+            string scenarioTitle
+        )
+        {
+            testResult.uuid = IdFunctions.CreateUUID();
+            testResult.fullName = CreateFullName(
+                testRunnerManager,
+                featureInfo,
+                scenarioTitle
+            );
+            testResult.testCaseId = IdFunctions.CreateTestCaseId(
+                testResult.fullName
+            );
+            testResult.historyId = IdFunctions.CreateHistoryId(
+                testResult.fullName,
+                testResult.parameters
+            );
+        }
+
+        static string CreateFullName(
+            ITestRunnerManager testRunnerManager,
+            FeatureInfo featureInfo,
+            string scenarioTitle
+        ) =>
+            string.Join(
+                "/",
+                new[]
+                {
+                    testRunnerManager.TestAssembly.GetName().Name,
+                    featureInfo.FolderPath,
+                    EscapeFullNamePart(featureInfo.Title),
+                    EscapeFullNamePart(scenarioTitle)
+                }
+            );
+
+        static string EscapeFullNamePart(string part) =>
+            part.Replace("/", "\\/");
 
         static Status ResolveTestCaseStatus(
             ScenarioContext scenarioContext,
@@ -438,13 +531,18 @@ namespace Allure.SpecFlowPlugin
             var argumentsEnumerator = scenarioInfo.Arguments.GetEnumerator();
             while (argumentsEnumerator.MoveNext())
             {
-                sb.Append(argumentsEnumerator.Key.ToString());
-                sb.Append(argumentsEnumerator.Value.ToString());
+                var key = argumentsEnumerator.Key.ToString();
+                var value = FormatFunctions.Format(
+                    argumentsEnumerator.Value,
+                    AllureLifecycle.Instance.TypeFormatters
+                );
+                sb.Append(key);
+                sb.Append(value);
 
                 parameters.Add(new()
                 {
-                    name = argumentsEnumerator.Key.ToString(),
-                    value = argumentsEnumerator.Value.ToString()
+                    name = key.ToString(),
+                    value = value.ToString()
                 });
             }
             var hash = (parameters.Count > 0)

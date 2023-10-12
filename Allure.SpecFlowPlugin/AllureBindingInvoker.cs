@@ -27,10 +27,13 @@ namespace Allure.SpecFlowPlugin
 
         static readonly AllureLifecycle allure = AllureLifecycle.Instance;
 
+        readonly ITestRunnerManager testRunnerManager;
+
         public AllureBindingInvoker(
             SpecFlowConfiguration specFlowConfiguration,
             IErrorProvider errorProvider,
             ISynchronousBindingDelegateInvoker synchronousBindingDelegateInvoker,
+            ITestRunnerManager testRunnerManager,
             IUnitTestRuntimeProvider unitTestRuntimeProvider
         ) : base(
             specFlowConfiguration,
@@ -38,6 +41,7 @@ namespace Allure.SpecFlowPlugin
             synchronousBindingDelegateInvoker
         )
         {
+            this.testRunnerManager = testRunnerManager;
             AllureSpecFlowPatcher.EnsureTestPlanSupportInjected(
                 unitTestRuntimeProvider
             );
@@ -235,7 +239,7 @@ namespace Allure.SpecFlowPlugin
             catch (Exception ex)
             {
                 var featureContext = contextManager.FeatureContext;
-                ReportFeatureFixtureError(featureContext, ex);
+                this.ReportFeatureFixtureError(featureContext, ex);
                 callLastHook(featureContext);
                 throw;
             }
@@ -252,7 +256,11 @@ namespace Allure.SpecFlowPlugin
             HookBinding hook
         ) =>
             this.MakeFixtureFromScenarioHook(
-                AllureBindings.LastBeforeScenario,
+                (f, s) => AllureBindings.LastBeforeScenario(
+                    this.testRunnerManager,
+                    f,
+                    s
+                ),
                 StartBeforeFixture,
                 binding,
                 contextManager,
@@ -369,7 +377,7 @@ namespace Allure.SpecFlowPlugin
                 )
             );
 
-        static void ReportFeatureFixtureError(
+        void ReportFeatureFixtureError(
             FeatureContext featureContext,
             Exception error
         )
@@ -382,6 +390,7 @@ namespace Allure.SpecFlowPlugin
             if (!featureContext.ContainsKey(PLACEHOLDER_TESTCASE_KEY))
             {
                 PluginHelper.StartTestCase(
+                    this.testRunnerManager,
                     featureContext.FeatureInfo,
                     new ScenarioInfo(
                         "Feature hook failure placeholder",

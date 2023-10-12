@@ -202,12 +202,12 @@ namespace Allure.SpecFlowPlugin.Tests
     {
       var parameters = allureTestResults.Where(x => x.name == "Scenario with examples").SelectMany(x => x.parameters).ToArray();
       Assert.That(parameters,
-        Has.Exactly(1).Items.Matches<Parameter>(x => x.name == "id" && x.value == "1").
-        And.Exactly(1).Items.Matches<Parameter>(x => x.name == "name" && x.value == "John"));
+        Has.Exactly(1).Items.Matches<Parameter>(x => x.name == "id" && x.value == "\"1\"").
+        And.Exactly(1).Items.Matches<Parameter>(x => x.name == "name" && x.value == "\"John\""));
 
       Assert.That(parameters,
-        Has.Exactly(1).Items.Matches<Parameter>(x => x.name == "id" && x.value == "2").
-        And.Exactly(1).Items.Matches<Parameter>(x => x.name == "name" && x.value == "Alex"));
+        Has.Exactly(1).Items.Matches<Parameter>(x => x.name == "id" && x.value == "\"2\"").
+        And.Exactly(1).Items.Matches<Parameter>(x => x.name == "name" && x.value == "\"Alex\""));
     }
 
     [Test]
