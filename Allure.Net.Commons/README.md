@@ -5,6 +5,18 @@ Can be targeted either by legacy .net 4.5+ or .net standard 2.* projects.
 
 Use this library to create custom Allure adapters for .Net test frameworks.
 
+### Note for users of Mac with Apple silicon
+
+If you're developing on a Mac machine with Apple silicon, make sure you have
+Rosetta installed. Follow this article for the instructions:
+https://support.apple.com/en-us/HT211861
+
+You may also install Rosetta via the CLI:
+
+```shell
+/usr/sbin/softwareupdate --install-rosetta --agree-to-license
+```
+
 ### Configuration
 Allure lifecycle is configured via json file with default name `allureConfig.json`. NuGet package installs `allureConfig.Template.json` which you can use as an example. There are 2 ways to specify config file location:
 -  set ALLURE_CONFIG environment variable to the full path of json config file. This option is preferable for .net core projects which utilize nuget libraries directly from nuget packages folder. See this example of setting it via code: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.Commons.NetCore.Tests/AllureConfigTests.cs#L13-L15

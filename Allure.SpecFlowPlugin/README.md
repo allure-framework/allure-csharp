@@ -12,6 +12,18 @@ Please use corresponding NuGet package version.
 Install  [Allure.SpecFlow](https://www.nuget.org/packages/Allure.SpecFlow)
 nuget package according to your Specflow version.
 
+#### For users of Mac with Apple silicon
+
+If you're developing on a Mac machine with Apple silicon, make sure you have
+Rosetta installed. Follow this article for the instructions:
+https://support.apple.com/en-us/HT211861
+
+You may also install Rosetta via the CLI:
+
+```shell
+/usr/sbin/softwareupdate --install-rosetta --agree-to-license
+```
+
 ### Configuration
 
 For Specflow 3 please add or update the following section in your specflow.json:

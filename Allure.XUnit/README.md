@@ -193,6 +193,17 @@ Use [`AllureAttachments`](AllureAttachments.cs) class with its methods. (Attachm
 
 ## Known issues and limitations
 
+### Rosetta is required for users on Mac with Apple silicon
+If you're developing on a Mac machine with Apple silicon, make sure you have
+Rosetta installed. Follow this article for the instructions:
+https://support.apple.com/en-us/HT211861
+
+You may also install Rosetta via the CLI:
+
+```shell
+/usr/sbin/softwareupdate --install-rosetta --agree-to-license
+```
+
 ### allureConfig.json is required even if no config properties are present
 
 The configuration file must be present in the output directory. Allure.XUnit
