@@ -30,6 +30,11 @@ jobs:
       - name: 'Build project using dotnet'
         run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration ${{ env.BUILD_CONFIGURATION }} -p:ContinuousIntegrationBuild=true
 
+      - name: Reduce AspectInjector requirement to 2.8.1
+        run: |
+            dotnet add Allure.Net.Commons package AspectInjector --version 2.8.1
+            dotnet add Allure.XUnit package AspectInjector --version 2.8.1
+
       - name: 'Pack project'
         run: dotnet pack ${{ env.SOLUTION_PATH }} --no-restore --no-build --configuration ${{ env.BUILD_CONFIGURATION }} -p:PackageOutputPath=${{ env.PACKAGE_OUTPUT_PATH }}
 
