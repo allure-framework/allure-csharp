@@ -30,6 +30,7 @@ jobs:
       - name: 'Build project using dotnet'
         run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration ${{ env.BUILD_CONFIGURATION }} -p:ContinuousIntegrationBuild=true
 
+        # Lower AspectInjector requirement for users of the packages to workaround #391 (build crash on macOS arm machines)
       - name: Reduce AspectInjector requirement to 2.8.1
         run: |
             dotnet add Allure.Net.Commons package AspectInjector --version 2.8.1
