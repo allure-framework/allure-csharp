@@ -1,4 +1,4 @@
 ﻿{
-  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/identifiers-fix/Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json",
+  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.10.0/Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json",
   "allure": {}
 }

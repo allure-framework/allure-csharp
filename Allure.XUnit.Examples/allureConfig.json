@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/identifiers-fix/Allure.XUnit/Schemas/allureConfig.schema.json",
+  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.10.0/Allure.XUnit/Schemas/allureConfig.schema.json",
   "allure": {
     "directory": "allure-results",
     "links": [
