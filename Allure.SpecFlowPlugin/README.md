@@ -241,3 +241,13 @@ AllureLifecycle.Instance.AddAttachment(path, "Attachment Title");
 AllureLifecycle.Instance.AddAttachment("Attachment Title", "application/txt", "path");
 // where "application/txt" - type of your attachment
 ```
+
+### Known issues
+
+#### Selective run might not work
+
+Under rare circumstances selective run feature might not work.
+Issue [#369] contains some additional details.
+
+If you are affected by this, you may try to switch to the `Debug` configuration
+as a workaround until we come up with a solution.

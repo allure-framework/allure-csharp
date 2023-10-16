@@ -9,16 +9,15 @@ with .NET Standard 2.1.
 
 ## How to run
 
-Install the Allure.XUnit package and create `allureConfig.json`. Here is the
-basic content of the config:
+Install the Allure.XUnit package and run the tests normally. In many cases
+allure should start automatically. The result files are created in the
+`allure-results` directory in the target directory.
+If that didn't happen, check out the `Running tests in a CI pipeline` section.
 
-```json
-{
-    "allure": {}
-}
-```
+### Configuration
 
-Make sure the config is copied to the output directory:
+If you need to configure allure-xunit, create `allureConfig.json` and make sure
+it is copied to the output directory:
 
   - In Visual Studio select the file and set the following properties:
       - Build Action: Content
@@ -33,10 +32,18 @@ Make sure the config is copied to the output directory:
     </ItemGroup>
     ```
 
-Then, run the tests as usual. In many cases allure should start automatically.
-The result files are created in the `allure-results` directory in the
-target directory.
-If that didn't happen, check out the `Running tests in a CI pipeline` section.
+An example of the config:
+
+```json
+{
+    "allure": {
+        "allure-directory": "allure-results",
+        "links": [
+            "https://github.com/allure-framework/allure-csharp/issues/{issue}"
+        ]
+    }
+}
+```
 
 ### Running tests in a CI pipeline
 
@@ -204,13 +211,6 @@ You may also install Rosetta via the CLI:
 /usr/sbin/softwareupdate --install-rosetta --agree-to-license
 ```
 
-### allureConfig.json is required even if no config properties are present
-
-The configuration file must be present in the output directory. Allure.XUnit
-throws otherwise. This requirement will be lifted in the near future.
-
-Here is the issue to track the progress: [#381].
-
 ### Arguments of some theories might be unreported
 
 Under rare circumstances arguments of some theories might be missing in the
@@ -218,6 +218,14 @@ report produced by allure-xunit. Issue [#369] contains some additional details.
 
 If you are affected by this, you may switch to the `Debug` configuration as a
 workaround until we come up with a solution.
+
+### Selective run might not work
+
+Under rare circumstances selective run feature might not work.
+Issue [#369] contains some additional details.
+
+If you are affected by this, you may try to switch to the `Debug` configuration
+as a workaround until we come up with a solution.
 
 ## Examples
 
