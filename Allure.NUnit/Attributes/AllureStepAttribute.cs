@@ -1,19 +1,12 @@
-﻿using System;
-using AspectInjector.Broker;
-using NUnit.Allure.Core.Steps;
+﻿using Allure.Net.Commons.Steps;
+using NUnit.Allure.Core;
 
 namespace NUnit.Allure.Attributes
 {
-    [Injection(typeof(AllureStepAspect))]
-    [AttributeUsage(AttributeTargets.Method)]
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class AllureStepAttribute : Attribute
+    public class AllureStepAttribute : AllureStepAttributes.AbstractStepAttribute
     {
-        public AllureStepAttribute(string name = "")
+        public AllureStepAttribute(string name = null) : base(name, AllureNUnitHelper.ExceptionTypes)
         {
-            StepName = name;
         }
-
-        public string StepName { get; }
     }
 }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Allure.Net.Commons.Steps;
+using Xunit.Sdk;
 
 namespace Allure.XUnit
 {

@@ -1,0 +1,38 @@
+<Project>
+    <!-- Metadata -->
+    <PropertyGroup>
+        <Version>2.11-SNAPSHOT</Version>
+        <Company>Qameta Software</Company>
+        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <!-- Common projects' properties -->
+    <PropertyGroup>
+        <LangVersion>11</LangVersion>
+        <IsPackable>false</IsPackable>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    </PropertyGroup>
+
+    <!-- Signing properties -->
+    <PropertyGroup>
+        <SignAssembly>false</SignAssembly>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)key.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
+
+    <!-- Debug properties -->
+    <PropertyGroup>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+
+    <!-- Enable SourceLink for all projects -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    </ItemGroup>
+</Project>

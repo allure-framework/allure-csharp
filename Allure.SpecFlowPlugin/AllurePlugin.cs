@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Allure.SpecFlowPlugin;
+﻿using Allure.SpecFlowPlugin;
 using TechTalk.SpecFlow.Bindings;
 using TechTalk.SpecFlow.Plugins;
 using TechTalk.SpecFlow.Tracing;
@@ -12,14 +10,19 @@ namespace Allure.SpecFlowPlugin
 {
     public class AllurePlugin : IRuntimePlugin
     {
-        public void Initialize(RuntimePluginEvents runtimePluginEvents, RuntimePluginParameters runtimePluginParameters,
-            UnitTestProviderConfiguration unitTestProviderConfiguration)
+        public void Initialize(
+            RuntimePluginEvents runtimePluginEvents,
+            RuntimePluginParameters runtimePluginParameters,
+            UnitTestProviderConfiguration unitTestProviderConfiguration
+        )
         {
-            runtimePluginEvents.CustomizeGlobalDependencies += (sender, args) =>
-                args.ObjectContainer.RegisterTypeAs<AllureBindingInvoker, IBindingInvoker>();
+            runtimePluginEvents.CustomizeGlobalDependencies +=
+                (sender, args) => args.ObjectContainer
+                    .RegisterTypeAs<AllureBindingInvoker, IBindingInvoker>();
 
-            runtimePluginEvents.CustomizeTestThreadDependencies += (sender, args) =>
-                args.ObjectContainer.RegisterTypeAs<AllureTestTracerWrapper, ITestTracer>();
+            runtimePluginEvents.CustomizeTestThreadDependencies +=
+                (sender, args) => args.ObjectContainer
+                    .RegisterTypeAs<AllureTestTracerWrapper, ITestTracer>();
         }
     }
 }

@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
-using Allure.Xunit;
 using HeyRed.Mime;
 
 namespace Allure.XUnit

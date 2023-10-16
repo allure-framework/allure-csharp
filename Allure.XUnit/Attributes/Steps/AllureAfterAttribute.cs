@@ -1,11 +1,11 @@
-using AspectInjector.Broker;
+using Allure.Net.Commons.Steps;
+using Allure.Xunit;
 
 namespace Allure.XUnit.Attributes.Steps
 {
-    [Injection(typeof(AllureStepAspect))]
-    public class AllureAfterAttribute : AllureStepBaseAttribute
+    public class AllureAfterAttribute : AllureStepAttributes.AbstractAfterAttribute
     {
-        public AllureAfterAttribute(string name = null) : base(name)
+        public AllureAfterAttribute(string name = null) : base(name, AllureXunitHelper.ExceptionTypes)
         {
         }
     }

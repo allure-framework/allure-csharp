@@ -1,23 +1,14 @@
 using System;
-using Allure.Net.Commons;
+using Allure.Net.Commons.Steps;
 
 namespace Allure.Xunit
 {
     public sealed class AllureAfter : AllureStepBase<AllureAfter>
     {
         [Obsolete("Use AllureAfterAttribute")]
-        public AllureAfter(string name) : base(Init(name))
+        public AllureAfter(string name)
         {
-        }
-
-        /// <summary>
-        /// Starts After fixture and return it's UUID
-        /// </summary>
-        /// <param name="name">The name of created fixture</param>
-        /// <returns>string: UUID</returns>
-        private static string Init(string name)
-        {
-            return Steps.StartAfterFixture(name);
+            CoreStepsHelper.StartAfterFixture(name);
         }
     }
 }

@@ -1,0 +1,126 @@
+﻿{
+  "allOf": [
+    {
+      "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/identifiers-fix/Allure.Net.Commons/Schemas/allureConfig.schema.json"
+    }
+  ],
+  "properties": {
+    "specflow": {
+      "type": "object",
+      "properties": {
+        "stepArguments": {
+          "type": "object",
+          "properties": {
+            "convertToParameters": {
+              "description": "If set to true, allure-specflow converts a step table data to step parameters.",
+              "oneOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string",
+                  "enum": [ "true", "false" ]
+                }
+              ],
+              "default": false
+            },
+            "paramNameRegex": {
+              "type": "string",
+              "description": "If convertToParameters is true, allure-specflow checks if the first column header of a step table matches this regular expression. If it's not, the table is skipped.'"
+            },
+            "paramValueRegex": {
+              "type": "string",
+              "description": "If convertToParameters is true, allure-specflow checks if the second column header of a step table matches this regular expression. If it's not, the table is skipped.'"
+            }
+          }
+        },
+        "grouping": {
+          "type": "object",
+          "properties": {
+            "suites": {
+              "type": "object",
+              "properties": {
+                "parentSuite": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the parentSuite label. If there is a capture group defined, only the part matching this group is used as parentSuite. Otherwise, the whole tag is used."
+                },
+                "suite": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the suite label. If there is a capture group defined, only the part matching this group is used as suite. Otherwise, the whole tag is used."
+                },
+                "subSuite": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the subSuite label. If there is a capture group defined, only the part matching this group is used as subSuite. Otherwise, the whole tag is used."
+                }
+              }
+            },
+            "behaviors": {
+              "type": "object",
+              "properties": {
+                "epic": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the epic label. If there is a capture group defined, only the part matching this group is used as epic. Otherwise, the whole tag is used."
+                },
+                "story": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the story label. If there is a capture group defined, only the part matching this group is used as story. Otherwise, the whole tag is used."
+                }
+              }
+            },
+            "packages": {
+              "type": "object",
+              "properties": {
+                "package": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the package label. If there is a capture group defined, only the part matching this group is used as package. Otherwise, the whole tag is used."
+                },
+                "testClass": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the testClass label. If there is a capture group defined, only the part matching this group is used as testClass. Otherwise, the whole tag is used."
+                },
+                "testMethod": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the testMethod label. If there is a capture group defined, only the part matching this group is used as testMethod. Otherwise, the whole tag is used."
+                }
+              }
+            }
+          }
+        },
+        "labels": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "type": "string",
+              "description": "If a gherkin tag matches this regular expression, it's converted to the owner label. If there is a capture group defined, only the part matching this group is used as owner. Otherwise, the whole tag is used."
+            },
+            "severity": {
+              "type": "string",
+              "description": "If a gherkin tag matches this regular expression, it's converted to the severity label. If there is a capture group defined, only the part matching this group is used as severity. Otherwise, the whole tag is used."
+            },
+            "label": {
+              "type": "string",
+              "description": "If a gherkin tag matches this regular expression, it's converted to the specified label. You must define two capture groups in the expression. The first one is used to match a name of the label, while the second one is used to match a value."
+            }
+          }
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "link": {
+              "type": "string",
+              "description": "If a gherkin tag matches this regular expression, it's converted to a link. If there is a capture group defined, only the part matching this group is used as a link's value. Otherwise, the whole tag is used."
+            },
+            "issue": {
+              "type": "string",
+              "description": "If a gherkin tag matches this regular expression, it's converted to an issue link. If there is a capture group defined, only the part matching this group is used as a link's value. Otherwise, the whole tag is used."
+            },
+            "tms": {
+              "type": "string",
+              "description": "If a gherkin tag matches this regular expression, it's converted to a TMS item link. If there is a capture group defined, only the part matching this group is used as a link's value. Otherwise, the whole tag is used."
+            }
+          }
+        }
+      }
+    }
+  }
+}

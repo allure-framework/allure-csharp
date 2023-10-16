@@ -1,4 +1,5 @@
 using System;
+using Allure.XUnit.Attributes;
 
 namespace Allure.Xunit.Attributes
 {

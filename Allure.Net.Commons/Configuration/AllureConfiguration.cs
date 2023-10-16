@@ -21,6 +21,7 @@ namespace Allure.Net.Commons.Configuration
         public string Title { get; }
         public string Directory { get; } = "allure-results";
         public HashSet<string> Links { get; } = new HashSet<string>();
+        public bool UseLegacyIds { get; set; } = false;
 
         public static AllureConfiguration ReadFromJObject(JObject jObject)
         {

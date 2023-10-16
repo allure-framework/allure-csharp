@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Allure.Xunit.Attributes;
 using Allure.XUnit.Attributes.Steps;
 using Xunit;
@@ -12,12 +11,12 @@ public class ExampleStepAttributes : IDisposable
     [AllureBefore("Initialization in constructor")]
     public ExampleStepAttributes()
     {
-        AddAttachment();
-        NestedStep(1);
+        // AddAttachment();
+        // NestedStep(1);
         NestedStepReturningString("Second");
     }
 
-    [AllureXunit]
+    [Fact]
     public void Test()
     {
         WriteHelloStep(42, 4242, "secret");
@@ -26,21 +25,21 @@ public class ExampleStepAttributes : IDisposable
         SomeStep();
     }
 
-    [AllureXunit]
+    [Fact]
     public void TestSecond()
     {
         SomeStep();
     }
 
-    [AllureXunit(DisplayName = "This test should be red")]
+    [Fact(DisplayName = "This test should be red")]
     public void TestFailed()
     {
         SomeStep();
         FailingStep();
         SomeStep();
     }
-    
-    [AllureXunit(DisplayName = "This test should be yellow")]
+
+    [Fact(DisplayName = "This test should be yellow")]
     public void TestBroken()
     {
         SomeStep();
@@ -61,7 +60,7 @@ public class ExampleStepAttributes : IDisposable
         Attachments.Text("Json file", "{\"id\":42,\"name\":\"Allure.XUnit\"}");
     }
 
-    [AllureStep("Another nested step with \"{input}\"")]
+    [AllureStep("Another nested step with {input}")]
     private string NestedStepReturningString([Name("Input text parameter")] string input)
     {
         Assert.True(true);
@@ -85,7 +84,7 @@ public class ExampleStepAttributes : IDisposable
     {
         Assert.True(false);
     }
-    
+
     [AllureStep("Check that everytime you call this step it will throw an exception")]
     private void ExceptionStep()
     {

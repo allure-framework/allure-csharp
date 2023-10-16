@@ -1,10 +1,12 @@
+using System;
+using System.ComponentModel;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Allure.Xunit.Attributes
 {
-    [XunitTestCaseDiscoverer("Allure.Xunit.AllureXunitTheoryDiscover", "Allure.Xunit")]
-    public class AllureXunitTheoryAttribute : FactAttribute
+    [Obsolete("Use [Xunit.Theory] instead")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class AllureXunitTheoryAttribute : TheoryAttribute
     {
     }
 }

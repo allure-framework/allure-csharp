@@ -4,56 +4,58 @@ using TechTalk.SpecFlow;
 namespace Allure.SpecFlowPlugin
 {
     [Binding]
-    public class AllureBindings
+    public static class AllureBindings
     {
-        private static readonly AllureLifecycle allure = AllureLifecycle.Instance;
-
-        private readonly FeatureContext featureContext;
-        private readonly ScenarioContext scenarioContext;
-
-        public AllureBindings(FeatureContext featureContext, ScenarioContext scenarioContext)
-        {
-            this.featureContext = featureContext;
-            this.scenarioContext = scenarioContext;
-        }
+        static readonly AllureLifecycle allure = AllureLifecycle.Instance;
 
         [BeforeFeature(Order = int.MinValue)]
-        public static void FirstBeforeFeature()
-        {
-            // start feature container in BindingInvoker
-        }
+        public static void FirstBeforeFeature(FeatureContext featureContext) =>
+            // Capturing the context allows us to access the container later in
+            // AfterFeature hooks (it's executed by SpecFlow in a different
+            // execution context).
+            PluginHelper.CaptureAllureContext(
+                featureContext,
+                () => allure.StartTestContainer(new()
+                {
+                    uuid = PluginHelper.GetFeatureContainerId(
+                        featureContext.FeatureInfo
+                    )
+                })
+            );
 
         [AfterFeature(Order = int.MaxValue)]
-        public static void LastAfterFeature()
-        {
-            // write feature container in BindingInvoker
-        }
+        public static void LastAfterFeature() =>
+            allure
+                .StopTestContainer()
+                .WriteTestContainer();
 
         [BeforeScenario(Order = int.MinValue)]
-        public void FirstBeforeScenario()
-        {
-            PluginHelper.StartTestContainer(featureContext, scenarioContext);
-            //AllureHelper.StartTestCase(scenarioContainer.uuid, featureContext, scenarioContext);
-        }
+        public static void FirstBeforeScenario() =>
+            PluginHelper.StartTestContainer();
 
         [BeforeScenario(Order = int.MaxValue)]
-        public void LastBeforeScenario()
-        {
-            // start scenario after last fixture and before the first step to have valid current step context in allure storage
-            var scenarioContainer = PluginHelper.GetCurrentTestConainer(scenarioContext);
-            PluginHelper.StartTestCase(scenarioContainer.uuid, featureContext, scenarioContext);
-        }
+        public static void LastBeforeScenario(
+            ITestRunnerManager testRunnerManager,
+            FeatureContext featureContext,
+            ScenarioContext scenarioContext
+        ) =>
+            PluginHelper.StartTestCase(
+                testRunnerManager,
+                featureContext.FeatureInfo,
+                scenarioContext
+            );
 
         [AfterScenario(Order = int.MinValue)]
-        public void FirstAfterScenario()
-        {
-            var scenarioId = PluginHelper.GetCurrentTestCase(scenarioContext).uuid;
+        public static void FirstAfterScenario() => allure.StopTestCase();
 
-            // update status to passed if there were no step of binding failures
-            allure
-                .UpdateTestCase(scenarioId,
-                    x => x.status = x.status != Status.none ? x.status : Status.passed)
-                .StopTestCase(scenarioId);
-        }
+        [AfterScenario(Order = int.MaxValue)]
+        public static void LastAfterScenario(
+            ScenarioContext scenarioContext
+        ) =>
+            allure.UpdateTestCase(
+                PluginHelper.TestStatusResolver(scenarioContext)
+            ).WriteTestCase()
+                .StopTestContainer()
+                .WriteTestContainer();
     }
 }

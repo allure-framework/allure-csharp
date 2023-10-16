@@ -1,0 +1,22 @@
+﻿{
+  "allOf": [
+    {
+      "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/identifiers-fix/Allure.Net.Commons/Schemas/allureConfig.schema.json"
+    }
+  ],
+  "properties": {
+    "allure": {
+      "properties": {
+        "brokenTestData": {
+          "type": "array",
+          "description": "A list of exceptions type names. If any of them is thrown, the test is marked as broken. Otherwise, the test state is determined by the inner logic of allure-nunit.",
+          "items": {
+            "type": "string",
+            "description": "The full class name of an exception type.",
+            "examples": [ "System.Exception" ]
+          }
+        }
+      }
+    }
+  }
+}
