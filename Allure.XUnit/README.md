@@ -67,7 +67,7 @@ Or use a `.runsettings` file:
 <RunSettings>
   <RunConfiguration>
     <ReporterSwitch>allure</ReporterSwitch>
-  </<RunConfiguration>
+  </RunConfiguration>
 </RunSettings>
 ```
 
