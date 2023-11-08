@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Allure.Net.Commons.Tests.AssertionHelpers;
 
-class LinksEqualityComparer : IEqualityComparer<Link>
+class LinkEqualityComparer : IEqualityComparer<Link>
 {
     public bool Equals(Link x, Link y) =>
         Equals(x.name, y.name) && Equals(x.type, y.type) && Equals(x.url, y.url);

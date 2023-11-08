@@ -555,6 +555,8 @@ namespace Allure.Net.Commons
         private string _name;
 
         private string _value;
+
+        private bool _excluded;
         #endregion
 
         public string name
@@ -578,6 +580,18 @@ namespace Allure.Net.Commons
             set
             {
                 this._value = value;
+            }
+        }
+
+        public bool excluded
+        {
+            get
+            {
+                return this._excluded;
+            }
+            set
+            {
+                this._excluded = value;
             }
         }
     }

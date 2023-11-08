@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Allure.Net.Commons.Tests.AssertionHelpers;
 
-class LabelsEqualityComparer : IEqualityComparer<Label>
+class LabelEqualityComparer : IEqualityComparer<Label>
 {
     public bool Equals(Label x, Label y) => 
         Equals(x.name, y.name) && Equals(x.value, y.value);

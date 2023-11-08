@@ -921,6 +921,202 @@ public static class AllureApi
 
     #endregion
 
+    #region Parameters
+
+    /// <summary>
+    /// Adds a new test parameter or updates the value of the existing
+    /// parameter.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of a new or existing parameter.</param>
+    /// <param name="value">
+    /// The value of the new parameter, or the new value of the existing
+    /// parameter. The value is converted to the string using JSON
+    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
+    /// suitable type formatter to customize the serialization.
+    /// </param>
+    public static void SetTestParameter(string name, object? value) =>
+        SetTestParameter(
+            name,
+            p => p.value = GetParameterValue(value),
+            value,
+            null,
+            false
+        );
+
+    /// <summary>
+    /// Adds a new test parameter or updates the value and the display mode
+    /// of the existing parameter.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of the new or existing parameter.</param>
+    /// <param name="value">
+    /// The value of the new parameter, or the new value of the existing
+    /// parameter. The value is converted to the string using JSON
+    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
+    /// suitable type formatter to customize the serialization.
+    /// </param>
+    /// <param name="mode">
+    /// The display mode of the new parameter, or the new display mode of the
+    /// existing parameter.
+    /// </param>
+    public static void SetTestParameter(string name, object? value, ParameterMode mode) =>
+        SetTestParameter(
+            name,
+            p =>
+            {
+                p.value = GetParameterValue(value);
+                p.mode = mode;
+            },
+            value,
+            mode,
+            false
+        );
+
+    /// <summary>
+    /// Adds a new test parameter or updates the value and the exclusion flag
+    /// of the existing parameter.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of the new or existing parameter.</param>
+    /// <param name="value">
+    /// The value of the new parameter, or the new value of the existing
+    /// parameter. The value is converted to the string using JSON
+    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
+    /// suitable type formatter to customize the serialization.
+    /// </param>
+    /// <param name="excluded">
+    /// The exclusion flag of the new parameter, or the new exclusion flag of
+    /// the existing parameter.
+    /// </param>
+    public static void SetTestParameter(string name, object? value, bool excluded) =>
+        SetTestParameter(
+            name,
+            p =>
+            {
+                p.value = GetParameterValue(value);
+                p.excluded = excluded;
+            },
+            value,
+            null,
+            excluded
+        );
+
+    /// <summary>
+    /// Adds a new test parameter or updates all properties of the existing
+    /// parameter.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of the new or existing parameter.</param>
+    /// <param name="value">
+    /// The value of the new parameter, or the new value of the existing
+    /// parameter. The value is converted to the string using JSON
+    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
+    /// suitable type formatter to customize the serialization.
+    /// </param>
+    /// <param name="mode">
+    /// The display mode of the new parameter, or the new display mode of the
+    /// existing parameter.
+    /// </param>
+    /// <param name="excluded">
+    /// The exclusion flag of the new parameter, or the new exclusion flag of
+    /// the existing parameter.
+    /// </param>
+    public static void SetTestParameter(
+        string name,
+        object? value,
+        ParameterMode? mode,
+        bool excluded
+    ) =>
+        SetTestParameter(new()
+        {
+            name = name,
+            value = GetParameterValue(value),
+            mode = mode,
+            excluded = excluded
+        });
+
+    /// <summary>
+    /// Adds or replaced a test parameter.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="parameter">
+    /// A new parameter. If the parameter with the same name already exists,
+    /// it's removed first.
+    /// </param>
+    public static void SetTestParameter(Parameter parameter)
+    {
+        CurrentLifecycle.UpdateTestCase(
+            t =>
+            {
+                t.parameters.RemoveAll(p => p.name == parameter.name);
+                t.parameters.Add(parameter);
+            }
+        );
+    }
+
+    /// <summary>
+    /// Updates the existing test parameter. Throws, if the paramter doesn't
+    /// exist in the test context.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of the parameter to update.</param>
+    /// <param name="mode">The new display mode of the parameter.</param>
+    /// <param name="excluded">The new exclusion flag of the parameter.</param>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static void UpdateTestParameter(string name, ParameterMode? mode = null, bool? excluded = null) =>
+        CurrentLifecycle.UpdateTestCase(t =>
+        {
+            var parameter = t.parameters.FirstOrDefault(p => p.name == name);
+            if (parameter is null)
+            {
+                throw new InvalidOperationException(
+                    $"The parameter '{name}' doesn't exist in the current test."
+                );
+            }
+
+            if (mode is not null)
+            {
+                parameter.mode = mode.Value;
+            }
+
+            if (excluded is not null)
+            {
+                parameter.excluded = excluded.Value;
+            }
+
+        });
+
+    #endregion
+
+    static void SetTestParameter(
+        string name,
+        Action<Parameter> updateExistingParameter,
+        object? value,
+        ParameterMode? mode,
+        bool excluded
+    ) =>
+        CurrentLifecycle.UpdateTestCase(t =>
+        {
+            if (t.parameters.FirstOrDefault(p => p.name == name) is Parameter parameter)
+            {
+                updateExistingParameter(parameter);
+            }
+            else
+            {
+                t.parameters.Add(new()
+                {
+                    name = name,
+                    value = FormatFunctions.Format(value, CurrentLifecycle.TypeFormatters),
+                    mode = mode,
+                    excluded = excluded
+                });
+            }
+        });
+
+    static string GetParameterValue(object? value) =>
+        FormatFunctions.Format(value, CurrentLifecycle.TypeFormatters);
+
     static T ExecuteStep<T>(string name, Func<T> action) =>
         ExecuteAction(
             name,

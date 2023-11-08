@@ -109,6 +109,7 @@
         <xsd:all>
             <xsd:element name="name" type="xsd:string"/>
             <xsd:element name="value" type="xsd:string"/>
+            <xsd:element name="excluded" type="xsd:boolean"/>
         </xsd:all>
     </xsd:complexType>
 

@@ -12,7 +12,9 @@ class AllureApiTestFixture
     [SetUp]
     public void SetUp()
     {
-        this.lifecycle = new AllureLifecycle();
+        this.lifecycle = new AllureLifecycle(
+            _ => new InMemoryResultsWriter()
+        );
         AllureApi.CurrentLifecycle = lifecycle;
     }
 
@@ -26,7 +28,7 @@ class AllureApiTestFixture
     {
         Assert.That(
             this.lifecycle.Context.CurrentTest.labels,
-            Is.EqualTo(expectedLabels).Using(new LabelsEqualityComparer())
+            Is.EqualTo(expectedLabels).Using(new LabelEqualityComparer())
         );
     }
 
@@ -34,7 +36,15 @@ class AllureApiTestFixture
     {
         Assert.That(
             this.lifecycle.Context.CurrentTest.links,
-            Is.EqualTo(expectedLinks).Using(new LinksEqualityComparer())
+            Is.EqualTo(expectedLinks).Using(new LinkEqualityComparer())
+        );
+    }
+
+    protected void AssertParameters(params Parameter[] expectedParameters)
+    {
+        Assert.That(
+            this.lifecycle.Context.CurrentTest.parameters,
+            Is.EqualTo(expectedParameters).Using(new ParameterEqualityComparer())
         );
     }
 }

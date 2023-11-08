@@ -1,5 +1,7 @@
 ﻿using System;
 
+#pragma warning disable IDE1006
+
 namespace Allure.Net.Commons
 {
     /// <summary>
@@ -56,6 +58,28 @@ namespace Allure.Net.Commons
         public const string LINK = "link";
         public const string ISSUE = "issue";
         public const string TMS_ITEM = "tms";
+    }
+
+    /// <summary>
+    /// The parameter display modes.
+    /// </summary>
+    public enum ParameterMode
+    {
+        /// <summary>
+        /// The parameter's value is revealed.
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// The parameter's value is masked with placeholder characters.
+        /// </summary>
+        Masked,
+
+        /// <summary>
+        /// The parameter isn't shown in the report at all (but is still used
+        /// to correlate the history of the test's runs).
+        /// </summary>
+        Hidden
     }
 
     public partial class TestResultContainer
@@ -216,5 +240,10 @@ namespace Allure.Net.Commons
         {
             return Tms(null, url);
         }
+    }
+
+    public partial class Parameter
+    {
+        public ParameterMode? mode { get; set; }
     }
 }
