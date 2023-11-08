@@ -19,10 +19,10 @@ namespace Allure.NUnit.Examples
         [Test]
         public void CommonDynamicLabelTest()
         {
-            AllureLifecycle.Instance.UpdateTestCase(t => t.labels.Add(Label.Epic("dynamic epic")));
-            AllureLifecycle.Instance.UpdateTestCase(t => t.labels.Add(Label.Feature("dynamic feature")));
-            AllureLifecycle.Instance.UpdateTestCase(t => t.labels.Add(Label.Story("dynamic story")));
-            AllureLifecycle.Instance.UpdateTestCase(t => t.labels.Add(Label.Owner("dynamic owner")));
+            AllureApi.AddEpic("dynamic epic");
+            AllureApi.AddFeature("dynamic feature");
+            AllureApi.AddStory("dynamic story");
+            AllureApi.SetOwner("dynamic owner");
         }
 
         [Test]
@@ -34,8 +34,7 @@ namespace Allure.NUnit.Examples
         [Test]
         public void CustomDynamicLabelTest()
         {
-            AllureLifecycle.Instance.UpdateTestCase(t =>
-                t.labels.Add(new Label {name = "custom", value = "dynamic value"}));
+            AllureApi.AddLabel("custom", "dynamic value");
         }
     }
 }

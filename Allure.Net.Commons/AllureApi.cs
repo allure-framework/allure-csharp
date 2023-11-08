@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Steps;
@@ -21,6 +22,362 @@ public static class AllureApi
         get => lifecycleInstance ?? AllureLifecycle.Instance;
         set => lifecycleInstance = value;
     }
+
+    #region Metadata
+
+    /// <summary>
+    /// Sets the name of the current test or fixture.
+    /// </summary>
+    /// <remarks>Requires the test or the fixture context to be active.</remarks>
+    /// <param name="newName">The new name of the test or fixture.</param>
+    public static void SetName(string newName)
+    {
+        void updateItem(ExecutableItem item) => item.name = newName;
+        if (CurrentLifecycle.Context.HasFixture)
+        {
+            CurrentLifecycle.UpdateFixture(updateItem);
+        }
+        else
+        {
+            CurrentLifecycle.UpdateTestCase(updateItem);
+        }
+    }
+
+    /// <summary>
+    /// Sets the description of the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="description">The description of the test.</param>
+    public static void SetDescription(string description) =>
+        CurrentLifecycle.UpdateTestCase(tr => tr.description = description);
+
+    /// <summary>
+    /// Sets the description of the current test. Allows HTML to be used.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="descriptionHtml">
+    /// The description in the HTML format.
+    /// </param>
+    public static void SetDescriptionHtml(string descriptionHtml) =>
+        CurrentLifecycle.UpdateTestCase(tr => tr.descriptionHtml = descriptionHtml);
+
+    /// <summary>
+    /// Adds new labels to the test's list of labels.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="labels">The labels to add.</param>
+    public static void AddLabels(params Label[] labels) =>
+        CurrentLifecycle.UpdateTestCase(tr => tr.labels.AddRange(labels));
+
+    /// <summary>
+    /// Adds a label to the current test result. Optionally removes all other
+    /// labels with the same name.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of the label to add.</param>
+    /// <param name="value">The value of the label to add.</param>
+    /// <param name="overwrite">
+    /// If set to true, removes existing labels with the same name before
+    /// adding the new one.
+    /// </param>
+    public static void AddLabel(string name, string value, bool overwrite = false) =>
+        AddLabel(new() { name = name, value = value }, overwrite);
+
+    /// <summary>
+    /// Adds a label to the current test result. Optionally removes all other
+    /// labels with the same name.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newLabel">The new label of the test.</param>
+    /// <param name="overwrite">
+    /// If set to true, removes existing labels with the same name before
+    /// adding the new one.
+    /// </param>
+    public static void AddLabel(Label newLabel, bool overwrite = false)
+    {
+        var name = newLabel.name;
+        void AppendLabelToTest(TestResult tr) =>
+            tr.labels.Add(newLabel);
+
+        void OverwriteLabelsOfTest(TestResult tr)
+        {
+            tr.labels.RemoveAll(l => l.name == name);
+            AppendLabelToTest(tr);
+        }
+
+        CurrentLifecycle.UpdateTestCase(
+            overwrite ? OverwriteLabelsOfTest : AppendLabelToTest
+        );
+    }
+
+    /// <summary>
+    /// Sets the current test's severity.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="severity">The new severity level of the test.</param>
+    public static void SetSeverity(SeverityLevel severity) =>
+        AddLabel(
+            Label.Severity(severity),
+            overwrite: true
+        );
+
+    /// <summary>
+    /// Sets the current test's owner.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="owner">The new owner of the test.</param>
+    public static void SetOwner(string owner) =>
+        AddLabel(
+            Label.Owner(owner),
+            overwrite: true
+        );
+
+    /// <summary>
+    /// Sets the current test's ID.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="allureId">The new ID of the test case.</param>
+    public static void SetAllureId(int allureId) =>
+        AddLabel(
+            Label.AllureId(allureId),
+            overwrite: true
+        );
+
+    /// <summary>
+    /// Adds tags to the current test.
+    /// </summary>
+    /// <param name="tags">The new tags.</param>
+    public static void AddTags(params string[] tags) =>
+        AddLabels(
+            tags.Select(Label.Tag).ToArray()
+        );
+
+    #endregion
+
+    #region Suites
+
+    /// <summary>
+    /// Adds an additional parent suite to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="additionalParentSuite">The parent suite to be added.</param>
+    public static void AddParentSuite(string additionalParentSuite) =>
+        AddLabel(
+            Label.ParentSuite(additionalParentSuite)
+        );
+
+    /// <summary>
+    /// Sets the parent suite of the current test. Existing parent suites
+    /// will be removed.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newParentSuite">The new parent suite.</param>
+    public static void SetParentSuite(string newParentSuite) =>
+        AddLabel(
+            Label.ParentSuite(newParentSuite),
+            overwrite: true
+        );
+
+    /// <summary>
+    /// Adds an additional suite to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="additionalSuite">The suite to be added.</param>
+    public static void AddSuite(string additionalSuite) =>
+        AddLabel(
+            Label.Suite(additionalSuite)
+        );
+
+    /// <summary>
+    /// Sets the suite of the current test. Existing suites will be
+    /// removed.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newSuite">The new suite.</param>
+    public static void SetSuite(string newSuite) =>
+        AddLabel(
+            Label.Suite(newSuite),
+            overwrite: true
+        );
+
+    /// <summary>
+    /// Adds an additional sub-suite to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="additionalSubSuite">The sub-suite to be added.</param>
+    public static void AddSubSuite(string additionalSubSuite) =>
+        AddLabel(
+            Label.SubSuite(additionalSubSuite)
+        );
+
+    /// <summary>
+    /// Sets the sub-suite of the current test. Existing sub-suites will be
+    /// removed.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newSubSuite">The new sub-suite.</param>
+    public static void SetSubSuite(string newSubSuite) =>
+        AddLabel(
+            Label.SubSuite(newSubSuite),
+            overwrite: true
+        );
+
+    #endregion
+
+    #region BDD-labels
+
+    /// <summary>
+    /// Adds an additional epic to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="additionalEpic">The epic to be added.</param>
+    public static void AddEpic(string additionalEpic) =>
+        AddLabel(
+            Label.Epic(additionalEpic)
+        );
+
+    /// <summary>
+    /// Sets the epic of the current test. Existing epics will be removed.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newEpic">The new epic.</param>
+    public static void SetEpic(string newEpic) =>
+        AddLabel(
+            Label.Epic(newEpic),
+            overwrite: true
+        );
+
+    /// <summary>
+    /// Adds an additional feature to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="additionalFeature">The feature to be added.</param>
+    public static void AddFeature(string additionalFeature) =>
+        AddLabel(
+            Label.Feature(additionalFeature)
+        );
+
+    /// <summary>
+    /// Sets the feature of the current test. Existing features will be removed.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newFeature">The new feature.</param>
+    public static void SetFeature(string newFeature) =>
+        AddLabel(
+            Label.Feature(newFeature),
+            overwrite: true
+        );
+
+    /// <summary>
+    /// Adds an additional story to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="additionalStory">The story to be added.</param>
+    public static void AddStory(string additionalStory) =>
+        AddLabel(
+            Label.Story(additionalStory)
+        );
+
+    /// <summary>
+    /// Sets the story of the current test. Existing stories will be removed.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newStory">The new story.</param>
+    public static void SetStory(string newStory) =>
+        AddLabel(
+            Label.Story(newStory),
+            overwrite: true
+        );
+
+    #endregion
+
+    #region Links
+
+    /// <summary>
+    /// Adds a new link to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="url">The address of the link.</param>
+    public static void AddLink(string url) =>
+        AddLinks(
+            new Link { url = url }
+        );
+
+    /// <summary>
+    /// Adds a new link to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The display text of the link.</param>
+    /// <param name="url">The address of the link.</param>
+    public static void AddLink(string name, string url) =>
+        AddLinks(
+            new Link { name = name, url = url }
+        );
+
+    /// <summary>
+    /// Adds a new issue link to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="url">The URL of the issue.</param>
+    public static void AddIssue(string url) =>
+        AddLinks(
+            new Link { type = LinkType.ISSUE, url = url }
+        );
+
+    /// <summary>
+    /// Adds a new issue link to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The display text of the issue link.</param>
+    /// <param name="url">The URL of the issue.</param>
+    public static void AddIssue(string name, string url) =>
+        AddLink(name, LinkType.ISSUE, url);
+
+    /// <summary>
+    /// Adds a new TMS item link to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="url">The URL of the TMS item.</param>
+    public static void AddTmsItem(string url) =>
+        AddLinks(
+            new Link { type = LinkType.TMS_ITEM, url = url }
+        );
+
+    /// <summary>
+    /// Adds a new TMS item link to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The display text of the TMS item link.</param>
+    /// <param name="url">The URL of the TMS item.</param>
+    public static void AddTmsItem(string name, string url) =>
+        AddLink(name, LinkType.TMS_ITEM, url);
+
+    /// <summary>
+    /// Adds a new link to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The display text of the link.</param>
+    /// <param name="type">
+    /// The type of the link. Used when matching link patterns. Might also
+    /// affect how the link is rendered in the report.
+    /// </param>
+    /// <param name="url">The address of the link.</param>
+    public static void AddLink(string name, string type, string url) =>
+        AddLinks(
+            new Link { name = name, type = type, url = url }
+        );
+
+    /// <summary>
+    /// Adds new links to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="links">The link instances to add.</param>
+    public static void AddLinks(params Link[] links) =>
+        CurrentLifecycle.UpdateTestCase(t => t.links.AddRange(links));
+
+    #endregion
+
+    #region Steps and fixtures
 
     /// <summary>
     /// The logger that is notified about start and stop events of steps and
@@ -455,6 +812,8 @@ public static class AllureApi
     /// <returns>The original value returned by the function.</returns>
     public static async Task<T> After<T>(string name, Func<Task<T>> function) =>
         await ExecuteFixtureAsync(name, StartAfterFixture, function);
+
+    #endregion
 
     #endregion
 

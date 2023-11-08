@@ -6,23 +6,14 @@ using NUnit.Framework;
 
 namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
 
-class StepAndFixtureFunctionTests
+class StepAndFixtureFunctionTests : AllureApiTestFixture
 {
-    AllureLifecycle lifecycle;
-
     static readonly Action errorAction = () => throw new Exception();
     static readonly Func<int> errorFunc = () => throw new Exception();
     static readonly Func<Task> asyncErrorAction
         = async () => await Task.FromException(new Exception());
     static readonly Func<Task<int>> asyncErrorFunc
         = async () => await Task.FromException<int>(new Exception());
-
-    [SetUp]
-    public void SetUp()
-    {
-        this.lifecycle = new AllureLifecycle();
-        AllureApi.CurrentLifecycle = lifecycle;
-    }
 
     [Test]
     public void ActionCanBeConvertedToBeforeFixture()
@@ -355,9 +346,9 @@ class StepAndFixtureFunctionTests
         Status status
     )
     {
-        Assert.That(lifecycle.Context.HasFixture, Is.False);
-        Assert.That(lifecycle.Context.HasContainer);
-        var fixtures = getFixtures(lifecycle.Context.CurrentContainer);
+        Assert.That(this.Context.HasFixture, Is.False);
+        Assert.That(this.Context.HasContainer);
+        var fixtures = getFixtures(this.Context.CurrentContainer);
         Assert.That(fixtures, Has.Count.EqualTo(1));
         var fixture = fixtures.First();
         Assert.That(fixture.name, Is.EqualTo(name));
