@@ -9,7 +9,6 @@ using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.TestPlan;
 using Allure.Net.Commons.Writer;
-using HeyRed.Mime;
 using Newtonsoft.Json.Linq;
 
 #nullable enable
@@ -47,6 +46,8 @@ public class AllureLifecycle
     readonly Lazy<AllureTestPlan> lazyTestPlan;
 
     readonly IAllureResultsWriter writer;
+
+    internal IAllureResultsWriter Writer => this.writer;
 
     /// <summary>
     /// Protects mutations of shared allure model objects against data
@@ -549,81 +550,28 @@ public class AllureLifecycle
 
     #endregion
 
-    #region Attachment
-
-    // TODO: read file in background thread
-    /// <summary>
-    /// Adds an attachment to the current fixture, test or step.
-    /// Requires one of those contexts to be active.
-    /// </summary>
-    /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
-    /// <param name="path">The path to the attached file.</param>
-    public virtual AllureLifecycle AddAttachment(
-        string name,
-        string type,
-        string path
-    )
-    {
-        var fileExtension = new FileInfo(path).Extension;
-        return this.AddAttachment(
-            name,
-            type,
-            File.ReadAllBytes(path),
-            fileExtension
-        );
-    }
+    #region Executable item
 
     /// <summary>
-    /// Adds an attachment to the current fixture, test or step.
-    /// Requires one of those contexts to be active.
+    /// If the step context is active, updates the current step.
+    /// Otherwise, if the fixture context is active, updates the current fixture.
+    /// Otherwise, updates the current test.
+    /// Fails if neither test, nor fixture, nor step context is active.
     /// </summary>
-    /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
-    /// <param name="content">The content of the attachment.</param>
-    /// <param name="fileExtension">
-    /// The extension of the file that will be available for downloading.
-    /// </param>
-    public virtual AllureLifecycle AddAttachment(
-        string name,
-        string type,
-        byte[] content,
-        string fileExtension = ""
+    /// <remarks>
+    /// The method is intended to be used by authors of integrations.
+    /// </remarks>
+    /// <param name="updateItem">The update callback.</param>
+    public virtual AllureLifecycle UpdateExecutableItem(
+        Action<ExecutableItem> updateItem
     )
     {
-        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
-        var source = $"{CreateUuid()}{suffix}{fileExtension}";
-        var attachment = new Attachment
-        {
-            name = name,
-            type = type,
-            source = source
-        };
-        this.writer.Write(source, content);
-        var target = this.Context.CurrentStepContainer;
+        var item = this.Context.CurrentStepContainer;
         lock (this.modelMonitor)
         {
-            target.attachments.Add(attachment);
+            updateItem(item);
         }
         return this;
-    }
-
-    /// <summary>
-    /// Adds an attachment to the current fixture, test or step.
-    /// Requires one of those contexts to be active.
-    /// </summary>
-    /// <param name="path">The path to the attached file.</param>
-    /// <param name="name">
-    /// The name of the attachment. If null, the file name is used.
-    /// </param>
-    public virtual AllureLifecycle AddAttachment(
-        string path,
-        string? name = null
-    )
-    {
-        name ??= Path.GetFileName(path);
-        var type = MimeTypesMap.GetMimeType(path);
-        return AddAttachment(name, type, path);
     }
 
     #endregion
@@ -637,27 +585,6 @@ public class AllureLifecycle
     {
         writer.CleanUp();
     }
-
-    /// <summary>
-    /// Attaches screen diff images to the current test case.
-    /// </summary>
-    /// <remarks>
-    /// Requires the test context to be active.
-    /// </remarks>
-    /// <param name="expectedPng">A path to the actual screen.</param>
-    /// <param name="actualPng">A path to the expected screen.</param>
-    /// <param name="diffPng">A path to the screen diff.</param>
-    /// <exception cref="InvalidOperationException"/>
-    public virtual AllureLifecycle AddScreenDiff(
-        string expectedPng,
-        string actualPng,
-        string diffPng
-    ) => this.AddAttachment(expectedPng, "expected")
-        .AddAttachment(actualPng, "actual")
-        .AddAttachment(diffPng, "diff")
-        .UpdateTestCase(
-            x => x.labels.Add(Label.TestType("screenshotDiff"))
-        );
 
     #endregion
 
@@ -1008,6 +935,56 @@ public class AllureLifecycle
         return this;
     }
 
+    #region Attachment
+
+    [Obsolete("Please, use Allure.AddAttachment instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddAttachment(
+        string name,
+        string type,
+        string path
+    )
+    {
+        Allure.AddAttachment(name, type, path);
+        return this;
+    }
+
+    [Obsolete("Please, use Allure.AddAttachment instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddAttachment(
+        string name,
+        string type,
+        byte[] content,
+        string fileExtension = ""
+    )
+    {
+        Allure.AddAttachment(name, type, content, fileExtension);
+        return this;
+    }
+
+    [Obsolete("Please, use Allure.AddAttachment instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddAttachment(
+        string path,
+        string? name = null
+    )
+    {
+        Allure.AddAttachment(path, name);
+        return this;
+    }
+
+    [Obsolete("Please, use Allure.AddScreenDiff instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddScreenDiff(
+        string expectedPng,
+        string actualPng,
+        string diffPng
+    )
+    {
+        Allure.AddScreenDiff(expectedPng, actualPng, diffPng);
+        return this;
+    }
+
     [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle AddScreenDiff(
@@ -1022,6 +999,8 @@ public class AllureLifecycle
             testCaseUuid,
             x => x.labels.Add(Label.TestType("screenshotDiff"))
         );
+
+    #endregion
 
     [Obsolete]
     void StartFixture(string uuid, FixtureResult fixtureResult)

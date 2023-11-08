@@ -79,6 +79,10 @@ users.
 #### Noop step
 * `Step(string)`
 
+#### Attachments
+* AddAttachment - adds an attachment to the current step, fixture, or test.
+* AddScreenDiff - adds needed artifacts to the current test case to be used with [screen-diff-plugin](https://github.com/allure-framework/allure2/tree/master/plugins/screen-diff-plugin)
+
 #### Explicit step management
 
 > [!NOTE]
@@ -149,10 +153,6 @@ Use `AllureLifecycle.Instance` property to access.
 * StartStep
 * UpdateStep
 * StopStep
-
-#### Attachment Events
-* AddAttachment - adds attachment to the current lifecycle executable item
-* AddScreenDiff - adds needed artifacts to the test case with given uuid to be used with [screen-diff-plugin](https://github.com/allure-framework/allure2/tree/master/plugins/screen-diff-plugin)
 
 #### Utility Methods
 * CleanupResultDirectory - can be used in test run setup to clean old result files

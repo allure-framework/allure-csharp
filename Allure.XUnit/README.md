@@ -202,7 +202,8 @@ test authors to enhance the Allure report. Prefer using functions in this
 class over the ones from `Allure.Xunit.Steps`.
 
 ## Attachments
-Use the [`AllureAttachments`](AllureAttachments.cs) class with its methods. (AttachmentAttribute coming soon)
+Use the [`Attachments`](Attachments.cs) class with its methods as well as
+attachment methods from the `Allure.Net.Commons.Allure` class.
 
 ## Runtime API
 Use the functions of `Allure.Net.Commons.Allure` to enhance the report at runtime.

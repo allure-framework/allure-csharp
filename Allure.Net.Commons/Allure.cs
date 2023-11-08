@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Steps;
+using HeyRed.Mime;
 
 #nullable enable
 
@@ -452,6 +455,104 @@ public static class Allure
     /// <returns>The original value returned by the function.</returns>
     public static async Task<T> After<T>(string name, Func<Task<T>> function) =>
         await ExecuteFixtureAsync(name, StartAfterFixture, function);
+
+    #endregion
+
+    #region Attachments
+
+    // TODO: read file in background thread
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// Requires one of those contexts to be active.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="path">The path to the attached file.</param>
+    public static void AddAttachment(
+        string name,
+        string type,
+        string path
+    ) =>
+        AddAttachment(
+            name: name,
+            type: type,
+            content: File.ReadAllBytes(path),
+            fileExtension: new FileInfo(path).Extension
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// Requires one of those contexts to be active.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="fileExtension">
+    /// The extension of the file that will be available for downloading.
+    /// </param>
+    public static void AddAttachment(
+        string name,
+        string type,
+        byte[] content,
+        string fileExtension = ""
+    )
+    {
+        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
+        var uuid = IdFunctions.CreateUUID();
+        var source = $"{uuid}{suffix}{fileExtension}";
+        var attachment = new Attachment
+        {
+            name = name,
+            type = type,
+            source = source
+        };
+        CurrentLifecycle.Writer.Write(source, content);
+        CurrentLifecycle.UpdateExecutableItem(
+            item => item.attachments.Add(attachment)
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// Requires one of those contexts to be active.
+    /// </summary>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">
+    /// The name of the attachment. If null, the file name is used.
+    /// </param>
+    public static void AddAttachment(
+        string path,
+        string? name = null
+    ) =>
+        AddAttachment(
+            name: name ?? Path.GetFileName(path),
+            type: MimeTypesMap.GetMimeType(path),
+            path: path
+        );
+
+    /// <summary>
+    /// Attaches screen diff images to the current test case.
+    /// </summary>
+    /// <remarks>
+    /// Requires the test, the fixture, or the step context to be active.
+    /// </remarks>
+    /// <param name="expectedPng">A path to the actual screen.</param>
+    /// <param name="actualPng">A path to the expected screen.</param>
+    /// <param name="diffPng">A path to the screen diff.</param>
+    /// <exception cref="InvalidOperationException"/>
+    public static void AddScreenDiff(
+        string expectedPng,
+        string actualPng,
+        string diffPng
+    )
+    {
+        AddAttachment(expectedPng, "expected");
+        AddAttachment(actualPng, "actual");
+        AddAttachment(diffPng, "diff");
+        CurrentLifecycle.UpdateTestCase(
+            x => x.labels.Add(Label.TestType("screenshotDiff"))
+        );
+    }
 
     #endregion
 

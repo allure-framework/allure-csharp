@@ -1,6 +1,4 @@
-using Allure.Net.Commons;
 using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -29,7 +27,7 @@ namespace Allure.NUnit.Examples
 
         public static void AddDiffs()
         {
-            AllureLifecycle.Instance.AddScreenDiff("Allure-Color.png", "Allure-Color.png", "Allure-Color.png");
+            Net.Commons.Allure.AddScreenDiff("Allure-Color.png", "Allure-Color.png", "Allure-Color.png");
         }
     }
 }

@@ -44,10 +44,12 @@ namespace Allure.Net.Commons.Tests
                     .StartBeforeFixture(beforeFeature.fixture)
 
                     .StartStep(fixtureStep.step)
-                    .StopStep(x => x.status = Status.passed)
+                    .StopStep(x => x.status = Status.passed);
 
-                    .AddAttachment("text file", "text/xml", txtAttach.path)
-                    .AddAttachment(txtAttach.path)
+                Allure.AddAttachment("text file", "text/xml", txtAttach.path);
+                Allure.AddAttachment(txtAttach.path);
+
+                cycle
                     .UpdateFixture(f => f.status = Status.passed)
                     .StopFixture()
 
@@ -60,15 +62,19 @@ namespace Allure.Net.Commons.Tests
                     .StartStep(step1.step)
                     .StopStep(x => x.status = Status.passed)
 
-                    .StartStep(step2.step)
-                    .AddAttachment("unknown file", "text/xml", txtAttachWithNoExt.content)
+                    .StartStep(step2.step);
+
+                Allure.AddAttachment("unknown file", "text/xml", txtAttachWithNoExt.content);
+
+                cycle
                     .StopStep(x => x.status = Status.broken)
 
                     .StartStep(step3.step)
-                    .StopStep(x => x.status = Status.skipped)
+                    .StopStep(x => x.status = Status.skipped);
 
-                    .AddScreenDiff("expected.png", "actual.png", "diff.png")
+                Allure.AddScreenDiff("expected.png", "actual.png", "diff.png");
 
+                cycle
                     .StopTestCase(x =>
                     {
                         x.status = Status.broken;
