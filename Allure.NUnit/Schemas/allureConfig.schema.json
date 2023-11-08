@@ -1,4 +1,4 @@
-﻿{
+{
   "allOf": [
     {
       "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.10.0/Allure.Net.Commons/Schemas/allureConfig.schema.json"
