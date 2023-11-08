@@ -53,7 +53,7 @@ namespace Allure.NUnit.Examples
         [OneTimeSetUp]
         public void SetStepLogger()
         {
-            Net.Commons.Allure.StepLogger = new StepsLogger();
+            AllureApi.StepLogger = new StepsLogger();
         }
 
         [Test]

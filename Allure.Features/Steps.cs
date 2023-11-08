@@ -49,7 +49,7 @@ namespace Allure.Features
     {
       var path = Guid.NewGuid().ToString();
       File.WriteAllText(path, "hi there");
-      Net.Commons.Allure.AddAttachment(path);
+      AllureApi.AddAttachment(path);
     }
 
     [StepDefinition("Step with table")]
@@ -104,8 +104,8 @@ namespace Allure.Features
       {
         var path = $"{Guid.NewGuid().ToString()}.txt";
         File.WriteAllText(path, "hi there");
-        Net.Commons.Allure.AddAttachment(path);
-        Net.Commons.Allure.AddAttachment(path, "text file");
+        AllureApi.AddAttachment(path);
+        AllureApi.AddAttachment(path, "text file");
       }
 
       if (tags != null)

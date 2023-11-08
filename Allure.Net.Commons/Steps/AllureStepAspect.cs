@@ -32,7 +32,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                Allure.StartStep(stepName, step => step.parameters = stepParameters);
+                AllureApi.StartStep(stepName, step => step.parameters = stepParameters);
             }
         }
 
@@ -40,7 +40,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                Allure.PassStep();
+                AllureApi.PassStep();
             }
         }
 
@@ -56,10 +56,10 @@ namespace Allure.Net.Commons.Steps
                 
                 if (ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e)))
                 {
-                    Allure.FailStep(result => result.statusDetails = exceptionStatusDetails);
+                    AllureApi.FailStep(result => result.statusDetails = exceptionStatusDetails);
                     return;
                 }
-                Allure.BreakStep(result => result.statusDetails = exceptionStatusDetails);
+                AllureApi.BreakStep(result => result.statusDetails = exceptionStatusDetails);
             }
         }
 
@@ -67,12 +67,12 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null)
             {
-                Allure.StartBeforeFixture(fixtureName);
+                AllureApi.StartBeforeFixture(fixtureName);
             }
 
             if (metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                Allure.StartAfterFixture(fixtureName);
+                AllureApi.StartAfterFixture(fixtureName);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                Allure.PassFixture();
+                AllureApi.PassFixture();
             }
         }
 

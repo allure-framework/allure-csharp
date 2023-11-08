@@ -937,7 +937,7 @@ public class AllureLifecycle
 
     #region Attachment
 
-    [Obsolete("Please, use Allure.AddAttachment instead.")]
+    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle AddAttachment(
         string name,
@@ -945,11 +945,11 @@ public class AllureLifecycle
         string path
     )
     {
-        Allure.AddAttachment(name, type, path);
+        AllureApi.AddAttachment(name, type, path);
         return this;
     }
 
-    [Obsolete("Please, use Allure.AddAttachment instead.")]
+    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle AddAttachment(
         string name,
@@ -958,22 +958,22 @@ public class AllureLifecycle
         string fileExtension = ""
     )
     {
-        Allure.AddAttachment(name, type, content, fileExtension);
+        AllureApi.AddAttachment(name, type, content, fileExtension);
         return this;
     }
 
-    [Obsolete("Please, use Allure.AddAttachment instead.")]
+    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle AddAttachment(
         string path,
         string? name = null
     )
     {
-        Allure.AddAttachment(path, name);
+        AllureApi.AddAttachment(path, name);
         return this;
     }
 
-    [Obsolete("Please, use Allure.AddScreenDiff instead.")]
+    [Obsolete("Please, use AllureApi.AddScreenDiff instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle AddScreenDiff(
         string expectedPng,
@@ -981,7 +981,7 @@ public class AllureLifecycle
         string diffPng
     )
     {
-        Allure.AddScreenDiff(expectedPng, actualPng, diffPng);
+        AllureApi.AddScreenDiff(expectedPng, actualPng, diffPng);
         return this;
     }
 

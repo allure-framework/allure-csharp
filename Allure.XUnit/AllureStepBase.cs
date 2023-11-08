@@ -25,11 +25,11 @@ namespace Allure.Xunit
 #endif
             if (failed)
             {
-                Net.Commons.Allure.FailStep();
+                AllureApi.FailStep();
             }
             else
             {
-                Net.Commons.Allure.PassStep();
+                AllureApi.PassStep();
             }
         }
 

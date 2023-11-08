@@ -64,10 +64,10 @@ All link pattern placeholders will be replaced with URL value of corresponding l
 This API is designed for test authors. Use it to enhance the report created
 from your tests.
 
-### The Allure facade
+### The AllureApi facade
 
-Use the `Allure.Net.Commons.Allure` class to access the runtime API for end
-users.
+Use the `Allure.Net.Commons.AllureApi` class to access an end user's runtime
+API.
 
 #### Lambda steps
 

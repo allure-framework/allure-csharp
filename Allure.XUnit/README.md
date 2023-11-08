@@ -197,16 +197,17 @@ using Allure.XUnit.Attributes.Steps;
 
 ### Allure.Xunit.Steps deprecation
 
-The new `Allure.Net.Commons.Allure` facade class was designed specificially for
-test authors to enhance the Allure report. Prefer using functions in this
+The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
+for test authors to enhance the Allure report. Prefer using functions in this
 class over the ones from `Allure.Xunit.Steps`.
 
 ## Attachments
 Use the [`Attachments`](Attachments.cs) class with its methods as well as
-attachment methods from the `Allure.Net.Commons.Allure` class.
+attachment methods from the `Allure.Net.Commons.AllureApi` class.
 
 ## Runtime API
-Use the functions of `Allure.Net.Commons.Allure` to enhance the report at runtime.
+Use the functions from `Allure.Net.Commons.AllureApi` to enhance the report at
+runtime.
 
 ## Known issues and limitations
 

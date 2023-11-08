@@ -10,9 +10,9 @@ using HeyRed.Mime;
 namespace Allure.Net.Commons;
 
 /// <summary>
-/// A facade that provides the end user API to enhance the Allure report.
+/// A facade that provides the API for test authors to enhance the Allure report.
 /// </summary>
-public static class Allure
+public static class AllureApi
 {
     static AllureLifecycle? lifecycleInstance;
 

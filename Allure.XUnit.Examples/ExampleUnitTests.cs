@@ -35,7 +35,7 @@ namespace Allure.XUnit.Examples
         [AllureIssue("ISSUE-1")]
         public void Test1()
         {
-            Net.Commons.Allure.Step("Nested step", () => { });
+            AllureApi.Step("Nested step", () => { });
             Assert.True(1 != 1);
         }
 

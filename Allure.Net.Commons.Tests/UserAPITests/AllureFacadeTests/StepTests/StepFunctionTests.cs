@@ -21,7 +21,7 @@ class StepAndFixtureFunctionTests
     public void SetUp()
     {
         this.lifecycle = new AllureLifecycle();
-        Allure.CurrentLifecycle = lifecycle;
+        AllureApi.CurrentLifecycle = lifecycle;
     }
 
     [Test]
@@ -29,7 +29,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        Allure.Before("My fixture", () => { });
+        AllureApi.Before("My fixture", () => { });
 
         this.AssertBeforeFixtureCompleted("My fixture", Status.passed);
     }
@@ -40,7 +40,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => Allure.Before("My fixture", errorAction),
+            () => AllureApi.Before("My fixture", errorAction),
             Throws.Exception
         );
 
@@ -52,7 +52,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        var result = Allure.Before("My fixture", () => 0);
+        var result = AllureApi.Before("My fixture", () => 0);
 
         Assert.That(result, Is.Zero);
         this.AssertBeforeFixtureCompleted("My fixture", Status.passed);
@@ -64,7 +64,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => Allure.Before("My fixture", errorFunc),
+            () => AllureApi.Before("My fixture", errorFunc),
             Throws.Exception
         );
 
@@ -76,7 +76,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await Allure.Before(
+        await AllureApi.Before(
             "My fixture",
             async () => await Task.CompletedTask
         );
@@ -90,7 +90,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await Allure.Before(
+            async () => await AllureApi.Before(
                 "My fixture",
                 asyncErrorAction
             ),
@@ -105,7 +105,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await Allure.Before(
+        await AllureApi.Before(
             "My fixture",
             async () => await Task.FromResult(0)
         );
@@ -119,7 +119,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await Allure.Before(
+            async () => await AllureApi.Before(
                 "My fixture",
                 asyncErrorFunc
             ),
@@ -134,7 +134,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        Allure.After("My fixture", () => { });
+        AllureApi.After("My fixture", () => { });
 
         this.AssertAfterFixtureCompleted("My fixture", Status.passed);
     }
@@ -145,7 +145,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => Allure.After("My fixture", errorAction),
+            () => AllureApi.After("My fixture", errorAction),
             Throws.Exception
         );
 
@@ -157,7 +157,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        var result = Allure.After("My fixture", () => 0);
+        var result = AllureApi.After("My fixture", () => 0);
 
         Assert.That(result, Is.Zero);
         this.AssertAfterFixtureCompleted("My fixture", Status.passed);
@@ -169,7 +169,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => Allure.After("My fixture", errorFunc),
+            () => AllureApi.After("My fixture", errorFunc),
             Throws.Exception
         );
 
@@ -181,7 +181,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await Allure.After(
+        await AllureApi.After(
             "My fixture",
             async () => await Task.CompletedTask
         );
@@ -195,7 +195,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await Allure.After(
+            async () => await AllureApi.After(
                 "My fixture",
                 asyncErrorAction
             ),
@@ -210,7 +210,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await Allure.After(
+        await AllureApi.After(
             "My fixture",
             async () => await Task.FromResult(0)
         );
@@ -224,7 +224,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await Allure.After(
+            async () => await AllureApi.After(
                 "My fixture",
                 asyncErrorFunc
             ),
@@ -239,7 +239,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        Allure.Step("My step");
+        AllureApi.Step("My step");
 
         this.AssertStepCompleted("My step", Status.passed);
     }
@@ -249,7 +249,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        Allure.Step("My step", () => { });
+        AllureApi.Step("My step", () => { });
 
         this.AssertStepCompleted("My step", Status.passed);
     }
@@ -260,7 +260,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            () => Allure.Step("My step", errorAction),
+            () => AllureApi.Step("My step", errorAction),
             Throws.Exception
         );
 
@@ -272,7 +272,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        var result = Allure.Step("My step", () => 0);
+        var result = AllureApi.Step("My step", () => 0);
 
         Assert.That(result, Is.Zero);
         this.AssertStepCompleted("My step", Status.passed);
@@ -284,7 +284,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            () => Allure.Step("My step", errorFunc),
+            () => AllureApi.Step("My step", errorFunc),
             Throws.Exception
         );
 
@@ -296,7 +296,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        await Allure.Step(
+        await AllureApi.Step(
             "My step",
             async () => await Task.CompletedTask
         );
@@ -310,7 +310,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await Allure.Step("My step", asyncErrorAction),
+            async () => await AllureApi.Step("My step", asyncErrorAction),
             Throws.Exception
         );
 
@@ -322,7 +322,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        await Allure.Step(
+        await AllureApi.Step(
             "My step",
             async () => await Task.FromResult(0)
         );
@@ -336,7 +336,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await Allure.Step("My step", asyncErrorFunc),
+            async () => await AllureApi.Step("My step", asyncErrorFunc),
             Throws.Exception
         );
 

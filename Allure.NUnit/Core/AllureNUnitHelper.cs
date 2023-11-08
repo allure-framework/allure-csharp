@@ -11,7 +11,6 @@ using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 
-using AllureUserAPI = Allure.Net.Commons.Allure;
 using TestResult = Allure.Net.Commons.TestResult;
 
 // ReSharper disable AccessToModifiedClosure
@@ -305,7 +304,7 @@ namespace NUnit.Allure.Core
                 .CurrentContext
                 .CurrentResult
                 .Output;
-            AllureUserAPI.AddAttachment(
+            AllureApi.AddAttachment(
                 "Console Output",
                 "text/plain", 
                 Encoding.UTF8.GetBytes(output),

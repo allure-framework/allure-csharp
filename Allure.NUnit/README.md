@@ -43,7 +43,7 @@ public class Tests
         SayHello();
             
         // A lambda step
-        Allure.Step(
+        AllureApi.Step(
             "Validate calculations",
             () =>
             {
@@ -56,8 +56,8 @@ public class Tests
 
 #### NUnit.Allure.Core.StepsHelper deprecation
 
-The new `Allure.Net.Commons.Allure` facade class was designed specificially for
-test authors to enhance the Allure report. Prefer using functions in this
+The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
+for test authors to enhance the Allure report. Prefer using functions in this
 class over the ones from `NUnit.Allure.Core.StepsHelper`.
 
 ### Installation and Usage
@@ -65,7 +65,7 @@ class over the ones from `NUnit.Allure.Core.StepsHelper`.
 - Configure allureConfig.json.
 - Apply the `[AllureNUnit]` attribute to test fixtures.
 - Use other attributes in `NUnit.Allure.Attributes` if needed.
-- Use functions in `Allure.Net.Commons.Allure` if needed.
+- Use functions in `Allure.Net.Commons.AllureApi` if needed.
 
 #### For users of Mac with Apple silicon
 If you're developing on a Mac machine with Apple silicon, make sure you have

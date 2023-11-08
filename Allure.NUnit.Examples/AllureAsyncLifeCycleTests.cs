@@ -29,7 +29,7 @@ namespace Allure.NUnit.Examples
 
             // use internally allure steps storage on different thread
             Console.WriteLine($"  > AddAttachment...");
-            Net.Commons.Allure.AddAttachment("attachment-name", "text/plain", Encoding.UTF8.GetBytes("attachment-value"));
+            AllureApi.AddAttachment("attachment-name", "text/plain", Encoding.UTF8.GetBytes("attachment-value"));
             Console.WriteLine($"    Done!");
         }
 
@@ -61,7 +61,7 @@ namespace Allure.NUnit.Examples
 
             // use internally allure steps storage on different thread
             Console.WriteLine($"    > AddAttachment...");
-            Net.Commons.Allure.AddAttachment("attachment-name", "text/plain", Encoding.UTF8.GetBytes("attachment-value"));
+            AllureApi.AddAttachment("attachment-name", "text/plain", Encoding.UTF8.GetBytes("attachment-value"));
             Console.WriteLine($"      Done!");
         }
     }
