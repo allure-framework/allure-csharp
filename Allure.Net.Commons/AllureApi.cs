@@ -26,22 +26,28 @@ public static class AllureApi
     #region Metadata
 
     /// <summary>
-    /// Sets the name of the current test or fixture.
+    /// Sets the name of the current test.
     /// </summary>
-    /// <remarks>Requires the test or the fixture context to be active.</remarks>
-    /// <param name="newName">The new name of the test or fixture.</param>
-    public static void SetName(string newName)
-    {
-        void updateItem(ExecutableItem item) => item.name = newName;
-        if (CurrentLifecycle.Context.HasFixture)
-        {
-            CurrentLifecycle.UpdateFixture(updateItem);
-        }
-        else
-        {
-            CurrentLifecycle.UpdateTestCase(updateItem);
-        }
-    }
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="newName">The new name of the test.</param>
+    public static void SetTestName(string newName) =>
+        CurrentLifecycle.UpdateTestCase(t => t.name = newName);
+
+    /// <summary>
+    /// Sets the name of the current fixture.
+    /// </summary>
+    /// <remarks>Requires the fixture context to be active.</remarks>
+    /// <param name="newName">The new name of the fixture.</param>
+    public static void SetFixtureName(string newName) =>
+        CurrentLifecycle.UpdateFixture(f => f.name = newName);
+
+    /// <summary>
+    /// Sets the name of the current step.
+    /// </summary>
+    /// <remarks>Requires the step context to be active.</remarks>
+    /// <param name="newName">The new name of the step.</param>
+    public static void SetStepName(string newName) =>
+        CurrentLifecycle.UpdateStep(s => s.name = newName);
 
     /// <summary>
     /// Sets the description of the current test.

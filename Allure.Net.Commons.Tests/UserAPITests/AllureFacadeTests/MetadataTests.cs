@@ -9,7 +9,7 @@ class MetadataTests : AllureApiTestFixture
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        AllureApi.SetName("Test's title");
+        AllureApi.SetTestName("Test's title");
 
         Assert.That(this.Context.CurrentTest.name, Is.EqualTo("Test's title"));
     }
@@ -20,9 +20,20 @@ class MetadataTests : AllureApiTestFixture
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
         this.lifecycle.StartBeforeFixture(new());
 
-        AllureApi.SetName("Fixture's title");
+        AllureApi.SetFixtureName("Fixture's title");
 
         Assert.That(this.Context.CurrentFixture.name, Is.EqualTo("Fixture's title"));
+    }
+
+    [Test]
+    public void StepTitleCanBeChanged()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "uuid" });
+        this.lifecycle.StartStep(new());
+
+        AllureApi.SetStepName("Step's title");
+
+        Assert.That(this.Context.CurrentStep.name, Is.EqualTo("Step's title"));
     }
 
     [Test]

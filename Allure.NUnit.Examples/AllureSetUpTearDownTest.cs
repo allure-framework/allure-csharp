@@ -15,7 +15,7 @@ namespace Allure.NUnit.Examples
         public void SetUp()
         {
             Console.WriteLine("I'm an unwrapped SetUp");
-            AllureApi.SetName("Fixture name changed in SetUp");
+            AllureApi.SetFixtureName("Fixture name changed in SetUp");
             Attachments.File("AllureConfig.json", Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"));
             StepsExamples.Step1();
         }
@@ -25,7 +25,7 @@ namespace Allure.NUnit.Examples
         public void TearDown()
         {
             StepsExamples.Step3();
-            AllureApi.SetName("Fixture name changed in TearDown");
+            AllureApi.SetFixtureName("Fixture name changed in TearDown");
             Attachments.File("AllureConfig.json", Path.Combine(TestContext.CurrentContext.TestDirectory, "allureConfig.json"));
         }
 
@@ -33,7 +33,7 @@ namespace Allure.NUnit.Examples
         [AllureBefore("OneTimeSetUp AllureBefore attribute description")]
         public void OneTimeSetUp()
         {
-            AllureApi.SetName("Fixture name changed in OneTimeSetUp");
+            AllureApi.SetFixtureName("Fixture name changed in OneTimeSetUp");
             Console.WriteLine("I'm an unwrapped OneTimeSetUp");
         }
 
@@ -41,7 +41,7 @@ namespace Allure.NUnit.Examples
         [AllureAfter("OneTimeTearDown AllureAfter attribute description")]
         public void OneTimeTearDown()
         {
-            AllureApi.SetName("Fixture name changed in OneTimeTearDown");
+            AllureApi.SetFixtureName("Fixture name changed in OneTimeTearDown");
             Console.WriteLine("I'm an unwrapped OneTimeTearDown");
         }
 
@@ -49,7 +49,7 @@ namespace Allure.NUnit.Examples
         [AllureSubSuite("Test Subsuite")]
         public void Test()
         {
-            AllureApi.SetName("Test name changed in the test's body");
+            AllureApi.SetTestName("Test name changed in the test's body");
             StepsExamples.StepWithParams("first", "second");
         }
     }
