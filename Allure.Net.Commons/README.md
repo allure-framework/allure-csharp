@@ -69,6 +69,40 @@ from your tests.
 Use the `Allure.Net.Commons.AllureApi` class to access an end user's runtime
 API.
 
+#### Metadata
+
+* `SetTestName`
+* `SetFixtureName`
+* `SetStepName`
+* `SetDescription`
+* `SetDescriptionHtml`
+* `SetDescriptionHtml`
+* `AddLabels`
+* `AddLabel`
+* `SetSeverity`
+* `SetOwner`
+* `SetAllureId`
+* `AddTags`
+* `AddLinks`
+* `AddLink`
+* `AddIssue`
+* `AddTmsItem`
+
+#### Hierrarchies
+
+* `AddParentSuite`
+* `SetParentSuite`
+* `AddSuite`
+* `SetSuite`
+* `AddSubSuite`
+* `SetSubSuite`
+* `AddEpic`
+* `SetEpic`
+* `AddFeature`
+* `SetFeature`
+* `AddStory`
+* `SetStory`
+
 #### Lambda steps
 
 * `Step(string, Action): void` - step action.
@@ -201,6 +235,9 @@ public static async Task Callee(ScenarioContext scenario)
 #### Obsoleted methods
 Methods with explicit uuid parameters are deprecated. Migrate to their
 uuid-less counterparts that operate on the current Allure context.
+
+User API methods from AllureLifecycle and CoreStepsHelper are obsoleted. The
+corresponding methods from AllureApi should be used instead.
 
 ## Troubleshooting
 ...

@@ -243,4 +243,3 @@ as a workaround until we come up with a solution.
 See [Examples](../Allure.XUnit.Examples).
 
 [#369]: https://github.com/allure-framework/allure-csharp/issues/369
-[#381]: https://github.com/allure-framework/allure-csharp/issues/381
