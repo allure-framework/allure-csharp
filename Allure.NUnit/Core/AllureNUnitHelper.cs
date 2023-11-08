@@ -204,7 +204,11 @@ namespace NUnit.Allure.Core
             var formatters = AllureLifecycle.TypeFormatters;
             foreach (var (name, value) in arguments)
             {
-                testResult.AddParameter(name, value, formatters);
+                testResult.parameters.Add(new()
+                {
+                    name = name,
+                    value = FormatFunctions.Format(value, formatters)
+                });
             }
         }
 

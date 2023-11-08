@@ -19,7 +19,7 @@ namespace Allure.Net.Commons.Configuration
         }
 
         public string Title { get; }
-        public string Directory { get; } = "allure-results";
+        public string Directory { get; } = AllureConstants.DEFAULT_RESULTS_FOLDER;
         public HashSet<string> Links { get; } = new HashSet<string>();
         public bool UseLegacyIds { get; set; } = false;
 

@@ -10,6 +10,8 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>allure</PackageTags>
         <PackageIcon>Allure-Color.png</PackageIcon>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

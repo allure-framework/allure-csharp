@@ -34,6 +34,10 @@ public class AllureLifecycle
     private static readonly Lazy<AllureLifecycle> instance =
         new(Initialize);
 
+    /// <summary>
+    /// The list of the currently registered formatters used by Allure to
+    /// convert test and step arguments to the strings.
+    /// </summary>
     public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
         new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);
 
@@ -102,14 +106,37 @@ public class AllureLifecycle
         lazyTestPlan = new(testPlanFactory);
     }
 
+    /// <summary>
+    /// The JSON representation of the current Allure configuration.
+    /// </summary>
     public string JsonConfiguration { get; private set; }
 
+    /// <summary>
+    /// The current Allure configuration.
+    /// </summary>
     public AllureConfiguration AllureConfiguration { get; }
 
+    /// <summary>
+    /// The full path to the Allure results directory.
+    /// </summary>
     public string ResultsDirectory => writer.ToString();
 
+    /// <summary>
+    /// The current instance of the Allure lifecycle.
+    /// </summary>
     public static AllureLifecycle Instance { get => instance.Value; }
 
+    /// <summary>
+    /// Registers a type formatter to be used when converting a test's or
+    /// step's argument to the string that will be included in the Allure
+    /// report. 
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type that the formatter converts. The formatter will be used for
+    /// arguments of that exact type. Otherwise, the argument will be converted
+    /// using JSON serialization.
+    /// </typeparam>
+    /// <param name="typeFormatter">The formatter instance.</param>
     public void AddTypeFormatter<T>(TypeFormatter<T> typeFormatter) =>
         AddTypeFormatterImpl(typeof(T), typeFormatter);
 
@@ -525,6 +552,13 @@ public class AllureLifecycle
     #region Attachment
 
     // TODO: read file in background thread
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// Requires one of those contexts to be active.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="path">The path to the attached file.</param>
     public virtual AllureLifecycle AddAttachment(
         string name,
         string type,
@@ -540,6 +574,16 @@ public class AllureLifecycle
         );
     }
 
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// Requires one of those contexts to be active.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="fileExtension">
+    /// The extension of the file that will be available for downloading.
+    /// </param>
     public virtual AllureLifecycle AddAttachment(
         string name,
         string type,
@@ -564,6 +608,14 @@ public class AllureLifecycle
         return this;
     }
 
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// Requires one of those contexts to be active.
+    /// </summary>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">
+    /// The name of the attachment. If null, the file name is used.
+    /// </param>
     public virtual AllureLifecycle AddAttachment(
         string path,
         string? name = null
@@ -578,6 +630,9 @@ public class AllureLifecycle
 
     #region Extensions
 
+    /// <summary>
+    /// Removes all files and folders in the current Allure results directory.
+    /// </summary>
     public virtual void CleanupResultDirectory()
     {
         writer.CleanUp();
