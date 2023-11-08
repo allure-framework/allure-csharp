@@ -32,7 +32,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                CoreStepsHelper.StartStep(stepName, step => step.parameters = stepParameters);
+                Allure.StartStep(stepName, step => step.parameters = stepParameters);
             }
         }
 
@@ -40,7 +40,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                CoreStepsHelper.PassStep();
+                Allure.PassStep();
             }
         }
 
@@ -56,10 +56,10 @@ namespace Allure.Net.Commons.Steps
                 
                 if (ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e)))
                 {
-                    CoreStepsHelper.FailStep(result => result.statusDetails = exceptionStatusDetails);
+                    Allure.FailStep(result => result.statusDetails = exceptionStatusDetails);
                     return;
                 }
-                CoreStepsHelper.BrokeStep(result => result.statusDetails = exceptionStatusDetails);
+                Allure.BreakStep(result => result.statusDetails = exceptionStatusDetails);
             }
         }
 
@@ -67,12 +67,12 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null)
             {
-                CoreStepsHelper.StartBeforeFixture(fixtureName);
+                Allure.StartBeforeFixture(fixtureName);
             }
 
             if (metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                CoreStepsHelper.StartAfterFixture(fixtureName);
+                Allure.StartAfterFixture(fixtureName);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                CoreStepsHelper.PassFixture();
+                Allure.PassFixture();
             }
         }
 
@@ -96,7 +96,7 @@ namespace Allure.Net.Commons.Steps
                     trace = e.StackTrace
                 };
 
-                CoreStepsHelper.StopFixture(result =>
+                AllureLifecycle.Instance.StopFixture(result =>
                 {
                     result.status = ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e))
                         ? Status.failed

@@ -1,7 +1,5 @@
 using System;
-using Allure.Net.Commons;
 using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -37,7 +35,7 @@ namespace Allure.NUnit.Examples
         public void SimpleStepTest()
         {
             StepsExamples.Step1();
-            AllureLifecycle.Instance.WrapInStep(() => { Console.WriteLine("Step 2"); }, "Step2");
+            Net.Commons.Allure.Step("Step2", () => { Console.WriteLine("Step 2"); });
             StepsExamples.Step3();
         }
 
@@ -45,19 +43,18 @@ namespace Allure.NUnit.Examples
         [AllureName("Complex test with steps")]
         public void WrappedStepTest()
         {
-            AllureLifecycle.Instance.WrapInStep(() =>
+            Net.Commons.Allure.Step("RootStep", () =>
             {
                 StepsExamples.Step1();
 
-                AllureLifecycle.Instance.WrapInStep(() =>
+                Net.Commons.Allure.Step("Step2", () =>
                 {
                     Console.WriteLine("2");
-                    AllureLifecycle.Instance.WrapInStep(() => { Console.WriteLine("Step in step 2"); },
-                        "Step in Step 2");
-                }, "Step2");
+                    Net.Commons.Allure.Step("Step in Step 2", () => { Console.WriteLine("Step in step 2"); });
+                });
 
                 StepsExamples.Step3();
-            }, "RootStep");
+            });
         }
 
        

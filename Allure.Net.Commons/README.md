@@ -1,11 +1,13 @@
-## Allure.Net.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
+# Allure.Net.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
 .Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
 
-Can be targeted either by legacy .net 4.5+ or .net standard 2.* projects.
+Use this library to create custom Allure adapters for .NET test frameworks.
 
-Use this library to create custom Allure adapters for .Net test frameworks.
+Can be used by any project targeting a netstandard2.0 compatible framework
+including .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5.0+ and more. See the
+full list [here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version).
 
-### Note for users of Mac with Apple silicon
+## Note for users of Mac with Apple silicon
 
 If you're developing on a Mac machine with Apple silicon, make sure you have
 Rosetta installed. Follow this article for the instructions:
@@ -17,7 +19,7 @@ You may also install Rosetta via the CLI:
 /usr/sbin/softwareupdate --install-rosetta --agree-to-license
 ```
 
-### Configuration
+## Configuration
 Allure lifecycle is configured via json file with default name `allureConfig.json`. NuGet package installs `allureConfig.Template.json` which you can use as an example. There are 2 ways to specify config file location:
 -  set ALLURE_CONFIG environment variable to the full path of json config file. This option is preferable for .net core projects which utilize nuget libraries directly from nuget packages folder. See this example of setting it via code: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.Commons.NetCore.Tests/AllureConfigTests.cs#L13-L15
 
@@ -57,6 +59,74 @@ All link pattern placeholders will be replaced with URL value of corresponding l
 
 `link(type: "issue", url: "BUG-01") => https://example.org/BUG-01`
 
+## The end user API
+
+This API is designed for test authors. Use it to enhance the report created
+from your tests.
+
+### The Allure facade
+
+Use the `Allure.Net.Commons.Allure` class to access the runtime API for end
+users.
+
+#### Lambda steps
+
+* `Step(string, Action): void` - step action.
+* `Step<T>(string, Func<T>): T` - step function.
+* `Step(string, Func<Task>): Task` - async step action.
+* `Step<T>(string, Func<Task<T>>): T` - async step function.
+
+#### Noop step
+* `Step(string)`
+
+#### Explicit step management
+
+> [!NOTE]
+> Use these functions only if lambda steps doesn't suit your needs.
+
+* `StartStep(string): void`
+* `StartStep(string, Action<StepResult>): void`
+* `PassStep(): void`
+* `PassStep(Action<StepResult>): void`
+* `FailStep(): void`
+* `FailStep(Action<StepResult>): void`
+* `BreakStep(): void`
+* `BreakStep(Action<StepResult>): void`
+
+
+#### Lambda fixtures
+
+* `Before(string, Action): void` - setup fixture action.
+* `Before<T>(string, Func<T>): T` - setup fixture function.
+* `Before(string, Func<Task>): Task` - async setup fixture action.
+* `Before<T>(string, Func<Task<T>>): T` - async setup fixture function.
+* `After(string, Action): void` - teardown fixture action.
+* `After<T>(string, Func<T>): T` - teardown fixture function.
+* `After(string, Func<Task>): Task` - async teardown fixture action.
+* `After<T>(string, Func<Task<T>>): T` - async teardown fixture function.
+
+#### Explicit fixture management
+
+> [!NOTE]
+> Use these functions only if lambda fixtures doesn't suit your needs.
+
+* `StartBeforeFixture(string): void`
+* `StartAfterFixture(string): void`
+* `PassFixture(): void`
+* `PassFixture(Action<FixtureResult>): void`
+* `FailFixture(): void`
+* `FailFixture(Action<FixtureResult>): void`
+* `BreakFixture(): void`
+* `BreakFixture(Action<FixtureResult>): void`
+
+
+## The integration API
+
+This API is designed for those who want to integrate Allure with a test
+framework or library. You may still use it if you just want to improve the
+report created from the tests you write, but we strongly recommend you to
+consider using the end user API first.
+
 ### AllureLifecycle
 [AllureLifecycle](https://github.com/allure-framework/allure-csharp/blob/main/Allure.Commons/AllureLifecycle.cs)
 class provides methods for test engine events processing.
@@ -93,8 +163,8 @@ flows naturally as a part of ExecutionContext and is subject to the same
 constraints. Particularly, changes made in an async callee can't be observed
 by the caller.
 
-Use the following methods of `AllureLifecycle` to capture Allure context and
-to operate on a context later, after it has been captured:
+Use the following methods of `AllureLifecycle` to capture the current Allure
+context and to operate on the captured context later:
 
 * Context
 * RunInContext
@@ -132,5 +202,5 @@ public static async Task Callee(ScenarioContext scenario)
 Methods with explicit uuid parameters are deprecated. Migrate to their
 uuid-less counterparts that operate on the current Allure context.
 
-### Troubleshooting
+## Troubleshooting
 ...

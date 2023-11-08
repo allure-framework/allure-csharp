@@ -1,7 +1,7 @@
 using System;
+using Allure.Net.Commons;
 using Allure.Net.Commons.Steps;
 using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -53,7 +53,7 @@ namespace Allure.NUnit.Examples
         [OneTimeSetUp]
         public void SetStepLogger()
         {
-            StepsHelper.StepLogger = new StepsLogger();
+            Net.Commons.Allure.StepLogger = new StepsLogger();
         }
 
         [Test]

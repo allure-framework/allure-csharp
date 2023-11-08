@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Allure.Net.Commons.Steps;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.StepTests;
+namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
 
 class StepAndFixtureFunctionTests
 {
@@ -22,7 +21,7 @@ class StepAndFixtureFunctionTests
     public void SetUp()
     {
         this.lifecycle = new AllureLifecycle();
-        CoreStepsHelper.CurrentLifecycle = this.lifecycle;
+        Allure.CurrentLifecycle = lifecycle;
     }
 
     [Test]
@@ -30,7 +29,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        CoreStepsHelper.Before("My fixture", () => { });
+        Allure.Before("My fixture", () => { });
 
         this.AssertBeforeFixtureCompleted("My fixture", Status.passed);
     }
@@ -41,7 +40,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => CoreStepsHelper.Before("My fixture", errorAction),
+            () => Allure.Before("My fixture", errorAction),
             Throws.Exception
         );
 
@@ -53,7 +52,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        var result = CoreStepsHelper.Before("My fixture", () => 0);
+        var result = Allure.Before("My fixture", () => 0);
 
         Assert.That(result, Is.Zero);
         this.AssertBeforeFixtureCompleted("My fixture", Status.passed);
@@ -65,7 +64,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => CoreStepsHelper.Before("My fixture", errorFunc),
+            () => Allure.Before("My fixture", errorFunc),
             Throws.Exception
         );
 
@@ -77,7 +76,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await CoreStepsHelper.Before(
+        await Allure.Before(
             "My fixture",
             async () => await Task.CompletedTask
         );
@@ -91,7 +90,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await CoreStepsHelper.Before(
+            async () => await Allure.Before(
                 "My fixture",
                 asyncErrorAction
             ),
@@ -106,7 +105,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await CoreStepsHelper.Before(
+        await Allure.Before(
             "My fixture",
             async () => await Task.FromResult(0)
         );
@@ -120,7 +119,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await CoreStepsHelper.Before(
+            async () => await Allure.Before(
                 "My fixture",
                 asyncErrorFunc
             ),
@@ -135,7 +134,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        CoreStepsHelper.After("My fixture", () => { });
+        Allure.After("My fixture", () => { });
 
         this.AssertAfterFixtureCompleted("My fixture", Status.passed);
     }
@@ -146,7 +145,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => CoreStepsHelper.After("My fixture", errorAction),
+            () => Allure.After("My fixture", errorAction),
             Throws.Exception
         );
 
@@ -158,7 +157,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        var result = CoreStepsHelper.After("My fixture", () => 0);
+        var result = Allure.After("My fixture", () => 0);
 
         Assert.That(result, Is.Zero);
         this.AssertAfterFixtureCompleted("My fixture", Status.passed);
@@ -170,7 +169,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => CoreStepsHelper.After("My fixture", errorFunc),
+            () => Allure.After("My fixture", errorFunc),
             Throws.Exception
         );
 
@@ -182,7 +181,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await CoreStepsHelper.After(
+        await Allure.After(
             "My fixture",
             async () => await Task.CompletedTask
         );
@@ -196,7 +195,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await CoreStepsHelper.After(
+            async () => await Allure.After(
                 "My fixture",
                 asyncErrorAction
             ),
@@ -211,7 +210,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-        await CoreStepsHelper.After(
+        await Allure.After(
             "My fixture",
             async () => await Task.FromResult(0)
         );
@@ -225,7 +224,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await CoreStepsHelper.After(
+            async () => await Allure.After(
                 "My fixture",
                 asyncErrorFunc
             ),
@@ -240,7 +239,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        CoreStepsHelper.Step("My step");
+        Allure.Step("My step");
 
         this.AssertStepCompleted("My step", Status.passed);
     }
@@ -250,7 +249,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        CoreStepsHelper.Step("My step", () => { });
+        Allure.Step("My step", () => { });
 
         this.AssertStepCompleted("My step", Status.passed);
     }
@@ -261,7 +260,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            () => CoreStepsHelper.Step("My step", errorAction),
+            () => Allure.Step("My step", errorAction),
             Throws.Exception
         );
 
@@ -273,7 +272,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        var result = CoreStepsHelper.Step("My step", () => 0);
+        var result = Allure.Step("My step", () => 0);
 
         Assert.That(result, Is.Zero);
         this.AssertStepCompleted("My step", Status.passed);
@@ -285,7 +284,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            () => CoreStepsHelper.Step("My step", errorFunc),
+            () => Allure.Step("My step", errorFunc),
             Throws.Exception
         );
 
@@ -297,7 +296,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        await CoreStepsHelper.Step(
+        await Allure.Step(
             "My step",
             async () => await Task.CompletedTask
         );
@@ -311,7 +310,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await CoreStepsHelper.Step("My step", asyncErrorAction),
+            async () => await Allure.Step("My step", asyncErrorAction),
             Throws.Exception
         );
 
@@ -323,7 +322,7 @@ class StepAndFixtureFunctionTests
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
-        await CoreStepsHelper.Step(
+        await Allure.Step(
             "My step",
             async () => await Task.FromResult(0)
         );
@@ -337,7 +336,7 @@ class StepAndFixtureFunctionTests
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await CoreStepsHelper.Step("My step", asyncErrorFunc),
+            async () => await Allure.Step("My step", asyncErrorFunc),
             Throws.Exception
         );
 
@@ -356,9 +355,9 @@ class StepAndFixtureFunctionTests
         Status status
     )
     {
-        Assert.That(this.lifecycle.Context.HasFixture, Is.False);
-        Assert.That(this.lifecycle.Context.HasContainer);
-        var fixtures = getFixtures(this.lifecycle.Context.CurrentContainer);
+        Assert.That(lifecycle.Context.HasFixture, Is.False);
+        Assert.That(lifecycle.Context.HasContainer);
+        var fixtures = getFixtures(lifecycle.Context.CurrentContainer);
         Assert.That(fixtures, Has.Count.EqualTo(1));
         var fixture = fixtures.First();
         Assert.That(fixture.name, Is.EqualTo(name));
@@ -367,9 +366,9 @@ class StepAndFixtureFunctionTests
 
     void AssertStepCompleted(string name, Status status)
     {
-        Assert.That(this.lifecycle.Context.HasStep, Is.False);
-        Assert.That(this.lifecycle.Context.HasTest);
-        var steps = this.lifecycle.Context.CurrentTest.steps;
+        Assert.That(lifecycle.Context.HasStep, Is.False);
+        Assert.That(lifecycle.Context.HasTest);
+        var steps = lifecycle.Context.CurrentTest.steps;
         Assert.That(steps, Has.Count.EqualTo(1));
         var fixture = steps.First();
         Assert.That(fixture.name, Is.EqualTo(name));

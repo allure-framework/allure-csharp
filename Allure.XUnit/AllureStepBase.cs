@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Allure.Net.Commons;
-using Allure.Net.Commons.Steps;
 
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
@@ -19,15 +18,18 @@ namespace Allure.Xunit
 #if NETCOREAPP3_0_OR_GREATER
             var failed = Marshal.GetExceptionPointers() != IntPtr.Zero;
 #else
+            // The call is guarded, so it's safe to ignore the deprecation warning
+#pragma warning disable CS0618
             var failed = Marshal.GetExceptionCode() != 0;
+#pragma warning restore CS0618
 #endif
             if (failed)
             {
-                CoreStepsHelper.FailStep();
+                Net.Commons.Allure.FailStep();
             }
             else
             {
-                CoreStepsHelper.PassStep();
+                Net.Commons.Allure.PassStep();
             }
         }
 

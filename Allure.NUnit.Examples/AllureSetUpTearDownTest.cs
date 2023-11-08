@@ -1,8 +1,8 @@
 using System;
 using System.IO;
+using Allure.Net.Commons;
 using NUnit.Allure;
 using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -15,7 +15,7 @@ namespace Allure.NUnit.Examples
         public void SetUp()
         {
             Console.WriteLine("I'm an unwrapped SetUp");
-            StepsHelper.UpdateTestResult(tr =>
+            AllureLifecycle.Instance.UpdateTestCase(tr =>
             {
                 tr.name = "Some awesome name";
             });
@@ -28,7 +28,7 @@ namespace Allure.NUnit.Examples
         public void TearDown()
         {
             StepsExamples.Step3();
-            StepsHelper.UpdateTestResult(tr =>
+            AllureLifecycle.Instance.UpdateTestCase(tr =>
             {
                 tr.name = "Some awesome name (changed on teardown)";
             });

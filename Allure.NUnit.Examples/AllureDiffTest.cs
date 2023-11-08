@@ -20,11 +20,11 @@ namespace Allure.NUnit.Examples
         public void DiffStepsTest()
         {
             AddDiffs();
-            AllureLifecycle.Instance.WrapInStep(() =>
+            Net.Commons.Allure.Step("StepOutSide", () =>
             {
-                AllureLifecycle.Instance.WrapInStep(() => { AddDiffs(); }, "Step Inside");
+                Net.Commons.Allure.Step("Step Inside", () => { AddDiffs(); });
                 AddDiffs();
-            }, "StepOutSide");
+            });
         }
 
         public static void AddDiffs()
