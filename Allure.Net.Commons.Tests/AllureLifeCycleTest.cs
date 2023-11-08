@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -182,6 +183,43 @@ namespace Allure.Net.Commons.Tests
             {
                 lifecycle.StopTestCase();
             }), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public void HistoryIdIsSetAfterStop()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            lifecycle.StartTestCase(new()
+            {
+                uuid = "uuid",
+                fullName = "full-name",
+                parameters = new List<Parameter>
+                {
+                    new(){ name = "name", value = "value" }
+                }
+            });
+
+            lifecycle.StopTestCase();
+
+            Assert.That(lifecycle.Context.CurrentTest.historyId, Is.Not.Null);
+        }
+
+        [Test]
+        public void HistoryIdNotOverwrittenAfterStop()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            lifecycle.StartTestCase(new()
+            {
+                uuid = "uuid",
+                fullName = "full-name",
+                historyId = "history-id"
+            });
+
+            lifecycle.StopTestCase();
+
+            Assert.That(lifecycle.Context.CurrentTest.historyId, Is.EqualTo("history-id"));
         }
     }
 }

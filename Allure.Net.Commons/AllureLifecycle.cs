@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
+using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.TestPlan;
 using Allure.Net.Commons.Writer;
@@ -430,7 +431,7 @@ public class AllureLifecycle
     public virtual AllureLifecycle StopTestCase(
         Action<TestResult> beforeStop
     ) => this.UpdateTestCase(
-        Chain(beforeStop, stopAllureItem)
+        Chain(beforeStop, stopTestCase)
     );
 
     /// <summary>
@@ -441,7 +442,7 @@ public class AllureLifecycle
     /// </remarks>
     /// <exception cref="InvalidOperationException"/>
     public virtual AllureLifecycle StopTestCase() =>
-        this.UpdateTestCase(stopAllureItem);
+        this.UpdateTestCase(stopTestCase);
 
     /// <summary>
     /// Writes the current test and removes it from the context. The test
@@ -648,6 +649,14 @@ public class AllureLifecycle
             item.stage = Stage.finished;
             item.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         };
+
+    static readonly Action<TestResult> stopTestCase = Chain(
+        stopAllureItem,
+        (TestResult tr) => tr.historyId ??= IdFunctions.CreateHistoryId(
+            tr.fullName,
+            tr.parameters
+        )
+    );
 
     void UpdateContext(Func<AllureContext, AllureContext> updateFn)
     {
@@ -864,7 +873,7 @@ public class AllureLifecycle
     [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StopTestCase(string uuid) =>
-        this.UpdateTestCase(uuid, stopAllureItem);
+        this.UpdateTestCase(uuid, stopTestCase);
 
     [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]

@@ -182,10 +182,6 @@ namespace NUnit.Allure.Core
             testResult.testCaseId = IdFunctions.CreateTestCaseId(
                 testResult.fullName
             );
-            testResult.historyId = IdFunctions.CreateHistoryId(
-                testResult.fullName,
-                testResult.parameters
-            );
         }
 
         static void SetLegacyIdentifiers(ITest test, TestResult testResult)
