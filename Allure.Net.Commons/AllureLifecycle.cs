@@ -36,7 +36,7 @@ public class AllureLifecycle
 
     /// <summary>
     /// The list of the currently registered formatters used by Allure to
-    /// convert test and step arguments to the strings.
+    /// convert test and step arguments to strings.
     /// </summary>
     public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
         new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);

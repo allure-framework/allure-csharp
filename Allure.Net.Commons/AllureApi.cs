@@ -922,7 +922,7 @@ public static class AllureApi
     /// <param name="name">The name of a new or existing parameter.</param>
     /// <param name="value">
     /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to the string using JSON
+    /// parameter. The value is converted to a string using JSON
     /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
     /// suitable type formatter to customize the serialization.
     /// </param>
@@ -943,7 +943,7 @@ public static class AllureApi
     /// <param name="name">The name of the new or existing parameter.</param>
     /// <param name="value">
     /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to the string using JSON
+    /// parameter. The value is converted to a string using JSON
     /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
     /// suitable type formatter to customize the serialization.
     /// </param>
@@ -972,7 +972,7 @@ public static class AllureApi
     /// <param name="name">The name of the new or existing parameter.</param>
     /// <param name="value">
     /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to the string using JSON
+    /// parameter. The value is converted to a string using JSON
     /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
     /// suitable type formatter to customize the serialization.
     /// </param>
@@ -1001,7 +1001,7 @@ public static class AllureApi
     /// <param name="name">The name of the new or existing parameter.</param>
     /// <param name="value">
     /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to the string using JSON
+    /// parameter. The value is converted to a string using JSON
     /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
     /// suitable type formatter to customize the serialization.
     /// </param>
@@ -1047,8 +1047,8 @@ public static class AllureApi
     }
 
     /// <summary>
-    /// Updates the existing test parameter. Throws, if the paramter doesn't
-    /// exist in the test context.
+    /// Updates the existing test parameter. Doesn't change the parameter's
+    /// value. Throws, if the paramter doesn't exist in the test context.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="name">The name of the parameter to update.</param>
