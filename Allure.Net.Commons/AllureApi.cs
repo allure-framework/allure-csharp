@@ -11,7 +11,8 @@ using HeyRed.Mime;
 namespace Allure.Net.Commons;
 
 /// <summary>
-/// A facade that provides the API for test authors to enhance the Allure report.
+/// A facade that provides the API for test authors to enhance the Allure
+/// report.
 /// </summary>
 public static class AllureApi
 {
@@ -76,45 +77,44 @@ public static class AllureApi
         CurrentLifecycle.UpdateTestCase(tr => tr.labels.AddRange(labels));
 
     /// <summary>
-    /// Adds a label to the current test result. Optionally removes all other
-    /// labels with the same name.
+    /// Adds a new label to the current test result.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="name">The name of the label to add.</param>
     /// <param name="value">The value of the label to add.</param>
-    /// <param name="overwrite">
-    /// If set to true, removes existing labels with the same name before
-    /// adding the new one.
-    /// </param>
-    public static void AddLabel(string name, string value, bool overwrite = false) =>
-        AddLabel(new() { name = name, value = value }, overwrite);
+    public static void AddLabel(string name, string value) =>
+        AddLabel(new() { name = name, value = value });
 
     /// <summary>
-    /// Adds a label to the current test result. Optionally removes all other
+    /// Adds a label to the current test result. Removes all previously added
     /// labels with the same name.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of the label.</param>
+    /// <param name="value">The value of the label.</param>
+    public static void SetLabel(string name, string value) =>
+        SetLabel(new() { name = name, value = value });
+
+    /// <summary>
+    /// Adds a label to the current test result.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newLabel">The new label of the test.</param>
-    /// <param name="overwrite">
-    /// If set to true, removes existing labels with the same name before
-    /// adding the new one.
-    /// </param>
-    public static void AddLabel(Label newLabel, bool overwrite = false)
-    {
-        var name = newLabel.name;
-        void AppendLabelToTest(TestResult tr) =>
-            tr.labels.Add(newLabel);
+    public static void AddLabel(Label newLabel) =>
+        CurrentLifecycle.UpdateTestCase(tr => tr.labels.Add(newLabel));
 
-        void OverwriteLabelsOfTest(TestResult tr)
+    /// <summary>
+    /// Adds a label to the current test result. Removes all previously added
+    /// labels with the same name.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="label">The new label of the test.</param>
+    public static void SetLabel(Label label) =>
+        CurrentLifecycle.UpdateTestCase(tr =>
         {
-            tr.labels.RemoveAll(l => l.name == name);
-            AppendLabelToTest(tr);
-        }
-
-        CurrentLifecycle.UpdateTestCase(
-            overwrite ? OverwriteLabelsOfTest : AppendLabelToTest
-        );
-    }
+            tr.labels.RemoveAll(lr => lr.name == label.name);
+            tr.labels.Add(label);
+        });
 
     /// <summary>
     /// Sets the current test's severity.
@@ -122,9 +122,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="severity">The new severity level of the test.</param>
     public static void SetSeverity(SeverityLevel severity) =>
-        AddLabel(
-            Label.Severity(severity),
-            overwrite: true
+        SetLabel(
+            Label.Severity(severity)
         );
 
     /// <summary>
@@ -133,9 +132,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="owner">The new owner of the test.</param>
     public static void SetOwner(string owner) =>
-        AddLabel(
-            Label.Owner(owner),
-            overwrite: true
+        SetLabel(
+            Label.Owner(owner)
         );
 
     /// <summary>
@@ -144,9 +142,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="allureId">The new ID of the test case.</param>
     public static void SetAllureId(int allureId) =>
-        AddLabel(
-            Label.AllureId(allureId),
-            overwrite: true
+        SetLabel(
+            Label.AllureId(allureId)
         );
 
     /// <summary>
@@ -179,9 +176,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newParentSuite">The new parent suite.</param>
     public static void SetParentSuite(string newParentSuite) =>
-        AddLabel(
-            Label.ParentSuite(newParentSuite),
-            overwrite: true
+        SetLabel(
+            Label.ParentSuite(newParentSuite)
         );
 
     /// <summary>
@@ -201,9 +197,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newSuite">The new suite.</param>
     public static void SetSuite(string newSuite) =>
-        AddLabel(
-            Label.Suite(newSuite),
-            overwrite: true
+        SetLabel(
+            Label.Suite(newSuite)
         );
 
     /// <summary>
@@ -223,9 +218,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newSubSuite">The new sub-suite.</param>
     public static void SetSubSuite(string newSubSuite) =>
-        AddLabel(
-            Label.SubSuite(newSubSuite),
-            overwrite: true
+        SetLabel(
+            Label.SubSuite(newSubSuite)
         );
 
     #endregion
@@ -248,9 +242,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newEpic">The new epic.</param>
     public static void SetEpic(string newEpic) =>
-        AddLabel(
-            Label.Epic(newEpic),
-            overwrite: true
+        SetLabel(
+            Label.Epic(newEpic)
         );
 
     /// <summary>
@@ -269,9 +262,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newFeature">The new feature.</param>
     public static void SetFeature(string newFeature) =>
-        AddLabel(
-            Label.Feature(newFeature),
-            overwrite: true
+        SetLabel(
+            Label.Feature(newFeature)
         );
 
     /// <summary>
@@ -290,9 +282,8 @@ public static class AllureApi
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newStory">The new story.</param>
     public static void SetStory(string newStory) =>
-        AddLabel(
-            Label.Story(newStory),
-            overwrite: true
+        SetLabel(
+            Label.Story(newStory)
         );
 
     #endregion

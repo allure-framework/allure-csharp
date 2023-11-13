@@ -96,7 +96,7 @@ class MetadataTests : AllureApiTestFixture
         testResult.labels.Add(new() { name = "l2", value = "v3" });
         this.lifecycle.StartTestCase(testResult);
 
-        AllureApi.AddLabel("l2", "v4", overwrite: true);
+        AllureApi.SetLabel("l2", "v4");
 
         this.AssertLabels(
             new() { name = "l1", value = "v1" },
@@ -125,7 +125,7 @@ class MetadataTests : AllureApiTestFixture
         testResult.labels.Add(new() { name = "l2", value = "v3" });
         this.lifecycle.StartTestCase(testResult);
 
-        AllureApi.AddLabel(new() { name = "l2", value = "v4" }, overwrite: true);
+        AllureApi.SetLabel(new() { name = "l2", value = "v4" });
 
         this.AssertLabels(
             new() { name = "l1", value = "v1" },
