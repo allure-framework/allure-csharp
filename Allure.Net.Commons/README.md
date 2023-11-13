@@ -79,6 +79,7 @@ API.
 * `SetDescriptionHtml`
 * `AddLabels`
 * `AddLabel`
+* `SetLabel`
 * `SetSeverity`
 * `SetOwner`
 * `SetAllureId`
