@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Allure.Net.Commons.Functions;
 
 #pragma warning disable IDE1006
@@ -95,6 +96,7 @@ namespace Allure.Net.Commons
     public partial class TestResult
     {
         [Obsolete("Please, use AllureApi.SetTestParameter instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void AddParameter(
             string name,
             object value,

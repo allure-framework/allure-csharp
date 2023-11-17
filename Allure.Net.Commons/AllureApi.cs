@@ -376,12 +376,6 @@ public static class AllureApi
 
     #region Steps and fixtures
 
-    /// <summary>
-    /// The logger that is notified about start and stop events of steps and
-    /// fixtures.
-    /// </summary>
-    public static IStepLogger? StepLogger { get; set; }
-
     #region Low-level fixtures API
 
     /// <summary>
@@ -396,7 +390,6 @@ public static class AllureApi
     public static void StartBeforeFixture(string name)
     {
         CurrentLifecycle.StartBeforeFixture(new() { name = name });
-        StepLogger?.BeforeStarted?.Log(name);
     }
 
     /// <summary>
@@ -411,7 +404,6 @@ public static class AllureApi
     public static void StartAfterFixture(string name)
     {
         CurrentLifecycle.StartAfterFixture(new() { name = name });
-        StepLogger?.AfterStarted?.Log(name);
     }
 
     /// <summary>
@@ -425,7 +417,6 @@ public static class AllureApi
         result =>
         {
             result.status = Status.passed;
-            StepLogger?.StepPassed?.Log(result.name);
         }
     );
 
@@ -456,7 +447,6 @@ public static class AllureApi
         result =>
         {
             result.status = Status.failed;
-            StepLogger?.StepFailed?.Log(result.name);
         }
     );
 
@@ -487,7 +477,6 @@ public static class AllureApi
         result =>
         {
             result.status = Status.broken;
-            StepLogger?.StepBroken?.Log(result.name);
         }
     );
 
@@ -519,7 +508,6 @@ public static class AllureApi
     public static void StartStep(string name)
     {
         CurrentLifecycle.StartStep(new() { name = name });
-        StepLogger?.StepStarted?.Log(name);
     }
 
     /// <summary>
@@ -544,7 +532,6 @@ public static class AllureApi
         result =>
         {
             result.status = Status.passed;
-            StepLogger?.StepPassed?.Log(result.name);
         }
     );
 
@@ -569,7 +556,6 @@ public static class AllureApi
         result =>
         {
             result.status = Status.failed;
-            StepLogger?.StepFailed?.Log(result.name);
         }
     );
 
@@ -594,7 +580,6 @@ public static class AllureApi
         result =>
         {
             result.status = Status.broken;
-            StepLogger?.StepBroken?.Log(result.name);
         }
     );
 
