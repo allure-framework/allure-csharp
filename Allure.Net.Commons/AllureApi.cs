@@ -542,197 +542,117 @@ public static class AllureApi
     #region Parameters
 
     /// <summary>
-    /// Adds a new test parameter or updates the value of the existing
-    /// parameter.
+    /// Adds a new parameter to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The name of a new or existing parameter.</param>
+    /// <param name="name">The name of the new parameter.</param>
     /// <param name="value">
-    /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to a string using JSON
-    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
-    /// suitable type formatter to customize the serialization.
+    /// The value of the new parameter. The value is converted to a string
+    /// using JSON serialization. Use <see cref="AddTestParameter(Parameter)"/>
+    /// or add a suitable type formatter via
+    /// <see cref="AllureLifecycle.AddTypeFormatter{T}(TypeFormatter{T})"/> to
+    /// customize the serialization.
     /// </param>
-    public static void SetTestParameter(string name, object? value) =>
-        SetTestParameter(
+    public static void AddTestParameter(string name, object? value) =>
+        AddTestParameter(
             name,
-            p => p.value = GetParameterValue(value),
             value,
-            null,
             false
         );
 
     /// <summary>
-    /// Adds a new test parameter or updates the value and the display mode
-    /// of the existing parameter.
+    /// Adds a new parameter to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The name of the new or existing parameter.</param>
+    /// <param name="name">The name of the new parameter.</param>
     /// <param name="value">
-    /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to a string using JSON
-    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
-    /// suitable type formatter to customize the serialization.
+    /// The value of the new parameter. The value is converted to a string
+    /// using JSON serialization. Use <see cref="AddTestParameter(Parameter)"/>
+    /// or add a suitable type formatter via
+    /// <see cref="AllureLifecycle.AddTypeFormatter{T}(TypeFormatter{T})"/> to
+    /// customize the serialization.
     /// </param>
-    /// <param name="mode">
-    /// The display mode of the new parameter, or the new display mode of the
-    /// existing parameter.
-    /// </param>
-    public static void SetTestParameter(string name, object? value, ParameterMode mode) =>
-        SetTestParameter(
+    /// <param name="mode">The display mode of the new parameter.</param>
+    public static void AddTestParameter(string name, object? value, ParameterMode mode) =>
+        AddTestParameter(
             name,
-            p =>
-            {
-                p.value = GetParameterValue(value);
-                p.mode = mode;
-            },
             value,
             mode,
             false
         );
 
     /// <summary>
-    /// Adds a new test parameter or updates the value and the exclusion flag
-    /// of the existing parameter.
+    /// Adds a new parameter to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The name of the new or existing parameter.</param>
+    /// <param name="name">The name of the new parameter.</param>
     /// <param name="value">
-    /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to a string using JSON
-    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
-    /// suitable type formatter to customize the serialization.
+    /// The value of the new parameter. The value is converted to a string
+    /// using JSON serialization. Use <see cref="AddTestParameter(Parameter)"/>
+    /// or add a suitable type formatter via
+    /// <see cref="AllureLifecycle.AddTypeFormatter{T}(TypeFormatter{T})"/> to
+    /// customize the serialization.
     /// </param>
     /// <param name="excluded">
-    /// The exclusion flag of the new parameter, or the new exclusion flag of
-    /// the existing parameter.
+    /// The exclusion flag of the new parameter. If set to true, the parameter
+    /// doesn't affect the test's history.
     /// </param>
-    public static void SetTestParameter(string name, object? value, bool excluded) =>
-        SetTestParameter(
-            name,
-            p =>
-            {
-                p.value = GetParameterValue(value);
-                p.excluded = excluded;
-            },
-            value,
-            null,
-            excluded
-        );
-
-    /// <summary>
-    /// Adds a new test parameter or updates all properties of the existing
-    /// parameter.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The name of the new or existing parameter.</param>
-    /// <param name="value">
-    /// The value of the new parameter, or the new value of the existing
-    /// parameter. The value is converted to a string using JSON
-    /// serialization. Use <see cref="SetTestParameter(Parameter)"/> or add a
-    /// suitable type formatter to customize the serialization.
-    /// </param>
-    /// <param name="mode">
-    /// The display mode of the new parameter, or the new display mode of the
-    /// existing parameter.
-    /// </param>
-    /// <param name="excluded">
-    /// The exclusion flag of the new parameter, or the new exclusion flag of
-    /// the existing parameter.
-    /// </param>
-    public static void SetTestParameter(
-        string name,
-        object? value,
-        ParameterMode? mode,
-        bool excluded
-    ) =>
-        SetTestParameter(new()
+    public static void AddTestParameter(string name, object? value, bool excluded) =>
+        AddTestParameter(new()
         {
             name = name,
-            value = GetParameterValue(value),
+            value = FormatParameterValue(value),
+            excluded = excluded
+        });
+
+    /// <summary>
+    /// Adds a new parameter to the current test.
+    /// </summary>
+    /// <remarks>Requires the test context to be active.</remarks>
+    /// <param name="name">The name of the new parameter.</param>
+    /// <param name="value">
+    /// The value of the new parameter. The value is converted to a string
+    /// using JSON serialization. Use <see cref="AddTestParameter(Parameter)"/>
+    /// or add a suitable type formatter via
+    /// <see cref="AllureLifecycle.AddTypeFormatter{T}(TypeFormatter{T})"/> to
+    /// customize the serialization.
+    /// </param>
+    /// <param name="mode">The display mode of the new parameter.</param>
+    /// <param name="excluded">
+    /// The exclusion flag of the new parameter. If set to true, the parameter
+    /// doesn't affect the test's history.
+    /// </param>
+    public static void AddTestParameter(
+        string name,
+        object? value,
+        ParameterMode mode,
+        bool excluded
+    ) =>
+        AddTestParameter(new()
+        {
+            name = name,
+            value = FormatParameterValue(value),
             mode = mode,
             excluded = excluded
         });
 
     /// <summary>
-    /// Adds or replaced a test parameter.
+    /// Adds a new parameter to the current test. Use this overload if you
+    /// want to manually control how the parameter's value should be displayed
+    /// in the report.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="parameter">
-    /// A new parameter. If the parameter with the same name already exists,
-    /// it's removed first.
+    /// A new parameter instance.
     /// </param>
-    public static void SetTestParameter(Parameter parameter)
-    {
+    public static void AddTestParameter(Parameter parameter) =>
         CurrentLifecycle.UpdateTestCase(
-            t =>
-            {
-                t.parameters.RemoveAll(p => p.name == parameter.name);
-                t.parameters.Add(parameter);
-            }
+            t => t.parameters.Add(parameter)
         );
-    }
-
-    /// <summary>
-    /// Updates the existing test parameter. Doesn't change the parameter's
-    /// value. Throws, if the paramter doesn't exist in the test context.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The name of the parameter to update.</param>
-    /// <param name="mode">The new display mode of the parameter.</param>
-    /// <param name="excluded">The new exclusion flag of the parameter.</param>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static void UpdateTestParameter(string name, ParameterMode? mode = null, bool? excluded = null) =>
-        CurrentLifecycle.UpdateTestCase(t =>
-        {
-            var parameter = t.parameters.FirstOrDefault(p => p.name == name);
-            if (parameter is null)
-            {
-                throw new InvalidOperationException(
-                    $"The parameter '{name}' doesn't exist in the current test."
-                );
-            }
-
-            if (mode is not null)
-            {
-                parameter.mode = mode.Value;
-            }
-
-            if (excluded is not null)
-            {
-                parameter.excluded = excluded.Value;
-            }
-
-        });
 
     #endregion
 
-    static void SetTestParameter(
-        string name,
-        Action<Parameter> updateExistingParameter,
-        object? value,
-        ParameterMode? mode,
-        bool excluded
-    ) =>
-        CurrentLifecycle.UpdateTestCase(t =>
-        {
-            if (t.parameters.FirstOrDefault(p => p.name == name) is Parameter parameter)
-            {
-                updateExistingParameter(parameter);
-            }
-            else
-            {
-                t.parameters.Add(new()
-                {
-                    name = name,
-                    value = FormatFunctions.Format(value, CurrentLifecycle.TypeFormatters),
-                    mode = mode,
-                    excluded = excluded
-                });
-            }
-        });
-
-    static string GetParameterValue(object? value) =>
+    static string FormatParameterValue(object? value) =>
         FormatFunctions.Format(value, CurrentLifecycle.TypeFormatters);
 
     static T ExecuteStep<T>(string name, Func<T> action) =>
