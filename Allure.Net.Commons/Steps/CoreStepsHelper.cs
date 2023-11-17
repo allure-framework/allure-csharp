@@ -7,84 +7,53 @@ using Allure.Net.Commons.Storage;
 
 namespace Allure.Net.Commons.Steps;
 
-[Obsolete("Members of this class are now a part of the Runtime API represented by the AllureApi facade. " +
-    "Please, use the Allure.Net.Commons.AllureApi class instead.")]
+[Obsolete("Members of this class are now a part of the Runtime API represented by the AllureApi and ExtendedApi facades.")]
 [EditorBrowsable(EditorBrowsableState.Never)]
 public class CoreStepsHelper
 {
-    [Obsolete("Step logging is obsolete and will be removed in a future release.")]
+    [Obsolete("Step logging is obsolete. It doesn't do anything now and will be removed in a future release.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static IStepLogger? StepLogger { get; set; }
 
     [Obsolete("Please, use AllureApi.StartBeforeFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void StartBeforeFixture(string name)
-    {
-        AllureApi.StartBeforeFixture(name);
-        StepLogger?.BeforeStarted?.Log(name);
-    }
+    public static void StartBeforeFixture(string name) =>
+        ExtendedApi.StartBeforeFixture(name);
 
     [Obsolete("Please, use AllureApi.StartAfterFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void StartAfterFixture(string name)
-    {
-        AllureApi.StartAfterFixture(name);
-        StepLogger?.AfterStarted?.Log(name);
-    }
+    public static void StartAfterFixture(string name) =>
+        ExtendedApi.StartAfterFixture(name);
 
     [Obsolete("Please, use AllureApi.PassFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void PassFixture()
-    {
-        AllureApi.PassFixture(f => StepLogger?.StepPassed?.Log(f.name));
-    }
+    public static void PassFixture() =>
+        ExtendedApi.PassFixture();
 
     [Obsolete("Please, use AllureApi.PassFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void PassFixture(Action<FixtureResult> updateResults)
-    {
-        AllureApi.PassFixture(f =>
-        {
-            updateResults(f);
-            StepLogger?.StepPassed?.Log(f.name);
-        });
-    }
+    public static void PassFixture(Action<FixtureResult> updateResults) =>
+        ExtendedApi.PassFixture(updateResults);
 
     [Obsolete("Please, use AllureApi.FailFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void FailFixture()
-    {
-        AllureApi.FailFixture(f => StepLogger?.StepFailed?.Log(f.name));
-    }
+    public static void FailFixture() =>
+        ExtendedApi.FailFixture();
 
     [Obsolete("Please, use AllureApi.FailFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void FailFixture(Action<FixtureResult> updateResults)
-    {
-        AllureApi.FailFixture(f =>
-        {
-            updateResults(f);
-            StepLogger?.StepFailed?.Log(f.name);
-        });
-    }
+    public static void FailFixture(Action<FixtureResult> updateResults) =>
+        ExtendedApi.FailFixture(updateResults);
 
     [Obsolete("Please, use AllureApi.BreakFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void BrokeFixture()
-    {
-        AllureApi.BreakFixture(f => StepLogger?.StepBroken?.Log(f.name));
-    }
+    public static void BrokeFixture() =>
+        ExtendedApi.BreakFixture();
 
     [Obsolete("Please, use AllureApi.BreakFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void BrokeFixture(Action<FixtureResult> updateResults)
-    {
-        AllureApi.BreakFixture(f =>
-        {
-            updateResults(f);
-            StepLogger?.StepBroken?.Log(f.name);
-        });
-    }
+    public static void BrokeFixture(Action<FixtureResult> updateResults) =>
+        ExtendedApi.BreakFixture(updateResults);
 
     [Obsolete("Please, use AllureLifecycle.StopFixture instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -98,73 +67,43 @@ public class CoreStepsHelper
 
     [Obsolete("Please, use AllureApi.StartStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void StartStep(string name)
-    {
-        AllureApi.StartStep(name);
-        StepLogger?.StepStarted?.Log(name);
-    }
+    public static void StartStep(string name) =>
+        ExtendedApi.StartStep(name);
 
     [Obsolete("Please, use AllureApi.StartStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void StartStep(string name, Action<StepResult> updateResults)
-    {
-        AllureApi.StartStep(name, updateResults);
-        StepLogger?.StepStarted?.Log(name);
-    }
+    public static void StartStep(string name, Action<StepResult> updateResults) =>
+        ExtendedApi.StartStep(name, updateResults);
 
     [Obsolete("Please, use AllureApi.PassStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void PassStep()
-    {
-        AllureApi.PassStep(s => StepLogger?.StepPassed?.Log(s.name));
-    }
+    public static void PassStep() =>
+        ExtendedApi.PassStep();
 
     [Obsolete("Please, use AllureApi.PassStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void PassStep(Action<StepResult> updateResults)
-    {
-        AllureApi.PassStep(s =>
-        {
-            updateResults(s);
-            StepLogger?.StepPassed?.Log(s.name);
-        });
-    }
+    public static void PassStep(Action<StepResult> updateResults) =>
+        ExtendedApi.PassStep(updateResults);
 
     [Obsolete("Please, use AllureApi.FailStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void FailStep()
-    {
-        AllureApi.FailStep(s => StepLogger?.StepFailed?.Log(s.name));
-    }
+    public static void FailStep() =>
+        ExtendedApi.FailStep();
 
     [Obsolete("Please, use AllureApi.FailStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void FailStep(Action<StepResult> updateResults)
-    {
-        AllureApi.FailStep(s =>
-        {
-            updateResults(s);
-            StepLogger?.StepFailed?.Log(s.name);
-        });
-    }
+    public static void FailStep(Action<StepResult> updateResults) =>
+        ExtendedApi.FailStep(updateResults);
 
     [Obsolete("Please, use AllureApi.BreakStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void BrokeStep()
-    {
-        AllureApi.BreakStep(s => StepLogger?.StepBroken?.Log(s.name));
-    }
+    public static void BrokeStep() =>
+        ExtendedApi.BreakStep();
 
     [Obsolete("Please, use AllureApi.BreakStep instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static void BrokeStep(Action<StepResult> updateResults)
-    {
-        AllureApi.BreakStep(s =>
-        {
-            updateResults(s);
-            StepLogger?.StepBroken?.Log(s.name);
-        });
-    }
+    public static void BrokeStep(Action<StepResult> updateResults) =>
+        ExtendedApi.BreakStep(updateResults);
 
     [Obsolete("Please, use AllureLifecycle.UpdateTestCase instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -199,42 +138,42 @@ public class CoreStepsHelper
     [Obsolete("Please, use AllureApi.Before instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static void Before(string name, Action action) =>
-        AllureApi.Before(name, action);
+        ExtendedApi.Before(name, action);
 
     [Obsolete("Please, use AllureApi.Before instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static T Before<T>(string name, Func<T> action) =>
-        AllureApi.Before(name, action);
+        ExtendedApi.Before(name, action);
 
     [Obsolete("Please, use AllureApi.Before instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static async Task Before(string name, Func<Task> action) =>
-        await AllureApi.Before(name, action);
+        await ExtendedApi.Before(name, action);
 
     [Obsolete("Please, use AllureApi.Before instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static async Task<T> Before<T>(string name, Func<Task<T>> action) =>
-        await AllureApi.Before(name, action);
+        await ExtendedApi.Before(name, action);
 
     [Obsolete("Please, use AllureApi.After instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static void After(string name, Action action) =>
-        AllureApi.After(name, action);
+        ExtendedApi.After(name, action);
 
     [Obsolete("Please, use AllureApi.After instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static T After<T>(string name, Func<T> action) =>
-        AllureApi.After(name, action);
+        ExtendedApi.After(name, action);
 
     [Obsolete("Please, use AllureApi.After instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static async Task After(string name, Func<Task> action) =>
-        await AllureApi.After(name, action);
+        await ExtendedApi.After(name, action);
 
     [Obsolete("Please, use AllureApi.After instead.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static async Task<T> After<T>(string name, Func<Task<T>> action) =>
-        await AllureApi.After(name, action);
+        await ExtendedApi.After(name, action);
 
     [Obsolete(AllureLifecycle.API_RUDIMENT_OBSOLETE_MSG)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -270,7 +209,6 @@ public class CoreStepsHelper
         {
             result.status = Status.passed;
             updateResults?.Invoke(result);
-            StepLogger?.StepPassed?.Log(result.name);
         });
         AllureLifecycle.Instance.StopStep(uuid);
     }
@@ -286,7 +224,6 @@ public class CoreStepsHelper
         {
             result.status = Status.failed;
             updateResults?.Invoke(result);
-            StepLogger?.StepFailed?.Log(result.name);
         });
         AllureLifecycle.Instance.StopStep(uuid);
     }
@@ -302,7 +239,6 @@ public class CoreStepsHelper
         {
             result.status = Status.broken;
             updateResults?.Invoke(result);
-            StepLogger?.StepBroken?.Log(result.name);
         });
         AllureLifecycle.Instance.StopStep(uuid);
     }

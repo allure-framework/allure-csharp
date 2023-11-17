@@ -32,7 +32,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                AllureApi.StartStep(stepName, step => step.parameters = stepParameters);
+                ExtendedApi.StartStep(stepName, step => step.parameters = stepParameters);
             }
         }
 
@@ -40,7 +40,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                AllureApi.PassStep();
+                ExtendedApi.PassStep();
             }
         }
 
@@ -56,10 +56,10 @@ namespace Allure.Net.Commons.Steps
                 
                 if (ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e)))
                 {
-                    AllureApi.FailStep(result => result.statusDetails = exceptionStatusDetails);
+                    ExtendedApi.FailStep(result => result.statusDetails = exceptionStatusDetails);
                     return;
                 }
-                AllureApi.BreakStep(result => result.statusDetails = exceptionStatusDetails);
+                ExtendedApi.BreakStep(result => result.statusDetails = exceptionStatusDetails);
             }
         }
 
@@ -67,12 +67,12 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null)
             {
-                AllureApi.StartBeforeFixture(fixtureName);
+                ExtendedApi.StartBeforeFixture(fixtureName);
             }
 
             if (metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                AllureApi.StartAfterFixture(fixtureName);
+                ExtendedApi.StartAfterFixture(fixtureName);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                AllureApi.PassFixture();
+                ExtendedApi.PassFixture();
             }
         }
 
