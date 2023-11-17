@@ -86,35 +86,12 @@ public static class AllureApi
         AddLabel(new() { name = name, value = value });
 
     /// <summary>
-    /// Adds a label to the current test result. Removes all previously added
-    /// labels with the same name.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The name of the label.</param>
-    /// <param name="value">The value of the label.</param>
-    public static void SetLabel(string name, string value) =>
-        SetLabel(new() { name = name, value = value });
-
-    /// <summary>
     /// Adds a label to the current test result.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
     /// <param name="newLabel">The new label of the test.</param>
     public static void AddLabel(Label newLabel) =>
         CurrentLifecycle.UpdateTestCase(tr => tr.labels.Add(newLabel));
-
-    /// <summary>
-    /// Adds a label to the current test result. Removes all previously added
-    /// labels with the same name.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="label">The new label of the test.</param>
-    public static void SetLabel(Label label) =>
-        CurrentLifecycle.UpdateTestCase(tr =>
-        {
-            tr.labels.RemoveAll(lr => lr.name == label.name);
-            tr.labels.Add(label);
-        });
 
     /// <summary>
     /// Sets the current test's severity.
@@ -170,17 +147,6 @@ public static class AllureApi
         );
 
     /// <summary>
-    /// Sets the parent suite of the current test. Existing parent suites
-    /// will be removed.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="newParentSuite">The new parent suite.</param>
-    public static void SetParentSuite(string newParentSuite) =>
-        SetLabel(
-            Label.ParentSuite(newParentSuite)
-        );
-
-    /// <summary>
     /// Adds an additional suite to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
@@ -191,17 +157,6 @@ public static class AllureApi
         );
 
     /// <summary>
-    /// Sets the suite of the current test. Existing suites will be
-    /// removed.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="newSuite">The new suite.</param>
-    public static void SetSuite(string newSuite) =>
-        SetLabel(
-            Label.Suite(newSuite)
-        );
-
-    /// <summary>
     /// Adds an additional sub-suite to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
@@ -209,17 +164,6 @@ public static class AllureApi
     public static void AddSubSuite(string additionalSubSuite) =>
         AddLabel(
             Label.SubSuite(additionalSubSuite)
-        );
-
-    /// <summary>
-    /// Sets the sub-suite of the current test. Existing sub-suites will be
-    /// removed.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="newSubSuite">The new sub-suite.</param>
-    public static void SetSubSuite(string newSubSuite) =>
-        SetLabel(
-            Label.SubSuite(newSubSuite)
         );
 
     #endregion
@@ -237,16 +181,6 @@ public static class AllureApi
         );
 
     /// <summary>
-    /// Sets the epic of the current test. Existing epics will be removed.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="newEpic">The new epic.</param>
-    public static void SetEpic(string newEpic) =>
-        SetLabel(
-            Label.Epic(newEpic)
-        );
-
-    /// <summary>
     /// Adds an additional feature to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
@@ -257,16 +191,6 @@ public static class AllureApi
         );
 
     /// <summary>
-    /// Sets the feature of the current test. Existing features will be removed.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="newFeature">The new feature.</param>
-    public static void SetFeature(string newFeature) =>
-        SetLabel(
-            Label.Feature(newFeature)
-        );
-
-    /// <summary>
     /// Adds an additional story to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
@@ -274,16 +198,6 @@ public static class AllureApi
     public static void AddStory(string additionalStory) =>
         AddLabel(
             Label.Story(additionalStory)
-        );
-
-    /// <summary>
-    /// Sets the story of the current test. Existing stories will be removed.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="newStory">The new story.</param>
-    public static void SetStory(string newStory) =>
-        SetLabel(
-            Label.Story(newStory)
         );
 
     #endregion
@@ -651,6 +565,13 @@ public static class AllureApi
         );
 
     #endregion
+
+    static void SetLabel(Label label) =>
+        CurrentLifecycle.UpdateTestCase(tr =>
+        {
+            tr.labels.RemoveAll(lr => lr.name == label.name);
+            tr.labels.Add(label);
+        });
 
     static string FormatParameterValue(object? value) =>
         FormatFunctions.Format(value, CurrentLifecycle.TypeFormatters);

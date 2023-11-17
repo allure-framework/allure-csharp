@@ -88,23 +88,6 @@ class MetadataTests : AllureApiTestFixture
     }
 
     [Test]
-    public void LabelsOverwriteByNameValue()
-    {
-        var testResult = new TestResult() { uuid = "uuid" };
-        testResult.labels.Add(new() { name = "l1", value = "v1" });
-        testResult.labels.Add(new() { name = "l2", value = "v2" });
-        testResult.labels.Add(new() { name = "l2", value = "v3" });
-        this.lifecycle.StartTestCase(testResult);
-
-        AllureApi.SetLabel("l2", "v4");
-
-        this.AssertLabels(
-            new() { name = "l1", value = "v1" },
-            new() { name = "l2", value = "v4" }
-        );
-    }
-
-    [Test]
     public void NewLabelCanBeAdded()
     {
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
@@ -113,23 +96,6 @@ class MetadataTests : AllureApiTestFixture
 
         this.AssertLabels(
             new Label() { name = "l", value = "v" }
-        );
-    }
-
-    [Test]
-    public void LabelsOverwrite()
-    {
-        var testResult = new TestResult() { uuid = "uuid" };
-        testResult.labels.Add(new() { name = "l1", value = "v1" });
-        testResult.labels.Add(new() { name = "l2", value = "v2" });
-        testResult.labels.Add(new() { name = "l2", value = "v3" });
-        this.lifecycle.StartTestCase(testResult);
-
-        AllureApi.SetLabel(new() { name = "l2", value = "v4" });
-
-        this.AssertLabels(
-            new() { name = "l1", value = "v1" },
-            new() { name = "l2", value = "v4" }
         );
     }
 
