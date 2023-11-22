@@ -1,10 +1,8 @@
 ﻿using Allure.Net.Commons;
 using Allure.Net.Commons.TestPlan;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using TechTalk.SpecFlow;
-using TechTalk.SpecFlow.UnitTestProvider;
 
 namespace Allure.SpecFlowPlugin.SelectiveRun
 {
@@ -57,17 +55,11 @@ namespace Allure.SpecFlowPlugin.SelectiveRun
         public void OnScenarioEnd() =>
             this.underlyingRunner.OnScenarioEnd();
 
-        static HashSet<IUnitTestRuntimeProvider> runtimes = new();
-
         public void OnScenarioInitialize(ScenarioInfo scenarioInfo)
         {
             this.underlyingRunner.OnScenarioInitialize(scenarioInfo);
             this.ApplyTestPlanToCurrentScenario();
             CurrentRunner = this;
-            var runtime = (IUnitTestRuntimeProvider)this.ScenarioContext.GetBindingInstance(
-                typeof(IUnitTestRuntimeProvider)
-            );
-            runtimes.Add(runtime);
         }
 
         public void OnScenarioStart()
