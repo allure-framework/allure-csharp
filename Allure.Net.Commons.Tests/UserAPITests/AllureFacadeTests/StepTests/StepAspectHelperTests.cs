@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Allure.Net.Commons.Steps;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.StepTests;
+namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
 class StepAspectHelperTests
 {
     class TargetClass
     {
+#pragma warning disable CA1822, IDE0060
         public void TargetMethod(int p1, string p2) { }
         public void TargetMethod2(int p1, string p2, DateTime p3) { }
+#pragma warning restore CA1822, IDE0060
     }
 
     class MyIntFormatter : TypeFormatter<int>

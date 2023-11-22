@@ -121,7 +121,7 @@ namespace Allure.SpecFlowPlugin
             // parse MultilineTextArgument
             if (stepInstance.MultilineTextArgument is not null)
             {
-                allure.AddAttachment(
+                AllureApi.AddAttachment(
                     "multiline argument",
                     "text/plain",
                     Encoding.ASCII.GetBytes(
@@ -215,7 +215,7 @@ namespace Allure.SpecFlowPlugin
             }
 
             sw.Flush();
-            allure.AddAttachment("table", "text/csv", ms.ToArray(), ".csv");
+            AllureApi.AddAttachment("table", "text/csv", ms.ToArray(), ".csv");
         }
 
         private static void FailScenario(Exception ex)

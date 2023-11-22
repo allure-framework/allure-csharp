@@ -39,21 +39,33 @@ public class Tests
     [AllureId(123)]
     public void EvenTest([Range(0, 5)] int value)
     {
+        // An attribute-based step
         SayHello();
             
-        //Wrapping Step
-        AllureLifecycle.Instance.WrapInStep(
-            () => { Assert.IsTrue(value % 2 == 0, $"Oh no :( {value} % 2 = {value % 2}"); },
-            "Validate calculations");
+        // A lambda step
+        AllureApi.Step(
+            "Validate calculations",
+            () =>
+            {
+                Assert.IsTrue(value % 2 == 0, $"Oh no :( {value} % 2 = {value % 2}");
+            }
+        );
     }
 }
 ```
 
+#### NUnit.Allure.Core.StepsHelper deprecation
+
+The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
+for test authors to enhance the Allure report. Prefer using functions in this
+class over the ones from `NUnit.Allure.Core.StepsHelper`.
+
 ### Installation and Usage
-- Download from Nuget with all dependencies
-- Configure allureConfig.json
-- Apply the `[AllureNUnit]` attribute to test fixtures
-- Use other attributes in `NUnit.Allure.Attributes` if needed
+- Download from Nuget with all dependencies.
+- Configure allureConfig.json.
+- Apply the `[AllureNUnit]` attribute to test fixtures.
+- Use other attributes in `NUnit.Allure.Attributes` if needed.
+- Use functions in `Allure.Net.Commons.AllureApi` if needed.
 
 #### For users of Mac with Apple silicon
 If you're developing on a Mac machine with Apple silicon, make sure you have

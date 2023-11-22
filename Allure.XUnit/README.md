@@ -2,7 +2,7 @@
 
 [![Nuget](https://img.shields.io/nuget/v/Allure.XUnit)](https://www.nuget.org/packages/Allure.XUnit/)
 
-Allure.XUnit is a library for display xunit tests in Allure report.
+Allure.XUnit helps you to create Allure reports from your xUnit tests.
 
 Allure.XUnit supports .NET Core 2.0 or later, and any .NET runtime compatible
 with .NET Standard 2.1.
@@ -195,8 +195,19 @@ using Allure.XUnit.Attributes.Steps;
     }
 ```
 
+### Allure.Xunit.Steps deprecation
+
+The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
+for test authors to enhance the Allure report. Prefer using functions in this
+class over the ones from `Allure.Xunit.Steps`.
+
 ## Attachments
-Use [`AllureAttachments`](AllureAttachments.cs) class with its methods. (AttachmentAttribute coming soon)
+Use the [`Attachments`](Attachments.cs) class with its methods as well as
+attachment methods from the `Allure.Net.Commons.AllureApi` class.
+
+## Runtime API
+Use the functions from `Allure.Net.Commons.AllureApi` to enhance the report at
+runtime.
 
 ## Known issues and limitations
 
@@ -232,4 +243,3 @@ as a workaround until we come up with a solution.
 See [Examples](../Allure.XUnit.Examples).
 
 [#369]: https://github.com/allure-framework/allure-csharp/issues/369
-[#381]: https://github.com/allure-framework/allure-csharp/issues/381

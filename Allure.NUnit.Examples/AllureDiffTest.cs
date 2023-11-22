@@ -1,6 +1,5 @@
 using Allure.Net.Commons;
 using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -20,16 +19,16 @@ namespace Allure.NUnit.Examples
         public void DiffStepsTest()
         {
             AddDiffs();
-            AllureLifecycle.Instance.WrapInStep(() =>
+            AllureApi.Step("StepOutSide", () =>
             {
-                AllureLifecycle.Instance.WrapInStep(() => { AddDiffs(); }, "Step Inside");
+                AllureApi.Step("Step Inside", () => { AddDiffs(); });
                 AddDiffs();
-            }, "StepOutSide");
+            });
         }
 
         public static void AddDiffs()
         {
-            AllureLifecycle.Instance.AddScreenDiff("Allure-Color.png", "Allure-Color.png", "Allure-Color.png");
+            AllureApi.AddScreenDiff("Allure-Color.png", "Allure-Color.png", "Allure-Color.png");
         }
     }
 }

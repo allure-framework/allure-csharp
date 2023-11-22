@@ -337,6 +337,32 @@ class IdTests
         );
     }
 
+    [Test]
+    public void HistoryIdDoesntTakeIntoAccountExcludedParameters()
+    {
+        Assert.That(
+            IdFunctions.CreateHistoryId(
+                "full-name",
+                new[]
+                {
+                    new Parameter { name = "p1", value = "v1" },
+                    new Parameter { name = "p2", value = "v2" },
+                    new Parameter { name = "p3", value = "v3", excluded = true }
+                }
+            ),
+            Is.EqualTo(
+                IdFunctions.CreateHistoryId(
+                    "full-name",
+                    new[]
+                    {
+                        new Parameter { name = "p1", value = "v1" },
+                        new Parameter { name = "p2", value = "v2" }
+                    }
+                )
+            )
+        );
+    }
+
     static IEnumerable<Parameter> CreateParameters(
         params (string, string)[] values
     ) =>

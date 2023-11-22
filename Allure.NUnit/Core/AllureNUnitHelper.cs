@@ -10,6 +10,7 @@ using NUnit.Allure.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
+
 using TestResult = Allure.Net.Commons.TestResult;
 
 // ReSharper disable AccessToModifiedClosure
@@ -181,10 +182,6 @@ namespace NUnit.Allure.Core
             testResult.testCaseId = IdFunctions.CreateTestCaseId(
                 testResult.fullName
             );
-            testResult.historyId = IdFunctions.CreateHistoryId(
-                testResult.fullName,
-                testResult.parameters
-            );
         }
 
         static void SetLegacyIdentifiers(ITest test, TestResult testResult)
@@ -204,7 +201,11 @@ namespace NUnit.Allure.Core
             var formatters = AllureLifecycle.TypeFormatters;
             foreach (var (name, value) in arguments)
             {
-                testResult.AddParameter(name, value, formatters);
+                testResult.parameters.Add(new()
+                {
+                    name = name,
+                    value = FormatFunctions.Format(value, formatters)
+                });
             }
         }
 
@@ -299,7 +300,7 @@ namespace NUnit.Allure.Core
                 .CurrentContext
                 .CurrentResult
                 .Output;
-            AllureLifecycle.AddAttachment(
+            AllureApi.AddAttachment(
                 "Console Output",
                 "text/plain", 
                 Encoding.UTF8.GetBytes(output),

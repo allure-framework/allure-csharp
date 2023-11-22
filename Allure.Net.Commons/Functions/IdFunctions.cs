@@ -83,7 +83,8 @@ public static class IdFunctions
                 new
                 {
                     fullName,
-                    parameters = parameters.OrderBy(p => p.name)
+                    parameters = parameters.Where(p => !p.excluded)
+                        .OrderBy(p => p.name)
                         .Select(p => p.value)
                 }
             )

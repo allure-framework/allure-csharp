@@ -19,10 +19,9 @@ namespace Allure.NUnit.Examples
         [Test]
         public void DynamicLinkTest()
         {
-            AllureLifecycle.Instance.UpdateTestCase(t => t.links.Add(Link.Issue("ISSUE-123")));
-            AllureLifecycle.Instance.UpdateTestCase(t => t.links.Add(Link.Tms("TMS-123")));
-            AllureLifecycle.Instance.UpdateTestCase(t =>
-                t.links.Add(new Link {name = "GitHub", url = "https://github.com", type = "link"}));
+            AllureApi.AddIssue("ISSUE-123", "123");
+            AllureApi.AddTmsItem("TMS-123", "123");
+            AllureApi.AddLink("GitHub", "https://github.com");
         }
     }
 }

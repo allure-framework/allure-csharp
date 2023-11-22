@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -44,10 +45,12 @@ namespace Allure.Net.Commons.Tests
                     .StartBeforeFixture(beforeFeature.fixture)
 
                     .StartStep(fixtureStep.step)
-                    .StopStep(x => x.status = Status.passed)
+                    .StopStep(x => x.status = Status.passed);
 
-                    .AddAttachment("text file", "text/xml", txtAttach.path)
-                    .AddAttachment(txtAttach.path)
+                AllureApi.AddAttachment("text file", "text/xml", txtAttach.path);
+                AllureApi.AddAttachment(txtAttach.path);
+
+                cycle
                     .UpdateFixture(f => f.status = Status.passed)
                     .StopFixture()
 
@@ -60,15 +63,19 @@ namespace Allure.Net.Commons.Tests
                     .StartStep(step1.step)
                     .StopStep(x => x.status = Status.passed)
 
-                    .StartStep(step2.step)
-                    .AddAttachment("unknown file", "text/xml", txtAttachWithNoExt.content)
+                    .StartStep(step2.step);
+
+                AllureApi.AddAttachment("unknown file", "text/xml", txtAttachWithNoExt.content);
+
+                cycle
                     .StopStep(x => x.status = Status.broken)
 
                     .StartStep(step3.step)
-                    .StopStep(x => x.status = Status.skipped)
+                    .StopStep(x => x.status = Status.skipped);
 
-                    .AddScreenDiff("expected.png", "actual.png", "diff.png")
+                AllureApi.AddScreenDiff("expected.png", "actual.png", "diff.png");
 
+                cycle
                     .StopTestCase(x =>
                     {
                         x.status = Status.broken;
@@ -176,6 +183,43 @@ namespace Allure.Net.Commons.Tests
             {
                 lifecycle.StopTestCase();
             }), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public void HistoryIdIsSetAfterStop()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            lifecycle.StartTestCase(new()
+            {
+                uuid = "uuid",
+                fullName = "full-name",
+                parameters = new List<Parameter>
+                {
+                    new(){ name = "name", value = "value" }
+                }
+            });
+
+            lifecycle.StopTestCase();
+
+            Assert.That(lifecycle.Context.CurrentTest.historyId, Is.Not.Null);
+        }
+
+        [Test]
+        public void HistoryIdNotOverwrittenAfterStop()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            lifecycle.StartTestCase(new()
+            {
+                uuid = "uuid",
+                fullName = "full-name",
+                historyId = "history-id"
+            });
+
+            lifecycle.StopTestCase();
+
+            Assert.That(lifecycle.Context.CurrentTest.historyId, Is.EqualTo("history-id"));
         }
     }
 }

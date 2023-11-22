@@ -128,7 +128,6 @@ namespace Allure.Xunit
             AllureLifecycle.Instance.UpdateTestCase(testResult =>
             {
                 testResult.parameters = parametersList;
-                UpdateHistoryId(testResult);
             });
         }
 
@@ -240,18 +239,6 @@ namespace Allure.Xunit
             testResult.testCaseId = IdFunctions.CreateTestCaseId(
                 testResult.fullName
             );
-            // historyId is set later, when test arguments are received
-        }
-
-        static void UpdateHistoryId(TestResult testResult)
-        {
-            if (!AllureLifecycle.Instance.AllureConfiguration.UseLegacyIds)
-            {
-                testResult.historyId = IdFunctions.CreateHistoryId(
-                    testResult.fullName,
-                    testResult.parameters
-                );
-            }
         }
 
         static void SetLegacyTestResultIdentifiers(

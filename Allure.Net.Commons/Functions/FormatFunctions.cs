@@ -6,6 +6,10 @@ using Newtonsoft.Json;
 
 namespace Allure.Net.Commons.Functions;
 
+/// <summary>
+/// A set of functions to help with value-to-string conversion of test and
+/// step arguments.
+/// </summary>
 public static class FormatFunctions
 {
     /// <summary>

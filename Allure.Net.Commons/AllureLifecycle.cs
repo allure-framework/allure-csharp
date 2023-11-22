@@ -6,10 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
+using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.TestPlan;
 using Allure.Net.Commons.Writer;
-using HeyRed.Mime;
 using Newtonsoft.Json.Linq;
 
 #nullable enable
@@ -34,6 +34,10 @@ public class AllureLifecycle
     private static readonly Lazy<AllureLifecycle> instance =
         new(Initialize);
 
+    /// <summary>
+    /// The list of the currently registered formatters used by Allure to
+    /// convert test and step arguments to strings.
+    /// </summary>
     public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
         new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);
 
@@ -43,6 +47,8 @@ public class AllureLifecycle
     readonly Lazy<AllureTestPlan> lazyTestPlan;
 
     readonly IAllureResultsWriter writer;
+
+    internal IAllureResultsWriter Writer => this.writer;
 
     /// <summary>
     /// Protects mutations of shared allure model objects against data
@@ -102,14 +108,37 @@ public class AllureLifecycle
         lazyTestPlan = new(testPlanFactory);
     }
 
+    /// <summary>
+    /// The JSON representation of the current Allure configuration.
+    /// </summary>
     public string JsonConfiguration { get; private set; }
 
+    /// <summary>
+    /// The current Allure configuration.
+    /// </summary>
     public AllureConfiguration AllureConfiguration { get; }
 
+    /// <summary>
+    /// The full path to the Allure results directory.
+    /// </summary>
     public string ResultsDirectory => writer.ToString();
 
+    /// <summary>
+    /// The current instance of the Allure lifecycle.
+    /// </summary>
     public static AllureLifecycle Instance { get => instance.Value; }
 
+    /// <summary>
+    /// Registers a type formatter to be used when converting a test's or
+    /// step's argument to the string that will be included in the Allure
+    /// report. 
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type that the formatter converts. The formatter will be used for
+    /// arguments of that exact type. Otherwise, the argument will be converted
+    /// using JSON serialization.
+    /// </typeparam>
+    /// <param name="typeFormatter">The formatter instance.</param>
     public void AddTypeFormatter<T>(TypeFormatter<T> typeFormatter) =>
         AddTypeFormatterImpl(typeof(T), typeFormatter);
 
@@ -402,7 +431,7 @@ public class AllureLifecycle
     public virtual AllureLifecycle StopTestCase(
         Action<TestResult> beforeStop
     ) => this.UpdateTestCase(
-        Chain(beforeStop, stopAllureItem)
+        Chain(beforeStop, stopTestCase)
     );
 
     /// <summary>
@@ -413,7 +442,7 @@ public class AllureLifecycle
     /// </remarks>
     /// <exception cref="InvalidOperationException"/>
     public virtual AllureLifecycle StopTestCase() =>
-        this.UpdateTestCase(stopAllureItem);
+        this.UpdateTestCase(stopTestCase);
 
     /// <summary>
     /// Writes the current test and removes it from the context. The test
@@ -522,87 +551,41 @@ public class AllureLifecycle
 
     #endregion
 
-    #region Attachment
+    #region Executable item
 
-    // TODO: read file in background thread
-    public virtual AllureLifecycle AddAttachment(
-        string name,
-        string type,
-        string path
+    /// <summary>
+    /// If the step context is active, updates the current step.
+    /// Otherwise, if the fixture context is active, updates the current fixture.
+    /// Otherwise, updates the current test.
+    /// Fails if neither test, nor fixture, nor step context is active.
+    /// </summary>
+    /// <remarks>
+    /// The method is intended to be used by authors of integrations.
+    /// </remarks>
+    /// <param name="updateItem">The update callback.</param>
+    public virtual AllureLifecycle UpdateExecutableItem(
+        Action<ExecutableItem> updateItem
     )
     {
-        var fileExtension = new FileInfo(path).Extension;
-        return this.AddAttachment(
-            name,
-            type,
-            File.ReadAllBytes(path),
-            fileExtension
-        );
-    }
-
-    public virtual AllureLifecycle AddAttachment(
-        string name,
-        string type,
-        byte[] content,
-        string fileExtension = ""
-    )
-    {
-        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
-        var source = $"{CreateUuid()}{suffix}{fileExtension}";
-        var attachment = new Attachment
-        {
-            name = name,
-            type = type,
-            source = source
-        };
-        this.writer.Write(source, content);
-        var target = this.Context.CurrentStepContainer;
+        var item = this.Context.CurrentStepContainer;
         lock (this.modelMonitor)
         {
-            target.attachments.Add(attachment);
+            updateItem(item);
         }
         return this;
-    }
-
-    public virtual AllureLifecycle AddAttachment(
-        string path,
-        string? name = null
-    )
-    {
-        name ??= Path.GetFileName(path);
-        var type = MimeTypesMap.GetMimeType(path);
-        return AddAttachment(name, type, path);
     }
 
     #endregion
 
     #region Extensions
 
+    /// <summary>
+    /// Removes all files and folders in the current Allure results directory.
+    /// </summary>
     public virtual void CleanupResultDirectory()
     {
         writer.CleanUp();
     }
-
-    /// <summary>
-    /// Attaches screen diff images to the current test case.
-    /// </summary>
-    /// <remarks>
-    /// Requires the test context to be active.
-    /// </remarks>
-    /// <param name="expectedPng">A path to the actual screen.</param>
-    /// <param name="actualPng">A path to the expected screen.</param>
-    /// <param name="diffPng">A path to the screen diff.</param>
-    /// <exception cref="InvalidOperationException"/>
-    public virtual AllureLifecycle AddScreenDiff(
-        string expectedPng,
-        string actualPng,
-        string diffPng
-    ) => this.AddAttachment(expectedPng, "expected")
-        .AddAttachment(actualPng, "actual")
-        .AddAttachment(diffPng, "diff")
-        .UpdateTestCase(
-            x => x.labels.Add(Label.TestType("screenshotDiff"))
-        );
 
     #endregion
 
@@ -666,6 +649,14 @@ public class AllureLifecycle
             item.stage = Stage.finished;
             item.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         };
+
+    static readonly Action<TestResult> stopTestCase = Chain(
+        stopAllureItem,
+        (TestResult tr) => tr.historyId ??= IdFunctions.CreateHistoryId(
+            tr.fullName,
+            tr.parameters
+        )
+    );
 
     void UpdateContext(Func<AllureContext, AllureContext> updateFn)
     {
@@ -882,7 +873,7 @@ public class AllureLifecycle
     [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle StopTestCase(string uuid) =>
-        this.UpdateTestCase(uuid, stopAllureItem);
+        this.UpdateTestCase(uuid, stopTestCase);
 
     [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -953,6 +944,56 @@ public class AllureLifecycle
         return this;
     }
 
+    #region Attachment
+
+    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddAttachment(
+        string name,
+        string type,
+        string path
+    )
+    {
+        AllureApi.AddAttachment(name, type, path);
+        return this;
+    }
+
+    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddAttachment(
+        string name,
+        string type,
+        byte[] content,
+        string fileExtension = ""
+    )
+    {
+        AllureApi.AddAttachment(name, type, content, fileExtension);
+        return this;
+    }
+
+    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddAttachment(
+        string path,
+        string? name = null
+    )
+    {
+        AllureApi.AddAttachment(path, name);
+        return this;
+    }
+
+    [Obsolete("Please, use AllureApi.AddScreenDiff instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public virtual AllureLifecycle AddScreenDiff(
+        string expectedPng,
+        string actualPng,
+        string diffPng
+    )
+    {
+        AllureApi.AddScreenDiff(expectedPng, actualPng, diffPng);
+        return this;
+    }
+
     [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual AllureLifecycle AddScreenDiff(
@@ -967,6 +1008,8 @@ public class AllureLifecycle
             testCaseUuid,
             x => x.labels.Add(Label.TestType("screenshotDiff"))
         );
+
+    #endregion
 
     [Obsolete]
     void StartFixture(string uuid, FixtureResult fixtureResult)

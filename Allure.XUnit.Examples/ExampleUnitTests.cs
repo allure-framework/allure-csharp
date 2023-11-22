@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
-using Allure.Xunit;
 using Allure.Xunit.Attributes;
-using Allure.XUnit.Attributes.Steps;
 using Xunit;
 
 namespace Allure.XUnit.Examples
@@ -37,7 +35,7 @@ namespace Allure.XUnit.Examples
         [AllureIssue("ISSUE-1")]
         public void Test1()
         {
-            Steps.Step("Nested step", () => { });
+            AllureApi.Step("Nested step", () => { });
             Assert.True(1 != 1);
         }
 
