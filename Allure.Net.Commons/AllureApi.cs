@@ -89,9 +89,9 @@ public static class AllureApi
     /// Adds a label to the current test result.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="newLabel">The new label of the test.</param>
-    public static void AddLabel(Label newLabel) =>
-        CurrentLifecycle.UpdateTestCase(tr => tr.labels.Add(newLabel));
+    /// <param name="label">The new label of the test.</param>
+    public static void AddLabel(Label label) =>
+        CurrentLifecycle.UpdateTestCase(tr => tr.labels.Add(label));
 
     /// <summary>
     /// Sets the current test's severity.
@@ -140,30 +140,30 @@ public static class AllureApi
     /// Adds an additional parent suite to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="additionalParentSuite">The parent suite to be added.</param>
-    public static void AddParentSuite(string additionalParentSuite) =>
+    /// <param name="parentSuite">The parent suite to be added.</param>
+    public static void AddParentSuite(string parentSuite) =>
         AddLabel(
-            Label.ParentSuite(additionalParentSuite)
+            Label.ParentSuite(parentSuite)
         );
 
     /// <summary>
     /// Adds an additional suite to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="additionalSuite">The suite to be added.</param>
-    public static void AddSuite(string additionalSuite) =>
+    /// <param name="suite">The suite to be added.</param>
+    public static void AddSuite(string suite) =>
         AddLabel(
-            Label.Suite(additionalSuite)
+            Label.Suite(suite)
         );
 
     /// <summary>
     /// Adds an additional sub-suite to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="additionalSubSuite">The sub-suite to be added.</param>
-    public static void AddSubSuite(string additionalSubSuite) =>
+    /// <param name="subSuite">The sub-suite to be added.</param>
+    public static void AddSubSuite(string subSuite) =>
         AddLabel(
-            Label.SubSuite(additionalSubSuite)
+            Label.SubSuite(subSuite)
         );
 
     #endregion
@@ -174,30 +174,30 @@ public static class AllureApi
     /// Adds an additional epic to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="additionalEpic">The epic to be added.</param>
-    public static void AddEpic(string additionalEpic) =>
+    /// <param name="epic">The epic to be added.</param>
+    public static void AddEpic(string epic) =>
         AddLabel(
-            Label.Epic(additionalEpic)
+            Label.Epic(epic)
         );
 
     /// <summary>
     /// Adds an additional feature to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="additionalFeature">The feature to be added.</param>
-    public static void AddFeature(string additionalFeature) =>
+    /// <param name="feature">The feature to be added.</param>
+    public static void AddFeature(string feature) =>
         AddLabel(
-            Label.Feature(additionalFeature)
+            Label.Feature(feature)
         );
 
     /// <summary>
     /// Adds an additional story to the current test.
     /// </summary>
     /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="additionalStory">The story to be added.</param>
-    public static void AddStory(string additionalStory) =>
+    /// <param name="story">The story to be added.</param>
+    public static void AddStory(string story) =>
         AddLabel(
-            Label.Story(additionalStory)
+            Label.Story(story)
         );
 
     #endregion
