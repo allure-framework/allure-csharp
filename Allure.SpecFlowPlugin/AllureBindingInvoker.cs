@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.IO;
 using Allure.Net.Commons;
 using Allure.SpecFlowPlugin.SelectiveRun;
 using TechTalk.SpecFlow;
@@ -43,7 +44,8 @@ namespace Allure.SpecFlowPlugin
         {
             this.testRunnerManager = testRunnerManager;
             AllureSpecFlowPatcher.EnsureTestPlanSupportInjected(
-                unitTestRuntimeProvider
+                unitTestRuntimeProvider,
+                WriteErrorToFileSafe
             );
         }
 
@@ -73,6 +75,15 @@ namespace Allure.SpecFlowPlugin
                 testTracer,
                 out duration
             );
+        }
+
+        static void WriteErrorToFileSafe(Exception e)
+        {
+            try
+            {
+                File.WriteAllText(".allure_patch_error", e.ToString());
+            }
+            catch (Exception) { }
         }
 
         (object, TimeSpan) ProcessHook(
