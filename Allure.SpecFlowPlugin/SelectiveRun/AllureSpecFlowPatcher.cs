@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,7 +14,8 @@ namespace Allure.SpecFlowPlugin.SelectiveRun
         static bool isTestPlanSupportInjected= false;
 
         internal static void EnsureTestPlanSupportInjected(
-            IUnitTestRuntimeProvider unitTestRuntimeProvider
+            IUnitTestRuntimeProvider unitTestRuntimeProvider,
+            Action<Exception> logError
         )
         {
             if (isTestPlanSupportInjected)
@@ -21,7 +23,14 @@ namespace Allure.SpecFlowPlugin.SelectiveRun
                 return;
             }
 
-            InjectTestPlanSupport(unitTestRuntimeProvider);
+            try
+            {
+                InjectTestPlanSupport(unitTestRuntimeProvider);
+            }
+            catch (Exception e)
+            {
+                logError(e);
+            }
             isTestPlanSupportInjected = true;
         }
 
