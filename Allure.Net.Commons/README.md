@@ -1,11 +1,23 @@
-# Allure.Net.Commons  [![](http://img.shields.io/nuget/vpre/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
+# Allure.Net.Commons
+[![](http://img.shields.io/nuget/vpre/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
 .Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
 
-Use this library to create custom Allure adapters for .NET test frameworks.
+> Allure.Net.Commons is a library for creating custom Allure adapters for .NET test frameworks.
 
-Can be used by any project targeting a netstandard2.0 compatible framework
-including .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5.0+ and more. See the
-full list [here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version).
+[<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
+
+- Learn more about Allure Report at [https://allurereport.org](https://allurereport.org)
+- 📚 [Documentation](https://allurereport.org/docs/) – discover official documentation for Allure Report
+- ❓ [Questions and Support](https://github.com/orgs/allure-framework/discussions/categories/questions-support) – get help from the team and community
+- 📢 [Official announcements](https://github.com/orgs/allure-framework/discussions/categories/announcements) –  stay updated with our latest news and updates
+- 💬 [General Discussion](https://github.com/orgs/allure-framework/discussions/categories/general-discussion) – engage in casual conversations, share insights and ideas with the community
+- 🖥️ [Live Demo](https://demo.allurereport.org/) — explore a live example of Allure Report in action
+
+---
+
+The library can be used by any project targeting a netstandard2.0 compatible
+framework including .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5.0+ and more.
+See the full list [here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version).
 
 ## Note for users of Mac with Apple silicon
 
@@ -20,10 +32,10 @@ You may also install Rosetta via the CLI:
 ```
 
 ## Configuration
-Allure lifecycle is configured via json file with default name `allureConfig.json`. NuGet package installs `allureConfig.Template.json` which you can use as an example. There are 2 ways to specify config file location:
--  set ALLURE_CONFIG environment variable to the full path of json config file. This option is preferable for .net core projects which utilize nuget libraries directly from nuget packages folder. See this example of setting it via code: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.Commons.NetCore.Tests/AllureConfigTests.cs#L13-L15
+Allure lifecycle is configured via a json file with the default name `allureConfig.json`. NuGet package installs `allureConfig.Template.json` which you can use as an example. There are 2 ways to specify config file location:
+-  set ALLURE_CONFIG environment variable to the full path of json config file. This option is preferable for .net core projects which utilize nuget libraries directly from nuget packages folder. See this example of setting it in the code: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.Commons.NetCore.Tests/AllureConfigTests.cs#L13-L15
 
-- place `allureConfig.json` to the location of `Allure.Commons.dll`. This option can be used with .net classic projects which copy all referenced package libraries into binary folder. Do not forget to set 'Copy to Output Directory' property to 'Copy always' or 'Copy if newer' in your test project or set it in .csproj:
+- place `allureConfig.json` to the location of `Allure.Net.Commons.dll`. This option can be used with .net classic projects which copy all referenced package libraries into binary folder. Do not forget to set 'Copy to Output Directory' property to 'Copy always' or 'Copy if newer' in your test project or set it in .csproj:
    ```xml
    <ItemGroup>
      <None Update="allureConfig.json">
@@ -45,7 +57,7 @@ Allure configuration section is used to setup output directory and link patterns
   "allure": {
     "directory": "allure-results", // optional, default value is "allure-results"
     "title": "custom run title", // optional
-    "links": //optional 
+    "links": //optional
     [
       "https://example.org/{link}",
       "https://example.org/{issue}",
@@ -59,15 +71,14 @@ All link pattern placeholders will be replaced with URL value of corresponding l
 
 `link(type: "issue", url: "BUG-01") => https://example.org/BUG-01`
 
-## The end user API
+## Runtime API
 
-This API is designed for test authors. Use it to enhance the report created
-from your tests.
+Use this API it to enhance the report at runtime.
 
 ### The AllureApi facade
 
-Use the `Allure.Net.Commons.AllureApi` class to access an end user's runtime
-API.
+Use the `Allure.Net.Commons.AllureApi` class to access the most commonly used
+functions.
 
 #### Metadata
 
@@ -118,10 +129,14 @@ API.
 * AddAttachment - adds an attachment to the current step, fixture, or test.
 * AddScreenDiff - adds needed artifacts to the current test case to be used with [screen-diff-plugin](https://github.com/allure-framework/allure2/tree/master/plugins/screen-diff-plugin)
 
+### The ExtendedApi facade
+
+Use this class to access some less commonly used functions.
+
 #### Explicit step management
 
 > [!NOTE]
-> Use these functions only if lambda steps doesn't suit your needs.
+> Use the functions below only if lambda steps doesn't suit your needs.
 
 * `StartStep(string): void`
 * `StartStep(string, Action<StepResult>): void`
@@ -147,7 +162,7 @@ API.
 #### Explicit fixture management
 
 > [!NOTE]
-> Use these functions only if lambda fixtures doesn't suit your needs.
+> Use the functions below only if lambda fixtures doesn't suit your needs.
 
 * `StartBeforeFixture(string): void`
 * `StartAfterFixture(string): void`

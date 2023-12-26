@@ -8,7 +8,7 @@
         <PackageId>Allure.NUnit</PackageId>
         <AssemblyName>Allure.NUnit</AssemblyName>
         <RootNamespace>NUnit.Allure</RootNamespace>
-        <PackageProjectUrl>https://www.nuget.org/packages/Allure.NUnit</PackageProjectUrl>
+        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
         <PackageTags>allure nunit</PackageTags>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>

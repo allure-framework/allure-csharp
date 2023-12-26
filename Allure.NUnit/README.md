@@ -1,73 +1,46 @@
 # Allure NUnit adapter
-NUnit adapter for Allure Framework
 
 [![Nuget](https://img.shields.io/nuget/v/Allure.NUnit?style=flat)](https://www.nuget.org/packages/Allure.NUnit)
 [![Nuget pre](https://img.shields.io/nuget/vpre/Allure.Nunit?style=flat)](https://www.nuget.org/packages/Allure.NUnit)
 
 ![Nuget downloads](https://img.shields.io/nuget/dt/allure.nunit?label=downloads&style=flat)
 
+> An Allure adapter for [NUnit](https://nunit.org/).
 
+[<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
 
-![Allure report](https://raw.githubusercontent.com/unickq/allure-nunit/master/AllureScreen.png)
+- Learn more about Allure Report at [https://allurereport.org](https://allurereport.org)
+- 📚 [Documentation](https://allurereport.org/docs/) – discover official documentation for Allure Report
+- ❓ [Questions and Support](https://github.com/orgs/allure-framework/discussions/categories/questions-support) – get help from the team and community
+- 📢 [Official announcements](https://github.com/orgs/allure-framework/discussions/categories/announcements) –  stay updated with our latest news and updates
+- 💬 [General Discussion](https://github.com/orgs/allure-framework/discussions/categories/general-discussion) – engage in casual conversations, share insights and ideas with the community
+- 🖥️ [Live Demo](https://demo.allurereport.org/) — explore a live example of Allure Report in action
 
+---
 
-### [Code examples](https://github.com/allure-framework/allure-csharp/tree/main/Allure.NUnit.Examples):
+## Quick start
 
-```cs
-[TestFixture(Author = "unickq", Description = "Examples")]
-[AllureNUnit]
-[AllureLink("https://github.com/allure-framework/allure-csharp")]
-public class Tests
-{
-    [OneTimeSetUp]
-    public void ClearResultsDir()
-    {
-        AllureLifecycle.Instance.CleanupResultDirectory();
-    }
+- Install the Allure.NUnit package.
+- Configure allureConfig.json.
+- Apply the `[AllureNUnit]` attribute to test fixtures.
+- Use other attributes in `NUnit.Allure.Attributes` if needed.
+- Use the functions in `Allure.Net.Commons.AllureApi` if needed.
 
-    [AllureStep("This method is just saying hello")]
-    private void SayHello()
-    {
-        Console.WriteLine("Hello!");
-    }
+## Further readings
 
-    [Test]
-    [AllureTag("NUnit", "Debug")]
-    [AllureIssue("GitHub#1", "https://github.com/allure-framework/allure-csharp")]
-    [AllureSeverity(SeverityLevel.critical)]
-    [AllureFeature("Core")]
-    [AllureId(123)]
-    public void EvenTest([Range(0, 5)] int value)
-    {
-        // An attribute-based step
-        SayHello();
-            
-        // A lambda step
-        AllureApi.Step(
-            "Validate calculations",
-            () =>
-            {
-                Assert.IsTrue(value % 2 == 0, $"Oh no :( {value} % 2 = {value % 2}");
-            }
-        );
-    }
-}
-```
+Learn more from [the documentation for Allure NUnit](https://allurereport.org/docs/nunit/).
 
-#### NUnit.Allure.Core.StepsHelper deprecation
+Some examples are available [here](https://github.com/allure-framework/allure-csharp/tree/main/Allure.NUnit.Examples).
+
+## Notes
+
+### NUnit.Allure.Core.StepsHelper deprecation
 
 The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
 for test authors to enhance the Allure report. Prefer using functions in this
 class over the ones from `NUnit.Allure.Core.StepsHelper`.
 
-### Installation and Usage
-- Download from Nuget with all dependencies.
-- Configure allureConfig.json.
-- Apply the `[AllureNUnit]` attribute to test fixtures.
-- Use other attributes in `NUnit.Allure.Attributes` if needed.
-- Use functions in `Allure.Net.Commons.AllureApi` if needed.
-
-#### For users of Mac with Apple silicon
+### For users of Mac with Apple silicon
 If you're developing on a Mac machine with Apple silicon, make sure you have
 Rosetta installed. Follow this article for the instructions:
 https://support.apple.com/en-us/HT211861

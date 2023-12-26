@@ -6,7 +6,7 @@
         <Authors>Alexander Bakanov, Nikolay Laptev</Authors>
         <Product />
         <Description>Provides common facilities to build allure integrations for .NET test frameworks</Description>
-        <PackageProjectUrl>https://www.nuget.org/packages/Allure.Net.Commons</PackageProjectUrl>
+        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>allure</PackageTags>
         <PackageIcon>Allure-Color.png</PackageIcon>
