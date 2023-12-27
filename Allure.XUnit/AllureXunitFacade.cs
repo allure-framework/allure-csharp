@@ -15,7 +15,6 @@ namespace Allure.XUnit
             IRunnerLogger logger
         )
         {
-            AllureXunitPatcher.PatchXunit(logger);
             var secondReporter = ResolveSecondReporter();
             var (startupMessage, sink) = ResolveMessageAndSink(
                 new AllureMessageSink(logger),

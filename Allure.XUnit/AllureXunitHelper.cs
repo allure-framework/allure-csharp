@@ -257,12 +257,8 @@ namespace Allure.Xunit
             ITestMethod method
         )
         {
-            var classAttributes = method.TestClass.Class.GetCustomAttributes(
-                typeof(IAllureInfo)
-            );
-            var methodAttributes = method.Method.GetCustomAttributes(
-                typeof(IAllureInfo)
-            );
+            var classAttributes = GetCustomAttributesRecursive(method.TestClass.Class, typeof(IAllureInfo));
+            var methodAttributes = method.Method.GetCustomAttributes(typeof(IAllureInfo));
 
             foreach (var attribute in classAttributes.Concat(methodAttributes))
             {
@@ -402,6 +398,25 @@ namespace Allure.Xunit
                 testCase.TestMethod.Method.Name,
                 parametersSegment
             );
+        }
+
+        private static IEnumerable<IAttributeInfo> GetCustomAttributesRecursive(ITypeInfo typeInfo, Type attributeType)
+        {
+            foreach (var type in GetInheritanceTree(typeInfo).Reverse())
+            {
+                foreach (var attribute in type.GetCustomAttributes(attributeType.AssemblyQualifiedName))
+                    yield return attribute;
+            }
+
+            static IEnumerable<ITypeInfo> GetInheritanceTree(ITypeInfo typeInfo)
+            {
+                var currentType = typeInfo;
+                while (currentType.ToRuntimeType() != typeof(object))
+                {
+                    yield return currentType;
+                    currentType = currentType.BaseType;
+                }
+            }
         }
 
         #region Obsolete public methods

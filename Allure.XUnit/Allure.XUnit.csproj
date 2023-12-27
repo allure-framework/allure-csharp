@@ -1,54 +1,57 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>netcoreapp2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
-        <IsPackable>true</IsPackable>
-        <Title>Allure.XUnit</Title>
-        <Authors>Shumakov Ivan</Authors>
-        <Description>Allure.XUnit</Description>
-        <PackageIcon>Allure-X-Color.png</PackageIcon>
-        <PackageProjectUrl>https://www.nuget.org/packages/Allure.XUnit</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>allure xunit</PackageTags>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp2.0;netstandard2.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<IsPackable>true</IsPackable>
+		<Title>PerlemAI.Allure.XUnit</Title>
+		<PackageId>PerlemAI.Allure.XUnit</PackageId>
+		<Authors>PerlemAI</Authors>
+		<Company>PerlemAI</Company>
+		<Description>PerlemAI.Allure.XUnit</Description>
+		<PackageIcon>Allure-X-Color.png</PackageIcon>
+		<PackageProjectUrl>https://www.nuget.org/packages/PerlemAI.Allure.XUnit</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>allure xunit</PackageTags>
+		<Version>7.0.0-rc1</Version>
+	</PropertyGroup>
 
-    <PropertyGroup>
-        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);PackAllureXunitReportersFiles</TargetsForTfmSpecificBuildOutput>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);PackAllureXunitReportersFiles</TargetsForTfmSpecificBuildOutput>
+		<AssemblyName>PerlemAI.$(MSBuildProjectName)</AssemblyName>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.8.2" />
-        <PackageReference Include="Lib.Harmony" Version="2.3.0-prerelease.2" />
-        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AspectInjector" Version="2.8.2" />
+		<PackageReference Include="xunit.runner.utility" Version="2.4.1" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <None Include="README.md" Pack="true" PackagePath="\" />
-        <None Include="./../img/Allure-X-Color.png" Pack="true" PackagePath="\" />
-        <None Update="LICENSE.md">
-          <Pack>true</Pack>
-          <PackagePath>/</PackagePath>
-        </None>
-    </ItemGroup>
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+		<None Include="./../img/Allure-X-Color.png" Pack="true" PackagePath="\" />
+		<None Update="LICENSE.md">
+			<Pack>true</Pack>
+			<PackagePath>/</PackagePath>
+		</None>
+	</ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="xunit.assert" Version="2.4.1" />
-        <PackageReference Include="xunit.core" Version="2.4.1" />
-        <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="xunit.assert" Version="2.4.1" />
+		<PackageReference Include="xunit.core" Version="2.4.1" />
+		<PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj">
-            <!-- todo: Remove Allure.Net.Commons references-->
-            <!-- <PrivateAssets>all</PrivateAssets>-->
-        </ProjectReference>
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj">
+			<!-- todo: Remove Allure.Net.Commons references-->
+			<!-- <PrivateAssets>all</PrivateAssets>-->
+		</ProjectReference>
+	</ItemGroup>
 
-    <Target Name="PackAllureXunitReportersFiles">
-        <ItemGroup>
-            <BuildOutputInPackage Include="./../Allure.XUnit.Reporters/bin/$(Configuration)/$(TargetFramework)/Allure.XUnit.reporters.dll" />
-            <BuildOutputInPackage Include="./../Allure.XUnit.Reporters/bin/$(Configuration)/$(TargetFramework)/Allure.XUnit.reporters.pdb" />
-        </ItemGroup>
-    </Target>
+	<Target Name="PackAllureXunitReportersFiles">
+		<ItemGroup>
+			<BuildOutputInPackage Include="./../Allure.XUnit.Reporters/bin/$(Configuration)/$(TargetFramework)/Allure.XUnit.reporters.dll" />
+			<BuildOutputInPackage Include="./../Allure.XUnit.Reporters/bin/$(Configuration)/$(TargetFramework)/Allure.XUnit.reporters.pdb" />
+		</ItemGroup>
+	</Target>
 
 </Project>
