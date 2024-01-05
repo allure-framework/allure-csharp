@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <IsPackable>true</IsPackable>
-        <Authors>Alexander Bakanov, Nikolay Laptev</Authors>
+        <Authors>Alexander Bakanov, Nikolay Laptev, Maksim Stepanov</Authors>
         <Product />
         <Description>Provides common facilities to build allure integrations for .NET test frameworks</Description>
         <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
