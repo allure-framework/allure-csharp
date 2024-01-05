@@ -7,7 +7,7 @@
         <Authors>Shumakov Ivan</Authors>
         <Description>Allure.XUnit</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
-        <PackageProjectUrl>https://www.nuget.org/packages/Allure.XUnit</PackageProjectUrl>
+        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>allure xunit</PackageTags>
     </PropertyGroup>

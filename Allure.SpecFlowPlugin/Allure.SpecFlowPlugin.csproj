@@ -8,7 +8,7 @@
         <Authors>Alexander Bakanov</Authors>
         <Product />
         <Description>Generates Allure report result files for SpecFlow test run</Description>
-        <PackageProjectUrl>https://www.nuget.org/packages/Allure.SpecFlow</PackageProjectUrl>
+        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
         <PackageTags>specflow allure</PackageTags>
