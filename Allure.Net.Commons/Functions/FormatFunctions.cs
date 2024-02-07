@@ -39,7 +39,7 @@ public static class FormatFunctions
 
         try
         {
-            return JsonConvert.SerializeObject(value, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Serialize });
+            return JsonConvert.SerializeObject(value, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
         }
         catch
         {
