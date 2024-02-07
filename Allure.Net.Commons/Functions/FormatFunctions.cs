@@ -37,6 +37,13 @@ public static class FormatFunctions
             return formatter.Format(value);
         }
 
-        return JsonConvert.SerializeObject(value);
+        try
+        {
+            return JsonConvert.SerializeObject(value, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Serialize });
+        }
+        catch
+        {
+            return "{...}";
+        }
     }
 }
