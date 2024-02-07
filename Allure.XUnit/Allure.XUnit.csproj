@@ -18,7 +18,8 @@
 
     <ItemGroup>
         <PackageReference Include="AspectInjector" Version="2.8.2" />
-        <PackageReference Include="Lib.Harmony" Version="2.3.0-prerelease.2" />
+        <PackageReference Include="Lib.Harmony" Version="2.3.0-prerelease.5" />
+        <PackageReference Include="MonoMod.Utils" Version="25.0.4" />
         <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
     </ItemGroup>
 
