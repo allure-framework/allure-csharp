@@ -25,7 +25,8 @@ public static class FormatFunctions
     /// <summary>
     /// Formats a given value into a string. If the type of the value matches
     /// a formater in the formatters dictionary, the formatter is used to
-    /// produce the result. Otherwise, the value is formatted as a JSON string.
+    /// produce the result. Otherwise, the value is formatted as a JSON string
+    /// or empty JSON if serialization failed
     /// </summary>
     public static string Format(
         object? value,
@@ -43,7 +44,7 @@ public static class FormatFunctions
         }
         catch
         {
-            return "{...}";
+            return "{ }";
         }
     }
 }
