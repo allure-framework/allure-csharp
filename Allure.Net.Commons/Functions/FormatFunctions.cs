@@ -27,7 +27,7 @@ public static class FormatFunctions
     /// a formater in the formatters dictionary, the formatter is used to
     /// produce the result.
     /// 
-    /// Otherwise, the value is formatted as a JSON string or empty JSON
+    /// Otherwise, the value is formatted as a JSON string or undefined
     /// if serialization failed.
     /// 
     /// The serializer skips fields that contain loop references
@@ -45,18 +45,21 @@ public static class FormatFunctions
 
         try
         {
-            return JsonConvert.SerializeObject(value, Formatting.Indented,new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Error = (_, args) =>
+            return JsonConvert.SerializeObject(
+                value,
+                Formatting.Indented,
+                new JsonSerializerSettings
                 {
-                    args.ErrorContext.Handled = true;
-                }
-            });
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    Error = (_, args) =>
+                    {
+                        args.ErrorContext.Handled = true;
+                    }
+                });
         }
         catch
         {
-            return "{ }";
+            return JsonConvert.Undefined;
         }
     }
 }
