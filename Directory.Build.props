@@ -14,6 +14,7 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
     </PropertyGroup>
 
     <!-- Signing properties -->
@@ -34,5 +35,10 @@
     <!-- Enable SourceLink for all projects -->
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    </ItemGroup>
+    
+    <!-- Include LICENSE to all packages -->
+    <ItemGroup Condition="'$(IsPackable)' == 'true'">
+        <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
