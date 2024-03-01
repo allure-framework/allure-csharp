@@ -10,11 +10,15 @@
     <!-- Common projects' properties -->
     <PropertyGroup>
         <LangVersion>11</LangVersion>
+        <CheckEolTargetFramework>false</CheckEolTargetFramework>
         <IsPackable>false</IsPackable>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <CheckEolTargetFramework>false</CheckEolTargetFramework>
+        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageTags>allure</PackageTags>
+        <PackageReleaseNotes>See the release notes here: https://github.com/allure-framework/allure-csharp/releases/tag/2.11.0.</PackageReleaseNotes>
     </PropertyGroup>
 
     <!-- Signing properties -->

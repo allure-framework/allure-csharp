@@ -4,13 +4,11 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <IsPackable>true</IsPackable>
         <Authors>Nick Chursin</Authors>
-        <Description>NUnit attributes extenstions for Allure</Description>
+        <Description>Create beautiful reports from your NUnit tests.</Description>
         <PackageId>Allure.NUnit</PackageId>
         <AssemblyName>Allure.NUnit</AssemblyName>
         <RootNamespace>NUnit.Allure</RootNamespace>
-        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
-        <PackageTags>allure nunit</PackageTags>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>$(PackageTags) nunit</PackageTags>
         <PackageIcon>Allure-N-Color.png</PackageIcon>
     </PropertyGroup>
 

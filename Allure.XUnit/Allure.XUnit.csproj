@@ -5,11 +5,9 @@
         <IsPackable>true</IsPackable>
         <Title>Allure.XUnit</Title>
         <Authors>Shumakov Ivan</Authors>
-        <Description>Allure.XUnit</Description>
+        <Description>Create beautiful reports from your xUnit.net tests.</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
-        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>allure xunit</PackageTags>
+        <PackageTags>$(PackageTags) xunit</PackageTags>
     </PropertyGroup>
 
     <PropertyGroup>
