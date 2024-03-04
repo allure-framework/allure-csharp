@@ -27,8 +27,8 @@ public static class FormatFunctions
     /// a formater in the formatters dictionary, the formatter is used to
     /// produce the result.
     /// 
-    /// Otherwise, the value is formatted as a JSON string or undefined
-    /// if serialization failed.
+    /// Otherwise, the value is formatted as a JSON string or object.ToString()
+    /// if JSON serialization failed.
     /// 
     /// The serializer skips fields that contain loop references
     /// and fields that could not be serialized
