@@ -59,7 +59,7 @@ public static class FormatFunctions
         }
         catch
         {
-            return JsonConvert.Undefined;
+            return value.ToString();
         }
     }
 }
