@@ -7,15 +7,21 @@ using Newtonsoft.Json;
 namespace Allure.Net.Commons.Functions;
 
 /// <summary>
-/// A set of functions to help with value-to-string conversion of test and
-/// step arguments.
+///     A set of functions to help with value-to-string conversion of test and
+///     step arguments.
 /// </summary>
 public static class FormatFunctions
 {
+    private static readonly JsonSerializerSettings SerializerSettings = new()
+    {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        Error = (_, args) => { args.ErrorContext.Handled = true; }
+    };
+
     /// <summary>
-    /// Formats a given value into a string. This is a shorthand for
-    /// <see cref="Format(object?, IReadOnlyDictionary{Type, ITypeFormatter})"/>
-    /// with empty formatters dictionary.
+    ///     Formats a given value into a string. This is a shorthand for
+    ///     <see cref="Format(object?, IReadOnlyDictionary{Type, ITypeFormatter})" />
+    ///     with empty formatters dictionary.
     /// </summary>
     public static string Format(object? value)
     {
@@ -23,15 +29,13 @@ public static class FormatFunctions
     }
 
     /// <summary>
-    /// Formats a given value into a string. If the type of the value matches
-    /// a formater in the formatters dictionary, the formatter is used to
-    /// produce the result.
-    /// 
-    /// Otherwise, the value is formatted as a JSON string or object.ToString()
-    /// if JSON serialization failed.
-    /// 
-    /// The serializer skips fields that contain loop references
-    /// and fields that could not be serialized
+    ///     Formats a given value into a string. If the type of the value matches
+    ///     a formater in the formatters dictionary, the formatter is used to
+    ///     produce the result.
+    ///     Otherwise, the value is formatted as a JSON string or object.ToString()
+    ///     if JSON serialization failed.
+    ///     The serializer skips fields that contain loop references
+    ///     and fields that could not be serialized
     /// </summary>
     public static string Format(
         object? value,
@@ -43,19 +47,14 @@ public static class FormatFunctions
             return formatter.Format(value);
         }
 
+        if (value is null)
+        {
+            return "null";
+        }
+
         try
         {
-            return JsonConvert.SerializeObject(
-                value,
-                Formatting.Indented,
-                new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                    Error = (_, args) =>
-                    {
-                        args.ErrorContext.Handled = true;
-                    }
-                });
+            return JsonConvert.SerializeObject(value, SerializerSettings);
         }
         catch
         {
