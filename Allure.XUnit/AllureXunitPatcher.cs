@@ -1,106 +1,109 @@
 using System;
-
 using HarmonyLib;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Allure.XUnit
+namespace Allure.XUnit;
+
+internal static class AllureXunitPatcher
 {
-    static class AllureXunitPatcher
+    private const string ALLURE_ID = "io.qameta.allure.xunit";
+    private static bool _isPatched;
+    private static IRunnerLogger _logger;
+
+    private static AllureMessageSink CurrentSink
     {
-        const string ALLURE_ID = "io.qameta.allure.xunit";
-        static bool isPatched = false;
-        static IRunnerLogger logger;
-
-        static AllureMessageSink CurrentSink
+        get
         {
-            get
+            var sink = AllureMessageSink.CurrentSink;
+
+            if (sink is null)
             {
-                var sink = AllureMessageSink.CurrentSink;
-                if (sink is null)
-                {
-                    logger.LogWarning("Unable to get current message sink.");
-                }
-                return sink;
+                _logger.LogWarning("Unable to get current message sink.");
             }
+
+            return sink;
+        }
+    }
+
+    public static void PatchXunit(IRunnerLogger runnerLogger)
+    {
+        if (_isPatched)
+        {
+            _logger.LogMessage(
+                "Patching is skipped: Xunit is already patched"
+            );
+
+            return;
         }
 
-        public static void PatchXunit(IRunnerLogger runnerLogger)
+        _logger = runnerLogger;
+        var patcher = new Harmony(ALLURE_ID);
+        _patchXunitTestRunnerConstructors(patcher);
+        _isPatched = true;
+    }
+
+    private static void _patchXunitTestRunnerConstructors(Harmony patcher)
+    {
+        var testRunnerType = typeof(XunitTestRunner);
+        var wasPatched = false;
+
+        foreach (var ctor in testRunnerType.GetConstructors())
         {
-            if (isPatched)
+            try
             {
-                logger.LogMessage(
-                    "Patching is skipped: Xunit is already patched"
+                patcher.Patch(
+                    ctor,
+                    prefix: new HarmonyMethod(
+                        typeof(AllureXunitPatcher),
+                        nameof(_onTestRunnerCreating)
+                    ),
+                    postfix: new HarmonyMethod(
+                        typeof(AllureXunitPatcher),
+                        nameof(_onTestRunnerCreated)
+                    )
                 );
-                return;
+
+                wasPatched = true;
+
+                _logger.LogImportantMessage(
+                    "{0}'s {1} has been patched",
+                    testRunnerType.Name,
+                    ctor.ToString()
+                );
             }
-
-            logger = runnerLogger;
-            var patcher = new Harmony(ALLURE_ID);
-            PatchXunitTestRunnerCtors(patcher);
-            isPatched = true;
-        }
-
-        static void PatchXunitTestRunnerCtors(Harmony patcher)
-        {
-            var testRunnerType = typeof(XunitTestRunner);
-            var wasPatched = false;
-            foreach (var ctor in testRunnerType.GetConstructors())
+            catch (Exception e)
             {
-                try
-                {
-                    patcher.Patch(
-                        ctor,
-                        prefix: new HarmonyMethod(
-                            typeof(AllureXunitPatcher),
-                            nameof(OnTestRunnerCreating)
-                        ),
-                        postfix: new HarmonyMethod(
-                            typeof(AllureXunitPatcher),
-                            nameof(OnTestRunnerCreated)
-                        )
-                    );
-                    wasPatched = true;
-                    logger.LogImportantMessage(
-                        "{0}'s {1} has been patched",
-                        testRunnerType.Name,
-                        ctor.ToString()
-                    );
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(
-                        "Unable to patch {0}'s {1}: {2}",
-                        testRunnerType.Name,
-                        ctor.ToString(),
-                        e.ToString()
-                    );
-                }
-            }
-
-            if (!wasPatched)
-            {
-                logger.LogWarning(
-                    "No constructors of {0} were pathched. Some theories may " +
-                        "miss their parameters in the report",
-                    testRunnerType.Name
+                _logger.LogWarning(
+                    "Unable to patch {0}'s {1}: {2}",
+                    testRunnerType.Name,
+                    ctor.ToString(),
+                    e.ToString()
                 );
             }
         }
 
-        static void OnTestRunnerCreating(ITest test, ref string skipReason)
+        if (!wasPatched)
         {
-            if (!CurrentSink.SelectByTestPlan(test))
-            {
-                skipReason = "Deselected by the testplan.";
-            }
+            _logger.LogWarning(
+                "No constructors of {0} were pathched. Some theories may " +
+                "miss their parameters in the report",
+                testRunnerType.Name
+            );
         }
+    }
 
-        static void OnTestRunnerCreated(
-            ITest test,
-            object[] testMethodArguments
-        ) =>
-            CurrentSink.OnTestArgumentsCreated(test, testMethodArguments);
+    private static void _onTestRunnerCreating(ITest test, ref string skipReason)
+    {
+        if (!CurrentSink.SelectByTestPlan(test))
+        {
+            skipReason = "Deselected by the testplan.";
+        }
+    }
+
+    private static void _onTestRunnerCreated(ITest test, object[] testMethodArguments)
+    {
+        CurrentSink.OnTestArgumentsCreated(test, testMethodArguments);
     }
 }
