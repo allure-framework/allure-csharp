@@ -55,6 +55,8 @@ jobs:
           cat ./Allure.Xunit/Schemas/allureConfig.schema.json
           sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlow/Schemas/allureConfig.schema.json
           cat ./Allure.SpecFlow/Schemas/allureConfig.schema.json
+          sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Reqnroll/Schemas/allureConfig.schema.json
+          cat ./Allure.Reqnroll/Schemas/allureConfig.schema.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Net.Commons/allureConfig.Template.json
           cat ./Allure.Net.Commons/allureConfig.Template.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.NUnit.Examples/allureConfig.json
@@ -67,6 +69,12 @@ jobs:
           cat ./Allure.SpecFlow.Tests.Samples/allureConfig.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlow.Tests/allureConfig.json
           cat ./Allure.SpecFlow.Tests/allureConfig.json
+          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Reqnroll/allureConfig.Template.json
+          cat ./Allure.Reqnroll/allureConfig.Template.json
+          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Reqnroll.Tests.Samples/allureConfig.json
+          cat ./Allure.Reqnroll.Tests.Samples/allureConfig.json
+          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Reqnroll.Tests/allureConfig.json
+          cat ./Allure.Reqnroll.Tests/allureConfig.json
       - name: "Update release notes link"
         run: |
           sed -i -e '/<PackageReleaseNotes>/,/<\/PackageReleaseNotes>/ s|/allure-csharp/releases/tag/.*\.|/allure-csharp/releases/tag/${{ inputs.nextVersion }}.|g' ./Directory.Build.props
