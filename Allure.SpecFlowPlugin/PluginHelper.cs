@@ -92,6 +92,7 @@ namespace Allure.SpecFlowPlugin
             var testResult = new TestResult
             {
                 name = title,
+                description = scenarioInfo.Description,
                 labels = new List<Label>
                 {
                     Label.Thread(),
