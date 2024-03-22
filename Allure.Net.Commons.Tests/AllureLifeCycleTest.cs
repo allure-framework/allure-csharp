@@ -114,7 +114,8 @@ namespace Allure.Net.Commons.Tests
             };
             var testResult = new TestResult
             {
-                uuid = Guid.NewGuid().ToString()
+                uuid = Guid.NewGuid().ToString(),
+                fullName = "test"
             };
             var fixture = new FixtureResult { name = "fixture" };
 
@@ -152,7 +153,8 @@ namespace Allure.Net.Commons.Tests
             {
                 lifecycle.StartTestCase(new()
                 {
-                    uuid = Guid.NewGuid().ToString()
+                    uuid = Guid.NewGuid().ToString(),
+                    fullName = "test"
                 });
                 context = lifecycle.Context;
             });
@@ -175,7 +177,8 @@ namespace Allure.Net.Commons.Tests
             {
                 lifecycle.StartTestCase(new()
                 {
-                    uuid = Guid.NewGuid().ToString()
+                    uuid = Guid.NewGuid().ToString(),
+                    fullName = "test"
                 });
             });
 
@@ -186,7 +189,7 @@ namespace Allure.Net.Commons.Tests
         }
 
         [Test]
-        public void HistoryIdIsSetAfterStop()
+        public void HistoryAndTestCaseIdsAreSetAfterStop()
         {
             var writer = new InMemoryResultsWriter();
             var lifecycle = new AllureLifecycle(_ => writer);
@@ -203,10 +206,11 @@ namespace Allure.Net.Commons.Tests
             lifecycle.StopTestCase();
 
             Assert.That(lifecycle.Context.CurrentTest.historyId, Is.Not.Null);
+            Assert.That(lifecycle.Context.CurrentTest.testCaseId, Is.Not.Null);
         }
 
         [Test]
-        public void HistoryIdNotOverwrittenAfterStop()
+        public void HistoryAndTestCaseIdsAreNotOverwrittenAfterStop()
         {
             var writer = new InMemoryResultsWriter();
             var lifecycle = new AllureLifecycle(_ => writer);
@@ -214,12 +218,14 @@ namespace Allure.Net.Commons.Tests
             {
                 uuid = "uuid",
                 fullName = "full-name",
-                historyId = "history-id"
+                historyId = "history-id",
+                testCaseId = "testcase-id"
             });
 
             lifecycle.StopTestCase();
 
             Assert.That(lifecycle.Context.CurrentTest.historyId, Is.EqualTo("history-id"));
+            Assert.That(lifecycle.Context.CurrentTest.testCaseId, Is.EqualTo("testcase-id"));
         }
     }
 }

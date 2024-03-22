@@ -236,9 +236,6 @@ namespace Allure.Xunit
             testResult.fullName = IdFunctions.CreateFullName(
                 testCase.TestMethod.Method.ToRuntimeMethod()
             );
-            testResult.testCaseId = IdFunctions.CreateTestCaseId(
-                testResult.fullName
-            );
         }
 
         static void SetLegacyTestResultIdentifiers(

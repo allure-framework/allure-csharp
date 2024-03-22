@@ -270,9 +270,6 @@ namespace Allure.SpecFlowPlugin
                 featureInfo,
                 scenarioTitle
             );
-            testResult.testCaseId = IdFunctions.CreateTestCaseId(
-                testResult.fullName
-            );
         }
 
         static void SetLegacyTestResultIdentifiers(

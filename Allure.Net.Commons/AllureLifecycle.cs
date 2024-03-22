@@ -655,6 +655,9 @@ public class AllureLifecycle
         (TestResult tr) => tr.historyId ??= IdFunctions.CreateHistoryId(
             tr.fullName,
             tr.parameters
+        ),
+        (TestResult tr) => tr.testCaseId ??= IdFunctions.CreateTestCaseId(
+            tr.fullName
         )
     );
 
