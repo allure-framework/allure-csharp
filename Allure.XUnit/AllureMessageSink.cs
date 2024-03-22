@@ -7,6 +7,7 @@ using Allure.Net.Commons.TestPlan;
 using Allure.Xunit;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 #nullable enable
 
@@ -49,6 +50,11 @@ namespace Allure.XUnit
         )
         {
             args.Message.ExecutionOptions.SetSynchronousMessageReporting(true);
+            AllureLifecycle.Instance.AllureConfiguration.FailExceptions ??= new()
+            {
+                typeof(XunitException).FullName, // v2.4.1 and earlier
+                "Xunit.Sdk.IAssertionException" // v2.4.2 and onward
+            };
         }
 
         internal bool SelectByTestPlan(ITest test)

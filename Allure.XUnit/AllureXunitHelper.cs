@@ -1,16 +1,15 @@
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
-using Allure.Xunit.Attributes;
-using Allure.XUnit;
-using Allure.XUnit.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using Allure.Net.Commons;
+using Allure.Net.Commons.Functions;
+using Allure.Xunit.Attributes;
+using Allure.XUnit;
+using Allure.XUnit.Attributes;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 #nullable enable
 
@@ -23,11 +22,6 @@ namespace Allure.Xunit
             TestResultContainer TestResultContainer { get; set; }
             TestResult TestResult { get; set; }
         }
-
-        internal static List<Type> ExceptionTypes = new()
-        {
-            typeof(XunitException)
-        };
 
         static AllureXunitHelper()
         {
@@ -204,7 +198,7 @@ namespace Allure.Xunit
             {
                 labels.RemoveAll(label => label.name == labelToInsert.name);
             }
-            
+
             labels.Add(labelToInsert);
         }
 
