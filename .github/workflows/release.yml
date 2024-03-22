@@ -67,6 +67,10 @@ jobs:
           cat ./Allure.Features/allureConfig.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlowPlugin.Tests/allureConfig.json
           cat ./Allure.SpecFlowPlugin.Tests/allureConfig.json
+      - name: "Update release notes link"
+        run: |
+          sed -i -e '/<PackageReleaseNotes>/,/<\/PackageReleaseNotes>/ s|/allure-csharp/releases/tag/.*\.|/allure-csharp/releases/tag/${{ inputs.nextVersion }}.|g' ./Directory.Build.props
+          cat ./Directory.Build.props
       - name: "Commit release version and create tag"
         run: |
           git commit -am "release ${{ env.release_version }}"
