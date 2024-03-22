@@ -64,6 +64,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Reqnroll.Tests.Samples", "Allure.Reqnroll.Tests.Samples\Allure.Reqnroll.Tests.Samples.csproj", "{BECABC99-B027-4644-BE59-02B1997A711B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Reqnroll.Tests", "Allure.Reqnroll.Tests\Allure.Reqnroll.Tests.csproj", "{D400FEDF-BD77-4643-827B-8ACC92B438FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,11 @@ Global
 		{BECABC99-B027-4644-BE59-02B1997A711B}.Publish|Any CPU.ActiveCfg = Release|Any CPU
 		{BECABC99-B027-4644-BE59-02B1997A711B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BECABC99-B027-4644-BE59-02B1997A711B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D400FEDF-BD77-4643-827B-8ACC92B438FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D400FEDF-BD77-4643-827B-8ACC92B438FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D400FEDF-BD77-4643-827B-8ACC92B438FE}.Publish|Any CPU.ActiveCfg = Release|Any CPU
+		{D400FEDF-BD77-4643-827B-8ACC92B438FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D400FEDF-BD77-4643-827B-8ACC92B438FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -148,6 +155,7 @@ Global
 		{F8EAE54E-21B5-4260-BBF4-9A4E7A60BB4F} = {0E4AE49E-2E8F-4A27-8E5F-9ADD41F29349}
 		{8A134D07-3424-4238-BD71-C5B7D35F6C36} = {FD04A838-5AD5-417C-AD5B-1E5C4164AF62}
 		{BECABC99-B027-4644-BE59-02B1997A711B} = {0E4AE49E-2E8F-4A27-8E5F-9ADD41F29349}
+		{D400FEDF-BD77-4643-827B-8ACC92B438FE} = {0E4AE49E-2E8F-4A27-8E5F-9ADD41F29349}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54ACFEA9-DB76-4FC0-B216-B8033996DB79}
