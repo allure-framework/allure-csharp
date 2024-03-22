@@ -131,7 +131,7 @@ public class AllureLifecycle
     /// <summary>
     /// Registers a type formatter to be used when converting a test's or
     /// step's argument to the string that will be included in the Allure
-    /// report. 
+    /// report.
     /// </summary>
     /// <typeparam name="T">
     /// The type that the formatter converts. The formatter will be used for
@@ -372,9 +372,10 @@ public class AllureLifecycle
 
     #region TestCase
 
+
     /// <summary>
-    /// Starts a new test and activates the test context with it. The test
-    /// becomes the current one in the current execution context.
+    /// Prepares a new test and activates the test context with it. The test
+    /// should be then started separately with <see cref="StartTestCase()"/>
     /// </summary>
     /// <remarks>
     /// This method modifies the Allure context.<br></br>
@@ -382,9 +383,10 @@ public class AllureLifecycle
     /// </remarks>
     /// <param name="testResult">A new test case.</param>
     /// <exception cref="InvalidOperationException"/>
-    public virtual AllureLifecycle StartTestCase(TestResult testResult)
+    public virtual AllureLifecycle ScheduleTestCase(TestResult testResult)
     {
         var uuid = testResult.uuid;
+        testResult.stage = Stage.scheduled;
         var containers = this.Context.ContainerContext;
         lock (this.modelMonitor)
         {
@@ -395,9 +397,33 @@ public class AllureLifecycle
         }
         this.storage.Put(uuid, testResult);
         this.UpdateContext(c => c.WithTestContext(testResult));
-        this.UpdateTestCase(startAllureItem);
         return this;
     }
+
+
+    /// <summary>
+    /// Starts a previously scheduled test.
+    /// </summary>
+    /// <remarks>
+    /// Requires the test context to be active.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException"/>
+    public virtual AllureLifecycle StartTestCase() =>
+        this.UpdateTestCase(startAllureItem);
+
+    /// <summary>
+    /// Starts a new test and activates the test context with it. The test
+    /// becomes the current one in the current execution context.
+    /// </summary>
+    /// <remarks>
+    /// This method modifies the Allure context.<br></br>
+    /// Requires the test context to be active.
+    /// </remarks>
+    /// <param name="testResult">A new test case.</param>
+    /// <exception cref="InvalidOperationException"/>
+    public virtual AllureLifecycle StartTestCase(TestResult testResult) =>
+        this.ScheduleTestCase(testResult)
+            .UpdateTestCase(startAllureItem);
 
     /// <summary>
     /// Applies the specified update function to the current test.
