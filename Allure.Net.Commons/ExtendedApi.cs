@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Allure.Net.Commons.Functions;
 
 #nullable enable
 
@@ -137,6 +140,23 @@ public static class ExtendedApi
         BreakFixture();
     }
 
+    /// <summary>
+    ///   Stops the current fixture making it passed, failed, or broken
+    ///   depending on the provided exception. Deactivates the current fixture
+    ///   context.
+    /// </summary>
+    /// <remarks>
+    ///   Requires the fixture context to be active.
+    /// </remarks>
+    /// <param name="error">
+    ///   An exception instance. If it's null, the fixture is marked as passed.
+    ///   Otherwise, the fixture is marked as failed or broken depending on the
+    ///   exception's type and the configuration of the current lifecycle
+    ///   instance.
+    /// </param>
+    public static void ResolveFixture(Exception? error) =>
+        ResolveItem(CurrentLifecycle.StopFixture, error);
+
     #endregion
 
     #region Low-level steps API
@@ -236,6 +256,20 @@ public static class ExtendedApi
         CurrentLifecycle.UpdateStep(updateResults);
         BreakStep();
     }
+
+    /// <summary>
+    ///   Stops the current step making it passed, failed, or broken depending on
+    ///   the provided exception.
+    ///   Requires the step context to be active.
+    /// </summary>
+    /// <param name="error">
+    ///   An exception instance. If it's null, the step is marked as passed.
+    ///   Otherwise, the step is marked as failed or broken depending on the
+    ///   exception's type and the configuration of the current lifecycle
+    ///   instance.
+    /// </param>
+    public static void ResolveStep(Exception? error) =>
+        ResolveItem(CurrentLifecycle.StopStep, error);
 
     #endregion
 
@@ -371,6 +405,11 @@ public static class ExtendedApi
 
     #endregion
 
+    static IEnumerable<string> FailExceptions
+    {
+        get => CurrentLifecycle.AllureConfiguration.FailExceptions
+            ?? Enumerable.Empty<string>();
+    }
 
     static T ExecuteFixture<T>(
         string name,
@@ -381,8 +420,7 @@ public static class ExtendedApi
             name,
             start,
             action,
-            pass: PassFixture,
-            fail: FailFixture
+            resolve: ResolveFixture
         );
 
     static async Task<T> ExecuteFixtureAsync<T>(
@@ -393,7 +431,29 @@ public static class ExtendedApi
         await AllureApi.ExecuteActionAsync(
             () => startFixture(name),
             action,
-            pass: PassFixture,
-            fail: FailFixture
+            resolve: ResolveFixture
+        );
+
+    static void ResolveItem(
+        Func<Action<ExecutableItem>, AllureLifecycle> stop,
+        Exception? error
+    )
+    {
+        var (status, statusDetails) = ResolveDetailedStatus(error);
+        stop(item =>
+        {
+            item.status = status;
+            item.statusDetails = statusDetails;
+        });
+    }
+
+    static (Status, StatusDetails?) ResolveDetailedStatus(
+        Exception? error
+    ) =>
+        error is null
+            ? (Status.passed, null)
+            : (
+                ModelFunctions.ResolveErrorStatus(FailExceptions, error),
+                ModelFunctions.ToStatusDetails(error)
         );
 }

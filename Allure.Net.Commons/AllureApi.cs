@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Steps;
 using HeyRed.Mime;
 
 #nullable enable
@@ -581,8 +580,7 @@ public static class AllureApi
             name,
             ExtendedApi.StartStep,
             action,
-            ExtendedApi.PassStep,
-            ExtendedApi.FailStep
+            ExtendedApi.ResolveStep
         );
 
     static async Task<T> ExecuteStepAsync<T>(
@@ -592,30 +590,31 @@ public static class AllureApi
         await ExecuteActionAsync(
             () => ExtendedApi.StartStep(name),
             action,
-            ExtendedApi.PassStep,
-            ExtendedApi.FailStep
+            ExtendedApi.ResolveStep
         );
 
     internal static async Task<T> ExecuteActionAsync<T>(
         Action start,
         Func<Task<T>> action,
-        Action pass,
-        Action fail
+        Action<Exception?> resolve
     )
     {
         T result;
+        Exception? error = null;
         start();
         try
         {
             result = await action();
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            fail();
+            error = e;
             throw;
         }
-
-        pass();
+        finally
+        {
+            resolve(error);
+        }
         return result;
     }
 
@@ -623,11 +622,11 @@ public static class AllureApi
         string name,
         Action<string> start,
         Func<T> action,
-        Action pass,
-        Action fail
+        Action<Exception?> resolve
     )
     {
         T result;
+        Exception? error = null;
         start(name);
         try
         {
@@ -635,11 +634,13 @@ public static class AllureApi
         }
         catch (Exception e)
         {
-            fail();
-            throw new StepFailedException(name, e);
+            error = e;
+            throw;
         }
-
-        pass();
+        finally
+        {
+            resolve(error);
+        }
         return result;
     }
 }

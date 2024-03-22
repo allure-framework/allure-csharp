@@ -4,17 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
+#nullable enable
+
 namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
 
-class LambdaFixtureTests : AllureApiTestFixture
+class LambdaFixtureTests : LambdaApiTestFixture
 {
-    static readonly Action errorAction = () => throw new Exception();
-    static readonly Func<int> errorFunc = () => throw new Exception();
-    static readonly Func<Task> asyncErrorAction
-        = async () => await Task.FromException(new Exception());
-    static readonly Func<Task<int>> asyncErrorFunc
-        = async () => await Task.FromException<int>(new Exception());
-
     [Test]
     public void ActionCanBeConvertedToBeforeFixture()
     {
@@ -31,11 +26,24 @@ class LambdaFixtureTests : AllureApiTestFixture
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => ExtendedApi.Before("My fixture", errorAction),
+            () => ExtendedApi.Before("My fixture", failAction),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertBeforeFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void ActionCanBeConvertedToBrokenBeforeFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => ExtendedApi.Before("My fixture", breakAction),
             Throws.Exception
         );
 
-        this.AssertBeforeFixtureCompleted("My fixture", Status.failed);
+        this.AssertBeforeFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -55,11 +63,24 @@ class LambdaFixtureTests : AllureApiTestFixture
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => ExtendedApi.Before("My fixture", errorFunc),
+            () => ExtendedApi.Before("My fixture", failFunc),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertBeforeFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void FuncCanBeConvertedToBrokenBeforeFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => ExtendedApi.Before("My fixture", breakFunc),
             Throws.Exception
         );
 
-        this.AssertBeforeFixtureCompleted("My fixture", Status.failed);
+        this.AssertBeforeFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -83,12 +104,28 @@ class LambdaFixtureTests : AllureApiTestFixture
         Assert.That(
             async () => await ExtendedApi.Before(
                 "My fixture",
-                asyncErrorAction
+                asyncFailAction
+            ),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertBeforeFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void AsyncActionCanBeConvertedToBrokenBeforeFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            async () => await ExtendedApi.Before(
+                "My fixture",
+                asyncBreakAction
             ),
             Throws.Exception
         );
 
-        this.AssertBeforeFixtureCompleted("My fixture", Status.failed);
+        this.AssertBeforeFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -112,12 +149,28 @@ class LambdaFixtureTests : AllureApiTestFixture
         Assert.That(
             async () => await ExtendedApi.Before(
                 "My fixture",
-                asyncErrorFunc
+                asyncFailFunc
+            ),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertBeforeFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void AsyncFuncCanBeConvertedToBrokenBeforeFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            async () => await ExtendedApi.Before(
+                "My fixture",
+                asyncBreakFunc
             ),
             Throws.Exception
         );
 
-        this.AssertBeforeFixtureCompleted("My fixture", Status.failed);
+        this.AssertBeforeFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -136,11 +189,24 @@ class LambdaFixtureTests : AllureApiTestFixture
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => ExtendedApi.After("My fixture", errorAction),
+            () => ExtendedApi.After("My fixture", failAction),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertAfterFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void ActionCanBeConvertedToBrokenAfterFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => ExtendedApi.After("My fixture", breakAction),
             Throws.Exception
         );
 
-        this.AssertAfterFixtureCompleted("My fixture", Status.failed);
+        this.AssertAfterFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -160,11 +226,24 @@ class LambdaFixtureTests : AllureApiTestFixture
         this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
         Assert.That(
-            () => ExtendedApi.After("My fixture", errorFunc),
+            () => ExtendedApi.After("My fixture", failFunc),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertAfterFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void FuncCanBeConvertedToBrokenAfterFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => ExtendedApi.After("My fixture", breakFunc),
             Throws.Exception
         );
 
-        this.AssertAfterFixtureCompleted("My fixture", Status.failed);
+        this.AssertAfterFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -188,12 +267,28 @@ class LambdaFixtureTests : AllureApiTestFixture
         Assert.That(
             async () => await ExtendedApi.After(
                 "My fixture",
-                asyncErrorAction
+                asyncFailAction
+            ),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertAfterFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void AsyncActionCanBeConvertedToBrokenAfterFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            async () => await ExtendedApi.After(
+                "My fixture",
+                asyncBreakAction
             ),
             Throws.Exception
         );
 
-        this.AssertAfterFixtureCompleted("My fixture", Status.failed);
+        this.AssertAfterFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -217,24 +312,82 @@ class LambdaFixtureTests : AllureApiTestFixture
         Assert.That(
             async () => await ExtendedApi.After(
                 "My fixture",
-                asyncErrorFunc
+                asyncFailFunc
+            ),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertAfterFixtureCompleted("My fixture", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void AsyncFuncCanBeConvertedToBrokenAfterFixture()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            async () => await ExtendedApi.After(
+                "My fixture",
+                asyncBreakFunc
             ),
             Throws.Exception
         );
 
-        this.AssertAfterFixtureCompleted("My fixture", Status.failed);
+        this.AssertAfterFixtureCompleted("My fixture", Status.broken, "message", typeof(Exception));
     }
 
-    void AssertBeforeFixtureCompleted(string name, Status status) =>
-        this.AssertFixtureCompleted(tc => tc.befores, name, status);
+    [Test]
+    public void SubclassOfFailExceptionLeadsToFailed()
+    {
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
 
-    void AssertAfterFixtureCompleted(string name, Status status) =>
-        this.AssertFixtureCompleted(tc => tc.afters, name, status);
+        Assert.That(
+            () => ExtendedApi.Before("My fixture", () => throw new InheritedFailException()),
+            Throws.InstanceOf<InheritedFailException>()
+        );
+
+        this.AssertBeforeFixtureCompleted("My fixture", Status.failed, "message", typeof(InheritedFailException));
+    }
+
+    [Test]
+    public void ImplementationOfFailInterfaceTreatedAsAssertionFailure()
+    {
+        this.lifecycle.AllureConfiguration.FailExceptions = new()
+        {
+            typeof(IErrorInterface).FullName
+        };
+        this.lifecycle.StartTestContainer(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => ExtendedApi.Before("My fixture", () => throw new InheritedFailException()),
+            Throws.InstanceOf<InheritedFailException>()
+        );
+
+        this.AssertBeforeFixtureCompleted("My fixture", Status.failed, "message", typeof(InheritedFailException));
+    }
+
+    void AssertBeforeFixtureCompleted(
+        string name,
+        Status status,
+        string? message = null,
+        Type? exceptionType = null
+    ) =>
+        this.AssertFixtureCompleted(tc => tc.befores, name, status, message, exceptionType);
+
+    void AssertAfterFixtureCompleted(
+        string name,
+        Status status,
+        string? message = null,
+        Type? exceptionType = null
+    ) =>
+        this.AssertFixtureCompleted(tc => tc.afters, name, status, message, exceptionType);
 
     void AssertFixtureCompleted(
         Func<TestResultContainer, List<FixtureResult>> getFixtures,
         string name,
-        Status status
+        Status status,
+        string? message = null,
+        Type? exceptionType = null
     )
     {
         Assert.That(this.Context.HasFixture, Is.False);
@@ -244,5 +397,14 @@ class LambdaFixtureTests : AllureApiTestFixture
         var fixture = fixtures.First();
         Assert.That(fixture.name, Is.EqualTo(name));
         Assert.That(fixture.status, Is.EqualTo(status));
+        Assert.That(fixture.statusDetails?.message, Is.EqualTo(message));
+        if (message is not null)
+        {
+            Assert.That(fixture.statusDetails?.trace, Contains.Substring(message));
+        }
+        if (exceptionType?.FullName is not null)
+        {
+            Assert.That(fixture.statusDetails?.trace, Contains.Substring(exceptionType.FullName));
+        }
     }
 }
