@@ -184,7 +184,10 @@ namespace Allure.XUnit
 
             if (parameters.Any() && !arguments.Any())
             {
-                this.LogUnreportedTheoryArgs(test.DisplayName);
+                if (string.IsNullOrEmpty(test.TestCase.SkipReason))
+                {
+                    this.LogUnreportedTheoryArgs(test.DisplayName);
+                }
             }
             else
             {
@@ -213,8 +216,8 @@ namespace Allure.XUnit
             var message = $"Unable to attach arguments of {testName} to " +
                 "allure report";
 #if !DEBUG
-            message += ". You may try to compile the project in debug mode " +
-                "as a workaround";
+            message += ". Try to compile the project in debug mode as a " +
+                "workaround";
 #endif
             this.Logger.LogWarning(message);
         }
