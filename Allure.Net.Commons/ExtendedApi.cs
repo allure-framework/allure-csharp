@@ -111,6 +111,42 @@ public static class ExtendedApi
     }
 
     /// <summary>
+    /// Stops the current fixture making it failed. Deactivates the step and
+    /// the fixture contexts.
+    /// </summary>
+    /// <remarks>
+    /// Can't be called if the fixture context isn't active.
+    /// </remarks>
+    /// <param name="error">The error to report at the fixture level.</param>
+    public static void FailFixture(Exception error) => CurrentLifecycle.StopFixture(
+        result =>
+        {
+            result.status = Status.failed;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        }
+    );
+
+    /// <summary>
+    /// Stops the current fixture making it failed. Deactivates the step and
+    /// the fixture contexts.
+    /// </summary>
+    /// <remarks>
+    /// Can't be called if the fixture context isn't active.
+    /// </remarks>
+    /// <param name="updateResults">
+    /// The callback that is called before the fixture is stopped.
+    /// </param>
+    /// <param name="error">The error to report at the fixture level.</param>
+    public static void FailFixture(
+        Action<FixtureResult> updateResults,
+        Exception error
+    )
+    {
+        CurrentLifecycle.UpdateFixture(updateResults);
+        FailFixture(error);
+    }
+
+    /// <summary>
     /// Stops the current fixture making it broken. Deactivates the step and
     /// the fixture contexts.
     /// </summary>
@@ -139,6 +175,70 @@ public static class ExtendedApi
         CurrentLifecycle.UpdateFixture(updateResults);
         BreakFixture();
     }
+
+    /// <summary>
+    /// Stops the current fixture making it broken. Deactivates the step and
+    /// the fixture contexts.
+    /// </summary>
+    /// <remarks>
+    /// Can't be called if the fixture context isn't active.
+    /// </remarks>
+    /// <param name="error">The error to report at the fixture level.</param>
+    public static void BreakFixture(Exception error) => CurrentLifecycle.StopFixture(
+        result =>
+        {
+            result.status = Status.broken;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        }
+    );
+
+    /// <summary>
+    /// Stops the current fixture making it broken. Deactivates the step and
+    /// the fixture contexts.
+    /// </summary>
+    /// <remarks>
+    /// Can't be called if the fixture context isn't active.
+    /// </remarks>
+    /// <param name="updateResults">
+    /// The callback that is called before the fixture is stopped.
+    /// </param>
+    /// <param name="error">The error to report at the fixture level.</param>
+    public static void BreakFixture(
+        Action<FixtureResult> updateResults,
+        Exception error
+    )
+    {
+        CurrentLifecycle.UpdateFixture(updateResults);
+        BreakFixture(error);
+    }
+
+    /// <summary>
+    /// Stops the current fixture making it skipped. Deactivates the step and
+    /// the fixture contexts.
+    /// </summary>
+    /// <remarks>
+    /// Can't be called if the fixture context isn't active.
+    /// </remarks>
+    public static void SkipFixture() => CurrentLifecycle.StopFixture(
+        result => result.status = Status.skipped
+    );
+
+    /// <summary>
+    /// Stops the current fixture making it skipped. Deactivates the step and
+    /// the fixture contexts.
+    /// </summary>
+    /// <remarks>
+    /// Can't be called if the fixture context isn't active.
+    /// </remarks>
+    /// <param name="updateResults">
+    /// The callback that is called before the fixture is stopped.
+    /// </param>
+    public static void SkipFixture(Action<FixtureResult> updateResults) =>
+        CurrentLifecycle.StopFixture(result =>
+        {
+            updateResults(result);
+            result.status = Status.skipped;
+        });
 
     /// <summary>
     ///   Stops the current fixture making it passed, failed, or broken
@@ -234,6 +334,36 @@ public static class ExtendedApi
     }
 
     /// <summary>
+    /// Stops the current step making it failed. Requires the step context to
+    /// be active.
+    /// </summary>
+    /// <param name="error">The error to report at the step level.</param>
+    public static void FailStep(Exception error) => CurrentLifecycle.StopStep(
+        result =>
+        {
+            result.status = Status.failed;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        }
+    );
+
+    /// <summary>
+    /// Stops the current step making it failed. Requires the step context to
+    /// be active.
+    /// </summary>
+    /// <param name="updateResults">
+    /// The callback that is executed before the step is stopped.
+    /// </param>
+    /// <param name="error">The error to report at the step level.</param>
+    public static void FailStep(
+        Action<StepResult> updateResults,
+        Exception error
+    )
+    {
+        CurrentLifecycle.UpdateStep(updateResults);
+        FailStep(error);
+    }
+
+    /// <summary>
     /// Stops the current step making it broken. Requires the step context to
     /// be active.
     /// </summary>
@@ -256,6 +386,58 @@ public static class ExtendedApi
         CurrentLifecycle.UpdateStep(updateResults);
         BreakStep();
     }
+
+    /// <summary>
+    /// Stops the current step making it broken. Requires the step context to
+    /// be active.
+    /// </summary>
+    /// <param name="error">The error to report at the step level.</param>
+    public static void BreakStep(Exception error) => CurrentLifecycle.StopStep(
+        result =>
+        {
+            result.status = Status.broken;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        }
+    );
+
+    /// <summary>
+    /// Stops the current step making it broken. Requires the step context to
+    /// be active.
+    /// </summary>
+    /// <param name="updateResults">
+    /// The callback that is executed before the step is stopped.
+    /// </param>
+    /// <param name="error">The error to report at the step level.</param>
+    public static void BreakStep(
+        Action<StepResult> updateResults,
+        Exception error
+    )
+    {
+        CurrentLifecycle.UpdateStep(updateResults);
+        BreakStep(error);
+    }
+
+    /// <summary>
+    /// Stops the current step making it skipped. Requires the step context to
+    /// be active.
+    /// </summary>
+    public static void SkipStep() => CurrentLifecycle.StopStep(
+        result => result.status = Status.skipped
+    );
+
+    /// <summary>
+    /// Stops the current step making it skipped. Requires the step context to
+    /// be active.
+    /// </summary>
+    /// <param name="updateResults">
+    /// The callback that is executed before the step is stopped.
+    /// </param>
+    public static void SkipStep(Action<StepResult> updateResults) =>
+        CurrentLifecycle.StopStep(result =>
+        {
+            updateResults(result);
+            result.status = Status.skipped;
+        });
 
     /// <summary>
     ///   Stops the current step making it passed, failed, or broken depending on
@@ -455,5 +637,5 @@ public static class ExtendedApi
             : (
                 ModelFunctions.ResolveErrorStatus(FailExceptions, error),
                 ModelFunctions.ToStatusDetails(error)
-        );
+            );
 }
