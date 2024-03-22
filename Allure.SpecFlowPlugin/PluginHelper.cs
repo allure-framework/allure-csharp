@@ -317,11 +317,20 @@ namespace Allure.SpecFlowPlugin
                             when IsIgnoreException(
                                 scenarioContext.TestError
                             ) => Status.skipped,
-                        ScenarioExecutionStatus.TestError => Status.broken,
+                        ScenarioExecutionStatus.TestError =>
+                            ResolveErrorStatus(
+                                scenarioContext.TestError
+                            ),
                         _ => Status.broken
                     },
                 _ => status
             };
+
+        static Status ResolveErrorStatus(Exception error) =>
+            ModelFunctions.ResolveErrorStatus(
+                AllureLifecycle.Instance.AllureConfiguration.FailExceptions,
+                error
+            );
 
         static StatusDetails ResolveTestCaseDetails(
             ScenarioContext scenarioContext,

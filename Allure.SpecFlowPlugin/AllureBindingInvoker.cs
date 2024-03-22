@@ -26,6 +26,15 @@ namespace Allure.SpecFlowPlugin
         const string PLACEHOLDER_TESTCASE_KEY =
             "Allure.SpecFlowPlugin.HAS_PLACEHOLDER_TESTCASE";
 
+        const string ASSERT_EXC_NUNIT =
+        "NUnit.Framework.AssertionException";
+        const string ASSERT_EXC_XUNIT_NEW = // From v2.4.2 and onward.
+            "Xunit.Sdk.IAssertionException";
+        const string ASSERT_EXC_XUNIT_OLD = // Prior to v2.4.2
+            "Xunit.Sdk.XunitException";
+        const string ASSERT_EXC_MSTEST =
+            "Microsoft.VisualStudio.TestTools.UnitTesting.AssertFailedException";
+
         static readonly AllureLifecycle allure = AllureLifecycle.Instance;
 
         readonly ITestRunnerManager testRunnerManager;
@@ -47,6 +56,13 @@ namespace Allure.SpecFlowPlugin
                 unitTestRuntimeProvider,
                 WriteErrorToFileSafe
             );
+            AllureLifecycle.Instance.AllureConfiguration.FailExceptions ??= new()
+            {
+                ASSERT_EXC_NUNIT,
+                ASSERT_EXC_XUNIT_NEW,
+                ASSERT_EXC_XUNIT_OLD,
+                ASSERT_EXC_MSTEST
+            };
         }
 
         public override object InvokeBinding(
