@@ -17,13 +17,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="allureConfig.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
         <None Include="./../img/Allure-N-Color.png" Pack="true" PackagePath="\" />
         <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
-using Newtonsoft.Json.Linq;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
@@ -19,17 +18,16 @@ namespace NUnit.Allure.Core
 {
     public sealed class AllureNUnitHelper
     {
-        internal static List<Type> ExceptionTypes = new()
-        {
-            typeof(NUnitException),
-            typeof(AssertionException)
-        };
-
         private readonly ITest _test;
 
         public AllureNUnitHelper(ITest test)
         {
             _test = test;
+            AllureLifecycle.AllureConfiguration.FailExceptions ??= new()
+            {
+                typeof(NUnitException).FullName,
+                typeof(AssertionException).FullName
+            };
         }
 
         private static AllureLifecycle AllureLifecycle => AllureLifecycle.Instance;
@@ -61,19 +59,27 @@ namespace NUnit.Allure.Core
             UpdateTestDataFromNUnitProperties();
             AddConsoleOutputAttachment();
 
-            AllureLifecycle.UpdateTestCase(
-                x => x.statusDetails = new StatusDetails
+            var result = TestContext.CurrentContext.Result;
+            var nunitStatus = result.Outcome.Status;
+            var status = GetNUnitStatus();
+            var message = result.Message;
+            var hasMessage = !string.IsNullOrWhiteSpace(message);
+            var trace = result.StackTrace;
+            var statusDetails = hasMessage || !string.IsNullOrWhiteSpace(trace)
+                ? new StatusDetails
                 {
-                    message = string.IsNullOrWhiteSpace(
-                        TestContext.CurrentContext.Result.Message
-                    ) ? TestContext.CurrentContext.Test.Name
-                        : TestContext.CurrentContext.Result.Message,
-                    trace = TestContext.CurrentContext.Result.StackTrace
+                    message = hasMessage ? message : $"Test {nunitStatus}",
+                    trace = trace
                 }
-            );
+                : null;
+
 
             AllureLifecycle.StopTestCase(
-                testCase => testCase.status = GetNUnitStatus()
+                testCase =>
+                {
+                    testCase.status = status;
+                    testCase.statusDetails = statusDetails;
+                }
             );
             AllureLifecycle.WriteTestCase();
         }
@@ -113,49 +119,16 @@ namespace NUnit.Allure.Core
         public static Status GetNUnitStatus()
         {
             var result = TestContext.CurrentContext.Result;
-
-            if (result.Outcome.Status != TestStatus.Passed)
+            return result.Outcome.Status switch
             {
-                var jo = JObject.Parse(AllureLifecycle.JsonConfiguration);
-                var allureSection = jo["allure"];
-                try
-                {
-                    var config = allureSection
-                        ?.ToObject<AllureExtendedConfiguration>();
-                    if (config?.BrokenTestData != null)
-                    {
-                        foreach (var word in config.BrokenTestData)
-                        {
-                            if (result.Message.Contains(word))
-                            {
-                                return Status.broken;
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    //Ignored
-                }
-
-                switch (result.Outcome.Status)
-                {
-                    case TestStatus.Inconclusive:
-                        return Status.broken;
-                    case TestStatus.Skipped:
-                        return Status.skipped;
-                    case TestStatus.Passed:
-                        return Status.passed;
-                    case TestStatus.Warning:
-                        return Status.broken;
-                    case TestStatus.Failed:
-                        return Status.failed;
-                    default:
-                        return Status.none;
-                }
-            }
-
-            return Status.passed;
+                TestStatus.Inconclusive or TestStatus.Warning =>
+                    Status.broken,
+                TestStatus.Skipped => Status.skipped,
+                TestStatus.Passed => Status.passed,
+                TestStatus.Failed when IsBroken(result) => Status.broken,
+                TestStatus.Failed => Status.failed,
+                _ => Status.none
+            };
         }
 
         TestResultContainer CreateTestContainer() =>
@@ -166,6 +139,12 @@ namespace NUnit.Allure.Core
                     ? this.ContainerId
                     : IdFunctions.CreateUUID()
             };
+
+        static bool IsBroken(TestContext.ResultAdapter result) =>
+            !result.Assertions.Any()
+                || result.Assertions.Any(
+                    a => a.Status == AssertionStatus.Error
+                );
 
         static void SetIdentifiers(ITest test, TestResult testResult)
         {
@@ -297,12 +276,15 @@ namespace NUnit.Allure.Core
                 .CurrentContext
                 .CurrentResult
                 .Output;
-            AllureApi.AddAttachment(
-                "Console Output",
-                "text/plain", 
-                Encoding.UTF8.GetBytes(output),
-                ".txt"
-            );
+            if (!string.IsNullOrWhiteSpace(output))
+            {
+                AllureApi.AddAttachment(
+                    "Console Output",
+                    "text/plain",
+                    Encoding.UTF8.GetBytes(output),
+                    ".txt"
+                );
+            }
         }
 
         private IEnumerable<string> GetTestProperties(string name)
