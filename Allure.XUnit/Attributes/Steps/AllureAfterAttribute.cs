@@ -5,7 +5,7 @@ namespace Allure.XUnit.Attributes.Steps
 {
     public class AllureAfterAttribute : AllureStepAttributes.AbstractAfterAttribute
     {
-        public AllureAfterAttribute(string name = null) : base(name, AllureXunitHelper.ExceptionTypes)
+        public AllureAfterAttribute(string name = null) : base(name)
         {
         }
     }
