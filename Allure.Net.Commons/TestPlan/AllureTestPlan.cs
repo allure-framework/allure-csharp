@@ -10,12 +10,12 @@ using System.Text;
 namespace Allure.Net.Commons.TestPlan;
 
 /// <summary>
-/// Used by integrations to enable selective run of tests.
+/// A set of functions to implement test plan support.
 /// </summary>
 public class AllureTestPlan
 {
     /// <summary>
-    /// Testplan entries that denote tests included in the run.
+    /// The test plan entries that denote tests included in the run.
     /// </summary>
     public List<AllureTestPlanItem> Tests
     {
@@ -28,7 +28,7 @@ public class AllureTestPlan
     }
 
     /// <summary>
-    /// Used by integrations to check if a test is selected by the testplan.
+    /// Used by integrations to check if a test is selected by the test plan.
     /// </summary>
     /// <param name="fullName">A fullName of the test.</param>
     /// <param name="allureId">
@@ -52,7 +52,7 @@ public class AllureTestPlan
         );
 
     /// <summary>
-    /// Creates the testplan from a JSON string.
+    /// Creates the test plan from a JSON string.
     /// </summary>
     public static AllureTestPlan FromJson(string jsonContent) =>
         JsonConvert.DeserializeObject<AllureTestPlan>(
@@ -64,7 +64,7 @@ public class AllureTestPlan
         ) ?? DEFAULT_TESTPLAN;
 
     /// <summary>
-    /// Creates the testplan from the file pointed by the environment variable.
+    /// Loads the test plan from the file pointed by the environment variable.
     /// </summary>
     /// <exception cref="NotImplementedException"></exception>
     public static AllureTestPlan FromEnvironment()
@@ -82,7 +82,7 @@ public class AllureTestPlan
             ?? FindLabel(labels, AllureConstants.OLD_ALLURE_ID_LABEL_NAME);
 
     /// <summary>
-    /// A testplan that doesn't filter any test.
+    /// A test plan that doesn't filter any test.
     /// </summary>
     public static readonly AllureTestPlan DEFAULT_TESTPLAN = new();
 

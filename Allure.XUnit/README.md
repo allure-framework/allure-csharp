@@ -64,11 +64,8 @@ We rely on Harmony that in turn uses MonoMod.Core to:
 1. Report arguments of theories in rare case they aren't reported by xUnit.net itself.
 2. Implement selectie run.
 
-Sometimes MonoMod.Core fails to patch making those features unavailable. We
-know two such cases:
-
-1. Running under .NET 8.0
-2. Running on ARM64
+Those features are unavailable on ARM64 due to limitations of MonoMod.Core.
+Additionally, they might not work in some other rare circumstances.
 
 Issue [#369] contains some additional details.
 
