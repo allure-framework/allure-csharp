@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
 using AspectInjector.Broker;
+using NUnit.Allure.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -14,6 +16,7 @@ namespace NUnit.Allure.Internals
         [Advice(Kind.Around)]
         public object StopTestContainerAfterTheLastOneTimeTearDown(
             [Argument(Source.Target)] Func<object[], object> target,
+            [Argument(Source.Arguments)] object[] arguments,
             [Argument(Source.Metadata)] MethodBase metadata
         )
         {
@@ -22,18 +25,21 @@ namespace NUnit.Allure.Internals
                 CurrentTearDownCount++;
                 if (IsLastTearDown)
                 {
-                    return CallAndStopContainer(target);
+                    return CallAndStopContainer(target, arguments);
                 }
             }
-            return target(Array.Empty<object>());
+            return target(arguments);
         }
 
-        static object CallAndStopContainer(Func<object[], object> target)
+        static object CallAndStopContainer(
+            Func<object[], object> target,
+            object[] arguments
+        )
         {
             object returnValue = null;
             try
             {
-                returnValue = target(Array.Empty<object>());
+                returnValue = target(arguments);
             }
             finally
             {
@@ -43,7 +49,7 @@ namespace NUnit.Allure.Internals
                 }
                 else
                 {
-                    // This branch is executed only in case of an async one time tear down
+                    // This branch is executed only in case of an async OneTimeTearDown
                     returnValue = StopContainerAfterAsyncTearDown(returnValue);
                 }
             }
@@ -52,6 +58,8 @@ namespace NUnit.Allure.Internals
 
         async static Task StopContainerAfterAsyncTearDown(object awaitable)
         {
+            // Currently, we only support the Task return type for async tear
+            // downs. ValueTask support should be added to commons first.
             await ((Task)awaitable).ConfigureAwait(false);
             StopContainer();
         }
@@ -84,12 +92,15 @@ namespace NUnit.Allure.Internals
                 );
         }
 
-        static int TotalTearDownCount
-        {
-            get => (
-                (TestSuite)TestExecutionContext.CurrentContext.CurrentTest
-            ).OneTimeTearDownMethods.Length;
-        }
+        static int TotalTearDownCount =>
+            ((TestSuite)TestExecutionContext.CurrentContext.CurrentTest)
+                .OneTimeTearDownMethods
+                .Count(
+                    m => Attribute.IsDefined(
+                        m.MethodInfo,
+                        typeof(AllureAfterAttribute)
+                    )
+                );
 
         const string CurrentTearDownKey = "CurrentTearDownCount";
     }
