@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Allure.ReqnrollPlugin.Tests.Samples</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="allureConfig.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="reqnroll.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+        <PackageReference Include="Castle.Core" Version="5.1.1" />
+        <PackageReference Include="Reqnroll" Version="1.0.1" />
+        <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="1.0.1" />
+        <PackageReference Include="Reqnroll.xUnit" Version="1.0.1" />
+        <PackageReference Include="xunit" Version="2.7.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+        <ProjectReference Include="..\Allure.Reqnroll\Allure.Reqnroll.csproj" />
+    </ItemGroup>
+
+</Project>
