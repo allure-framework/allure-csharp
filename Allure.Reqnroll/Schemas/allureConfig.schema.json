@@ -1,0 +1,138 @@
+{
+  "allOf": [
+    {
+      "$ref": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.11.0/Allure.Net.Commons/Schemas/allureConfig.schema.json"
+    }
+  ],
+  "properties": {
+    "allure": {
+      "type": "object",
+      "properties": {
+        "gherkinPatterns": {
+          "type": "object",
+          "properties": {
+            "stepArguments": {
+              "type": "object",
+              "properties": {
+                "createFromDataTables": {
+                  "description": "If set to true, Allure Reqnroll converts a data table to step parameters.",
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "string",
+                      "enum": [ "true", "false" ]
+                    }
+                  ],
+                  "default": false
+                },
+                "nameColumn": {
+                  "type": "string",
+                  "description": "This pattern checks if a two-column table should be converted to the step's parameters. The first column must match the pattern. Otherwise, the table will be skipped."
+                },
+                "valueColumn": {
+                  "type": "string",
+                  "description": "This pattern checks if a two-column table should be converted to the step's parameters. The second column must match the pattern. Otherwise, the table will be skipped."
+                }
+              }
+            },
+            "grouping": {
+              "type": "object",
+              "properties": {
+                "suites": {
+                  "type": "object",
+                  "properties": {
+                    "parentSuite": {
+                      "type": "string",
+                      "description": "If a gherkin tag matches this regular expression, it's converted to the parentSuite label. If there is a capture group defined, only the part matching this group is used as parentSuite. Otherwise, the whole tag is used.",
+                      "default": "allure\\.parentSuite:(.+)"
+                    },
+                    "suite": {
+                      "type": "string",
+                      "description": "If a gherkin tag matches this regular expression, it's converted to the suite label. If there is a capture group defined, only the part matching this group is used as suite. Otherwise, the whole tag is used.",
+                      "default": "allure\\.suite:(.+)"
+                    },
+                    "subSuite": {
+                      "type": "string",
+                      "description": "If a gherkin tag matches this regular expression, it's converted to the subSuite label. If there is a capture group defined, only the part matching this group is used as subSuite. Otherwise, the whole tag is used.",
+                      "default": "allure\\.subSuite:(.+)"
+                    }
+                  }
+                },
+                "behaviors": {
+                  "type": "object",
+                  "properties": {
+                    "epic": {
+                      "type": "string",
+                      "description": "If a gherkin tag matches this regular expression, it's converted to the epic label. If there is a capture group defined, only the part matching this group is used as epic. Otherwise, the whole tag is used.",
+                      "default": "allure\\.epic:(.+)"
+                    },
+                    "story": {
+                      "type": "string",
+                      "description": "If a gherkin tag matches this regular expression, it's converted to the story label. If there is a capture group defined, only the part matching this group is used as story. Otherwise, the whole tag is used.",
+                      "default": "allure\\.story:(.+)"
+                    }
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "owner": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the owner label. If there is a capture group defined, only the part matching this group is used as owner. Otherwise, the whole tag is used.",
+                  "default": "allure\\.owner:(.+)"
+                },
+                "severity": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the severity label. If there is a capture group defined, only the part matching this group is used as severity. Otherwise, the whole tag is used.",
+                  "default": "(blocker|critical|normal|minor|trivial)"
+                },
+                "label": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to the specified label. You must define two capture groups in the expression. The first one is used to match a name of the label, while the second one is used to match a value.",
+                  "default": "allure\\.label\\.([^:]+):(.+)"
+                }
+              }
+            },
+            "links": {
+              "type": "object",
+              "properties": {
+                "link": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to a link. If there is a capture group defined, only the part matching this group is used as a link's value. Otherwise, the whole tag is used.",
+                  "default": "allure\\.link:(.+)"
+                },
+                "issue": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to an issue link. If there is a capture group defined, only the part matching this group is used as a link's value. Otherwise, the whole tag is used.",
+                  "default": "allure\\.issue:(.+)"
+                },
+                "tms": {
+                  "type": "string",
+                  "description": "If a gherkin tag matches this regular expression, it's converted to a TMS item link. If there is a capture group defined, only the part matching this group is used as a link's value. Otherwise, the whole tag is used.",
+                  "default": "allure\\.tms:(.+)"
+                }
+              }
+            }
+          }
+        },
+        "ignoreExceptions": {
+          "type": "array",
+          "description": "The list of exceptions that make a test skipped instead of failed or broken. Each entry must be a namespace-qualified class name.",
+          "items": {
+            "type": "string",
+            "description": "The full class name of an exception type.",
+            "examples": [ "NUnit.Framework.IgnoreException" ]
+          }
+        },
+        "runnerType": {
+          "type": "string",
+          "description": "The assembly qualified class name of the ITestRunner implementation to use. Defaults to Reqnroll.TestRunner."
+        }
+      }
+    }
+  }
+}
