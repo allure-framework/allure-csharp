@@ -5,6 +5,7 @@ namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests;
 
 class AllureApiTestFixture
 {
+    protected InMemoryResultsWriter writer;
     protected AllureLifecycle lifecycle;
 
     protected AllureContext Context => this.lifecycle.Context;
@@ -12,9 +13,8 @@ class AllureApiTestFixture
     [SetUp]
     public void SetUp()
     {
-        this.lifecycle = new AllureLifecycle(
-            _ => new InMemoryResultsWriter()
-        );
+        this.writer = new InMemoryResultsWriter();
+        this.lifecycle = new AllureLifecycle(_ => this.writer);
         AllureApi.CurrentLifecycle = lifecycle;
     }
 
