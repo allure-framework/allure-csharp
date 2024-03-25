@@ -11,13 +11,13 @@ namespace Allure.Net.Commons.Tests
         [Test, Description("ResultsDirectory property shouldn't be empty")]
         public void CheckResultsDirectory()
         {
-            Assert.NotNull(new AllureLifecycle().ResultsDirectory);
+            Assert.That(new AllureLifecycle().ResultsDirectory, Is.Not.Null);
         }
 
         [Test, Description("ExecutableItem.status default value should be 'none'")]
         public void ShouldSetDefaultStateAsNone()
         {
-            Assert.AreEqual(Status.none, new TestResult().status);
+            Assert.That(new TestResult().status, Is.EqualTo(Status.none));
         }
 
         [Test, Description("Integration Test")]

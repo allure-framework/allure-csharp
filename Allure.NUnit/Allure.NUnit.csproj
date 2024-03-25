@@ -14,14 +14,10 @@
 
     <ItemGroup>
         <PackageReference Include="NUnit" Version="3.13.3" />
-        <PackageReference Include="NUnit.Engine.Api" Version="3.15.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj">
-            <!-- todo: Remove Allure.Net.Commons references-->
-            <!-- <PrivateAssets>all</PrivateAssets>-->
-        </ProjectReference>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
