@@ -29,11 +29,6 @@ namespace NUnit.Allure.Attributes
 
         public void BeforeTest(ITest suite)
         {
-            AllureLifecycle.Instance.StartTestContainer(new()
-            {
-                uuid = suite.Id + "-ignored",
-                name = suite.ClassName
-            });
         }
 
         public void AfterTest(ITest suite)
@@ -50,9 +45,6 @@ namespace NUnit.Allure.Attributes
                 {
                     this.EmitResultForIgnoredTestInTestPlan(test);
                 }
-
-                AllureLifecycle.Instance.StopTestContainer();
-                AllureLifecycle.Instance.WriteTestContainer();
             }
         }
 
