@@ -1,7 +1,0 @@
-{
-  "stepAssemblies": [
-    {
-      "assembly": "Allure.SpecFlowPlugin"
-    }
-  ]
-}
