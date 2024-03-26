@@ -3,7 +3,6 @@ name: Build
 env:
   SOLUTION_PATH: allure-csharp.sln
   BUILD_CONFIGURATION: 'Release'
-  RESTORE_OUTPUT_PATH: 'packages'
   PACKAGE_OUTPUT_PATH: 'artifacts'
 
 on:
@@ -32,8 +31,7 @@ jobs:
 
       - name: 'Restore packages'
         run: |
-          dotnet restore ${{ env.SOLUTION_PATH }}\
-            --packages ${{ env.RESTORE_OUTPUT_PATH }}
+          dotnet restore ${{ env.SOLUTION_PATH }}
 
       - name: 'Build project using dotnet'
         run: |
