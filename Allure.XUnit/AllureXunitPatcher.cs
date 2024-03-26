@@ -1,5 +1,6 @@
-using HarmonyLib;
 using System;
+using Allure.Net.Commons.TestPlan;
+using HarmonyLib;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -98,10 +99,10 @@ internal static class AllureXunitPatcher
     {
         if (!CurrentSink.SelectByTestPlan(test))
         {
-            skipReason = "Deselected by the test plan.";
+            skipReason = AllureTestPlan.SkipReason;
         }
     }
 
-    private static void OnTestRunnerCreated(ITest test, object[] testMethodArguments) => 
+    private static void OnTestRunnerCreated(ITest test, object[] testMethodArguments) =>
         CurrentSink.OnTestArgumentsCreated(test, testMethodArguments);
 }
