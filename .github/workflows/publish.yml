@@ -2,7 +2,7 @@ name: Publish
 
 env:
   SOLUTION_PATH: allure-csharp.sln
-  BUILD_CONFIGURATION: 'Release'
+  BUILD_CONFIGURATION: 'Publish'
   RESTORE_OUTPUT_PATH: 'packages'
   PACKAGE_OUTPUT_PATH: 'artifacts'
 
