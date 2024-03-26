@@ -117,6 +117,9 @@ namespace NUnit.Allure.Core
             return testResult;
         }
 
+        internal static bool IsSelectedByTestPlan(TestResult testResult) =>
+            AllureLifecycle.TestPlan.IsSelected(testResult);
+
         public static Status GetNUnitStatus()
         {
             var result = TestContext.CurrentContext.Result;
@@ -201,9 +204,6 @@ namespace NUnit.Allure.Core
                 attribute.UpdateTestResult(testResult);
             }
         }
-
-        static bool IsSelectedByTestPlan(TestResult testResult) =>
-            AllureLifecycle.TestPlan.IsSelected(testResult);
 
         static IEnumerable<AllureTestCaseAttribute> IterateAllAllureAttribites(ITest test) =>
             test.Method

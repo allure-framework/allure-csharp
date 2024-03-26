@@ -48,7 +48,7 @@ namespace NUnit.Allure.Attributes
                     );
                 foreach (var test in ignoredTests)
                 {
-                    this.EmitResultForIgnoredTest(test);
+                    this.EmitResultForIgnoredTestInTestPlan(test);
                 }
 
                 AllureLifecycle.Instance.StopTestContainer();
@@ -63,21 +63,25 @@ namespace NUnit.Allure.Attributes
             return test.Tests.Concat(test.Tests.SelectMany(GetAllTests));
         }
 
-        void EmitResultForIgnoredTest(ITest test)
+        void EmitResultForIgnoredTestInTestPlan(ITest test)
         {
-            AllureLifecycle.Instance.UpdateTestContainer(
-                        t => t.children.Add(test.Id)
-                    );
+            var ignoredTestResult = AllureNUnitHelper.CreateTestResult(test);
+            if (AllureNUnitHelper.IsSelectedByTestPlan(ignoredTestResult))
+            {
+                this.EmitTestResult(test, ignoredTestResult);
+            }
+        }
 
+        void EmitTestResult(ITest test, TestResult testResult)
+        {
             var reason = test.Properties.Get(
                 PropertyNames.SkipReason
             )?.ToString() ?? "";
+            testResult.status = Status.skipped;
+            testResult.statusDetails = new() { message = test.Name };
+            this.ApplyLegacySuiteLabels(testResult, reason);
 
-            var ignoredTestResult = AllureNUnitHelper.CreateTestResult(test);
-            ignoredTestResult.status = Status.skipped;
-            ignoredTestResult.statusDetails = new() { message = test.Name };
-            this.ApplyLegacySuiteLabels(ignoredTestResult, reason);
-            AllureLifecycle.Instance.StartTestCase(ignoredTestResult);
+            AllureLifecycle.Instance.StartTestCase(testResult);
             AllureLifecycle.Instance.StopTestCase();
             AllureLifecycle.Instance.WriteTestCase();
         }
