@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
+using Allure.Net.Commons.TestPlan;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
@@ -50,7 +51,7 @@ namespace NUnit.Allure.Core
             else
             {
                 this._test.Deselect();
-                Assert.Ignore("Deselected by the testplan.");
+                Assert.Ignore(AllureTestPlan.SkipReason);
             }
         }
 
@@ -350,7 +351,7 @@ namespace NUnit.Allure.Core
 
                 fixtureResult = fr;
             });
-            
+
             var testFixture = GetTestFixture(
                 TestExecutionContext.CurrentContext.CurrentTest
             );
