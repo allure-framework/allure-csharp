@@ -53,20 +53,20 @@ jobs:
           cat ./Allure.NUnit/Schemas/allureConfig.schema.json
           sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Xunit/Schemas/allureConfig.schema.json
           cat ./Allure.Xunit/Schemas/allureConfig.schema.json
-          sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json
-          cat ./Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json
+          sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlow/Schemas/allureConfig.schema.json
+          cat ./Allure.SpecFlow/Schemas/allureConfig.schema.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Net.Commons/allureConfig.Template.json
           cat ./Allure.Net.Commons/allureConfig.Template.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.NUnit.Examples/allureConfig.json
           cat ./Allure.NUnit.Examples/allureConfig.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Xunit.Examples/allureConfig.json
           cat ./Allure.Xunit.Examples/allureConfig.json
-          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlowPlugin/allureConfig.Template.json
-          cat ./Allure.SpecFlowPlugin/allureConfig.Template.json
-          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Features/allureConfig.json
-          cat ./Allure.Features/allureConfig.json
-          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlowPlugin.Tests/allureConfig.json
-          cat ./Allure.SpecFlowPlugin.Tests/allureConfig.json
+          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlow/allureConfig.Template.json
+          cat ./Allure.SpecFlow/allureConfig.Template.json
+          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlow.Tests.Samples/allureConfig.json
+          cat ./Allure.SpecFlow.Tests.Samples/allureConfig.json
+          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlow.Tests/allureConfig.json
+          cat ./Allure.SpecFlow.Tests/allureConfig.json
       - name: "Update release notes link"
         run: |
           sed -i -e '/<PackageReleaseNotes>/,/<\/PackageReleaseNotes>/ s|/allure-csharp/releases/tag/.*\.|/allure-csharp/releases/tag/${{ inputs.nextVersion }}.|g' ./Directory.Build.props
