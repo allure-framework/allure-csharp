@@ -349,7 +349,7 @@ namespace NUnit.Allure.Core
 
             if (!string.IsNullOrEmpty(currentResult.Output))
             {
-                AllureLifecycle.Instance.AddAttachment(
+                AllureApi.AddAttachment(
                     "Console Output",
                     "text/plain",
                     Encoding.UTF8.GetBytes(currentResult.Output),

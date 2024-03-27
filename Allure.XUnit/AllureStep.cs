@@ -1,5 +1,5 @@
 using System;
-using Allure.Net.Commons.Steps;
+using Allure.Net.Commons;
 
 namespace Allure.Xunit
 {
@@ -8,7 +8,7 @@ namespace Allure.Xunit
         [Obsolete("Use AllureStepAttribute")]
         public AllureStep(string name)
         {
-            CoreStepsHelper.StartStep(name);
+            ExtendedApi.StartStep(name);
         }
     }
 }

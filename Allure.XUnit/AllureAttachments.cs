@@ -41,7 +41,7 @@ namespace Allure.XUnit
         [Obsolete]
         public static Task AddAttachment(string name, string type, byte[] content, string fileExtension)
         {
-            AllureLifecycle.Instance.AddAttachment(name, type, content, fileExtension);
+            AllureApi.AddAttachment(name, type, content, fileExtension);
             return Task.CompletedTask;
         }
     }
