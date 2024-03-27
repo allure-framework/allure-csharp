@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Allure.Net.Commons;
 using Gherkin;
 using Gherkin.Ast;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Allure.ReqnrollPlugin.Tests.Integration;
 
 class IntegrationTests
 {
+    private FileInfo? allureConfigFile;
+    private DirectoryInfo? allureResultsDir;
     static List<TestResultContainer>? containers;
     static List<TestResult>? results;
     static Dictionary<string, List<string>>? scenariosByStatus;
@@ -20,33 +24,90 @@ class IntegrationTests
     [OneTimeSetUp]
     public void Init()
     {
-        var samplesProjectPath = Path.GetFullPath(
+        var samplesProjectDir = Path.GetFullPath(
             Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
                 @"./../../../../Allure.Reqnroll.Tests.Samples"
             )
         );
-        Process.Start(new ProcessStartInfo
-        {
-            WorkingDirectory = samplesProjectPath,
-            FileName = "dotnet",
-            Arguments = $"test"
-        })?.WaitForExit();
-        var allureResultsDirectory = new DirectoryInfo(samplesProjectPath)
-            .GetDirectories("allure-results", SearchOption.AllDirectories)
-            .First();
-        var featuresDirectory = Path.Combine(samplesProjectPath, "Features");
+        this.allureResultsDir = Directory.CreateDirectory(
+            Path.Combine(
+                Path.GetTempPath(),
+                Guid.NewGuid().ToString()
+            )
+        );
+        this.allureConfigFile = PrepareAllureConfig(
+            Path.Combine(
+                samplesProjectDir,
+                "allureConfig.json"
+            ),
+            this.allureResultsDir
+        );
+
+        RunSamples(samplesProjectDir, this.allureConfigFile);
+
+        var featuresDirectory = Path.Combine(samplesProjectDir, "Features");
 
 
         containers = ParseResultFiles<TestResultContainer>(
-            allureResultsDirectory.FullName,
+            this.allureResultsDir.FullName,
             "*-container.json"
         );
         results = ParseResultFiles<TestResult>(
-            allureResultsDirectory.FullName,
+            this.allureResultsDir.FullName,
             "*-result.json"
         );
         scenariosByStatus = ParseFeatures(featuresDirectory);
+    }
+
+    [OneTimeTearDown]
+    public void RemoveTempFiles()
+    {
+        if (this.allureResultsDir?.Exists is true)
+        {
+            this.allureResultsDir.Delete(recursive: true);
+        }
+        if (this.allureConfigFile?.Exists is true)
+        {
+            this.allureConfigFile.Delete();
+        }
+    }
+
+    static FileInfo PrepareAllureConfig(string originalConfigPath, DirectoryInfo resultsDir)
+    {
+        var json = JObject.Parse(
+            File.ReadAllText(originalConfigPath)
+        );
+
+        if (json["allure"] is not JObject allureJsonConfig)
+        {
+            throw new InvalidOperationException($"Unexpected format of {originalConfigPath}");
+        }
+
+        var path = Path.Combine(
+            Path.GetTempPath(),
+            Guid.NewGuid().ToString()
+        );
+        allureJsonConfig["directory"] = new JValue(resultsDir.FullName);
+        File.WriteAllText(path, json.ToString());
+        return new FileInfo(path);
+    }
+
+    static void RunSamples(string samplesProjectDir, FileInfo allureConfigFile)
+    {
+        var configuration = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyConfigurationAttribute>()
+            ?.Configuration
+            ?? "Debug";
+        var dotnetTestProcessInfo = new ProcessStartInfo
+        {
+            WorkingDirectory = samplesProjectDir,
+            FileName = "dotnet",
+            Arguments = $"test --configuration {configuration}",
+        };
+        dotnetTestProcessInfo.Environment[AllureConstants.ALLURE_CONFIG_ENV_VARIABLE] =
+            allureConfigFile.FullName;
+        Process.Start(dotnetTestProcessInfo)?.WaitForExit();
     }
 
     [TestCase(Status.passed)]
