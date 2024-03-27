@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 #nullable enable
 
-namespace Allure.XUnit.Reporters
+namespace Allure.XUnit
 {
     public class AllureRunnerReporter : IRunnerReporter
     {
