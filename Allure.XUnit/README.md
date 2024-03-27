@@ -25,15 +25,7 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 
 ## Notes
 
-### AllureXunit and AllureXunitTheory deprecation
-Previously all test methods had to be marked with the AllureXunit or
-AllureXunitTheory attributes. There is no such need anymore.
-These attributes are still supported, but we advice you to use the built-in
-Fact and Theory attributes instead.
-
-The AllureXunit and AllureXunitTheory attributes might be removed in future releases.
-
-### Allure.XUnit.StepExtensions deprecation
+### Allure.Xunit.StepExtensions deprecation
 There is no more need to use separate Allure.XUnit.StepExtensions package. You
 should remove it from dependencies and use attributes from
 [Allure.Xunit.Attributes.Steps namespace](Attributes/Steps) directly.

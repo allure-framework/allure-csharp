@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Allure.Net.Commons;
@@ -400,102 +399,5 @@ namespace Allure.Xunit
                 parametersSegment
             );
         }
-
-        #region Obsolete public methods
-        const string OBS_MSG_UNINTENDED_PUBLIC =
-            "This method wasn't supposed to be in the public API. It's not " +
-            "relevant anymore and will be removed in a future release";
-
-        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void StartTestContainer(
-            ITestCaseStarting testCaseStarting
-        )
-        {
-            var testCase = testCaseStarting.TestCase;
-            if (testCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            testResults.TestResultContainer = StartNewAllureContainer(
-                testCaseStarting.TestClass.Class.Name
-            );
-        }
-
-        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void StartTestCase(ITestCaseMessage testCaseMessage)
-        {
-            var testCase = testCaseMessage.TestCase;
-            if (testCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            testResults.TestResult = CreateTestResultByTestCase(testCase);
-            AllureLifecycle.Instance.StartTestCase(testResults.TestResult);
-            ApplyTestParameters(
-                testCase.TestMethod.Method.GetParameters(),
-                testCase.TestMethodArguments
-            );
-        }
-
-        static TestResult CreateTestResultByTestCase(ITestCase testCase) =>
-            CreateTestResult(testCase, testCase.DisplayName);
-
-        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void MarkTestCaseAsFailedOrBroken(ITestFailed testFailed)
-        {
-            if (testFailed.TestCase is not ITestResultAccessor)
-            {
-                return;
-            }
-
-            ApplyTestFailure(testFailed);
-        }
-
-        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void MarkTestCaseAsPassed(ITestPassed testPassed)
-        {
-            if (testPassed.TestCase is not ITestResultAccessor)
-            {
-                return;
-            }
-
-            ApplyTestSuccess(testPassed);
-        }
-
-        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void MarkTestCaseAsSkipped(
-            ITestCaseMessage testCaseMessage
-        )
-        {
-            var testCase = testCaseMessage.TestCase;
-            if (testCase is not ITestResultAccessor testResults)
-            {
-                return;
-            }
-
-            ApplyTestSkip(testResults.TestResult, testCase.SkipReason);
-        }
-
-        [Obsolete(OBS_MSG_UNINTENDED_PUBLIC)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void FinishTestCase(ITestCaseMessage testCaseMessage)
-        {
-            var testCase = testCaseMessage.TestCase;
-            if (testCase is not ITestResultAccessor)
-            {
-                return;
-            }
-
-            ReportCurrentTestCase();
-            ReportCurrentTestContainer();
-        }
-        #endregion
     }
 }
