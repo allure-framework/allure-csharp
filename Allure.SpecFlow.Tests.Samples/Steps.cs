@@ -6,7 +6,7 @@ using Allure.SpecFlowPlugin;
 using NUnit.Framework;
 using TechTalk.SpecFlow;
 
-namespace Allure.Features
+namespace Allure.SpecFlow.Tests.Samples
 {
     public enum TestOutcome
     {
