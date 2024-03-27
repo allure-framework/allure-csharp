@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Allure.Features
+namespace Allure.SpecFlow.Tests.Samples
 {
     internal class IgnoreException : Exception
     {

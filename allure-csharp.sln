@@ -11,11 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "commons", "commons", "{E003
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "specflow", "specflow", "{9AC8581F-7E9E-46B1-A30A-5A815966C820}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin", "Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj", "{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlow", "Allure.SpecFlow\Allure.SpecFlow.csproj", "{ECEA4EB9-3871-4C3B-A821-C2F4EAF81D9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlowPlugin.Tests", "Allure.SpecFlowPlugin.Tests\Allure.SpecFlowPlugin.Tests.csproj", "{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlow.Tests", "Allure.SpecFlow.Tests\Allure.SpecFlow.Tests.csproj", "{69C462C3-E955-4B0C-9F1F-2ED5AE1BF270}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Features", "Allure.Features\Allure.Features.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.SpecFlow.Tests.Samples", "Allure.SpecFlow.Tests.Samples\Allure.SpecFlow.Tests.Samples.csproj", "{9F2B97FF-6798-4A69-9520-CE3491396F3F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "allure-xunit", "allure-xunit", "{138A76FC-B163-423C-8FF8-D374F1C7EC2F}"
 EndProject
