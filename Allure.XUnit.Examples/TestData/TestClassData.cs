@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Allure.XUnit.Examples
+namespace Allure.Xunit.Examples.TestData
 {
     public class TestClassData : IEnumerable<object[]>
     {

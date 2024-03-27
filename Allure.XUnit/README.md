@@ -1,18 +1,18 @@
-# Allure.XUnit
+# Allure.Xunit
 
-[![Nuget](https://img.shields.io/nuget/v/Allure.XUnit?style=flat)](https://www.nuget.org/packages/Allure.XUnit)
-[![Nuget pre](https://img.shields.io/nuget/vpre/Allure.XUnit?style=flat)](https://www.nuget.org/packages/Allure.XUnit)
+[![Nuget](https://img.shields.io/nuget/v/Allure.Xunit?style=flat)](https://www.nuget.org/packages/Allure.Xunit)
+[![Nuget pre](https://img.shields.io/nuget/vpre/Allure.Xunit?style=flat)](https://www.nuget.org/packages/Allure.Xunit)
 
 ![Nuget downloads](https://img.shields.io/nuget/dt/allure.xunit?label=downloads&style=flat)
 
 > An Allure adapter for [xUnit.net](https://xunit.net/).
 
-Allure.XUnit supports .NET Core 2.0 or later, or any .NET runtime that
+Allure Xunit supports .NET Core 2.0 or later, or any .NET runtime that
 implements .NET Standard 2.1.
 
 ## Quick start
 
-Install the Allure.XUnit package and run the tests normally. In many cases
+Install the Allure.Xunit package and run the tests normally. In many cases
 allure should start automatically. The result files are created in the
 `allure-results` directory in the target directory.
 If that didn't happen, check out the `Running tests in a CI pipeline` section.
@@ -36,13 +36,13 @@ The AllureXunit and AllureXunitTheory attributes might be removed in future rele
 ### Allure.XUnit.StepExtensions deprecation
 There is no more need to use separate Allure.XUnit.StepExtensions package. You
 should remove it from dependencies and use attributes from
-[Allure.XUnit.Attributes.Steps namespace](Attributes/Steps) directly.
+[Allure.Xunit.Attributes.Steps namespace](Attributes/Steps) directly.
 
-### Allure.Xunit.Steps deprecation
-
-The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
-for test authors to enhance the Allure report. Prefer using functions in this
-class over the ones from `Allure.Xunit.Steps`.
+### Namespace change
+Previously, the package used a mix of `Allure.Xunit` and `Allure.XUnit`
+namespaces. Starting from 2.12.0, you should only use `Allure.Xunit`. Some parts
+of the public API are still accessible through the old namespace, but that
+access is deprecated now and will be removed in the future.
 
 ## Known issues and limitations
 

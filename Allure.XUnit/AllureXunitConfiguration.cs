@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 #nullable enable
 
-namespace Allure.XUnit
+namespace Allure.Xunit
 {
     internal class AllureXunitConfiguration : AllureConfiguration
     {

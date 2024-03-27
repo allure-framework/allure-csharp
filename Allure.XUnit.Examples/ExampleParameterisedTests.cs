@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Allure.Xunit.Attributes;
-using Allure.XUnit.Examples.TestData;
+using Allure.Xunit.Examples.TestData;
 using Xunit;
 
-namespace Allure.XUnit.Examples
+namespace Allure.Xunit.Examples
 {
     public class ExampleParameterisedTests
     {

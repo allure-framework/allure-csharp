@@ -6,7 +6,7 @@ using Allure.Net.Commons;
 using Allure.Xunit.Attributes;
 using Xunit;
 
-namespace Allure.XUnit.Examples
+namespace Allure.Xunit.Examples
 {
     [AllureOwner("Tinkoff")]
     [AllureTag("TAG-ALL")]

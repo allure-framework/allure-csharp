@@ -6,8 +6,6 @@ using System.Linq;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
 using Allure.Xunit.Attributes;
-using Allure.XUnit;
-using Allure.XUnit.Attributes;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,6 +15,9 @@ namespace Allure.Xunit
 {
     public static class AllureXunitHelper
     {
+        internal const string NS_OBSOLETE_MSG =
+            "The Allure.XUnit namespace is deprecated. Please, use Allure.Xunit instead";
+
         internal interface ITestResultAccessor
         {
             TestResultContainer TestResultContainer { get; set; }

@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 #nullable enable
 
-namespace Allure.XUnit
+namespace Allure.Xunit
 {
     public static class AllureXunitFacade
     {

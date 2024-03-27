@@ -2,7 +2,7 @@ using Allure.Net.Commons;
 
 #nullable enable
 
-namespace Allure.XUnit
+namespace Allure.Xunit
 {
     class AllureXunitTestData
     {

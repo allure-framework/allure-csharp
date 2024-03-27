@@ -5,7 +5,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Allure.XUnit;
+namespace Allure.Xunit;
 
 internal static class AllureXunitPatcher
 {
@@ -28,7 +28,7 @@ internal static class AllureXunitPatcher
         }
     }
 
-    public static void PatchXunit(IRunnerLogger runnerLogger)
+    internal static void PatchXunit(IRunnerLogger runnerLogger)
     {
         if (_isPatched)
         {

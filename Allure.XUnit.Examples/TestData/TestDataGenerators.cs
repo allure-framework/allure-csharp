@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Allure.XUnit.Examples.TestData
+namespace Allure.Xunit.Examples.TestData
 {
     public class TestDataGenerators
     {

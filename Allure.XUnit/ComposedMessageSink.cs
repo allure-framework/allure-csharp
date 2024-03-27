@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Allure.XUnit
+namespace Allure.Xunit
 {
     internal class ComposedMessageSink : IMessageSink, IMessageSinkWithTypes
     {

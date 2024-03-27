@@ -1,4 +1,4 @@
-namespace Allure.XUnit.Attributes
+namespace Allure.Xunit.Attributes
 {
     internal interface IAllureInfo
     {

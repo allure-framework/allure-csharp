@@ -1,9 +1,9 @@
 using System;
 using Allure.Xunit.Attributes;
-using Allure.XUnit.Attributes.Steps;
+using Allure.Xunit.Attributes.Steps;
 using Xunit;
 
-namespace Allure.XUnit.Examples;
+namespace Allure.Xunit.Examples;
 
 [AllureSuite("StepAttributes")]
 public class ExampleStepAttributes : IDisposable
