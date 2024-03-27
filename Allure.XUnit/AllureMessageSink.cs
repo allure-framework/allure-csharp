@@ -161,7 +161,7 @@ namespace Allure.Xunit
                 });
             }
 
-            this.allureTestData.Remove(test, out _);
+            this.allureTestData.TryRemove(test, out _);
         }
 
         AllureXunitTestData GetOrCreateTestData(ITest test)
