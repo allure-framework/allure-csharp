@@ -197,7 +197,7 @@ namespace Allure.SpecFlowPlugin
             }
             catch (Exception ex)
             {
-                ReportStepError(ex);
+                PropagateErrorUpToTest(ex);
                 throw;
             }
         }
@@ -409,8 +409,8 @@ namespace Allure.SpecFlowPlugin
             Exception error
         )
         {
-            var makeBroken = WrapMakeBroken(error);
-            allure.StopFixture(makeBroken);
+            var updateStatus = WrapErrorStatus(error);
+            allure.StopFixture(updateStatus);
 
             // Create one placeholder test case per failed feature-level hook
             // to indicate the error.
@@ -433,7 +433,7 @@ namespace Allure.SpecFlowPlugin
                 );
 
                 allure
-                    .StopTestCase(makeBroken)
+                    .StopTestCase(updateStatus)
                     .WriteTestCase();
 
                 featureContext.Add(PLACEHOLDER_TESTCASE_KEY, true);
@@ -444,7 +444,7 @@ namespace Allure.SpecFlowPlugin
         {
             var status = PluginHelper.IsIgnoreException(error)
                 ? Status.skipped
-                : Status.broken;
+                : PluginHelper.ResolveErrorStatus(error);
             var statusDetails = PluginHelper.GetStatusDetails(error);
 
             allure.StopFixture(
@@ -468,13 +468,13 @@ namespace Allure.SpecFlowPlugin
             }
         }
 
-        static void ReportStepError(Exception error)
+        static void PropagateErrorUpToTest(Exception error)
         {
             if (allure.Context.HasStep)
             {
-                MakeStepBroken(error);
+                ReportStepError(error);
             }
-            MakeTestCaseBroken(error);
+            ReportTestCaseError(error);
         }
 
         static void StartBeforeFixture(HookBinding hook) =>
@@ -490,25 +490,25 @@ namespace Allure.SpecFlowPlugin
         static bool IsAllureHook(HookBinding hook) =>
             hook.Method.Type.FullName == typeof(AllureBindings).FullName;
 
-        static Action<ExecutableItem> WrapMakeBroken(Exception error) =>
-            PluginHelper.WrapStatusOverwrite(
-                Status.broken,
-                PluginHelper.GetStatusDetails(error),
-                Status.none,
-                Status.passed
-            );
-
         static void MakePassed(ExecutableItem item) =>
             item.status = Status.passed;
 
-        static void MakeTestCaseBroken(Exception error) =>
+        static void ReportTestCaseError(Exception error) =>
             allure.UpdateTestCase(
-                WrapMakeBroken(error)
+                WrapErrorStatus(error)
             );
 
-        static void MakeStepBroken(Exception error) =>
+        static void ReportStepError(Exception error) =>
             allure.UpdateStep(
-                WrapMakeBroken(error)
+                WrapErrorStatus(error)
+            );
+
+        static Action<ExecutableItem> WrapErrorStatus(Exception error) =>
+            PluginHelper.WrapStatusOverwrite(
+                PluginHelper.ResolveErrorStatus(error),
+                PluginHelper.GetStatusDetails(error),
+                Status.none,
+                Status.passed
             );
     }
 }
