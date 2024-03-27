@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
-using NUnit.Framework.Internal;
 
 namespace NUnit.Allure
 {
@@ -242,20 +241,6 @@ namespace NUnit.Allure
 
     namespace Core
     {
-        internal class SetUpTearDownHelper
-        {
-            public string CustomName { get; set; }
-            public string MethodName { get; set; }
-            public long StartTime { get; set; }
-            public long EndTime { get; set; }
-            public Exception Exception { get; set; }
-
-            public override string ToString()
-            {
-                return MethodName;
-            }
-        }
-
         public static class AllureExtensions
         {
             [Obsolete("This method does nothing and can be safely replaced with the direct call of the delegate")]
@@ -266,23 +251,6 @@ namespace NUnit.Allure
                 [CallerMemberName] string callerName = ""
             )
             {
-                var setUpTearDownHelper = new SetUpTearDownHelper { MethodName = callerName };
-                if (!string.IsNullOrEmpty(customName)) setUpTearDownHelper.CustomName = customName;
-                try
-                {
-                    setUpTearDownHelper.StartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                    action.Invoke();
-                }
-                catch (Exception e)
-                {
-                    setUpTearDownHelper.Exception = e;
-                    throw;
-                }
-                finally
-                {
-                    setUpTearDownHelper.EndTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                    TestExecutionContext.CurrentContext.CurrentTest.Properties.Add(callerName, setUpTearDownHelper);
-                }
             }
 
 
@@ -293,34 +261,11 @@ namespace NUnit.Allure
                 Action action,
                 string stepName = "",
                 [CallerMemberName] string callerName = ""
-            )
-            {
-                if (string.IsNullOrEmpty(stepName))
-                {
-                    stepName = callerName;
-                }
-
-                var stepResult = new StepResult { name = stepName };
-                try
-                {
-                    lifecycle.StartStep(stepResult);
-                    action.Invoke();
-                    lifecycle.StopStep(step => stepResult.status = Status.passed);
-                }
-                catch (Exception e)
-                {
-                    lifecycle.StopStep(step =>
-                    {
-                        step.statusDetails = new StatusDetails
-                        {
-                            message = e.Message,
-                            trace = e.StackTrace
-                        };
-                        step.status = global::Allure.NUnit.Core.AllureNUnitHelper.GetNUnitStatus();
-                    });
-                    throw;
-                }
-            }
+            ) =>
+                AllureApi.Step(
+                    string.IsNullOrEmpty(stepName) ? callerName : stepName,
+                    action
+                );
 
             [Obsolete("Use [AllureStep] or AllureApi.Step instead")]
             [EditorBrowsable(EditorBrowsableState.Never)]
@@ -329,35 +274,11 @@ namespace NUnit.Allure
                 Func<T> func,
                 string stepName = "",
                 [CallerMemberName] string callerName = ""
-            )
-            {
-                if (string.IsNullOrEmpty(stepName))
-                {
-                    stepName = callerName;
-                }
-
-                var stepResult = new StepResult { name = stepName };
-                try
-                {
-                    lifecycle.StartStep(stepResult);
-                    var result = func.Invoke();
-                    lifecycle.StopStep(step => stepResult.status = Status.passed);
-                    return result;
-                }
-                catch (Exception e)
-                {
-                    lifecycle.StopStep(step =>
-                    {
-                        step.statusDetails = new StatusDetails
-                        {
-                            message = e.Message,
-                            trace = e.StackTrace
-                        };
-                        step.status = global::Allure.NUnit.Core.AllureNUnitHelper.GetNUnitStatus();
-                    });
-                    throw;
-                }
-            }
+            ) =>
+                AllureApi.Step(
+                    string.IsNullOrEmpty(stepName) ? callerName : stepName,
+                    func
+                );
 
             [Obsolete("Use [AllureStep] or AllureApi.Step instead")]
             [EditorBrowsable(EditorBrowsableState.Never)]
@@ -366,34 +287,11 @@ namespace NUnit.Allure
                 Func<Task> action,
                 string stepName = "",
                 [CallerMemberName] string callerName = ""
-            )
-            {
-                if (string.IsNullOrEmpty(stepName))
-                {
-                    stepName = callerName;
-                }
-
-                var stepResult = new StepResult { name = stepName };
-                try
-                {
-                    lifecycle.StartStep(stepResult);
-                    await action();
-                    lifecycle.StopStep(step => stepResult.status = Status.passed);
-                }
-                catch (Exception e)
-                {
-                    lifecycle.StopStep(step =>
-                    {
-                        step.statusDetails = new StatusDetails
-                        {
-                            message = e.Message,
-                            trace = e.StackTrace
-                        };
-                        step.status = global::Allure.NUnit.Core.AllureNUnitHelper.GetNUnitStatus();
-                    });
-                    throw;
-                }
-            }
+            ) =>
+                await AllureApi.Step(
+                    string.IsNullOrEmpty(stepName) ? callerName : stepName,
+                    action
+                );
 
             [Obsolete("Use [AllureStep] or AllureApi.Step instead")]
             [EditorBrowsable(EditorBrowsableState.Never)]
@@ -402,58 +300,17 @@ namespace NUnit.Allure
                 Func<Task<T>> func,
                 string stepName = "",
                 [CallerMemberName] string callerName = ""
-            )
-            {
-                if (string.IsNullOrEmpty(stepName))
-                {
-                    stepName = callerName;
-                }
-
-                var stepResult = new StepResult { name = stepName };
-                try
-                {
-                    lifecycle.StartStep(stepResult);
-                    var result = await func();
-                    lifecycle.StopStep(step => stepResult.status = Status.passed);
-                    return result;
-                }
-                catch (Exception e)
-                {
-                    lifecycle.StopStep(step =>
-                    {
-                        step.statusDetails = new StatusDetails
-                        {
-                            message = e.Message,
-                            trace = e.StackTrace
-                        };
-                        step.status = global::Allure.NUnit.Core.AllureNUnitHelper.GetNUnitStatus();
-                    });
-                    throw;
-                }
-            }
-
-            [Obsolete(
-                "Use AllureLifecycle.AddScreenDiff instance method instead to " +
-                    "add a screen diff to the current test."
-            )]
-            [EditorBrowsable(EditorBrowsableState.Never)]
-            public static void AddScreenDiff(
-                this AllureLifecycle lifecycle,
-                string expected,
-                string actual,
-                string diff
-            ) => lifecycle.AddScreenDiff(expected, actual, diff);
+            ) =>
+                await AllureApi.Step(
+                    string.IsNullOrEmpty(stepName) ? callerName : stepName,
+                    func
+                );
         }
 
         [Obsolete(DeprecationWarnings.OLD_ALLURE_ATTRIBUTE)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public class AllureNUnitAttribute : global::Allure.NUnit.AllureNUnitAttribute
         {
-            [Obsolete("wrapIntoStep parameter is obsolete. Use [AllureStep] method attribute")]
-            public AllureNUnitAttribute(bool wrapIntoStep = true)
-            {
-            }
-
             public AllureNUnitAttribute()
             {
             }
