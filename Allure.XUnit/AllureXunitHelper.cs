@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
@@ -16,36 +15,6 @@ namespace Allure.Xunit
     {
         internal const string NS_OBSOLETE_MSG =
             "The Allure.XUnit namespace is deprecated. Please, use Allure.Xunit instead";
-
-        internal interface ITestResultAccessor
-        {
-            TestResultContainer TestResultContainer { get; set; }
-            TestResult TestResult { get; set; }
-        }
-
-        static AllureXunitHelper()
-        {
-            const string allureConfigEnvVariable = "ALLURE_CONFIG";
-            const string allureConfigName = "allureConfig.json";
-
-            var allureConfigPath = Environment.GetEnvironmentVariable(
-                allureConfigEnvVariable
-            );
-            if (!string.IsNullOrEmpty(allureConfigPath))
-            {
-                return;
-            }
-
-            allureConfigPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                allureConfigName
-            );
-
-            Environment.SetEnvironmentVariable(
-                allureConfigEnvVariable,
-                allureConfigPath
-            );
-        }
 
         internal static TestResultContainer StartNewAllureContainer(
             string className
@@ -176,16 +145,6 @@ namespace Allure.Xunit
             SetTestResultIdentifiers(testCase, displayName, testResult);
             UpdateTestDataFromAttributes(testResult, testMethod);
             return testResult;
-        }
-
-        static void ApplyTestSkip(
-            TestResult testResult,
-            string reason
-        )
-        {
-            var statusDetails = testResult.statusDetails ??= new();
-            statusDetails.message = reason;
-            testResult.status = Status.skipped;
         }
 
         static void AddDistinct(
