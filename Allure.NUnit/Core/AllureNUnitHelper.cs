@@ -17,11 +17,11 @@ using TestResult = Allure.Net.Commons.TestResult;
 
 namespace Allure.NUnit.Core
 {
-    public sealed class AllureNUnitHelper
+    sealed class AllureNUnitHelper
     {
         private readonly ITest _test;
 
-        public AllureNUnitHelper(ITest test)
+        internal AllureNUnitHelper(ITest test)
         {
             _test = test;
             AllureLifecycle.AllureConfiguration.FailExceptions ??= new()
@@ -120,7 +120,7 @@ namespace Allure.NUnit.Core
         internal static bool IsSelectedByTestPlan(TestResult testResult) =>
             AllureLifecycle.TestPlan.IsSelected(testResult);
 
-        public static Status GetNUnitStatus()
+        internal static Status GetNUnitStatus()
         {
             var result = TestContext.CurrentContext.Result;
             return result.Outcome.Status switch
