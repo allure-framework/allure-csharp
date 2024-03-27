@@ -66,8 +66,8 @@ namespace Allure.Xunit
 
         internal static void ApplyTestFailure(IFailureInformation failure)
         {
-            var trace = string.Join('\n', failure.StackTraces);
-            var message = string.Join('\n', failure.Messages);
+            var trace = string.Join("\n", failure.StackTraces);
+            var message = string.Join("\n", failure.Messages);
             var status = failure.ExceptionTypes.Any(
                 exceptionType => !exceptionType.StartsWith("Xunit.Sdk.")
             ) ? Status.broken : Status.failed;
