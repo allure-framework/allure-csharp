@@ -19,15 +19,15 @@ If that didn't happen, check out the `Running tests in a CI pipeline` section.
 
 ## Further readings
 
-Learn more from [the documentation for Allure NUnit](https://allurereport.org/docs/nunit/).
+Learn more from [the documentation for Allure Xunit](https://allurereport.org/docs/xunit/).
 
-Some examples are available [here](https://github.com/allure-framework/allure-csharp/tree/main/Allure.XUnit.Examples).
+Some examples are available [here](https://github.com/allure-framework/allure-csharp/tree/main/Allure.Xunit.Examples).
 
 ## Notes
 
 ### Allure.Xunit.StepExtensions deprecation
 There is no more need to use separate Allure.XUnit.StepExtensions package. You
-should remove it from dependencies and use attributes from
+should uninstall it and use attributes from
 [Allure.Xunit.Attributes.Steps namespace](Attributes/Steps) directly.
 
 ### Namespace change
@@ -53,8 +53,8 @@ You may also install Rosetta via the CLI:
 
 We rely on Harmony that in turn uses MonoMod.Core to:
 
-1. Report arguments of theories in rare case they aren't reported by xUnit.net itself.
-2. Implement selectie run.
+1. Report arguments of theories in case they aren't reported by xUnit.net itself.
+2. Implement selectie run (test plans).
 
 Those features are unavailable on ARM64 due to limitations of MonoMod.Core.
 Additionally, they might not work in some other rare circumstances.
