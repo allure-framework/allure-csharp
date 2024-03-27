@@ -12,7 +12,7 @@ using Xunit.Sdk;
 
 namespace Allure.Xunit
 {
-    public class AllureMessageSink :
+    class AllureMessageSink :
         DefaultRunnerReporterWithTypesMessageHandler
     {
         static AllureTestPlan TestPlan
@@ -224,6 +224,6 @@ namespace Allure.Xunit
         static bool IsStaticTestMethod(ITestMethodMessage message) =>
             message.TestMethod.Method.IsStatic;
 
-        public static AllureMessageSink? CurrentSink { get; private set; }
+        internal static AllureMessageSink? CurrentSink { get; private set; }
     }
 }

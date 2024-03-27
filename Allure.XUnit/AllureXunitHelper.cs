@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace Allure.Xunit
 {
-    public static class AllureXunitHelper
+    static class AllureXunitHelper
     {
         internal const string NS_OBSOLETE_MSG =
             "The Allure.XUnit namespace is deprecated. Please, use Allure.Xunit instead";
