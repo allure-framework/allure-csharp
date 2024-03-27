@@ -1,6 +1,6 @@
 using System;
 using Allure.Net.Commons;
-using NUnit.Allure.Attributes;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples

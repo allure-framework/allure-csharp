@@ -6,7 +6,7 @@ using System.Text;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.TestPlan;
-using NUnit.Allure.Attributes;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -15,7 +15,7 @@ using TestResult = Allure.Net.Commons.TestResult;
 
 // ReSharper disable AccessToModifiedClosure
 
-namespace NUnit.Allure.Core
+namespace Allure.NUnit.Core
 {
     public sealed class AllureNUnitHelper
     {
@@ -314,11 +314,14 @@ namespace NUnit.Allure.Core
             return list;
         }
 
-        [Obsolete("Use extension method AllureLifecycle.WrapInStep")]
-        public void WrapInStep(Action action, string stepName = "")
-        {
-            AllureLifecycle.WrapInStep(action, stepName);
-        }
+        [Obsolete("Use [AllureStep] or AllureApi.Step instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void WrapInStep(Action action, string stepName = "") =>
+            global::NUnit.Allure.Core.AllureExtensions.WrapInStep(
+                AllureLifecycle,
+                action,
+                stepName
+            );
 
         private string ContainerId => $"tc-{_test.Id}";
 

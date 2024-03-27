@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Allure.Net.Commons;
-using NUnit.Allure.Core;
+using Allure.NUnit.Core;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -11,7 +11,7 @@ using TestResult = Allure.Net.Commons.TestResult;
 
 #nullable enable
 
-namespace NUnit.Allure.Attributes
+namespace Allure.NUnit.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class AllureDisplayIgnoredAttribute : NUnitAttribute, ITestAction

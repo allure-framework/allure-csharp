@@ -5,9 +5,6 @@
         <IsPackable>true</IsPackable>
         <Authors>Nick Chursin</Authors>
         <Description>Create beautiful reports from your NUnit tests.</Description>
-        <PackageId>Allure.NUnit</PackageId>
-        <AssemblyName>Allure.NUnit</AssemblyName>
-        <RootNamespace>NUnit.Allure</RootNamespace>
         <PackageTags>$(PackageTags) nunit</PackageTags>
         <PackageIcon>Allure-N-Color.png</PackageIcon>
     </PropertyGroup>

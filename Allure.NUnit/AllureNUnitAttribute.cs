@@ -2,26 +2,18 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Allure.Net.Commons;
-using NUnit.Allure.Attributes;
+using Allure.NUnit.Attributes;
+using Allure.NUnit.Core;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 
-namespace NUnit.Allure.Core
+namespace Allure.NUnit
 {
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
     public class AllureNUnitAttribute : PropertyAttribute, ITestAction, IApplyToContext
     {
         private readonly ConcurrentDictionary<string, AllureNUnitHelper> _allureNUnitHelper = new();
-
-        [Obsolete("wrapIntoStep parameter is obsolete. Use [AllureStep] method attribute")]
-        public AllureNUnitAttribute(bool wrapIntoStep = true)
-        {
-        }
-        
-        public AllureNUnitAttribute()
-        {
-        }
 
         public void BeforeTest(ITest test) =>
             RunHookInRestoredAllureContext(test, () =>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Steps;
-using NUnit.Allure.Attributes;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples

@@ -4,11 +4,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
 using AspectInjector.Broker;
-using NUnit.Allure.Attributes;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
-namespace NUnit.Allure.Internals
+namespace Allure.NUnit.Internals
 {
     [Aspect(Scope.Global)]
     public class StopContainerAspect
