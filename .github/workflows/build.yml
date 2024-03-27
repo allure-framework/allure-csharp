@@ -41,9 +41,12 @@ jobs:
 
       - name: 'Run tests'
         run: |
-          dotnet test Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj\
+          dotnet test Allure.Net.Commons.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet test Allure.SpecFlow.Tests/Allure.SpecFlow.Tests.csproj\
+          dotnet test Allure.SpecFlow.Tests\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+          dotnet test Allure.Reqnroll.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
