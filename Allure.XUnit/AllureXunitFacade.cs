@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,6 +11,7 @@ namespace Allure.Xunit
 {
     static class AllureXunitFacade
     {
+        static readonly Regex REPORTER_ASSEMBLY_PATTERN = new(@".*reporters.*");
         internal static IMessageSink CreateAllureXunitMessageHandler(
             IRunnerLogger logger
         )
@@ -89,7 +90,9 @@ namespace Allure.Xunit
 
         static IEnumerable<IRunnerReporter> GetReporters() =>
             from assembly in AppDomain.CurrentDomain.GetAssemblies()
-            where IsPotentialReporterAssembly(assembly)
+            where IsPotentialReporterAssembly(
+                assembly.GetName()?.Name
+            )
             from type in assembly.GetTypes()
             where IsReporterType(type)
             select Activator.CreateInstance(type) as IRunnerReporter;
@@ -99,11 +102,13 @@ namespace Allure.Xunit
         /// skipped as well, because there is only one reporter there and it
         /// has already been picked at the time this code is run.
         /// </summary>
-        static bool IsPotentialReporterAssembly(Assembly assembly) =>
-            assembly?.FullName is not null
+        static bool IsPotentialReporterAssembly(string? name) =>
+            name is not null
+                &&
+            REPORTER_ASSEMBLY_PATTERN.IsMatch(name)
                 &&
             ASSEMBLY_PREFIXES_TO_SKIP.All(
-                a => !assembly.FullName.StartsWith(
+                a => !name.StartsWith(
                     a,
                     StringComparison.OrdinalIgnoreCase
                 )
