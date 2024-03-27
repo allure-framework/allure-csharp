@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Allure.Net.Commons;
 using HeyRed.Mime;
 
-namespace Allure.XUnit
+namespace Allure.Xunit
 {
     /// <summary>
     /// Decorates AllureLifecycle.Instance.AddAttachment method. Used to save attachments for reports.

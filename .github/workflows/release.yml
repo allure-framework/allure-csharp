@@ -51,16 +51,16 @@ jobs:
         run: |
           sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.NUnit/Schemas/allureConfig.schema.json
           cat ./Allure.NUnit/Schemas/allureConfig.schema.json
-          sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.XUnit/Schemas/allureConfig.schema.json
-          cat ./Allure.XUnit/Schemas/allureConfig.schema.json
+          sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Xunit/Schemas/allureConfig.schema.json
+          cat ./Allure.Xunit/Schemas/allureConfig.schema.json
           sed -i -e '/"$ref"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json
           cat ./Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Net.Commons/allureConfig.Template.json
           cat ./Allure.Net.Commons/allureConfig.Template.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.NUnit.Examples/allureConfig.json
           cat ./Allure.NUnit.Examples/allureConfig.json
-          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.XUnit.Examples/allureConfig.json
-          cat ./Allure.XUnit.Examples/allureConfig.json
+          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Xunit.Examples/allureConfig.json
+          cat ./Allure.Xunit.Examples/allureConfig.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.SpecFlowPlugin/allureConfig.Template.json
           cat ./Allure.SpecFlowPlugin/allureConfig.Template.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Features/allureConfig.json

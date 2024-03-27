@@ -19,9 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Features", "Allure.F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "allure-xunit", "allure-xunit", "{138A76FC-B163-423C-8FF8-D374F1C7EC2F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.XUnit", "Allure.XUnit\Allure.XUnit.csproj", "{D278CE6B-F3D1-4FEF-BE5F-5AC6F6C53879}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Xunit", "Allure.Xunit\Allure.Xunit.csproj", "{D278CE6B-F3D1-4FEF-BE5F-5AC6F6C53879}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.XUnit.Examples", "Allure.XUnit.Examples\Allure.XUnit.Examples.csproj", "{38CF463E-F564-477D-A853-407F0648E0DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Allure.Xunit.Examples", "Allure.Xunit.Examples\Allure.Xunit.Examples.csproj", "{38CF463E-F564-477D-A853-407F0648E0DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "allure-nunit", "allure-nunit", "{D0D75FDF-4884-4AC1-868F-B3F248CB74ED}"
 EndProject

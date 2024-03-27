@@ -1,4 +1,4 @@
-namespace Allure.XUnit.Examples
+namespace Allure.Xunit.Examples.TestData
 {
     public class MyTestClass
     {

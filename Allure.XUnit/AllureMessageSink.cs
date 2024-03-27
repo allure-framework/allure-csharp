@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Allure.Net.Commons;
 using Allure.Net.Commons.TestPlan;
-using Allure.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 #nullable enable
 
-namespace Allure.XUnit
+namespace Allure.Xunit
 {
     public class AllureMessageSink :
         DefaultRunnerReporterWithTypesMessageHandler

@@ -19,8 +19,8 @@
 "theme:xunit":
   - changed-files:
     - any-glob-to-any-file:
-      - "Allure.XUnit/**"
-      - "Allure.XUnit.Tests/**"
+      - "Allure.Xunit/**"
+      - "Allure.Xunit.Examples/**"
 
 "theme:nunit":
   - changed-files:
