@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.TestPlan;
 using Allure.Net.Commons.Writer;
 using Newtonsoft.Json.Linq;
@@ -39,7 +38,6 @@ public class AllureLifecycle
     public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
         new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);
 
-    readonly AllureStorage storage;
     readonly AsyncLocal<AllureContext> context = new();
 
     readonly Lazy<AllureTestPlan> lazyTestPlan;
@@ -102,7 +100,6 @@ public class AllureLifecycle
         JsonConfiguration = config.ToString();
         AllureConfiguration = AllureConfiguration.ReadFromJObject(config);
         writer = writerFactory(AllureConfiguration);
-        storage = new AllureStorage();
         lazyTestPlan = new(testPlanFactory);
     }
 
@@ -216,7 +213,6 @@ public class AllureLifecycle
     )
     {
         container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        this.storage.Put(container.uuid, container);
         this.UpdateContext(c => c.WithContainer(container));
         return this;
     }
@@ -267,7 +263,6 @@ public class AllureLifecycle
     public virtual AllureLifecycle WriteTestContainer()
     {
         var container = this.Context.CurrentContainer;
-        this.storage.Remove<TestResultContainer>(container.uuid);
         this.UpdateContext(c => c.WithNoLastContainer());
         this.writer.Write(container);
         return this;
@@ -393,7 +388,6 @@ public class AllureLifecycle
                 container.children.Add(uuid);
             }
         }
-        this.storage.Put(uuid, testResult);
         this.UpdateContext(c => c.WithTestContext(testResult));
         return this;
     }
@@ -485,7 +479,6 @@ public class AllureLifecycle
         {
             uuid = testResult.uuid;
         }
-        this.storage.Remove<TestResult>(uuid);
         this.UpdateContext(c => c.WithNoTestContext());
         this.writer.Write(testResult);
         return this;
