@@ -34,3 +34,10 @@
       - "Allure.SpecFlow/**"
       - "Allure.SpecFlow.Tests/**"
       - "Allure.SpecFlow.Tests.Samples/**"
+
+"theme:reqnroll":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Allure.Reqnroll/**"
+      - "Allure.Reqnroll.Tests/**"
+      - "Allure.Reqnroll.Tests.Samples/**"
