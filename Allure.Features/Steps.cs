@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Allure.Net.Commons;
 using Allure.SpecFlowPlugin;
+using NUnit.Framework;
 using TechTalk.SpecFlow;
 
 namespace Allure.Features
@@ -11,7 +12,8 @@ namespace Allure.Features
   public enum TestOutcome
   {
     passed,
-    failed
+    failed,
+    broken
   }
 
   [Binding]
@@ -36,9 +38,12 @@ namespace Allure.Features
         case TestOutcome.passed:
           break;
         case TestOutcome.failed:
+          Assert.Fail("Failed");
+          break;
+        case TestOutcome.broken:
           throw new Exception("This test is failed",
-              new InvalidOperationException("Internal message",
-                  new ArgumentException("One more message")));
+            new InvalidOperationException("Internal message",
+              new ArgumentException("One more message")));
         default:
           throw new ArgumentException("value is not supported");
       }
