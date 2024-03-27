@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Allure.Xunit
 {
-    public static class AllureXunitFacade
+    static class AllureXunitFacade
     {
-        public static IMessageSink CreateAllureXunitMessageHandler(
+        internal static IMessageSink CreateAllureXunitMessageHandler(
             IRunnerLogger logger
         )
         {
