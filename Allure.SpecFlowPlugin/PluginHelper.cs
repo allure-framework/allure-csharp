@@ -235,6 +235,12 @@ namespace Allure.SpecFlowPlugin
         internal static bool IsIgnoreException(Exception e) =>
             e?.GetType().Name.Contains(IGNORE_EXCEPTION) is true;
 
+        internal static Status ResolveErrorStatus(Exception error) =>
+            ModelFunctions.ResolveErrorStatus(
+                AllureLifecycle.Instance.AllureConfiguration.FailExceptions,
+                error
+            );
+
         internal static Action<TestResult> TestStatusResolver(
             ScenarioContext scenarioContext
         ) =>
@@ -326,12 +332,6 @@ namespace Allure.SpecFlowPlugin
                     },
                 _ => status
             };
-
-        static Status ResolveErrorStatus(Exception error) =>
-            ModelFunctions.ResolveErrorStatus(
-                AllureLifecycle.Instance.AllureConfiguration.FailExceptions,
-                error
-            );
 
         static StatusDetails ResolveTestCaseDetails(
             ScenarioContext scenarioContext,

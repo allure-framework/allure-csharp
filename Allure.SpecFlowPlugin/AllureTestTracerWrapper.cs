@@ -63,10 +63,7 @@ namespace Allure.SpecFlowPlugin
         void ITestTracer.TraceError(Exception ex, TimeSpan duration)
         {
             this.TraceError(ex, duration);
-            var status = ModelFunctions.ResolveErrorStatus(
-                allure.AllureConfiguration.FailExceptions,
-                ex
-            );
+            var status = PluginHelper.ResolveErrorStatus(ex);
             allure.StopStep(
                 PluginHelper.WrapStatusInit(status, ex)
             );
