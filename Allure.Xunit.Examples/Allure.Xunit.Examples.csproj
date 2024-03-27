@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.XUnit\Allure.XUnit.csproj" />
+        <ProjectReference Include="..\Allure.Xunit\Allure.Xunit.csproj" />
     </ItemGroup>
 
 </Project>
