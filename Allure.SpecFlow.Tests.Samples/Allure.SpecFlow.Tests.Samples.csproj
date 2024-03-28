@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <OutputPath>bin</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,7 +17,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
-        <ProjectReference Include="..\Allure.SpecFlowPlugin\Allure.SpecFlowPlugin.csproj" />
+        <ProjectReference Include="..\Allure.SpecFlow\Allure.SpecFlow.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Update="allureConfig.json">

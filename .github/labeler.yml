@@ -31,6 +31,6 @@
 "theme:specflow":
   - changed-files:
     - any-glob-to-any-file:
-      - "Allure.Features/**"
-      - "Allure.SpecFlowPlugin/**"
-      - "Allure.SpecFlowPlugin.Tests/**"
+      - "Allure.SpecFlow/**"
+      - "Allure.SpecFlow.Tests/**"
+      - "Allure.SpecFlow.Tests.Samples/**"

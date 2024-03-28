@@ -44,6 +44,6 @@ jobs:
           dotnet test Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet test Allure.SpecFlowPlugin.Tests/Allure.SpecFlowPlugin.Tests.csproj\
+          dotnet test Allure.SpecFlow.Tests/Allure.SpecFlow.Tests.csproj\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
