@@ -15,13 +15,13 @@
 
 ---
 
-### Integrations
+### Adapters
 
-| Library                                  |             Examples                      |                     Author                     |                                                   Release                                                   |                                                Preview build                                                |
-|:-----------------------------------------|:-----------------------------------------:|:----------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|
-| [Allure.NUnit](Allure.NUnit)             | [Examples](Allure.NUnit.Examples)         | [Nick Chursin](https://github.com/unickq)      | [![Nuget](https://img.shields.io/nuget/v/Allure.NUnit)](https://www.nuget.org/packages/Allure.NUnit/)       | [![Nuget](https://img.shields.io/nuget/vpre/Allure.NUnit)](https://www.nuget.org/packages/Allure.NUnit/)    |
-| [Allure.SpecFlow](Allure.SpecFlow)       | [Examples](Allure.SpecFlow.Tests.Samples) | Alexander Bakanov                              | [![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow)](https://www.nuget.org/packages/Allure.SpecFlow/) | [![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow)](https://www.nuget.org/packages/Allure.SpecFlow/) |
-| [Allure.Xunit](Allure.Xunit)             | [Examples](Allure.Xunit.Examples)         | [Shumakov Ivan](https://github.com/IvanWR1995) | [![Nuget](https://img.shields.io/nuget/v/Allure.Xunit)](https://www.nuget.org/packages/Allure.Xunit/)       | [![Nuget](https://img.shields.io/nuget/vpre/Allure.Xunit)](https://www.nuget.org/packages/Allure.Xunit/)    |
+| Package                            |             Documentation                                                          |                     Author                     |                                                   Release                                                   |
+|:-----------------------------------|:-----------------------------------------------------------------------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------------------------------:|
+| [Allure.NUnit](Allure.NUnit)       | [https://allurereport.org/docs/nunit/](https://allurereport.org/docs/nunit/)       | [Nick Chursin](https://github.com/unickq)      | [![Nuget](https://img.shields.io/nuget/v/Allure.NUnit)](https://www.nuget.org/packages/Allure.NUnit/)       |
+| [Allure.SpecFlow](Allure.SpecFlow) | [https://allurereport.org/docs/specflow/](https://allurereport.org/docs/specflow/) | Alexander Bakanov                              | [![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow)](https://www.nuget.org/packages/Allure.SpecFlow/) |
+| [Allure.Xunit](Allure.Xunit)       | [https://allurereport.org/docs/xunit/](https://allurereport.org/docs/xunit/)       | [Shumakov Ivan](https://github.com/IvanWR1995) | [![Nuget](https://img.shields.io/nuget/v/Allure.Xunit)](https://www.nuget.org/packages/Allure.Xunit/)       |
 
 ## Allure.Net.Commons
 
