@@ -24,7 +24,7 @@ The adapter works with [SpecFlow](http://specflow.org/) version 3, starting from
 ### Quick start
 
 1. Install the [Allure.SpecFlow](https://www.nuget.org/packages/Allure.SpecFlow)
-nuget package according to your Specflow version.
+Nuget package according to your SpecFlow version.
 2. Add the following entry to your `specflow.json`:
     ```json
     {

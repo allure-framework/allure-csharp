@@ -37,7 +37,7 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 ### Namespace changed to Allure.NUnit
 
 Starting from 2.12.0, the namespace `NUnit.Allure` is deprecated. The API in
-that namespace still works, but it will be removed in the future. Please, use
+that namespace still works, but it will be removed in the future. Please use
 `Allure.NUnit` instead.
 
 > The `[NUnit.Allure.Core.AllureNUnit]` attribute should be replaced with

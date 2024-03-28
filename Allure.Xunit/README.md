@@ -25,10 +25,11 @@ Allure Xunit supports the following frameworks:
 
 ## Quick start
 
-Install the Allure.Xunit package and run the tests normally. In many cases
+Install the Allure.Xunit package and run the tests normally. In many cases,
 allure should start automatically. The result files are created in the
 `allure-results` directory in the target directory.
-If that didn't happen, check out the `Running tests in a CI pipeline` section.
+If that didn't happen, check out the [Why the Allure results directory is empty?](#why-the-allure-results-directory-is-empty)
+section.
 
 ## Further readings
 
@@ -114,3 +115,63 @@ Additionally, they might not work in some other rare circumstances.
 Issue [#369] contains some additional details.
 
 [#369]: https://github.com/allure-framework/allure-csharp/issues/369
+
+## FAQ
+
+### Why the Allure results directory is empty?
+
+If you run your tests, but there is no Allure results directory (or it's empty),
+xUnit.net may have preferred another reporter instead of `allure`.
+
+You can force xUnit.net to select the right reporter by providing it to the
+runner. For `xunit.runner.visualstudio`, it could be done with the
+`xUnit.ReporterSwitch` run setting.
+
+```
+dotnet test <test-project-name> -- xUnit.ReporterSwitch=allure
+```
+
+Alternatively, you may provide that option via a `.runsettings` file:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <xUnit>
+    <ReporterSwitch>allure</ReporterSwitch>
+  </xUnit>
+</RunSettings>
+```
+
+```
+dotnet test -s <path-to-runsettings> <test-project-name>
+```
+
+> If you run the tests via an IDE, refer to that IDE's documentation to figure
+> out how to provide a `.runsettings` file.
+
+Check the test logs. If Allure.Xunit has run, the following entry should exist:
+
+```
+[xUnit.net 00:00:00.53] Allure reporter enabled
+```
+
+> You might need to increase the verbosity level with `--verbosity=detailed` to
+> see xUnit.net's logs.
+
+### How to run Allure.Xunit together with another reporter?
+
+xUnit.net only uses one reporter per run. But Allure Xunit allows you to bypass
+that limitation. Learn more [here](https://allurereport.org/docs/xunit-configuration/#allurexunitrunnerreporter).
+
+### How to use Allure Xunit in a CI environment?
+
+A CI-specific reporter might kick in addition to Allure Xunit in some CI
+environments like Azure DevOps or TeamCity. The result is that both reporters
+are available to run. In such cases, xUnit.net may select any of them.
+
+  - If xUnit.net selects Allure Xunit, the tests will be reported both to the
+    CI server and as Allure results.
+  - If a CI-specific reporter is selected, the tests will only be reported to
+    the CI server.
+
+To fix that, make sure that [xUnit.net always picks Allure Xunit](#why-the-allure-results-directory-is-empty).
