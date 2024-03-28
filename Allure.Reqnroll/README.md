@@ -20,9 +20,14 @@
 
 ### Quick start
 
-1. Install [Allure.Reqnroll](https://www.nuget.org/packages/Allure.Reqnroll) to the project that contains your Reqnroll tests.
+1. Install [Allure.Reqnroll](https://www.nuget.org/packages/Allure.Reqnroll) to
+the project that contains your Reqnroll tests.
 2. Run the tests.
+
+The result files will be created in the `allure-results` subdirectory of the
+project output folder.
 
 ### Further readings
 
-Learn more from [the documentation for Allure Reqnroll](https://allurereport.org/docs/reqnroll/).
+Learn more from
+[the documentation for Allure Reqnroll](https://allurereport.org/docs/reqnroll/).
