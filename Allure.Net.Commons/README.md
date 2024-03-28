@@ -65,7 +65,7 @@ An example of the configuration file is provided below:
 ```json
 {
   "allure": {
-    "directory": "allure-results", // defaults to "allure-results"
+    "directory": "allure-results",
     "title": "custom run title",
     "links":
     [
@@ -74,11 +74,13 @@ An example of the configuration file is provided below:
       "https://example.org/{tms}"
     ],
     "failExceptions": [
-      "MyNamespace.MyAssertionException" // Used to distinguish between failed and broken statuses
+      "MyNamespace.MyAssertionException"
     ]
   }
 }
 ```
+
+The `directory` property defaults to `"allure-results"`.
 
 All link pattern placeholders will be replaced with URL value of corresponding link type, e.g.
 
