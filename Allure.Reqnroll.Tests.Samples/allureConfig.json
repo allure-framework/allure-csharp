@@ -1,0 +1,39 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.11.0/Allure.Reqnroll/Schemas/allureConfig.schema.json",
+  "allure": {
+    "title": "5994A3F7-AF84-46AD-9393-000BB45553CC",
+    "directory": "allure-results",
+    "links": [
+      "https://example.org/{issue}",
+      "https://example.org/{tms}"
+    ],
+    "gherkinPatterns": {
+      "stepArguments": {
+        "createFromDataTables": true,
+        "nameColumn": "a.*",
+        "valueColumn": "v.*"
+      },
+      "grouping": {
+        "suites": {
+          "parentSuite": "(ui|api)",
+          "suite": "(core|sales|aux)",
+          "subSuite": "(create|update|delete)"
+        },
+        "behaviors": {
+          "epic": "epic:(.+)",
+          "story": "story:(.+)"
+        }
+      },
+      "metadata": {
+        "owner": "owner:(.+)",
+        "severity": "(normal|blocker|critical|minor|trivial)",
+        "label": "label:([\\w]+):(.+)"
+      },
+      "links": {
+        "link": "link:(.+)",
+        "issue": "\\d+",
+        "tms": "tms:(\\d+)"
+      }
+    }
+  }
+}

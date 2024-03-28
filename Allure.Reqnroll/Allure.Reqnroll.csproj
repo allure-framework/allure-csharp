@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Allure.ReqnrollPlugin</AssemblyName>
+        <RootNamespace>Allure.ReqnrollPlugin</RootNamespace>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <PackageId>Allure.Reqnroll</PackageId>
+        <Authors>Maksim Stepanov</Authors>
+        <Description>Create beautiful reports from your Reqnroll tests.</Description>
+        <PackageIcon>Allure-Color.png</PackageIcon>
+        <PackageTags>$(PackageTags) reqnroll</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <Content Include="allureConfig.Template.json" Pack="true" />
+        <None Include="./../img/Allure-Color.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CsvHelper" Version="31.0.2" />
+        <PackageReference Include="Reqnroll" Version="1.0.0" />
+        <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+    </ItemGroup>
+
+</Project>
