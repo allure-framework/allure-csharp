@@ -1,5 +1,4 @@
 ﻿using Allure.Net.Commons;
-using NUnit.Allure.Core;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -9,9 +8,6 @@ namespace Allure.NUnit.Examples
     {
         [OneTimeSetUp]
         public static void CleanupResultDirectory() =>
-            AllureExtensions.WrapSetUpTearDownParams(
-                AllureLifecycle.Instance.CleanupResultDirectory,
-                "Clear Allure Results Directory"
-            );
+            AllureLifecycle.Instance.CleanupResultDirectory();
     }
 }

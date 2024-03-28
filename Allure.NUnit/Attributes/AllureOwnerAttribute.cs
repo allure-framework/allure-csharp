@@ -1,7 +1,7 @@
 ﻿using System;
 using Allure.Net.Commons;
 
-namespace NUnit.Allure.Attributes
+namespace Allure.NUnit.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     public class AllureOwnerAttribute : AllureTestCaseAttribute

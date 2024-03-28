@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Allure.NUnit.Examples.CommonSteps;
-using NUnit.Allure.Attributes;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
