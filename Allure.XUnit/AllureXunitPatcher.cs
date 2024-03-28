@@ -1,5 +1,5 @@
-using System;
 using HarmonyLib;
+using System;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -34,17 +34,17 @@ internal static class AllureXunitPatcher
             _logger.LogMessage(
                 "Patching is skipped: Xunit is already patched"
             );
-
             return;
         }
 
         _logger = runnerLogger;
+
         var patcher = new Harmony(ALLURE_ID);
-        _patchXunitTestRunnerConstructors(patcher);
+        PatchXunitTestRunnerCtors(patcher);
         _isPatched = true;
     }
 
-    private static void _patchXunitTestRunnerConstructors(Harmony patcher)
+    private static void PatchXunitTestRunnerCtors(Harmony patcher)
     {
         var testRunnerType = typeof(XunitTestRunner);
         var wasPatched = false;
@@ -57,11 +57,11 @@ internal static class AllureXunitPatcher
                     ctor,
                     prefix: new HarmonyMethod(
                         typeof(AllureXunitPatcher),
-                        nameof(_onTestRunnerCreating)
+                        nameof(OnTestRunnerCreating)
                     ),
                     postfix: new HarmonyMethod(
                         typeof(AllureXunitPatcher),
-                        nameof(_onTestRunnerCreated)
+                        nameof(OnTestRunnerCreated)
                     )
                 );
 
@@ -87,23 +87,21 @@ internal static class AllureXunitPatcher
         if (!wasPatched)
         {
             _logger.LogWarning(
-                "No constructors of {0} were pathched. Some theories may " +
+                "No constructors of {0} were patched. Some theories may " +
                 "miss their parameters in the report",
                 testRunnerType.Name
             );
         }
     }
 
-    private static void _onTestRunnerCreating(ITest test, ref string skipReason)
+    private static void OnTestRunnerCreating(ITest test, ref string skipReason)
     {
         if (!CurrentSink.SelectByTestPlan(test))
         {
-            skipReason = "Deselected by the testplan.";
+            skipReason = "Deselected by the test plan.";
         }
     }
 
-    private static void _onTestRunnerCreated(ITest test, object[] testMethodArguments)
-    {
+    private static void OnTestRunnerCreated(ITest test, object[] testMethodArguments) => 
         CurrentSink.OnTestArgumentsCreated(test, testMethodArguments);
-    }
 }
