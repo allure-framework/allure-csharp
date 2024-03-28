@@ -82,9 +82,13 @@ An example of the configuration file is provided below:
 
 The `directory` property defaults to `"allure-results"`.
 
-All link pattern placeholders will be replaced with URL value of corresponding link type, e.g.
+All link pattern placeholders will be replaced with the URL value of the
+corresponding link type. Given the configuration above, the following
+transformation will be made:
 
-`link(type: "issue", url: "BUG-01") => https://example.org/BUG-01`
+```
+link(type: "issue", url: "BUG-01") => https://example.org/BUG-01
+```
 
 `failExceptions` must be an array of strings, each representing the full name of
 an exception type. If an unhandled exception occurs whose type matches one of
