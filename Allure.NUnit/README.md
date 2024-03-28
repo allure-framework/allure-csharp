@@ -21,7 +21,7 @@
 ## Quick start
 
 - Install the Allure.NUnit package.
-- Configure allureConfig.json.
+- Configure it via allureConfig.json.
 - Apply the `[Allure.NUnit.AllureNUnit]` attribute to test fixtures.
 - Use other attributes from `Allure.NUnit.Attributes` if needed.
 - Use the functions from `Allure.Net.Commons.AllureApi` if needed.
@@ -34,13 +34,7 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 
 ## Notes
 
-### NUnit.Allure.Core.StepsHelper deprecation
-
-The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
-for test authors to enhance the Allure report. Prefer using functions in this
-class over the ones from `NUnit.Allure.Core.StepsHelper`.
-
-### Namespace change
+### Namespace changed to Allure.NUnit
 
 Starting from 2.12.0, the namespace `NUnit.Allure` is deprecated. The API in
 that namespace still works, but it will be removed in the future. Please, use
@@ -50,7 +44,7 @@ that namespace still works, but it will be removed in the future. Please, use
 > `[Allure.NUnit.AllureNUnit]`:
 
 ```c#
-using Allure.NUnit;
+using Allure.NUnit; // <- Note the namespace
 using NUnit.Framework;
 
 [AllureNUnit]
@@ -63,6 +57,40 @@ class MyTests
     }
 }
 ```
+
+### Deprecations and removals in 2.12.0
+
+The following user API methods are now deprecated:
+
+  - In `NUnit.Allure.Core.AllureExtensions`:
+      - All overloads of `WrapInStep` - use `Allure.Net.Commons.AllureApi.Step`
+        instead.
+      - `WrapSetUpTearDownParams` - had no effect; can safely be replaced with
+        the direct call of the provided delegate.
+  - `NUnit.Allure.Core.AllureNUnitAttribute` - use
+    `Allure.NUnit.AllureNUnitAttribute` instead.
+  - Other classes and methods in `NUnit.Allure` - change the namespace to
+    `Allure.NUnit`.
+
+The following previously deprecated user API classes and methods were removed:
+
+  - In `NUnit.Allure.Core.AllureExtensions`:
+    - `AddScreenDiff` - use `Allure.Net.Commons.AllureApi.AddScreenDiff`
+      instead.
+  - `NUnit.Allure.Core.AllureNUnitAttribute`'s constructor overload that takes
+    `bool wrapIntoStep` - the `wrapIntoStep` parameter had no effect and can be
+    safely removed now.
+  - In `NUnit.Allure.Core.AllureNUnitHelper`:
+    - `WrapInStep` - use `Allure.Net.Commons.AllureApi.Step` instead.
+  - `NUnit.Allure.Core.StepsHelper` - use functions from
+    `Allure.Net.Commons.AllureApi` and `Allure.Net.Commons.ExtendedApi` instead.
+  - In `Allure.Net.Commons.AllureLifecycle`:
+    - `AddAttachment` - use `Allure.Net.Commons.AllureApi.AddAttachment`
+      instead.
+    - `AddScreenDiff` - use `Allure.Net.Commons.AllureApi.AddScreenDiff`
+      instead.
+  - `Allure.Net.Commons.Steps.CoreStepsHelper` - use functions from
+    `Allure.Net.Commons.AllureApi` and `Allure.Net.Commons.ExtendedApi` instead.
 
 ### For users of Mac with Apple silicon
 

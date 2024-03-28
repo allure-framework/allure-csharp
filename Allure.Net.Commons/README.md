@@ -127,7 +127,7 @@ functions.
 
 #### Attachments
 * AddAttachment - adds an attachment to the current step, fixture, or test.
-* AddScreenDiff - adds needed artifacts to the current test case to be used with [screen-diff-plugin](https://github.com/allure-framework/allure2/tree/master/plugins/screen-diff-plugin)
+* AddScreenDiff - adds needed artifacts to the current test case to be used with [screen-diff-plugin](https://github.com/allure-framework/allure2/tree/main/plugins/screen-diff-plugin)
 
 ### The ExtendedApi facade
 
@@ -182,7 +182,7 @@ report created from the tests you write, but we strongly recommend you to
 consider using the end user API first.
 
 ### AllureLifecycle
-[AllureLifecycle](https://github.com/allure-framework/allure-csharp/blob/main/Allure.Commons/AllureLifecycle.cs)
+The [AllureLifecycle](https://github.com/allure-framework/allure-csharp/blob/main/Allure.Net.Commons/AllureLifecycle.cs)
 class provides methods for test engine events processing.
 
 Use `AllureLifecycle.Instance` property to access.

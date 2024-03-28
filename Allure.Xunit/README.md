@@ -38,18 +38,54 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 
 ## Notes
 
+### Namespace consolidated to Allure.Xunit
+
+Previously, the package contained a mix of `Allure.Xunit` and `Allure.XUnit`
+namespaces. Starting from 2.12.0, you should only use `Allure.Xunit`. The API is
+still accessible through the old namespace, but that access is deprecated now
+and will be removed in the future.
+
+### Deprecations and removals in 2.12.0
+
+The following user API classes are now deprecated:
+
+  - `Allure.XUnit.Attachments` - use `Allure.Xunit.Attachments` instead.
+  - Attributes in `Allure.XUnit.Attributes.Steps` - use their counterparts from
+    `Allure.Xunit.Attributes.Steps`.
+
+The following previously deprecated user API classes and methods were removed:
+
+  - Using-style steps/fixtures:
+      - `Allure.Xunit.AllureAfter`
+      - `Allure.Xunit.AllureBefore`
+      - `Allure.Xunit.AllureStep`
+      - `Allure.Xunit.AllureStepBase`
+
+    Use the following alternatives instead:
+      - Attributes from `Allure.Xunit.Attributes.Steps` (`[AllureAfter]`,
+        `[AllureBefore]`, or `[AllureStep]`)
+      - Functions from `Allure.Net.Commons.AllureApi` and
+        `Allure.Net.Commons.ExtendedApi`
+  - `Allure.Xunit.AllureAttachments` - use
+    `Allure.Net.Commons.AllureApi.AddAttachment` instead.
+  - `Allure.Xunit.Steps` - use functions from
+    `Allure.Net.Commons.AllureApi` and `Allure.Net.Commons.ExtendedApi` instead.
+  - In `Allure.Xunit.Attributes`:
+      - `AllureXunitAttribute` - use `Xunit.FactAttribute` instead.
+      - `AllureXunitTheoryAttribute` - use `Xunit.TheoryAttribute` instead.
+  - In `Allure.Net.Commons.AllureLifecycle`:
+    - `AddAttachment` - use `Allure.Net.Commons.AllureApi.AddAttachment`
+      instead.
+    - `AddScreenDiff` - use `Allure.Net.Commons.AllureApi.AddScreenDiff`
+      instead.
+  - `Allure.Net.Commons.Steps.CoreStepsHelper` - use functions from
+    `Allure.Net.Commons.AllureApi` and `Allure.Net.Commons.ExtendedApi` instead.
+
 ### Allure.Xunit.StepExtensions deprecation
 
 There is no more need to use separate Allure.XUnit.StepExtensions package. You
 should uninstall it and use attributes from
 [Allure.Xunit.Attributes.Steps namespace](Attributes/Steps) directly.
-
-### Namespace change
-
-Previously, the package used a mix of `Allure.Xunit` and `Allure.XUnit`
-namespaces. Starting from 2.12.0, you should only use `Allure.Xunit`. The API is
-still accessible through the old namespace, but that access is deprecated now
-and will be removed in the future.
 
 ## Known issues and limitations
 
