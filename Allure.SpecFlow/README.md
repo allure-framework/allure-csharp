@@ -18,12 +18,13 @@
 
 ---
 
-The plugin currently supports [SpecFlow](http://specflow.org/) v2.1 - 3.9.*
+The adapter works with [SpecFlow](http://specflow.org/) version 3, starting from
+3.9.8.
 
 ### Quick start
 
 1. Install the [Allure.SpecFlow](https://www.nuget.org/packages/Allure.SpecFlow)
-nuget package according to your Specflow version.
+Nuget package according to your SpecFlow version.
 2. Add the following entry to your `specflow.json`:
     ```json
     {
@@ -54,7 +55,7 @@ Learn more from [the documentation for Allure SpecFlow](https://allurereport.org
 
 #### Selective run issues
 
-Selective run might not work under rare circumstances.
+Selective run (test plans) might not work under rare circumstances.
 Issue [#369] contains some additional details. If you are affected by this, you
 may try to switch to the `Debug` configuration as a workaround until we come up
 with a solution.

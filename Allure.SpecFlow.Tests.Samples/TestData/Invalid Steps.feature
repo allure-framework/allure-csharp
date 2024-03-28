@@ -18,3 +18,10 @@
     Given I don't have such step
     Given Step is 'passed'
     And I don't have such step too
+
+  @broken
+  Scenario: Broken step followed by invalid step
+    Given Step is 'broken'
+    Given I don't have such step
+    Given Step is 'passed'
+    And I don't have such step too

@@ -1,8 +1,9 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Allure.Net.Commons.TestPlan;
+using HarmonyLib;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.UnitTestProvider;
 
@@ -121,7 +122,7 @@ namespace Allure.SpecFlowPlugin.SelectiveRun
         {
             if (!SelectiveRunTestRunner.CurrentRunner.IsCurrentScenarioSelected)
             {
-                __0 = "Deselected by the testplan.";
+                __0 = AllureTestPlan.SkipReason;
             }
         }
     }

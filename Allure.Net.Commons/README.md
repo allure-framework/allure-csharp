@@ -1,4 +1,5 @@
 # Allure.Net.Commons
+
 [![](http://img.shields.io/nuget/vpre/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
 .Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
 
@@ -15,9 +16,9 @@
 
 ---
 
-The library can be used by any project targeting a netstandard2.0 compatible
-framework including .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5.0+ and more.
-See the full list [here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version).
+The library can be used by any project that targets a framework compatible with
+.NET Standard 2.0 (.NET Framework 4.6.1+, .NET Core 2.0+, .NET 5.0+, and more).
+See the complete list [here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version).
 
 ## Note for users of Mac with Apple silicon
 
@@ -32,48 +33,75 @@ You may also install Rosetta via the CLI:
 ```
 
 ## Configuration
-Allure lifecycle is configured via a json file with the default name `allureConfig.json`. NuGet package installs `allureConfig.Template.json` which you can use as an example. There are 2 ways to specify config file location:
--  set ALLURE_CONFIG environment variable to the full path of json config file. This option is preferable for .net core projects which utilize nuget libraries directly from nuget packages folder. See this example of setting it in the code: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.Commons.NetCore.Tests/AllureConfigTests.cs#L13-L15
 
-- place `allureConfig.json` to the location of `Allure.Net.Commons.dll`. This option can be used with .net classic projects which copy all referenced package libraries into binary folder. Do not forget to set 'Copy to Output Directory' property to 'Copy always' or 'Copy if newer' in your test project or set it in .csproj:
-   ```xml
-   <ItemGroup>
-     <None Update="allureConfig.json">
-       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-     </None>
-   </ItemGroup>
-   ```
+The Allure lifecycle is configured via a JSON file with the default name
+`allureConfig.json`. NuGet package installs `allureConfig.Template.json`, which
+you can use as an example. There are two ways to specify config file location:
 
-Allure lifecycle will start with default configuration settings if `allureConfig.json` is not found.
+  - Set the ALLURE_CONFIG environment variable to the full path of the file.
+  - Add `allureConfig.json` to the project and ensure it's copied to the
+    project output directory next to `Allure.Net.Commons.dll`:
+    ```xml
+    <ItemGroup>
+      <None Update="allureConfig.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+    ```
 
-Raw json configuration can be accessed from `AllureLifeCycle.Instance.JsonConfiguration` to extend configuration by adapters. See extension example here: https://github.com/allure-framework/allure-csharp/blob/bdf11bd3e1f41fd1e4a8fd22fa465b90b68e9d3f/Allure.SpecFlowPlugin/PluginHelper.cs#L20-L29
+The Allure lifecycle will start with the default configuration settings if no `allureConfig.json` is provided.
+
+The unparsed configuration can be accessed via
+`AllureLifeCycle.Instance.JsonConfiguration`. Adapters can use it to read
+extended configuration properties they need. Check an example
+[here](https://github.com/allure-framework/allure-csharp/blob/bf869a27828fa9b374b1e27dd972eb702be7d864/Allure.Xunit/AllureXunitConfiguration.cs#L33-L36).
 
 
-Base configuration params are stored in `AllureLifeCycle.Instance.Configuration`
+The parsed configuration object can be accessed via
+`AllureLifeCycle.Instance.Configuration`.
 
-Allure configuration section is used to setup output directory and link patterns, e.g.:
-```
+An example of the configuration file is provided below:
+
+```json
 {
   "allure": {
-    "directory": "allure-results", // optional, default value is "allure-results"
-    "title": "custom run title", // optional
-    "links": //optional
+    "directory": "allure-results",
+    "title": "custom run title",
+    "links":
     [
       "https://example.org/{link}",
       "https://example.org/{issue}",
       "https://example.org/{tms}"
+    ],
+    "failExceptions": [
+      "MyNamespace.MyAssertionException"
     ]
   }
 }
 ```
 
-All link pattern placeholders will be replaced with URL value of corresponding link type, e.g.
+The `directory` property defaults to `"allure-results"`.
 
-`link(type: "issue", url: "BUG-01") => https://example.org/BUG-01`
+All link pattern placeholders will be replaced with the URL value of the
+corresponding link type. Given the configuration above, the following
+transformation will be made:
+
+```
+link(type: "issue", url: "BUG-01") => https://example.org/BUG-01
+```
+
+`failExceptions` must be an array of strings, each representing the full name of
+an exception type. If an unhandled exception occurs whose type matches one of
+the provided types, the test/step/fixture is considered failed. Otherwise, it's
+considered broken. An exception's type matches a name if:
+
+  1. Its full name equals the provided name, OR
+  2. One of its base classes matches the name, OR
+  3. It implements an interface that matches the name.
 
 ## Runtime API
 
-Use this API it to enhance the report at runtime.
+Use this API to enhance the report at runtime.
 
 ### The AllureApi facade
 
@@ -123,11 +151,13 @@ functions.
 * `Step<T>(string, Func<Task<T>>): T` - async step function.
 
 #### Noop step
+
 * `Step(string)`
 
 #### Attachments
+
 * AddAttachment - adds an attachment to the current step, fixture, or test.
-* AddScreenDiff - adds needed artifacts to the current test case to be used with [screen-diff-plugin](https://github.com/allure-framework/allure2/tree/master/plugins/screen-diff-plugin)
+* AddScreenDiff - adds needed artifacts to the current test case to be used with [screen-diff-plugin](https://github.com/allure-framework/allure2/tree/main/plugins/screen-diff-plugin)
 
 ### The ExtendedApi facade
 
@@ -136,7 +166,7 @@ Use this class to access some less commonly used functions.
 #### Explicit step management
 
 > [!NOTE]
-> Use the functions below only if lambda steps doesn't suit your needs.
+> Use the functions below only if lambda steps don't suit your needs.
 
 * `StartStep(string): void`
 * `StartStep(string, Action<StepResult>): void`
@@ -162,7 +192,7 @@ Use this class to access some less commonly used functions.
 #### Explicit fixture management
 
 > [!NOTE]
-> Use the functions below only if lambda fixtures doesn't suit your needs.
+> Use the functions below only if lambda fixtures don't suit your needs.
 
 * `StartBeforeFixture(string): void`
 * `StartAfterFixture(string): void`
@@ -176,42 +206,45 @@ Use this class to access some less commonly used functions.
 
 ## The integration API
 
-This API is designed for those who want to integrate Allure with a test
-framework or library. You may still use it if you just want to improve the
-report created from the tests you write, but we strongly recommend you to
-consider using the end user API first.
+This API is designed for adapter or library authors. You may still use it as a
+test author, but we recommend considering the Runtime API first.
 
 ### AllureLifecycle
-[AllureLifecycle](https://github.com/allure-framework/allure-csharp/blob/main/Allure.Commons/AllureLifecycle.cs)
-class provides methods for test engine events processing.
 
-Use `AllureLifecycle.Instance` property to access.
+The [AllureLifecycle](https://github.com/allure-framework/allure-csharp/blob/main/Allure.Net.Commons/AllureLifecycle.cs)
+class provides methods to manipulate the Allure context while responding to the
+test framework's events. Use `AllureLifecycle.Instance` property to access it.
 
-#### Fixture Events
+#### Fixture context control
+
 * StartBeforeFixture
 * StartAfterFixture
 * UpdateFixture
 * StopFixture
 
-#### Testcase Events
+#### Test context control
+
 * ScheduleTestCase
 * StartTestCase
 * UpdateTestCase
 * StopTestCase
 * WriteTestCase
 
-#### Step Events
+#### Step context control
+
 * StartStep
 * UpdateStep
 * StopStep
 
 #### Utility Methods
+
 * CleanupResultDirectory - can be used in test run setup to clean old result files
 
 #### Context capturing
+
 The methods above operate on the current Allure context. This context
 flows naturally as a part of ExecutionContext and is subject to the same
-constraints. Particularly, changes made in an async callee can't be observed
+constraints. Notably, changes made in an async callee can't be observed
 by the caller.
 
 Use the following methods of `AllureLifecycle` to capture the current Allure
@@ -227,7 +260,7 @@ public static async Task Caller(ScenarioContext scenario)
 {
     await Callee(scenario);
     AllureLifecycle.Instance.RunInContext(
-        scenario.Get<AllureContext>(),
+        scenario.Get<AllureContext>(), // Get the previously captured context
         () =>
         {
             // The test context required by the below methods wouldn't be
@@ -244,7 +277,7 @@ public static async Task Callee(ScenarioContext scenario)
         new(){ uuid = Guid.NewGuid().ToString() }
     );
 
-    // Pass Allure context to the caller via ScenarioContext
+    // Capture the context in an object of the test framework's object model
     scenario.Set(AllureLifecycle.Instance.Context);
 }
 ```

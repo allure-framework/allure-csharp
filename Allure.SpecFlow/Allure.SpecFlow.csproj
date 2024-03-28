@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <AssemblyName>Allure.SpecFlowPlugin</AssemblyName>
+        <RootNamespace>Allure.SpecFlowPlugin</RootNamespace>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
-        <PackageId>Allure.SpecFlow</PackageId>
         <Authors>Alexander Bakanov</Authors>
         <Description>Create beautiful reports from your SpecFlow tests.</Description>
         <PackageIcon>Allure-SF-Color.png</PackageIcon>

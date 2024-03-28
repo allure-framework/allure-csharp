@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Functions;
 using CsvHelper;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Bindings;
@@ -62,22 +63,23 @@ namespace Allure.SpecFlowPlugin
         void ITestTracer.TraceError(Exception ex, TimeSpan duration)
         {
             this.TraceError(ex, duration);
+            var status = PluginHelper.ResolveErrorStatus(ex);
             allure.StopStep(
-                PluginHelper.WrapStatusInit(Status.failed, ex)
+                PluginHelper.WrapStatusInit(status, ex)
             );
-            FailScenario(ex);
+            FailScenario(status, ex);
         }
 
         void ITestTracer.TraceStepSkipped()
         {
             this.TraceStepSkipped();
-            allure.StopStep(x => x.status = Status.skipped);
+            ExtendedApi.SkipStep();
         }
 
         void ITestTracer.TraceStepPending(BindingMatch match, object[] arguments)
         {
             this.TraceStepPending(match, arguments);
-            allure.StopStep(x => x.status = Status.skipped);
+            ExtendedApi.SkipStep();
         }
 
         void ITestTracer.TraceNoMatchingStepDefinition(
@@ -218,11 +220,11 @@ namespace Allure.SpecFlowPlugin
             AllureApi.AddAttachment("table", "text/csv", ms.ToArray(), ".csv");
         }
 
-        private static void FailScenario(Exception ex)
+        private static void FailScenario(Status status, Exception ex)
         {
             allure.UpdateTestCase(x =>
             {
-                x.status = x.status != Status.none ? x.status : Status.failed;
+                x.status = x.status != Status.none ? x.status : status;
                 x.statusDetails = PluginHelper.GetStatusDetails(ex);
             });
         }
