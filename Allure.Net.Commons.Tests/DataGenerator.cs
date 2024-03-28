@@ -8,8 +8,6 @@ namespace Allure.Net.Commons.Tests
     enum Fixture { BeforeFeature, BeforeScenario, AfterFeature, AfterScenario }
     class DataGenerator
     {
-        //internal const string HistoryId = "9054f5f2-b0a8-45d5-a681-1c5b5eee0e7e";
-
         internal static (string path, byte[] content) GetAttachment(string extension = "")
         {
             var path = $"{Guid.NewGuid().ToString()}{extension}";
@@ -20,19 +18,20 @@ namespace Allure.Net.Commons.Tests
 
         internal static TestResult GetTestResult()
         {
-            var tr = new TestResult();
-            tr.uuid = Guid.NewGuid().ToString("N");
-            tr.name = tr.uuid;
-            tr.description = tr.uuid;
-            //tr.historyId = HistoryId;
-            //tr.steps = GetSteps(2);
-            tr.labels = new List<Label>()
+            var uuid = Guid.NewGuid().ToString("N");
+            return new()
             {
-                Label.Feature("Feature 1"),
-                Label.Story("Story 2"),
-                Label.Thread()
+                uuid = uuid,
+                name = uuid,
+                description = uuid,
+                fullName = uuid,
+                labels = new()
+                {
+                    Label.Feature("Feature 1"),
+                    Label.Story("Story 2"),
+                    Label.Thread()
+                }
             };
-            return tr;
         }
 
         internal static List<TestResult> GetTestResults(int capacity = 10)

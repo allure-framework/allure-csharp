@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Steps;
 using HeyRed.Mime;
+using Newtonsoft.Json;
 
 #nullable enable
 
@@ -16,6 +17,10 @@ namespace Allure.Net.Commons;
 /// </summary>
 public static class AllureApi
 {
+    const string DIFF_NAME_PATTERN = "diff-{0}";
+    const string DIFF_MEDIA_TYPE = "application/vnd.allure.image.diff";
+    const string DIFF_ENTRY_PREFIX = "data:image/png;base64,";
+
     static AllureLifecycle? lifecycleInstance;
 
     internal static AllureLifecycle CurrentLifecycle
@@ -441,15 +446,30 @@ public static class AllureApi
         string expectedPng,
         string actualPng,
         string diffPng
-    )
-    {
-        AddAttachment(expectedPng, "expected");
-        AddAttachment(actualPng, "actual");
-        AddAttachment(diffPng, "diff");
-        CurrentLifecycle.UpdateTestCase(
-            x => x.labels.Add(Label.TestType("screenshotDiff"))
+    ) =>
+        AddAttachment(
+            string.Format(
+                DIFF_NAME_PATTERN,
+                CurrentLifecycle.Context.CurrentStepContainer.attachments.Count(
+                    a => a.type == DIFF_MEDIA_TYPE
+                ) + 1
+            ),
+            DIFF_MEDIA_TYPE,
+            Encoding.UTF8.GetBytes(
+                JsonConvert.SerializeObject(new
+                {
+                    expected = ReadDiffEntry(expectedPng),
+                    actual = ReadDiffEntry(actualPng),
+                    diff = ReadDiffEntry(diffPng)
+                })
+            ),
+            ".json"
         );
-    }
+
+    static string ReadDiffEntry(string fileName) =>
+        DIFF_ENTRY_PREFIX + Convert.ToBase64String(
+            File.ReadAllBytes(fileName)
+        );
 
     #endregion
 
@@ -581,8 +601,7 @@ public static class AllureApi
             name,
             ExtendedApi.StartStep,
             action,
-            ExtendedApi.PassStep,
-            ExtendedApi.FailStep
+            ExtendedApi.ResolveStep
         );
 
     static async Task<T> ExecuteStepAsync<T>(
@@ -592,30 +611,31 @@ public static class AllureApi
         await ExecuteActionAsync(
             () => ExtendedApi.StartStep(name),
             action,
-            ExtendedApi.PassStep,
-            ExtendedApi.FailStep
+            ExtendedApi.ResolveStep
         );
 
     internal static async Task<T> ExecuteActionAsync<T>(
         Action start,
         Func<Task<T>> action,
-        Action pass,
-        Action fail
+        Action<Exception?> resolve
     )
     {
         T result;
+        Exception? error = null;
         start();
         try
         {
             result = await action();
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            fail();
+            error = e;
             throw;
         }
-
-        pass();
+        finally
+        {
+            resolve(error);
+        }
         return result;
     }
 
@@ -623,11 +643,11 @@ public static class AllureApi
         string name,
         Action<string> start,
         Func<T> action,
-        Action pass,
-        Action fail
+        Action<Exception?> resolve
     )
     {
         T result;
+        Exception? error = null;
         start(name);
         try
         {
@@ -635,11 +655,13 @@ public static class AllureApi
         }
         catch (Exception e)
         {
-            fail();
-            throw new StepFailedException(name, e);
+            error = e;
+            throw;
         }
-
-        pass();
+        finally
+        {
+            resolve(error);
+        }
         return result;
     }
 }

@@ -174,7 +174,8 @@ namespace Allure.Net.Commons.Tests
                 .StartTestCase(new()
                 {
                     name = name,
-                    uuid = Guid.NewGuid().ToString()
+                    uuid = Guid.NewGuid().ToString(),
+                    fullName = name
                 });
             await Task.Delay(1);
             await this.AddStepsAsync(steps);
@@ -187,7 +188,12 @@ namespace Allure.Net.Commons.Tests
         void WrapInTest(string testName, Action action)
         {
             this.lifecycle.StartTestCase(
-                new() { name = testName, uuid = Guid.NewGuid().ToString() }
+                new()
+                {
+                    name = testName,
+                    uuid = Guid.NewGuid().ToString(),
+                    fullName = testName
+                }
             );
             action();
             this.lifecycle
@@ -218,7 +224,12 @@ namespace Allure.Net.Commons.Tests
         async Task WrapInTestAsync(string testName, Func<Task> action)
         {
             this.lifecycle.StartTestCase(
-                new() { name = testName, uuid = Guid.NewGuid().ToString() }
+                new()
+                {
+                    name = testName,
+                    uuid = Guid.NewGuid().ToString(),
+                    fullName = testName
+                }
             );
             await Task.Delay(1);
             await action();

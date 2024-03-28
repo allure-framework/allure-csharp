@@ -86,7 +86,10 @@ public class AllureTestPlan
     /// </summary>
     public static readonly AllureTestPlan DEFAULT_TESTPLAN = new();
 
-    static string? ResolveTestPlanPath() =>
+    /// <summary>
+    /// Returns the path of the current test plan file, if any.
+    /// </summary>
+    public static string? ResolveTestPlanPath() =>
         new[]
         {
             AllureConstants.NEW_ALLURE_TESTPLAN_ENV_NAME,
@@ -94,6 +97,13 @@ public class AllureTestPlan
         }.Select(Environment.GetEnvironmentVariable).Where(
             ev => !string.IsNullOrWhiteSpace(ev)
         ).FirstOrDefault();
+
+    /// <summary>
+    /// A short message that can be used to report an ignored test to the test
+    /// framework.
+    /// </summary>
+    public static string SkipReason =>
+        "Not in the test plan " + (ResolveTestPlanPath() ?? "");
 
     static AllureTestPlan GetTestPlanByPath(string? testPlanPath) =>
         testPlanPath is null || !File.Exists(testPlanPath)

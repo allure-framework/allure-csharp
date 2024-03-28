@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Storage;
 using Allure.Net.Commons.TestPlan;
 using Allure.Net.Commons.Writer;
 using Newtonsoft.Json.Linq;
@@ -41,7 +38,6 @@ public class AllureLifecycle
     public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
         new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);
 
-    readonly AllureStorage storage;
     readonly AsyncLocal<AllureContext> context = new();
 
     readonly Lazy<AllureTestPlan> lazyTestPlan;
@@ -104,7 +100,6 @@ public class AllureLifecycle
         JsonConfiguration = config.ToString();
         AllureConfiguration = AllureConfiguration.ReadFromJObject(config);
         writer = writerFactory(AllureConfiguration);
-        storage = new AllureStorage();
         lazyTestPlan = new(testPlanFactory);
     }
 
@@ -131,7 +126,7 @@ public class AllureLifecycle
     /// <summary>
     /// Registers a type formatter to be used when converting a test's or
     /// step's argument to the string that will be included in the Allure
-    /// report. 
+    /// report.
     /// </summary>
     /// <typeparam name="T">
     /// The type that the formatter converts. The formatter will be used for
@@ -218,7 +213,6 @@ public class AllureLifecycle
     )
     {
         container.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        this.storage.Put(container.uuid, container);
         this.UpdateContext(c => c.WithContainer(container));
         return this;
     }
@@ -269,7 +263,6 @@ public class AllureLifecycle
     public virtual AllureLifecycle WriteTestContainer()
     {
         var container = this.Context.CurrentContainer;
-        this.storage.Remove<TestResultContainer>(container.uuid);
         this.UpdateContext(c => c.WithNoLastContainer());
         this.writer.Write(container);
         return this;
@@ -372,6 +365,44 @@ public class AllureLifecycle
 
     #region TestCase
 
+
+    /// <summary>
+    /// Prepares a new test and activates the test context with it. The test
+    /// should be then started separately with <see cref="StartTestCase()"/>
+    /// </summary>
+    /// <remarks>
+    /// This method modifies the Allure context.<br></br>
+    /// Requires the test context to be active.
+    /// </remarks>
+    /// <param name="testResult">A new test case.</param>
+    /// <exception cref="InvalidOperationException"/>
+    public virtual AllureLifecycle ScheduleTestCase(TestResult testResult)
+    {
+        var uuid = testResult.uuid;
+        testResult.stage = Stage.scheduled;
+        var containers = this.Context.ContainerContext;
+        lock (this.modelMonitor)
+        {
+            foreach (TestResultContainer container in containers)
+            {
+                container.children.Add(uuid);
+            }
+        }
+        this.UpdateContext(c => c.WithTestContext(testResult));
+        return this;
+    }
+
+
+    /// <summary>
+    /// Starts a previously scheduled test.
+    /// </summary>
+    /// <remarks>
+    /// Requires the test context to be active.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException"/>
+    public virtual AllureLifecycle StartTestCase() =>
+        this.UpdateTestCase(startAllureItem);
+
     /// <summary>
     /// Starts a new test and activates the test context with it. The test
     /// becomes the current one in the current execution context.
@@ -382,22 +413,9 @@ public class AllureLifecycle
     /// </remarks>
     /// <param name="testResult">A new test case.</param>
     /// <exception cref="InvalidOperationException"/>
-    public virtual AllureLifecycle StartTestCase(TestResult testResult)
-    {
-        var uuid = testResult.uuid;
-        var containers = this.Context.ContainerContext;
-        lock (this.modelMonitor)
-        {
-            foreach (TestResultContainer container in containers)
-            {
-                container.children.Add(uuid);
-            }
-        }
-        this.storage.Put(uuid, testResult);
-        this.UpdateContext(c => c.WithTestContext(testResult));
-        this.UpdateTestCase(startAllureItem);
-        return this;
-    }
+    public virtual AllureLifecycle StartTestCase(TestResult testResult) =>
+        this.ScheduleTestCase(testResult)
+            .UpdateTestCase(startAllureItem);
 
     /// <summary>
     /// Applies the specified update function to the current test.
@@ -461,7 +479,6 @@ public class AllureLifecycle
         {
             uuid = testResult.uuid;
         }
-        this.storage.Remove<TestResult>(uuid);
         this.UpdateContext(c => c.WithNoTestContext());
         this.writer.Write(testResult);
         return this;
@@ -655,6 +672,9 @@ public class AllureLifecycle
         (TestResult tr) => tr.historyId ??= IdFunctions.CreateHistoryId(
             tr.fullName,
             tr.parameters
+        ),
+        (TestResult tr) => tr.testCaseId ??= IdFunctions.CreateTestCaseId(
+            tr.fullName
         )
     );
 
@@ -673,424 +693,6 @@ public class AllureLifecycle
             action(v);
         }
     };
-
-    #endregion
-
-    #region Obsoleted
-
-    internal const string EXPLICIT_STATE_MGMT_OBSOLETE =
-        "Explicit allure state management is obsolete. Methods with " +
-            "explicit uuid parameters will be removed in the future. Use " +
-            "their counterparts without uuids to manipulate the current" +
-            " context.";
-
-    internal const string API_RUDIMENT_OBSOLETE_MSG =
-        "This is a rudimentary part of the API. It has no " +
-            "effect and will be removed in the future.";
-
-    [Obsolete(API_RUDIMENT_OBSOLETE_MSG)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Func<string>? CurrentTestIdGetter { get; set; }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartTestContainer(
-        string parentUuid,
-        TestResultContainer container
-    )
-    {
-        this.UpdateTestContainer(
-            parentUuid,
-            c => c.children.Add(container.uuid)
-        );
-        this.StartTestContainer(container);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle UpdateTestContainer(
-        string uuid,
-        Action<TestResultContainer> update
-    )
-    {
-        var container = this.storage.Get<TestResultContainer>(uuid);
-        lock (this.modelMonitor)
-        {
-            update.Invoke(container);
-        }
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StopTestContainer(string uuid) =>
-        this.UpdateTestContainer(uuid, stopContainer);
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle WriteTestContainer(string uuid)
-    {
-        var container = this.storage.Remove<TestResultContainer>(uuid);
-        this.UpdateContext(c => ContextWithNoContainer(c, uuid));
-        this.writer.Write(container);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartBeforeFixture(
-        FixtureResult result,
-        out string uuid
-    )
-    {
-        uuid = CreateUuid();
-        this.StartBeforeFixture(uuid, result);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartBeforeFixture(
-        string uuid,
-        FixtureResult result
-    )
-    {
-        this.UpdateTestContainer(c => c.befores.Add(result));
-        this.StartFixture(uuid, result);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartBeforeFixture(
-        string parentUuid,
-        FixtureResult result,
-        out string uuid
-    )
-    {
-        uuid = CreateUuid();
-        this.StartBeforeFixture(parentUuid, uuid, result);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartBeforeFixture(
-        string parentUuid,
-        string uuid,
-        FixtureResult result
-    )
-    {
-        this.UpdateTestContainer(parentUuid, c => c.befores.Add(result));
-        this.StartFixture(uuid, result);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartAfterFixture(
-        string parentUuid,
-        FixtureResult result,
-        out string uuid
-    )
-    {
-        uuid = CreateUuid();
-        this.StartAfterFixture(parentUuid, uuid, result);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartAfterFixture(
-        string parentUuid,
-        string uuid,
-        FixtureResult result
-    )
-    {
-        this.UpdateTestContainer(parentUuid, c => c.afters.Add(result));
-        this.StartFixture(uuid, result);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle UpdateFixture(
-        string uuid,
-        Action<FixtureResult> update
-    )
-    {
-        var fixture = this.storage.Get<FixtureResult>(uuid);
-        lock (this.modelMonitor)
-        {
-            update.Invoke(fixture);
-        }
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StopFixture(string uuid)
-    {
-        this.UpdateFixture(uuid, stopAllureItem);
-        var fixture = this.storage.Remove<FixtureResult>(uuid);
-        if (ReferenceEquals(fixture, this.Context.FixtureContext))
-        {
-            this.UpdateContext(c => c.WithNoFixtureContext());
-        }
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartTestCase(
-        string containerUuid,
-        TestResult testResult
-    )
-    {
-        this.UpdateTestContainer(
-            containerUuid,
-            c => c.children.Add(testResult.uuid)
-        );
-        return this.StartTestCase(testResult);
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle UpdateTestCase(
-        string uuid,
-        Action<TestResult> update
-    )
-    {
-        var testResult = this.storage.Get<TestResult>(uuid);
-        lock (this.modelMonitor)
-        {
-            update(testResult);
-        }
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StopTestCase(string uuid) =>
-        this.UpdateTestCase(uuid, stopTestCase);
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle WriteTestCase(string uuid)
-    {
-        var testResult = this.storage.Remove<TestResult>(uuid);
-        if (this.Context.TestContext?.uuid == uuid)
-        {
-            this.UpdateContext(c => c.WithNoTestContext());
-        }
-        this.writer.Write(testResult);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartStep(
-        StepResult result,
-        out string uuid
-    )
-    {
-        uuid = CreateUuid();
-        this.StartStep(this.Context.CurrentStepContainer, uuid, result);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartStep(
-        string uuid,
-        StepResult result
-    ) => this.StartStep(this.Context.CurrentStepContainer, uuid, result);
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StartStep(
-        string parentUuid,
-        string uuid,
-        StepResult stepResult
-    ) => this.StartStep(
-        this.storage.Get<ExecutableItem>(parentUuid),
-        uuid,
-        stepResult
-    );
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle UpdateStep(
-        string uuid,
-        Action<StepResult> update
-    )
-    {
-        var stepResult = storage.Get<StepResult>(uuid);
-        lock (this.modelMonitor)
-        {
-            update.Invoke(stepResult);
-        }
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle StopStep(string uuid)
-    {
-        this.UpdateStep(uuid, stopAllureItem);
-        var stepResult = this.storage.Remove<StepResult>(uuid);
-        this.UpdateContext(c => ContextWithNoStep(c, stepResult));
-        return this;
-    }
-
-    #region Attachment
-
-    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle AddAttachment(
-        string name,
-        string type,
-        string path
-    )
-    {
-        AllureApi.AddAttachment(name, type, path);
-        return this;
-    }
-
-    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle AddAttachment(
-        string name,
-        string type,
-        byte[] content,
-        string fileExtension = ""
-    )
-    {
-        AllureApi.AddAttachment(name, type, content, fileExtension);
-        return this;
-    }
-
-    [Obsolete("Please, use AllureApi.AddAttachment instead.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle AddAttachment(
-        string path,
-        string? name = null
-    )
-    {
-        AllureApi.AddAttachment(path, name);
-        return this;
-    }
-
-    [Obsolete("Please, use AllureApi.AddScreenDiff instead.")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle AddScreenDiff(
-        string expectedPng,
-        string actualPng,
-        string diffPng
-    )
-    {
-        AllureApi.AddScreenDiff(expectedPng, actualPng, diffPng);
-        return this;
-    }
-
-    [Obsolete(EXPLICIT_STATE_MGMT_OBSOLETE)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual AllureLifecycle AddScreenDiff(
-        string testCaseUuid,
-        string expectedPng,
-        string actualPng,
-        string diffPng
-    ) => this.AddAttachment(expectedPng, "expected")
-        .AddAttachment(actualPng, "actual")
-        .AddAttachment(diffPng, "diff")
-        .UpdateTestCase(
-            testCaseUuid,
-            x => x.labels.Add(Label.TestType("screenshotDiff"))
-        );
-
-    #endregion
-
-    [Obsolete]
-    void StartFixture(string uuid, FixtureResult fixtureResult)
-    {
-        this.storage.Put(uuid, fixtureResult);
-        this.UpdateContext(c => c.WithFixtureContext(fixtureResult));
-        this.UpdateStep(uuid, startAllureItem);
-    }
-
-    [Obsolete]
-    AllureLifecycle StartStep(
-        ExecutableItem parent,
-        string uuid,
-        StepResult stepResult
-    )
-    {
-        lock (this.modelMonitor)
-        {
-            parent.steps.Add(stepResult);
-        }
-        this.storage.Put(uuid, stepResult);
-        this.UpdateContext(c => c.WithStep(stepResult));
-        this.UpdateStep(uuid, startAllureItem);
-        return this;
-    }
-
-    [Obsolete]
-    static AllureContext ContextWithNoContainer(
-        AllureContext context,
-        string uuid
-    )
-    {
-        var containersToPushAgain = new Stack<TestResultContainer>();
-        while (context.CurrentContainer.uuid != uuid)
-        {
-            containersToPushAgain.Push(context.CurrentContainer);
-            context = context.WithNoLastContainer();
-            if (context.ContainerContext.IsEmpty)
-            {
-                throw new InvalidOperationException(
-                    $"Container {uuid} is not in the current context"
-                );
-            }
-        }
-        context = context.WithNoLastContainer();
-        while (containersToPushAgain.Any())
-        {
-            context = context.WithContainer(
-                containersToPushAgain.Pop()
-            );
-        }
-        return context;
-    }
-
-    [Obsolete]
-    static AllureContext ContextWithNoStep(
-        AllureContext context,
-        StepResult stepResult
-    )
-    {
-        var stepsToPushAgain = new Stack<StepResult>();
-        while (!ReferenceEquals(context.CurrentStep, stepResult))
-        {
-            stepsToPushAgain.Push(context.CurrentStep);
-            context = context.WithNoLastStep();
-            if (context.StepContext.IsEmpty)
-            {
-                throw new InvalidOperationException(
-                    $"Step {stepResult.name} is not in the current context"
-                );
-            }
-        }
-        context = context.WithNoLastStep();
-        while (stepsToPushAgain.Any())
-        {
-            context = context.WithStep(
-                stepsToPushAgain.Pop()
-            );
-        }
-        return context;
-    }
 
     #endregion
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AspectInjector.Broker;
@@ -26,8 +25,6 @@ namespace Allure.Net.Commons.Steps
         internal static readonly Type TypeVoid = typeof(void);
         internal static readonly Type TypeTask = typeof(Task);
         
-        public static List<Type> ExceptionTypes { get; set; }
-
         private static void StartStep(MethodBase metadata, string stepName, List<Parameter> stepParameters)
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
@@ -48,18 +45,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
             {
-                var exceptionStatusDetails = new StatusDetails
-                {
-                    message = e.Message,
-                    trace = e.StackTrace
-                };
-                
-                if (ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e)))
-                {
-                    ExtendedApi.FailStep(result => result.statusDetails = exceptionStatusDetails);
-                    return;
-                }
-                ExtendedApi.BreakStep(result => result.statusDetails = exceptionStatusDetails);
+                ExtendedApi.ResolveStep(e);
             }
         }
 
@@ -90,19 +76,7 @@ namespace Allure.Net.Commons.Steps
             if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
                 metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
             {
-                var exceptionStatusDetails = new StatusDetails
-                {
-                    message = e.Message,
-                    trace = e.StackTrace
-                };
-
-                AllureLifecycle.Instance.StopFixture(result =>
-                {
-                    result.status = ExceptionTypes.Any(exceptionType => exceptionType.IsInstanceOfType(e))
-                        ? Status.failed
-                        : Status.broken;
-                    result.statusDetails = exceptionStatusDetails;
-                });
+                ExtendedApi.ResolveFixture(e);
             }
         }
 

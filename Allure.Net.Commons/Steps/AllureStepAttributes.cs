@@ -9,14 +9,9 @@ public abstract class AllureStepAttributes
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
     public abstract class AbstractStepBaseAttribute : Attribute
     {
-        protected AbstractStepBaseAttribute(string name, List<Type> exceptionTypes)
+        protected AbstractStepBaseAttribute(string name, List<Type> exceptionTypes = null)
         {
-            Name = name;
-            if (exceptionTypes == null)
-            {
-                throw new ArgumentNullException(nameof(exceptionTypes));
-            }
-            AllureAbstractStepAspect.ExceptionTypes = exceptionTypes;
+            this.Name = name;
         }
 
         public string Name { get; protected set; }

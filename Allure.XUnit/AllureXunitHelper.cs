@@ -1,6 +1,5 @@
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Storage;
 using Allure.Xunit.Attributes;
 using Allure.XUnit;
 using Allure.XUnit.Attributes;
@@ -19,6 +18,12 @@ namespace Allure.Xunit
 {
     public static class AllureXunitHelper
     {
+        internal interface ITestResultAccessor
+        {
+            TestResultContainer TestResultContainer { get; set; }
+            TestResult TestResult { get; set; }
+        }
+
         internal static List<Type> ExceptionTypes = new()
         {
             typeof(XunitException)
@@ -235,9 +240,6 @@ namespace Allure.Xunit
             testResult.uuid = IdFunctions.CreateUUID();
             testResult.fullName = IdFunctions.CreateFullName(
                 testCase.TestMethod.Method.ToRuntimeMethod()
-            );
-            testResult.testCaseId = IdFunctions.CreateTestCaseId(
-                testResult.fullName
             );
         }
 

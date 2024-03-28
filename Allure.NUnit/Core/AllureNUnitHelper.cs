@@ -179,9 +179,6 @@ namespace NUnit.Allure.Core
             testResult.fullName = IdFunctions.CreateFullName(
                 test.Method.MethodInfo
             );
-            testResult.testCaseId = IdFunctions.CreateTestCaseId(
-                testResult.fullName
-            );
         }
 
         static void SetLegacyIdentifiers(ITest test, TestResult testResult)
@@ -352,7 +349,7 @@ namespace NUnit.Allure.Core
 
             if (!string.IsNullOrEmpty(currentResult.Output))
             {
-                AllureLifecycle.Instance.AddAttachment(
+                AllureApi.AddAttachment(
                     "Console Output",
                     "text/plain",
                     Encoding.UTF8.GetBytes(currentResult.Output),

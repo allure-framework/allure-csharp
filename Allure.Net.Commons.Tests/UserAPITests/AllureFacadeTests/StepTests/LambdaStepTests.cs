@@ -3,17 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
+#nullable enable
+
 namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
 
-class LambdaStepTests : AllureApiTestFixture
+class LambdaStepTests : LambdaApiTestFixture
 {
-    static readonly Action errorAction = () => throw new Exception();
-    static readonly Func<int> errorFunc = () => throw new Exception();
-    static readonly Func<Task> asyncErrorAction
-        = async () => await Task.FromException(new Exception());
-    static readonly Func<Task<int>> asyncErrorFunc
-        = async () => await Task.FromException<int>(new Exception());
-
     [Test]
     public void StepWithNoActionCanBeCreated()
     {
@@ -40,11 +35,24 @@ class LambdaStepTests : AllureApiTestFixture
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            () => AllureApi.Step("My step", errorAction),
+            () => AllureApi.Step("My step", failAction),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertStepCompleted("My step", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void ActionCanBeConvertedToBrokenStep()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => AllureApi.Step("My step", breakAction),
             Throws.Exception
         );
 
-        this.AssertStepCompleted("My step", Status.failed);
+        this.AssertStepCompleted("My step", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -64,11 +72,24 @@ class LambdaStepTests : AllureApiTestFixture
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            () => AllureApi.Step("My step", errorFunc),
+            () => AllureApi.Step("My step", failFunc),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertStepCompleted("My step", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void FuncCanBeConvertedToBrokenStep()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => AllureApi.Step("My step", breakFunc),
             Throws.Exception
         );
 
-        this.AssertStepCompleted("My step", Status.failed);
+        this.AssertStepCompleted("My step", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -90,11 +111,24 @@ class LambdaStepTests : AllureApiTestFixture
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await AllureApi.Step("My step", asyncErrorAction),
+            async () => await AllureApi.Step("My step", asyncFailAction),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertStepCompleted("My step", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void AsyncActionCanBeConvertedToBrokenStep()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "uuid" });
+
+        Assert.That(
+            async () => await AllureApi.Step("My step", asyncBreakAction),
             Throws.Exception
         );
 
-        this.AssertStepCompleted("My step", Status.failed);
+        this.AssertStepCompleted("My step", Status.broken, "message", typeof(Exception));
     }
 
     [Test]
@@ -116,21 +150,73 @@ class LambdaStepTests : AllureApiTestFixture
         this.lifecycle.StartTestCase(new() { uuid = "uuid" });
 
         Assert.That(
-            async () => await AllureApi.Step("My step", asyncErrorFunc),
+            async () => await AllureApi.Step("My step", asyncFailFunc),
+            Throws.InstanceOf<FailException>()
+        );
+
+        this.AssertStepCompleted("My step", Status.failed, "message", typeof(FailException));
+    }
+
+    [Test]
+    public void AsyncFuncCanBeConvertedToBrokenStep()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "uuid" });
+
+        Assert.That(
+            async () => await AllureApi.Step("My step", asyncBreakFunc),
             Throws.Exception
         );
 
-        this.AssertStepCompleted("My step", Status.failed);
+        this.AssertStepCompleted("My step", Status.broken, "message", typeof(Exception));
     }
 
-    void AssertStepCompleted(string name, Status status)
+    [Test]
+    public void SubclassOfFailExceptionTreatedAsAssertionFailure()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => AllureApi.Step("My step", () => throw new InheritedFailException()),
+            Throws.InstanceOf<InheritedFailException>()
+        );
+
+        this.AssertStepCompleted("My step", Status.failed, "message", typeof(InheritedFailException));
+    }
+
+    [Test]
+    public void ImplementationOfFailInterfaceTreatedAsAssertionFailure()
+    {
+        this.lifecycle.AllureConfiguration.FailExceptions = new()
+        {
+            typeof(IErrorInterface).FullName
+        };
+        this.lifecycle.StartTestCase(new() { uuid = "uuid" });
+
+        Assert.That(
+            () => AllureApi.Step("My step", () => throw new InheritedFailException()),
+            Throws.InstanceOf<InheritedFailException>()
+        );
+
+        this.AssertStepCompleted("My step", Status.failed, "message", typeof(InheritedFailException));
+    }
+
+    void AssertStepCompleted(string name, Status status, string? message = null, Type? exceptionType = null)
     {
         Assert.That(lifecycle.Context.HasStep, Is.False);
         Assert.That(lifecycle.Context.HasTest);
         var steps = lifecycle.Context.CurrentTest.steps;
         Assert.That(steps, Has.Count.EqualTo(1));
-        var fixture = steps.First();
-        Assert.That(fixture.name, Is.EqualTo(name));
-        Assert.That(fixture.status, Is.EqualTo(status));
+        var step = steps.First();
+        Assert.That(step.name, Is.EqualTo(name));
+        Assert.That(step.status, Is.EqualTo(status));
+        Assert.That(step.statusDetails?.message, Is.EqualTo(message));
+        if (message is not null)
+        {
+            Assert.That(step.statusDetails?.trace, Contains.Substring(message));
+        }
+        if (exceptionType?.FullName is not null)
+        {
+            Assert.That(step.statusDetails?.trace, Contains.Substring(exceptionType.FullName));
+        }
     }
 }

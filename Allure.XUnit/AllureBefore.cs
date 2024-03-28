@@ -1,5 +1,5 @@
 using System;
-using Allure.Net.Commons.Steps;
+using Allure.Net.Commons;
 
 namespace Allure.Xunit
 {
@@ -8,7 +8,7 @@ namespace Allure.Xunit
         [Obsolete("Use AllureBeforeAttribute")]
         public AllureBefore(string name)
         {
-            CoreStepsHelper.StartBeforeFixture(name);
+            ExtendedApi.StartBeforeFixture(name);
         }
     }
 }
