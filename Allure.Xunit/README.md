@@ -39,7 +39,7 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 
 ## Notes
 
-### Namespace consolidated to Allure.Xunit
+### Namespaces consolidated to Allure.Xunit
 
 Previously, the package contained a mix of `Allure.Xunit` and `Allure.XUnit`
 namespaces. Starting from 2.12.0, you should only use `Allure.Xunit`. The API is
@@ -116,7 +116,7 @@ Issue [#369] contains some additional details.
 
 [#369]: https://github.com/allure-framework/allure-csharp/issues/369
 
-## FAQ
+## Troubleshooting
 
 ### Why the Allure results directory is empty?
 
@@ -165,9 +165,9 @@ that limitation. Learn more [here](https://allurereport.org/docs/xunit-configura
 
 ### How to use Allure Xunit in a CI environment?
 
-A CI-specific reporter might kick in addition to Allure Xunit in some CI
+A CI-specific reporter might be enabled in addition to Allure Xunit in some CI
 environments like Azure DevOps or TeamCity. The result is that both reporters
-are available to run. In such cases, xUnit.net may select any of them.
+become available to run. In such cases, xUnit.net may select any of them.
 
   - If xUnit.net selects Allure Xunit, the tests will be reported both to the
     CI server and as Allure results.
