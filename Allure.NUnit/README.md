@@ -22,9 +22,9 @@
 
 - Install the Allure.NUnit package.
 - Configure allureConfig.json.
-- Apply the `[AllureNUnit]` attribute to test fixtures.
-- Use other attributes in `NUnit.Allure.Attributes` if needed.
-- Use the functions in `Allure.Net.Commons.AllureApi` if needed.
+- Apply the `[Allure.NUnit.AllureNUnit]` attribute to test fixtures.
+- Use other attributes from `Allure.NUnit.Attributes` if needed.
+- Use the functions from `Allure.Net.Commons.AllureApi` if needed.
 
 ## Further readings
 
@@ -40,7 +40,32 @@ The new `Allure.Net.Commons.AllureApi` facade class was designed specificially
 for test authors to enhance the Allure report. Prefer using functions in this
 class over the ones from `NUnit.Allure.Core.StepsHelper`.
 
+### Namespace change
+
+Starting from 2.12.0, the namespace `NUnit.Allure` is deprecated. The API in
+that namespace still works, but it will be removed in the future. Please, use
+`Allure.NUnit` instead.
+
+> The `[NUnit.Allure.Core.AllureNUnit]` attribute should be replaced with
+> `[Allure.NUnit.AllureNUnit]`:
+
+```c#
+using Allure.NUnit;
+using NUnit.Framework;
+
+[AllureNUnit]
+class MyTests
+{
+    [Test]
+    public void TestMethod()
+    {
+        /* ... */
+    }
+}
+```
+
 ### For users of Mac with Apple silicon
+
 If you're developing on a Mac machine with Apple silicon, make sure you have
 Rosetta installed. Follow this article for the instructions:
 https://support.apple.com/en-us/HT211861

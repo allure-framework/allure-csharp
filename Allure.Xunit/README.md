@@ -7,8 +7,21 @@
 
 > An Allure adapter for [xUnit.net](https://xunit.net/).
 
-Allure Xunit supports .NET Core 2.0 or later, or any .NET runtime that
-implements .NET Standard 2.1.
+[<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
+
+- Learn more about Allure Report at [https://allurereport.org](https://allurereport.org)
+- 📚 [Documentation](https://allurereport.org/docs/) – discover official documentation for Allure Report
+- ❓ [Questions and Support](https://github.com/orgs/allure-framework/discussions/categories/questions-support) – get help from the team and community
+- 📢 [Official announcements](https://github.com/orgs/allure-framework/discussions/categories/announcements) –  stay updated with our latest news and updates
+- 💬 [General Discussion](https://github.com/orgs/allure-framework/discussions/categories/general-discussion) – engage in casual conversations, share insights and ideas with the community
+- 🖥️ [Live Demo](https://demo.allurereport.org/) — explore a live example of Allure Report in action
+
+---
+
+Allure Xunit supports the following frameworks:
+
+  - .NET Core 3.1,
+  - .NET 5.0 or greater.
 
 ## Quick start
 
@@ -26,19 +39,22 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 ## Notes
 
 ### Allure.Xunit.StepExtensions deprecation
+
 There is no more need to use separate Allure.XUnit.StepExtensions package. You
 should uninstall it and use attributes from
 [Allure.Xunit.Attributes.Steps namespace](Attributes/Steps) directly.
 
 ### Namespace change
+
 Previously, the package used a mix of `Allure.Xunit` and `Allure.XUnit`
-namespaces. Starting from 2.12.0, you should only use `Allure.Xunit`. Some parts
-of the public API are still accessible through the old namespace, but that
-access is deprecated now and will be removed in the future.
+namespaces. Starting from 2.12.0, you should only use `Allure.Xunit`. The API is
+still accessible through the old namespace, but that access is deprecated now
+and will be removed in the future.
 
 ## Known issues and limitations
 
 ### Rosetta is required for users on Mac with Apple silicon
+
 If you're developing on a Mac machine with Apple silicon, make sure you have
 Rosetta installed. Follow this article for the instructions:
 https://support.apple.com/en-us/HT211861
