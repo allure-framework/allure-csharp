@@ -19,7 +19,7 @@ namespace Allure.Net.Commons.Tests
             var expectedDir = Path.Combine(Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
             var moq = new Mock<FileSystemResultsWriter>(config) { CallBase = true };
             moq.Setup(x => x.HasDirectoryAccess(It.IsAny<string>())).Returns(false);
-            Assert.AreEqual(expectedDir, moq.Object.ToString());
+            Assert.That(moq.Object.ToString(), Is.EqualTo(expectedDir));
         }
 
         [Test, Description("Cleanup test")]
@@ -32,7 +32,7 @@ namespace Allure.Net.Commons.Tests
             File.WriteAllText(Path.Combine(resultsDirectory, Path.GetRandomFileName()), "");
 
             new FileSystemResultsWriter(config).CleanUp();
-            Assert.IsEmpty(Directory.GetFiles(resultsDirectory));
+            Assert.That(Directory.GetFiles(resultsDirectory), Is.Empty);
         }
     }
 }

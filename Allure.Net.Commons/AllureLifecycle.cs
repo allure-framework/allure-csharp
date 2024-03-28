@@ -148,7 +148,7 @@ public class AllureLifecycle
     /// <summary>
     /// Binds the provided value as the current Allure context and executes
     /// the specified function. The context is then restored to the initial
-    /// value. This allows the Allure context to bypass .NET execution
+    /// value. That allows the Allure context to bypass .NET execution
     /// context boundaries.
     /// </summary>
     /// <param name="context">

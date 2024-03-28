@@ -4,27 +4,20 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <IsPackable>true</IsPackable>
         <Authors>Nick Chursin</Authors>
-        <Description>NUnit attributes extenstions for Allure</Description>
+        <Description>Create beautiful reports from your NUnit tests.</Description>
         <PackageId>Allure.NUnit</PackageId>
         <AssemblyName>Allure.NUnit</AssemblyName>
         <RootNamespace>NUnit.Allure</RootNamespace>
-        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
-        <PackageTags>allure nunit</PackageTags>
-        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>$(PackageTags) nunit</PackageTags>
         <PackageIcon>Allure-N-Color.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="NUnit" Version="3.13.3" />
-        <PackageReference Include="NUnit.Engine.Api" Version="3.15.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj">
-            <!-- todo: Remove Allure.Net.Commons references-->
-            <!-- <PrivateAssets>all</PrivateAssets>-->
-        </ProjectReference>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -32,7 +25,6 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Include="./../img/Allure-N-Color.png" Pack="true" PackagePath="\" />
-        <None Include="LICENSE.md" Pack="true" PackagePath="\" />
         <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 

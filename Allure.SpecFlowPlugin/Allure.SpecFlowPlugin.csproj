@@ -6,28 +6,21 @@
         <Nullable>enable</Nullable>
         <PackageId>Allure.SpecFlow</PackageId>
         <Authors>Alexander Bakanov</Authors>
-        <Product />
-        <Description>Generates Allure report result files for SpecFlow test run</Description>
-        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Description>Create beautiful reports from your SpecFlow tests.</Description>
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
-        <PackageTags>specflow allure</PackageTags>
+        <PackageTags>$(PackageTags) specflow</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />
         <Content Include="allureConfig.Template.json" Pack="true" />
         <None Include="./../img/Allure-SF-Color.png" Pack="true" PackagePath="\" />
-        <None Update="LICENSE.md">
-            <Pack>true</Pack>
-            <PackagePath>/</PackagePath>
-        </None>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CsvHelper" Version="30.0.1" />
         <PackageReference Include="Lib.Harmony" Version="2.3.1.1" />
-        <PackageReference Include="SpecFlow" Version="[3.9.8, 3.10)" />
+        <PackageReference Include="CsvHelper" Version="31.0.2" />
+        <PackageReference Include="SpecFlow" Version="3.9.8" />
         <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
     </ItemGroup>
 

@@ -3,7 +3,6 @@ name: Build
 env:
   SOLUTION_PATH: allure-csharp.sln
   BUILD_CONFIGURATION: 'Release'
-  RESTORE_OUTPUT_PATH: 'packages'
   PACKAGE_OUTPUT_PATH: 'artifacts'
 
 on:
@@ -16,28 +15,35 @@ on:
       - 'main'
       - 'hotfix-*'
 
-jobs: 
+jobs:
   build:
     name: "Build"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.5.3
-        
+      - uses: actions/checkout@v4
+
       - name: 'Setup .NET Core SDK'
-        uses: actions/setup-dotnet@v3.2.0
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             3.1.x
             6.0.x
-            7.0.x
-      
+
       - name: 'Restore packages'
-        run: dotnet restore ${{ env.SOLUTION_PATH }} --packages ${{ env.RESTORE_OUTPUT_PATH }}
-        
+        run: |
+          dotnet restore ${{ env.SOLUTION_PATH }}
+
       - name: 'Build project using dotnet'
-        run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
-        
+        run: |
+          dotnet build ${{ env.SOLUTION_PATH }}\
+            --no-restore\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+
       - name: 'Run tests'
         run: |
-          dotnet test Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj --no-build --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet test Allure.SpecFlowPlugin.Tests/Allure.SpecFlowPlugin.Tests.csproj --no-build --configuration ${{ env.BUILD_CONFIGURATION }}
+          dotnet test Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+          dotnet test Allure.SpecFlowPlugin.Tests/Allure.SpecFlowPlugin.Tests.csproj\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}

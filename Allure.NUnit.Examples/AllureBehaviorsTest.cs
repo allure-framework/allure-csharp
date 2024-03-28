@@ -11,7 +11,7 @@ namespace Allure.NUnit.Examples
         [AllureFeature("f1")]
         public void F1()
         {
-            Assert.IsTrue(true);
+            Assert.That(true);
         }
 
         [Test]
@@ -19,7 +19,7 @@ namespace Allure.NUnit.Examples
         [AllureStory("A")]
         public void F2()
         {
-            Assert.IsTrue(true);
+            Assert.That(true);
         }
     }
 }

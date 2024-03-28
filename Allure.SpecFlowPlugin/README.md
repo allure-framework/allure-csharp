@@ -54,10 +54,7 @@ Learn more from [the documentation for Allure SpecFlow](https://allurereport.org
 
 #### Selective run issues
 
-Selective run doesn't work in .NET 8.0 until the support is added to
-Monomod.Core.
-
-Additionally, it might not work under other rare circumstances.
+Selective run might not work under rare circumstances.
 Issue [#369] contains some additional details. If you are affected by this, you
 may try to switch to the `Debug` configuration as a workaround until we come up
 with a solution.

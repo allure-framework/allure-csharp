@@ -1,26 +1,36 @@
 "theme:workflow":
-  - ".github/**"
+  - changed-files:
+    - any-glob-to-any-file: ".github/**"
 
 "theme:build":
-  - "*.sln"
-  - "**/*.csproj"
-  - ".gitignore"
-
-"theme:model":
-  - "allure-model/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "*.sln"
+      - "**/*.csproj"
+      - "Directory.Build.props"
+      - ".gitignore"
 
 "theme:core":
-  - "Allure.Net.Commons/**"
-  - "Allure.Net.Commons.Tests/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Allure.Net.Commons/**"
+      - "Allure.Net.Commons.Tests/**"
 
 "theme:xunit":
-  - "Allure.XUnit/**"
-  - "Allure.XUnit.Tests/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Allure.XUnit/**"
+      - "Allure.XUnit.Tests/**"
 
 "theme:nunit":
-  - "Allure.NUnit/**"
-  - "Allure.NUnit.Tests/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Allure.NUnit/**"
+      - "Allure.NUnit.Tests/**"
 
 "theme:specflow":
-  - "Allure.SpecFlowPlugin/**"
-  - "Allure.SpecFlowPlugin.Tests/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Allure.Features/**"
+      - "Allure.SpecFlowPlugin/**"
+      - "Allure.SpecFlowPlugin.Tests/**"

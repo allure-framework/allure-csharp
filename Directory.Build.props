@@ -10,10 +10,15 @@
     <!-- Common projects' properties -->
     <PropertyGroup>
         <LangVersion>11</LangVersion>
+        <CheckEolTargetFramework>false</CheckEolTargetFramework>
         <IsPackable>false</IsPackable>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <CheckEolTargetFramework>false</CheckEolTargetFramework>
+        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageTags>allure</PackageTags>
+        <PackageReleaseNotes>See the release notes here: https://github.com/allure-framework/allure-csharp/releases/tag/2.11.0.</PackageReleaseNotes>
     </PropertyGroup>
 
     <!-- Signing properties -->
@@ -33,6 +38,11 @@
 
     <!-- Enable SourceLink for all projects -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    </ItemGroup>
+    
+    <!-- Include LICENSE to all packages -->
+    <ItemGroup Condition="'$(IsPackable)' == 'true'">
+        <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>

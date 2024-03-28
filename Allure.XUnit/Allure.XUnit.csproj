@@ -5,11 +5,9 @@
         <IsPackable>true</IsPackable>
         <Title>Allure.XUnit</Title>
         <Authors>Shumakov Ivan</Authors>
-        <Description>Allure.XUnit</Description>
+        <Description>Create beautiful reports from your xUnit.net tests.</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
-        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>allure xunit</PackageTags>
+        <PackageTags>$(PackageTags) xunit</PackageTags>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -17,31 +15,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspectInjector" Version="2.8.2" />
-        <PackageReference Include="Lib.Harmony" Version="2.3.1.1" />
-        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />
         <None Include="./../img/Allure-X-Color.png" Pack="true" PackagePath="\" />
-        <None Update="LICENSE.md">
-          <Pack>true</Pack>
-          <PackagePath>/</PackagePath>
-        </None>
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Lib.Harmony" Version="2.3.1.1" />
+        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />
         <PackageReference Include="xunit.core" Version="2.4.1" />
         <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj">
-            <!-- todo: Remove Allure.Net.Commons references-->
-            <!-- <PrivateAssets>all</PrivateAssets>-->
-        </ProjectReference>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
     </ItemGroup>
 
     <Target Name="PackAllureXunitReportersFiles">

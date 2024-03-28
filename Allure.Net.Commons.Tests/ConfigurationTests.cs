@@ -15,11 +15,12 @@ namespace Allure.Net.Commons.Tests
             var allureLifecycle = new AllureLifecycle(JObject.Parse(json));
             Assert.Multiple(() =>
             {
-                Assert.IsInstanceOf<AllureLifecycle>(allureLifecycle);
-                Assert.IsNotNull(allureLifecycle.JsonConfiguration);
-                Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, AllureConstants.DEFAULT_RESULTS_FOLDER),
-                    allureLifecycle.ResultsDirectory);
-                Assert.IsNotNull(allureLifecycle.AllureConfiguration.Links);
+                Assert.That(allureLifecycle, Is.InstanceOf<AllureLifecycle>());
+                Assert.That(allureLifecycle.JsonConfiguration, Is.Not.Null);
+                Assert.That(allureLifecycle.ResultsDirectory, Is.EqualTo(
+                    Path.Combine(Environment.CurrentDirectory, AllureConstants.DEFAULT_RESULTS_FOLDER)
+                ));
+                Assert.That(allureLifecycle.AllureConfiguration.Links, Is.Not.Null);
             });
         }
 
@@ -27,8 +28,9 @@ namespace Allure.Net.Commons.Tests
         public void ShouldConfigureResultsDirectoryFromJson()
         {
             var json = @"{""allure"":{""directory"": ""test""}}";
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "test"),
-                new AllureLifecycle(JObject.Parse(json)).ResultsDirectory);
+            Assert.That(new AllureLifecycle(JObject.Parse(json)).ResultsDirectory, Is.EqualTo(
+                Path.Combine(Environment.CurrentDirectory, "test")
+            ));
         }
 
         [TestCase(@"{""allure"":{""links"":[ ""http://test//{}"" ] }}", ExpectedResult = 1)]
@@ -44,7 +46,7 @@ namespace Allure.Net.Commons.Tests
         public void ShouldConfigureTitle()
         {
             var json = @"{""allure"":{""title"": ""hello Allure""}}";
-            Assert.AreEqual("hello Allure", new AllureLifecycle(JObject.Parse(json)).AllureConfiguration.Title);
+            Assert.That(new AllureLifecycle(JObject.Parse(json)).AllureConfiguration.Title, Is.EqualTo("hello Allure"));
         }
     }
 }

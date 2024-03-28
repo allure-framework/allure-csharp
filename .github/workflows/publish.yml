@@ -2,8 +2,7 @@ name: Publish
 
 env:
   SOLUTION_PATH: allure-csharp.sln
-  BUILD_CONFIGURATION: 'Release'
-  RESTORE_OUTPUT_PATH: 'packages'
+  BUILD_CONFIGURATION: 'Publish'
   PACKAGE_OUTPUT_PATH: 'artifacts'
 
 on:
@@ -14,33 +13,42 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4
 
       - name: 'Setup .NET Core SDK'
-        uses: actions/setup-dotnet@v3.2.0
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             3.1.x
             6.0.x
-            7.0.x
 
       - name: 'Restore packages'
-        run: dotnet restore ${{ env.SOLUTION_PATH }} --packages ${{ env.RESTORE_OUTPUT_PATH }}
+        run: |
+          dotnet restore ${{ env.SOLUTION_PATH }}
 
       - name: 'Build project using dotnet'
-        run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration ${{ env.BUILD_CONFIGURATION }} -p:ContinuousIntegrationBuild=true
-
-        # Lower AspectInjector requirement for users of the packages to workaround #391 (build crash on macOS arm machines)
-      - name: Reduce AspectInjector requirement to 2.8.1
         run: |
-            dotnet add Allure.Net.Commons package AspectInjector --version 2.8.1
-            dotnet add Allure.XUnit package AspectInjector --version 2.8.1
+          dotnet build ${{ env.SOLUTION_PATH }}\
+            --no-restore\
+            --configuration ${{ env.BUILD_CONFIGURATION }}\
+            -p:ContinuousIntegrationBuild=true
 
+      # Use AspectInjector 2.8.2 which, unlike 2.8.1, correctly sets PdbChecksum
+      # The only reason we're' still referencing 2.8.1 from projects is that
+      # 2.8.2 doesn't work well on Mac OS ARM
       - name: 'Pack project'
-        run: dotnet pack ${{ env.SOLUTION_PATH }} --no-restore --no-build --configuration ${{ env.BUILD_CONFIGURATION }} -p:PackageOutputPath=${{ env.PACKAGE_OUTPUT_PATH }}
+        run: |
+          dotnet pack ${{ env.SOLUTION_PATH }}\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}\
+            "-p:PackageOutputPath=${{ github.workspace }}/${{ env.PACKAGE_OUTPUT_PATH }}"\
+            "-p:AspectInjector_Location=${{ github.workspace }}/build/AspectInjector/linux-x64"
 
       - name: 'NuGet publish'
         run: |
-          dotnet nuget push "*/${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg"\
+            -k ${NUGET_TOKEN}\
+            -s https://api.nuget.org/v3/index.json
         env:
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}

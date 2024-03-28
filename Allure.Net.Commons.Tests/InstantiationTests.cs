@@ -24,8 +24,7 @@ namespace Allure.Net.Commons.Tests
         [Test]
         public void ShouldStartWithEmptyConfiguration()
         {
-            Assert.IsInstanceOf<AllureLifecycle>(new AllureLifecycle());
-            Assert.AreEqual(new JObject().ToString(), new AllureLifecycle().JsonConfiguration);
+            Assert.That(new AllureLifecycle().JsonConfiguration, Is.EqualTo(new JObject().ToString()));
         }
 
         [Test]
@@ -50,17 +49,17 @@ namespace Allure.Net.Commons.Tests
             File.WriteAllText(configFile, configuration);
             Environment.SetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE, configFile);
 
-            Assert.AreEqual("env", new AllureLifecycle().AllureConfiguration.Directory);
+            Assert.That(new AllureLifecycle().AllureConfiguration.Directory, Is.EqualTo("env"));
         }
 
         [Test]
         public void ShouldReadConfigFromAppDomainDirectoryIfEnvVariableNotSpecified()
         {
             var configContent = @"{""allure"":{""directory"": ""bin""}}";
-            Assert.IsNull(Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE));
+            Assert.That(Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE), Is.Null);
             File.WriteAllText(AllureConstants.CONFIG_FILENAME, configContent);
 
-            Assert.AreEqual("bin", new AllureLifecycle().AllureConfiguration.Directory);
+            Assert.That(new AllureLifecycle().AllureConfiguration.Directory, Is.EqualTo("bin"));
         }
     }
 }
