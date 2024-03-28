@@ -1,6 +1,6 @@
 using Allure.Net.Commons.Steps;
 
-namespace NUnit.Allure.Attributes
+namespace Allure.NUnit.Attributes
 {
     public class SkipAttribute : AbstractSkipAttribute
     {

@@ -2,8 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
-using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -37,7 +36,8 @@ namespace Allure.NUnit.Examples
         public async Task AsyncTest_With_WrapInStep()
         {
             Console.WriteLine("> StepLevel1...");
-            await AllureLifecycle.Instance.WrapInStepAsync(
+            await AllureApi.Step(
+                "StepLevel1",
                 async () => await StepLevel1()
             );
             Console.WriteLine("  Done!");
@@ -46,7 +46,8 @@ namespace Allure.NUnit.Examples
         private async Task StepLevel1()
         {
             Console.WriteLine("  > StepLevel2...");
-            await AllureLifecycle.Instance.WrapInStepAsync(
+            await AllureApi.Step(
+                "StepLevel2",
                 async () => await StepLevel2()
             );
             Console.WriteLine("    Done!");

@@ -57,8 +57,6 @@ jobs:
           cat ./Allure.SpecFlowPlugin/Schemas/allureConfig.schema.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Net.Commons/allureConfig.Template.json
           cat ./Allure.Net.Commons/allureConfig.Template.json
-          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.NUnit/allureConfig.json
-          cat ./Allure.NUnit/allureConfig.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.NUnit.Examples/allureConfig.json
           cat ./Allure.NUnit.Examples/allureConfig.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.XUnit.Examples/allureConfig.json

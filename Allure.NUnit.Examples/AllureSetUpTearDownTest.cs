@@ -1,8 +1,7 @@
 using System;
 using System.IO;
 using Allure.Net.Commons;
-using NUnit.Allure;
-using NUnit.Allure.Attributes;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples

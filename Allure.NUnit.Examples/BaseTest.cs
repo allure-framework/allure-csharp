@@ -1,5 +1,4 @@
-﻿using NUnit.Allure.Attributes;
-using NUnit.Allure.Core;
+﻿using Allure.NUnit.Attributes;
 
 namespace Allure.NUnit.Examples
 {

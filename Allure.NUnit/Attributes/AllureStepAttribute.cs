@@ -1,11 +1,10 @@
 ﻿using Allure.Net.Commons.Steps;
-using NUnit.Allure.Core;
 
-namespace NUnit.Allure.Attributes
+namespace Allure.NUnit.Attributes
 {
     public class AllureStepAttribute : AllureStepAttributes.AbstractStepAttribute
     {
-        public AllureStepAttribute(string name = null) : base(name, AllureNUnitHelper.ExceptionTypes)
+        public AllureStepAttribute(string name = null) : base(name)
         {
         }
     }
