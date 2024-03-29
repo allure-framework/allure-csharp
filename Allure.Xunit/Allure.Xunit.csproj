@@ -21,10 +21,10 @@
 
     <ItemGroup>
         <PackageReference Include="Lib.Harmony" Version="2.3.1.1" />
-        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
+        <PackageReference Include="xunit.runner.utility" Version="2.7.0" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />
         <PackageReference Include="xunit.core" Version="2.4.1" />
-        <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
+        <PackageReference Include="xunit.runner.reporters" Version="2.7.0" />
     </ItemGroup>
 
     <ItemGroup>
