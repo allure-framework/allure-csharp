@@ -1,17 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <PackageId>Allure.Xunit</PackageId>
         <AssemblyName>Allure.Xunit.reporters</AssemblyName>
+        <RootNamespace>Allure.Xunit</RootNamespace>
         <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
         <IsPackable>true</IsPackable>
         <Authors>Shumakov Ivan</Authors>
         <Description>Create beautiful reports from your xUnit.net tests.</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) xunit</PackageTags>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);PackAllureXunitReportersFiles</TargetsForTfmSpecificBuildOutput>
     </PropertyGroup>
 
     <ItemGroup>

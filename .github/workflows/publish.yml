@@ -26,24 +26,24 @@ jobs:
         run: |
           dotnet restore ${{ env.SOLUTION_PATH }}
 
+      # Use AspectInjector 2.8.2 which, unlike 2.8.1, correctly sets PdbChecksum
+      # The only reason we're still referencing 2.8.1 from projects is that
+      # 2.8.2 doesn't work well on Mac OS ARM
       - name: 'Build project using dotnet'
         run: |
           dotnet build ${{ env.SOLUTION_PATH }}\
             --no-restore\
             --configuration ${{ env.BUILD_CONFIGURATION }}\
-            -p:ContinuousIntegrationBuild=true
+            -p:ContinuousIntegrationBuild=true\
+            "-p:AspectInjector_Location=${{ github.workspace }}/build/AspectInjector/linux-x64/AspectInjector"
 
-      # Use AspectInjector 2.8.2 which, unlike 2.8.1, correctly sets PdbChecksum
-      # The only reason we're' still referencing 2.8.1 from projects is that
-      # 2.8.2 doesn't work well on Mac OS ARM
       - name: 'Pack project'
         run: |
           dotnet pack ${{ env.SOLUTION_PATH }}\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}\
-            "-p:PackageOutputPath=${{ github.workspace }}/${{ env.PACKAGE_OUTPUT_PATH }}"\
-            "-p:AspectInjector_Location=${{ github.workspace }}/build/AspectInjector/linux-x64"
+            "-p:PackageOutputPath=${{ github.workspace }}/${{ env.PACKAGE_OUTPUT_PATH }}"
 
       - name: 'NuGet publish'
         run: |
