@@ -18,7 +18,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageTags>allure</PackageTags>
-        <PackageReleaseNotes>See the release notes here: https://github.com/allure-framework/allure-csharp/releases/tag/2.11.0.</PackageReleaseNotes>
+        <PackageReleaseNotes>https://github.com/allure-framework/allure-csharp/releases/tag/2.11.0</PackageReleaseNotes>
     </PropertyGroup>
 
     <!-- Signing properties -->
@@ -40,7 +40,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
-    
+
     <!-- Include LICENSE to all packages -->
     <ItemGroup Condition="'$(IsPackable)' == 'true'">
         <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" />

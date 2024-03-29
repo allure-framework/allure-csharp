@@ -73,11 +73,9 @@ jobs:
           cat ./Allure.Reqnroll/allureConfig.Template.json
           sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Reqnroll.Tests.Samples/allureConfig.json
           cat ./Allure.Reqnroll.Tests.Samples/allureConfig.json
-          sed -i -e '/"$schema"/s|/allure-csharp/[^/]*|/allure-csharp/${{ env.release_version }}|g' ./Allure.Reqnroll.Tests/allureConfig.json
-          cat ./Allure.Reqnroll.Tests/allureConfig.json
       - name: "Update release notes link"
         run: |
-          sed -i -e '/<PackageReleaseNotes>/,/<\/PackageReleaseNotes>/ s|/allure-csharp/releases/tag/.*\.|/allure-csharp/releases/tag/${{ inputs.nextVersion }}.|g' ./Directory.Build.props
+          sed -i -e '/<PackageReleaseNotes>/,/<\/PackageReleaseNotes>/ s|/tag/[0-9a-zA-Z.|-]*|/tag/${{ inputs.release_version }}|g' ./Directory.Build.props
           cat ./Directory.Build.props
       - name: "Commit release version and create tag"
         run: |
