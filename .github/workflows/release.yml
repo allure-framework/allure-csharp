@@ -75,7 +75,7 @@ jobs:
           cat ./Allure.Reqnroll.Tests.Samples/allureConfig.json
       - name: "Update release notes link"
         run: |
-          sed -i -e '/<PackageReleaseNotes>/,/<\/PackageReleaseNotes>/ s|/tag/[0-9a-zA-Z.|-]*|/tag/${{ inputs.release_version }}|g' ./Directory.Build.props
+          sed -i -e '/<PackageReleaseNotes>/,/<\/PackageReleaseNotes>/ s|/tag/[0-9a-zA-Z.|-]*|/tag/${{ env.release_version }}|g' ./Directory.Build.props
           cat ./Directory.Build.props
       - name: "Commit release version and create tag"
         run: |
