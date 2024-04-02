@@ -84,9 +84,9 @@ The following previously deprecated user API classes and methods were removed:
 
 ### Allure.Xunit.StepExtensions deprecation
 
-There is no more need to use separate Allure.XUnit.StepExtensions package. You
-should uninstall it and use attributes from
-[Allure.Xunit.Attributes.Steps namespace](Attributes/Steps) directly.
+There is no more need to use the separate Allure.XUnit.StepExtensions package.
+You should uninstall it and use attributes from the
+`Allure.Xunit.Attributes.Steps` namespace directly.
 
 ## Known issues and limitations
 
@@ -104,7 +104,7 @@ You may also install Rosetta via the CLI:
 
 ### MonoMod.Core issues
 
-We rely on Harmony that in turn uses MonoMod.Core to:
+We rely on Harmony (which in turn uses MonoMod.Core) to:
 
 1. Report arguments of theories in case they aren't reported by xUnit.net itself.
 2. Implement selectie run (test plans).
@@ -123,9 +123,9 @@ Issue [#369] contains some additional details.
 If you run your tests, but there is no Allure results directory (or it's empty),
 xUnit.net may have preferred another reporter instead of `allure`.
 
-You can force xUnit.net to select the right reporter by providing it to the
+You can force xUnit.net to select the `allure` reporter by providing it to the
 runner. For `xunit.runner.visualstudio`, it could be done with the
-`xUnit.ReporterSwitch` run setting.
+`xUnit.ReporterSwitch` run setting:
 
 ```
 dotnet test <test-project-name> -- xUnit.ReporterSwitch=allure
