@@ -19,7 +19,7 @@
 
     <ItemGroup>
         <PackageReference Include="Lib.Harmony" Version="2.3.3" />
-        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
+        <PackageReference Include="xunit.runner.utility" Version="2.8.0" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />
         <PackageReference Include="xunit.core" Version="2.4.1" />
     </ItemGroup>
