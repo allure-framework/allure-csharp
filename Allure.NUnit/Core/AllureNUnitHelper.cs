@@ -27,7 +27,8 @@ namespace Allure.NUnit.Core
             AllureLifecycle.AllureConfiguration.FailExceptions ??= new()
             {
                 typeof(NUnitException).FullName,
-                typeof(AssertionException).FullName
+                typeof(AssertionException).FullName,
+                typeof(MultipleAssertException).FullName
             };
         }
 
