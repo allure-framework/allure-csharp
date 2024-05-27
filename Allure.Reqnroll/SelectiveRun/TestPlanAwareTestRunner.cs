@@ -29,6 +29,9 @@ class TestPlanAwareTestRunner : ITestRunner
     public ScenarioContext ScenarioContext =>
         this.underlyingRunner.ScenarioContext;
 
+    public ITestThreadContext TestThreadContext =>
+        this.underlyingRunner.TestThreadContext;
+
 
     public TestPlanAwareTestRunner(
         IUnitTestRuntimeProvider unitTestRuntimeApi,
