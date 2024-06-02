@@ -17,6 +17,8 @@ static class AllureReqnrollStateFacade
 
     const string ASSERT_EXC_NUNIT =
         "NUnit.Framework.AssertionException";
+    const string ASSERT_EXC_NUNIT_MULTIPLE = 
+        "NUnit.Framework.MultipleAssertException";
     const string ASSERT_EXC_XUNIT_NEW = // From v2.4.2 and onward.
         "Xunit.Sdk.IAssertionException";
     const string ASSERT_EXC_XUNIT_OLD = // Prior to v2.4.2
@@ -46,6 +48,7 @@ static class AllureReqnrollStateFacade
         Lifecycle.AllureConfiguration.FailExceptions ??= new()
         {
             ASSERT_EXC_NUNIT,
+            ASSERT_EXC_NUNIT_MULTIPLE,
             ASSERT_EXC_XUNIT_NEW,
             ASSERT_EXC_XUNIT_OLD,
             ASSERT_EXC_MSTEST
