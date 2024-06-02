@@ -1,0 +1,63 @@
+<Project>
+    <PropertyGroup>
+        <TransformReadmeSource>$(MSBuildThisFileDirectory)build\TransformReadmeForNuget.cs</TransformReadmeSource>
+    </PropertyGroup>
+    <ItemGroup>
+        <NuGetPackInput Include="$(TransformReadmeSource)" />
+    </ItemGroup>
+    <UsingTask TaskName="TransformReadmeForNuget"
+            TaskFactory="RoslynCodeTaskFactory"
+            AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <InputReadmePath Required="true" />
+            <OutputDirPath Required="true" />
+            <GeneratedReadmePath Output="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Linq" />
+            <Using Namespace="System.Text" />
+            <Using Namespace="System.Text.RegularExpressions" />
+            <Code Type="Fragment"
+                Language="cs"
+                Source="$(TransformReadmeSource)"/>
+        </Task>
+    </UsingTask>
+
+    <!--
+    NuGet don't support <img> (in particular, align, width and height).
+    This task replaces those unsupported constructs with plain markdown image links.
+
+    Additionally, NuGet imposes an extra requirement on the image host: it must be
+    in the allow list. See https://learn.microsoft.com/en-us/nuget/nuget-org/package-readme-on-nuget-org#allowed-domains-for-images-and-badges
+
+    To comply with it, we host images, referred by NuGet pacakges' READMEs on GitHub (in this repo).
+    Just save the image in the `img` folder. Use the original name.
+    If the original image is in SVG format, convert it to PNG.
+    If width and/or height are defined in the original img tag, resize the image
+    properly and append a suffix to the file name. Examples:
+      - original-name_128.png (width="128" and height not defined, or vice versa)
+      - original-name_128x256.png (width="128" and height="256")
+    The task will do the rest.
+    -->
+    <Target Name="GenerateNugetReadmeFiles"
+            BeforeTargets="GenerateNuspec"
+            Condition="'$(IsPackable)' == 'true'"
+            Inputs="@(NuGetPackInput)" Outputs="@(NuGetPackOutput)">
+        <TransformReadmeForNuget
+            InputReadmePath="README.md"
+            OutputDirPath="$(IntermediateOutputPath)">
+            <Output TaskParameter="GeneratedReadmePath"
+                PropertyName="NugetTransformedReadmePath" />
+        </TransformReadmeForNuget>
+        <Message Text="A new README was generated for $(MSBuildProjectName) at $(NugetTransformedReadmePath)" Importance="high" />
+        <ItemGroup>
+            <_PackageFiles Remove="README.md" />
+            <_PackageFiles Include="$(NugetTransformedReadmePath)">
+                <BuildAction>None</BuildAction>
+                <PackagePath>/README.md</PackagePath>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
+</Project>
