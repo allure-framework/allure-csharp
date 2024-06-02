@@ -1,9 +1,7 @@
 # Allure.Xunit
 
-[![Nuget](https://img.shields.io/nuget/v/Allure.Xunit?style=flat)](https://www.nuget.org/packages/Allure.Xunit)
-[![Nuget pre](https://img.shields.io/nuget/vpre/Allure.Xunit?style=flat)](https://www.nuget.org/packages/Allure.Xunit)
-
-![Nuget downloads](https://img.shields.io/nuget/dt/allure.xunit?label=downloads&style=flat)
+[![Nuget release](https://img.shields.io/nuget/v/Allure.Xunit?style=flat)](https://www.nuget.org/packages/Allure.Xunit)
+[![Nuget downloads](https://img.shields.io/nuget/dt/Allure.Xunit?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.Xunit)
 
 > An Allure adapter for [xUnit.net](https://xunit.net/).
 

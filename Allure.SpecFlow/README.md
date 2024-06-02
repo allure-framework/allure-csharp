@@ -1,9 +1,7 @@
 ## SpecFlow Adapter
 
-[![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow?style=flat)](https://www.nuget.org/packages/Allure.SpecFlow)
-[![Nuget pre](https://img.shields.io/nuget/vpre/Allure.SpecFlow?style=flat)](https://www.nuget.org/packages/Allure.SpecFlow)
-
-![Nuget downloads](https://img.shields.io/nuget/dt/allure.specflow?label=downloads&style=flat)
+[![Nuget release](https://img.shields.io/nuget/v/Allure.SpecFlow?style=flat)](https://www.nuget.org/packages/Allure.SpecFlow)
+[![Nuget downloads](https://img.shields.io/nuget/dt/Allure.SpecFlow?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.SpecFlow)
 
 > An Allure adapter for [SpecFlow](https://specflow.org/).
 

@@ -1,7 +1,8 @@
 # Allure.Net.Commons
 
-[![](http://img.shields.io/nuget/vpre/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
-.Net implementation of [Allure java-commons](https://github.com/allure-framework/allure-java/tree/master/allure-java-commons).
+[![Nuget release](https://img.shields.io/nuget/v/Allure.Net.Commons?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
+[![Nuget downloads](https://img.shields.io/nuget/dt/Allure.Net.Commons?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
+
 
 > Allure.Net.Commons is a library for creating custom Allure adapters for .NET test frameworks.
 
