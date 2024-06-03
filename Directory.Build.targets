@@ -27,19 +27,7 @@
 
     <!--
     NuGet don't support <img> (in particular, align, width and height).
-    This task replaces those unsupported constructs with plain markdown image links.
-
-    Additionally, NuGet imposes an extra requirement on the image host: it must be
-    in the allow list. See https://learn.microsoft.com/en-us/nuget/nuget-org/package-readme-on-nuget-org#allowed-domains-for-images-and-badges
-
-    To comply with it, we host images, referred by NuGet pacakges' READMEs on GitHub (in this repo).
-    Just save the image in the `img` folder. Use the original name.
-    If the original image is in SVG format, convert it to PNG.
-    If width and/or height are defined in the original img tag, resize the image
-    properly and append a suffix to the file name. Examples:
-      - original-name_128.png (width="128" and height not defined, or vice versa)
-      - original-name_128x256.png (width="128" and height="256")
-    The task will do the rest.
+    This task generates a new README file with those unsupported constructs removed.
     -->
     <Target Name="GenerateNugetReadmeFiles"
             BeforeTargets="GenerateNuspec"
