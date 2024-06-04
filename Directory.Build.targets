@@ -1,0 +1,51 @@
+<Project>
+    <PropertyGroup>
+        <TransformReadmeSource>$(MSBuildThisFileDirectory)build\TransformReadmeForNuget.cs</TransformReadmeSource>
+    </PropertyGroup>
+    <ItemGroup>
+        <NuGetPackInput Include="$(TransformReadmeSource)" />
+    </ItemGroup>
+    <UsingTask TaskName="TransformReadmeForNuget"
+            TaskFactory="RoslynCodeTaskFactory"
+            AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <InputReadmePath Required="true" />
+            <OutputDirPath Required="true" />
+            <GeneratedReadmePath Output="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Linq" />
+            <Using Namespace="System.Text" />
+            <Using Namespace="System.Text.RegularExpressions" />
+            <Code Type="Fragment"
+                Language="cs"
+                Source="$(TransformReadmeSource)"/>
+        </Task>
+    </UsingTask>
+
+    <!--
+    NuGet don't support <img> (in particular, align, width and height).
+    This task generates a new README file with those unsupported constructs removed.
+    -->
+    <Target Name="GenerateNugetReadmeFiles"
+            BeforeTargets="GenerateNuspec"
+            Condition="'$(IsPackable)' == 'true'"
+            Inputs="@(NuGetPackInput)" Outputs="@(NuGetPackOutput)">
+        <TransformReadmeForNuget
+            InputReadmePath="README.md"
+            OutputDirPath="$(IntermediateOutputPath)">
+            <Output TaskParameter="GeneratedReadmePath"
+                PropertyName="NugetTransformedReadmePath" />
+        </TransformReadmeForNuget>
+        <Message Text="A new README was generated for $(MSBuildProjectName) at $(NugetTransformedReadmePath)" Importance="high" />
+        <ItemGroup>
+            <_PackageFiles Remove="README.md" />
+            <_PackageFiles Include="$(NugetTransformedReadmePath)">
+                <BuildAction>None</BuildAction>
+                <PackagePath>/README.md</PackagePath>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
+</Project>

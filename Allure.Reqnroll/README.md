@@ -1,9 +1,7 @@
 ## Reqnroll Adapter
 
-[![Nuget](https://img.shields.io/nuget/v/Allure.Reqnroll?style=flat)](https://www.nuget.org/packages/Allure.Reqnroll)
-[![Nuget pre](https://img.shields.io/nuget/vpre/Allure.Reqnroll?style=flat)](https://www.nuget.org/packages/Allure.Reqnroll)
-
-![Nuget downloads](https://img.shields.io/nuget/dt/allure.reqnroll?label=downloads&style=flat)
+[![Nuget release](https://img.shields.io/nuget/v/Allure.Reqnroll?style=flat)](https://www.nuget.org/packages/Allure.Reqnroll)
+[![Nuget downloads](https://img.shields.io/nuget/dt/Allure.Reqnroll?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.Reqnroll)
 
 > An Allure adapter for [Reqnroll](https://reqnroll.net/).
 

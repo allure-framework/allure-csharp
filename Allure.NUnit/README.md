@@ -1,9 +1,7 @@
 # Allure NUnit adapter
 
-[![Nuget](https://img.shields.io/nuget/v/Allure.NUnit?style=flat)](https://www.nuget.org/packages/Allure.NUnit)
-[![Nuget pre](https://img.shields.io/nuget/vpre/Allure.Nunit?style=flat)](https://www.nuget.org/packages/Allure.NUnit)
-
-![Nuget downloads](https://img.shields.io/nuget/dt/allure.nunit?label=downloads&style=flat)
+[![Nuget release](https://img.shields.io/nuget/v/Allure.NUnit?style=flat)](https://www.nuget.org/packages/Allure.NUnit)
+[![Nuget downloads](https://img.shields.io/nuget/dt/Allure.NUnit?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.NUnit)
 
 > An Allure adapter for [NUnit](https://nunit.org/).
 
