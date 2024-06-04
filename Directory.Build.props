@@ -1,7 +1,7 @@
 <Project>
     <!-- Metadata -->
     <PropertyGroup>
-        <Version>2.13-SNAPSHOT</Version>
+        <Version>2.12.1</Version>
         <Company>Qameta Software</Company>
         <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -18,7 +18,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageTags>allure</PackageTags>
-        <PackageReleaseNotes>https://github.com/allure-framework/allure-csharp/releases/tag/</PackageReleaseNotes>
+        <PackageReleaseNotes>https://github.com/allure-framework/allure-csharp/releases/tag/2.12.1</PackageReleaseNotes>
     </PropertyGroup>
 
     <!-- Signing properties -->
