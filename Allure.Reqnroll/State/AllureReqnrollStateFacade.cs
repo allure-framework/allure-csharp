@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.TestPlan;
@@ -17,7 +18,7 @@ static class AllureReqnrollStateFacade
 
     const string ASSERT_EXC_NUNIT =
         "NUnit.Framework.AssertionException";
-    const string ASSERT_EXC_NUNIT_MULTIPLE = 
+    const string ASSERT_EXC_NUNIT_MULTIPLE =
         "NUnit.Framework.MultipleAssertException";
     const string ASSERT_EXC_XUNIT_NEW = // From v2.4.2 and onward.
         "Xunit.Sdk.IAssertionException";
@@ -37,6 +38,8 @@ static class AllureReqnrollStateFacade
         "in {0} hook of '{1}'.";
 
     static AllureLifecycle Lifecycle { get => AllureLifecycle.Instance; }
+
+    static Dictionary<ExecutableItem, StringBuilder> OutputCache { get; } = new();
 
     static AllureReqnrollConfiguration Configuration
     {
@@ -71,8 +74,11 @@ static class AllureReqnrollStateFacade
             MappingFunctions.ToFixtureResult(binding)
         );
 
-    internal static void StopFixture() =>
+    internal static void StopFixture()
+    {
+        AttachOutputCacheAsAttachment();
         ExtendedApi.PassFixture();
+    }
 
     internal static void FixSnapshottedFixtureStatus(
         AllureContext stateSnapshot,
@@ -167,7 +173,7 @@ static class AllureReqnrollStateFacade
             );
         stepResult.parameters = parameters;
         Lifecycle.StartStep(stepResult);
-        foreach (var (title, mediaType, content, extension) in attachmentsData )
+        foreach (var (title, mediaType, content, extension) in attachmentsData)
         {
             AllureApi.AddAttachment(title, mediaType, content, extension);
         }
@@ -178,6 +184,8 @@ static class AllureReqnrollStateFacade
         IScenarioStepContext stepContext
     )
     {
+        AttachOutputCacheAsAttachment();
+
         var reqnrollStatus = ResolveStepStatus(
             scenarioContext.ScenarioExecutionStatus,
             stepContext.Status
@@ -213,12 +221,21 @@ static class AllureReqnrollStateFacade
         }
     }
 
-    internal static void StopTestCase() =>
+    internal static void StopTestCase()
+    {
+        AttachOutputCacheAsAttachment();
         Lifecycle.StopTestCase();
+    }
 
-    internal static void StopContainer() =>
+    internal static void StopContainer()
+    {
+        if (OutputCache.Count > 0)
+        {
+            Console.WriteLine("Warning: Some output was not attached to a test case, step or fixture.");
+        }
+        OutputCache.Clear(); // Reset cache on a per-container basisis
         Lifecycle.StopTestContainer();
-
+    }
     internal static void EmitScenarioFiles(
         IScenarioContext scenarioContext
     )
@@ -240,6 +257,22 @@ static class AllureReqnrollStateFacade
     internal static void EmitFeatureFiles() =>
         Lifecycle.WriteTestContainer();
 
+    internal static void AddOutput(string text)
+    {
+        if (!(Lifecycle.Context.HasTest || Lifecycle.Context.HasFixture || Lifecycle.Context.HasStep))
+            return;
+        Lifecycle.UpdateExecutableItem(tr =>
+        {
+            if (OutputCache.ContainsKey(tr))
+            {
+                OutputCache[tr].Append(text);
+                return;
+            }
+
+            OutputCache.Add(tr, new StringBuilder(text));
+        });
+    }
+
     internal static string? GetAllureId(
         FeatureInfo featureInfo,
         ScenarioContext scenarioContext
@@ -248,6 +281,23 @@ static class AllureReqnrollStateFacade
             ResolveScenarioMetadata(featureInfo, scenarioContext).labels
         );
 
+    static void AttachOutputCacheAsAttachment()
+    {
+        var output = "";
+        Lifecycle.UpdateExecutableItem(tr =>
+        {
+            if (OutputCache.ContainsKey(tr))
+            {
+                output = OutputCache[tr].ToString();
+                OutputCache.Remove(tr);
+            }
+        });
+
+        if (!string.IsNullOrWhiteSpace(output))
+        {
+            AllureApi.AddAttachment("TestOutput", "text/plain", Encoding.UTF8.GetBytes(output), ".log");
+        }
+    }
     static (List<Label> labels, List<Link> links) ResolveScenarioMetadata(
         FeatureInfo featureInfo,
         ScenarioContext scenarioContext
