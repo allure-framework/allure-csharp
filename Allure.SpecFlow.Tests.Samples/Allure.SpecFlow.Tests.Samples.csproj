@@ -7,7 +7,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
         <PackageReference Include="Castle.Core" Version="5.1.1" />
         <PackageReference Include="NUnit" Version="4.1.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
         <PackageReference Include="SpecFlow.SharedSteps" Version="3.0.7" />
         
         <!-- SpecFlow.SharedSteps doesn't work with SpecFlow.Tools.MsBuild.Generation v3.9.58+  -->
