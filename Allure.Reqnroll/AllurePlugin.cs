@@ -81,6 +81,7 @@ public class AllurePlugin : IRuntimePlugin
         yield return new StepStartedEventHandler(stateTransportFactory);
         yield return new StepFinishedEventHandler(stateTransportFactory);
         yield return new ScenarioFinishedEventHandle(stateTransportFactory);
+        yield return new TestOutputEventHandler(stateTransportFactory);
         yield return new FeatureFinishedEventHandler(stateTransportFactory);
 
         CrossBindingContextTransport stateTransportFactory() => new(
