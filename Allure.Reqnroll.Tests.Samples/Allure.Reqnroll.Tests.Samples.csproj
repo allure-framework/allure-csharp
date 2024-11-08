@@ -16,8 +16,8 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
         <PackageReference Include="Castle.Core" Version="5.1.1" />
         <PackageReference Include="Reqnroll" Version="2.0.3" />
-        <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.0.3" />
-        <PackageReference Include="Reqnroll.xUnit" Version="2.0.3" />
+        <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.2.0" />
+        <PackageReference Include="Reqnroll.xUnit" Version="2.2.0" />
         <PackageReference Include="xunit" Version="2.9.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
             <PrivateAssets>all</PrivateAssets>
