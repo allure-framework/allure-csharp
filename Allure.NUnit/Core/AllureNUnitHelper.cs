@@ -76,8 +76,7 @@ namespace Allure.NUnit.Core
                 : null;
 
 
-            AllureLifecycle.StopTestCase(
-                testCase =>
+            AllureLifecycle.StopTestCase(testCase =>
                 {
                     testCase.status = status;
                     testCase.statusDetails = statusDetails;
@@ -147,9 +146,8 @@ namespace Allure.NUnit.Core
 
         static bool IsBroken(TestContext.ResultAdapter result) =>
             !result.Assertions.Any()
-                || result.Assertions.Any(
-                    a => a.Status == AssertionStatus.Error
-                );
+            || result.Assertions.Any(a => a.Status == AssertionStatus.Error
+            );
 
         static void SetIdentifiers(ITest test, TestResult testResult)
         {
@@ -217,57 +215,61 @@ namespace Allure.NUnit.Core
         static string GetNamespace(string classFullName)
         {
             var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
-            return lastDotIndex == -1 ? null : classFullName.Substring(
-                0,
-                lastDotIndex
-            );
+            return lastDotIndex == -1
+                ? null
+                : classFullName.Substring(
+                    0,
+                    lastDotIndex
+                );
         }
 
         static string GetClassName(string classFullName)
         {
             var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
-            return lastDotIndex == -1 ? classFullName : classFullName.Substring(
-                lastDotIndex + 1
-            );
+            return lastDotIndex == -1
+                ? classFullName
+                : classFullName.Substring(
+                    lastDotIndex + 1
+                );
         }
 
         static TestFixture GetTestFixture(ITest test)
         {
             var currentTest = test;
-            var isTestSuite = currentTest.IsSuite;
-            while (isTestSuite != true)
+    
+            while (currentTest != null)
             {
-                currentTest = currentTest.Parent;
-                if (currentTest is ParameterizedMethodSuite)
+                if (currentTest is TestFixture testFixture)
                 {
-                    currentTest = currentTest.Parent;
+                    return testFixture;
                 }
-                isTestSuite = currentTest.IsSuite;
+        
+                currentTest = currentTest.Parent;
             }
-
-            return (TestFixture) currentTest;
+            
+            throw new InvalidOperationException(
+                $"Could not find TestFixture in the hierarchy for test: {test.FullName}. " +
+                $"Test type: {test.GetType().Name}"
+            );
         }
 
         private void UpdateTestDataFromNUnitProperties()
         {
             foreach (var p in GetTestProperties(PropertyNames.Description))
             {
-                AllureLifecycle.UpdateTestCase(
-                    x => x.description += $"{p}\n"
+                AllureLifecycle.UpdateTestCase(x => x.description += $"{p}\n"
                 );
             }
 
             foreach (var p in GetTestProperties(PropertyNames.Author))
             {
-                AllureLifecycle.UpdateTestCase(
-                    x => x.labels.Add(Label.Owner(p))
+                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Owner(p))
                 );
             }
 
             foreach (var p in GetTestProperties(PropertyNames.Category))
             {
-                AllureLifecycle.UpdateTestCase(
-                    x => x.labels.Add(Label.Tag(p))
+                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Tag(p))
                 );
             }
         }
@@ -294,7 +296,7 @@ namespace Allure.NUnit.Core
             var list = new List<string>();
             var currentTest = _test;
             while (currentTest.GetType() != typeof(TestSuite)
-                && currentTest.GetType() != typeof(TestAssembly))
+                   && currentTest.GetType() != typeof(TestAssembly))
             {
                 if (currentTest.Properties.ContainsKey(name))
                 {
