@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
@@ -96,6 +95,7 @@ namespace Allure.NUnit.Core
             var testResult = new TestResult
             {
                 name = test.Name,
+                titlePath = EnumerateNamesFromTestFixtureToRoot(test).Reverse().ToList(),
                 labels = new List<Label>
                 {
                     Label.Thread(),
@@ -133,6 +133,12 @@ namespace Allure.NUnit.Core
                 TestStatus.Failed => Status.failed,
                 _ => Status.none
             };
+        }
+
+        static IEnumerable<string> EnumerateNamesFromTestFixtureToRoot(ITest test)
+        {
+            for (ITest suite = GetTestFixture(test); suite is not null; suite = suite.Parent)
+                yield return suite.Name;
         }
 
         TestResultContainer CreateTestContainer() =>
@@ -236,17 +242,17 @@ namespace Allure.NUnit.Core
         static TestFixture GetTestFixture(ITest test)
         {
             var currentTest = test;
-    
+
             while (currentTest != null)
             {
                 if (currentTest is TestFixture testFixture)
                 {
                     return testFixture;
                 }
-        
+
                 currentTest = currentTest.Parent;
             }
-            
+
             throw new InvalidOperationException(
                 $"Could not find TestFixture in the hierarchy for test: {test.FullName}. " +
                 $"Test type: {test.GetType().Name}"
