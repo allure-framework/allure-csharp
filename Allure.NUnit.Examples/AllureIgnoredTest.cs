@@ -13,8 +13,8 @@ namespace Allure.NUnit.Examples
         {
             get
             {
-                yield return new TestCaseData("Ignore").SetName("{m}_NotExist");
-                yield return new TestCaseData("NotIgnore").SetName("{m}_NotExist ignored").Ignore("Test");
+                yield return new TestCaseData("NotIgnore").SetName("{m}_NotExist");
+                yield return new TestCaseData("Ignore").SetName("{m}_NotExist ignored").Ignore("Test");
             }
         }
 
