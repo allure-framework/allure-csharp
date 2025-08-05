@@ -147,11 +147,8 @@ public static class IdFunctions
 
     static string GetUniqueTypeName(Type type) =>
         IsSystemType(type)
-            ? ResolveFullName(type)
+            ? ConstructFullName(type)
             : GetTypeNameWithAssembly(type);
-
-    static string ResolveFullName(Type type) =>
-        type.FullName ?? ConstructFullName(type);
 
     static string ConstructFullName(Type type) =>
         type.DeclaringType is null
@@ -167,7 +164,7 @@ public static class IdFunctions
             : $"{type.Namespace}.{type.Name}";
 
     static string GetTypeNameWithAssembly(Type type) =>
-        $"{type.Assembly.GetName().Name}:" + ResolveFullName(type);
+        $"{type.Assembly.GetName().Name}:" + ConstructFullName(type);
 
     static bool IsSystemType(Type type) =>
         type.Assembly == systemTypesAssembly;
