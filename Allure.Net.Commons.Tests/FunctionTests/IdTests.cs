@@ -24,6 +24,14 @@ class IdTests
     [TestCase(typeof(ClassWithoutNamespace), "Allure.Net.Commons.Tests:ClassWithoutNamespace")]
     [TestCase(typeof(MyClass), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass")]
     [TestCase(typeof(MyClass<>), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]")]
+    [TestCase(typeof(MyClass<string>), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[System.String]")]
+    [TestCase(
+        typeof(MyClass<MyClass<string, int>, MyClass<MyClass>>),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`2[" +
+            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`2[System.String,System.Int32]," +
+            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[" +
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]]"
+    )]
     public void TestFullNameFromClass(Type targetClass, string expectedFullName)
     {
         Assert.That(
@@ -49,6 +57,8 @@ class IdTests
     {
         internal void GenericMethodOfGenericClass<V>(List<T> _, List<V> __) { }
     }
+
+    class MyClass<T1, T2> { }
 
     [TestCase(
         nameof(MyClass.ParameterlessMethod),
@@ -118,7 +128,7 @@ class IdTests
             methodName,
             BindingFlags.Instance | BindingFlags.NonPublic
         );
-        
+
         var actualFullName = IdFunctions.CreateFullName(method);
 
         Assert.That(actualFullName, Is.EqualTo(expectedFullName));
@@ -139,6 +149,28 @@ class IdTests
                 ".GenericMethodOfGenericClass[V](" +
                     "System.Collections.Generic.List`1[T]," +
                     "System.Collections.Generic.List`1[V]" +
+                ")"
+        ));
+    }
+
+    [Test]
+    public void TestFullNameFromConstructedGenericMethodOfNestedConstructedGenericClass()
+    {
+        var method = typeof(MyClass<MyClass>).GetMethod(
+            nameof(MyClass<int>.GenericMethodOfGenericClass),
+            BindingFlags.Instance | BindingFlags.NonPublic
+        ).MakeGenericMethod(typeof(MyClass));
+
+        var actualFullName = IdFunctions.CreateFullName(method);
+
+        Assert.That(actualFullName, Is.EqualTo(
+            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[" +
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]" +
+                ".GenericMethodOfGenericClass[" +
+                    "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
+                "](" +
+                    "System.Collections.Generic.List`1[Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]," +
+                    "System.Collections.Generic.List`1[Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]" +
                 ")"
         ));
     }
