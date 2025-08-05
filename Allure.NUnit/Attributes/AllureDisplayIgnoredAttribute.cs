@@ -36,11 +36,7 @@ namespace Allure.NUnit.Attributes
             suite = (TestSuite) suite;
             if (suite.HasChildren)
             {
-                var ignoredTests =
-                    GetAllTests(suite).Where(
-                        t => t.RunState == RunState.Ignored
-                            || t.RunState == RunState.Skipped
-                    );
+                var ignoredTests = GetIgnoredTests(suite);
                 foreach (var test in ignoredTests)
                 {
                     this.EmitResultForIgnoredTestInTestPlan(test);
@@ -50,10 +46,24 @@ namespace Allure.NUnit.Attributes
 
         public ActionTargets Targets => ActionTargets.Suite;
 
-        private static IEnumerable<ITest> GetAllTests(ITest test)
+        static IEnumerable<ITest> GetIgnoredTests(ITest suite, bool parentIgnored = false)
         {
-            return test.Tests.Concat(test.Tests.SelectMany(GetAllTests));
+            return suite.Tests.SelectMany(test =>
+            {
+                bool isIgnored = parentIgnored || IsTestIgnored(test);
+                return test.IsSuite
+                    ? GetIgnoredTests(test, isIgnored)
+                    : isIgnored
+                        ? Enumerable.Repeat(test, 1)
+                        : Enumerable.Empty<ITest>();
+            });
         }
+
+        static bool IsTestIgnored(ITest test) => test.RunState switch
+        {
+            RunState.Ignored or RunState.Skipped => true,
+            _ => false
+        };
 
         void EmitResultForIgnoredTestInTestPlan(ITest test)
         {
