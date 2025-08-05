@@ -25,6 +25,14 @@ namespace Allure.NUnit.Examples
         }
 
 
+        [TestCase("a")]
+        [TestCase("b")]
+        [Ignore("Foo")]
+        public void IgnoredTestCase(string data)
+        {
+        }
+
+
         [Test]
         [TestCase("a")]
         [TestCase("b", Ignore = "Case")]
