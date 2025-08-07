@@ -18,16 +18,25 @@ public static class IdFunctions
     public static string CreateUUID() => Guid.NewGuid().ToString();
 
     /// <summary>
-    /// Creates a fully-qualified class name that uniquely identifies a given
-    /// class.
+    /// Creates a name that uniquely identifies a given type.
     /// </summary>
     /// <remarks>
-    /// A fully-qualified name of a type includes the assembly name, the
-    /// namespace and the class name (can be a nested class).
+    /// A fully-qualified name of a type includes:
+    /// <list type="bullet">
+    /// <item>assembly name</item>
+    /// <item>namespace (if any)</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters (for generic type definitions)</item>
+    /// <item>type arguments (for constructed generic types)</item>
+    /// </list>
+    /// Unlike <see cref="Type.FullName"/>, it doesn't include assembly
+    /// versions and other metadata that can be subject to change.
+    /// Unlike <see cref="Type.ToString"/>, it includes assembly names to
+    /// the name of the type and its type arguments, which prevents collisions
+    /// in some scenarios.
     /// </remarks>
-    /// <param name="targetClass">The type of a class.</param>
-    public static string CreateFullName(Type targetClass) =>
-        SerializeNonParameterClass(targetClass);
+    public static string CreateFullName(Type type) =>
+        SerializeNonParameterType(type);
 
     /// <summary>
     /// Creates a string that unuquely identifies a given method.
@@ -142,10 +151,10 @@ public static class IdFunctions
         {
             return type.Name;
         }
-        return SerializeNonParameterClass(type);
+        return SerializeNonParameterType(type);
     }
 
-    static string SerializeNonParameterClass(Type type) =>
+    static string SerializeNonParameterType(Type type) =>
         GetUniqueTypeName(type) + SerializeTypeParameterTypeList(
             type.GetGenericArguments()
         );
@@ -156,14 +165,14 @@ public static class IdFunctions
             : GetTypeNameWithAssembly(type);
 
     static string ConstructFullName(Type type) =>
-        type.DeclaringType is null
-            ? ConstructFullNameOfRootClass(type)
-            : ConstructFullNameOfNestedClass(type);
+        type.IsNested
+            ? ConstructFullNameOfNestedType(type)
+            : ConstructFullNameOfOutmostType(type);
 
-    static string ConstructFullNameOfNestedClass(Type type) =>
+    static string ConstructFullNameOfNestedType(Type type) =>
         ConstructFullName(type.DeclaringType) + "+" + type.Name;
 
-    static string ConstructFullNameOfRootClass(Type type) =>
+    static string ConstructFullNameOfOutmostType(Type type) =>
         string.IsNullOrEmpty(type.Namespace)
             ? type.Name
             : $"{type.Namespace}.{type.Name}";
