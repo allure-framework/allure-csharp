@@ -138,7 +138,11 @@ namespace Allure.NUnit.Core
         static IEnumerable<string> EnumerateNamesFromTestFixtureToRoot(ITest test)
         {
             for (ITest suite = GetTestFixture(test); suite is not null; suite = suite.Parent)
-                yield return suite.Name;
+                yield return suite switch
+                {
+                    TestAssembly a => a.Assembly?.GetName()?.Name ?? a.Name,
+                    _ => suite.Name,
+                };
         }
 
         TestResultContainer CreateTestContainer() =>
