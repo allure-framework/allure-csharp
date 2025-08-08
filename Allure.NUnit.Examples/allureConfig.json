@@ -6,6 +6,7 @@
 			"https://github.com/nunit/docs/issues?utf8=✓&q={issue}",
 			"https://example.org/{tms}",
 			"{link}"
-		]
+		],
+		"indentOutput": true
 	}
 }

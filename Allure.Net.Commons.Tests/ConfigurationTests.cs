@@ -21,6 +21,8 @@ namespace Allure.Net.Commons.Tests
                     Path.Combine(Environment.CurrentDirectory, AllureConstants.DEFAULT_RESULTS_FOLDER)
                 ));
                 Assert.That(allureLifecycle.AllureConfiguration.Links, Is.Not.Null);
+                Assert.That(allureLifecycle.AllureConfiguration.UseLegacyIds, Is.False);
+                Assert.That(allureLifecycle.AllureConfiguration.IndentOutput, Is.False);
             });
         }
 
@@ -47,6 +49,13 @@ namespace Allure.Net.Commons.Tests
         {
             var json = @"{""allure"":{""title"": ""hello Allure""}}";
             Assert.That(new AllureLifecycle(JObject.Parse(json)).AllureConfiguration.Title, Is.EqualTo("hello Allure"));
+        }
+
+        [Test]
+        public void ShouldConfigureIndentation()
+        {
+            var json = @"{""allure"":{""indentOutput"": true}}";
+            Assert.That(new AllureLifecycle(JObject.Parse(json)).AllureConfiguration.IndentOutput, Is.True);
         }
     }
 }

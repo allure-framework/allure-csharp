@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.12.1/Allure.Reqnroll/Schemas/allureConfig.schema.json",
+  "allure": {
+    "indentOutput": true
+  }
+}

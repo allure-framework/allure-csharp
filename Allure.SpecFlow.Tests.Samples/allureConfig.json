@@ -6,7 +6,8 @@
     "links": [
       "https://example.org/{issue}",
       "https://example.org/{tms}"
-    ]
+    ],
+    "indentOutput": true
   },
   "specflow": {
     "stepArguments": {
