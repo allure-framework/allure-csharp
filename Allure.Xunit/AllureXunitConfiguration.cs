@@ -13,6 +13,8 @@ namespace Allure.Xunit
     {
         public string XunitRunnerReporter { get; set; } = "auto";
 
+        public bool CaptureFailedTestOutput { get; set; } = false;
+
         [JsonConstructor]
         protected AllureXunitConfiguration(
             string? title,
@@ -31,8 +33,8 @@ namespace Allure.Xunit
             = new(ParseCurrentConfig);
 
         static AllureXunitConfiguration ParseCurrentConfig() => JObject.Parse(
-            AllureLifecycle.Instance.JsonConfiguration
-        )["allure"]?.ToObject<AllureXunitConfiguration>()
-            ?? new AllureXunitConfiguration(null, null, null);
+                                                                    AllureLifecycle.Instance.JsonConfiguration
+                                                                )["allure"]?.ToObject<AllureXunitConfiguration>()
+                                                                ?? new AllureXunitConfiguration(null, null, null);
     }
 }
