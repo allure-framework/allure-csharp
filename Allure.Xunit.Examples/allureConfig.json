@@ -6,6 +6,7 @@
       "https://example.org/{issue}",
       "https://example.org/{tms}"
     ],
-    "xunitRunnerReporter": "auto"
+    "indentOutput": true,
+    "xunitRunnerReporter": "none"
   }
 }
