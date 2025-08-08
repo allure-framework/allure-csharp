@@ -157,7 +157,7 @@ class IdTests
     public void TestFullNameFromConstructedGenericMethodOfNestedConstructedGenericClass()
     {
         var method = typeof(MyClass<MyClass>).GetMethod(
-            nameof(MyClass<int>.GenericMethodOfGenericClass),
+            nameof(MyClass<MyClass>.GenericMethodOfGenericClass),
             BindingFlags.Instance | BindingFlags.NonPublic
         ).MakeGenericMethod(typeof(MyClass));
 
@@ -166,11 +166,9 @@ class IdTests
         Assert.That(actualFullName, Is.EqualTo(
             "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[" +
                 "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]" +
-                ".GenericMethodOfGenericClass[" +
-                    "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
-                "](" +
+                ".GenericMethodOfGenericClass[V](" +
                     "System.Collections.Generic.List`1[Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]," +
-                    "System.Collections.Generic.List`1[Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]" +
+                    "System.Collections.Generic.List`1[V]" +
                 ")"
         ));
     }
