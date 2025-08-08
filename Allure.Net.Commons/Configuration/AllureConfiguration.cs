@@ -6,7 +6,7 @@ namespace Allure.Net.Commons.Configuration
 {
     public class AllureConfiguration
     {
-        private AllureConfiguration()
+        internal AllureConfiguration()
         {
         }
 
@@ -18,8 +18,8 @@ namespace Allure.Net.Commons.Configuration
             Links = links ?? Links;
         }
 
-        public string Title { get; }
-        public string Directory { get; } = AllureConstants.DEFAULT_RESULTS_FOLDER;
+        public string Title { get; init; }
+        public string Directory { get; init; } = AllureConstants.DEFAULT_RESULTS_FOLDER;
         public HashSet<string> Links { get; } = new HashSet<string>();
         public List<string> FailExceptions { get; set; }
         public bool UseLegacyIds { get; set; } = false;
