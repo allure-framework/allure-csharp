@@ -23,7 +23,7 @@ namespace Allure.Net.Commons.Writer
             outputDirectory = GetResultsDirectory(configuration.Directory);
 
             serializer.NullValueHandling = NullValueHandling.Ignore;
-            serializer.Formatting = Formatting.Indented;
+
             serializer.Converters.Add(
                 new StringEnumConverter(
                     new CamelCaseNamingStrategy()
