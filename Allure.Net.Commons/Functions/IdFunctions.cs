@@ -32,24 +32,29 @@ public static class IdFunctions
     /// <summary>
     /// Creates a string that unuquely identifies a given method.
     /// </summary>
+    /// <param name="method">
+    /// A method.
+    /// If it's a constructed generic method, its generic definition is used instead.
+    /// </param>
     /// <remarks>
     /// For a given test method the full name includes:
     /// <list type="bullet">
-    /// <item>
-    /// fully-qualified name of the declaring type (including type parameters)
-    /// </item>
-    /// <item>name of the method</item>
-    /// <item>generic parameters of the method</item>
-    /// <item>
-    /// fully-qualified names of the parameter types, (including parameter
-    /// modifiers, if any)
-    /// </item>
+    /// <item>assembly name</item>
+    /// <item>namespace (if any)</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters of the declaring type (for generic type definitions)</item>
+    /// <item>type arguments of the declaring type (for constructed generic types)</item>
+    /// <item>type parameters of the method (if any)</item>
+    /// <item>parameter types</item>
     /// </list>
-    /// A fully-qualified name of a type includes the assembly name, the
-    /// namespace and the class name (can be a nested class).
     /// </remarks>
-    public static string CreateFullName(MethodBase method)
+    public static string CreateFullName(MethodInfo method)
     {
+        if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
+        {
+            method = method.GetGenericMethodDefinition();
+        }
+
         var className = SerializeType(method.DeclaringType);
         var methodName = method.Name;
         var typeParameters = method.GetGenericArguments();
