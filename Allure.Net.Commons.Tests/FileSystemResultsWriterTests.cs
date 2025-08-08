@@ -72,5 +72,19 @@ namespace Allure.Net.Commons.Tests
             var resultJson = File.ReadAllText(resultFile.FullName, Encoding.UTF8);
             Assert.That(resultJson, Does.Not.Match(@"\s"));
         }
+
+        [Test]
+        public void ShouldPrettyPrintJsonIfConfigured()
+        {
+            var config = new AllureConfiguration { Directory = this.tmpDir.FullName, IndentOutput = true };
+            var writer = new FileSystemResultsWriter(config);
+            var testResult = new TestResult { name = "foo" };
+
+            writer.Write(testResult);
+
+            var resultFile = this.tmpDir.EnumerateFiles().Single();
+            var resultJson = File.ReadAllText(resultFile.FullName, Encoding.UTF8);
+            Assert.That(resultJson, Does.Contain("  "));
+        }
     }
 }
