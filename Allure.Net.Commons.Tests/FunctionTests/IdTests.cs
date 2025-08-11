@@ -20,17 +20,38 @@ class IdTests
         );
     }
 
-    [TestCase(typeof(IdTests), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests")]
-    [TestCase(typeof(ClassWithoutNamespace), "Allure.Net.Commons.Tests:ClassWithoutNamespace")]
-    [TestCase(typeof(MyClass), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass")]
-    [TestCase(typeof(MyClass<>), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]")]
-    [TestCase(typeof(MyClass<string>), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[System.String]")]
+    [TestCase(
+        typeof(IdTests),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests",
+        TestName = "FullNameOfNonGenericClass"
+    )]
+    [TestCase(
+        typeof(ClassWithoutNamespace),
+        "Allure.Net.Commons.Tests:ClassWithoutNamespace",
+        TestName = "FullNameOfClassWithNoNamespace"
+    )]
+    [TestCase(
+        typeof(MyClass),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass",
+        TestName = "FullNameOfNestedClass"
+    )]
+    [TestCase(
+        typeof(MyClass<>),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]",
+        TestName = "FullNameOfNestedGenericClassDefinition"
+    )]
+    [TestCase(
+        typeof(MyClass<string>),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[System.String]",
+        TestName = "FullNameOfNestedConstructedGenericClass"
+    )]
     [TestCase(
         typeof(MyClass<MyClass<string, int>, MyClass<MyClass>>),
         "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`2[" +
             "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`2[System.String,System.Int32]," +
             "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[" +
-                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]]"
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]]",
+        TestName = "FullNameOfComplexConstructedGenericClass"
     )]
     public void TestFullNameFromClass(Type targetClass, string expectedFullName)
     {
