@@ -1,11 +1,12 @@
 {
-  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.12.1/Allure.XUnit/Schemas/allureConfig.schema.json",
+  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/2.12.1/Allure.Xunit/Schemas/allureConfig.schema.json",
   "allure": {
     "directory": "allure-results",
     "links": [
       "https://example.org/{issue}",
       "https://example.org/{tms}"
     ],
-    "xunitRunnerReporter": "auto"
+    "indentOutput": true,
+    "xunitRunnerReporter": "none"
   }
 }
