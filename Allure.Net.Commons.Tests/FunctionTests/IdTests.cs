@@ -53,6 +53,16 @@ class IdTests
                 "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]]",
         TestName = "FullNameOfComplexConstructedGenericClass"
     )]
+    [TestCase(
+        typeof(MyClass<>.Nested),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1+Nested[T]",
+        TestName = "FullNameOfNestedClassOfGenericClassDefinition"
+    )]
+    [TestCase(
+        typeof(MyClass<int>.Nested),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1+Nested[System.Int32]",
+        TestName = "FullNameOfNestedClassOfConstructedGenericClass"
+    )]
     public void TestFullNameFromClass(Type targetClass, string expectedFullName)
     {
         Assert.That(
@@ -76,6 +86,7 @@ class IdTests
 
     class MyClass<T>
     {
+        public class Nested { }
         internal void GenericMethodOfGenericClass<V>(List<T> _, List<V> __) { }
     }
 
