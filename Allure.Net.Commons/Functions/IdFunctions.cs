@@ -18,6 +18,42 @@ public static class IdFunctions
     public static string CreateUUID() => Guid.NewGuid().ToString();
 
     /// <summary>
+    /// Creates a titlePath: a path to a test class in a tree of test results.
+    /// </summary>
+    /// <param name="type">A type representing a test class</param>
+    /// <remarks>
+    /// A titlePath consists of:
+    /// <list type="bullet">
+    /// <item>assembly name</item>
+    /// <item>elements of namespace</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters (for generic type definitions)</item>
+    /// <item>type arguments (for constructed generic types)</item>
+    /// </list>
+    /// </remarks>
+    public static List<string> CreateTitlePath(Type type)
+    {
+        static IEnumerable<string> ExpandNestness(Type type)
+        {
+            for (; type.IsNested; type = type.DeclaringType)
+                yield return type.Name;
+            yield return type.Name;
+        }
+
+        var assemblyName = type.Assembly.GetName().Name;
+        var namespaceParts = (type.Namespace ?? "").Split('.').Where(s => s.Length > 0);
+        var typeName = string.Join("+", ExpandNestness(type).Reverse());
+        var typeArguments = type.GetGenericArguments();
+        var typeArgumentsText = SerializeTypeParameterTypeList(typeArguments);
+
+        return [
+            assemblyName,
+            .. namespaceParts,
+            typeName + typeArgumentsText,
+        ];
+    }
+
+    /// <summary>
     /// Creates a name that uniquely identifies a given type.
     /// </summary>
     /// <remarks>
