@@ -94,7 +94,7 @@ namespace Allure.NUnit.Core
         {
             var testResult = new TestResult
             {
-                name = test.Name,
+                name = ResolveDisplayName(test),
                 titlePath = EnumerateNamesFromTestFixtureToRoot(test).Reverse().ToList(),
                 labels = new List<Label>
                 {
@@ -134,6 +134,13 @@ namespace Allure.NUnit.Core
                 _ => Status.none
             };
         }
+
+        static string ResolveDisplayName(ITest test) =>
+            test.Parent switch
+            {
+                ParameterizedMethodSuite suite => suite.Name,
+                _ => test.Name,
+            };
 
         static IEnumerable<string> EnumerateNamesFromTestFixtureToRoot(ITest test)
         {
