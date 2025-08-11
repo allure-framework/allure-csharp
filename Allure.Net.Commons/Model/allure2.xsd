@@ -55,6 +55,7 @@
 
                     <xsd:element name="rerunOf" type="xsd:string"/>
 
+                    <xsd:element name="titlePath" type="ns:Ids"/>
                     <xsd:element name="fullName" type="xsd:string"/>
                     <xsd:element name="labels" type="ns:Labels" minOccurs="0"/>
                     <xsd:element name="links" type="ns:Links" minOccurs="0"/>

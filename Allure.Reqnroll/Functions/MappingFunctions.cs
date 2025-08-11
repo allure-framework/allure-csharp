@@ -305,6 +305,7 @@ static class MappingFunctions
         new()
         {
             uuid = IdFunctions.CreateUUID(),
+            titlePath = CreateTitlePath(featureAssembly, featureInfo),
             fullName = CreateFullName(
                 featureAssembly,
                 featureInfo,
@@ -377,6 +378,20 @@ static class MappingFunctions
         sw.Flush();
         return ms.ToArray();
     }
+
+    internal static List<string> CreateTitlePath(
+        Assembly featureAssembly,
+        FeatureInfo featureInfo
+    ) => [
+        featureAssembly.GetName().Name,
+        ..featureInfo.FolderPath.Split(
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar
+        ).Where((v) => !string.IsNullOrEmpty(v)),
+        string.IsNullOrEmpty(featureInfo.Title)
+            ? "Feature"
+            : featureInfo.Title,
+    ];
 
     static bool TreatAsVerticalArgumentTable(
         IReadOnlyList<string> header,
