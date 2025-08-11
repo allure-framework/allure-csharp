@@ -128,9 +128,11 @@ namespace Allure.Xunit
         )
         {
             var testMethod = testCase.TestMethod;
+            var testClass = testMethod.TestClass.Class.ToRuntimeType();
             var testResult = new TestResult
             {
                 name = BuildName(testCase),
+                titlePath = IdFunctions.CreateTitlePath(testClass),
                 labels = new()
                 {
                     Label.Thread(),
