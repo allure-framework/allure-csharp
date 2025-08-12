@@ -99,6 +99,27 @@ namespace Allure.Xunit
             });
         }
 
+        internal static void ApplyDefaultSuites(ITestMethod method)
+        {
+            var testClass = method.TestClass.Class;
+            var runtimeType = testClass.ToRuntimeType();
+            var assemblyName = runtimeType?.Assembly?.GetName().Name;
+            var @namespace = runtimeType?.Namespace;
+            var className =
+                string.IsNullOrEmpty(@namespace)
+                    ? testClass.Name
+                    : testClass.Name?.Substring(@namespace.Length + 1);
+
+            AllureLifecycle.Instance.UpdateTestCase(
+                testResult => ModelFunctions.EnsureSuites(
+                    testResult,
+                    assemblyName,
+                    @namespace,
+                    className
+                )
+            );
+        }
+
         internal static void ReportCurrentTestCase()
         {
             AllureLifecycle.Instance.StopTestCase();
