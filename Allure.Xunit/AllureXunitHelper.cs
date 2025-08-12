@@ -140,7 +140,7 @@ namespace Allure.Xunit
                     Label.Language(),
                     Label.Framework("xUnit.net"),
                     Label.TestClass(testMethod.TestClass.Class.Name),
-                    Label.TestMethod(displayName),
+                    Label.TestMethod(testCase.TestMethod.Method.Name),
                     Label.Package(testMethod.TestClass.Class.Name),
                 }
             };
