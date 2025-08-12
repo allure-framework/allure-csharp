@@ -58,6 +58,7 @@ namespace Allure.NUnit.Core
         internal void StopTestCase()
         {
             UpdateTestDataFromNUnitProperties();
+            ApplyDefaultSuiteHierarchy(_test);
             AddConsoleOutputAttachment();
 
             var result = TestContext.CurrentContext.Result;
@@ -260,6 +261,23 @@ namespace Allure.NUnit.Core
             throw new InvalidOperationException(
                 $"Could not find TestFixture in the hierarchy for test: {test.FullName}. " +
                 $"Test type: {test.GetType().Name}"
+            );
+        }
+
+        internal static void ApplyDefaultSuiteHierarchy(ITest test)
+        {
+            var testClassFullName = test.ClassName;
+            var assemblyName = test.TypeInfo?.Assembly?.GetName().Name;
+            var @namespace = GetNamespace(testClassFullName);
+            var className = GetClassName(testClassFullName);
+
+            AllureLifecycle.UpdateTestCase(
+                testResult => ModelFunctions.EnsureSuites(
+                    testResult,
+                    assemblyName,
+                    @namespace,
+                    className
+                )
             );
         }
 
