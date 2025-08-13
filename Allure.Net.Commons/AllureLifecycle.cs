@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
@@ -264,7 +265,10 @@ public class AllureLifecycle
     {
         var container = this.Context.CurrentContainer;
         this.UpdateContext(c => c.WithNoLastContainer());
-        this.writer.Write(container);
+        if (container.befores.Any() || container.afters.Any())
+        {
+            this.writer.Write(container);
+        }
         return this;
     }
 
