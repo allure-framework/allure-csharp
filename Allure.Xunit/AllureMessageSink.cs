@@ -153,6 +153,7 @@ namespace Allure.Xunit
                 this.RunInTestContext(test, () =>
                 {
                     this.AddAllureParameters(test, testData.Arguments);
+                    AllureXunitHelper.ApplyDefaultSuites(test.TestCase.TestMethod);
                     AllureXunitHelper.ReportCurrentTestCase();
                     if (!IsStaticTestMethod(message))
                     {

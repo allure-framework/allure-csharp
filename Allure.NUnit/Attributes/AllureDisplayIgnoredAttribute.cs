@@ -84,6 +84,9 @@ namespace Allure.NUnit.Attributes
             this.ApplyLegacySuiteLabels(testResult, reason);
 
             AllureLifecycle.Instance.StartTestCase(testResult);
+
+            AllureNUnitHelper.ApplyDefaultSuiteHierarchy(test);
+
             AllureLifecycle.Instance.StopTestCase();
             AllureLifecycle.Instance.WriteTestCase();
         }

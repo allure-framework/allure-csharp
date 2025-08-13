@@ -58,6 +58,7 @@ namespace Allure.NUnit.Core
         internal void StopTestCase()
         {
             UpdateTestDataFromNUnitProperties();
+            ApplyDefaultSuiteHierarchy(_test);
             AddConsoleOutputAttachment();
 
             var result = TestContext.CurrentContext.Result;
@@ -229,7 +230,7 @@ namespace Allure.NUnit.Core
 
         static string GetNamespace(string classFullName)
         {
-            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
+            var lastDotIndex = StripTypeArgs(classFullName)?.LastIndexOf('.') ?? -1;
             return lastDotIndex == -1
                 ? null
                 : classFullName.Substring(
@@ -240,12 +241,20 @@ namespace Allure.NUnit.Core
 
         static string GetClassName(string classFullName)
         {
-            var lastDotIndex = classFullName?.LastIndexOf('.') ?? -1;
+            var lastDotIndex = StripTypeArgs(classFullName)?.LastIndexOf('.') ?? -1;
             return lastDotIndex == -1
                 ? classFullName
                 : classFullName.Substring(
                     lastDotIndex + 1
                 );
+        }
+
+        static string StripTypeArgs(string classFullName)
+        {
+            var typeArgsStart = classFullName?.IndexOf('<') ?? -1;
+            return typeArgsStart == -1
+                ? classFullName
+                : classFullName.Substring(0, typeArgsStart);
         }
 
         static TestFixture GetTestFixture(ITest test)
@@ -265,6 +274,23 @@ namespace Allure.NUnit.Core
             throw new InvalidOperationException(
                 $"Could not find TestFixture in the hierarchy for test: {test.FullName}. " +
                 $"Test type: {test.GetType().Name}"
+            );
+        }
+
+        internal static void ApplyDefaultSuiteHierarchy(ITest test)
+        {
+            var testClassFullName = GetTestFixture(test).FullName;
+            var assemblyName = test.TypeInfo?.Assembly?.GetName().Name;
+            var @namespace = GetNamespace(testClassFullName);
+            var className = GetClassName(testClassFullName);
+
+            AllureLifecycle.UpdateTestCase(
+                testResult => ModelFunctions.EnsureSuites(
+                    testResult,
+                    assemblyName,
+                    @namespace,
+                    className
+                )
             );
         }
 
