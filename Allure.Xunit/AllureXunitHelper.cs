@@ -140,7 +140,7 @@ namespace Allure.Xunit
                     Label.Language(),
                     Label.Framework("xUnit.net"),
                     Label.TestClass(testMethod.TestClass.Class.Name),
-                    Label.TestMethod(displayName),
+                    Label.TestMethod(testCase.TestMethod.Method.Name),
                     Label.Package(testMethod.TestClass.Class.Name),
                 }
             };
@@ -331,11 +331,13 @@ namespace Allure.Xunit
             string.Concat(Guid.NewGuid().ToString(), "-", name);
 
         static string BuildName(ITestCase testCase) =>
-            testCase.TestMethod.Method.GetCustomAttributes(
+            MaybeGetExplicitDisplayName(testCase.TestMethod.Method)
+                ?? testCase.TestMethod.Method.Name;
+
+        static string? MaybeGetExplicitDisplayName(IMethodInfo method) =>
+            method.GetCustomAttributes(
                 typeof(FactAttribute)
-            ).SingleOrDefault()?.GetNamedArgument<string>(
-                "DisplayName"
-            ) ?? BuildFullName(testCase);
+            ).SingleOrDefault()?.GetNamedArgument<string>("DisplayName");
 
         static string BuildFullName(ITestCase testCase)
         {
