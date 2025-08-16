@@ -33,13 +33,21 @@ namespace Allure.Xunit
                 testResult ?? CreateTestResultByTest(test)
             );
 
-        internal static void ApplyTestFailure(IFailureInformation failure)
+        internal static void ApplyTestFailure(ITestFailed failure)
         {
             var trace = string.Join("\n", failure.StackTraces);
             var message = string.Join("\n", failure.Messages);
+
+            if (AllureXunitConfiguration.CurrentConfig.CaptureFailedTestOutput)
+            {
+                message = string.Concat(message, "\n", failure.Output);
+            }
+
             var status = failure.ExceptionTypes.Any(
                 exceptionType => !exceptionType.StartsWith("Xunit.Sdk.")
-            ) ? Status.broken : Status.failed;
+            )
+                ? Status.broken
+                : Status.failed;
 
             AllureLifecycle.Instance.UpdateTestCase(testResult =>
             {
@@ -93,10 +101,7 @@ namespace Allure.Xunit
                 }
             ).ToList();
 
-            AllureLifecycle.Instance.UpdateTestCase(testResult =>
-            {
-                testResult.parameters = parametersList;
-            });
+            AllureLifecycle.Instance.UpdateTestCase(testResult => { testResult.parameters = parametersList; });
         }
 
         internal static void ApplyDefaultSuites(ITestMethod method)
@@ -197,7 +202,7 @@ namespace Allure.Xunit
 
             foreach (var value in values)
             {
-                labels.Add(new Label {name = labelName, value = value});
+                labels.Add(new Label { name = labelName, value = value });
             }
         }
 
