@@ -54,6 +54,7 @@ internal class HookFinishedEventHandler : AllureReqnrollEventHandler<HookFinishe
             case HookType.AfterScenario:
             case HookType.AfterFeature:
                 AllureReqnrollStateFacade.StopContainer();
+                this.EnsureFeatureReported(eventData);
                 break;
         }
     }
@@ -88,6 +89,22 @@ internal class HookFinishedEventHandler : AllureReqnrollEventHandler<HookFinishe
             // BeforeFeature fails. There is no (reasonable) way to enumerate
             // scenarios manually and include them as skipped.
             // Instead, a placeholder scenario is created to report the error.
+            AllureReqnrollStateFacade.ReportFeatureHookError(
+                this.RunnerManager,
+                eventData.HookType,
+                eventData.FeatureContext.FeatureInfo,
+                eventData.HookException
+            );
+        }
+    }
+    
+    void EnsureFeatureReported(HookFinishedEvent eventData)
+    {
+        if (eventData.HookException is not null)
+        {
+            // If AfterFeature fails, all tests remains passed hiding the error.
+            // To better report it, a placeholder test is created with
+            // the failed/broken status.
             AllureReqnrollStateFacade.ReportFeatureHookError(
                 this.RunnerManager,
                 eventData.HookType,
