@@ -74,7 +74,6 @@ internal class HookFinishedEventHandler : AllureReqnrollEventHandler<HookFinishe
         if (error is not null)
         {
             this.ReportHookFailure(eventData);
-            this.EnsureScenarioReported(eventData);
         }
     }
 
@@ -125,18 +124,6 @@ internal class HookFinishedEventHandler : AllureReqnrollEventHandler<HookFinishe
             AllureReqnrollStateFacade.CreateFailedFixturePlaceHolder(
                 eventData.HookType,
                 error
-            );
-        }
-    }
-
-    void EnsureScenarioReported(HookFinishedEvent eventData)
-    {
-        if (eventData.HookType is HookType.AfterScenario)
-        {
-            // Reqnroll doesn't fire ScenarioFinishedEvent if an AfterScenario
-            // hook fails. We need to emit scenario files here instead.
-            AllureReqnrollStateFacade.EmitScenarioFiles(
-                eventData.ScenarioContext
             );
         }
     }
