@@ -274,12 +274,12 @@ class IntegrationTests
             {
                 var children = parser.Parse(f.FullName).Feature.Children.ToList();
                 var scenarioOutlines = children.Where(
-                    x => (x as dynamic).Examples.Length > 0
+                    x => (x as dynamic).Examples.Count > 0
                 ).ToList();
                 foreach (var s in scenarioOutlines)
                 {
                     var examplesCount = (s as dynamic).Examples[0]
-                        .TableBody.Length;
+                        .TableBody.Count;
                     for (int i = 1; i < examplesCount; i++)
                     {
                         children.Add(s);
