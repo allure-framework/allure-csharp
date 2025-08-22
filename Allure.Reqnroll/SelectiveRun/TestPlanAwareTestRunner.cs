@@ -44,9 +44,6 @@ class TestPlanAwareTestRunner : ITestRunner
         this.underlyingRunner = underlyingRunner;
     }
 
-    public void InitializeTestRunner(string testWorkerId) =>
-        this.underlyingRunner.InitializeTestRunner(testWorkerId);
-
     public async Task OnTestRunStartAsync() =>
         await this.underlyingRunner.OnTestRunStartAsync();
 
@@ -59,9 +56,9 @@ class TestPlanAwareTestRunner : ITestRunner
     public async Task OnFeatureEndAsync() =>
         await this.underlyingRunner.OnFeatureEndAsync();
 
-    public void OnScenarioInitialize(ScenarioInfo scenarioInfo)
+    public void OnScenarioInitialize(ScenarioInfo scenarioInfo, RuleInfo ruleInfo)
     {
-        this.underlyingRunner.OnScenarioInitialize(scenarioInfo);
+        this.underlyingRunner.OnScenarioInitialize(scenarioInfo, ruleInfo);
         this.ApplyTestPlanToCurrentScenario();
     }
 
@@ -74,7 +71,7 @@ class TestPlanAwareTestRunner : ITestRunner
         else
         {
             // This call will set the scenario's status to skipped.
-            this.SkipScenario();
+            await this.SkipScenarioAsync();
 
             // We're skipping scenarios not in the test plan using the unit
             // test framework's runtime API. Neither BeforeScenario nor
@@ -91,7 +88,7 @@ class TestPlanAwareTestRunner : ITestRunner
     public async Task OnScenarioEndAsync() =>
         await this.underlyingRunner.OnScenarioEndAsync();
 
-    public void SkipScenario() => this.underlyingRunner.SkipScenario();
+    public async Task SkipScenarioAsync() => await this.underlyingRunner.SkipScenarioAsync();
 
     public async Task GivenAsync(
         string text,
