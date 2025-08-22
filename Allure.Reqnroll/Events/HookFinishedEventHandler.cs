@@ -97,7 +97,7 @@ internal class HookFinishedEventHandler : AllureReqnrollEventHandler<HookFinishe
             );
         }
     }
-    
+
     void EnsureFeatureReported(HookFinishedEvent eventData)
     {
         if (eventData.HookException is not null)
