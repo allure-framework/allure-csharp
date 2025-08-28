@@ -15,6 +15,9 @@ on:
       - 'main'
       - 'hotfix-*'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: "Build"

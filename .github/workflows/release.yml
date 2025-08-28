@@ -19,9 +19,14 @@ on:
         required: false
         default: "1"
 
+permissions:
+  contents: read
+
 jobs:
   triage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: "Check release version"
         run: |
