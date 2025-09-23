@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -93,6 +94,7 @@ namespace Allure.SpecFlowPlugin
             {
                 name = title,
                 description = scenarioInfo.Description,
+                titlePath = CreateTitlePath(testRunnerManager, featureInfo),
                 labels = new List<Label>
                 {
                     Label.Thread(),
@@ -289,6 +291,20 @@ namespace Allure.SpecFlowPlugin
             testResult.historyId = scenarioTitle + parametersHash;
             testResult.fullName = scenarioTitle;
         }
+
+        static List<string> CreateTitlePath(
+            ITestRunnerManager testRunnerManager,
+            FeatureInfo featureInfo
+        ) => [
+            testRunnerManager.TestAssembly.GetName().Name,
+            ..featureInfo.FolderPath.Split(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar
+            ).Where(v => !string.IsNullOrEmpty(v)),
+            string.IsNullOrEmpty(featureInfo.Title)
+                ? "Feature"
+                : featureInfo.Title,
+        ];
 
         static string CreateFullName(
             ITestRunnerManager testRunnerManager,

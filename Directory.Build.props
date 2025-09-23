@@ -9,7 +9,7 @@
 
     <!-- Common projects' properties -->
     <PropertyGroup>
-        <LangVersion>11</LangVersion>
+        <LangVersion>12</LangVersion>
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
         <IsPackable>false</IsPackable>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>

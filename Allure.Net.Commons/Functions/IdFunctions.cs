@@ -18,38 +18,88 @@ public static class IdFunctions
     public static string CreateUUID() => Guid.NewGuid().ToString();
 
     /// <summary>
-    /// Creates a fully-qualified class name that uniquely identifies a given
-    /// class.
+    /// Creates a titlePath: a path to a test class in a tree of test results.
+    /// </summary>
+    /// <param name="type">A type representing a test class</param>
+    /// <remarks>
+    /// A titlePath consists of:
+    /// <list type="bullet">
+    /// <item>assembly name</item>
+    /// <item>elements of namespace</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters (for generic type definitions)</item>
+    /// <item>type arguments (for constructed generic types)</item>
+    /// </list>
+    /// </remarks>
+    public static List<string> CreateTitlePath(Type type)
+    {
+        static IEnumerable<string> ExpandNestness(Type type)
+        {
+            for (; type.IsNested; type = type.DeclaringType)
+                yield return type.Name;
+            yield return type.Name;
+        }
+
+        var assemblyName = type.Assembly.GetName().Name;
+        var namespaceParts = (type.Namespace ?? "").Split('.').Where(s => s.Length > 0);
+        var typeName = string.Join("+", ExpandNestness(type).Reverse());
+        var typeArguments = type.GetGenericArguments();
+        var typeArgumentsText = SerializeTypeParameterTypeList(typeArguments);
+
+        return [
+            assemblyName,
+            .. namespaceParts,
+            typeName + typeArgumentsText,
+        ];
+    }
+
+    /// <summary>
+    /// Creates a name that uniquely identifies a given type.
     /// </summary>
     /// <remarks>
-    /// A fully-qualified name of a type includes the assembly name, the
-    /// namespace and the class name (can be a nested class).
+    /// A fully-qualified name of a type includes:
+    /// <list type="bullet">
+    /// <item>assembly name</item>
+    /// <item>namespace (if any)</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters (for generic type definitions)</item>
+    /// <item>type arguments (for constructed generic types)</item>
+    /// </list>
+    /// Unlike <see cref="Type.FullName"/>, it doesn't include assembly
+    /// versions and other metadata that can be subject to change.
+    /// Unlike <see cref="Type.ToString"/>, it includes assembly names to
+    /// the name of the type and its type arguments, which prevents collisions
+    /// in some scenarios.
     /// </remarks>
-    /// <param name="targetClass">The type of a class.</param>
-    public static string CreateFullName(Type targetClass) =>
-        SerializeNonParameterClass(targetClass);
+    public static string CreateFullName(Type type) =>
+        SerializeNonParameterType(type);
 
     /// <summary>
     /// Creates a string that unuquely identifies a given method.
     /// </summary>
+    /// <param name="method">
+    /// A method.
+    /// If it's a constructed generic method, its generic definition is used instead.
+    /// </param>
     /// <remarks>
     /// For a given test method the full name includes:
     /// <list type="bullet">
-    /// <item>
-    /// fully-qualified name of the declaring type (including type parameters)
-    /// </item>
-    /// <item>name of the method</item>
-    /// <item>generic parameters of the method</item>
-    /// <item>
-    /// fully-qualified names of the parameter types, (including parameter
-    /// modifiers, if any)
-    /// </item>
+    /// <item>assembly name</item>
+    /// <item>namespace (if any)</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters of the declaring type (for generic type definitions)</item>
+    /// <item>type arguments of the declaring type (for constructed generic types)</item>
+    /// <item>type parameters of the method (if any)</item>
+    /// <item>parameter types</item>
     /// </list>
-    /// A fully-qualified name of a type includes the assembly name, the
-    /// namespace and the class name (can be a nested class).
     /// </remarks>
-    public static string CreateFullName(MethodBase method)
+    public static string CreateFullName(MethodInfo method)
     {
+        if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
+        {
+            method = method.GetGenericMethodDefinition();
+        }
+
         var className = SerializeType(method.DeclaringType);
         var methodName = method.Name;
         var typeParameters = method.GetGenericArguments();
@@ -137,37 +187,34 @@ public static class IdFunctions
         {
             return type.Name;
         }
-        return SerializeNonParameterClass(type);
+        return SerializeNonParameterType(type);
     }
 
-    static string SerializeNonParameterClass(Type type) =>
+    static string SerializeNonParameterType(Type type) =>
         GetUniqueTypeName(type) + SerializeTypeParameterTypeList(
             type.GetGenericArguments()
         );
 
     static string GetUniqueTypeName(Type type) =>
         IsSystemType(type)
-            ? ResolveFullName(type)
+            ? ConstructFullName(type)
             : GetTypeNameWithAssembly(type);
 
-    static string ResolveFullName(Type type) =>
-        type.FullName ?? ConstructFullName(type);
-
     static string ConstructFullName(Type type) =>
-        type.DeclaringType is null
-            ? ConstructFullNameOfRootClass(type)
-            : ConstructFullNameOfNestedClass(type);
+        type.IsNested
+            ? ConstructFullNameOfNestedType(type)
+            : ConstructFullNameOfOutmostType(type);
 
-    static string ConstructFullNameOfNestedClass(Type type) =>
+    static string ConstructFullNameOfNestedType(Type type) =>
         ConstructFullName(type.DeclaringType) + "+" + type.Name;
 
-    static string ConstructFullNameOfRootClass(Type type) =>
+    static string ConstructFullNameOfOutmostType(Type type) =>
         string.IsNullOrEmpty(type.Namespace)
             ? type.Name
             : $"{type.Namespace}.{type.Name}";
 
     static string GetTypeNameWithAssembly(Type type) =>
-        $"{type.Assembly.GetName().Name}:" + ResolveFullName(type);
+        $"{type.Assembly.GetName().Name}:" + ConstructFullName(type);
 
     static bool IsSystemType(Type type) =>
         type.Assembly == systemTypesAssembly;

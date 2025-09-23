@@ -227,5 +227,48 @@ namespace Allure.Net.Commons.Tests
             Assert.That(lifecycle.Context.CurrentTest.historyId, Is.EqualTo("history-id"));
             Assert.That(lifecycle.Context.CurrentTest.testCaseId, Is.EqualTo("testcase-id"));
         }
+
+        [Test]
+        public void EmptyTestContainerNotWritten()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            lifecycle.StartTestContainer(new() { uuid = "foo" });
+            lifecycle.StopTestContainer();
+
+            lifecycle.WriteTestContainer();
+
+            Assert.That(writer.testContainers, Is.Empty);
+        }
+
+        [Test]
+        public void ContainerWithBeforeFixtureIsWritten()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            lifecycle.StartTestContainer(new() { uuid = "foo" });
+            lifecycle.StartBeforeFixture(new());
+            lifecycle.StopFixture();
+            lifecycle.StopTestContainer();
+
+            lifecycle.WriteTestContainer();
+
+            Assert.That(writer.testContainers, Has.One.Items);
+        }
+
+        [Test]
+        public void ContainerWithAfterFixtureIsWritten()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            lifecycle.StartTestContainer(new() { uuid = "foo" });
+            lifecycle.StartAfterFixture(new());
+            lifecycle.StopFixture();
+            lifecycle.StopTestContainer();
+
+            lifecycle.WriteTestContainer();
+
+            Assert.That(writer.testContainers, Has.One.Items);
+        }
     }
 }

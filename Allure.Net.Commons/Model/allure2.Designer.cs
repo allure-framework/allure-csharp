@@ -609,6 +609,8 @@ namespace Allure.Net.Commons
 
         private string _rerunOf;
 
+        private List<string> _titlePath;
+
         private string _fullName;
 
         private List<Label> _labels;
@@ -618,6 +620,7 @@ namespace Allure.Net.Commons
 
         public TestResult()
         {
+            this._titlePath = new List<string>();
             this._links = new List<Link>();
             this._labels = new List<Label>();
         }
@@ -667,6 +670,18 @@ namespace Allure.Net.Commons
             set
             {
                 this._rerunOf = value;
+            }
+        }
+
+        public List<string> titlePath
+        {
+            get
+            {
+                return this._titlePath;
+            }
+            set
+            {
+                this._titlePath = value;
             }
         }
 

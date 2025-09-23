@@ -15,6 +15,9 @@ on:
       - 'main'
       - 'hotfix-*'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: "Build"
@@ -27,7 +30,7 @@ jobs:
         with:
           dotnet-version: |
             3.1.x
-            6.0.x
+            8.0.x
 
       - name: 'Restore packages'
         run: |

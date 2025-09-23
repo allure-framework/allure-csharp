@@ -20,10 +20,49 @@ class IdTests
         );
     }
 
-    [TestCase(typeof(IdTests), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests")]
-    [TestCase(typeof(ClassWithoutNamespace), "Allure.Net.Commons.Tests:ClassWithoutNamespace")]
-    [TestCase(typeof(MyClass), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass")]
-    [TestCase(typeof(MyClass<>), "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]")]
+    [TestCase(
+        typeof(IdTests),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests",
+        TestName = "FullNameOfNonGenericClass"
+    )]
+    [TestCase(
+        typeof(ClassWithoutNamespace),
+        "Allure.Net.Commons.Tests:ClassWithoutNamespace",
+        TestName = "FullNameOfClassWithNoNamespace"
+    )]
+    [TestCase(
+        typeof(MyClass),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass",
+        TestName = "FullNameOfNestedClass"
+    )]
+    [TestCase(
+        typeof(MyClass<>),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]",
+        TestName = "FullNameOfNestedGenericClassDefinition"
+    )]
+    [TestCase(
+        typeof(MyClass<string>),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[System.String]",
+        TestName = "FullNameOfNestedConstructedGenericClass"
+    )]
+    [TestCase(
+        typeof(MyClass<MyClass<string, int>, MyClass<MyClass>>),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`2[" +
+            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`2[System.String,System.Int32]," +
+            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[" +
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]]",
+        TestName = "FullNameOfComplexConstructedGenericClass"
+    )]
+    [TestCase(
+        typeof(MyClass<>.Nested),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1+Nested[T]",
+        TestName = "FullNameOfNestedClassOfGenericClassDefinition"
+    )]
+    [TestCase(
+        typeof(MyClass<int>.Nested),
+        "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1+Nested[System.Int32]",
+        TestName = "FullNameOfNestedClassOfConstructedGenericClass"
+    )]
     public void TestFullNameFromClass(Type targetClass, string expectedFullName)
     {
         Assert.That(
@@ -47,19 +86,22 @@ class IdTests
 
     class MyClass<T>
     {
+        public class Nested { }
         internal void GenericMethodOfGenericClass<V>(List<T> _, List<V> __) { }
     }
+
+    class MyClass<T1, T2> { }
 
     [TestCase(
         nameof(MyClass.ParameterlessMethod),
         "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass.ParameterlessMethod()",
-        TestName = "ParameterlessMethod"
+        TestName = "FullNameOfParameterlessMethod"
     )]
     [TestCase(
         nameof(MyClass.MethodWithParameterOfBuiltInType),
         "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
             ".MethodWithParameterOfBuiltInType(System.Int32)",
-        TestName = "MethodWithParameterOfBuiltInType"
+        TestName = "FullNameOfMethodWithParameterOfBuiltInType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithParameterOfUserType),
@@ -67,7 +109,7 @@ class IdTests
             ".MethodWithParameterOfUserType(" +
                 "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
             ")",
-        TestName = "MethodWithParameterOfUserType"
+        TestName = "FullNameOfMethodWithParameterOfUserType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithTwoParameters),
@@ -76,25 +118,25 @@ class IdTests
                 "System.Int32," +
                 "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
             ")",
-        TestName = "MethodWithTwoParameters"
+        TestName = "FullNameOfMethodWithTwoParameters"
     )]
     [TestCase(
         nameof(MyClass.MethodWithRefParameter),
         "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
             ".MethodWithRefParameter(System.Int32&)",
-        TestName = "MethodWithRefParameter"
+        TestName = "FullNameOfMethodWithRefParameter"
     )]
     [TestCase(
         nameof(MyClass.MethodWithGenericParameter),
         "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
             ".MethodWithGenericParameter[T]()",
-        TestName = "MethodWithGenericParameter"
+        TestName = "FullNameOfMethodWithGenericParameter"
     )]
     [TestCase(
         nameof(MyClass.MethodWithArgumentOfGenericType),
         "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass" +
             ".MethodWithArgumentOfGenericType[T](T)",
-        TestName = "MethodWithArgumentOfGenericType"
+        TestName = "FullNameOfMethodWithArgumentOfGenericType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithArgumentOfTypeParametrizedByGenericType),
@@ -102,7 +144,7 @@ class IdTests
             ".MethodWithArgumentOfTypeParametrizedByGenericType[T](" +
                 "System.Collections.Generic.Dictionary`2[System.Int32,T]" +
             ")",
-        TestName = "MethodWithArgumentOfTypeParametrizedByGenericType"
+        TestName = "FullNameOfMethodWithArgumentOfTypeParametrizedByGenericType"
     )]
     [TestCase(
         nameof(MyClass.MethodWithArgumentOfGenericUserType),
@@ -110,7 +152,7 @@ class IdTests
             ".MethodWithArgumentOfGenericUserType[T](" +
                 "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]" +
             ")",
-        TestName = "MethodWithArgumentOfGenericUserType"
+        TestName = "FullNameOfMethodWithArgumentOfGenericUserType"
     )]
     public void FullNameFromMethod(string methodName, string expectedFullName)
     {
@@ -118,7 +160,7 @@ class IdTests
             methodName,
             BindingFlags.Instance | BindingFlags.NonPublic
         );
-        
+
         var actualFullName = IdFunctions.CreateFullName(method);
 
         Assert.That(actualFullName, Is.EqualTo(expectedFullName));
@@ -138,6 +180,26 @@ class IdTests
             "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[T]" +
                 ".GenericMethodOfGenericClass[V](" +
                     "System.Collections.Generic.List`1[T]," +
+                    "System.Collections.Generic.List`1[V]" +
+                ")"
+        ));
+    }
+
+    [Test]
+    public void TestFullNameFromConstructedGenericMethodOfNestedConstructedGenericClass()
+    {
+        var method = typeof(MyClass<MyClass>).GetMethod(
+            nameof(MyClass<MyClass>.GenericMethodOfGenericClass),
+            BindingFlags.Instance | BindingFlags.NonPublic
+        ).MakeGenericMethod(typeof(MyClass));
+
+        var actualFullName = IdFunctions.CreateFullName(method);
+
+        Assert.That(actualFullName, Is.EqualTo(
+            "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass`1[" +
+                "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]" +
+                ".GenericMethodOfGenericClass[V](" +
+                    "System.Collections.Generic.List`1[Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.IdTests+MyClass]," +
                     "System.Collections.Generic.List`1[V]" +
                 ")"
         ));

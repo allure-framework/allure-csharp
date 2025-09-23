@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <RootNamespace>Allure.ReqnrollPlugin.Tests</RootNamespace>
     </PropertyGroup>
@@ -14,6 +14,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Allure.Reqnroll\Allure.Reqnroll.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="allureConfig.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

@@ -7,6 +7,7 @@
       "https://example.org/{issue}",
       "https://example.org/{tms}"
     ],
+    "indentOutput": true,
     "gherkinPatterns": {
       "stepArguments": {
         "createFromDataTables": true,

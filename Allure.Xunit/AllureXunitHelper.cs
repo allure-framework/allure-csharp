@@ -104,6 +104,27 @@ namespace Allure.Xunit
             AllureLifecycle.Instance.UpdateTestCase(testResult => { testResult.parameters = parametersList; });
         }
 
+        internal static void ApplyDefaultSuites(ITestMethod method)
+        {
+            var testClass = method.TestClass.Class;
+            var runtimeType = testClass.ToRuntimeType();
+            var assemblyName = runtimeType?.Assembly?.GetName().Name;
+            var @namespace = runtimeType?.Namespace;
+            var className =
+                string.IsNullOrEmpty(@namespace)
+                    ? testClass.Name
+                    : testClass.Name?.Substring(@namespace.Length + 1);
+
+            AllureLifecycle.Instance.UpdateTestCase(
+                testResult => ModelFunctions.EnsureSuites(
+                    testResult,
+                    assemblyName,
+                    @namespace,
+                    className
+                )
+            );
+        }
+
         internal static void ReportCurrentTestCase()
         {
             AllureLifecycle.Instance.StopTestCase();
@@ -133,9 +154,11 @@ namespace Allure.Xunit
         )
         {
             var testMethod = testCase.TestMethod;
+            var testClass = testMethod.TestClass.Class.ToRuntimeType();
             var testResult = new TestResult
             {
                 name = BuildName(testCase),
+                titlePath = IdFunctions.CreateTitlePath(testClass),
                 labels = new()
                 {
                     Label.Thread(),
@@ -143,7 +166,7 @@ namespace Allure.Xunit
                     Label.Language(),
                     Label.Framework("xUnit.net"),
                     Label.TestClass(testMethod.TestClass.Class.Name),
-                    Label.TestMethod(displayName),
+                    Label.TestMethod(testCase.TestMethod.Method.Name),
                     Label.Package(testMethod.TestClass.Class.Name),
                 }
             };
@@ -334,11 +357,13 @@ namespace Allure.Xunit
             string.Concat(Guid.NewGuid().ToString(), "-", name);
 
         static string BuildName(ITestCase testCase) =>
-            testCase.TestMethod.Method.GetCustomAttributes(
+            MaybeGetExplicitDisplayName(testCase.TestMethod.Method)
+                ?? testCase.TestMethod.Method.Name;
+
+        static string? MaybeGetExplicitDisplayName(IMethodInfo method) =>
+            method.GetCustomAttributes(
                 typeof(FactAttribute)
-            ).SingleOrDefault()?.GetNamedArgument<string>(
-                "DisplayName"
-            ) ?? BuildFullName(testCase);
+            ).SingleOrDefault()?.GetNamedArgument<string>("DisplayName");
 
         static string BuildFullName(ITestCase testCase)
         {
