@@ -52,6 +52,8 @@ internal class HookFinishedEventHandler : AllureReqnrollEventHandler<HookFinishe
                 AllureReqnrollStateFacade.StartTestCase();
                 break;
             case HookType.AfterScenario:
+                AllureReqnrollStateFacade.StopContainer();
+                break;
             case HookType.AfterFeature:
                 AllureReqnrollStateFacade.StopContainer();
                 this.EnsureFeatureReported(eventData);
