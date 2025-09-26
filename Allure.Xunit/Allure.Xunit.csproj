@@ -10,6 +10,8 @@
         <Description>Create beautiful reports from your xUnit.net tests.</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) xunit</PackageTags>
+        <SignAssembly>false</SignAssembly>
+        <PublicSign>false</PublicSign>
     </PropertyGroup>
 
     <ItemGroup>
