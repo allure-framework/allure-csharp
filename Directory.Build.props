@@ -20,8 +20,8 @@
         <PackageTags>allure</PackageTags>
     </PropertyGroup>
 
-    <!-- Signing properties (Windows-only) -->
-    <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <!-- Signing properties -->
+    <PropertyGroup>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build/identity-key-public.snk</AssemblyOriginatorKeyFile>
 
