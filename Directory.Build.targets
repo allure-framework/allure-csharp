@@ -29,7 +29,7 @@
     NuGet don't support <img> (in particular, align, width and height).
     This task generates a new README file with those unsupported constructs removed.
     -->
-    <Target Name="GenerateNugetReadmeFiles"
+    <Target Name="Allure_GenerateNugetReadmeFiles"
             BeforeTargets="GenerateNuspec"
             Condition="'$(IsPackable)' == 'true'"
             Inputs="@(NuGetPackInput)" Outputs="@(NuGetPackOutput)">
@@ -47,5 +47,46 @@
                 <PackagePath>/README.md</PackagePath>
             </_PackageFiles>
         </ItemGroup>
+    </Target>
+
+    <!-- Some assemblies have strong names. We should resign them after AspectInjector before publishing on NuGet.
+     Otherwise, they won't pass the `sn.exe -vf <assembly>` check -->
+
+    <Target Name="Allure_SetAssemblyTimestampBeforeAspectInjection"
+            AfterTargets="CoreCompile"
+            BeforeTargets="$(_InjectAspectsDependsOn)">
+        <PropertyGroup>
+            <Allure_AssemblyTimestampBeforeAspectInjection>%(IntermediateAssembly.ModifiedTime)</Allure_AssemblyTimestampBeforeAspectInjection>
+        </PropertyGroup>
+    </Target>
+
+    <Target Name="Allure_SetAssemblyTimestampAfterAspectInjection"
+            AfterTargets="AspectInjector_InjectAspects"
+            BeforeTargets="Allure_UpdateStrongNameSignatures">
+        <PropertyGroup>
+            <Allure_AssemblyTimestampAfterAspectInjection>%(IntermediateAssembly.ModifiedTime)</Allure_AssemblyTimestampAfterAspectInjection>
+        </PropertyGroup>
+    </Target>
+
+    <!--
+        Only resign the assembly if all four conditions are met:
+            1. We're running on Windows (sn.exe is a Windows-only utility).
+            2. The assembly's been signed during the compilation.
+            3. A path to sn.exe is given.
+            4. AspectInjector has modified the assembly.
+    -->
+    <Target Name="Allure_UpdateStrongNameSignatures"
+            Condition=" '$(OS)' == 'Windows_NT'
+                And '$(SignAssembly)' == 'true'
+                And Exists('$(AssemblyOriginatorKeyFile)')
+                And Exists('$(Allure_SnExePath)')
+                And '$(Allure_AssemblyTimestampBeforeAspectInjection)' != '$(Allure_AssemblyTimestampAfterAspectInjection)'"
+            AfterTargets="AspectInjector_InjectAspects"
+            BeforeTargets="_TimeStampAfterCompile;AfterCompile">
+        <Exec   UseUtf8Encoding="Always"
+                StdOutEncoding="UTF-8"
+                StdErrEncoding="UTF-8"
+                Command="&quot;$(Allure_SnExePath)&quot; -Ra &quot;%(IntermediateAssembly.FullPath)&quot; &quot;$(AssemblyOriginatorKeyFile)&quot;"
+        />
     </Target>
 </Project>
