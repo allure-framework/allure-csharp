@@ -23,7 +23,7 @@
     <!-- Signing properties -->
     <PropertyGroup>
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'build', 'identity-key-pair.snk'))</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'build', 'identity.snk'))</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <!-- Debug properties -->
