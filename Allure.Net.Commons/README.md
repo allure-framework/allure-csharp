@@ -21,18 +21,6 @@ The library can be used by any project that targets a framework compatible with
 .NET Standard 2.0 (.NET Framework 4.6.1+, .NET Core 2.0+, .NET 5.0+, and more).
 See the complete list [here](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version).
 
-## Note for users of Mac with Apple silicon
-
-If you're developing on a Mac machine with Apple silicon, make sure you have
-Rosetta installed. Follow this article for the instructions:
-https://support.apple.com/en-us/HT211861
-
-You may also install Rosetta via the CLI:
-
-```shell
-/usr/sbin/softwareupdate --install-rosetta --agree-to-license
-```
-
 ## Configuration
 
 The Allure lifecycle is configured via a JSON file with the default name
