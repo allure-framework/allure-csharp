@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -26,29 +26,33 @@ jobs:
             6.0.x
 
       - name: 'Restore packages'
+        shell: pwsh
         run: |
           dotnet restore ${{ env.SOLUTION_PATH }}
 
       - name: 'Build project using dotnet'
+        shell: pwsh
         run: |
-          dotnet build ${{ env.SOLUTION_PATH }}\
-            --no-restore\
-            --configuration ${{ env.BUILD_CONFIGURATION }}\
+          dotnet build ${{ env.SOLUTION_PATH }} `
+            --no-restore `
+            --configuration ${{ env.BUILD_CONFIGURATION }} `
             -p:ContinuousIntegrationBuild=true
 
       - name: 'Pack project'
+        shell: pwsh
         run: |
-          dotnet pack ${{ env.SOLUTION_PATH }}\
-            --no-restore\
-            --no-build\
-            --configuration ${{ env.BUILD_CONFIGURATION }}\
-            "-p:PackageReleaseNotes=${{ github.event.release.html_url }}"\
+          dotnet pack ${{ env.SOLUTION_PATH }} `
+            --no-restore `
+            --no-build `
+            --configuration ${{ env.BUILD_CONFIGURATION }} `
+            "-p:PackageReleaseNotes=${{ github.event.release.html_url }}" `
             "-p:PackageOutputPath=${{ github.workspace }}/${{ env.PACKAGE_OUTPUT_PATH }}"
 
       - name: 'NuGet publish'
+        shell: pwsh
         run: |
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg"\
-            -k ${NUGET_TOKEN}\
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" `
+            -k ${NUGET_TOKEN} `
             -s https://api.nuget.org/v3/index.json
         env:
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
