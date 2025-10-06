@@ -30,13 +30,30 @@ jobs:
         run: |
           dotnet restore ${{ env.SOLUTION_PATH }}
 
+      - name: 'Resolve sn.exe location'
+        id: find-snexe
+        shell: pwsh
+        run: |
+          $SnExeLocation = ./build/findvstool.ps1 -ToolName 'sn.exe'
+          Write-Host "Found '$SnExeLocation'"
+          "path=$SnExeLocation" >> $Env:GITHUB_OUTPUT
+
       - name: 'Build project using dotnet'
         shell: pwsh
         run: |
           dotnet build ${{ env.SOLUTION_PATH }} `
             --no-restore `
             --configuration ${{ env.BUILD_CONFIGURATION }} `
-            -p:ContinuousIntegrationBuild=true
+            -p:ContinuousIntegrationBuild=true `
+            "-p:Allure_SnExePath=${{ steps.find-snexe.outputs.path }}"
+
+      - name: Verify assembly strong names
+        shell: pwsh
+        run: |
+          $SnExe = "${{ steps.find-snexe.outputs.path }}"
+          Get-ChildItem "./*/bin/*/*/Allure.*.dll" -Exclude "Allure.SpecFlow*","Allure.Xunit*" | ForEach-Object {
+            & $SnExe -vf $_.FullName
+          }
 
       - name: 'Pack project'
         shell: pwsh
