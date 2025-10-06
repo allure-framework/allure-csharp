@@ -23,15 +23,7 @@
     <!-- Signing properties -->
     <PropertyGroup>
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build/identity-key-public.snk</AssemblyOriginatorKeyFile>
-
-        <!-- Allows assemblies to behave like they are strong named even after AspectInjector modifies them.
-         This mode has some limitations (see https://github.com/dotnet/runtime/blob/main/docs/project/public-signing.md).
-         We're using it as a fallback in case sn.exe is not found on the machine to make it easier for developers to
-         work with the project.
-         Since we do the publishing on a Windows runner, the assemblies published to NuGet are always
-         strong named. -->
-        <PublicSign>true</PublicSign>
+        <AssemblyOriginatorKeyFile>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'build', 'identity-key-pair.snk'))</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <!-- Debug properties -->

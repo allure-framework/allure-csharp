@@ -12,7 +12,6 @@
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) specflow</PackageTags>
         <SignAssembly>false</SignAssembly>
-        <PublicSign>false</PublicSign>
     </PropertyGroup>
 
     <ItemGroup>
