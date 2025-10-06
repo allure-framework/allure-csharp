@@ -1,11 +1,11 @@
 <Project>
     <PropertyGroup>
-        <TransformReadmeSource>$(MSBuildThisFileDirectory)build\TransformReadmeForNuget.cs</TransformReadmeSource>
+        <Allure_TransformReadmeSource>$(MSBuildThisFileDirectory)build\TransformReadmeForNuget.cs</Allure_TransformReadmeSource>
     </PropertyGroup>
     <ItemGroup>
-        <NuGetPackInput Include="$(TransformReadmeSource)" />
+        <NuGetPackInput Include="$(Allure_TransformReadmeSource)" />
     </ItemGroup>
-    <UsingTask TaskName="TransformReadmeForNuget"
+    <UsingTask TaskName="Allure_TransformReadmeForNuget"
             TaskFactory="RoslynCodeTaskFactory"
             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <ParameterGroup>
@@ -21,7 +21,7 @@
             <Using Namespace="System.Text.RegularExpressions" />
             <Code Type="Fragment"
                 Language="cs"
-                Source="$(TransformReadmeSource)"/>
+                Source="$(Allure_TransformReadmeSource)"/>
         </Task>
     </UsingTask>
 
@@ -33,16 +33,16 @@
             BeforeTargets="GenerateNuspec"
             Condition="'$(IsPackable)' == 'true'"
             Inputs="@(NuGetPackInput)" Outputs="@(NuGetPackOutput)">
-        <TransformReadmeForNuget
+        <Allure_TransformReadmeForNuget
             InputReadmePath="README.md"
             OutputDirPath="$(IntermediateOutputPath)">
             <Output TaskParameter="GeneratedReadmePath"
-                PropertyName="NugetTransformedReadmePath" />
-        </TransformReadmeForNuget>
-        <Message Text="A new README was generated for $(MSBuildProjectName) at $(NugetTransformedReadmePath)" Importance="high" />
+                PropertyName="Allure_NugetTransformedReadmePath" />
+        </Allure_TransformReadmeForNuget>
+        <Message Text="A new README was generated for $(MSBuildProjectName) at $(Allure_NugetTransformedReadmePath)" Importance="high" />
         <ItemGroup>
             <_PackageFiles Remove="README.md" />
-            <_PackageFiles Include="$(NugetTransformedReadmePath)">
+            <_PackageFiles Include="$(Allure_NugetTransformedReadmePath)">
                 <BuildAction>None</BuildAction>
                 <PackagePath>/README.md</PackagePath>
             </_PackageFiles>
