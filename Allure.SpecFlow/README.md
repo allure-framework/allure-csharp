@@ -24,13 +24,15 @@ The adapter works with [SpecFlow](http://specflow.org/) version 3, starting from
 1. Install the [Allure.SpecFlow](https://www.nuget.org/packages/Allure.SpecFlow)
 Nuget package according to your SpecFlow version.
 2. Add the following entry to your `specflow.json`:
-    ```json
-    {
-      "stepAssemblies": [
-        {"assembly": "Allure.SpecFlowPlugin"}
-      ]
-    }
-    ```
+
+   ```json
+   {
+     "stepAssemblies": [
+       { "assembly": "Allure.SpecFlowPlugin" }
+     ]
+   }
+   ```
+
 3. Run the tests.
 
 ### Further readings
