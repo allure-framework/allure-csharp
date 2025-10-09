@@ -68,7 +68,7 @@ jobs:
       - name: 'NuGet publish'
         shell: pwsh
         run: |
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" `
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}\*.nupkg" `
             --api-key "$Env:NUGET_TOKEN" `
             --source "https://api.nuget.org/v3/index.json"
         env:
