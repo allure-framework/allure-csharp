@@ -70,9 +70,40 @@ public static class IdFunctions
     /// Unlike <see cref="Type.ToString"/>, it includes assembly names to
     /// the name of the type and its type arguments, which prevents collisions
     /// in some scenarios.
+    /// <br/>
+    /// For a generic parameters (like <c>T</c> in <c>class Foo&lt;T> { }</c>), returns just its name.
     /// </remarks>
-    public static string CreateFullName(Type type) =>
-        SerializeNonParameterType(type);
+    public static string GetTypeId(Type type) =>
+        type.IsGenericParameter ? type.Name : SerializeNonParameterType(type);
+
+    /// <summary>
+    /// Creates a name that uniquely identifies a given method in its declaring type.
+    /// </summary>
+    /// <param name="method">
+    /// A method.
+    /// If it's a constructed generic method, its generic definition is used instead.
+    /// </param>
+    /// <remarks>
+    /// For a given test method, its id includes:
+    /// <list type="bullet">
+    /// <item>name</item>
+    /// <item>type parameters (like <c>T</c> in <c>void Foo&lt;T>() { }</c>)</item>
+    /// <item>parameter types (like <c>System.String</c> in <c>void Foo(string bar) { }</c>)</item>
+    /// </list>
+    /// </remarks>
+    public static string GetMethodId(MethodInfo method)
+    {
+        if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
+        {
+            method = method.GetGenericMethodDefinition();
+        }
+
+        var methodName = method.Name;
+        var typeParameters = method.GetGenericArguments();
+        var typeParametersDecl = SerializeTypeParameterTypeList(typeParameters);
+        var parameterTypes = SerializeParameterTypes(method.GetParameters());
+        return $"{methodName}{typeParametersDecl}({parameterTypes})";
+    }
 
     /// <summary>
     /// Creates a string that unuquely identifies a given method.
@@ -89,24 +120,13 @@ public static class IdFunctions
     /// <item>name of type (including its declaring types, if any)</item>
     /// <item>type parameters of the declaring type (for generic type definitions)</item>
     /// <item>type arguments of the declaring type (for constructed generic types)</item>
+    /// <item>the method's name</item>
     /// <item>type parameters of the method (if any)</item>
     /// <item>parameter types</item>
     /// </list>
     /// </remarks>
-    public static string CreateFullName(MethodInfo method)
-    {
-        if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
-        {
-            method = method.GetGenericMethodDefinition();
-        }
-
-        var className = SerializeType(method.DeclaringType);
-        var methodName = method.Name;
-        var typeParameters = method.GetGenericArguments();
-        var typeParametersDecl = SerializeTypeParameterTypeList(typeParameters);
-        var parameterTypes = SerializeParameterTypes(method.GetParameters());
-        return $"{className}.{methodName}{typeParametersDecl}({parameterTypes})";
-    }
+    public static string CreateFullName(MethodInfo method) =>
+        $"{GetTypeId(method.DeclaringType)}.{GetMethodId(method)}";
 
     /// <summary>
     /// Creates a testCaseId value. testCaseId has a fixed length and depends
@@ -178,17 +198,8 @@ public static class IdFunctions
     ) =>
         string.Join(
             ",",
-            types.Select(SerializeType)
+            types.Select(GetTypeId)
         );
-
-    static string SerializeType(Type type)
-    {
-        if (type.IsGenericParameter)
-        {
-            return type.Name;
-        }
-        return SerializeNonParameterType(type);
-    }
 
     static string SerializeNonParameterType(Type type) =>
         GetUniqueTypeName(type) + SerializeTypeParameterTypeList(

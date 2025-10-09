@@ -66,8 +66,19 @@ class IdTests
     public void TestFullNameFromClass(Type targetClass, string expectedFullName)
     {
         Assert.That(
-            IdFunctions.CreateFullName(targetClass),
+            IdFunctions.GetTypeId(targetClass),
             Is.EqualTo(expectedFullName)
+        );
+    }
+
+    [Test]
+    public void TestIdOfGenericTypeParameter()
+    {
+        Assert.That(
+            IdFunctions.GetTypeId(
+                typeof(MyClass<>).GetGenericArguments()[0]
+            ),
+            Is.EqualTo("T")
         );
     }
 
@@ -162,8 +173,12 @@ class IdTests
         );
 
         var actualFullName = IdFunctions.CreateFullName(method);
+        var declaringTypeId = IdFunctions.GetTypeId(method.DeclaringType);
+        var methodId = IdFunctions.GetMethodId(method);
 
         Assert.That(actualFullName, Is.EqualTo(expectedFullName));
+        Assert.That(actualFullName, Does.StartWith(declaringTypeId));
+        Assert.That(actualFullName, Does.EndWith(methodId));
     }
 
     [Test]
