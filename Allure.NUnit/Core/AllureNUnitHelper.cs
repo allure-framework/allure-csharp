@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
@@ -18,6 +19,14 @@ namespace Allure.NUnit.Core
 {
     sealed class AllureNUnitHelper
     {
+        static Dictionary<Type, string> LiteralSuffixes { get; } = new()
+        {
+            { typeof(uint), "u" },
+            { typeof(long), "L" },
+            { typeof(ulong), "UL" },
+            { typeof(float), "f" },
+        };
+
         private readonly ITest _test;
 
         internal AllureNUnitHelper(ITest test)
@@ -96,7 +105,7 @@ namespace Allure.NUnit.Core
             var testResult = new TestResult
             {
                 name = ResolveDisplayName(test),
-                titlePath = EnumerateNamesFromTestFixtureToRoot(test).Reverse().ToList(),
+                titlePath = [.. EnumerateTitlePathElements(test)],
                 labels = [
                     Label.Thread(),
                     Label.Host(),
@@ -142,15 +151,22 @@ namespace Allure.NUnit.Core
                 _ => test.Name,
             };
 
-        static IEnumerable<string> EnumerateNamesFromTestFixtureToRoot(ITest test)
+        static IEnumerable<ITest> EnumerateTestElements(ITest test)
         {
-            for (ITest suite = GetTestFixture(test); suite is not null; suite = suite.Parent)
-                yield return suite switch
-                {
-                    TestAssembly a => a.Assembly?.GetName()?.Name ?? a.Name,
-                    _ => suite.Name,
-                };
+            Stack<ITest> stack = [];
+            for (; test is not null; test = test.Parent)
+            {
+                stack.Push(test);
+            }
+            return stack;
         }
+
+        static IEnumerable<string> EnumerateTitlePathElements(ITest test) =>
+            EnumerateTestElements(test).Skip(1).Select(suite => suite switch
+            {
+                TestAssembly a => a.Assembly?.GetName()?.Name ?? a.Name,
+                _ => suite.Name,
+            });
 
         TestResultContainer CreateTestContainer() =>
             new()
@@ -175,9 +191,62 @@ namespace Allure.NUnit.Core
             }
 
             testResult.uuid = IdFunctions.CreateUUID();
-            testResult.fullName = IdFunctions.CreateFullName(
-                test.Method.MethodInfo
-            );
+            testResult.fullName = CreateFullName(test);
+        }
+
+        /// <summary>
+        /// For test fixtures with no parameters, returns the same value as
+        /// <see cref="IdFunctions.CreateFullName(System.Reflection.MethodInfo)"/>.
+        /// For test fixtures with parameters, inserts the arguments between the class and method IDs.
+        /// </summary>
+        static string CreateFullName(ITest test)
+        {
+            var testMethod = test.Method.MethodInfo;
+            var testFixtureClass = testMethod.DeclaringType;
+            var testFixtureArgs = GetTestFixture(test).Arguments;
+
+            var testFixtureClassPart = IdFunctions.GetTypeId(testFixtureClass);
+            var testFixtureArgsPart = testFixtureArgs.Any()
+                ? $"({string.Join(",", testFixtureArgs.Select(FormatTestFixtureArg))})"
+                : "";
+            var methodPart = IdFunctions.GetMethodId(testMethod);
+
+
+            return $"{testFixtureClassPart}{testFixtureArgsPart}.{methodPart}";
+        }
+
+        /// <summary>
+        /// Converts a test fixture argument to a string. Doesn't depend on the
+        /// currently installed locale.
+        /// </summary>
+        /// <remarks>
+        /// For possible values and types, see <see href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/attributes#2324-attribute-parameter-types">here</see>.
+        /// </remarks>
+        static string FormatTestFixtureArg(object value) => value switch
+        {
+            null => "null",
+            string text => FormatFunctions.Format(text),
+            Type type => $"<{IdFunctions.GetTypeId(type)}>",
+            Array array => FormatArray(array),
+            char c => FormatChar(c),
+            _ => FormatPrimitive(value),
+        };
+
+        static string FormatArray(Array array) =>
+            $"[{string.Join(",", array.Cast<object>().Select(FormatTestFixtureArg))}]";
+
+        static string FormatChar(char c)
+        {
+            var text = FormatFunctions.Format(c);
+            return $"'{text.Substring(1, text.Length - 2)}'";
+        }
+
+        static string FormatPrimitive(object value)
+        {
+            var text = Convert.ToString(value, CultureInfo.InvariantCulture);
+            return LiteralSuffixes.TryGetValue(value.GetType(), out var suffix)
+                ? $"{text}{suffix}"
+                : text;
         }
 
         static void SetLegacyIdentifiers(ITest test, TestResult testResult)
