@@ -69,7 +69,7 @@ jobs:
         shell: pwsh
         run: |
           dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" `
-            -k ${NUGET_TOKEN} `
-            -s https://api.nuget.org/v3/index.json
+            --api-key "$Env:NUGET_TOKEN" `
+            --source "https://api.nuget.org/v3/index.json"
         env:
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
