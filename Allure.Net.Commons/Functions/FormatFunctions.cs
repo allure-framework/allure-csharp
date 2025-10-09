@@ -25,7 +25,19 @@ public static class FormatFunctions
     /// </summary>
     public static string Format(object? value)
     {
-        return Format(value, new Dictionary<Type, ITypeFormatter>());
+        if (value is null)
+        {
+            return "null";
+        }
+
+        try
+        {
+            return JsonConvert.SerializeObject(value, SerializerSettings);
+        }
+        catch
+        {
+            return value.ToString();
+        }
     }
 
     /// <summary>
@@ -47,18 +59,6 @@ public static class FormatFunctions
             return formatter.Format(value);
         }
 
-        if (value is null)
-        {
-            return "null";
-        }
-
-        try
-        {
-            return JsonConvert.SerializeObject(value, SerializerSettings);
-        }
-        catch
-        {
-            return value.ToString();
-        }
+        return Format(value);
     }
 }
