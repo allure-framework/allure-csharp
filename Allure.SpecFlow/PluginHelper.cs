@@ -95,8 +95,7 @@ namespace Allure.SpecFlowPlugin
                 name = title,
                 description = scenarioInfo.Description,
                 titlePath = CreateTitlePath(testRunnerManager, featureInfo),
-                labels = new List<Label>
-                {
+                labels = [
                     Label.Thread(),
                     string.IsNullOrWhiteSpace(
                         AllureLifecycle.Instance.AllureConfiguration.Title
@@ -105,9 +104,10 @@ namespace Allure.SpecFlowPlugin
                     ),
                     Label.Language(),
                     Label.Framework("SpecFlow"),
-                    Label.Feature(featureInfo.Title)
-                }
-                    .Union(labels).ToList(),
+                    Label.Feature(featureInfo.Title),
+                    ..ModelFunctions.EnumerateEnvironmentLabels(),
+                    ..labels,
+                ],
                 links = links,
                 parameters = parameters
             };
