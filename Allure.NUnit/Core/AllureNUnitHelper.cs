@@ -97,8 +97,7 @@ namespace Allure.NUnit.Core
             {
                 name = ResolveDisplayName(test),
                 titlePath = EnumerateNamesFromTestFixtureToRoot(test).Reverse().ToList(),
-                labels = new List<Label>
-                {
+                labels = [
                     Label.Thread(),
                     Label.Host(),
                     Label.Language(),
@@ -107,8 +106,9 @@ namespace Allure.NUnit.Core
                     Label.TestMethod(test.MethodName),
                     Label.TestClass(
                         GetClassName(test.ClassName)
-                    )
-                }
+                    ),
+                    ..ModelFunctions.EnumerateEnvironmentLabels(),
+                ]
             };
             UpdateTestDataFromAllureAttributes(test, testResult);
             AddTestParametersFromNUnit(test, testResult);
