@@ -24,10 +24,10 @@ namespace Allure.Net.Commons.Steps
         internal static readonly Type TypeVoidTaskResult = Type.GetType("System.Threading.Tasks.VoidTaskResult");
         internal static readonly Type TypeVoid = typeof(void);
         internal static readonly Type TypeTask = typeof(Task);
-        
+
         private static void StartStep(MethodBase metadata, string stepName, List<Parameter> stepParameters)
         {
-            if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
+            if (IsStep(metadata))
             {
                 ExtendedApi.StartStep(stepName, step => step.parameters = stepParameters);
             }
@@ -35,7 +35,7 @@ namespace Allure.Net.Commons.Steps
 
         private static void PassStep(MethodBase metadata)
         {
-            if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
+            if (IsStep(metadata))
             {
                 ExtendedApi.PassStep();
             }
@@ -43,7 +43,7 @@ namespace Allure.Net.Commons.Steps
 
         private static void ThrowStep(MethodBase metadata, Exception e)
         {
-            if (metadata.GetCustomAttribute<AbstractStepAttribute>() != null)
+            if (IsStep(metadata))
             {
                 ExtendedApi.ResolveStep(e);
             }
@@ -51,12 +51,12 @@ namespace Allure.Net.Commons.Steps
 
         private static void StartFixture(MethodBase metadata, string fixtureName)
         {
-            if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null)
+            if (IsBeforeFixture(metadata))
             {
                 ExtendedApi.StartBeforeFixture(fixtureName);
             }
 
-            if (metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
+            if (IsAfterFixture(metadata))
             {
                 ExtendedApi.StartAfterFixture(fixtureName);
             }
@@ -64,8 +64,7 @@ namespace Allure.Net.Commons.Steps
 
         private static void PassFixture(MethodBase metadata)
         {
-            if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
-                metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
+            if (IsBeforeFixture(metadata) || IsAfterFixture(metadata))
             {
                 ExtendedApi.PassFixture();
             }
@@ -73,8 +72,7 @@ namespace Allure.Net.Commons.Steps
 
         private static void ThrowFixture(MethodBase metadata, Exception e)
         {
-            if (metadata.GetCustomAttribute<AbstractBeforeAttribute>(inherit: true) != null ||
-                metadata.GetCustomAttribute<AbstractAfterAttribute>(inherit: true) != null)
+            if (IsBeforeFixture(metadata) || IsAfterFixture(metadata))
             {
                 ExtendedApi.ResolveFixture(e);
             }
@@ -82,10 +80,20 @@ namespace Allure.Net.Commons.Steps
 
         // ------------------------------
 
-        private static void BeforeTargetInvoke(MethodBase metadata, string stepName, List<Parameter> stepParameters)
+        private static void BeforeTargetInvoke(
+            MethodBase metadata,
+            Lazy<string> stepName,
+            Lazy<List<Parameter>> stepParameters
+        )
         {
-            StartFixture(metadata, stepName);
-            StartStep(metadata, stepName, stepParameters);
+            if (ExtendedApi.HasContainer)
+            {
+                StartFixture(metadata, stepName.Value);
+            }
+            if (ExtendedApi.HasTestOrFixture)
+            {
+                StartStep(metadata, stepName.Value, stepParameters.Value);
+            }
         }
 
         private static void AfterTargetInvoke(MethodBase metadata)
@@ -101,13 +109,13 @@ namespace Allure.Net.Commons.Steps
         }
 
         // ------------------------------
-        
+
         private static T WrapSync<T>(
             Func<object[], object> target,
             object[] args,
             MethodBase metadata,
-            string stepName,
-            List<Parameter> stepParameters
+            Lazy<string> stepName,
+            Lazy<List<Parameter>> stepParameters
         )
         {
             try
@@ -129,8 +137,8 @@ namespace Allure.Net.Commons.Steps
             Func<object[], object> target,
             object[] args,
             MethodBase metadata,
-            string stepName,
-            List<Parameter> stepParameters
+            Lazy<string> stepName,
+            Lazy<List<Parameter>> stepParameters
         )
         {
             try
@@ -150,8 +158,8 @@ namespace Allure.Net.Commons.Steps
             Func<object[], object> target,
             object[] args,
             MethodBase metadata,
-            string stepName,
-            List<Parameter> stepParameters
+            Lazy<string> stepName,
+            Lazy<List<Parameter>> stepParameters
         )
         {
             try
@@ -171,8 +179,8 @@ namespace Allure.Net.Commons.Steps
             Func<object[], object> target,
             object[] args,
             MethodBase metadata,
-            string stepName,
-            List<Parameter> stepParameters
+            Lazy<string> stepName,
+            Lazy<List<Parameter>> stepParameters
         )
         {
             try
@@ -189,8 +197,17 @@ namespace Allure.Net.Commons.Steps
                 throw;
             }
         }
+
+        static bool IsBeforeFixture(MethodBase method) =>
+            Attribute.IsDefined(method, typeof(AbstractBeforeAttribute), true);
+
+        static bool IsAfterFixture(MethodBase method) =>
+            Attribute.IsDefined(method, typeof(AbstractAfterAttribute), true);
+
+        static bool IsStep(MethodBase method) =>
+            Attribute.IsDefined(method, typeof(AbstractStepAttribute), true);
     }
-    
+
     [Aspect(Scope.Global)]
     public class AllureStepAspectBase : AllureAbstractStepAspect
     {
@@ -205,40 +222,44 @@ namespace Allure.Net.Commons.Steps
         {
             var formatters = AllureLifecycle.Instance.TypeFormatters;
             var stepNamePattern = metadata.GetCustomAttribute<AbstractStepBaseAttribute>().Name ?? name;
-            var stepName = AllureStepParameterHelper.GetStepName(
-                stepNamePattern,
-                metadata,
-                args,
-                formatters
+            var stepName = new Lazy<string>(
+                () => AllureStepParameterHelper.GetStepName(
+                    stepNamePattern,
+                    metadata,
+                    args,
+                    formatters
+                )
             );
-            var stepParameters = AllureStepParameterHelper.GetStepParameters(
-                metadata,
-                args,
-                formatters
+            var stepParameters = new Lazy<List<Parameter>>(
+                () => AllureStepParameterHelper.GetStepParameters(
+                    metadata,
+                    args,
+                    formatters
+                )
             );
-            
+
             if (TypeTask.IsAssignableFrom(returnType))
             {
                 if (returnType == TypeTask)
                 {
-                    return AsyncHandler.Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
+                    return AsyncHandler.Invoke(this, [target, args, metadata, stepName, stepParameters]);
                 }
 
                 var syncResultType = returnType.IsConstructedGenericType
                     ? returnType.GenericTypeArguments[0]
                     : TypeVoidTaskResult;
                 return AsyncGenericHandler.MakeGenericMethod(syncResultType)
-                    .Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
+                    .Invoke(this, [target, args, metadata, stepName, stepParameters]);
             }
 
             if (TypeVoid.IsAssignableFrom(returnType))
             {
                 return SyncVoidHandler
-                    .Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
+                    .Invoke(this, [target, args, metadata, stepName, stepParameters]);
             }
 
             return SyncHandler.MakeGenericMethod(returnType)
-                .Invoke(this, new object[] { target, args, metadata, stepName, stepParameters });
+                .Invoke(this, [target, args, metadata, stepName, stepParameters]);
         }
     }
 }
