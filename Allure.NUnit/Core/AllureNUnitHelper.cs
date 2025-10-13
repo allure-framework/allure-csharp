@@ -108,6 +108,7 @@ namespace Allure.NUnit.Core
                         GetClassName(test.ClassName)
                     ),
                     ..ModelFunctions.EnumerateEnvironmentLabels(),
+                    ..ModelFunctions.EnumerateGlobalLabels(),
                 ]
             };
             UpdateTestDataFromAllureAttributes(test, testResult);
