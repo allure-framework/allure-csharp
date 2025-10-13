@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 
@@ -127,8 +128,8 @@ public static class ModelFunctions
     }
 
     static bool ShouldAddEnvVarAsLabel(
-        string? name,
-        string? value
+        [NotNullWhen(true)] string? name,
+        [NotNullWhen(true)] string? value
     ) =>
         name is not null
             && name.Length > ENV_LABEL_PATTERN.Length
