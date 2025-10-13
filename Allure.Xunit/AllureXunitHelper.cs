@@ -154,8 +154,7 @@ namespace Allure.Xunit
             {
                 name = BuildName(testCase),
                 titlePath = IdFunctions.CreateTitlePath(testClass),
-                labels = new()
-                {
+                labels = [
                     Label.Thread(),
                     Label.Host(),
                     Label.Language(),
@@ -163,7 +162,8 @@ namespace Allure.Xunit
                     Label.TestClass(testMethod.TestClass.Class.Name),
                     Label.TestMethod(testCase.TestMethod.Method.Name),
                     Label.Package(testMethod.TestClass.Class.Name),
-                }
+                    ..ModelFunctions.EnumerateEnvironmentLabels(),
+                ]
             };
             SetTestResultIdentifiers(testCase, displayName, testResult);
             UpdateTestDataFromAttributes(testResult, testMethod);
