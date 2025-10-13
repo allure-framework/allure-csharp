@@ -687,9 +687,6 @@ public class AllureLifecycle
         this.Context = updateFn(this.Context);
     }
 
-    static string CreateUuid() =>
-        Guid.NewGuid().ToString("N");
-
     static Action<T> Chain<T>(params Action<T>[] actions) => v =>
     {
         foreach (var action in actions)
