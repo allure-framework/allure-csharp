@@ -175,6 +175,7 @@ namespace Allure.Xunit
                     Label.TestMethod(testCase.TestMethod.Method.Name),
                     Label.Package(testMethod.TestClass.Class.Name),
                     ..ModelFunctions.EnumerateEnvironmentLabels(),
+                    ..ModelFunctions.EnumerateGlobalLabels(),
                 ]
             };
             SetTestResultIdentifiers(testCase, displayName, testResult);
