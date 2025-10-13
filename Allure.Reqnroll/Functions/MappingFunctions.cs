@@ -439,6 +439,7 @@ static class MappingFunctions
     ) => [
         .. CreateDefaultLabels(featureInfo),
         .. ModelFunctions.EnumerateEnvironmentLabels(),
+        .. ModelFunctions.EnumerateGlobalLabels(),
         .. scenarioLabels ?? [],
     ];
 
