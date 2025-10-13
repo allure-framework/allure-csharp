@@ -106,6 +106,7 @@ namespace Allure.SpecFlowPlugin
                     Label.Framework("SpecFlow"),
                     Label.Feature(featureInfo.Title),
                     ..ModelFunctions.EnumerateEnvironmentLabels(),
+                    ..ModelFunctions.EnumerateGlobalLabels(),
                     ..labels,
                 ],
                 links = links,
