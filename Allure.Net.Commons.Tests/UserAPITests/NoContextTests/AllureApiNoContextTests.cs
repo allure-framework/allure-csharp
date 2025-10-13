@@ -219,6 +219,7 @@ class AllureApiNoContextTests
     public void AddScreenDiffShouldNotThrow()
     {
         Assert.That(() => AllureApi.AddScreenDiff("foo", "bar", "baz"), Throws.Nothing);
+        Assert.That(() => AllureApi.AddScreenDiff([], [], []), Throws.Nothing);
     }
 
     [Test]

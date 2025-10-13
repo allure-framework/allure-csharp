@@ -530,42 +530,43 @@ public static class AllureApi
     /// Attaches screen diff images to the current fixture, test, or step.
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
-    /// <param name="expectedPng">A path to the actual screen.</param>
-    /// <param name="actualPng">A path to the expected screen.</param>
-    /// <param name="diffPng">A path to the screen diff.</param>
+    /// <param name="expectedPngPath">A path to the actual screen.</param>
+    /// <param name="actualPngPath">A path to the expected screen.</param>
+    /// <param name="diffPngPath">A path to the screen diff.</param>
     public static void AddScreenDiff(
-        string expectedPng,
-        string actualPng,
-        string diffPng
+        string expectedPngPath,
+        string actualPngPath,
+        string diffPngPath
     )
     {
         if (HasTestOrFixture)
         {
-            AddAttachment(
-                string.Format(
-                    DIFF_NAME_PATTERN,
-                    CurrentLifecycle.Context.CurrentStepContainer.attachments.Count(
-                        a => a.type == DIFF_MEDIA_TYPE
-                    ) + 1
-                ),
-                DIFF_MEDIA_TYPE,
-                Encoding.UTF8.GetBytes(
-                    JsonConvert.SerializeObject(new
-                    {
-                        expected = ReadDiffEntry(expectedPng),
-                        actual = ReadDiffEntry(actualPng),
-                        diff = ReadDiffEntry(diffPng)
-                    })
-                ),
-                ".json"
+            AddScreenDiffInternal(
+                File.ReadAllBytes(expectedPngPath),
+                File.ReadAllBytes(actualPngPath),
+                File.ReadAllBytes(diffPngPath)
             );
         }
     }
 
-    static string ReadDiffEntry(string fileName) =>
-        DIFF_ENTRY_PREFIX + Convert.ToBase64String(
-            File.ReadAllBytes(fileName)
-        );
+    /// <summary>
+    /// Attaches screen diff images to the current fixture, test, or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="expectedPng">An actual screen bytes.</param>
+    /// <param name="actualPng">An expected screen bytes.</param>
+    /// <param name="diffPng">A screen diff bytes.</param>
+    public static void AddScreenDiff(
+        byte[] expectedPng,
+        byte[] actualPng,
+        byte[] diffPng
+    )
+    {
+        if (HasTestOrFixture)
+        {
+            AddScreenDiffInternal(expectedPng, actualPng, diffPng);
+        }
+    }
 
     #endregion
 
@@ -813,4 +814,31 @@ public static class AllureApi
             item => item.attachments.Add(attachment)
         );
     }
+
+    static void AddScreenDiffInternal(
+        byte[] expectedPng,
+        byte[] actualPng,
+        byte[] diffPng
+    ) =>
+        AddAttachment(
+            string.Format(
+                DIFF_NAME_PATTERN,
+                CurrentLifecycle.Context.CurrentStepContainer.attachments.Count(
+                    a => a.type == DIFF_MEDIA_TYPE
+                ) + 1
+            ),
+            DIFF_MEDIA_TYPE,
+            Encoding.UTF8.GetBytes(
+                JsonConvert.SerializeObject(new
+                {
+                    expected = ToDiffEntry(expectedPng),
+                    actual = ToDiffEntry(actualPng),
+                    diff = ToDiffEntry(diffPng)
+                })
+            ),
+            ".json"
+        );
+
+    static string ToDiffEntry(byte[] data) =>
+        DIFF_ENTRY_PREFIX + Convert.ToBase64String(data);
 }
