@@ -15,123 +15,135 @@ namespace Allure.Net.Commons;
 /// </summary>
 public static class ExtendedApi
 {
-    internal static AllureLifecycle CurrentLifecycle
+    static AllureLifecycle CurrentLifecycle
     {
         get => AllureApi.CurrentLifecycle;
     }
 
+    static AllureContext Context => CurrentLifecycle.Context;
+
+    internal static bool HasContainer => Context.HasContainer;
+    internal static bool HasTest => Context.HasTest;
+    internal static bool HasFixture => Context.HasFixture;
+    internal static bool HasStep => Context.HasStep;
+    internal static bool HasTestOrFixture => HasTest || HasFixture;
+
     #region Low-level fixtures API
 
     /// <summary>
-    /// Starts a new setup fixture. Requires the container context to be
-    /// active. Makes the fixture context active (if it wasn't). Deactivates
-    /// the step context (if any).
+    /// Starts a new setup fixture. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context is already active.
+    /// If Allure is not running, does nothing.
     /// </remarks>
     /// <param name="name">The name of the setup fixture.</param>
     public static void StartBeforeFixture(string name)
     {
-        CurrentLifecycle.StartBeforeFixture(new() { name = name });
+        if (HasContainer)
+        {
+            StartBeforeFixtureInternal(name);
+        }
     }
 
     /// <summary>
-    /// Starts a new teardown fixture. Requires the container context to be
-    /// active. Makes the fixture context active (if it wasn't). Deactivates
-    /// the step context (if any).
+    /// Starts a new teardown fixture. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context is already active.
+    /// If Allure is not running, does nothing.
     /// </remarks>
     /// <param name="name">The name of the teardown fixture.</param>
     public static void StartAfterFixture(string name)
     {
-        CurrentLifecycle.StartAfterFixture(new() { name = name });
+        if (HasContainer)
+        {
+            StartAfterFixtureInternal(name);
+        }
     }
 
     /// <summary>
-    /// Stops the current fixture making it passed. Deactivates the step and
-    /// the fixture contexts.
+    /// Makes the current fixture passed and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
-    public static void PassFixture() => CurrentLifecycle.StopFixture(
-        result =>
+    public static void PassFixture()
+    {
+        if (HasFixture)
         {
-            result.status = Status.passed;
+            PassFixtureInternal();
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current fixture making it passed. Deactivates the step and
-    /// the fixture contexts.
+    /// Makes the current fixture passed and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="updateResults">
     /// The callback that is called before the fixture is stopped.
     /// </param>
     public static void PassFixture(Action<FixtureResult> updateResults)
     {
-        CurrentLifecycle.UpdateFixture(updateResults);
-        PassFixture();
+        if (HasFixture)
+        {
+            CurrentLifecycle.UpdateFixture(updateResults);
+            PassFixtureInternal();
+        }
     }
 
     /// <summary>
-    /// Stops the current fixture making it failed. Deactivates the step and
-    /// the fixture contexts.
+    /// Makes the current fixture failed and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
-    public static void FailFixture() => CurrentLifecycle.StopFixture(
-        result =>
+    public static void FailFixture()
+    {
+        if (HasFixture)
         {
-            result.status = Status.failed;
+            FailFixtureInternal();
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current fixture making it failed. Deactivates the step and
-    /// the fixture contexts.
+    /// Makes the current fixture failed and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="updateResults">
     /// The callback that is called before the fixture is stopped.
     /// </param>
     public static void FailFixture(Action<FixtureResult> updateResults)
     {
-        CurrentLifecycle.UpdateFixture(updateResults);
-        FailFixture();
+        if (HasFixture)
+        {
+            CurrentLifecycle.UpdateFixture(updateResults);
+            FailFixtureInternal();
+        }
     }
 
     /// <summary>
-    /// Stops the current fixture making it failed. Deactivates the step and
-    /// the fixture contexts.
+    /// Makes the current fixture failed and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="error">The error to report at the fixture level.</param>
-    public static void FailFixture(Exception error) => CurrentLifecycle.StopFixture(
-        result =>
+    public static void FailFixture(Exception error)
+    {
+        if (HasFixture)
         {
-            result.status = Status.failed;
-            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+            FailFixtureInternal(error);
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current fixture making it failed. Deactivates the step and
-    /// the fixture contexts.
+    /// Makes the current fixture failed and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="updateResults">
     /// The callback that is called before the fixture is stopped.
@@ -142,62 +154,68 @@ public static class ExtendedApi
         Exception error
     )
     {
-        CurrentLifecycle.UpdateFixture(updateResults);
-        FailFixture(error);
+        if (HasFixture)
+        {
+            CurrentLifecycle.UpdateFixture(updateResults);
+            FailFixtureInternal(error);
+        }
     }
 
     /// <summary>
-    /// Stops the current fixture making it broken. Deactivates the step and
-    /// the fixture contexts.
+    /// Makes the current fixture broken and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
-    public static void BreakFixture() => CurrentLifecycle.StopFixture(
-        result =>
+    public static void BreakFixture()
+    {
+        if (HasFixture)
         {
-            result.status = Status.broken;
+            BreakFixtureInternal();
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current fixture making it broken. Deactivates the step and
+    /// Makes the current fixture broken and stops it. Removes all unfinished steps.
     /// the fixture contexts.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="updateResults">
     /// The callback that is called before the fixture is stopped.
     /// </param>
     public static void BreakFixture(Action<FixtureResult> updateResults)
     {
-        CurrentLifecycle.UpdateFixture(updateResults);
-        BreakFixture();
+        if (HasFixture)
+        {
+            CurrentLifecycle.UpdateFixture(updateResults);
+            BreakFixtureInternal();
+        }
     }
 
     /// <summary>
-    /// Stops the current fixture making it broken. Deactivates the step and
+    /// Makes the current fixture broken and stops it. Removes all unfinished steps.
     /// the fixture contexts.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="error">The error to report at the fixture level.</param>
-    public static void BreakFixture(Exception error) => CurrentLifecycle.StopFixture(
-        result =>
+    public static void BreakFixture(Exception error)
+    {
+        if (HasFixture)
         {
-            result.status = Status.broken;
-            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+            BreakFixtureInternal(error);
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current fixture making it broken. Deactivates the step and
+    /// Makes the current fixture broken and stops it. Removes all unfinished steps.
     /// the fixture contexts.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="updateResults">
     /// The callback that is called before the fixture is stopped.
@@ -208,148 +226,174 @@ public static class ExtendedApi
         Exception error
     )
     {
-        CurrentLifecycle.UpdateFixture(updateResults);
-        BreakFixture(error);
+        if (HasFixture)
+        {
+            CurrentLifecycle.UpdateFixture(updateResults);
+            BreakFixtureInternal(error);
+        }
     }
 
     /// <summary>
-    /// Stops the current fixture making it skipped. Deactivates the step and
+    /// Makes the current fixture skipped and stops it. Removes all unfinished steps.
     /// the fixture contexts.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
-    public static void SkipFixture() => CurrentLifecycle.StopFixture(
-        result => result.status = Status.skipped
-    );
+    public static void SkipFixture()
+    {
+        if (HasFixture)
+        {
+            SkipFixtureInternal();
+        }
+    }
 
     /// <summary>
-    /// Stops the current fixture making it skipped. Deactivates the step and
+    /// Makes the current fixture skipped and stops it. Removes all unfinished steps.
     /// the fixture contexts.
     /// </summary>
     /// <remarks>
-    /// Can't be called if the fixture context isn't active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="updateResults">
     /// The callback that is called before the fixture is stopped.
     /// </param>
-    public static void SkipFixture(Action<FixtureResult> updateResults) =>
-        CurrentLifecycle.StopFixture(result =>
+    public static void SkipFixture(Action<FixtureResult> updateResults)
+    {
+        if (HasFixture)
         {
-            updateResults(result);
-            result.status = Status.skipped;
-        });
+            CurrentLifecycle.UpdateFixture(updateResults);
+            SkipFixtureInternal();
+        }
+    }
 
     /// <summary>
-    ///   Stops the current fixture making it passed, failed, or broken
-    ///   depending on the provided exception. Deactivates the current fixture
-    ///   context.
+    /// Resolves the status of the current fixture to passed, failed, or broken
+    /// depending on the exception and stops it. Removes all unfinished steps.
     /// </summary>
     /// <remarks>
-    ///   Requires the fixture context to be active.
+    /// If no fixture is running, does nothing.
     /// </remarks>
     /// <param name="error">
-    ///   An exception instance. If it's null, the fixture is marked as passed.
-    ///   Otherwise, the fixture is marked as failed or broken depending on the
-    ///   exception's type and the configuration of the current lifecycle
-    ///   instance.
+    /// An exception instance. If it's <c>null</c>, the fixture becomes passed.
+    /// Otherwise, the fixture becomes failed or broken depending on the
+    /// exception's type and the current configuration.
     /// </param>
-    public static void ResolveFixture(Exception? error) =>
-        ResolveItem(CurrentLifecycle.StopFixture, error);
+    public static void ResolveFixture(Exception? error)
+    {
+        if (HasFixture)
+        {
+            ResolveFixtureInternal(error);
+        }
+    }
 
     #endregion
 
     #region Low-level steps API
 
     /// <summary>
-    /// Starts a new step. Requires the fixture, the test or the step context
-    /// to be active. Makes the step context active (if it wasn't).
+    /// Starts a new step.
     /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the step.</param>
     public static void StartStep(string name)
     {
-        CurrentLifecycle.StartStep(new() { name = name });
+        if (HasTestOrFixture)
+        {
+            StartStepInternal(name);
+        }
     }
 
     /// <summary>
-    /// Starts a new step. Requires the fixture, the test or the step context
-    /// to be active. Makes the step context active (if it wasn't).
+    /// Starts a new step.
     /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the step.</param>
     /// <param name="updateResults">
     /// The callback that is executed right after the step is started.
     /// </param>
     public static void StartStep(string name, Action<StepResult> updateResults)
     {
-        StartStep(name);
-        CurrentLifecycle.UpdateStep(updateResults);
+        if (HasTestOrFixture)
+        {
+            StartStepInternal(name);
+            CurrentLifecycle.UpdateStep(updateResults);
+        }
     }
 
     /// <summary>
-    /// Stops the current step making it passed. Requires the step context to
-    /// be active.
+    /// Makes the current step passed and stops it.
     /// </summary>
-    public static void PassStep() => CurrentLifecycle.StopStep(
-        result =>
+    /// <remarks>If no step is running, does nothing.</remarks>
+    public static void PassStep()
+    {
+        if (HasStep)
         {
-            result.status = Status.passed;
+            PassStepInternal();
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current step making it passed. Requires the step context to
-    /// be active.
+    /// Makes the current step passed and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="updateResults">
     /// The callback that is executed before the step is stopped.
     /// </param>
     public static void PassStep(Action<StepResult> updateResults)
     {
-        CurrentLifecycle.UpdateStep(updateResults);
-        PassStep();
+        if (HasStep)
+        {
+            CurrentLifecycle.UpdateStep(updateResults);
+            PassStepInternal();
+        }
     }
 
     /// <summary>
-    /// Stops the current step making it failed. Requires the step context to
-    /// be active.
+    /// Makes the current step failed and stops it.
     /// </summary>
-    public static void FailStep() => CurrentLifecycle.StopStep(
-        result =>
+    /// <remarks>If no step is running, does nothing.</remarks>
+    public static void FailStep()
+    {
+        if (HasStep)
         {
-            result.status = Status.failed;
+            FailStepInternal();
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current step making it failed. Requires the step context to
-    /// be active.
+    /// Makes the current step failed and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="updateResults">
     /// The callback that is executed before the step is stopped.
     /// </param>
     public static void FailStep(Action<StepResult> updateResults)
     {
-        CurrentLifecycle.UpdateStep(updateResults);
-        FailStep();
+        if (HasStep)
+        {
+            CurrentLifecycle.UpdateStep(updateResults);
+            FailStepInternal();
+        }
     }
 
     /// <summary>
-    /// Stops the current step making it failed. Requires the step context to
-    /// be active.
+    /// Makes the current step failed and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="error">The error to report at the step level.</param>
-    public static void FailStep(Exception error) => CurrentLifecycle.StopStep(
-        result =>
+    public static void FailStep(Exception error)
+    {
+        if (HasStep)
         {
-            result.status = Status.failed;
-            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+            FailStepInternal(error);
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current step making it failed. Requires the step context to
-    /// be active.
+    /// Makes the current step failed and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="updateResults">
     /// The callback that is executed before the step is stopped.
     /// </param>
@@ -359,51 +403,58 @@ public static class ExtendedApi
         Exception error
     )
     {
-        CurrentLifecycle.UpdateStep(updateResults);
-        FailStep(error);
+        if (HasStep)
+        {
+            CurrentLifecycle.UpdateStep(updateResults);
+            FailStepInternal(error);
+        }
     }
 
     /// <summary>
-    /// Stops the current step making it broken. Requires the step context to
-    /// be active.
+    /// Makes the current step broken and stops it.
     /// </summary>
-    public static void BreakStep() => CurrentLifecycle.StopStep(
-        result =>
+    /// <remarks>If no step is running, does nothing.</remarks>
+    public static void BreakStep()
+    {
+        if (HasStep)
         {
-            result.status = Status.broken;
+            BreakStepInternal();
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current step making it broken. Requires the step context to
-    /// be active.
+    /// Makes the current step broken and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="updateResults">
     /// The callback that is executed before the step is stopped.
     /// </param>
     public static void BreakStep(Action<StepResult> updateResults)
     {
-        CurrentLifecycle.UpdateStep(updateResults);
-        BreakStep();
+        if (HasStep)
+        {
+            CurrentLifecycle.UpdateStep(updateResults);
+            BreakStepInternal();
+        }
     }
 
     /// <summary>
-    /// Stops the current step making it broken. Requires the step context to
-    /// be active.
+    /// Makes the current step broken and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="error">The error to report at the step level.</param>
-    public static void BreakStep(Exception error) => CurrentLifecycle.StopStep(
-        result =>
+    public static void BreakStep(Exception error)
+    {
+        if (HasStep)
         {
-            result.status = Status.broken;
-            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+            BreakStepInternal(error);
         }
-    );
+    }
 
     /// <summary>
-    /// Stops the current step making it broken. Requires the step context to
-    /// be active.
+    /// Makes the current step broken and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="updateResults">
     /// The callback that is executed before the step is stopped.
     /// </param>
@@ -413,45 +464,60 @@ public static class ExtendedApi
         Exception error
     )
     {
-        CurrentLifecycle.UpdateStep(updateResults);
-        BreakStep(error);
+        if (HasStep)
+        {
+            CurrentLifecycle.UpdateStep(updateResults);
+            BreakStepInternal(error);
+        }
     }
 
     /// <summary>
-    /// Stops the current step making it skipped. Requires the step context to
-    /// be active.
+    /// Makes the current step skipped and stops it.
     /// </summary>
-    public static void SkipStep() => CurrentLifecycle.StopStep(
-        result => result.status = Status.skipped
-    );
+    /// <remarks>If no step is running, does nothing.</remarks>
+    public static void SkipStep()
+    {
+        if (HasStep)
+        {
+            SkipStepInternal();
+        }
+    }
 
     /// <summary>
-    /// Stops the current step making it skipped. Requires the step context to
-    /// be active.
+    /// Makes the current step skipped and stops it.
     /// </summary>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="updateResults">
     /// The callback that is executed before the step is stopped.
     /// </param>
-    public static void SkipStep(Action<StepResult> updateResults) =>
-        CurrentLifecycle.StopStep(result =>
+    public static void SkipStep(Action<StepResult> updateResults)
+    {
+        if (HasStep)
         {
-            updateResults(result);
-            result.status = Status.skipped;
-        });
+            CurrentLifecycle.UpdateStep(updateResults);
+            SkipStepInternal();
+        }
+    }
 
     /// <summary>
-    ///   Stops the current step making it passed, failed, or broken depending on
-    ///   the provided exception.
-    ///   Requires the step context to be active.
+    /// Resolves the status of the current step to passed, failed, or broken
+    /// depending on the exception and stops it.
     /// </summary>
+    /// <remarks>
+    /// If no step is running, does nothing.
+    /// </remarks>
     /// <param name="error">
-    ///   An exception instance. If it's null, the step is marked as passed.
-    ///   Otherwise, the step is marked as failed or broken depending on the
-    ///   exception's type and the configuration of the current lifecycle
-    ///   instance.
+    /// An exception instance. If it's <c>null</c>, the step becomes passed.
+    /// Otherwise, the step becomes failed or broken depending on the
+    /// exception's type and the current configuration.
     /// </param>
-    public static void ResolveStep(Exception? error) =>
-        ResolveItem(CurrentLifecycle.StopStep, error);
+    public static void ResolveStep(Exception? error)
+    {
+        if (HasStep)
+        {
+            ResolveStepInternal(error);
+        }
+    }
 
     #endregion
 
@@ -459,131 +525,147 @@ public static class ExtendedApi
 
     /// <summary>
     /// Executes the action and reports the result as a new setup fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the action.</remarks>
     /// <param name="name">The name of the setup fixture.</param>
     /// <param name="action">The code to run.</param>
-    public static void Before(string name, Action action) =>
-        Before(name, () =>
+    public static void Before(string name, Action action)
+    {
+        if (HasContainer)
+        {
+            BeforeInternal(name, () =>
+            {
+                action();
+                return null as object;
+            });
+        }
+        else
         {
             action();
-            return null as object;
-        });
+        }
+    }
 
     /// <summary>
     /// Executes the function and reports the result as a new setup fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the function.</remarks>
     /// <param name="name">The name of the setup fixture.</param>
     /// <param name="function">The function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static T Before<T>(string name, Func<T> function) =>
-        ExecuteFixture(name, StartBeforeFixture, function);
+        HasContainer ? BeforeInternal(name, function) : function();
 
     /// <summary>
     /// Executes the asynchronous action and reports the result as a new setup
     /// fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the action.</remarks>
     /// <param name="name">The name of the setup fixture.</param>
     /// <param name="action">The asynchronous code to run.</param>
-    public static async Task Before(string name, Func<Task> action) =>
-        await ExecuteFixtureAsync(name, StartBeforeFixture, async () =>
+    public static async Task Before(string name, Func<Task> action)
+    {
+        if (HasContainer)
+        {
+            await ExecuteFixtureAsync(
+                name,
+                StartBeforeFixtureInternal,
+                async () =>
+                {
+                    await action();
+                    return Task.FromResult<object?>(null);
+                }
+            );
+        }
+        else
         {
             await action();
-            return Task.FromResult<object?>(null);
-        });
+        }
+    }
 
     /// <summary>
     /// Executes the asynchronous function and reports the result as a new
     /// setup fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the function.</remarks>
     /// <param name="name">The name of the setup fixture.</param>
     /// <param name="function">The asynchronous function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static async Task<T> Before<T>(string name, Func<Task<T>> function) =>
-        await ExecuteFixtureAsync(name, StartBeforeFixture, function);
+        await (HasContainer ? ExecuteFixtureAsync(
+            name,
+            StartBeforeFixtureInternal,
+            function
+        ) : function());
 
     /// <summary>
     /// Executes the action and reports the result as a new teardown fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the action.</remarks>
     /// <param name="name">The name of the teardown fixture.</param>
     /// <param name="action">The code to run.</param>
-    public static void After(string name, Action action) =>
-        After(name, () =>
+    public static void After(string name, Action action)
+    {
+        if (HasContainer)
+        {
+            AfterInternal(name, () =>
+            {
+                action();
+                return null as object;
+            });
+        }
+        else
         {
             action();
-            return null as object;
-        });
+        }
+    }
 
     /// <summary>
     /// Executes the function and reports the result as a new teardown fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the function.</remarks>
     /// <param name="name">The name of the teardown fixture.</param>
     /// <param name="function">The function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static T After<T>(string name, Func<T> function) =>
-        ExecuteFixture(name, StartAfterFixture, function);
+        HasContainer ? AfterInternal(name, function) : function();
 
     /// <summary>
     /// Executes the asynchronous action and reports the result as a new
     /// teardown fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the action.</remarks>
     /// <param name="name">The name of the teardown fixture.</param>
     /// <param name="action">The asynchronous code to run.</param>
-    public static async Task After(string name, Func<Task> action) =>
-        await ExecuteFixtureAsync(name, StartAfterFixture, async () =>
+    public static async Task After(string name, Func<Task> action)
+    {
+        if (HasContainer)
+        {
+            await ExecuteFixtureAsync(name, StartAfterFixtureInternal, async () =>
+            {
+                await action();
+                return Task.FromResult<object?>(null);
+            });
+        }
+        else
         {
             await action();
-            return Task.FromResult<object?>(null);
-        });
+        }
+    }
 
     /// <summary>
     /// Executes the asynchronous function and reports the result as a new
     /// teardown fixture.
-    /// Requires the container context to be active.
     /// </summary>
-    /// <remarks>
-    /// Can't be called if the fixture context is already active.
-    /// The current step context (if any) is deactivated.
-    /// </remarks>
+    /// <remarks>If Allure is not running, just calls the function.</remarks>
     /// <param name="name">The name of the teardown fixture.</param>
     /// <param name="function">The asynchronous function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static async Task<T> After<T>(string name, Func<Task<T>> function) =>
-        await ExecuteFixtureAsync(name, StartAfterFixture, function);
+        await (HasContainer ? ExecuteFixtureAsync(
+            name,
+            StartAfterFixtureInternal,
+            function
+        ) : function());
 
     #endregion
 
@@ -592,6 +674,94 @@ public static class ExtendedApi
         get => CurrentLifecycle.AllureConfiguration.FailExceptions
             ?? Enumerable.Empty<string>();
     }
+
+    static void StartBeforeFixtureInternal(string name) =>
+        CurrentLifecycle.StartBeforeFixture(new() { name = name });
+
+    static void StartAfterFixtureInternal(string name) =>
+        CurrentLifecycle.StartAfterFixture(new() { name = name });
+
+    static void PassFixtureInternal() => CurrentLifecycle.StopFixture(result =>
+    {
+        result.status = Status.passed;
+    });
+
+    static void FailFixtureInternal() => CurrentLifecycle.StopFixture(result =>
+    {
+        result.status = Status.failed;
+    });
+
+    static void FailFixtureInternal(Exception error) =>
+        CurrentLifecycle.StopFixture(result =>
+        {
+            result.status = Status.failed;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        });
+
+    static void BreakFixtureInternal() => CurrentLifecycle.StopFixture(result =>
+    {
+        result.status = Status.broken;
+    });
+
+    static void BreakFixtureInternal(Exception error) =>
+        CurrentLifecycle.StopFixture(result =>
+        {
+            result.status = Status.broken;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        });
+
+    static void SkipFixtureInternal() => CurrentLifecycle.StopFixture(
+        result => result.status = Status.skipped
+    );
+
+    static void ResolveFixtureInternal(Exception? error) =>
+        ResolveItem(CurrentLifecycle.StopFixture, error);
+
+    static void StartStepInternal(string name) =>
+        CurrentLifecycle.StartStep(new() { name = name });
+
+    static void PassStepInternal() => CurrentLifecycle.StopStep(result =>
+    {
+        result.status = Status.passed;
+    });
+
+    static void FailStepInternal() =>
+        CurrentLifecycle.StopStep(result =>
+        {
+            result.status = Status.failed;
+        });
+
+    static void FailStepInternal(Exception error) =>
+        CurrentLifecycle.StopStep(result =>
+        {
+            result.status = Status.failed;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        });
+
+    static void BreakStepInternal() => CurrentLifecycle.StopStep(result =>
+    {
+        result.status = Status.broken;
+    });
+
+    static void BreakStepInternal(Exception error) =>
+        CurrentLifecycle.StopStep(result =>
+        {
+            result.status = Status.broken;
+            result.statusDetails = ModelFunctions.ToStatusDetails(error);
+        });
+
+    static void SkipStepInternal() => CurrentLifecycle.StopStep(
+        result => result.status = Status.skipped
+    );
+
+    static void ResolveStepInternal(Exception? error) =>
+        ResolveItem(CurrentLifecycle.StopStep, error);
+
+    static T BeforeInternal<T>(string name, Func<T> function) =>
+        ExecuteFixture(name, StartBeforeFixtureInternal, function);
+
+    static T AfterInternal<T>(string name, Func<T> function) =>
+        ExecuteFixture(name, StartAfterFixtureInternal, function);
 
     static T ExecuteFixture<T>(
         string name,
@@ -602,7 +772,7 @@ public static class ExtendedApi
             name,
             start,
             action,
-            resolve: ResolveFixture
+            resolve: ResolveFixtureInternal
         );
 
     static async Task<T> ExecuteFixtureAsync<T>(
@@ -613,7 +783,7 @@ public static class ExtendedApi
         await AllureApi.ExecuteActionAsync(
             () => startFixture(name),
             action,
-            resolve: ResolveFixture
+            resolve: ResolveFixtureInternal
         );
 
     static void ResolveItem(

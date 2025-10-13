@@ -29,62 +29,97 @@ public static class AllureApi
         set => lifecycleInstance = value;
     }
 
+    internal static bool HasTest => ExtendedApi.HasTest;
+    internal static bool HasFixture => ExtendedApi.HasFixture;
+    internal static bool HasStep => ExtendedApi.HasStep;
+    internal static bool HasTestOrFixture => ExtendedApi.HasTestOrFixture;
+
     #region Metadata
 
     /// <summary>
     /// Sets the name of the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="newName">The new name of the test.</param>
-    public static void SetTestName(string newName) =>
-        CurrentLifecycle.UpdateTestCase(t => t.name = newName);
+    public static void SetTestName(string newName)
+    {
+        if (HasTest)
+        {
+            CurrentLifecycle.UpdateTestCase(t => t.name = newName);
+        }
+    }
 
     /// <summary>
     /// Sets the name of the current fixture.
     /// </summary>
-    /// <remarks>Requires the fixture context to be active.</remarks>
+    /// <remarks>If no fixture is running, does nothing.</remarks>
     /// <param name="newName">The new name of the fixture.</param>
-    public static void SetFixtureName(string newName) =>
-        CurrentLifecycle.UpdateFixture(f => f.name = newName);
+    public static void SetFixtureName(string newName)
+    {
+        if (HasFixture)
+        {
+            CurrentLifecycle.UpdateFixture(f => f.name = newName);
+        }
+    }
 
     /// <summary>
     /// Sets the name of the current step.
     /// </summary>
-    /// <remarks>Requires the step context to be active.</remarks>
+    /// <remarks>If no step is running, does nothing.</remarks>
     /// <param name="newName">The new name of the step.</param>
-    public static void SetStepName(string newName) =>
-        CurrentLifecycle.UpdateStep(s => s.name = newName);
+    public static void SetStepName(string newName)
+    {
+        if (HasStep)
+        {
+            CurrentLifecycle.UpdateStep(s => s.name = newName);
+        }
+    }
 
     /// <summary>
     /// Sets the description of the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="description">The description of the test.</param>
-    public static void SetDescription(string description) =>
-        CurrentLifecycle.UpdateTestCase(tr => tr.description = description);
+    public static void SetDescription(string description)
+    {
+        if (HasTest)
+        {
+            CurrentLifecycle.UpdateTestCase(tr => tr.description = description);
+        }
+    }
 
     /// <summary>
     /// Sets the description of the current test. Allows HTML to be used.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="descriptionHtml">
     /// The description in the HTML format.
     /// </param>
-    public static void SetDescriptionHtml(string descriptionHtml) =>
-        CurrentLifecycle.UpdateTestCase(tr => tr.descriptionHtml = descriptionHtml);
+    public static void SetDescriptionHtml(string descriptionHtml)
+    {
+        if (HasTest)
+        {
+            CurrentLifecycle.UpdateTestCase(tr => tr.descriptionHtml = descriptionHtml);
+        }
+    }
 
     /// <summary>
     /// Adds new labels to the test's list of labels.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="labels">The labels to add.</param>
-    public static void AddLabels(params Label[] labels) =>
-        CurrentLifecycle.UpdateTestCase(tr => tr.labels.AddRange(labels));
+    public static void AddLabels(params Label[] labels)
+    {
+        if (HasTest)
+        {
+            CurrentLifecycle.UpdateTestCase(tr => tr.labels.AddRange(labels));
+        }
+    }
 
     /// <summary>
     /// Adds a new label to the current test result.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="name">The name of the label to add.</param>
     /// <param name="value">The value of the label to add.</param>
     public static void AddLabel(string name, string value) =>
@@ -93,44 +128,65 @@ public static class AllureApi
     /// <summary>
     /// Adds a label to the current test result.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="label">The new label of the test.</param>
-    public static void AddLabel(Label label) =>
-        CurrentLifecycle.UpdateTestCase(tr => tr.labels.Add(label));
+    public static void AddLabel(Label label)
+    {
+        if (HasTest)
+        {
+            CurrentLifecycle.UpdateTestCase(tr => tr.labels.Add(label));
+        }
+    }
 
     /// <summary>
     /// Sets the current test's severity.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="severity">The new severity level of the test.</param>
-    public static void SetSeverity(SeverityLevel severity) =>
-        SetLabel(
-            Label.Severity(severity)
-        );
+    public static void SetSeverity(SeverityLevel severity)
+    {
+        if (HasTest)
+        {
+            SetLabel(
+                Label.Severity(severity)
+            );
+        }
+    }
 
     /// <summary>
     /// Sets the current test's owner.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="owner">The new owner of the test.</param>
-    public static void SetOwner(string owner) =>
-        SetLabel(
-            Label.Owner(owner)
-        );
+    public static void SetOwner(string owner)
+    {
+        if (HasTest)
+        {
+            SetLabel(
+                Label.Owner(owner)
+            );
+        }
+    }
 
     /// <summary>
     /// Sets the current test's ID.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="allureId">The new ID of the test case.</param>
-    public static void SetAllureId(int allureId) =>
-        SetLabel(
-            Label.AllureId(allureId)
-        );
+    public static void SetAllureId(int allureId)
+    {
+        if (HasTest)
+        {
+            SetLabel(
+                Label.AllureId(allureId)
+            );
+        }
+    }
 
     /// <summary>
     /// Adds tags to the current test.
     /// </summary>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="tags">The new tags.</param>
     public static void AddTags(params string[] tags) =>
         AddLabels(
@@ -144,7 +200,7 @@ public static class AllureApi
     /// <summary>
     /// Adds an additional parent suite to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="parentSuite">The parent suite to be added.</param>
     public static void AddParentSuite(string parentSuite) =>
         AddLabel(
@@ -154,7 +210,7 @@ public static class AllureApi
     /// <summary>
     /// Adds an additional suite to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="suite">The suite to be added.</param>
     public static void AddSuite(string suite) =>
         AddLabel(
@@ -164,7 +220,7 @@ public static class AllureApi
     /// <summary>
     /// Adds an additional sub-suite to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="subSuite">The sub-suite to be added.</param>
     public static void AddSubSuite(string subSuite) =>
         AddLabel(
@@ -178,7 +234,7 @@ public static class AllureApi
     /// <summary>
     /// Adds an additional epic to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="epic">The epic to be added.</param>
     public static void AddEpic(string epic) =>
         AddLabel(
@@ -188,7 +244,7 @@ public static class AllureApi
     /// <summary>
     /// Adds an additional feature to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="feature">The feature to be added.</param>
     public static void AddFeature(string feature) =>
         AddLabel(
@@ -198,7 +254,7 @@ public static class AllureApi
     /// <summary>
     /// Adds an additional story to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="story">The story to be added.</param>
     public static void AddStory(string story) =>
         AddLabel(
@@ -212,7 +268,7 @@ public static class AllureApi
     /// <summary>
     /// Adds a new link to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="url">The address of the link.</param>
     public static void AddLink(string url) =>
         AddLinks(
@@ -222,7 +278,7 @@ public static class AllureApi
     /// <summary>
     /// Adds a new link to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="name">The display text of the link.</param>
     /// <param name="url">The address of the link.</param>
     public static void AddLink(string name, string url) =>
@@ -231,47 +287,9 @@ public static class AllureApi
         );
 
     /// <summary>
-    /// Adds a new issue link to the current test.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="url">The URL of the issue.</param>
-    public static void AddIssue(string url) =>
-        AddLinks(
-            new Link { type = LinkType.ISSUE, url = url }
-        );
-
-    /// <summary>
-    /// Adds a new issue link to the current test.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The display text of the issue link.</param>
-    /// <param name="url">The URL of the issue.</param>
-    public static void AddIssue(string name, string url) =>
-        AddLink(name, LinkType.ISSUE, url);
-
-    /// <summary>
-    /// Adds a new TMS item link to the current test.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="url">The URL of the TMS item.</param>
-    public static void AddTmsItem(string url) =>
-        AddLinks(
-            new Link { type = LinkType.TMS_ITEM, url = url }
-        );
-
-    /// <summary>
-    /// Adds a new TMS item link to the current test.
-    /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
-    /// <param name="name">The display text of the TMS item link.</param>
-    /// <param name="url">The URL of the TMS item.</param>
-    public static void AddTmsItem(string name, string url) =>
-        AddLink(name, LinkType.TMS_ITEM, url);
-
-    /// <summary>
     /// Adds a new link to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="name">The display text of the link.</param>
     /// <param name="type">
     /// The type of the link. Used when matching link patterns. Might also
@@ -286,22 +304,70 @@ public static class AllureApi
     /// <summary>
     /// Adds new links to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="links">The link instances to add.</param>
-    public static void AddLinks(params Link[] links) =>
-        CurrentLifecycle.UpdateTestCase(t => t.links.AddRange(links));
+    public static void AddLinks(params Link[] links)
+    {
+        if (HasTest)
+        {
+            CurrentLifecycle.UpdateTestCase(t => t.links.AddRange(links));
+        }
+    }
+
+    /// <summary>
+    /// Adds a new issue link to the current test.
+    /// </summary>
+    /// <remarks>If no test is running, does nothing.</remarks>
+    /// <param name="url">The URL of the issue.</param>
+    public static void AddIssue(string url) =>
+        AddLinks(
+            new Link { type = LinkType.ISSUE, url = url }
+        );
+
+    /// <summary>
+    /// Adds a new issue link to the current test.
+    /// </summary>
+    /// <remarks>If no test is running, does nothing.</remarks>
+    /// <param name="name">The display text of the issue link.</param>
+    /// <param name="url">The URL of the issue.</param>
+    public static void AddIssue(string name, string url) =>
+        AddLink(name, LinkType.ISSUE, url);
+
+    /// <summary>
+    /// Adds a new TMS item link to the current test.
+    /// </summary>
+    /// <remarks>If no test is running, does nothing.</remarks>
+    /// <param name="url">The URL of the TMS item.</param>
+    public static void AddTmsItem(string url) =>
+        AddLinks(
+            new Link { type = LinkType.TMS_ITEM, url = url }
+        );
+
+    /// <summary>
+    /// Adds a new TMS item link to the current test.
+    /// </summary>
+    /// <remarks>If no test is running, does nothing.</remarks>
+    /// <param name="name">The display text of the TMS item link.</param>
+    /// <param name="url">The URL of the TMS item.</param>
+    public static void AddTmsItem(string name, string url) =>
+        AddLink(name, LinkType.TMS_ITEM, url);
 
     #endregion
 
     #region Noop step
 
     /// <summary>
-    /// Adds an empty step to the current fixture, test or step. Requires one
-    /// of these contexts to be active.
+    /// Adds an empty step to the current fixture, test or step.
     /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the step.</param>
-    public static void Step(string name) =>
-        Step(name, () => { });
+    public static void Step(string name)
+    {
+        if (HasTestOrFixture)
+        {
+            Step(name, () => { });
+        }
+    }
 
     #endregion
 
@@ -309,64 +375,90 @@ public static class AllureApi
 
     /// <summary>
     /// Executes the action and reports the result as a new step of the current
-    /// fixture, test or step. Requires one of these contexts to be active.
+    /// fixture, test or step.
     /// </summary>
+    /// <remarks>
+    /// If no test or fixture is running, just calls the action.
+    /// </remarks>
     /// <param name="name">The name of the step.</param>
     /// <param name="action">The code to run.</param>
     public static void Step(string name, Action action)
     {
-        ExecuteStep(name, () =>
+        if (HasTestOrFixture)
+        {
+            ExecuteStep(name, () =>
+            {
+                action();
+                return null as object;
+            });
+        }
+        else
         {
             action();
-            return null as object;
-        });
+        }
     }
 
     /// <summary>
     /// Executes the function and reports the result as a new step of the
-    /// current fixture, test or step. Requires one of these contexts to be
-    /// active.
+    /// current fixture, test or step.
     /// </summary>
+    /// <remarks>
+    /// If no test or fixture is running, just calls the function and returns
+    /// its result.
+    /// </remarks>
     /// <param name="name">The name of the step.</param>
     /// <param name="function">The function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static T Step<T>(string name, Func<T> function) =>
-        ExecuteStep(name, function);
+        HasTestOrFixture ? ExecuteStep(name, function) : function();
 
     /// <summary>
     /// Executes the asynchronous action and reports the result as a new step
-    /// of the current fixture, test or step. Requires one of these contexts to
-    /// be active.
+    /// of the current fixture, test or step.
     /// </summary>
+    /// <remarks>
+    /// If no test or fixture is running, just awaits the action.
+    /// </remarks>
     /// <param name="name">The name of the step.</param>
     /// <param name="action">The asynchronous code to run.</param>
-    public static async Task Step(string name, Func<Task> action) =>
-        await ExecuteStepAsync(name, async () =>
+    public static async Task Step(string name, Func<Task> action)
+    {
+        if (HasTestOrFixture)
+        {
+            await ExecuteStepAsync(name, async () =>
+            {
+                await action();
+                return Task.FromResult<object?>(null);
+            });
+        }
+        else
         {
             await action();
-            return Task.FromResult<object?>(null);
-        });
+        }
+    }
 
     /// <summary>
     /// Executes the asynchronous function and reports the result as a new step
-    /// of the current fixture, test or step. Requires one of these contexts to
-    /// be active.
+    /// of the current fixture, test or step.
     /// </summary>
+    /// <remarks>
+    /// If no test or fixture is running, just awaits the function and returns
+    /// its result.
+    /// </remarks>
     /// <param name="name">The name of the step.</param>
     /// <param name="function">The asynchronous function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static async Task<T> Step<T>(string name, Func<Task<T>> function) =>
-        await ExecuteStepAsync(name, function);
+        await (HasTestOrFixture ? ExecuteStepAsync(name, function) : function());
 
     #endregion
 
     #region Attachments
 
-    // TODO: read file in background thread
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
-    /// Requires one of those contexts to be active.
     /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the attachment.</param>
     /// <param name="type">The MIME type of the attachment.</param>
     /// <param name="path">The path to the attached file.</param>
@@ -374,18 +466,23 @@ public static class AllureApi
         string name,
         string type,
         string path
-    ) =>
-        AddAttachment(
-            name: name,
-            type: type,
-            content: File.ReadAllBytes(path),
-            fileExtension: new FileInfo(path).Extension
-        );
+    )
+    {
+        if (HasTestOrFixture)
+        {
+            AddAttachmentInternal(
+                name: name ?? Path.GetFileName(path),
+                type: type,
+                content: File.ReadAllBytes(path),
+                fileExtension: Path.GetExtension(path)
+            );
+        }
+    }
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
-    /// Requires one of those contexts to be active.
     /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the attachment.</param>
     /// <param name="type">The MIME type of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
@@ -399,25 +496,16 @@ public static class AllureApi
         string fileExtension = ""
     )
     {
-        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
-        var uuid = IdFunctions.CreateUUID();
-        var source = $"{uuid}{suffix}{fileExtension}";
-        var attachment = new Attachment
+        if (HasTestOrFixture)
         {
-            name = name,
-            type = type,
-            source = source
-        };
-        CurrentLifecycle.Writer.Write(source, content);
-        CurrentLifecycle.UpdateExecutableItem(
-            item => item.attachments.Add(attachment)
-        );
+            AddAttachmentInternal(name, type, content, fileExtension);
+        }
     }
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
-    /// Requires one of those contexts to be active.
     /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">
     /// The name of the attachment. If null, the file name is used.
@@ -425,46 +513,54 @@ public static class AllureApi
     public static void AddAttachment(
         string path,
         string? name = null
-    ) =>
-        AddAttachment(
-            name: name ?? Path.GetFileName(path),
-            type: MimeTypesMap.GetMimeType(path),
-            path: path
-        );
+    )
+    {
+        if (HasTestOrFixture)
+        {
+            AddAttachmentInternal(
+                name: name ?? Path.GetFileName(path),
+                type: MimeTypesMap.GetMimeType(path),
+                content: File.ReadAllBytes(path),
+                fileExtension: Path.GetExtension(path)
+            );
+        }
+    }
 
     /// <summary>
-    /// Attaches screen diff images to the current test case.
+    /// Attaches screen diff images to the current fixture, test, or step.
     /// </summary>
-    /// <remarks>
-    /// Requires the test, the fixture, or the step context to be active.
-    /// </remarks>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="expectedPng">A path to the actual screen.</param>
     /// <param name="actualPng">A path to the expected screen.</param>
     /// <param name="diffPng">A path to the screen diff.</param>
-    /// <exception cref="InvalidOperationException"/>
     public static void AddScreenDiff(
         string expectedPng,
         string actualPng,
         string diffPng
-    ) =>
-        AddAttachment(
-            string.Format(
-                DIFF_NAME_PATTERN,
-                CurrentLifecycle.Context.CurrentStepContainer.attachments.Count(
-                    a => a.type == DIFF_MEDIA_TYPE
-                ) + 1
-            ),
-            DIFF_MEDIA_TYPE,
-            Encoding.UTF8.GetBytes(
-                JsonConvert.SerializeObject(new
-                {
-                    expected = ReadDiffEntry(expectedPng),
-                    actual = ReadDiffEntry(actualPng),
-                    diff = ReadDiffEntry(diffPng)
-                })
-            ),
-            ".json"
-        );
+    )
+    {
+        if (HasTestOrFixture)
+        {
+            AddAttachment(
+                string.Format(
+                    DIFF_NAME_PATTERN,
+                    CurrentLifecycle.Context.CurrentStepContainer.attachments.Count(
+                        a => a.type == DIFF_MEDIA_TYPE
+                    ) + 1
+                ),
+                DIFF_MEDIA_TYPE,
+                Encoding.UTF8.GetBytes(
+                    JsonConvert.SerializeObject(new
+                    {
+                        expected = ReadDiffEntry(expectedPng),
+                        actual = ReadDiffEntry(actualPng),
+                        diff = ReadDiffEntry(diffPng)
+                    })
+                ),
+                ".json"
+            );
+        }
+    }
 
     static string ReadDiffEntry(string fileName) =>
         DIFF_ENTRY_PREFIX + Convert.ToBase64String(
@@ -478,7 +574,7 @@ public static class AllureApi
     /// <summary>
     /// Adds a new parameter to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="name">The name of the new parameter.</param>
     /// <param name="value">
     /// The value of the new parameter. The value is converted to a string
@@ -487,17 +583,22 @@ public static class AllureApi
     /// <see cref="AllureLifecycle.AddTypeFormatter{T}(TypeFormatter{T})"/> to
     /// customize the serialization.
     /// </param>
-    public static void AddTestParameter(string name, object? value) =>
-        AddTestParameter(
-            name,
-            value,
-            false
-        );
+    public static void AddTestParameter(string name, object? value)
+    {
+        if (HasTest)
+        {
+            AddTestParameter(new()
+            {
+                name = name,
+                value = FormatParameterValue(value),
+            });
+        }
+    }
 
     /// <summary>
     /// Adds a new parameter to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="name">The name of the new parameter.</param>
     /// <param name="value">
     /// The value of the new parameter. The value is converted to a string
@@ -507,18 +608,23 @@ public static class AllureApi
     /// customize the serialization.
     /// </param>
     /// <param name="mode">The display mode of the new parameter.</param>
-    public static void AddTestParameter(string name, object? value, ParameterMode mode) =>
-        AddTestParameter(
-            name,
-            value,
-            mode,
-            false
-        );
+    public static void AddTestParameter(string name, object? value, ParameterMode mode)
+    {
+        if (HasTest)
+        {
+            AddTestParameter(new()
+            {
+                name = name,
+                value = FormatParameterValue(value),
+                mode = mode,
+            });
+        }
+    }
 
     /// <summary>
     /// Adds a new parameter to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="name">The name of the new parameter.</param>
     /// <param name="value">
     /// The value of the new parameter. The value is converted to a string
@@ -531,18 +637,23 @@ public static class AllureApi
     /// The exclusion flag of the new parameter. If set to true, the parameter
     /// doesn't affect the test's history.
     /// </param>
-    public static void AddTestParameter(string name, object? value, bool excluded) =>
-        AddTestParameter(new()
+    public static void AddTestParameter(string name, object? value, bool excluded)
+    {
+        if (HasTest)
         {
-            name = name,
-            value = FormatParameterValue(value),
-            excluded = excluded
-        });
+            AddTestParameterInternal(new()
+            {
+                name = name,
+                value = FormatParameterValue(value),
+                excluded = excluded
+            });
+        }
+    }
 
     /// <summary>
     /// Adds a new parameter to the current test.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="name">The name of the new parameter.</param>
     /// <param name="value">
     /// The value of the new parameter. The value is converted to a string
@@ -561,28 +672,43 @@ public static class AllureApi
         object? value,
         ParameterMode mode,
         bool excluded
-    ) =>
-        AddTestParameter(new()
+    )
+    {
+        if (HasTest)
         {
-            name = name,
-            value = FormatParameterValue(value),
-            mode = mode,
-            excluded = excluded
-        });
+            AddTestParameterInternal(new()
+            {
+                name = name,
+                value = FormatParameterValue(value),
+                mode = mode,
+                excluded = excluded
+            });
+        }
+    }
 
     /// <summary>
     /// Adds a new parameter to the current test. Use this overload if you
     /// want to manually control how the parameter's value should be displayed
     /// in the report.
     /// </summary>
-    /// <remarks>Requires the test context to be active.</remarks>
+    /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="parameter">
     /// A new parameter instance.
     /// </param>
-    public static void AddTestParameter(Parameter parameter) =>
+    public static void AddTestParameter(Parameter parameter)
+    {
+        if (HasTest)
+        {
+            AddTestParameterInternal(parameter);
+        }
+    }
+
+    static void AddTestParameterInternal(Parameter parameter)
+    {
         CurrentLifecycle.UpdateTestCase(
             t => t.parameters.Add(parameter)
         );
+    }
 
     #endregion
 
@@ -663,5 +789,28 @@ public static class AllureApi
             resolve(error);
         }
         return result;
+    }
+
+
+    static void AddAttachmentInternal(
+        string name,
+        string type,
+        byte[] content,
+        string fileExtension
+    )
+    {
+        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
+        var uuid = IdFunctions.CreateUUID();
+        var source = $"{uuid}{suffix}{fileExtension}";
+        var attachment = new Attachment
+        {
+            name = name,
+            type = type,
+            source = source
+        };
+        CurrentLifecycle.Writer.Write(source, content);
+        CurrentLifecycle.UpdateExecutableItem(
+            item => item.attachments.Add(attachment)
+        );
     }
 }
