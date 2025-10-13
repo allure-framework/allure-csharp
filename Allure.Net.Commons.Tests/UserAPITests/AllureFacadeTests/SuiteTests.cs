@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests;
+namespace Allure.Net.Commons.Tests.UserApiTests.AllureFacadeTests;
 class SuiteTests : AllureApiTestFixture
 {
     [Test]

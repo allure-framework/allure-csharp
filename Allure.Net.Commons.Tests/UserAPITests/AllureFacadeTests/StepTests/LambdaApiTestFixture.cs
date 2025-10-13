@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
+namespace Allure.Net.Commons.Tests.UserApiTests.AllureFacadeTests.StepTests;
 
 class LambdaApiTestFixture : AllureApiTestFixture
 {

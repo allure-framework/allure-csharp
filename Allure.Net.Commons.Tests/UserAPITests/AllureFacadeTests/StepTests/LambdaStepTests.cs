@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 #nullable enable
 
-namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
+namespace Allure.Net.Commons.Tests.UserApiTests.AllureFacadeTests.StepTests;
 
 class LambdaStepTests : LambdaApiTestFixture
 {

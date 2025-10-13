@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Allure.Net.Commons.Steps;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests.StepTests;
+namespace Allure.Net.Commons.Tests.UserApiTests.AllureFacadeTests.StepTests;
 class StepAspectHelperTests
 {
     class TargetClass

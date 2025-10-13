@@ -5,7 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.UserAPITests.AllureFacadeTests;
+namespace Allure.Net.Commons.Tests.UserApiTests.AllureFacadeTests;
 
 internal class AttachmentTests : AllureApiTestFixture
 {
