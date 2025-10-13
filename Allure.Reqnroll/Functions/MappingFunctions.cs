@@ -125,7 +125,7 @@ static class MappingFunctions
                 ".txt"
             ));
         }
-        
+
         var dataTable = stepInfo.Table;
         if (dataTable is not null)
         {
@@ -436,10 +436,11 @@ static class MappingFunctions
     static List<Label> InitializeTestLabels(
         FeatureInfo featureInfo,
         IEnumerable<Label>? scenarioLabels
-    ) =>
-        CreateDefaultLabels(featureInfo)
-            .Concat(scenarioLabels ?? Enumerable.Empty<Label>())
-            .ToList();
+    ) => [
+        .. CreateDefaultLabels(featureInfo),
+        .. ModelFunctions.EnumerateEnvironmentLabels(),
+        .. scenarioLabels ?? [],
+    ];
 
     static IEnumerable<Label> CreateDefaultLabels(FeatureInfo featureInfo)
     {
