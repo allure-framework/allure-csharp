@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace Allure.Net.Commons.Tests
 {
@@ -56,6 +57,23 @@ namespace Allure.Net.Commons.Tests
         {
             var json = @"{""allure"":{""indentOutput"": true}}";
             Assert.That(new AllureLifecycle(JObject.Parse(json)).AllureConfiguration.IndentOutput, Is.True);
+        }
+
+        [Test]
+        public void ShouldConfigureGlobalLabels()
+        {
+            var json = @"{""allure"":{""globalLabels"":{""foo"":""bar"",""baz"":""qux""}}}";
+
+            var config = new AllureLifecycle(JObject.Parse(json)).AllureConfiguration;
+
+            Assert.That(
+                config.GlobalLabels,
+                Is.EqualTo(new Dictionary<string, string>
+                {
+                    { "foo", "bar" },
+                    { "baz", "qux" },
+                })
+            );
         }
     }
 }

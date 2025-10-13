@@ -41,6 +41,13 @@
           "type": "boolean",
           "description": "If set to true, the output JSON files (*-result.json, *-container.json) will be indented to be more readable",
           "default": false
+        },
+        "globalLabels": {
+          "type": "object",
+          "description": "An object that defines the global labels, i.e., labels that are added to every test result produced during the test run. Empty values are ignored",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     }

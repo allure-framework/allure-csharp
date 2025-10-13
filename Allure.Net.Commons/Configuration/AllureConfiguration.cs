@@ -24,6 +24,7 @@ namespace Allure.Net.Commons.Configuration
         public List<string> FailExceptions { get; set; }
         public bool UseLegacyIds { get; set; } = false;
         public bool IndentOutput { get; set; } = false;
+        public Dictionary<string, string> GlobalLabels { get; set; } = [];
 
         public static AllureConfiguration ReadFromJObject(JObject jObject)
         {
