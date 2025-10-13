@@ -102,7 +102,7 @@ namespace Allure.NUnit.Core
                     Label.Thread(),
                     Label.Host(),
                     Label.Language(),
-                    Label.Framework("NUnit 3"),
+                    Label.Framework("NUnit"),
                     Label.Package(test.ClassName),
                     Label.TestMethod(test.MethodName),
                     Label.TestClass(
