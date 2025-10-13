@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 #nullable enable
 
@@ -106,6 +108,35 @@ public static class ModelFunctions
         }
     }
 
+    /// <summary>
+    /// Returns a sequence of labels defined by the environment variables in form
+    /// of <c>ALLURE_LABEL_&lt;name>=&lt;value></c>
+    /// </summary>
+    public static IEnumerable<Label> EnumerateEnvironmentLabels()
+    {
+        foreach (DictionaryEntry entry in GetEnvironmentVariables())
+        {
+            var key = entry.Key as string;
+            var value = entry.Value as string;
+            if (ShouldAddEnvVarAsLabel(key, value))
+            {
+                var name = key.Substring(ENV_LABEL_PATTERN.Length);
+                yield return new() { name = name, value = value };
+            }
+        }
+    }
+
+    static bool ShouldAddEnvVarAsLabel(
+        string? name,
+        string? value
+    ) =>
+        name is not null
+            && name.Length > ENV_LABEL_PATTERN.Length
+            && name.StartsWith(ENV_LABEL_PATTERN)
+            && !string.IsNullOrEmpty(value);
+
+    const string ENV_LABEL_PATTERN = "ALLURE_LABEL_";
+
     static bool IsSuiteLabel(Label label) => label.name switch
     {
         LabelName.PARENT_SUITE or LabelName.SUITE or LabelName.SUB_SUITE => true,
@@ -123,4 +154,18 @@ public static class ModelFunctions
             yield return intetrface.FullName;
         }
     }
+
+    #region For testing
+
+    static IDictionary GetEnvironmentVariables() =>
+        (GetEnvironmentVariablesBox.Value
+            ?? Environment.GetEnvironmentVariables).Invoke();
+
+    internal static void SetGetEnvironmentVariables(Func<IDictionary>? getEnvVars) =>
+        GetEnvironmentVariablesBox.Value = getEnvVars;
+
+    // To decouple from Environment.GetEnvironmentVariable
+    static AsyncLocal<Func<IDictionary>?> GetEnvironmentVariablesBox { get; set; } = new();
+
+    #endregion
 }
