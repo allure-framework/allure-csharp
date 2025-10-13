@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace Allure.SpecFlowPlugin.Tests
+namespace Allure.ReqnrollPlugin.Tests
 {
     [SetUpFixture]
     public class TestSetup
