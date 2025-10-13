@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
+using Allure.Net.Commons.Configuration;
 
 #nullable enable
 
@@ -127,6 +128,15 @@ public static class ModelFunctions
         }
     }
 
+    /// <summary>
+    /// Returns a sequence of labels defined by the <c>globalLabels</c>
+    /// configuration property.
+    /// </summary>
+    public static IEnumerable<Label> EnumerateGlobalLabels() =>
+        from kv in Config.GlobalLabels ?? []
+        where !string.IsNullOrEmpty(kv.Key) && !string.IsNullOrEmpty(kv.Value)
+        select new Label { name = kv.Key, value = kv.Value };
+
     static bool ShouldAddEnvVarAsLabel(
         [NotNullWhen(true)] string? name,
         [NotNullWhen(true)] string? value
@@ -165,8 +175,17 @@ public static class ModelFunctions
     internal static void SetGetEnvironmentVariables(Func<IDictionary>? getEnvVars) =>
         GetEnvironmentVariablesBox.Value = getEnvVars;
 
+    internal static AllureConfiguration Config
+    {
+        get => ConfigBox.Value ?? AllureLifecycle.Instance.AllureConfiguration;
+        set => ConfigBox.Value = value;
+    }
+
     // To decouple from Environment.GetEnvironmentVariable
     static AsyncLocal<Func<IDictionary>?> GetEnvironmentVariablesBox { get; set; } = new();
+
+    // To decouple from AllureLifecycle.Instance.AllureConfiguration
+    static AsyncLocal<AllureConfiguration?> ConfigBox { get; set; } = new();
 
     #endregion
 }
