@@ -95,8 +95,7 @@ We rely on Harmony (which in turn uses MonoMod.Core) to:
 1. Report arguments of theories in case they aren't reported by xUnit.net itself.
 2. Implement selectie run (test plans).
 
-Those features are unavailable on ARM64 due to limitations of MonoMod.Core.
-Additionally, they might not work in some other rare circumstances.
+Those features might not work in some rare circumstances, especially when testing the `Release` configuration. If you're affected, try switching to `Debug` as a workaround.
 
 Issue [#369] contains some additional details.
 
