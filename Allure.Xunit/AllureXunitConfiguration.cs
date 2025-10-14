@@ -11,7 +11,15 @@ namespace Allure.Xunit
 {
     internal class AllureXunitConfiguration : AllureConfiguration
     {
+        const string KNOWN_TOOL_REQNROLL = "Reqnroll";
+        const string KNOWN_TOOL_SPECFLOW = "TechTalk.SpecFlow";
+
         public string XunitRunnerReporter { get; set; } = "auto";
+
+        public List<string> FirstClassIntegrationTools { get; set; } = [
+            KNOWN_TOOL_REQNROLL,
+            KNOWN_TOOL_SPECFLOW,
+        ];
 
         [JsonConstructor]
         protected AllureXunitConfiguration(

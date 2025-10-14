@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using Allure.Net.Commons;
@@ -15,6 +16,17 @@ namespace Allure.Xunit
     {
         internal const string NS_OBSOLETE_MSG =
             "The Allure.XUnit namespace is deprecated. Please, use Allure.Xunit instead";
+
+        /// <summary>
+        /// Returns <c>true</c> if the test is likely reported by another Allure
+        /// integration like Allure.Reqnroll.
+        /// </summary>
+        internal static bool IsOnExternalAuthority(ITest test) =>
+            test.TestCase.TestMethod.TestClass.Class
+                .GetCustomAttributes(typeof(GeneratedCodeAttribute))
+                .Select(a => a.GetNamedArgument<string>(nameof(GeneratedCodeAttribute.Tool)))
+                .Where(v => !string.IsNullOrEmpty(v))
+                .Any(AllureXunitConfiguration.CurrentConfig.FirstClassIntegrationTools.Contains!);
 
         internal static TestResultContainer StartNewAllureContainer(
             string className
@@ -108,7 +120,7 @@ namespace Allure.Xunit
             var className =
                 string.IsNullOrEmpty(@namespace)
                     ? testClass.Name
-                    : testClass.Name?.Substring(@namespace.Length + 1);
+                    : testClass.Name?.Substring(@namespace!.Length + 1);
 
             AllureLifecycle.Instance.UpdateTestCase(
                 testResult => ModelFunctions.EnsureSuites(

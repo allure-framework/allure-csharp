@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using Allure.Net.Commons;
 using Allure.Net.Commons.TestPlan;
@@ -73,6 +72,12 @@ namespace Allure.Xunit
         {
             var message = args.Message;
             var test = message.Test;
+
+            if (AllureXunitHelper.IsOnExternalAuthority(args.Message.Test))
+            {
+                return;
+            }
+
             var testData = this.GetOrCreateTestData(test);
 
             if (testData.IsSelected)
@@ -100,7 +105,12 @@ namespace Allure.Xunit
         {
             var message = args.Message;
             var test = message.Test;
-            
+
+            if (AllureXunitHelper.IsOnExternalAuthority(test))
+            {
+                return;
+            }
+
             if (!IsStaticTestMethod(message))
             {
                 var testResult = this.GetOrCreateTestData(test).TestResult;
@@ -109,22 +119,46 @@ namespace Allure.Xunit
             }
         }
 
-        void OnTestFailed(MessageHandlerArgs<ITestFailed> args) =>
+        void OnTestFailed(MessageHandlerArgs<ITestFailed> args)
+        {
+            var test = args.Message.Test;
+
+            if (AllureXunitHelper.IsOnExternalAuthority(test))
+            {
+                return;
+            }
+
             this.RunInTestContext(
-                args.Message.Test,
+                test,
                 () => AllureXunitHelper.ApplyTestFailure(args.Message)
             );
+        }
 
-        void OnTestPassed(MessageHandlerArgs<ITestPassed> args) =>
+        void OnTestPassed(MessageHandlerArgs<ITestPassed> args)
+        {
+            var test = args.Message.Test;
+
+            if (AllureXunitHelper.IsOnExternalAuthority(test))
+            {
+                return;
+            }
+
             this.RunInTestContext(
-                args.Message.Test,
+                test,
                 () => AllureXunitHelper.ApplyTestSuccess(args.Message)
             );
+        }
 
         void OnTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
             var message = args.Message;
             var test = message.Test;
+
+            if (AllureXunitHelper.IsOnExternalAuthority(test))
+            {
+                return;
+            }
+
             var testData = this.GetOrCreateTestData(test);
             if (testData.IsSelected)
             {
@@ -146,6 +180,12 @@ namespace Allure.Xunit
         {
             var message = args.Message;
             var test = args.Message.Test;
+
+            if (AllureXunitHelper.IsOnExternalAuthority(test))
+            {
+                return;
+            }
+
             var testData = this.GetOrCreateTestData(test);
 
             if (testData.IsSelected)

@@ -26,6 +26,15 @@
               "description": "The runner switch or the assembly qualified class name of a runner reporter."
             }
           ]
+        },
+        "firstClassIntegrationTools": {
+          "description": "A list of tools that generate xUnit.net tests and have a tool-specific Allure integration enabled in the project. Allure.Xunit will ignore such tests. The test classes produced by the tools must be marked with `[System.CodeDom.Compiler.GeneratedCodeAttribute]` that mentions the tool as the first argument for this feature to work. The default list includes \"Reqnroll\" and \"TechTalk.SpecFlow\".",
+          "default": ["Reqnroll", "TechTalk.SpecFlow"],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "The name of a tool, i.e., the first argument of `[System.CodeDom.Compiler.GeneratedCodeAttribute]` applied by the tool to generated xUnit.net test classes."
+          }
         }
       }
     }

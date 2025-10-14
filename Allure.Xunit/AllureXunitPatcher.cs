@@ -97,12 +97,24 @@ internal static class AllureXunitPatcher
 
     private static void OnTestRunnerCreating(ITest test, ref string skipReason)
     {
+        if (AllureXunitHelper.IsOnExternalAuthority(test))
+        {
+            return;
+        }
+
         if (!CurrentSink.SelectByTestPlan(test))
         {
             skipReason = AllureTestPlan.SkipReason;
         }
     }
 
-    private static void OnTestRunnerCreated(ITest test, object[] testMethodArguments) =>
+    private static void OnTestRunnerCreated(ITest test, object[] testMethodArguments)
+    {
+        if (AllureXunitHelper.IsOnExternalAuthority(test))
+        {
+            return;
+        }
+
         CurrentSink.OnTestArgumentsCreated(test, testMethodArguments);
+    }
 }
