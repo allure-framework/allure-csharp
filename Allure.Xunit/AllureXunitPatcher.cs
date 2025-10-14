@@ -32,9 +32,6 @@ internal static class AllureXunitPatcher
     {
         if (_isPatched)
         {
-            _logger.LogMessage(
-                "Patching is skipped: Xunit is already patched"
-            );
             return;
         }
 
