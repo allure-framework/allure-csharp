@@ -11,6 +11,7 @@ namespace Allure.Xunit
 {
     static class AllureXunitFacade
     {
+        internal const string LOG_SOURCE = "Allure.Xunit";
         static readonly Regex REPORTER_ASSEMBLY_PATTERN = new(@".*reporters.*");
         static bool isEnabled = false;
 
@@ -29,7 +30,7 @@ namespace Allure.Xunit
             if (!isEnabled)
             {
                 isEnabled = true;
-                logger.LogImportantMessage(startupMessage);
+                logger.LogImportantMessage("{0}: {1}", LOG_SOURCE, startupMessage);
             }
 
             return sink;

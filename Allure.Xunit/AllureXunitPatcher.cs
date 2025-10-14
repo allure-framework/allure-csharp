@@ -21,7 +21,10 @@ internal static class AllureXunitPatcher
 
             if (sink is null)
             {
-                _logger.LogWarning("Unable to get current message sink.");
+                _logger.LogWarning(
+                    "{0}: Unable to get current message sink.",
+                    AllureXunitFacade.LOG_SOURCE
+                );
             }
 
             return sink;
@@ -66,7 +69,8 @@ internal static class AllureXunitPatcher
                 wasPatched = true;
 
                 _logger.LogImportantMessage(
-                    "{0}'s {1} has been patched",
+                    "{0}: {1}'s {2} has been patched",
+                    AllureXunitFacade.LOG_SOURCE,
                     testRunnerType.Name,
                     ctor.ToString()
                 );
@@ -74,7 +78,8 @@ internal static class AllureXunitPatcher
             catch (Exception e)
             {
                 _logger.LogWarning(
-                    "Unable to patch {0}'s {1}: {2}",
+                    "{0}: Unable to patch {1}'s {2}: {3}",
+                    AllureXunitFacade.LOG_SOURCE,
                     testRunnerType.Name,
                     ctor.ToString(),
                     e.ToString()
@@ -85,8 +90,9 @@ internal static class AllureXunitPatcher
         if (!wasPatched)
         {
             _logger.LogWarning(
-                "No constructors of {0} were patched. Some theories may " +
+                "{0}: No constructors of {1} were patched. Some theories may " +
                 "miss their parameters in the report",
+                AllureXunitFacade.LOG_SOURCE,
                 testRunnerType.Name
             );
         }

@@ -137,11 +137,14 @@ dotnet test -s <path-to-runsettings> <test-project-name>
 Check the test logs. If Allure.Xunit has run, the following entry should exist:
 
 ```
-[xUnit.net 00:00:00.53] Allure reporter enabled
+[xUnit.net 00:00:00.53] Allure.Xunit: Allure reporter enabled
 ```
 
-> You might need to increase the verbosity level with `--verbosity=detailed` to
-> see xUnit.net's logs.
+> If you don't see xUnit.net logs, try increasing the verbosity level to `normal` or `detailed`:
+>
+> ```
+> dotnet test --logger 'console;verbosity=normal'
+> ```
 
 ### How to run Allure.Xunit together with another reporter?
 
