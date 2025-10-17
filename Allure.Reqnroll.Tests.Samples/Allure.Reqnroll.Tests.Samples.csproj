@@ -14,7 +14,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
-        <PackageReference Include="Castle.Core" Version="5.1.1" />
+        <PackageReference Include="Castle.Core" Version="5.2.1" />
         <PackageReference Include="Reqnroll" Version="3.1.2" />
         <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="3.1.2" />
         <PackageReference Include="Reqnroll.xUnit" Version="3.1.2" />
