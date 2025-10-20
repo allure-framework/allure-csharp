@@ -14,7 +14,7 @@
         <None Include="README.md" Pack="true" PackagePath="\" />
         <None Include="./../img/Allure-Color.png" Pack="true" PackagePath="\" />
         <Content Include="allureConfig.Template.json" Pack="true" />
-        <PackageReference Include="AspectInjector" Version="2.9.0" />
+        <PackageReference Include="AspectInjector" Version="2.8.1" />
         <PackageReference Include="MimeTypesMap" Version="1.0.9" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />

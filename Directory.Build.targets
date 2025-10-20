@@ -61,7 +61,7 @@
     </Target>
 
     <Target Name="Allure_SetAssemblyTimestampAfterAspectInjection"
-            AfterTargets="AspectInjector_InjectAspects"
+            AfterTargets="AspectInjector_InjectAspects;InjectAspects"
             BeforeTargets="Allure_UpdateStrongNameSignatures">
         <PropertyGroup>
             <Allure_AssemblyTimestampAfterAspectInjection>%(IntermediateAssembly.ModifiedTime)</Allure_AssemblyTimestampAfterAspectInjection>
@@ -81,12 +81,36 @@
                 And Exists('$(AssemblyOriginatorKeyFile)')
                 And Exists('$(Allure_SnExePath)')
                 And '$(Allure_AssemblyTimestampBeforeAspectInjection)' != '$(Allure_AssemblyTimestampAfterAspectInjection)'"
-            AfterTargets="AspectInjector_InjectAspects"
+            AfterTargets="AspectInjector_InjectAspects;InjectAspects"
             BeforeTargets="_TimeStampAfterCompile;AfterCompile">
         <Exec   UseUtf8Encoding="Always"
                 StdOutEncoding="UTF-8"
                 StdErrEncoding="UTF-8"
                 Command="&quot;$(Allure_SnExePath)&quot; -Ra &quot;%(IntermediateAssembly.FullPath)&quot; &quot;$(AssemblyOriginatorKeyFile)&quot;"
         />
+    </Target>
+
+    <!-- A hacky way to skip AspectInjector's own re-signing logic,
+     which doesn't work on Linux/Mac (unless there is an sn binary in PATH).
+     It's not relevant for AspectInjector 2.9.0+ and should be removed as
+     soon as we upgrade. -->
+
+    <Target Name="Allure_DisableAspectInjector"
+            BeforeTargets="_ASI_ResignAssembly"
+            AfterTargets="_ASI_InjectAspectsCore"
+            Condition=" '$(_InjectionNeeded)' == 'true' ">
+        <PropertyGroup>
+            <Allure_ShouldEnableAspectInjector>true</Allure_ShouldEnableAspectInjector>
+            <_InjectionNeeded>false</_InjectionNeeded>
+        </PropertyGroup>
+    </Target>
+
+    <Target Name="Allure_EnableAspectInjector"
+            BeforeTargets="_ASI_TouchTimestampFile"
+            AfterTargets="_ASI_ResignAssembly"
+            Condition=" '$(Allure_ShouldEnableAspectInjector)' == 'true' ">
+        <PropertyGroup>
+            <_InjectionNeeded>true</_InjectionNeeded>
+        </PropertyGroup>
     </Target>
 </Project>

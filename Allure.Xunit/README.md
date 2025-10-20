@@ -88,6 +88,18 @@ You should uninstall it and use attributes from the
 
 ## Known issues and limitations
 
+### Rosetta is required for users on Mac with Apple silicon
+
+If you're developing on a Mac machine with Apple silicon, make sure you have
+Rosetta installed. Follow this article for the instructions:
+https://support.apple.com/en-us/HT211861
+
+You may also install Rosetta via the CLI:
+
+```shell
+/usr/sbin/softwareupdate --install-rosetta --agree-to-license
+```
+
 ### MonoMod.Core issues
 
 We rely on Harmony (which in turn uses MonoMod.Core) to:
