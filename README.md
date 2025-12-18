@@ -1,6 +1,6 @@
 # Allure C# Integrations
 
-[![Build](https://github.com/allure-framework/allure-csharp/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/allure-framework/allure-csharp/actions/workflows/build.yml)
+[![Build](https://github.com/allure-framework/allure-csharp/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/allure-framework/allure-csharp/actions/workflows/test.yml)
 
 > This repository contains adapters for C# test frameworks.
 

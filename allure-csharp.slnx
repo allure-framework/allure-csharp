@@ -13,7 +13,7 @@
     <File Path=".github/release.yml" />
   </Folder>
   <Folder Name="/.github/workflows/">
-    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/test.yml" />
     <File Path=".github/workflows/labeler.yml" />
     <File Path=".github/workflows/labels-verify.yml" />
     <File Path=".github/workflows/publish.yml" />
