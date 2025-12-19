@@ -1,0 +1,83 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Publish" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="/.github/">
+    <File Path=".github/CONTRIBUTING.md" />
+    <File Path=".github/dependabot.yml" />
+    <File Path=".github/ISSUE_TEMPLATE.md" />
+    <File Path=".github/labeler.yml" />
+    <File Path=".github/PULL_REQUEST_TEMPLATE.md" />
+    <File Path=".github/release.yml" />
+  </Folder>
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/labeler.yml" />
+    <File Path=".github/workflows/labels-verify.yml" />
+    <File Path=".github/workflows/publish.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
+  <Folder Name="/allure-nunit/">
+    <Project Path="Allure.NUnit.Examples/Allure.NUnit.Examples.csproj">
+      <BuildType Solution="Publish|*" Project="Debug" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="Allure.NUnit/Allure.NUnit.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/allure-xunit/">
+    <Project Path="Allure.Xunit.Examples/Allure.Xunit.Examples.csproj">
+      <BuildType Solution="Publish|*" Project="Debug" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="Allure.Xunit/Allure.Xunit.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/commons/">
+    <Project Path="Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj">
+      <BuildType Solution="Publish|*" Project="Debug" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="Allure.Net.Commons/Allure.Net.Commons.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/reqnroll/">
+    <Project Path="Allure.Reqnroll.Tests.Samples/Allure.Reqnroll.Tests.Samples.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="Allure.Reqnroll.Tests/Allure.Reqnroll.Tests.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="Allure.Reqnroll/Allure.Reqnroll.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="AUTHORS" />
+    <File Path="CODE_OF_CONDUCT.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/specflow/">
+    <Project Path="Allure.SpecFlow.Tests.Samples/Allure.SpecFlow.Tests.Samples.csproj">
+      <BuildType Solution="Publish|*" Project="Debug" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="Allure.SpecFlow.Tests/Allure.SpecFlow.Tests.csproj">
+      <BuildType Solution="Publish|*" Project="Debug" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="Allure.SpecFlow/Allure.SpecFlow.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
+  </Folder>
+</Solution>
