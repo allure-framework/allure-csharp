@@ -113,4 +113,10 @@
             <_InjectionNeeded>true</_InjectionNeeded>
         </PropertyGroup>
     </Target>
+
+    <!-- Remove Allure result files as they keep aggregating each test run -->
+    <Target Name="Allure_CleanAllureResults"
+            BeforeTargets="Clean">
+        <RemoveDir Directories="$([System.IO.Path]::Combine($(TargetDir), 'allure-results'))" />
+    </Target>
 </Project>
