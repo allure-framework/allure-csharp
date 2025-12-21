@@ -7,10 +7,16 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
-    <!-- Common projects' properties -->
+    <!-- Build properties -->
     <PropertyGroup>
         <LangVersion>12</LangVersion>
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+        <ArtifactsPath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'artifacts'))</ArtifactsPath>
+    </PropertyGroup>
+
+    <!-- Packaging properties -->
+    <PropertyGroup>
         <IsPackable>false</IsPackable>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>

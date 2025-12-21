@@ -3,7 +3,7 @@ name: Publish
 env:
   SOLUTION_PATH: allure-csharp.slnx
   BUILD_CONFIGURATION: 'Publish'
-  PACKAGE_OUTPUT_PATH: 'artifacts'
+  PACKAGE_OUTPUT_PATH: './artifacts/package/release'
 
 on:
   release:
@@ -55,7 +55,7 @@ jobs:
         shell: pwsh
         run: |
           $SnExe = "${{ steps.find-snexe.outputs.path }}"
-          Get-ChildItem "./*/bin/*/*/Allure.*.dll" -Exclude "Allure.SpecFlow*","Allure.Xunit*" | ForEach-Object {
+          Get-ChildItem "./artifacts/bin/*/*/Allure.*.dll" -Exclude "Allure.SpecFlow*","Allure.Xunit*" | ForEach-Object {
             & $SnExe -vf $_.FullName
           }
 
@@ -66,13 +66,12 @@ jobs:
             --no-restore `
             --no-build `
             --configuration ${{ env.BUILD_CONFIGURATION }} `
-            "-p:PackageReleaseNotes=${{ github.event.release.html_url }}" `
-            "-p:PackageOutputPath=${{ github.workspace }}/${{ env.PACKAGE_OUTPUT_PATH }}"
+            "-p:PackageReleaseNotes=${{ github.event.release.html_url }}"
 
       - name: 'NuGet publish'
         shell: pwsh
         run: |
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}\*.nupkg" `
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" `
             --api-key "$Env:NUGET_TOKEN" `
             --source "https://api.nuget.org/v3/index.json"
         env:

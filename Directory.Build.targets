@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <Allure_TransformReadmeSource>$(MSBuildThisFileDirectory)build\TransformReadmeForNuget.cs</Allure_TransformReadmeSource>
+        <Allure_TransformReadmeSource>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'build', 'TransformReadmeForNuget.cs'))</Allure_TransformReadmeSource>
     </PropertyGroup>
     <ItemGroup>
         <NuGetPackInput Include="$(Allure_TransformReadmeSource)" />
@@ -35,7 +35,7 @@
             Inputs="@(NuGetPackInput)" Outputs="@(NuGetPackOutput)">
         <Allure_TransformReadmeForNuget
             InputReadmePath="README.md"
-            OutputDirPath="$(IntermediateOutputPath)">
+            OutputDirPath="$(BaseIntermediateOutputPath)">
             <Output TaskParameter="GeneratedReadmePath"
                 PropertyName="Allure_NugetTransformedReadmePath" />
         </Allure_TransformReadmeForNuget>
