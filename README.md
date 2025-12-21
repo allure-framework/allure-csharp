@@ -19,13 +19,13 @@
 
 | Package                            |             Documentation                                                          |                     Author                     |                                                   Release                                                   |
 |:-----------------------------------|:-----------------------------------------------------------------------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------------------------------:|
-| [Allure.NUnit](Allure.NUnit)       | [https://allurereport.org/docs/nunit/](https://allurereport.org/docs/nunit/)       | [Nick Chursin](https://github.com/unickq)      | [![Nuget](https://img.shields.io/nuget/v/Allure.NUnit)](https://www.nuget.org/packages/Allure.NUnit/)       |
-| [Allure.Reqnroll](Allure.Reqnroll) | [https://allurereport.org/docs/reqnroll/](https://allurereport.org/docs/reqnroll/) | Maksim Stepanov                                | [![Nuget](https://img.shields.io/nuget/v/Allure.Reqnroll)](https://www.nuget.org/packages/Allure.Reqnroll/) |
-| [Allure.SpecFlow](Allure.SpecFlow) | [https://allurereport.org/docs/specflow/](https://allurereport.org/docs/specflow/) | Alexander Bakanov                              | [![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow)](https://www.nuget.org/packages/Allure.SpecFlow/) |
-| [Allure.Xunit](Allure.Xunit)       | [https://allurereport.org/docs/xunit/](https://allurereport.org/docs/xunit/)       | [Shumakov Ivan](https://github.com/IvanWR1995) | [![Nuget](https://img.shields.io/nuget/v/Allure.Xunit)](https://www.nuget.org/packages/Allure.Xunit/)       |
+| [Allure.NUnit](./src/Allure.NUnit)       | [https://allurereport.org/docs/nunit/](https://allurereport.org/docs/nunit/)       | [Nick Chursin](https://github.com/unickq)      | [![Nuget](https://img.shields.io/nuget/v/Allure.NUnit)](https://www.nuget.org/packages/Allure.NUnit/)       |
+| [Allure.Reqnroll](./src/Allure.Reqnroll) | [https://allurereport.org/docs/reqnroll/](https://allurereport.org/docs/reqnroll/) | Maksim Stepanov                                | [![Nuget](https://img.shields.io/nuget/v/Allure.Reqnroll)](https://www.nuget.org/packages/Allure.Reqnroll/) |
+| [Allure.SpecFlow](./src/Allure.SpecFlow) | [https://allurereport.org/docs/specflow/](https://allurereport.org/docs/specflow/) | Alexander Bakanov                              | [![Nuget](https://img.shields.io/nuget/v/Allure.SpecFlow)](https://www.nuget.org/packages/Allure.SpecFlow/) |
+| [Allure.Xunit](./src/Allure.Xunit)       | [https://allurereport.org/docs/xunit/](https://allurereport.org/docs/xunit/)       | [Shumakov Ivan](https://github.com/IvanWR1995) | [![Nuget](https://img.shields.io/nuget/v/Allure.Xunit)](https://www.nuget.org/packages/Allure.Xunit/)       |
 
 ## Allure.Net.Commons
 
 [![](http://img.shields.io/nuget/v/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
 
-Use [this library](Allure.Net.Commons) to create custom Allure adapters for .Net test frameworks.
+Use [this library](./src/Allure.Net.Commons) to create custom Allure adapters for .Net test frameworks.

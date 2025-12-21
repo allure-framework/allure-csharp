@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>Allure.Xunit</PackageId>
+        <AssemblyName>Allure.Xunit.reporters</AssemblyName>
+        <RootNamespace>Allure.Xunit</RootNamespace>
+        <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
+        <IsPackable>true</IsPackable>
+        <Authors>Shumakov Ivan</Authors>
+        <Description>Create beautiful reports from your xUnit.net tests.</Description>
+        <PackageIcon>Allure-X-Color.png</PackageIcon>
+        <PackageTags>$(PackageTags) xunit</PackageTags>
+        <SignAssembly>false</SignAssembly>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../img/Allure-X-Color.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Lib.Harmony" Version="2.4.2" />
+        <PackageReference Include="xunit.runner.utility" Version="2.6.6" />
+        <PackageReference Include="xunit.assert" Version="2.6.6" />
+        <PackageReference Include="xunit.core" Version="2.6.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
+    </ItemGroup>
+
+</Project>

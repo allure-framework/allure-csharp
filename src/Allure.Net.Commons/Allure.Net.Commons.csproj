@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsPackable>true</IsPackable>
+        <Authors>Alexander Bakanov, Nikolay Laptev, Maksim Stepanov</Authors>
+        <Description>Provides common facilities to build Allure adapters for .NET test frameworks.</Description>
+        <PackageIcon>Allure-Color.png</PackageIcon>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../img/Allure-Color.png" Pack="true" PackagePath="\" />
+        <Content Include="allureConfig.Template.json" Pack="true" />
+        <PackageReference Include="AspectInjector" Version="2.8.1" />
+        <PackageReference Include="MimeTypesMap" Version="1.0.9" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    </ItemGroup>
+
+</Project>

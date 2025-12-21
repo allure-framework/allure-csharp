@@ -5,39 +5,41 @@
 "theme:build":
   - changed-files:
     - any-glob-to-any-file:
-      - "*.sln"
+      - "*.slnx"
       - "**/*.csproj"
-      - "Directory.Build.props"
+      - "**/Directory.Build.props"
+      - "**/Directory.Build.targets"
+      - "build/**/*"
       - ".gitignore"
 
 "theme:core":
   - changed-files:
     - any-glob-to-any-file:
-      - "Allure.Net.Commons/**"
-      - "Allure.Net.Commons.Tests/**"
+      - "src/Allure.Net.Commons/**"
+      - "tests/Allure.Net.Commons.Tests/**"
 
 "theme:xunit":
   - changed-files:
     - any-glob-to-any-file:
-      - "Allure.Xunit/**"
-      - "Allure.Xunit.Examples/**"
+      - "src/Allure.Xunit/**"
+      - "examples/Allure.Xunit.Examples/**"
 
 "theme:nunit":
   - changed-files:
     - any-glob-to-any-file:
-      - "Allure.NUnit/**"
-      - "Allure.NUnit.Examples/**"
+      - "src/Allure.NUnit/**"
+      - "examples/Allure.NUnit.Examples/**"
 
 "theme:specflow":
   - changed-files:
     - any-glob-to-any-file:
-      - "Allure.SpecFlow/**"
-      - "Allure.SpecFlow.Tests/**"
-      - "Allure.SpecFlow.Tests.Samples/**"
+      - "src/Allure.SpecFlow/**"
+      - "tests/Allure.SpecFlow.Tests/**"
+      - "tests/Allure.SpecFlow.Tests.Samples/**"
 
 "theme:reqnroll":
   - changed-files:
     - any-glob-to-any-file:
-      - "Allure.Reqnroll/**"
-      - "Allure.Reqnroll.Tests/**"
-      - "Allure.Reqnroll.Tests.Samples/**"
+      - "src/Allure.Reqnroll/**"
+      - "tests/Allure.Reqnroll.Tests/**"
+      - "tests/Allure.Reqnroll.Tests.Samples/**"
