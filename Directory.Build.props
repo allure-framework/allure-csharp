@@ -1,5 +1,5 @@
 <Project>
-    <!-- Metadata -->
+    <!-- Common metadata -->
     <PropertyGroup>
         <Version>2.15-SNAPSHOT</Version>
         <Company>Qameta Software</Company>
@@ -7,7 +7,7 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
-    <!-- Build properties -->
+    <!-- Common build properties -->
     <PropertyGroup>
         <LangVersion>12</LangVersion>
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
@@ -15,39 +15,9 @@
         <ArtifactsPath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'artifacts'))</ArtifactsPath>
     </PropertyGroup>
 
-    <!-- Packaging properties -->
-    <PropertyGroup>
-        <IsPackable>false</IsPackable>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageTags>allure</PackageTags>
-    </PropertyGroup>
-
     <!-- Signing properties -->
     <PropertyGroup>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'build', 'identity.snk'))</AssemblyOriginatorKeyFile>
     </PropertyGroup>
-
-    <!-- Debug properties -->
-    <PropertyGroup>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>portable</DebugType>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    </PropertyGroup>
-
-    <!-- Enable SourceLink for all projects -->
-    <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    </ItemGroup>
-
-    <!-- Include LICENSE to all packages -->
-    <ItemGroup Condition="'$(IsPackable)' == 'true'">
-        <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" />
-    </ItemGroup>
 </Project>

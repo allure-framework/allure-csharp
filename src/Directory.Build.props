@@ -1,0 +1,41 @@
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+            Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+    <!-- Metadata -->
+    <PropertyGroup>
+        <Version>2.15-SNAPSHOT</Version>
+        <Company>Qameta Software</Company>
+        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <!-- Packaging properties -->
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <PackageProjectUrl>https://allurereport.org/</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageTags>allure</PackageTags>
+    </PropertyGroup>
+
+    <!-- Package debug data properties -->
+    <PropertyGroup>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+
+    <!-- Enable SourceLink for all packages -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    </ItemGroup>
+
+    <!-- Include LICENSE to all packages -->
+    <ItemGroup Condition="'$(IsPackable)' == 'true'">
+        <None Include="$([MSBuild]::GetPathOfFileAbove('LICENSE', '$(MSBuildThisFileDirectory)../'))" Pack="true" PackagePath="\" />
+    </ItemGroup>
+</Project>
