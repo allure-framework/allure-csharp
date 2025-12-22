@@ -1,7 +1,7 @@
 name: Test
 
 env:
-  SOLUTION_PATH: allure-csharp.sln
+  SOLUTION_PATH: allure-csharp.slnx
   BUILD_CONFIGURATION: 'Release'
 
 on:
@@ -42,12 +42,12 @@ jobs:
 
       - name: 'Run tests'
         run: |
-          dotnet test Allure.Net.Commons.Tests\
+          dotnet test ./tests/Allure.Net.Commons.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet test Allure.SpecFlow.Tests\
+          dotnet test ./tests/Allure.SpecFlow.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet test Allure.Reqnroll.Tests\
+          dotnet test ./tests/Allure.Reqnroll.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
