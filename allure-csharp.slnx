@@ -62,6 +62,9 @@
     <Project Path="tests/Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
+    <Project Path="tests/Allure.NUnit.Tests/Allure.NUnit.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
     <Project Path="tests/Allure.Reqnroll.Tests/Allure.Reqnroll.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
