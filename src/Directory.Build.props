@@ -20,6 +20,12 @@
         <PackageTags>allure</PackageTags>
     </PropertyGroup>
 
+    <!-- XML documentation properties -->
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591</NoWarn>
+    </PropertyGroup>
+
     <!-- Package debug data properties -->
     <PropertyGroup>
         <DebugSymbols>true</DebugSymbols>
