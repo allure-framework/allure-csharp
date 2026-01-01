@@ -3,6 +3,8 @@
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+
         <!-- Don't compile samples as a part of test projects -->
         <DefaultItemExcludes>$(DefaultItemExcludes);Samples/**/*</DefaultItemExcludes>
     </PropertyGroup>
