@@ -11,6 +11,8 @@
         <Description>Create beautiful reports from your SpecFlow tests.</Description>
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) specflow</PackageTags>
+
+        <!-- This assembly can't be signed becasue of Lib.Harmony -->
         <SignAssembly>false</SignAssembly>
     </PropertyGroup>
 

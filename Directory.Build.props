@@ -23,7 +23,8 @@
 
     <!-- Signing properties -->
     <PropertyGroup>
-        <SignAssembly>true</SignAssembly>
+        <!-- Signing is opt-in -->
+        <SignAssembly>false</SignAssembly>
         <AssemblyOriginatorKeyFile>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'build', 'identity.snk'))</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 </Project>

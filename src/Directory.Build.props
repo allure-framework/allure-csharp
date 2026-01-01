@@ -29,6 +29,11 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
     </PropertyGroup>
 
+    <!-- Sign all packages -->
+     <PropertyGroup>
+        <SignAssembly>true</SignAssembly>
+     </PropertyGroup>
+
     <!-- Enable SourceLink for all packages -->
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
