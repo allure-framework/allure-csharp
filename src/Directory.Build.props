@@ -1,14 +1,6 @@
 <Project>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-    <!-- Metadata -->
-    <PropertyGroup>
-        <Version>2.15-SNAPSHOT</Version>
-        <Company>Qameta Software</Company>
-        <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-    </PropertyGroup>
-
     <!-- Packaging properties -->
     <PropertyGroup>
         <IsPackable>true</IsPackable>

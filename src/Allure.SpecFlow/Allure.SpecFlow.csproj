@@ -5,7 +5,6 @@
         <AssemblyName>Allure.SpecFlowPlugin</AssemblyName>
         <RootNamespace>Allure.SpecFlowPlugin</RootNamespace>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
-        <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
         <Authors>Alexander Bakanov</Authors>
         <Description>Create beautiful reports from your SpecFlow tests.</Description>

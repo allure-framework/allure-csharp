@@ -6,7 +6,6 @@
         <RootNamespace>Allure.ReqnrollPlugin</RootNamespace>
         <TargetFramework>netstandard2.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <IsPackable>true</IsPackable>
         <Authors>Maksim Stepanov</Authors>
         <Description>Create beautiful reports from your Reqnroll tests.</Description>
         <PackageIcon>Allure-Color.png</PackageIcon>
