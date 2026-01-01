@@ -7,6 +7,12 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
+    <!-- Common packaging properties -->
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <WarnOnPackingNonPackableProject>true</WarnOnPackingNonPackableProject>
+    </PropertyGroup>
+
     <!-- Common build properties -->
     <PropertyGroup>
         <LangVersion>12</LangVersion>
