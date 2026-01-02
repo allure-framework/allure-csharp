@@ -1,6 +1,12 @@
 <Project>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+    <PropertyGroup>
+        <!-- Build public libraries against .NET Standard 2.0 by default -->
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
     <!-- Packaging properties -->
     <PropertyGroup>
         <IsPackable>true</IsPackable>
