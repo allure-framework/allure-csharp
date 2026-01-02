@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>Allure.SpecFlow</PackageId>
         <AssemblyName>Allure.SpecFlowPlugin</AssemblyName>
         <RootNamespace>Allure.SpecFlowPlugin</RootNamespace>

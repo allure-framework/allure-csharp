@@ -3,8 +3,8 @@
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
-        <!-- Build public libraries against .NET Standard 2.0 by default -->
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <!-- Force public packages declare TFM explicitly -->
+        <TargetFramework></TargetFramework>
     </PropertyGroup>
 
     <!-- Packaging properties -->

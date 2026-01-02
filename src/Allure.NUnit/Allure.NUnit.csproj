@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <Authors>Nick Chursin</Authors>
         <Description>Create beautiful reports from your NUnit tests.</Description>
         <PackageTags>$(PackageTags) nunit</PackageTags>
