@@ -3,7 +3,7 @@
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
-        <Allure_TransformReadmeSource>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), '..', 'build', 'TransformReadmeForNuget.cs'))</Allure_TransformReadmeSource>
+        <Allure_TransformReadmeSource>$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory), '..', 'build', 'TransformReadmeForNuget.cs'))</Allure_TransformReadmeSource>
     </PropertyGroup>
     <ItemGroup>
         <NuGetPackInput Include="$(Allure_TransformReadmeSource)" />

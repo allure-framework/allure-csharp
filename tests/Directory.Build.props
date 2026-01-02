@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), '..', 'build', 'Allure.Build.Tasks', 'Allure.Build.Tasks.csproj'))">
+        <ProjectReference Include="$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory), '..', 'build', 'Allure.Build.Tasks', 'Allure.Build.Tasks.csproj'))">
             <Private>True</Private>
         </ProjectReference>
     </ItemGroup>

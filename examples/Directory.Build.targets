@@ -3,6 +3,6 @@
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
     <Target Name="Allure_CleanAllureResults"
             BeforeTargets="Clean">
-        <RemoveDir Directories="$([System.IO.Path]::Combine($(TargetDir), 'allure-results'))" />
+        <RemoveDir Directories="$([MSBuild]::NormalizeDirectory($(TargetDir), 'allure-results'))" />
     </Target>
 </Project>

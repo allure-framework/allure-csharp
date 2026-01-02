@@ -155,7 +155,7 @@ public class GenerateSampleSolution : Task
             "ProjectReference",
             new XAttribute(
                 "Include",
-                $"$([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)', '{Path.GetRelativePath(this.SampleSolutionDir, reference.ItemSpec)}'))"
+                $"$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '{Path.GetRelativePath(this.SampleSolutionDir, reference.ItemSpec)}'))"
             )
         ));
 
