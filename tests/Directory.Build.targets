@@ -1,0 +1,31 @@
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
+            Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+
+    <UsingTask TaskName="Allure.Build.Tasks.GenerateSampleSolution" AssemblyFile="$([System.IO.Path]::Combine($(TargetDir), 'Allure.Build.Tasks.dll'))"/>
+
+    <PropertyGroup>
+        <!-- Test against the same framework as the testing project by default -->
+        <Allure_SampleSupportedTargetFrameworks Condition=" '$(Allure_SampleSupportedTargetFrameworks)' == '' ">$(TargetFramework)</Allure_SampleSupportedTargetFrameworks>
+        <Allure_SampleSelectedTargetFramework Condition=" '$(Allure_SampleSelectedTargetFramework)' == '' ">$(TargetFramework)</Allure_SampleSelectedTargetFramework>
+
+        <Allure_SampleSolutionName Condition=" '$(Allure_SampleSolutionName)' == '' ">$(ProjectName).Samples</Allure_SampleSolutionName>
+        <Allure_SampleSolutionDir Condition=" '$(Allure_SampleSolutionDir)' == '' ">$([System.IO.Path]::Combine($(ArtifactsPath), 'samples', '$(ProjectName)'))</Allure_SampleSolutionDir>
+        <Allure_LocalNugetRepository Condition=" '$(Allure_LocalNugetRepository)' == '' ">$([System.IO.Path]::Combine($(ArtifactsPath), 'package', 'release'))</Allure_LocalNugetRepository>
+    </PropertyGroup>
+
+    <Target Name="Allure_GenerateSamples"
+            AfterTargets="CopyFilesToOutputDirectory"
+            Condition=" '@(AllureSample)' != '' ">
+
+        <Allure.Build.Tasks.GenerateSampleSolution
+            SampleSources="@(AllureSample)"
+            SamplePackageReferences="@(SamplePackageReference)"
+            SampleProjectReferences="@(SampleProjectReference)"
+            SampleSolutionDir="$(Allure_SampleSolutionDir)"
+            SampleSolutionName="$(Allure_SampleSolutionName)"
+            SampleTargetFrameworks="$(Allure_SampleSupportedTargetFrameworks)"
+            ArtifactsPath="$(ArtifactsPath)"
+            LocalNugetRepository="$(Allure_LocalNugetRepository)" />
+    </Target>
+</Project>

@@ -9,4 +9,14 @@
     <PackageReference Include="TUnit" Version="1.7.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <SamplePackageReference Include="NUnit" Version="4.4.0" />
+    <SamplePackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+    <SamplePackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SampleProjectReference Include="../../src/Allure.NUnit/Allure.NUnit.csproj" />
+  </ItemGroup>
+
 </Project>

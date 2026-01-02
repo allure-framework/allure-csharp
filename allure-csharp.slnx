@@ -22,6 +22,9 @@
   <Folder Name="/build/">
     <File Path="build/findvstool.ps1" />
     <File Path="build/TransformReadmeForNuget.cs" />
+    <Project Path="build/Allure.Build.Tasks/Allure.Build.Tasks.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/build/AspectInjector/win-x64/">
     <File Path="build/AspectInjector/win-x64/AspectInjector.exe" />
@@ -75,9 +78,6 @@
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Reqnroll.Tests.Samples/Allure.Reqnroll.Tests.Samples.csproj">
-      <Build Solution="Publish|*" Project="false" />
-    </Project>
-    <Project Path="tests/Allure.Testing.SolutionGenerator/Allure.Testing.SolutionGenerator.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
   </Folder>
