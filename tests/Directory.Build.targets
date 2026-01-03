@@ -14,6 +14,7 @@
         <Allure_LocalNugetRepository Condition=" '$(Allure_LocalNugetRepository)' == '' ">$([MSBuild]::NormalizeDirectory($(ArtifactsPath), 'package', 'release'))</Allure_LocalNugetRepository>
 
         <Allure_PreBuildSamples Condition=" '$(Allure_PreBuildSamples)' == '' ">false</Allure_PreBuildSamples>
+        <Allure_PreTestSamples Condition=" '$(Allure_PreTestSamples)' == '' ">false</Allure_PreTestSamples>
     </PropertyGroup>
 
     <Target Name="Allure_GenerateSamples"
@@ -38,5 +39,23 @@
             BuildInParallel="$(BuildInParallel)"
             Condition=" '$(Allure_PreBuildSamples)' == 'true' "
             ContinueOnError="False" />
+
+        <PropertyGroup Condition=" '$(Allure_PreTestSamples)' == 'true' ">
+            <Allure_ResultFilePattern>$([MSBuild]::NormalizePath('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).*', '*', 'allure-results', '**', '*'))</Allure_ResultFilePattern>
+        </PropertyGroup>
+
+        <ItemGroup Condition=" '$(Allure_PreTestSamples)' == 'true' ">
+            <AllureResult Include="$([MSBuild]::Unescape('$(Allure_ResultFilePattern)'))" />
+        </ItemGroup>
+
+        <Delete Files="@(AllureResult)" Condition=" '$(Allure_PreTestSamples)' == 'true' And '@(AllureResult)' != '' " />
+
+        <MSBuild
+            Projects="$(Allure_SampleSolutionPath)"
+            Targets="VSTest"
+            BuildInParallel="$(BuildInParallel)"
+            Condition=" '$(Allure_PreTestSamples)' == 'true' "
+            Properties="UseMSBuildTestInfrastructure=true"
+            ContinueOnError="True" />
     </Target>
 </Project>
