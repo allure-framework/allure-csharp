@@ -35,19 +35,22 @@ public class GenerateSampleSolution : Task
     [Required]
     public string LocalNugetRepository { get; set; }
 
+    [Output]
+    public string SampleSolutionPath { get; set; }
+
     public override bool Execute()
     {
         this.CreateDirectoryBuildProps();
         this.CreateDirectoryPackagesProps();
         this.CreateNugetConfig();
         var projects = this.CreateProjects();
-        this.CreateSlnx(projects);
+        this.SampleSolutionPath = this.CreateSlnx(projects);
         return true;
     }
 
-    void CreateSlnx(IEnumerable<string> projects)
+    string CreateSlnx(IEnumerable<string> projects)
     {
-        WriteXmlFile(
+        return WriteXmlFile(
             this.SampleSolutionDir,
             $"{this.SampleSolutionName}.slnx",
             new XDocument(
@@ -201,17 +204,21 @@ public class GenerateSampleSolution : Task
         );
     }
 
-    static void WriteXmlFile(string directory, string name, XNode node)
+    static string WriteXmlFile(string directory, string name, XNode node)
     {
         if (!Directory.Exists(directory))
         {
             Directory.CreateDirectory(directory);
         }
 
-        using var writer = XmlWriter.Create(Path.Combine(directory, name), new XmlWriterSettings
+        var path = Path.Combine(directory, name);
+
+        using var writer = XmlWriter.Create(path, new XmlWriterSettings
         {
             Indent = true,
         });
         node.WriteTo(writer);
+
+        return path;
     }
 }

@@ -12,6 +12,8 @@
         <Allure_SampleSolutionName Condition=" '$(Allure_SampleSolutionName)' == '' ">$(ProjectName).Samples</Allure_SampleSolutionName>
         <Allure_SampleSolutionDir Condition=" '$(Allure_SampleSolutionDir)' == '' ">$([MSBuild]::NormalizeDirectory($(ArtifactsPath), 'samples', '$(ProjectName)'))</Allure_SampleSolutionDir>
         <Allure_LocalNugetRepository Condition=" '$(Allure_LocalNugetRepository)' == '' ">$([MSBuild]::NormalizeDirectory($(ArtifactsPath), 'package', 'release'))</Allure_LocalNugetRepository>
+
+        <Allure_PreBuildSamples Condition=" '$(Allure_PreBuildSamples)' == '' ">false</Allure_PreBuildSamples>
     </PropertyGroup>
 
     <Target Name="Allure_GenerateSamples"
@@ -26,6 +28,15 @@
             SampleSolutionName="$(Allure_SampleSolutionName)"
             SampleTargetFrameworks="$(Allure_SampleSupportedTargetFrameworks)"
             ArtifactsPath="$(ArtifactsPath)"
-            LocalNugetRepository="$(Allure_LocalNugetRepository)" />
+            LocalNugetRepository="$(Allure_LocalNugetRepository)">
+            <Output TaskParameter="SampleSolutionPath" PropertyName="Allure_SampleSolutionPath" />
+        </Allure.Build.Tasks.GenerateSampleSolution>
+
+        <MSBuild
+            Projects="$(Allure_SampleSolutionPath)"
+            Targets="Build"
+            BuildInParallel="$(BuildInParallel)"
+            Condition=" '$(Allure_PreBuildSamples)' == 'true' "
+            ContinueOnError="False" />
     </Target>
 </Project>
