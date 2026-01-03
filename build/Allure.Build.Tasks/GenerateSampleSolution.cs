@@ -32,6 +32,7 @@ public class GenerateSampleSolution : Task
     [Required]
     public string ArtifactsPath { get; set; }
 
+    [Required]
     public string LocalNugetRepository { get; set; }
 
     public override bool Execute()
