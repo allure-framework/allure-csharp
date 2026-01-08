@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
@@ -9,8 +10,10 @@ using Microsoft.Build.Utilities;
 
 namespace Allure.Build.Tasks;
 
-public class GenerateSampleSolution : Task
+public partial class GenerateSampleSolution : Task
 {
+    static readonly Regex projectSuffixPattern = MyRegex();
+
     [Required]
     public ITaskItem[] SampleSources { get; set; }
 
@@ -66,12 +69,62 @@ public class GenerateSampleSolution : Task
 
     IEnumerable<string> CreateProjects()
     {
-        foreach (var sample in this.SampleSources)
+        var groups = this.SampleSources.GroupBy(
+            static (sample) => sample.GetMetadata("ProjectSuffix") ?? "",
+            static (sample) => sample.ItemSpec);
+
+        foreach (var sampleGroup in groups)
         {
-            var sampleFileName = Path.GetFileName(sample.ItemSpec);
-            var sampleName = Path.GetFileNameWithoutExtension(sample.ItemSpec);
-            var sampleProjectName = $"{this.SampleSolutionName}.{sampleName}";
+            var projectSuffix = sampleGroup.Key;
+            if (string.IsNullOrEmpty(projectSuffix))
+            {
+                foreach (var sample in sampleGroup)
+                {
+                    this.Log.LogWarning("Ignoring '{0}': no ProjectSuffix defined on the item.", sample);
+                }
+                continue;
+            }
+
+            if (!projectSuffixPattern.IsMatch(projectSuffix))
+            {
+                foreach (var sample in sampleGroup)
+                {
+                    this.Log.LogWarning(
+                        "Ignoring '{0}': invalid ProjectSuffix '{1}' defined on the item. "
+                            + "Expected a latin letter or an underscore followed by one or more "
+                            + "latin letters, digits, or underscores.",
+                        sample,
+                        projectSuffix);
+                }
+                continue;
+            }
+
+            this.Log.LogMessage(
+                MessageImportance.Low,
+                "Creating '{0}' with {1} sample files",
+                projectSuffix,
+                sampleGroup.Count()
+            );
+
+            var sampleProjectName = $"{this.SampleSolutionName}.{projectSuffix}";
             var sampleProjectDir = Path.Combine(this.SampleSolutionDir, sampleProjectName);
+
+            var greatestCommonPrefix = GetGreatestCommonPrefix(sampleGroup);
+            if (greatestCommonPrefix is "")
+            {
+                this.Log.LogWarning(
+                    "Ignoring {0}: the sample files [{1}] don't have a common prefix.",
+                    projectSuffix,
+                    string.Join(", ", sampleGroup.Select(static (sample) => $"'{sample}'")));
+                continue;
+            }
+
+            this.Log.LogMessage(
+                MessageImportance.Low,
+                "The greatest common prefix of files in '{0}' is '{1}'",
+                sampleProjectName,
+                greatestCommonPrefix
+            );
 
             WriteXmlFile(
                 Path.Combine(sampleProjectDir, $"{sampleProjectName}.csproj"),
@@ -83,12 +136,42 @@ public class GenerateSampleSolution : Task
                 )
             );
 
-            File.Copy(sample.ItemSpec, Path.Combine(sampleProjectDir, sampleFileName), true);
+            foreach (var sample in sampleGroup)
+            {
+                var relativeSampleFilePath = Path.GetRelativePath(greatestCommonPrefix, sample);
+                if (relativeSampleFilePath.StartsWith($"..{Path.DirectorySeparatorChar}"))
+                {
+                    this.Log.LogWarning(
+                        "Ignoring '{0}': the file's calculated destination '{1}' is outside of the sample project directory '{2}'",
+                        sample,
+                        relativeSampleFilePath,
+                        sampleProjectDir);
+                    continue;
+                }
+                File.Copy(sample, Path.Combine(sampleProjectDir, relativeSampleFilePath), true);
+            }
+
+            this.Log.LogMessage(MessageImportance.High, "Sample project '{0}' created", sampleProjectName);
 
             yield return sampleProjectName;
 
-            Console.WriteLine($"Found sample {sampleProjectName}");
         }
+    }
+
+    static string GetGreatestCommonPrefix(IEnumerable<string> paths)
+    {
+        var first = paths.First();
+        var rest = paths.Skip(1).ToList();
+
+        for (var prefix = Path.GetDirectoryName(first); prefix is not null; prefix = Path.GetDirectoryName(prefix))
+        {
+            if (rest.All((otherPath) => otherPath.StartsWith(prefix) && otherPath.Length > prefix.Length && otherPath[prefix.Length] == Path.DirectorySeparatorChar))
+            {
+                return prefix;
+            }
+        }
+
+        return "";
     }
 
     void CreateNugetConfig()
@@ -214,4 +297,7 @@ public class GenerateSampleSolution : Task
         });
         node.WriteTo(writer);
     }
+
+    [GeneratedRegex("[a-zA-Z_][a-zA-Z0-9_]*")]
+    private static partial Regex MyRegex();
 }

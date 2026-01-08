@@ -4,11 +4,19 @@
 
     <PropertyGroup>
         <!-- Don't compile samples as a part of test projects -->
-        <DefaultItemExcludes>$(DefaultItemExcludes);Samples/**/*</DefaultItemExcludes>
+        <DefaultItemExcludes>$(DefaultItemExcludes);@(AllureSample)</DefaultItemExcludes>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- The default project directory containing the samples to test. -->
+        <Allure_SamplesDirectory>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', 'Samples'))</Allure_SamplesDirectory>
+        <Allure_SamplesPattern>$([MSBuild]::Unescape('$([MSBuild]::NormalizePath('$(Allure_SamplesDirectory)', '**', '*'))'))</Allure_SamplesPattern>
     </PropertyGroup>
 
     <ItemGroup>
-        <AllureSample Include="Samples/**/*" />
+        <AllureSample Include="$(Allure_SamplesPattern)">
+            <ProjectSuffix>$([System.Text.RegularExpressions.Regex]::Replace('$([MSBuild]::MakeRelative('$(Allure_SamplesDirectory)', '%(FullPath)'))', '[\\/\.].*', ''))</ProjectSuffix>
+        </AllureSample>
     </ItemGroup>
 
     <ItemGroup>
