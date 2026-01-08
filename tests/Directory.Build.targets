@@ -51,6 +51,7 @@
             Targets="Build"
             BuildInParallel="$(BuildInParallel)"
             Condition=" '$(Allure_PreBuildSamples)' == 'true' "
+            Properties="Configuration=$(Allure_SampleConfiguration)"
             ContinueOnError="False" />
 
     </Target>
