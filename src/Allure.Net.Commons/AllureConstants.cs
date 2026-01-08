@@ -3,6 +3,7 @@
     public sealed class AllureConstants
     {
         public const string ALLURE_CONFIG_ENV_VARIABLE = "ALLURE_CONFIG";
+        public const string ALLURE_RESULTSDIR_ENV_VARIABLE = "ALLURE_RESULTSDIR";
         public const string CONFIG_FILENAME = "allureConfig.json";
         public const string DEFAULT_RESULTS_FOLDER = "allure-results";
 
