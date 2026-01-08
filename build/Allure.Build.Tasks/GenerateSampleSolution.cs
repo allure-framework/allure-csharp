@@ -243,21 +243,9 @@ public partial class GenerateSampleSolution : Task
         ));
 
         IEnumerable<XElement> references = [
-            new XElement(
-                "PropertyGroup",
-                new XElement("TargetFrameworks", this.SampleTargetFrameworks),
-                new XElement("OutputType", "Library"),
-                new XElement("EnableDefaultItems", "false")
-            ),
-            new XElement(
-                "ItemGroup",
-                new XElement(
-                    "Compile",
-                    new XAttribute("Include", "**/*.cs")
-                )
-            ),
             packages.Any() ? new XElement("ItemGroup", packages) : null,
             projects.Any() ? new XElement("ItemGroup", projects) : null,
+
         ];
 
         WriteXmlFile(
@@ -274,6 +262,26 @@ public partial class GenerateSampleSolution : Task
                         new XAttribute(
                             "Condition",
                             "'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+                        )
+                    ),
+                    new XElement(
+                        "PropertyGroup",
+                        new XElement("TargetFrameworks", this.SampleTargetFrameworks),
+                        new XElement("OutputType", "Library"),
+                        new XElement("EnableDefaultItems", "false")
+                    ),
+                    new XElement(
+                        "ItemGroup",
+                        new XElement(
+                            "Compile",
+                            new XAttribute("Include", "**/*.cs")
+                        )
+                    ),
+                    new XElement(
+                        "ItemGroup",
+                        new XElement(
+                            "Clean",
+                            new XAttribute("Include", "$(TargetDir)allure-results/**/*")
                         )
                     ),
                     ..references.Where(item => item is not null),
