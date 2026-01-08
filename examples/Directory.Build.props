@@ -1,0 +1,7 @@
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+            Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+    <ItemGroup>
+        <Clean Include="$(TargetDir)allure-results/**/*" />
+    </ItemGroup>
+</Project>
