@@ -38,6 +38,34 @@
         <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_ProjectSuffix" />
     </ItemGroup>
 
+    <!-- By default, we're treating everything in the Samples directory as testable samples.
+     Each sample item must define the ProjectSuffix metadata. By default, it's equal to the first file
+     system element inside the Samples directory with the extension stripped away:
+       - ProjectSuffix of ./Samples/Foo.cs is Foo
+       - ProjectSuffix of ./Samples/Bar/Baz.cs is Bar
+     These files are not passed to the C# compiler. Instead, the following happens on build:
+       1. The GenerateSampleSolution task groups the files by ProjectSuffix and creates a sample project
+          for each group. The sample project's name is <test-project-name>.Samples.<ProjectSuffix>.
+          The source files will be copied to the sample project directory with paths relative to their
+          greatest common prefix. The projects are combined under a single solution named
+          <test-project-name>.Samples.
+          For example, let's suppose we have a testing project My.Tests that defines the following samples:
+            - ./Samples/Foo.cs
+            - ./Samples/Foo/Bar.cs
+            - ./Samples/Bar.cs
+            - ./Samples/Qux/Qut.cs
+            - ./Samples/Qux/Quz.cs
+          GenerateSampleSolution generates the My.Tests.Samples solution with the following projects:
+            - My.Tests.Samples.Foo
+                - ./Foo.cs
+                - ./Foo/Bar.cs
+            - My.Tests.Samples.Bar
+                - ./Bar.cs
+            - My.Tests.Samples.Qux
+                - ./Qut.cs
+                - ./Quz.cs
+       2. SampleRegistryGenerator generates the sample registry. The tests can then refer to a sample
+          by the corresponding static property of Allure.Testing.AllureSampleRegistry. -->
     <ItemGroup>
         <AllureSample Include="$(Allure_SamplesPattern)">
             <ProjectSuffix>$([System.Text.RegularExpressions.Regex]::Replace('$([MSBuild]::MakeRelative('$(Allure_SamplesDirectory)', '%(FullPath)'))', '[\\/\.].*', ''))</ProjectSuffix>
