@@ -9,10 +9,33 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <!-- The list of Allure properties used by the sample runner. -->
+        <Allure_CompilerVisibleProperties>
+            Allure_LocalNugetRepository;
+            Allure_ResultsDirectoryFormat;
+            Allure_SampleConfiguration;
+            Allure_SampleSolutionDir;
+            Allure_SampleSolutionName;
+            Allure_SampleSolutionPath;
+            Allure_SampleSelectedTargetFramework;
+            Allure_SampleSupportedTargetFrameworks;
+        </Allure_CompilerVisibleProperties>
+
+        <!-- Put Allure properties in a single line and replaces the separator to ':'.
+         Otherwise, the value won't be picked up by *.GeneratedMSBuildEditorConfig.editorconfig, which is an ini file.
+         Roslyn will then make them accessible by source generators.
+         AllureMsbuildPropsGenerator will pass them to the compilation making them consumable by the sample runner -->
+        <Allure_PropertyNames>$(Allure_CompilerVisibleProperties.Replace('%0D', '').Replace('%0A', '').Replace(' ', '').Replace(';', ':'))</Allure_PropertyNames>
+
         <!-- The default project directory containing the samples to test. -->
         <Allure_SamplesDirectory>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', 'Samples'))</Allure_SamplesDirectory>
         <Allure_SamplesPattern>$([MSBuild]::Unescape('$([MSBuild]::NormalizePath('$(Allure_SamplesDirectory)', '**', '*'))'))</Allure_SamplesPattern>
     </PropertyGroup>
+
+    <ItemGroup>
+        <CompilerVisibleProperty Include="Allure_PropertyNames" />
+        <CompilerVisibleProperty Include="$(Allure_CompilerVisibleProperties)" />
+    </ItemGroup>
 
     <ItemGroup>
         <AllureSample Include="$(Allure_SamplesPattern)">

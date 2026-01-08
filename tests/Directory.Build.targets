@@ -27,6 +27,10 @@
 
         <!-- The configuration the samples are going to be run against -->
         <Allure_SampleConfiguration Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
+
+        <!-- A string that, when passed to string.Format with the project suffix, gives the full path
+         to the default allure-results directory. Used for assertion-only testing mode -->
+        <Allure_ResultsDirectoryFormat Condition=" '$(Allure_ResultsDirectoryFormat)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).{0}', '$(Allure_SampleConfiguration.ToLower())_$(Allure_SampleSelectedTargetFramework)', 'allure-results'))</Allure_ResultsDirectoryFormat>
     </PropertyGroup>
 
     <Target Name="Allure_GenerateTestSamples"
@@ -55,10 +59,6 @@
     </Target>
 
     <Target Name="Allure_RunTestSamples">
-
-        <PropertyGroup>
-            <Allure_ResultsDirectoryFormat Condition=" '$(Allure_ResultsDirectoryFormat)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).{0}', '$(Allure_SampleConfiguration.ToLower())_$(Allure_SampleSelectedTargetFramework)', 'allure-results'))</Allure_ResultsDirectoryFormat>
-        </PropertyGroup>
 
         <ItemGroup>
             <AllureSampleResultDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_ResultsDirectoryFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
