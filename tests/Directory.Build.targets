@@ -33,6 +33,14 @@
         <Allure_ResultsDirectoryFormat Condition=" '$(Allure_ResultsDirectoryFormat)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).{0}', '$(Allure_SampleConfiguration.ToLower())_$(Allure_SampleSelectedTargetFramework)', 'allure-results'))</Allure_ResultsDirectoryFormat>
     </PropertyGroup>
 
+    <!-- At this point, all AllureSample items must be already defined. We're converting them to AdditionalFiles items
+     to make them visible by the source generators. Only items with ProjectSuffix metadata set are converted. -->
+    <ItemGroup>
+        <AdditionalFiles
+            Include="@(AllureSample)"
+            Allure_ProjectSuffix="%(ProjectSuffix)"/>
+    </ItemGroup>
+
     <Target Name="Allure_GenerateTestSamples"
             AfterTargets="CopyFilesToOutputDirectory"
             Condition=" '@(AllureSample)' != '' ">

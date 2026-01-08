@@ -35,6 +35,7 @@
     <ItemGroup>
         <CompilerVisibleProperty Include="Allure_PropertyNames" />
         <CompilerVisibleProperty Include="$(Allure_CompilerVisibleProperties)" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_ProjectSuffix" />
     </ItemGroup>
 
     <ItemGroup>
