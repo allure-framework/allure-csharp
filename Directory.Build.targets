@@ -63,4 +63,6 @@
             <_InjectionNeeded>true</_InjectionNeeded>
         </PropertyGroup>
     </Target>
+
+    <Target Name="Allure_RunTestSamples" />
 </Project>
