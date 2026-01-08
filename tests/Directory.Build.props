@@ -5,6 +5,7 @@
     <PropertyGroup>
         <!-- Don't compile samples as a part of test projects -->
         <DefaultItemExcludes>$(DefaultItemExcludes);@(AllureSample)</DefaultItemExcludes>
+        <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
     <PropertyGroup>
