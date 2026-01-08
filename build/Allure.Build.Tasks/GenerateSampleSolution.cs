@@ -27,6 +27,9 @@ public class GenerateSampleSolution : Task
     public string SampleSolutionName { get; set; }
 
     [Required]
+    public string SampleSolutionPath { get; set;}
+
+    [Required]
     public string SampleTargetFrameworks { get; set; }
 
     [Required]
@@ -35,24 +38,20 @@ public class GenerateSampleSolution : Task
     [Required]
     public string LocalNugetRepository { get; set; }
 
-    [Output]
-    public string SampleSolutionPath { get; set; }
-
     public override bool Execute()
     {
         this.CreateDirectoryBuildProps();
         this.CreateDirectoryPackagesProps();
         this.CreateNugetConfig();
         var projects = this.CreateProjects();
-        this.SampleSolutionPath = this.CreateSlnx(projects);
+        this.CreateSlnx(projects);
         return true;
     }
 
-    string CreateSlnx(IEnumerable<string> projects)
+    void CreateSlnx(IEnumerable<string> projects)
     {
-        return WriteXmlFile(
-            this.SampleSolutionDir,
-            $"{this.SampleSolutionName}.slnx",
+        WriteXmlFile(
+            this.SampleSolutionPath,
             new XDocument(
                 new XElement(
                     "Solution",
@@ -75,8 +74,7 @@ public class GenerateSampleSolution : Task
             var sampleProjectDir = Path.Combine(this.SampleSolutionDir, sampleProjectName);
 
             WriteXmlFile(
-                sampleProjectDir,
-                $"{sampleProjectName}.csproj",
+                Path.Combine(sampleProjectDir, $"{sampleProjectName}.csproj"),
                 new XDocument(
                     new XElement(
                         "Project",
@@ -96,8 +94,7 @@ public class GenerateSampleSolution : Task
     void CreateNugetConfig()
     {
         WriteXmlFile(
-            this.SampleSolutionDir,
-            "nuget.config",
+            Path.Combine(this.SampleSolutionDir, "nuget.config"),
             new XDocument(
                 new XDeclaration("1.0", "utf-8", null),
                 new XElement(
@@ -124,8 +121,7 @@ public class GenerateSampleSolution : Task
     void CreateDirectoryPackagesProps()
     {
         WriteXmlFile(
-            this.SampleSolutionDir,
-            "Directory.Packages.props",
+            Path.Combine(this.SampleSolutionDir, "Directory.Packages.props"),
             new XElement(
                 "Project",
                 new XElement(
@@ -182,8 +178,7 @@ public class GenerateSampleSolution : Task
         ];
 
         WriteXmlFile(
-            this.SampleSolutionDir,
-            "Directory.Build.props",
+            Path.Combine(this.SampleSolutionDir, "Directory.Build.props"),
             new XElement(
                 "Project",
                 [
@@ -204,21 +199,19 @@ public class GenerateSampleSolution : Task
         );
     }
 
-    static string WriteXmlFile(string directory, string name, XNode node)
+    static void WriteXmlFile(string path, XNode node)
     {
-        if (!Directory.Exists(directory))
+        var fInfo = new FileInfo(path);
+        var dInfo = fInfo.Directory;
+        if (!dInfo.Exists)
         {
-            Directory.CreateDirectory(directory);
+            dInfo.Create();
         }
-
-        var path = Path.Combine(directory, name);
 
         using var writer = XmlWriter.Create(path, new XmlWriterSettings
         {
             Indent = true,
         });
         node.WriteTo(writer);
-
-        return path;
     }
 }

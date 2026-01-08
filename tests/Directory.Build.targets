@@ -5,19 +5,33 @@
     <UsingTask TaskName="Allure.Build.Tasks.GenerateSampleSolution" AssemblyFile="$([MSBuild]::NormalizePath($(TargetDir), 'Allure.Build.Tasks.dll'))"/>
 
     <PropertyGroup>
-        <!-- Test against the same framework as the testing project by default -->
+        <!-- The full path of the directory containing locally built NuGet packages -->
+        <Allure_LocalNugetRepository Condition=" '$(Allure_LocalNugetRepository)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'package', 'release'))</Allure_LocalNugetRepository>
+
+        <!-- The full list of frameworks the samples can be compiled and run against -->
         <Allure_SampleSupportedTargetFrameworks Condition=" '$(Allure_SampleSupportedTargetFrameworks)' == '' ">$(TargetFramework)</Allure_SampleSupportedTargetFrameworks>
+
+        <!-- These properties controls the sample solution name and location.
+         The solution name also serves as the prefix to all sample project names -->
+        <Allure_SampleSolutionName Condition=" '$(Allure_SampleSolutionName)' == '' ">$(MSBuildProjectName).Samples</Allure_SampleSolutionName>
+        <Allure_SampleSolutionDir Condition=" '$(Allure_SampleSolutionDir)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'samples', '$(MSBuildProjectName)'))</Allure_SampleSolutionDir>
+        <Allure_SampleSolutionPath>$([MSBuild]::NormalizePath('$(Allure_SampleSolutionDir)', '$(Allure_SampleSolutionName).slnx'))</Allure_SampleSolutionPath>
+
+        <!-- If set to true, the sample solution will be built right after it's generated.
+         This improves performance of the subsequent test runs as MSBuild won't build the
+         sample projects again unless changes are detected. -->
+        <Allure_PreBuildSamples Condition=" '$(Allure_PreBuildSamples)' == '' ">false</Allure_PreBuildSamples>
+
+        <!-- The framework the samples are going to be run against -->
         <Allure_SampleSelectedTargetFramework Condition=" '$(Allure_SampleSelectedTargetFramework)' == '' ">$(TargetFramework)</Allure_SampleSelectedTargetFramework>
 
-        <Allure_SampleSolutionName Condition=" '$(Allure_SampleSolutionName)' == '' ">$(ProjectName).Samples</Allure_SampleSolutionName>
-        <Allure_SampleSolutionDir Condition=" '$(Allure_SampleSolutionDir)' == '' ">$([MSBuild]::NormalizeDirectory($(ArtifactsPath), 'samples', '$(ProjectName)'))</Allure_SampleSolutionDir>
-        <Allure_LocalNugetRepository Condition=" '$(Allure_LocalNugetRepository)' == '' ">$([MSBuild]::NormalizeDirectory($(ArtifactsPath), 'package', 'release'))</Allure_LocalNugetRepository>
+        <!-- The configuration the samples are going to be run against -->
+        <Allure_SampleConfiguration Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
 
-        <Allure_PreBuildSamples Condition=" '$(Allure_PreBuildSamples)' == '' ">false</Allure_PreBuildSamples>
         <Allure_PreTestSamples Condition=" '$(Allure_PreTestSamples)' == '' ">false</Allure_PreTestSamples>
     </PropertyGroup>
 
-    <Target Name="Allure_GenerateSamples"
+    <Target Name="Allure_GenerateTestSamples"
             AfterTargets="CopyFilesToOutputDirectory"
             Condition=" '@(AllureSample)' != '' ">
 
@@ -27,11 +41,10 @@
             SampleProjectReferences="@(SampleProjectReference)"
             SampleSolutionDir="$(Allure_SampleSolutionDir)"
             SampleSolutionName="$(Allure_SampleSolutionName)"
+            SampleSolutionPath="$(Allure_SampleSolutionPath)"
             SampleTargetFrameworks="$(Allure_SampleSupportedTargetFrameworks)"
             ArtifactsPath="$(ArtifactsPath)"
-            LocalNugetRepository="$(Allure_LocalNugetRepository)">
-            <Output TaskParameter="SampleSolutionPath" PropertyName="Allure_SampleSolutionPath" />
-        </Allure.Build.Tasks.GenerateSampleSolution>
+            LocalNugetRepository="$(Allure_LocalNugetRepository)"/>
 
         <MSBuild
             Projects="$(Allure_SampleSolutionPath)"
