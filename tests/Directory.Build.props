@@ -21,8 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory), '..', 'build', 'Allure.Build.Tasks', 'Allure.Build.Tasks.csproj'))">
-            <Private>True</Private>
+        <ProjectReference Include="$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'build', 'Allure.Build.Tasks', 'Allure.Build.Tasks.csproj'))">
+            <IncludeAssets>Runtime;Build;Native;contentFiles;Analyzers</IncludeAssets>
+            <PrivateAssets>All</PrivateAssets>
         </ProjectReference>
     </ItemGroup>
 
