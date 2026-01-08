@@ -22,6 +22,9 @@
   <Folder Name="/build/">
     <File Path="build/findvstool.ps1" />
     <File Path="build/TransformReadmeForNuget.cs" />
+    <Project Path="build/Allure.Build.SourceGenerators/Allure.Build.SourceGenerators.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
     <Project Path="build/Allure.Build.Tasks/Allure.Build.Tasks.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
