@@ -73,6 +73,39 @@
             BuildInParallel="$(BuildInParallel)"
             Properties="Configuration=$(Allure_SampleConfiguration)" />
 
+    </Target>
+
+    <Target Name="Allure_CleanSampleProjects"
+            BeforeTargets="Clean">
+
+        <ItemGroup>
+            <AllureSampleSolution Include="$([MSBuild]::NormalizePath('$(Allure_SampleSolutionDir)', '$(Allure_SampleSolutionName).slnx'))" />
+        </ItemGroup>
+
+        <MSBuild
+            Projects="@(AllureSampleSolution)"
+            Targets="Clean"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="Configuration=$(Allure_SampleConfiguration)"
+            Condition=" Exists('@(AllureSampleSolution)') "
             ContinueOnError="True" />
+
+        <RemoveDir Directories="$(Allure_SampleSolutionDir)" />
+    </Target>
+
+    <Target Name="Allure_CleanSampleSolution">
+
+        <PropertyGroup>
+            <Allure_SampleProjectBinFormat>$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).{0}'))</Allure_SampleProjectBinFormat>
+            <Allure_SampleProjectObjFormat>$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'obj', '$(Allure_SampleSolutionName).{0}'))</Allure_SampleProjectObjFormat>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <AllureSampleProjectOutputDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_SampleProjectBinFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
+            <AllureSampleProjectOutputDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_SampleProjectObjFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
+        </ItemGroup>
+
+        <RemoveDir Directories="@(AllureSampleProjectOutputDirectory)" />
+        <RemoveDir Directories="$(Allure_SampleSolutionDir)" />
     </Target>
 </Project>
