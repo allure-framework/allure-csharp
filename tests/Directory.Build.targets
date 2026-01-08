@@ -27,8 +27,6 @@
 
         <!-- The configuration the samples are going to be run against -->
         <Allure_SampleConfiguration Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
-
-        <Allure_PreTestSamples Condition=" '$(Allure_PreTestSamples)' == '' ">false</Allure_PreTestSamples>
     </PropertyGroup>
 
     <Target Name="Allure_GenerateTestSamples"
