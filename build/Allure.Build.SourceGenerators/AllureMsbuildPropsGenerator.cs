@@ -11,13 +11,6 @@ public class AllureMsbuildPropsGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var rootNamespace = context
-            .AnalyzerConfigOptionsProvider
-            .Select(static (c, _) =>
-                c.GlobalOptions.TryGetValue("build_property.RootNamespace", out var value)
-                    ? value
-                    : null);
-
         var allureMsbuildProps = context
             .AnalyzerConfigOptionsProvider
             .SelectMany(static (c, _) =>
@@ -33,18 +26,16 @@ public class AllureMsbuildPropsGenerator : IIncrementalGenerator
             .Collect();
 
         context.RegisterSourceOutput(
-            rootNamespace.Combine(allureMsbuildProps),
+            allureMsbuildProps,
             static (spc, data) =>
             {
-                var (ns, props) = data;
-
                 var sb = new StringBuilder();
                 sb.AppendLine("namespace Allure.Testing;");
                 sb.AppendLine();
                 sb.AppendLine("internal static class AllureBuildProperties");
                 sb.AppendLine("{");
                 bool emitNewLine = false;
-                foreach (var (key, value) in props)
+                foreach (var (key, value) in data)
                 {
                     if (emitNewLine)
                     {
