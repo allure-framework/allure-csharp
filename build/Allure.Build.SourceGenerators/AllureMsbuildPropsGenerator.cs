@@ -30,7 +30,7 @@ public class AllureMsbuildPropsGenerator : IIncrementalGenerator
             .Collect();
 
     static IEnumerable<string> GetAllurePropertyNames(AnalyzerConfigOptions options) =>
-        options.TryGetValue("build_property.Allure_PropertyNames", out var value)
+        options.TryGetValue(Constants.EDITOR_PROP_PROPERTY_NAMES, out var value)
             ? value.Split(':')
             : [];
 

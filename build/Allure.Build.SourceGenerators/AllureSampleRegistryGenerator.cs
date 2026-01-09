@@ -39,7 +39,7 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
     ) =>
         pair.Right
             .GetOptions(pair.Left)
-            .TryGetValue("build_metadata.AdditionalFiles.Allure_ProjectSuffix", out var value)
+            .TryGetValue(Constants.PROJECT_SUFFIX_METADATA_NAME, out var value)
                 && SyntaxFacts.IsValidIdentifier(value)
                 ? (value, pair.Left.Path)
                 : ("", "");
@@ -67,13 +67,13 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
     {
         var code = GetSampleRegistryCode(sampleSources);
 
-        productionContext.AddSource("AllureSampleRegistry.g.cs", code);
+        productionContext.AddSource(Constants.REGISTRY_FILENAME, code);
     }
 
     static string GetSampleRegistryCode(SampleProjectSources sampleSources)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("namespace Allure.Testing;");
+        sb.AppendLine($"namespace { Constants.NAMESPACE_NAME };");
         sb.AppendLine();
         AppendRegistryEntryClass(sb);
         sb.AppendLine();
@@ -84,15 +84,15 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
     static void AppendRegistryEntryClass(StringBuilder sb)
     {
         sb.Append(
-            """
+            $$"""
             /// <summary>
             /// Contains the data required to run a specific sample project and access its result files.
             /// </summary>
             /// <remarks>
-            /// Use the instances exposed by <see cref="global::Allure.Testing.AllureSampleRegistry"/>
+            /// Use the instances exposed by <see cref="{{ Constants.REGISTRY_CLASSNAME_FULL }}"/>
             /// instead of creating your own.
             /// </remarks>
-            internal record class AllureSampleRegistryEntry(
+            internal record class {{ Constants.REGISTRY_ENTRY_CLASSNAME }}(
                 string Name,
                 string ProjectPath,
                 string DefaultResultsPath
@@ -110,10 +110,10 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
             /// Exposes a set of testing samples available to this project via a set of static properties.
             /// </summary>
             /// <remarks>
-            /// Pass a selected sample to <see cref="global::Allure.Testing.AllureSampleRunner"/> methods
+            /// Pass a selected sample to <see cref="{{ Constants.RUNNER_CLASSNAME_FULL }}"/> methods
             /// to run it and access the test results.
             /// </remarks>
-            internal static class AllureSampleRegistry
+            internal static class {{ Constants.REGISTRY_CLASSNAME }}
             {
 
             """
@@ -148,22 +148,22 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
                 /// {{ pathPrefix }}
                 /// </a>
                 /// </summary>
-                public static global::Allure.Testing.AllureSampleRegistryEntry {{ suffix }} { get; }
+                public static {{ Constants.REGISTRY_ENTRY_CLASSNAME_FULL }} {{ suffix }} { get; }
                     = new(
                         "{{ suffix }}",
                         global::System.IO.Path.Combine(
-                            global::Allure.Testing.AllureBuildProperties.Allure_SampleSolutionDir,
+                            {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_SOLUTION_DIR }},
                             string.Format(
                                 "{0}.{{ suffix }}",
-                                global::Allure.Testing.AllureBuildProperties.Allure_SampleSolutionName
+                                {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_SOLUTION_NAME }}
                             ),
                             string.Format(
                                 "{0}.{{ suffix }}.csproj",
-                                global::Allure.Testing.AllureBuildProperties.Allure_SampleSolutionName
+                                {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_SOLUTION_NAME }}
                             )
                         ),
                         string.Format(
-                            global::Allure.Testing.AllureBuildProperties.Allure_SampleResultsDirectoryFormat,
+                            {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_RESULTS_DIRECTORY_FMT }},
                             "{{ suffix }}"
                         )
                     );
