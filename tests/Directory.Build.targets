@@ -5,40 +5,29 @@
     <UsingTask TaskName="Allure.Build.Tasks.GenerateSampleSolution" AssemblyFile="$([MSBuild]::NormalizePath($(TargetDir), 'Allure.Build.Tasks.dll'))"/>
 
     <PropertyGroup>
-        <!-- The full path of the directory containing locally built NuGet packages -->
-        <Allure_LocalNugetRepository Condition=" '$(Allure_LocalNugetRepository)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'package', 'release'))</Allure_LocalNugetRepository>
 
-        <!-- The full list of frameworks the samples can be compiled and run against -->
-        <Allure_SampleSupportedTargetFrameworks Condition=" '$(Allure_SampleSupportedTargetFrameworks)' == '' ">$(TargetFramework)</Allure_SampleSupportedTargetFrameworks>
+        <!-- Default configuration may be unset in Directory.Build.props.
+         Setting the default value here. -->
+        <Allure_SampleConfiguration
+            Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
 
-        <!-- These properties controls the sample solution name and location.
-         The solution name also serves as the prefix to all sample project names -->
-        <Allure_SampleSolutionName Condition=" '$(Allure_SampleSolutionName)' == '' ">$(MSBuildProjectName).Samples</Allure_SampleSolutionName>
-        <Allure_SampleSolutionDir Condition=" '$(Allure_SampleSolutionDir)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'samples', '$(MSBuildProjectName)'))</Allure_SampleSolutionDir>
-        <Allure_SampleSolutionPath>$([MSBuild]::NormalizePath('$(Allure_SampleSolutionDir)', '$(Allure_SampleSolutionName).slnx'))</Allure_SampleSolutionPath>
+        <_Allure_SampleSolutionPath>$(
+            [MSBuild]::NormalizePath(
+                '$(Allure_SampleSolutionDir)',
+                '$(Allure_SampleSolutionName).slnx'
+            )
+        )</_Allure_SampleSolutionPath>
 
-        <!-- If set to true, the sample solution will be built right after it's generated.
-         This improves performance of the subsequent test runs as MSBuild won't build the
-         sample projects again unless changes are detected. -->
-        <Allure_PreBuildSamples Condition=" '$(Allure_PreBuildSamples)' == '' ">false</Allure_PreBuildSamples>
-
-        <!-- The framework the samples are going to be run against -->
-        <Allure_SampleSelectedTargetFramework Condition=" '$(Allure_SampleSelectedTargetFramework)' == '' ">$(TargetFramework)</Allure_SampleSelectedTargetFramework>
-
-        <!-- The configuration the samples are going to be run against -->
-        <Allure_SampleConfiguration Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
-
-        <!-- A string that, when passed to string.Format with the project suffix, gives the full path
-         to the default allure-results directory. Used for assertion-only testing mode -->
-        <Allure_ResultsDirectoryFormat Condition=" '$(Allure_ResultsDirectoryFormat)' == '' ">$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).{0}', '$(Allure_SampleConfiguration.ToLower())_$(Allure_SampleSelectedTargetFramework)', 'allure-results'))</Allure_ResultsDirectoryFormat>
     </PropertyGroup>
 
     <!-- At this point, all AllureSample items must be already defined. We're converting them to AdditionalFiles items
      to make them visible by the source generators. Only items with ProjectSuffix metadata set are converted. -->
     <ItemGroup>
+
         <AdditionalFiles
             Include="@(AllureSample)"
             Allure_ProjectSuffix="%(ProjectSuffix)"/>
+
     </ItemGroup>
 
     <Target Name="Allure_GenerateTestSamples"
@@ -51,14 +40,14 @@
             SampleProjectReferences="@(SampleProjectReference)"
             SampleSolutionDir="$(Allure_SampleSolutionDir)"
             SampleSolutionName="$(Allure_SampleSolutionName)"
-            SampleSolutionPath="$(Allure_SampleSolutionPath)"
+            SampleSolutionPath="$(_Allure_SampleSolutionPath)"
             SampleTargetFrameworks="$(Allure_SampleSupportedTargetFrameworks)"
             ArtifactsPath="$(ArtifactsPath)"
             LocalNugetRepository="$(Allure_LocalNugetRepository)"/>
 
         <MSBuild
-            Projects="$(Allure_SampleSolutionPath)"
-            Targets="Build"
+            Projects="$(_Allure_SampleSolutionPath)"
+            Targets="Restore;Build"
             BuildInParallel="$(BuildInParallel)"
             Condition=" '$(Allure_PreBuildSamples)' == 'true' "
             Properties="Configuration=$(Allure_SampleConfiguration)"
@@ -75,14 +64,14 @@
         <RemoveDir Directories="@(AllureSampleResultDirectory)" />
 
         <MSBuild
-            Projects="$(Allure_SampleSolutionPath)"
+            Projects="$(_Allure_SampleSolutionPath)"
             Targets="VSTest"
             BuildInParallel="$(BuildInParallel)"
             Properties="Configuration=$(Allure_SampleConfiguration)" />
 
     </Target>
 
-    <Target Name="Allure_CleanSampleProjects"
+    <Target Name="Allure_CleanTestSamples"
             BeforeTargets="Clean">
 
         <ItemGroup>
@@ -100,7 +89,7 @@
         <RemoveDir Directories="$(Allure_SampleSolutionDir)" />
     </Target>
 
-    <Target Name="Allure_CleanSampleSolution">
+    <Target Name="Allure_DeleteTestSamples">
 
         <PropertyGroup>
             <Allure_SampleProjectBinFormat>$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).{0}'))</Allure_SampleProjectBinFormat>
