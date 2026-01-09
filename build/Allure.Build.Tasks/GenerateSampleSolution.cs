@@ -62,12 +62,16 @@ public class GenerateSampleSolution : Task
         return true;
     }
 
-    static XElement CreateSlnxXml(IEnumerable<string> projects) => new(
-        "Solution",
-        projects.Select(static (projectName) => new XElement(
-            "Project",
-            new XAttribute("Path", Path.Combine(projectName, $"{projectName}.csproj"))
-        ))
+    static XDocument CreateSlnxXml(IEnumerable<string> projects) => new(
+        new XElement(
+            new XElement(
+                "Solution",
+                projects.Select(static (projectName) => new XElement(
+                    "Project",
+                    new XAttribute("Path", Path.Combine(projectName, $"{projectName}.csproj"))
+                ))
+            )
+        )
     );
 
     IEnumerable<string> GenerateProjects() =>
@@ -194,9 +198,11 @@ public class GenerateSampleSolution : Task
         }
     }
 
-    static XElement CreateCsprojXml() => new(
-        "Project",
-        new XAttribute("Sdk", "Microsoft.NET.Sdk")
+    static XDocument CreateCsprojXml() => new(
+        new XElement(
+            "Project",
+            new XAttribute("Sdk", "Microsoft.NET.Sdk")
+        )
     );
 
     void ShowInvalidSuffixWarning(IGrouping<string, string> sampleGroup, string projectSuffix)
@@ -265,18 +271,20 @@ public class GenerateSampleSolution : Task
         )
     );
 
-    XElement CreateDirectoryPackagesPropsXml() => new(
-        "Project",
+    XDocument CreateDirectoryPackagesPropsXml() => new(
         new XElement(
-            "PropertyGroup",
-            new XElement("ManagePackageVersionsCentrally", "true")
-        ),
-        new XElement(
-            "ItemGroup",
-            this.SamplePackageReferences2.Select(static (spec) => new XElement(
-                "PackageVersion",
-                new XAttribute("Include", spec.EvaluatedIncludeEscaped),
-                new XAttribute("Version", spec.GetMetadataValueEscaped("Version")))
+            "Project",
+            new XElement(
+                "PropertyGroup",
+                new XElement("ManagePackageVersionsCentrally", "true")
+            ),
+            new XElement(
+                "ItemGroup",
+                this.SamplePackageReferences2.Select(static (spec) => new XElement(
+                    "PackageVersion",
+                    new XAttribute("Include", spec.EvaluatedIncludeEscaped),
+                    new XAttribute("Version", spec.GetMetadataValueEscaped("Version")))
+                )
             )
         )
     );
@@ -322,15 +330,17 @@ public class GenerateSampleSolution : Task
         return $"$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '{dependnecyProjectPath}'))";
     }
 
-    XElement CreateDirectoryBuildPropsXml() => new(
-        "Project",
-        [
-            CreateParentDirectoryBuildPropsImport(),
-            this.CreateCommonProjectProperties(),
-            CreateCommonProjectCompileItems(),
-            CreateAllureResultsCleanItems(),
-            ..CreateProjectReferencesXml(),
-        ]
+    XDocument CreateDirectoryBuildPropsXml() => new(
+        new XElement(
+            "Project",
+            [
+                CreateParentDirectoryBuildPropsImport(),
+                this.CreateCommonProjectProperties(),
+                CreateCommonProjectCompileItems(),
+                CreateAllureResultsCleanItems(),
+                ..CreateProjectReferencesXml(),
+            ]
+        )
     );
 
     static XElement CreateParentDirectoryBuildPropsImport() => new(
@@ -371,7 +381,7 @@ public class GenerateSampleSolution : Task
     void CreateSlnx(IEnumerable<string> projects)
     {
         var slnxXml = CreateSlnxXml(projects);
-        WriteXmlFile(this.SampleSolutionPath, slnxXml);
+        WriteXmlFile(this.SampleSolutionPath, slnxXml, omitDeclaration: true);
     }
 
     static void CreateCsproj(string sampleProjectName, string sampleProjectDir)
@@ -379,7 +389,7 @@ public class GenerateSampleSolution : Task
         var csprojXml = CreateCsprojXml();
         var csprojPath = Path.Combine(sampleProjectDir, $"{sampleProjectName}.csproj");
 
-        WriteXmlFile(csprojPath, csprojXml);
+        WriteXmlFile(csprojPath, csprojXml, omitDeclaration: true);
     }
 
     void CreateNugetConfig()
@@ -395,7 +405,7 @@ public class GenerateSampleSolution : Task
         var directoryPackagesPropsPath = Path.Combine(this.SampleSolutionDir, "Directory.Packages.props");
         var directoryPackagesPropsXml = CreateDirectoryPackagesPropsXml();
 
-        WriteXmlFile(directoryPackagesPropsPath, directoryPackagesPropsXml);
+        WriteXmlFile(directoryPackagesPropsPath, directoryPackagesPropsXml, omitDeclaration: true);
     }
 
     void CreateDirectoryBuildProps()
@@ -403,10 +413,23 @@ public class GenerateSampleSolution : Task
         var directoryBuildPropsPath = Path.Combine(this.SampleSolutionDir, "Directory.Build.props");
         var directoryBuildPropsXml = this.CreateDirectoryBuildPropsXml();
 
-        WriteXmlFile(directoryBuildPropsPath, directoryBuildPropsXml);
+        WriteXmlFile(directoryBuildPropsPath, directoryBuildPropsXml, omitDeclaration: true);
     }
 
-    static void WriteXmlFile(string path, XNode node)
+    static void WriteXmlFile(string path, XDocument document, bool omitDeclaration = false)
+    {
+        EnsureDirectoryExists(path);
+
+        using var writer = XmlWriter.Create(path, new XmlWriterSettings
+        {
+            Indent = true,
+            OmitXmlDeclaration = omitDeclaration,
+        });
+        document.Save(writer);
+
+    }
+
+    static void EnsureDirectoryExists(string path)
     {
         var fInfo = new FileInfo(path);
         var dInfo = fInfo.Directory;
@@ -414,11 +437,5 @@ public class GenerateSampleSolution : Task
         {
             dInfo.Create();
         }
-
-        using var writer = XmlWriter.Create(path, new XmlWriterSettings
-        {
-            Indent = true,
-        });
-        node.WriteTo(writer);
     }
 }
