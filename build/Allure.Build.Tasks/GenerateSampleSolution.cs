@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Allure.Build.Tasks;
 
-public partial class GenerateSampleSolution : Task
+public class GenerateSampleSolution : Task
 {
-    static readonly Regex projectSuffixPattern = MyRegex();
-
     [Required]
     public ITaskItem[] SampleSources { get; set; }
 
@@ -85,17 +83,26 @@ public partial class GenerateSampleSolution : Task
                 continue;
             }
 
-            if (!projectSuffixPattern.IsMatch(projectSuffix))
+            if (!SyntaxFacts.IsValidIdentifier(projectSuffix))
             {
-                foreach (var sample in sampleGroup)
-                {
-                    this.Log.LogWarning(
-                        "Ignoring '{0}': invalid ProjectSuffix '{1}' defined on the item. "
-                            + "Expected a latin letter or an underscore followed by one or more "
-                            + "latin letters, digits, or underscores.",
-                        sample,
-                        projectSuffix);
-                }
+                this.Log.LogWarning(
+                    "Ignoring {0} sample file(s): invalid ProjectSuffix '{1}' defined on the items. "
+                        + "A project suffix must be a valid C# identifier. "
+                        + "Please, rename the corresponding file or folder, "
+                        + "or assign the value manually. For example:\n"
+                        + "  <ItemGroup>\n"
+                        + $"    <AllureSample Remove=\"./Samples/{projectSuffix}/**\" />\n"
+                        + $"    <AllureSample Include=\"./Samples/{projectSuffix}/**\" ProjectSuffix=\"ValidSuffix\" />\n"
+                        + "  </ItemGroup>\n"
+                        + "Here is the list of skipped files:\n{2}",
+                    sampleGroup.Count(),
+                    projectSuffix,
+                    string.Join(
+                        "\n",
+                        sampleGroup.Select(s => $"  - {s}")
+                    )
+                );
+
                 continue;
             }
 
@@ -305,7 +312,4 @@ public partial class GenerateSampleSolution : Task
         });
         node.WriteTo(writer);
     }
-
-    [GeneratedRegex("[a-zA-Z_][a-zA-Z0-9_]*")]
-    private static partial Regex MyRegex();
 }
