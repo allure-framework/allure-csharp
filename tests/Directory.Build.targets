@@ -82,7 +82,7 @@
     <Target Name="Allure_RunTestSamples">
 
         <ItemGroup>
-            <AllureSampleResultDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_ResultsDirectoryFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
+            <AllureSampleResultDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_SampleResultsDirectoryFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
         </ItemGroup>
 
         <RemoveDir Directories="@(AllureSampleResultDirectory)" />
