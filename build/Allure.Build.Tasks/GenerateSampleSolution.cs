@@ -37,7 +37,7 @@ public class GenerateSampleSolution : Task
     public string LocalNugetRepository { get; set; }
 
     IEnumerable<ITaskItem> CommonPackageReferences =>
-        this.SamplePackageReferences.Where(spec =>
+        this.SamplePackageReferences.Where(static (spec) =>
         {
             var optional = spec.GetMetadata("Optional");
             return string.IsNullOrEmpty(optional) || optional.ToLower() is not "true";
@@ -55,9 +55,9 @@ public class GenerateSampleSolution : Task
 
     static XElement CreateSlnxXml(IEnumerable<string> projects) => new(
         "Solution",
-        projects.Select(p => new XElement(
+        projects.Select(static (projectName) => new XElement(
             "Project",
-            new XAttribute("Path", Path.Combine(p, $"{p}.csproj"))
+            new XAttribute("Path", Path.Combine(projectName, $"{projectName}.csproj"))
         ))
     );
 
@@ -67,7 +67,7 @@ public class GenerateSampleSolution : Task
                 static (sample) => sample.GetMetadata("ProjectSuffix") ?? "",
                 static (sample) => sample.ItemSpec)
             .Select(this.GenerateProject)
-            .Where(p => p is not null);
+            .Where(static (projectName) => projectName is not null);
 
     string GenerateProject(IGrouping<string, string> projectSourcesGroup)
     {
@@ -206,7 +206,7 @@ public class GenerateSampleSolution : Task
             projectSuffix,
             string.Join(
                 "\n",
-                sampleGroup.Select(s => $"  - {s}")
+                sampleGroup.Select(static (file) => $"  - {file}")
             )
         );
     }
@@ -264,7 +264,7 @@ public class GenerateSampleSolution : Task
         ),
         new XElement(
             "ItemGroup",
-            this.SamplePackageReferences.Select(spec => new XElement(
+            this.SamplePackageReferences.Select(static (spec) => new XElement(
                 "PackageVersion",
                 new XAttribute("Include", spec.ItemSpec),
                 new XAttribute("Version", spec.GetMetadata("Version")))
@@ -287,19 +287,19 @@ public class GenerateSampleSolution : Task
 
     XElement CreateCommonPackageReferencesXml() => new(
         "ItemGroup",
-        this.CommonPackageReferences.Select((reference) => new XElement(
+        this.CommonPackageReferences.Select(static (item) => new XElement(
             "PackageReference",
-            new XAttribute("Include", reference.ItemSpec)
+            new XAttribute("Include", item.ItemSpec)
         ))
     );
 
     XElement CreateCommonProjectReferencesXml() => new(
         "ItemGroup",
-        this.SampleProjectReferences.Select((reference) => new XElement(
+        this.SampleProjectReferences.Select((item) => new XElement(
             "ProjectReference",
             new XAttribute(
                 "Include",
-                this.ResolveDependencyProjectPath(reference)
+                this.ResolveDependencyProjectPath(item)
             )
         ))
     );
