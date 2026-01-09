@@ -89,12 +89,15 @@ public class AllureMsbuildPropsGenerator : IIncrementalGenerator
     static void AppendOneClassProperty(StringBuilder sb, (string, string) data)
     {
         var (key, value) = data;
+        var valueCodeLiteral = SymbolDisplay.FormatLiteral(value, true);
 
-        sb.AppendFormat("    public static string {0} {{ get; }}", key);
-        sb.AppendLine();
-        sb.AppendFormat("        = global::System.Environment.GetEnvironmentVariable($\"{0}\")", key);
-        sb.AppendLine();
-        sb.AppendFormat("            ?? {0};", SymbolDisplay.FormatLiteral(value, true));
-        sb.AppendLine();
+        sb.Append(
+            $$"""
+                public static string {{ key }} { get; }
+                    = global::System.Environment.GetEnvironmentVariable($"{{ key }}")
+                        ?? {{ valueCodeLiteral }};
+
+            """
+        );
     }
 }
