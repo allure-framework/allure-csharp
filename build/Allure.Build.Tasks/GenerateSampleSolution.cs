@@ -36,10 +36,19 @@ public class GenerateSampleSolution : Task
     [Required]
     public string LocalNugetRepository { get; set; }
 
-    IEnumerable<ITaskItem> CommonPackageReferences =>
-        this.SamplePackageReferences.Where(static (spec) =>
+    public IEnumerable<ITaskItem2> SampleSources2 =>
+        this.SampleSources.Cast<ITaskItem2>();
+
+    public IEnumerable<ITaskItem2> SamplePackageReferences2 =>
+        this.SamplePackageReferences.Cast<ITaskItem2>();
+
+    public IEnumerable<ITaskItem2> SampleProjectReferences2 =>
+        this.SampleProjectReferences.Cast<ITaskItem2>();
+
+    IEnumerable<ITaskItem2> CommonPackageReferences =>
+        this.SamplePackageReferences2.Where(static (spec) =>
         {
-            var optional = spec.GetMetadata("Optional");
+            var optional = spec.GetMetadataValueEscaped("Optional");
             return string.IsNullOrEmpty(optional) || optional.ToLower() is not "true";
         });
 
@@ -62,10 +71,10 @@ public class GenerateSampleSolution : Task
     );
 
     IEnumerable<string> GenerateProjects() =>
-        this.SampleSources
+        this.SampleSources2
             .GroupBy(
-                static (sample) => sample.GetMetadata("ProjectSuffix") ?? "",
-                static (sample) => sample.ItemSpec)
+                static (sample) => sample.GetMetadataValueEscaped("ProjectSuffix") ?? "",
+                static (sample) => sample.EvaluatedIncludeEscaped)
             .Select(this.GenerateProject)
             .Where(static (projectName) => projectName is not null);
 
@@ -264,10 +273,10 @@ public class GenerateSampleSolution : Task
         ),
         new XElement(
             "ItemGroup",
-            this.SamplePackageReferences.Select(static (spec) => new XElement(
+            this.SamplePackageReferences2.Select(static (spec) => new XElement(
                 "PackageVersion",
-                new XAttribute("Include", spec.ItemSpec),
-                new XAttribute("Version", spec.GetMetadata("Version")))
+                new XAttribute("Include", spec.EvaluatedIncludeEscaped),
+                new XAttribute("Version", spec.GetMetadataValueEscaped("Version")))
             )
         )
     );
@@ -289,13 +298,13 @@ public class GenerateSampleSolution : Task
         "ItemGroup",
         this.CommonPackageReferences.Select(static (item) => new XElement(
             "PackageReference",
-            new XAttribute("Include", item.ItemSpec)
+            new XAttribute("Include", item.EvaluatedIncludeEscaped)
         ))
     );
 
     XElement CreateCommonProjectReferencesXml() => new(
         "ItemGroup",
-        this.SampleProjectReferences.Select((item) => new XElement(
+        this.SampleProjectReferences2.Select((item) => new XElement(
             "ProjectReference",
             new XAttribute(
                 "Include",
@@ -304,9 +313,12 @@ public class GenerateSampleSolution : Task
         ))
     );
 
-    string ResolveDependencyProjectPath(ITaskItem dependencyProject)
+    string ResolveDependencyProjectPath(ITaskItem2 dependencyProject)
     {
-        var dependnecyProjectPath = Path.GetRelativePath(this.SampleSolutionDir, dependencyProject.ItemSpec);
+        var dependnecyProjectPath = Path.GetRelativePath(
+            this.SampleSolutionDir,
+            dependencyProject.EvaluatedIncludeEscaped
+        );
         return $"$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '{dependnecyProjectPath}'))";
     }
 
