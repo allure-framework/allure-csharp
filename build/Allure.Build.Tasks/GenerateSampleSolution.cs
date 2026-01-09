@@ -34,9 +34,6 @@ public class GenerateSampleSolution : Task
     public string SampleTargetFrameworks { get; set; }
 
     [Required]
-    public string ArtifactsPath { get; set; }
-
-    [Required]
     public string LocalNugetRepository { get; set; }
 
     IEnumerable<ITaskItem> CommonPackageReferences =>
