@@ -73,7 +73,7 @@
             Projects="$(_Allure_SampleSolutionPath)"
             Targets="Restore;Build"
             BuildInParallel="$(BuildInParallel)"
-            Condition=" '$(Allure_PreBuildSamples)' == 'true' "
+            Condition=" '$(Allure_PreBuildTestSamples)' == 'true' "
             Properties="Configuration=$(Allure_SampleConfiguration)"
             ContinueOnError="False" />
 
