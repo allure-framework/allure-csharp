@@ -23,28 +23,22 @@ internal class SampleRunner
     static readonly Encoding encoding = new UTF8Encoding(false, false);
     static readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
 
-    public static async Task<RunResult> RunAsync(AllureSampleRegistry sample) =>
+    public static async Task<RunResult> RunAsync(AllureSampleRegistryEntry sample) =>
         await RunAsync(sample, SampleRunnerInput.Default, CancellationToken.None);
 
-    public static async Task<RunResult> RunAsync(AllureSampleRegistry sample, CancellationToken token) =>
+    public static async Task<RunResult> RunAsync(AllureSampleRegistryEntry sample, CancellationToken token) =>
         await RunAsync(sample, SampleRunnerInput.Default, token);
 
-    public static async Task<RunResult> RunAsync(AllureSampleRegistry sample, SampleRunnerInput input) =>
+    public static async Task<RunResult> RunAsync(AllureSampleRegistryEntry sample, SampleRunnerInput input) =>
         await RunAsync(sample, input, CancellationToken.None);
 
-    public static async Task<RunResult> RunAsync(AllureSampleRegistry sample, SampleRunnerInput input, CancellationToken token)
+    public static async Task<RunResult> RunAsync(AllureSampleRegistryEntry sample, SampleRunnerInput input, CancellationToken token)
     {
-
-        var projectDir = Path.Combine(
-            AllureBuildProperties.Allure_SampleSolutionDir,
-            $"{AllureBuildProperties.Allure_SampleSolutionName}.{sample.Name}"
-        );
-
         var psi = new ProcessStartInfo(
             "dotnet",
             [
                 "test",
-                projectDir,
+                sample.ProjectPath,
                 "--framework",
                 AllureBuildProperties.Allure_SampleSelectedTargetFramework,
                 "--configuration",
