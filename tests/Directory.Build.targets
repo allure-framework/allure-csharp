@@ -2,7 +2,9 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
-    <UsingTask TaskName="Allure.Build.Tasks.GenerateSampleSolution" AssemblyFile="$([MSBuild]::NormalizePath($(TargetDir), 'Allure.Build.Tasks.dll'))"/>
+    <UsingTask
+        TaskName="Allure.Build.Tasks.GenerateSampleSolution"
+        AssemblyFile="$([MSBuild]::NormalizePath($(IntermediateOutputPath), 'Allure.Build.Tasks.dll'))"/>
 
     <PropertyGroup>
 
@@ -33,6 +35,28 @@
     <Target Name="Allure_GenerateTestSamples"
             AfterTargets="CopyFilesToOutputDirectory"
             Condition=" '@(AllureSample)' != '' ">
+
+        <PropertyGroup>
+            <_Allure_BuildTasksProject>$(
+                [MSBuild]::NormalizePath(
+                    '$(MSBuildThisFileDirectory)',
+                    '..',
+                    'build',
+                    'Allure.Build.Tasks',
+                    'Allure.Build.Tasks.csproj'
+                )
+            )</_Allure_BuildTasksProject>
+        </PropertyGroup>
+
+        <MSBuild
+            Projects="$(_Allure_BuildTasksProject)"
+            Targets="Restore;Build"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="Configuration=Release">
+            <Output TaskParameter="TargetOutputs" ItemName="AllureBuildTasksAssembly" />
+        </MSBuild>
+
+        <Copy SourceFiles="@(AllureBuildTasksAssembly)" DestinationFolder="$(IntermediateOutputPath)" SkipUnchangedFiles="true" />
 
         <Allure.Build.Tasks.GenerateSampleSolution
             SampleSources="@(AllureSample)"
