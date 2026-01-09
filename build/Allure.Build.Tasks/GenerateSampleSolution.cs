@@ -28,7 +28,7 @@ public class GenerateSampleSolution : Task
     public string SampleSolutionName { get; set; }
 
     [Required]
-    public string SampleSolutionPath { get; set;}
+    public string SampleSolutionPath { get; set; }
 
     [Required]
     public string SampleTargetFrameworks { get; set; }
@@ -39,130 +39,179 @@ public class GenerateSampleSolution : Task
     [Required]
     public string LocalNugetRepository { get; set; }
 
+    IEnumerable<ITaskItem> CommonPackageReferences =>
+        this.SamplePackageReferences.Where(spec =>
+        {
+            var optional = spec.GetMetadata("Optional");
+            return string.IsNullOrEmpty(optional) || optional.ToLower() is not "true";
+        });
+
     public override bool Execute()
     {
         this.CreateDirectoryBuildProps();
         this.CreateDirectoryPackagesProps();
         this.CreateNugetConfig();
-        var projects = this.CreateProjects();
+        var projects = this.GenerateProjects();
         this.CreateSlnx(projects);
         return true;
     }
 
-    void CreateSlnx(IEnumerable<string> projects)
+    static XElement CreateSlnxXml(IEnumerable<string> projects) => new(
+        "Solution",
+        projects.Select(p => new XElement(
+            "Project",
+            new XAttribute("Path", Path.Combine(p, $"{p}.csproj"))
+        ))
+    );
+
+    IEnumerable<string> GenerateProjects() =>
+        this.SampleSources
+            .GroupBy(
+                static (sample) => sample.GetMetadata("ProjectSuffix") ?? "",
+                static (sample) => sample.ItemSpec)
+            .Select(this.GenerateProject)
+            .Where(p => p is not null);
+
+    string GenerateProject(IGrouping<string, string> projectSourcesGroup)
     {
-        WriteXmlFile(
-            this.SampleSolutionPath,
-            new XDocument(
-                new XElement(
-                    "Solution",
-                    projects.Select(p => new XElement(
-                        "Project",
-                        new XAttribute("Path", Path.Combine(p, $"{p}.csproj"))
-                    ))
-                )
-            )
+        var projectSuffix = projectSourcesGroup.Key;
+        if (string.IsNullOrEmpty(projectSuffix))
+        {
+            this.ShowItemsWithNoSuffix(projectSourcesGroup);
+            return null;
+        }
+
+        if (!SyntaxFacts.IsValidIdentifier(projectSuffix))
+        {
+            this.ShowInvalidSuffixWarning(projectSourcesGroup, projectSuffix);
+            return null;
+        }
+
+        var greatestCommonPrefix = GetGreatestCommonPrefix(projectSourcesGroup);
+        if (greatestCommonPrefix is "")
+        {
+            this.ShowMissingCommonPrefixWarning(projectSourcesGroup, projectSuffix);
+            return null;
+        }
+
+        this.ShowGreatestCommonPrefixMessage(projectSuffix, greatestCommonPrefix);
+
+        return WriteProjectFiles(projectSourcesGroup, projectSuffix, greatestCommonPrefix);
+    }
+
+    string WriteProjectFiles(IGrouping<string, string> sampleGroup, string projectSuffix, string greatestCommonPrefix)
+    {
+        this.ShowProjectGeneratingMessage(sampleGroup, projectSuffix);
+
+        var sampleProjectName = $"{this.SampleSolutionName}.{projectSuffix}";
+        var sampleProjectDir = Path.Combine(this.SampleSolutionDir, sampleProjectName);
+
+        CreateCsproj(sampleProjectName, sampleProjectDir);
+        this.CopySampleSourceFiles(sampleGroup, greatestCommonPrefix, sampleProjectDir);
+
+        this.ShowProjectCreatedMessage(sampleProjectName);
+
+        return sampleProjectName;
+    }
+
+    void CopySampleSourceFiles(IGrouping<string, string> sampleGroup, string greatestCommonPrefix, string sampleProjectDir)
+    {
+        foreach (var sample in sampleGroup)
+        {
+            this.CopySampleSourceFile(sampleProjectDir, greatestCommonPrefix, sample);
+        }
+    }
+
+    void ShowProjectCreatedMessage(string sampleProjectName)
+    {
+        this.Log.LogMessage(MessageImportance.Low, "Sample project '{0}' created", sampleProjectName);
+    }
+
+    void CopySampleSourceFile(string sampleProjectDir, string greatestCommonPrefix, string sample)
+    {
+        var relativeSampleFilePath = Path.GetRelativePath(greatestCommonPrefix, sample);
+        if (relativeSampleFilePath.StartsWith($"..{Path.DirectorySeparatorChar}"))
+        {
+            this.ShowFileOutsideProjectWarning(sampleProjectDir, sample, relativeSampleFilePath);
+        }
+        else
+        {
+            File.Copy(sample, Path.Combine(sampleProjectDir, relativeSampleFilePath), true);
+        }
+    }
+
+    void ShowFileOutsideProjectWarning(string sampleProjectDir, string sample, string relativeSampleFilePath)
+    {
+        this.Log.LogWarning(
+            "Ignoring '{0}': the file's calculated destination '{1}' is outside of the "
+                + "sample project directory '{2}'",
+            sample,
+            relativeSampleFilePath,
+            sampleProjectDir
         );
     }
 
-    IEnumerable<string> CreateProjects()
+    void ShowGreatestCommonPrefixMessage(string projectSuffix, string greatestCommonPrefix)
     {
-        var groups = this.SampleSources.GroupBy(
-            static (sample) => sample.GetMetadata("ProjectSuffix") ?? "",
-            static (sample) => sample.ItemSpec);
+        this.Log.LogMessage(
+            MessageImportance.Low,
+            "The greatest common prefix of '{0}' is '{1}'",
+            projectSuffix,
+            greatestCommonPrefix
+        );
+    }
 
-        foreach (var sampleGroup in groups)
+    void ShowMissingCommonPrefixWarning(IGrouping<string, string> sampleGroup, string projectSuffix)
+    {
+        this.Log.LogWarning(
+            "Ignoring {0}: the sample files [{1}] don't have a common prefix.",
+            projectSuffix,
+            string.Join(", ", sampleGroup.Select(static (sample) => $"'{sample}'"))
+        );
+    }
+
+    void ShowProjectGeneratingMessage(IGrouping<string, string> sampleGroup, string projectSuffix)
+    {
+        this.Log.LogMessage(
+            MessageImportance.Low,
+            "Creating '{0}' with {1} sample files",
+            projectSuffix,
+            sampleGroup.Count()
+        );
+    }
+
+    void ShowItemsWithNoSuffix(IGrouping<string, string> sampleGroup)
+    {
+        foreach (var sample in sampleGroup)
         {
-            var projectSuffix = sampleGroup.Key;
-            if (string.IsNullOrEmpty(projectSuffix))
-            {
-                foreach (var sample in sampleGroup)
-                {
-                    this.Log.LogWarning("Ignoring '{0}': no ProjectSuffix defined on the item.", sample);
-                }
-                continue;
-            }
-
-            if (!SyntaxFacts.IsValidIdentifier(projectSuffix))
-            {
-                this.Log.LogWarning(
-                    "Ignoring {0} sample file(s): invalid ProjectSuffix '{1}' defined on the items. "
-                        + "A project suffix must be a valid C# identifier. "
-                        + "Please, rename the corresponding file or folder, "
-                        + "or assign the value manually. For example:\n"
-                        + "  <ItemGroup>\n"
-                        + $"    <AllureSample Remove=\"./Samples/{projectSuffix}/**\" />\n"
-                        + $"    <AllureSample Include=\"./Samples/{projectSuffix}/**\" ProjectSuffix=\"ValidSuffix\" />\n"
-                        + "  </ItemGroup>\n"
-                        + "Here is the list of skipped files:\n{2}",
-                    sampleGroup.Count(),
-                    projectSuffix,
-                    string.Join(
-                        "\n",
-                        sampleGroup.Select(s => $"  - {s}")
-                    )
-                );
-
-                continue;
-            }
-
-            this.Log.LogMessage(
-                MessageImportance.Low,
-                "Creating '{0}' with {1} sample files",
-                projectSuffix,
-                sampleGroup.Count()
-            );
-
-            var sampleProjectName = $"{this.SampleSolutionName}.{projectSuffix}";
-            var sampleProjectDir = Path.Combine(this.SampleSolutionDir, sampleProjectName);
-
-            var greatestCommonPrefix = GetGreatestCommonPrefix(sampleGroup);
-            if (greatestCommonPrefix is "")
-            {
-                this.Log.LogWarning(
-                    "Ignoring {0}: the sample files [{1}] don't have a common prefix.",
-                    projectSuffix,
-                    string.Join(", ", sampleGroup.Select(static (sample) => $"'{sample}'")));
-                continue;
-            }
-
-            this.Log.LogMessage(
-                MessageImportance.Low,
-                "The greatest common prefix of files in '{0}' is '{1}'",
-                sampleProjectName,
-                greatestCommonPrefix
-            );
-
-            WriteXmlFile(
-                Path.Combine(sampleProjectDir, $"{sampleProjectName}.csproj"),
-                new XDocument(
-                    new XElement(
-                        "Project",
-                        new XAttribute("Sdk", "Microsoft.NET.Sdk")
-                    )
-                )
-            );
-
-            foreach (var sample in sampleGroup)
-            {
-                var relativeSampleFilePath = Path.GetRelativePath(greatestCommonPrefix, sample);
-                if (relativeSampleFilePath.StartsWith($"..{Path.DirectorySeparatorChar}"))
-                {
-                    this.Log.LogWarning(
-                        "Ignoring '{0}': the file's calculated destination '{1}' is outside of the sample project directory '{2}'",
-                        sample,
-                        relativeSampleFilePath,
-                        sampleProjectDir);
-                    continue;
-                }
-                File.Copy(sample, Path.Combine(sampleProjectDir, relativeSampleFilePath), true);
-            }
-
-            this.Log.LogMessage(MessageImportance.High, "Sample project '{0}' created", sampleProjectName);
-
-            yield return sampleProjectName;
-
+            this.Log.LogWarning("Ignoring '{0}': no ProjectSuffix defined on the item.", sample);
         }
+    }
+
+    static XElement CreateCsprojXml() => new(
+        "Project",
+        new XAttribute("Sdk", "Microsoft.NET.Sdk")
+    );
+
+    void ShowInvalidSuffixWarning(IGrouping<string, string> sampleGroup, string projectSuffix)
+    {
+        this.Log.LogWarning(
+            "Ignoring {0} sample file(s): invalid ProjectSuffix '{1}' defined on the items. "
+                + "A project suffix must be a valid C# identifier. "
+                + "Please, rename the corresponding file or folder, "
+                + "or assign the value manually. For example:\n"
+                + "  <ItemGroup>\n"
+                + $"    <AllureSample Remove=\"./Samples/{projectSuffix}/**\" />\n"
+                + $"    <AllureSample Include=\"./Samples/{projectSuffix}/**\" ProjectSuffix=\"ValidSuffix\" />\n"
+                + "  </ItemGroup>\n"
+                + "Here is the list of skipped files:\n{2}",
+            sampleGroup.Count(),
+            projectSuffix,
+            string.Join(
+                "\n",
+                sampleGroup.Select(s => $"  - {s}")
+            )
+        );
     }
 
     static string GetGreatestCommonPrefix(IEnumerable<string> paths)
@@ -170,9 +219,11 @@ public class GenerateSampleSolution : Task
         var first = paths.First();
         var rest = paths.Skip(1).ToList();
 
-        for (var prefix = Path.GetDirectoryName(first); prefix is not null; prefix = Path.GetDirectoryName(prefix))
+        string prefix = first;
+
+        while ((prefix = Path.GetDirectoryName(prefix)) is not null)
         {
-            if (rest.All((otherPath) => otherPath.StartsWith(prefix) && otherPath.Length > prefix.Length && otherPath[prefix.Length] == Path.DirectorySeparatorChar))
+            if (IsCommonPrefix(rest, prefix))
             {
                 return prefix;
             }
@@ -181,120 +232,169 @@ public class GenerateSampleSolution : Task
         return "";
     }
 
-    void CreateNugetConfig()
-    {
-        WriteXmlFile(
-            Path.Combine(this.SampleSolutionDir, "nuget.config"),
-            new XDocument(
-                new XDeclaration("1.0", "utf-8", null),
+    static bool IsCommonPrefix(List<string> files, string prefix) =>
+        files.All((path) =>
+            path.StartsWith(prefix)
+                && path.Length > prefix.Length
+                && path[prefix.Length] == Path.DirectorySeparatorChar);
+
+    XDocument CreateNugetConfigXml() => new(
+        new XDeclaration("1.0", "utf-8", null),
+        new XElement(
+            "configuration",
+            new XElement(
+                "packageSources",
+                new XElement("clear"),
                 new XElement(
-                    "configuration",
-                    new XElement(
-                        "packageSources",
-                        new XElement("clear"),
-                        new XElement(
-                            "add",
-                            new XAttribute("key", "nuget"),
-                            new XAttribute("value", "https://api.nuget.org/v3/index.json")
-                        ),
-                        new XElement(
-                            "add",
-                            new XAttribute("key", "local"),
-                            new XAttribute("value", this.LocalNugetRepository)
-                        )
-                    )
+                    "add",
+                    new XAttribute("key", "nuget"),
+                    new XAttribute("value", "https://api.nuget.org/v3/index.json")
+                ),
+                new XElement(
+                    "add",
+                    new XAttribute("key", "local"),
+                    new XAttribute("value", this.LocalNugetRepository)
                 )
             )
-        );
+        )
+    );
+
+    XElement CreateDirectoryPackagesPropsXml() => new(
+        "Project",
+        new XElement(
+            "PropertyGroup",
+            new XElement("ManagePackageVersionsCentrally", "true")
+        ),
+        new XElement(
+            "ItemGroup",
+            this.SamplePackageReferences.Select(spec => new XElement(
+                "PackageVersion",
+                new XAttribute("Include", spec.ItemSpec),
+                new XAttribute("Version", spec.GetMetadata("Version")))
+            )
+        )
+    );
+
+    IEnumerable<XElement> CreateProjectReferencesXml()
+    {
+        if (this.CommonPackageReferences.Any())
+        {
+            yield return this.CreateCommonPackageReferencesXml();
+        }
+
+        if (this.SampleProjectReferences.Any())
+        {
+            yield return this.CreateCommonProjectReferencesXml();
+        }
+    }
+
+    XElement CreateCommonPackageReferencesXml() => new(
+        "ItemGroup",
+        this.CommonPackageReferences.Select((reference) => new XElement(
+            "PackageReference",
+            new XAttribute("Include", reference.ItemSpec)
+        ))
+    );
+
+    XElement CreateCommonProjectReferencesXml() => new(
+        "ItemGroup",
+        this.SampleProjectReferences.Select((reference) => new XElement(
+            "ProjectReference",
+            new XAttribute(
+                "Include",
+                this.ResolveDependencyProjectPath(reference)
+            )
+        ))
+    );
+
+    string ResolveDependencyProjectPath(ITaskItem dependencyProject)
+    {
+        var dependnecyProjectPath = Path.GetRelativePath(this.SampleSolutionDir, dependencyProject.ItemSpec);
+        return $"$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '{dependnecyProjectPath}'))";
+    }
+
+    XElement CreateDirectoryBuildPropsXml() => new(
+        "Project",
+        [
+            CreateParentDirectoryBuildPropsImport(),
+            this.CreateCommonProjectProperties(),
+            CreateCommonProjectCompileItems(),
+            CreateAllureResultsCleanItems(),
+            ..CreateProjectReferencesXml(),
+        ]
+    );
+
+    static XElement CreateParentDirectoryBuildPropsImport() => new(
+        "Import",
+        new XAttribute(
+            "Project",
+            "$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+        ),
+        new XAttribute(
+            "Condition",
+            "'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+        )
+    );
+
+    XElement CreateCommonProjectProperties() => new(
+        "PropertyGroup",
+        new XElement("TargetFrameworks", this.SampleTargetFrameworks),
+        new XElement("OutputType", "Library"),
+        new XElement("EnableDefaultItems", "false")
+    );
+
+    static XElement CreateCommonProjectCompileItems() => new(
+        "ItemGroup",
+        new XElement(
+            "Compile",
+            new XAttribute("Include", "**/*.cs")
+        )
+    );
+
+    static XElement CreateAllureResultsCleanItems() => new(
+        "ItemGroup",
+        new XElement(
+            "Clean",
+            new XAttribute("Include", "$(TargetDir)allure-results/**/*")
+        )
+    );
+
+    void CreateSlnx(IEnumerable<string> projects)
+    {
+        var slnxXml = CreateSlnxXml(projects);
+        WriteXmlFile(this.SampleSolutionPath, slnxXml);
+    }
+
+    static void CreateCsproj(string sampleProjectName, string sampleProjectDir)
+    {
+        var csprojXml = CreateCsprojXml();
+        var csprojPath = Path.Combine(sampleProjectDir, $"{sampleProjectName}.csproj");
+
+        WriteXmlFile(csprojPath, csprojXml);
+    }
+
+    void CreateNugetConfig()
+    {
+        var nugetConfigPath = Path.Combine(this.SampleSolutionDir, "nuget.config");
+        var nugetConfigXml = CreateNugetConfigXml();
+
+        WriteXmlFile(nugetConfigPath, nugetConfigXml);
     }
 
     void CreateDirectoryPackagesProps()
     {
-        WriteXmlFile(
-            Path.Combine(this.SampleSolutionDir, "Directory.Packages.props"),
-            new XElement(
-                "Project",
-                new XElement(
-                    "PropertyGroup",
-                    new XElement("ManagePackageVersionsCentrally", "true")
-                ),
-                new XElement(
-                    "ItemGroup",
-                    this.SamplePackageReferences.Select(spec => new XElement(
-                        "PackageVersion",
-                        new XAttribute("Include", spec.ItemSpec),
-                        new XAttribute("Version", spec.GetMetadata("Version")))
-                    )
-                )
-            )
-        );
+        var directoryPackagesPropsPath = Path.Combine(this.SampleSolutionDir, "Directory.Packages.props");
+        var directoryPackagesPropsXml = CreateDirectoryPackagesPropsXml();
+
+        WriteXmlFile(directoryPackagesPropsPath, directoryPackagesPropsXml);
     }
 
     void CreateDirectoryBuildProps()
     {
-        var packages = this.SamplePackageReferences.Where(spec =>
-        {
-            var optional = spec.GetMetadata("Optional");
-            return string.IsNullOrEmpty(optional) || optional.ToLower() is not "true";
-        }).Select(reference => new XElement(
-            "PackageReference",
-            new XAttribute("Include", reference.ItemSpec)
-        ));
+        var directoryBuildPropsPath = Path.Combine(this.SampleSolutionDir, "Directory.Build.props");
+        var directoryBuildPropsXml = this.CreateDirectoryBuildPropsXml();
 
-        var projects = this.SampleProjectReferences.Select(reference => new XElement(
-            "ProjectReference",
-            new XAttribute(
-                "Include",
-                $"$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '{Path.GetRelativePath(this.SampleSolutionDir, reference.ItemSpec)}'))"
-            )
-        ));
-
-        IEnumerable<XElement> references = [
-            packages.Any() ? new XElement("ItemGroup", packages) : null,
-            projects.Any() ? new XElement("ItemGroup", projects) : null,
-
-        ];
-
-        WriteXmlFile(
-            Path.Combine(this.SampleSolutionDir, "Directory.Build.props"),
-            new XElement(
-                "Project",
-                [
-                    new XElement(
-                        "Import",
-                        new XAttribute(
-                            "Project",
-                            "$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
-                        ),
-                        new XAttribute(
-                            "Condition",
-                            "'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
-                        )
-                    ),
-                    new XElement(
-                        "PropertyGroup",
-                        new XElement("TargetFrameworks", this.SampleTargetFrameworks),
-                        new XElement("OutputType", "Library"),
-                        new XElement("EnableDefaultItems", "false")
-                    ),
-                    new XElement(
-                        "ItemGroup",
-                        new XElement(
-                            "Compile",
-                            new XAttribute("Include", "**/*.cs")
-                        )
-                    ),
-                    new XElement(
-                        "ItemGroup",
-                        new XElement(
-                            "Clean",
-                            new XAttribute("Include", "$(TargetDir)allure-results/**/*")
-                        )
-                    ),
-                    ..references.Where(item => item is not null),
-                ]
-            )
-        );
+        WriteXmlFile(directoryBuildPropsPath, directoryBuildPropsXml);
     }
 
     static void WriteXmlFile(string path, XNode node)
