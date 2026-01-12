@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Allure.Testing;
@@ -30,6 +31,11 @@ public record class AllureSampleRunInput
     /// A list of extra CLI arguments passed to <c>dotnet test</c> or <c>dotnet run</c>.
     /// </summary>
     public List<string> ProcessArguments { get; init; } = [];
+
+    /// <summary>
+    /// A timeout of the sample run.
+    /// </summary>
+    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(10);
 
     public static AllureSampleRunInput Default { get; } = new();
 }

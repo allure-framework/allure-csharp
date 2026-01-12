@@ -96,7 +96,7 @@ public class AllureSampleRunner
 
         var stdStreamsTask = SetProcessStreamCollection(process, ct);
 
-        await process.WaitForExitAsync(ct);
+        await WaitForExit(process, input.Timeout, ct);
 
         return await ReadSampleOutput(process, stdStreamsTask, resultsDirGuard.Value, ct);
     }
@@ -183,6 +183,32 @@ public class AllureSampleRunner
         await CollectProcessStream(process.StandardOutput, ct),
         await CollectProcessStream(process.StandardError, ct)
     );
+
+    static async Task WaitForExit(Process process, TimeSpan timeout, CancellationToken ct)
+    {
+        using var cts = ApplyTimeout(timeout, ct);
+
+        try
+        {
+            await process.WaitForExitAsync(cts.Token);
+        }
+        catch (TaskCanceledException e)
+        {
+            if (e.CancellationToken.IsCancellationRequested && !ct.IsCancellationRequested)
+            {
+                throw new TimeoutException($"A timeout of {timeout} was reached.");
+            }
+
+            throw;
+        }
+    }
+
+    static CancellationTokenSource ApplyTimeout(TimeSpan timeout, CancellationToken ct)
+    {
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(timeout);
+        return cts;
+    }
 
     static async Task<AllureSampleRunOutput> ReadSampleOutput(
         Process process,
