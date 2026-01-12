@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Nullable>enable</Nullable>
+    <AspectInjector_Enabled>false</AspectInjector_Enabled>
   </PropertyGroup>
 
 </Project>
