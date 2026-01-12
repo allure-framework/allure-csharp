@@ -89,6 +89,11 @@ public class AllureMsbuildPropsGenerator : IIncrementalGenerator
     static void AppendOneClassProperty(StringBuilder sb, (string, string) data)
     {
         var (key, value) = data;
+        if (!SyntaxFacts.IsValidIdentifier(key))
+        {
+            return;
+        }
+
         var valueCodeLiteral = SymbolDisplay.FormatLiteral(value, true);
 
         sb.Append(
