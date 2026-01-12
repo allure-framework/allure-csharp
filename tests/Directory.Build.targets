@@ -129,8 +129,6 @@
             Properties="Configuration=$(Allure_SampleConfiguration)"
             Condition=" Exists('@(AllureSampleSolution)') "
             ContinueOnError="True" />
-
-        <RemoveDir Directories="$(Allure_SampleSolutionDir)" />
     </Target>
 
     <Target Name="Allure_DeleteTestSamples">
