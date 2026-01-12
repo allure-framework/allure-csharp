@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Allure.Testing.Internal;
 
 namespace Allure.Testing;
 
@@ -134,7 +135,7 @@ public class AllureSampleRunner
         }
     }
 
-    static async Task<TempFile?> MaybeApplyAllureConfig(
+    static async Task<Guard<string>?> MaybeApplyAllureConfig(
         object? allureConfig,
         ProcessStartInfo psi,
         CancellationToken ct
@@ -157,20 +158,21 @@ public class AllureSampleRunner
 
         psi.Environment["ALLURE_CONFIG"] = configPath;
 
-        return new(configPath);
+        return Guard.WrapFile(configPath);
     }
 
-    static TempDir ApplyAllureResultsDirectory(
+    static Guard<DirectoryInfo> ApplyAllureResultsDirectory(
         ProcessStartInfo psi,
         string? explicitAllureResultsDirectory
     )
     {
-        var resultsDir = explicitAllureResultsDirectory is null
-            ? Directory.CreateTempSubdirectory("allure-results-")
+        bool useTempDir = explicitAllureResultsDirectory is null;
+        var resultsDir = useTempDir ?
+            Directory.CreateTempSubdirectory("allure-results-")
                 ?? throw new InvalidOperationException("Can't create the Allure result directory")
-            : new(explicitAllureResultsDirectory);
+            : new(explicitAllureResultsDirectory!);
         psi.Environment["ALLURE_RESULTSDIR"] = resultsDir.FullName;
-        return new(resultsDir);
+        return Guard.WrapDirectory(resultsDir, useTempDir);
     }
 
     static async Task<(string, string)> SetProcessStreamCollection(
@@ -268,22 +270,4 @@ public class AllureSampleRunner
     {
         WriteIndented = true,
     };
-
-    class TempFile(string path) : IDisposable
-    {
-        public void Dispose()
-        {
-            File.Delete(path);
-        }
-    }
-
-    class TempDir(DirectoryInfo dInfo) : IDisposable
-    {
-        public DirectoryInfo Directory { get; init; } = dInfo;
-
-        public void Dispose()
-        {
-            this.Directory.Delete(true);
-        }
-    }
 }
