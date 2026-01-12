@@ -83,6 +83,9 @@
     <Project Path="tests/Allure.Reqnroll.Tests.Samples/Allure.Reqnroll.Tests.Samples.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
+    <Project Path="tests/Allure.Testing/Allure.Testing.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
