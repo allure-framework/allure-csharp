@@ -22,8 +22,10 @@
 
     </PropertyGroup>
 
-    <!-- At this point, all AllureSample items must be already defined. We're converting them to AdditionalFiles items
-     to make them visible by the source generators. Only items with ProjectSuffix metadata set are converted. -->
+    <!-- At this point, all AllureSample items must be already defined.
+     We're converting them to AdditionalFiles items to make them visible
+     by the source generators. Only items with ProjectSuffix metadata set
+     are converted. -->
     <ItemGroup>
 
         <AdditionalFiles
@@ -53,10 +55,15 @@
             Targets="Restore;Build"
             BuildInParallel="$(BuildInParallel)"
             Properties="Configuration=Release">
+
             <Output TaskParameter="TargetOutputs" ItemName="AllureBuildTasksAssembly" />
+
         </MSBuild>
 
-        <Copy SourceFiles="@(AllureBuildTasksAssembly)" DestinationFolder="$(IntermediateOutputPath)" SkipUnchangedFiles="true" />
+        <Copy
+            SourceFiles="@(AllureBuildTasksAssembly)"
+            DestinationFolder="$(IntermediateOutputPath)"
+            SkipUnchangedFiles="true" />
 
         <Allure.Build.Tasks.GenerateSampleSolution
             SampleSources="@(AllureSample)"
@@ -81,7 +88,15 @@
     <Target Name="Allure_RunTestSamples">
 
         <ItemGroup>
-            <AllureSampleResultDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_SampleResultsDirectoryFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
+            <AllureSampleResultDirectory
+                Include="@(
+                    AllureSample -> '$(
+                        [System.String]::Format(
+                            '$(Allure_SampleResultsDirectoryFormat)',
+                            '%(AllureSample.ProjectSuffix)'
+                        )
+                    )'
+                )"/>
         </ItemGroup>
 
         <RemoveDir Directories="@(AllureSampleResultDirectory)" />
@@ -98,7 +113,13 @@
             BeforeTargets="Clean">
 
         <ItemGroup>
-            <AllureSampleSolution Include="$([MSBuild]::NormalizePath('$(Allure_SampleSolutionDir)', '$(Allure_SampleSolutionName).slnx'))" />
+            <AllureSampleSolution
+                Include="$(
+                    [MSBuild]::NormalizePath(
+                        '$(Allure_SampleSolutionDir)',
+                        '$(Allure_SampleSolutionName).slnx'
+                    )
+                )" />
         </ItemGroup>
 
         <MSBuild
@@ -115,13 +136,42 @@
     <Target Name="Allure_DeleteTestSamples">
 
         <PropertyGroup>
-            <Allure_SampleProjectBinFormat>$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'bin', '$(Allure_SampleSolutionName).{0}'))</Allure_SampleProjectBinFormat>
-            <Allure_SampleProjectObjFormat>$([MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'obj', '$(Allure_SampleSolutionName).{0}'))</Allure_SampleProjectObjFormat>
+            <Allure_SampleProjectBinFormat>$(
+                [MSBuild]::NormalizeDirectory(
+                    '$(ArtifactsPath)',
+                    'bin',
+                    '$(Allure_SampleSolutionName).{0}'
+                )
+            )</Allure_SampleProjectBinFormat>
+
+            <Allure_SampleProjectObjFormat>$(
+                [MSBuild]::NormalizeDirectory(
+                    '$(ArtifactsPath)',
+                    'obj',
+                    '$(Allure_SampleSolutionName).{0}'
+                )
+            )</Allure_SampleProjectObjFormat>
         </PropertyGroup>
 
         <ItemGroup>
-            <AllureSampleProjectOutputDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_SampleProjectBinFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
-            <AllureSampleProjectOutputDirectory Include="@(AllureSample -> '$([System.String]::Format('$(Allure_SampleProjectObjFormat)', '%(AllureSample.ProjectSuffix)'))')"/>
+            <AllureSampleProjectOutputDirectory
+                Include="@(
+                    AllureSample -> '$(
+                        [System.String]::Format(
+                            '$(Allure_SampleProjectBinFormat)',
+                            '%(AllureSample.ProjectSuffix)'
+                        )
+                    )'
+                )"/>
+            <AllureSampleProjectOutputDirectory
+                Include="@(
+                    AllureSample -> '$(
+                        [System.String]::Format(
+                            '$(Allure_SampleProjectObjFormat)',
+                            '%(AllureSample.ProjectSuffix)'
+                        )
+                    )'
+                )"/>
         </ItemGroup>
 
         <RemoveDir Directories="@(AllureSampleProjectOutputDirectory)" />

@@ -5,6 +5,7 @@
     <PropertyGroup>
         <!-- Don't compile samples as a part of test projects. -->
         <DefaultItemExcludes>$(DefaultItemExcludes);@(AllureSample)</DefaultItemExcludes>
+
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
@@ -73,9 +74,10 @@
         </Allure_CompilerVisibleProperties>
 
         <!-- Put Allure properties in a single line and replaces the separator to ':'.
-         Otherwise, the value won't be picked up by *.GeneratedMSBuildEditorConfig.editorconfig, which is an ini file.
-         Roslyn will then make the properties accessible by source generators.
-         AllureMsbuildPropsGenerator will pass them to the compilation making them consumable by the sample runner. -->
+         Otherwise, the value won't be picked up by *.GeneratedMSBuildEditorConfig.editorconfig,
+         which is an ini file. Roslyn will then make the properties accessible by source generators.
+         AllureMsbuildPropsGenerator will pass them to the compilation making them consumable by
+         the sample runner. -->
         <Allure_PropertyNames>$(
             Allure_CompilerVisibleProperties
                 .Replace('%0D', '')
@@ -85,7 +87,9 @@
         )</Allure_PropertyNames>
 
         <!-- The default project directory containing the samples to test. -->
-        <Allure_SamplesDirectory>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', 'Samples'))</Allure_SamplesDirectory>
+        <Allure_SamplesDirectory>$(
+            [MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', 'Samples')
+        )</Allure_SamplesDirectory>
         <Allure_SamplesPattern>$(
             [MSBuild]::Unescape(
                 '$([MSBuild]::NormalizePath('$(Allure_SamplesDirectory)', '**', '*'))'
@@ -106,11 +110,13 @@
        - ProjectSuffix of ./Samples/Bar/Baz.cs is Bar
      These files are not passed to the C# compiler. Instead, the following happens on build:
        1. The GenerateSampleSolution task groups the files by ProjectSuffix and creates a sample project
-          for each group. The sample project's name is <test-project-name>.Samples.<ProjectSuffix>.
+          for each group. It calculates the project's name as <test-project-name>.Samples.<ProjectSuffix>.
           The source files will be copied to the sample project directory with paths relative to their
-          greatest common prefix. The projects are combined under a single solution named
+          greatest common prefix. All such projects are combined under a single solution named
           <test-project-name>.Samples.
-          For example, let's suppose we have a testing project My.Tests that defines the following samples:
+
+          Example:
+          Let's suppose we have a testing project My.Tests that defines the following samples:
             - ./Samples/Foo.cs
             - ./Samples/Foo/Bar.cs
             - ./Samples/Bar.cs
@@ -125,8 +131,9 @@
             - My.Tests.Samples.Qux
                 - ./Qut.cs
                 - ./Quz.cs
-       2. SampleRegistryGenerator generates the sample registry. The tests can then refer to a sample
-          by the corresponding static property of Allure.Testing.AllureSampleRegistry. -->
+       2. The AllureSampleRegistryGenerator source generator generates the sample registry
+        (the Allure.Testing.AllureSampleRegistry class). The tests can then refer to a sample
+        by the corresponding static property of the registry class. -->
     <ItemGroup>
         <AllureSample Include="$(Allure_SamplesPattern)">
             <ProjectSuffix>$(
