@@ -85,7 +85,8 @@
 
     </Target>
 
-    <Target Name="Allure_RunTestSamples">
+    <Target Name="Allure_RunTestSamples"
+            Condition=" '@(AllureSample)' != '' ">
 
         <ItemGroup>
             <AllureSampleResultDirectory
