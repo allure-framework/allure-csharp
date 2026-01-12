@@ -87,7 +87,7 @@ public class AllureSampleRunner
         ApplyExtraEnvironmentVariables(input.EnvironmentVariables, psi);
 
         using var _ = await MaybeApplyAllureConfig(input.AllureConfiguration, psi, ct);
-        using var resultsDirGuard = ApplyAllureResultsDirectory(psi);
+        using var resultsDirGuard = ApplyAllureResultsDirectory(psi, input.AllureResultsDirectory);
 
         using var process = Process.Start(psi) ??
             throw new InvalidOperationException("Unable to start a process");
@@ -160,10 +160,15 @@ public class AllureSampleRunner
         return new(configPath);
     }
 
-    static TempDir ApplyAllureResultsDirectory(ProcessStartInfo psi)
+    static TempDir ApplyAllureResultsDirectory(
+        ProcessStartInfo psi,
+        string? explicitAllureResultsDirectory
+    )
     {
-        var resultsDir = Directory.CreateTempSubdirectory("allure-results-")
-            ?? throw new InvalidOperationException("Can't create the Allure result directory");
+        var resultsDir = explicitAllureResultsDirectory is null
+            ? Directory.CreateTempSubdirectory("allure-results-")
+                ?? throw new InvalidOperationException("Can't create the Allure result directory")
+            : new(explicitAllureResultsDirectory);
         psi.Environment["ALLURE_RESULTSDIR"] = resultsDir.FullName;
         return new(resultsDir);
     }

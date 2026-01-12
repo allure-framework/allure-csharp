@@ -15,6 +15,12 @@ public record class AllureSampleRunInput
     public object? AllureConfiguration { get; init; } = null;
 
     /// <summary>
+    /// The path to a directory used to write and read Allure results to/from. An absolute path
+    /// is recommended.
+    /// </summary>
+    public string? AllureResultsDirectory { get; init; } = null;
+
+    /// <summary>
     /// A dictionary that defines extra environment variables passed to
     /// <c>dotnet test</c> or <c>dotnet run</c>.
     /// </summary>
