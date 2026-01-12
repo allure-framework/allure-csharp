@@ -73,15 +73,22 @@
             SampleSolutionName="$(Allure_SampleSolutionName)"
             SampleSolutionPath="$(_Allure_SampleSolutionPath)"
             SampleTargetFrameworks="$(Allure_SampleSupportedTargetFrameworks)"
-            LocalNugetRepository="$(Allure_LocalNugetRepository)"/>
+            LocalNugetRepository="$(Allure_LocalNugetRepository)" />
+
+        <CallTarget
+            Targets="Allure_BuildTestSamples"
+            Condition=" '$(Allure_PreBuildTestSamples)' == 'true' "/>
+
+    </Target>
+
+    <Target Name="Allure_BuildTestSamples"
+            Condition=" '@(AllureSample)' != '' ">
 
         <MSBuild
             Projects="$(_Allure_SampleSolutionPath)"
             Targets="Restore;Build"
             BuildInParallel="$(BuildInParallel)"
-            Condition=" '$(Allure_PreBuildTestSamples)' == 'true' "
-            Properties="Configuration=$(Allure_SampleConfiguration)"
-            ContinueOnError="False" />
+            Properties="Configuration=$(Allure_SampleConfiguration)" />
 
     </Target>
 
