@@ -220,14 +220,17 @@ public class GenerateSampleSolution : Task
     void ShowInvalidSuffixWarning(IGrouping<string, string> sampleGroup, string projectSuffix)
     {
         this.Log.LogWarning(
-            "Ignoring {0} sample file(s): invalid ProjectSuffix '{1}' defined on the items. "
+            "Ignoring {0} sample file(s): invalid ProjectSuffix '{1}' defined on the item(s). "
                 + "A project suffix must be a valid C# identifier. "
                 + "Please, rename the corresponding file or folder, "
-                + "or assign the value manually. For example:\n"
-                + "  <ItemGroup>\n"
-                + $"    <AllureSample Remove=\"./Samples/{projectSuffix}/**\" />\n"
-                + $"    <AllureSample Include=\"./Samples/{projectSuffix}/**\" ProjectSuffix=\"ValidSuffix\" />\n"
-                + "  </ItemGroup>\n"
+                + "or assign the value manually. For example:"
+                + """
+
+                    <ItemGroup>
+                      <AllureSample Update="./Samples/{1}/**" ProjectSuffix="ValidSuffix" />
+                    </ItemGroup>
+
+                  """
                 + "Here is the list of skipped files:\n{2}",
             sampleGroup.Count(),
             projectSuffix,
