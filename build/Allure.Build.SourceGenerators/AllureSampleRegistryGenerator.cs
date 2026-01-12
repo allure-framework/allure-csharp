@@ -75,31 +75,8 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
         var sb = new StringBuilder();
         sb.AppendLine($"namespace { Constants.NAMESPACE_NAME };");
         sb.AppendLine();
-        AppendRegistryEntryClass(sb);
-        sb.AppendLine();
         AppendRegistryClass(sb, sampleSources);
         return sb.ToString();
-    }
-
-    static void AppendRegistryEntryClass(StringBuilder sb)
-    {
-        sb.Append(
-            $$"""
-            /// <summary>
-            /// Contains the data required to run a specific sample project and access its result files.
-            /// </summary>
-            /// <remarks>
-            /// Use the instances exposed by <see cref="{{ Constants.REGISTRY_CLASSNAME_FULL }}"/>
-            /// instead of creating your own.
-            /// </remarks>
-            internal record class {{ Constants.REGISTRY_ENTRY_CLASSNAME }}(
-                string Name,
-                string ProjectPath,
-                string DefaultResultsPath
-            );
-
-            """
-        );
     }
 
     static void AppendRegistryClass(StringBuilder sb, SampleProjectSources sampleSources)
@@ -165,7 +142,9 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
                         string.Format(
                             {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_RESULTS_DIRECTORY_FMT }},
                             "{{ suffix }}"
-                        )
+                        ),
+                        {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_TARGET_FRAMEWORK }},
+                        {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_CONFIGURATION }}
                     );
 
             """
