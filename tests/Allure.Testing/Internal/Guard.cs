@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace Allure.Testing.Internal;
@@ -22,4 +23,23 @@ internal static class Guard
 
     public static Guard<DirectoryInfo> WrapDirectory(DirectoryInfo dir, bool own) =>
         new(dir, (dir) => dir.Delete(true), own);
+
+    public static Guard<Process> WrapProcess(Process process) => new(process, EnsureStopped);
+
+    static void EnsureStopped(Process process)
+    {
+        try
+        {
+            process.Refresh();
+
+            if (!process.HasExited)
+            {
+                process.Kill(true);
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+    }
 }

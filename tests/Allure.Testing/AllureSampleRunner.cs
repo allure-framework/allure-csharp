@@ -87,17 +87,18 @@ public class AllureSampleRunner
 
         ApplyExtraEnvironmentVariables(input.EnvironmentVariables, psi);
 
-        using var _ = await MaybeApplyAllureConfig(input.AllureConfiguration, psi, ct);
+        using var allureConfigGuard = await MaybeApplyAllureConfig(input.AllureConfiguration, psi, ct);
         using var resultsDirGuard = ApplyAllureResultsDirectory(psi, input.AllureResultsDirectory);
 
         using var process = Process.Start(psi) ??
             throw new InvalidOperationException("Unable to start a process");
+        using var processGuard = Guard.WrapProcess(process);
 
         var stdStreamsTask = SetProcessStreamCollection(process, ct);
 
         await process.WaitForExitAsync(ct);
 
-        return await ReadSampleOutput(process, stdStreamsTask, resultsDirGuard.Directory, ct);
+        return await ReadSampleOutput(process, stdStreamsTask, resultsDirGuard.Value, ct);
     }
 
     static ProcessStartInfo CreateProcessStartInfo(
