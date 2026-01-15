@@ -115,7 +115,8 @@
             Targets="VSTest"
             BuildInParallel="$(BuildInParallel)"
             Properties="Configuration=$(Allure_SampleConfiguration)"
-            RemoveProperties="Platform" />
+            RemoveProperties="Platform"
+            ContinueOnError="true" />
 
     </Target>
 
