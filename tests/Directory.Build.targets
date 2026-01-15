@@ -96,6 +96,9 @@
     <Target Name="Allure_RunTestSamples"
             Condition=" '@(AllureSample)' != '' ">
 
+        <Error Text="The sample solution $(_Allure_SampleSolutionPath) doesn't exist. Build $(MSBuildProjectName) to generate it"
+            Condition=" !Exists('$(_Allure_SampleSolutionPath)') " />
+
         <ItemGroup>
             <AllureSampleResultDirectory
                 Include="@(
