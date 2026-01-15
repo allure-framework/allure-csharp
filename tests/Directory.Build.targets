@@ -88,7 +88,8 @@
             Projects="$(_Allure_SampleSolutionPath)"
             Targets="Restore;Build"
             BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=$(Allure_SampleConfiguration);Platform=Any CPU" />
+            Properties="Configuration=$(Allure_SampleConfiguration)"
+            RemoveProperties="Platform" />
 
     </Target>
 
@@ -113,7 +114,8 @@
             Projects="$(_Allure_SampleSolutionPath)"
             Targets="VSTest"
             BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=$(Allure_SampleConfiguration);Platform=Any CPU" />
+            Properties="Configuration=$(Allure_SampleConfiguration)"
+            RemoveProperties="Platform" />
 
     </Target>
 
@@ -125,7 +127,8 @@
             Projects="$(_Allure_SampleSolutionPath)"
             Targets="Clean"
             BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=$(Allure_SampleConfiguration);Platform=Any CPU"
+            Properties="Configuration=$(Allure_SampleConfiguration)"
+            RemoveProperties="Platform"
             ContinueOnError="True" />
 
     </Target>
