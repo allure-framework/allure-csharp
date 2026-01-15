@@ -57,8 +57,9 @@ public class GenerateSampleSolution : Task
         var directoryPackagesProps = this.GenerateDirectoryPackagesProps();
         var nugetConfig = this.GenerateNugetConfig();
         var projects = this.GenerateProjects();
-        this.GenerateSlnx(projects);
+        var slnx = this.GenerateSlnx(projects);
         this.CommitSampleFiles([
+            slnx,
             directoryBuildProps,
             directoryPackagesProps,
             nugetConfig,
