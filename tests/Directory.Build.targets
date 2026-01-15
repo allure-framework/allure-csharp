@@ -118,25 +118,17 @@
     </Target>
 
     <Target Name="Allure_CleanTestSamples"
-            BeforeTargets="Clean">
-
-        <ItemGroup>
-            <AllureSampleSolution
-                Include="$(
-                    [MSBuild]::NormalizePath(
-                        '$(Allure_SampleSolutionDir)',
-                        '$(Allure_SampleSolutionName).slnx'
-                    )
-                )" />
-        </ItemGroup>
+            BeforeTargets="CoreClean"
+            Condition="Exists('$(_Allure_SampleSolutionPath)')">
 
         <MSBuild
-            Projects="@(AllureSampleSolution)"
+            Projects="$(_Allure_SampleSolutionPath)"
             Targets="Clean"
             BuildInParallel="$(BuildInParallel)"
             Properties="Configuration=$(Allure_SampleConfiguration)"
             Condition=" Exists('@(AllureSampleSolution)') "
             ContinueOnError="True" />
+
     </Target>
 
     <Target Name="Allure_DeleteTestSamples">
