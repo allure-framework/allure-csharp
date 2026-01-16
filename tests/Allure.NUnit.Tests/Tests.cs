@@ -8,10 +8,10 @@ internal class LabelTests
     [Test]
     public async Task AttributeLabelPassedToResult()
     {
-        var runResult = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AttributeLabel);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AttributeLabel);
 
-        await Assert.That(runResult.ExitCode).IsZero();
-        var nodes = runResult.AllureResults.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
+        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
+        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
         await Assert.That(nodes).Any(
             l =>
             {

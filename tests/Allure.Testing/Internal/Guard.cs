@@ -6,14 +6,38 @@ namespace Allure.Testing.Internal;
 
 internal class Guard<T>(T value, Action<T> dispose, bool own = true) : IDisposable
 {
+    readonly object monitor = new();
+
     public T Value { get; init; } = value;
+
+    public bool Own { get; private set; } = own;
 
     public void Dispose()
     {
-        if (own)
+        lock(this.monitor)
         {
-            dispose(this.Value);
+            if (this.Own)
+            {
+                dispose(this.Value);
+            }
         }
+    }
+
+    public Guard<T> Transfer()
+    {
+        lock (this.monitor)
+        {
+            if (!this.Own)
+            {
+                throw new InvalidOperationException(
+                    "Can't transfer: the guard don't own the resourse"
+                );
+            }
+
+            this.Own = false;
+        }
+
+        return new(this.Value, dispose);
     }
 }
 

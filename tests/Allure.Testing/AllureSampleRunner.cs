@@ -28,7 +28,7 @@ public class AllureSampleRunner
     /// </param>
     /// <returns>The results of the run, including Allure results.</returns>
     /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureSampleRunOutput> RunAsync(AllureSampleRegistryEntry sample) =>
+    public static async Task<AllureResults> RunAsync(AllureSampleRegistryEntry sample) =>
         await RunAsync(sample, AllureSampleRunInput.Default, CancellationToken.None);
 
     /// <summary>
@@ -42,7 +42,7 @@ public class AllureSampleRunner
     /// <param name="ct">A cancellation token to interrupt the sample run.</param>
     /// <returns>The results of the run, including Allure results.</returns>
     /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureSampleRunOutput> RunAsync(
+    public static async Task<AllureResults> RunAsync(
         AllureSampleRegistryEntry sample,
         CancellationToken token
     ) =>
@@ -59,7 +59,7 @@ public class AllureSampleRunner
     /// <param name="input">Input data for the sample run.</param>
     /// <returns>The results of the run, including Allure results.</returns>
     /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureSampleRunOutput> RunAsync(
+    public static async Task<AllureResults> RunAsync(
         AllureSampleRegistryEntry sample,
         AllureSampleRunInput input
     ) =>
@@ -77,7 +77,20 @@ public class AllureSampleRunner
     /// <param name="ct">A cancellation token to interrupt the sample run.</param>
     /// <returns>The results of the run, including Allure results.</returns>
     /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureSampleRunOutput> RunAsync(
+    public static async Task<AllureResults> RunAsync(
+        AllureSampleRegistryEntry sample,
+        AllureSampleRunInput input,
+        CancellationToken ct
+    )
+    {
+        using var allureResultsDir = await ProduceSampleResults(sample, input, ct);
+
+        var allureResults = await ReadAllureResults(allureResultsDir.Value, ct);
+
+        return allureResults;
+    }
+
+    static async Task<Guard<DirectoryInfo>> ProduceSampleResults(
         AllureSampleRegistryEntry sample,
         AllureSampleRunInput input,
         CancellationToken ct
@@ -87,18 +100,76 @@ public class AllureSampleRunner
 
         ApplyExtraEnvironmentVariables(input.EnvironmentVariables, psi);
 
-        using var allureConfigGuard = await MaybeApplyAllureConfig(input.AllureConfiguration, psi, ct);
-        using var resultsDirGuard = ApplyAllureResultsDirectory(psi, input.AllureResultsDirectory);
+        using var allureConfigGuard
+            = await MaybeApplyAllureConfig(input.AllureConfiguration, psi, ct);
+        using var resultsDirGuard
+            = ApplyAllureResultsDirectory(psi, input.AllureResultsDirectory);
+
+        LogProcessStart(psi);
 
         using var process = Process.Start(psi) ??
             throw new InvalidOperationException("Unable to start a process");
+
+        // Make sure the process tree is stopped if an exception occurs.
         using var processGuard = Guard.WrapProcess(process);
 
         var stdStreamsTask = SetProcessStreamCollection(process, ct);
 
         await WaitForExit(process, input.Timeout, ct);
 
-        return await ReadSampleOutput(process, stdStreamsTask, resultsDirGuard.Value, ct);
+        LogProcessFinish(process);
+
+        var (stdout, stderr) = await stdStreamsTask;
+
+        LogStdStreams(stdout, stderr);
+
+        return resultsDirGuard.Transfer();
+    }
+
+    static void LogProcessStart(ProcessStartInfo psi)
+    {
+        Console.WriteLine(
+            "Running {0} {1}",
+            psi.FileName,
+            string.Join(" ", psi.Arguments.Select(a => $"'{a}'"))
+        );
+
+        Console.WriteLine("  Working directory: {0}", psi.WorkingDirectory);
+
+        if (psi.Environment.Any())
+        {
+            Console.WriteLine("  Environment variables:");
+            foreach (var (name, value) in psi.Environment)
+            {
+                Console.WriteLine("    {0}={1}", name, value);
+            }
+        }
+    }
+
+    static void LogProcessFinish(Process process)
+    {
+        Console.WriteLine(
+            "{0} finished with exit code {1}",
+            process.StartInfo.FileName,
+            process.ExitCode
+        );
+    }
+
+    static void LogStdStreams(string stdout, string stderr)
+    {
+        LogStdStream("Standard output", stdout);
+        LogStdStream("Standard error", stdout);
+    }
+
+    static void LogStdStream(string name, string output)
+    {
+        if (!string.IsNullOrEmpty(output))
+        {
+            Console.WriteLine("{0}:", name);
+            Console.WriteLine("");
+            Console.WriteLine(output);
+            Console.WriteLine("");
+        }
     }
 
     static ProcessStartInfo CreateProcessStartInfo(
@@ -210,27 +281,13 @@ public class AllureSampleRunner
         return cts;
     }
 
-    static async Task<AllureSampleRunOutput> ReadSampleOutput(
-        Process process,
-        Task<(string, string)> stdStreamsTask,
-        DirectoryInfo resultsDirectory,
-        CancellationToken ct
-    )
-    {
-        var allureResults = await ReadAllureResults(resultsDirectory, ct);
-
-        var (stdout, stderr) = await stdStreamsTask;
-
-        return new(process.ExitCode, stdout, stderr, allureResults);
-    }
-
     static Task<string> CollectProcessStream(StreamReader reader, CancellationToken ct) =>
         Task.Factory.StartNew(
             () => reader.ReadToEndAsync(ct).Result,
             TaskCreationOptions.LongRunning
         );
 
-    static async Task<AllureSampleRunOutput.AllureResultData> ReadAllureResults(
+    static async Task<AllureResults> ReadAllureResults(
         DirectoryInfo resultsDirectory,
         CancellationToken ct
     )
