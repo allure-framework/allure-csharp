@@ -8,10 +8,19 @@
 
     <PropertyGroup>
 
-        <!-- Default configuration may be unset in Directory.Build.props.
-         Setting the default value here. -->
+        <!-- The Configuration property is unset in Directory.Build.props.
+         Setting the default values of dependent properties here. -->
         <Allure_SampleConfiguration
             Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
+        <Allure_SampleResultsDirectoryFormat Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' ">$(
+            [MSBuild]::NormalizeDirectory(
+                '$(ArtifactsPath)',
+                'bin',
+                '$(Allure_SampleSolutionName).{0}',
+                '$(Allure_SampleConfiguration.ToLower())_$(Allure_SampleSelectedTargetFramework)',
+                'allure-results'
+            )
+        )</Allure_SampleResultsDirectoryFormat>
 
         <_Allure_SampleSolutionPath>$(
             [MSBuild]::NormalizePath(

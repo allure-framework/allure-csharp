@@ -6,6 +6,8 @@
         <!-- Don't compile samples as a part of test projects. -->
         <DefaultItemExcludes>$(DefaultItemExcludes);@(AllureSample)</DefaultItemExcludes>
 
+        <!-- Marks everything in ./tests/ as test projects. The only exception is Allure.Testing,
+         which exclicitly opts out. -->
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
@@ -44,22 +46,17 @@
         <Allure_SampleSelectedTargetFramework
             Condition=" '$(Allure_SampleSelectedTargetFramework)' == '' ">$(TargetFramework)</Allure_SampleSelectedTargetFramework>
 
-        <!-- The configuration used to compile the samples projects. -->
+        <!-- The configuration used to compile the samples projects.
+         For the default value, see ./tests/Directory.Build.targets -->
         <Allure_SampleConfiguration
-            Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
+            Condition=" '$(Allure_SampleConfiguration)' == '' "></Allure_SampleConfiguration>
 
         <!-- A format string of the default allure-results directory path.
          Must contain a {0} placeholder for a sample project suffix.
-         Used to collect test results in the assertion-only testing mode. -->
-        <Allure_SampleResultsDirectoryFormat Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' ">$(
-            [MSBuild]::NormalizeDirectory(
-                '$(ArtifactsPath)',
-                'bin',
-                '$(Allure_SampleSolutionName).{0}',
-                '$(Allure_SampleConfiguration.ToLower())_$(Allure_SampleSelectedTargetFramework)',
-                'allure-results'
-            )
-        )</Allure_SampleResultsDirectoryFormat>
+         Used to collect test results in the assertion-only testing mode.
+         The default value is set in ./tests/Directory.Build.targets. -->
+        <Allure_SampleResultsDirectoryFormat
+            Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' "></Allure_SampleResultsDirectoryFormat>
     </PropertyGroup>
 
     <PropertyGroup>
