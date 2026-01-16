@@ -14,16 +14,24 @@ namespace Allure.Testing;
 /// </param>
 /// <param name="TargetFramework">
 /// A target framework moniker that specifies the target framework for the sample project.
-/// Example: <c>net10.0</c>.
+/// Example: <c>"net10.0"</c>.
 /// </param>
 /// <param name="BuildConfiguration">
 /// A configuration to use when building the sample.
-/// Example: <c>Debug</c>.
+/// Example: <c>"Debug"</c>.
+/// </param>
+/// <param name="IsAssertionOnly">
+/// If <c>true</c>, indicates the assertion-only mode should be used by the runner.
+/// In the assertion-only mode, the runner don't run the sample.
+/// Instead, it parses the result files that must be prepared in advance in the directory
+/// pointed by <see cref="DefaultResultsPath"/>.
+/// The results are typically prepared by <c>dotnet msbuild -t:Allure_RunTestSamples</c>.
 /// </param>
 public record class AllureSampleRegistryEntry(
     string Id,
     string ProjectPath,
     string DefaultResultsPath,
     string TargetFramework,
-    string BuildConfiguration
+    string BuildConfiguration,
+    bool IsAssertionOnly
 );
