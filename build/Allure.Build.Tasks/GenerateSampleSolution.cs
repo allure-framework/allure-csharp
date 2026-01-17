@@ -53,6 +53,7 @@ public class GenerateSampleSolution : Task
 
     public override bool Execute()
     {
+        var directorySolutionTargets = GenerateDirectorySolutionTargets();
         var directoryBuildProps = this.GenerateDirectoryBuildProps();
         var directoryPackagesProps = this.GenerateDirectoryPackagesProps();
         var nugetConfig = this.GenerateNugetConfig();
@@ -60,6 +61,7 @@ public class GenerateSampleSolution : Task
         var slnx = this.GenerateSlnx(projects);
         this.CommitSampleFiles([
             slnx,
+            directorySolutionTargets,
             directoryBuildProps,
             directoryPackagesProps,
             nugetConfig,
@@ -129,7 +131,7 @@ public class GenerateSampleSolution : Task
         }
     }
 
-    static XDocument GetSlnxXml(List<(string, List<FileSource>)> projects) => new(
+    static XDocument CreateSlnxXml(List<(string, List<FileSource>)> projects) => new(
         new XElement(
             new XElement(
                 "Solution",
@@ -430,7 +432,8 @@ public class GenerateSampleSolution : Task
         "PropertyGroup",
         new XElement("TargetFrameworks", this.SampleTargetFrameworks),
         new XElement("OutputType", "Library"),
-        new XElement("EnableDefaultItems", "false")
+        new XElement("EnableDefaultItems", "false"),
+        new XElement("IsTestProject", "true")
     );
 
     static XElement CreateCommonProjectCompileItems() => new(
@@ -451,13 +454,18 @@ public class GenerateSampleSolution : Task
 
     GeneratedFileSource GenerateSlnx(List<(string, List<FileSource>)> projects)
     {
-        var slnxXml = GetSlnxXml(projects);
+        var slnxXml = CreateSlnxXml(projects);
         return GeneratedFileSource.FromXmlDocument(
             slnxXml,
             this.SampleSolutionPath,
             omitDeclaration: true
         );
     }
+
+    GeneratedFileSource GenerateDirectorySolutionTargets() => GeneratedFileSource.FromXmlDocument(
+        DirectorySolutionTargetXml,
+        Path.Combine(this.SampleSolutionDir, "Directory.Solution.targets")
+    );
 
     static GeneratedFileSource GenerateCsproj(string sampleProjectName, string sampleProjectDir)
     {
@@ -500,4 +508,31 @@ public class GenerateSampleSolution : Task
             omitDeclaration: true
         );
     }
+
+    static XDocument DirectorySolutionTargetXml { get; }
+        = new(
+            new XElement(
+                "Project",
+                new XElement(
+                    "Target",
+                    new XAttribute("Name", "Allure_RunTestSamples"),
+                    new XElement(
+                        "MSBuild",
+                        new XAttribute("Projects", "@(ProjectReference)"),
+                        new XAttribute("Targets", "$(Allure_TestSampleTarget)"),
+                        new XAttribute("BuildInParallel", "$(Allure_BuildInParallel)"),
+                        new XAttribute(
+                            "Properties",
+                            "BuildingSolutionFile=true;"
+                                + "CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents);"
+                                + "SolutionDir=$(SolutionDir);"
+                                + "SolutionExt=$(SolutionExt);"
+                                + "SolutionFileName=$(SolutionFileName);"
+                                + "SolutionName=$(SolutionName);"
+                                + "SolutionPath=$(SolutionPath)"
+                        )
+                    )
+                )
+            )
+        );
 }

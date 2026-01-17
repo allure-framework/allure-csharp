@@ -124,9 +124,13 @@
 
         <MSBuild
             Projects="$(_Allure_SampleSolutionPath)"
-            Targets="VSTest"
+            Targets="Allure_RunTestSamples"
             BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=$(Allure_SampleConfiguration)"
+            Properties="
+                Allure_TestSampleTarget=VSTest;
+                Configuration=$(Allure_SampleConfiguration);
+                Allure_BuildInParallel=$(BuildInParallel);
+            "
             RemoveProperties="Platform"
             ContinueOnError="true" />
 
