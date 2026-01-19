@@ -3,7 +3,7 @@ using Allure.Testing;
 
 namespace Allure.NUnit.Tests;
 
-internal class ParentSuiteTests
+class ParentSuiteTests
 {
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetParentSuiteSamples()
     {

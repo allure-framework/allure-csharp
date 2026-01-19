@@ -3,7 +3,7 @@ using Allure.Testing;
 
 namespace Allure.NUnit.Tests;
 
-internal class CustomLabelTests
+class CustomLabelTests
 {
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetCustomLabelSamples()
     {

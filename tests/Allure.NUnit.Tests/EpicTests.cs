@@ -3,7 +3,7 @@ using Allure.Testing;
 
 namespace Allure.NUnit.Tests;
 
-internal class EpicTests
+class EpicTests
 {
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetEpicSamples()
     {
