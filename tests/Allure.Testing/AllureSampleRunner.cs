@@ -167,7 +167,7 @@ public class AllureSampleRunner
     static void LogStdStreams(string stdout, string stderr)
     {
         LogStdStream("Standard output", stdout);
-        LogStdStream("Standard error", stdout);
+        LogStdStream("Standard error", stderr);
     }
 
     static void LogStdStream(string name, string output)
