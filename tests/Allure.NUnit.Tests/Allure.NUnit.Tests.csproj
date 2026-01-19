@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <SampleProjectReference Include="../../src/Allure.NUnit/Allure.NUnit.csproj" />
+    <ProjectUnderTest Include="../../src/Allure.NUnit/Allure.NUnit.csproj" />
   </ItemGroup>
 
   <ItemGroup>

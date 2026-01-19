@@ -74,6 +74,26 @@
             DestinationFolder="$(IntermediateOutputPath)"
             SkipUnchangedFiles="true" />
 
+        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' == '' ">
+            <SampleProjectReference Include="@(ProjectUnderTest)" />
+        </ItemGroup>
+
+        <Exec
+            Condition=" '$(Allure_TestTargetVersion)' != '' "
+            Command="dotnet msbuild -getProperty:PackageId '%(ProjectUnderTest.Identity)'"
+            ConsoleToMsBuild="true"
+            StandardOutputImportance="low">
+
+            <Output TaskParameter="ConsoleOutput" ItemName="_Allure_PackageUnderTest" />
+
+        </Exec>
+
+        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' != '' ">
+            <SamplePackageReference
+                Include="@(_Allure_PackageUnderTest)"
+                Version="$(Allure_TestTargetVersion)" />
+        </ItemGroup>
+
         <Allure.Build.Tasks.GenerateSampleSolution
             SampleSources="@(AllureSample)"
             SamplePackageReferences="@(SamplePackageReference)"

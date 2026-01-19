@@ -62,6 +62,12 @@
          The default value is set in ./tests/Directory.Build.targets. -->
         <Allure_SampleResultsDirectoryFormat
             Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' "></Allure_SampleResultsDirectoryFormat>
+
+        <!-- A version of projects under test. If set, all ProjectUnderTest items are converted to
+         PackageReference items of the sample projects. Otherwise, they are converted to
+         ProjectReference items. -->
+        <Allure_TestTargetVersion
+            Condition=" '$(Allure_TestTargetVersion)' == '' "></Allure_TestTargetVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -77,7 +83,7 @@
         </Allure_CompilerVisibleProperties>
 
         <!-- Put Allure properties in a single line and replaces the separator to ':'.
-         Otherwise, the value won't be picked up by *.GeneratedMSBuildEditorConfig.editorconfig,
+         Otherwise, the value won't be picked up by *.GeneratedMSBuil dEditorConfig.editorconfig,
          which is an ini file. Roslyn will then make the properties accessible by source generators.
          AllureMsbuildPropsGenerator will pass them to the compilation making them consumable by
          the sample runner. -->
