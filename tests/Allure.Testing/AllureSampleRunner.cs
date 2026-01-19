@@ -96,8 +96,24 @@ public class AllureSampleRunner
         CancellationToken ct
     ) =>
         sample.IsAssertionOnly
-            ? new DirectoryInfo(sample.DefaultResultsPath)
+            ? EnsureExistingAllureResultsDirectory(sample)
             : await ProduceSampleResults(sample, input, ct);
+
+    static DirectoryInfo EnsureExistingAllureResultsDirectory(AllureSampleRegistryEntry sample)
+    {
+        var path = sample.DefaultResultsPath;
+        var dInfo = new DirectoryInfo(path);
+        if (!dInfo.Exists || !dInfo.EnumerateFiles().Any())
+        {
+            throw new FileNotFoundException(
+                $"Can't read Allure results of the '{sample.Id}' sample. Please, make sure "
+                    + $"the sample's been run and the results are available at '{path}'. "
+                    + "You can use the 'dotnet msbuild -t:Allure_RunTestSamples' command "
+                    + "to run all samples of the solution/project."
+            );
+        }
+        return dInfo;
+    }
 
     static async Task<Guard<DirectoryInfo>> ProduceSampleResults(
         AllureSampleRegistryEntry sample,
