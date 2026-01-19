@@ -35,6 +35,8 @@ public class GenerateSampleSolution : Task
     [Required]
     public string LocalNugetRepository { get; set; }
 
+    public string PackageCacheDirectory { get; set; }
+
     IEnumerable<ITaskItem2> SampleSources2 =>
         this.SampleSources.Cast<ITaskItem2>();
 
@@ -323,26 +325,42 @@ public class GenerateSampleSolution : Task
                 && path.Length > prefix.Length
                 && path[prefix.Length] == Path.DirectorySeparatorChar);
 
-    XDocument CreateNugetConfigXml() => new(
-        new XDeclaration("1.0", "utf-8", null),
-        new XElement(
-            "configuration",
+    XDocument CreateNugetConfigXml()
+    {
+        var packageSources = new XElement(
+            "packageSources",
+            new XElement("clear"),
             new XElement(
-                "packageSources",
-                new XElement("clear"),
-                new XElement(
-                    "add",
-                    new XAttribute("key", "nuget"),
-                    new XAttribute("value", "https://api.nuget.org/v3/index.json")
-                ),
-                new XElement(
-                    "add",
-                    new XAttribute("key", "local"),
-                    new XAttribute("value", this.LocalNugetRepository)
-                )
+                "add",
+                new XAttribute("key", "nuget"),
+                new XAttribute("value", "https://api.nuget.org/v3/index.json")
+            ),
+            new XElement(
+                "add",
+                new XAttribute("key", "local"),
+                new XAttribute("value", this.LocalNugetRepository)
             )
-        )
-    );
+        );
+
+        IEnumerable<XElement> configurationElements = [packageSources];
+        if (!string.IsNullOrEmpty(this.PackageCacheDirectory))
+        {
+            var config = new XElement(
+                "config",
+                new XElement(
+                    "add",
+                    new XAttribute("key", "globalPackagesFolder"),
+                    new XAttribute("value", this.PackageCacheDirectory)
+                )
+            );
+            configurationElements = configurationElements.Prepend(config);
+        }
+
+        return new(
+            new XDeclaration("1.0", "utf-8", null),
+            new XElement("configuration", configurationElements)
+        );
+    }
 
     XDocument CreateDirectoryPackagesPropsXml() => new(
         new XElement(

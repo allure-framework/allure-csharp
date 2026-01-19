@@ -104,7 +104,9 @@
             SampleSolutionName="$(Allure_SampleSolutionName)"
             SampleSolutionPath="$(_Allure_SampleSolutionPath)"
             SampleTargetFrameworks="$(Allure_SampleSupportedTargetFrameworks)"
-            LocalNugetRepository="$(Allure_LocalNugetRepository)" />
+            LocalNugetRepository="$(Allure_LocalNugetRepository)"
+            PackageCacheDirectory="$(Allure_PackageCacheDirectory)"
+        />
 
         <CallTarget
             Targets="Allure_BuildTestSamples"

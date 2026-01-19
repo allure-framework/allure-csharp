@@ -17,6 +17,17 @@
             [MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'package', 'release')
         )</Allure_LocalNugetRepository>
 
+        <!-- A path to the NuGet cache directory.
+         Having a local package cache allows to not pollute the system cache with locally
+         built packages. -->
+        <Allure_PackageCacheDirectory Condition=" '$(Allure_PackageCacheDirectory)' == '' ">$(
+            [MSBuild]::NormalizeDirectory(
+                '$(MSBuildThisFileDirectory)',
+                '..',
+                'packages'
+            )
+        )</Allure_PackageCacheDirectory>
+
         <!-- The full list of frameworks the samples can be compiled and run against. -->
         <Allure_SampleSupportedTargetFrameworks
             Condition=" '$(Allure_SampleSupportedTargetFrameworks)' == '' ">$(TargetFramework)</Allure_SampleSupportedTargetFrameworks>
