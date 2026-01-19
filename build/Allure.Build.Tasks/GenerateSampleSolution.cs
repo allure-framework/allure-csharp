@@ -451,7 +451,8 @@ public class GenerateSampleSolution : Task
         new XElement("TargetFrameworks", this.SampleTargetFrameworks),
         new XElement("OutputType", "Library"),
         new XElement("EnableDefaultItems", "false"),
-        new XElement("IsTestProject", "true")
+        new XElement("IsTestProject", "true"),
+        new XElement("AspectInjector_Enabled", "false")
     );
 
     static XElement CreateCommonProjectCompileItems() => new(
