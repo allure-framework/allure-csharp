@@ -39,6 +39,9 @@ internal class Guard<T>(T value, Action<T> dispose, bool own = true) : IDisposab
 
         return new(this.Value, dispose);
     }
+
+    public static implicit operator Guard<T>(T value) =>
+        new(value, static (v) => {}, false);
 }
 
 internal static class Guard

@@ -83,12 +83,21 @@ public class AllureSampleRunner
         CancellationToken ct
     )
     {
-        using var allureResultsDir = await ProduceSampleResults(sample, input, ct);
+        using var allureResultsDir = await EnsureSampleResults(sample, input, ct);
 
         var allureResults = await ReadAllureResults(allureResultsDir.Value, ct);
 
         return allureResults;
     }
+
+    static async Task<Guard<DirectoryInfo>> EnsureSampleResults(
+        AllureSampleRegistryEntry sample,
+        AllureSampleRunInput input,
+        CancellationToken ct
+    ) =>
+        sample.IsAssertionOnly
+            ? new DirectoryInfo(sample.DefaultResultsPath)
+            : await ProduceSampleResults(sample, input, ct);
 
     static async Task<Guard<DirectoryInfo>> ProduceSampleResults(
         AllureSampleRegistryEntry sample,
