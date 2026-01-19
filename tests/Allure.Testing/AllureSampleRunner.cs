@@ -114,7 +114,7 @@ public class AllureSampleRunner
         using var resultsDirGuard
             = ApplyAllureResultsDirectory(psi, input.AllureResultsDirectory);
 
-        LogProcessStart(psi);
+        LogProcessStart(psi, input);
 
         using var process = Process.Start(psi) ??
             throw new InvalidOperationException("Unable to start a process");
@@ -135,7 +135,7 @@ public class AllureSampleRunner
         return resultsDirGuard.Transfer();
     }
 
-    static void LogProcessStart(ProcessStartInfo psi)
+    static void LogProcessStart(ProcessStartInfo psi, AllureSampleRunInput input)
     {
         Console.WriteLine(
             "Running {0} {1}",
@@ -145,10 +145,10 @@ public class AllureSampleRunner
 
         Console.WriteLine("  Working directory: {0}", psi.WorkingDirectory);
 
-        if (psi.Environment.Any())
+        if (input.EnvironmentVariables.Any())
         {
-            Console.WriteLine("  Environment variables:");
-            foreach (var (name, value) in psi.Environment)
+            Console.WriteLine("  Extra environment variables:");
+            foreach (var (name, value) in input.EnvironmentVariables)
             {
                 Console.WriteLine("    {0}={1}", name, value);
             }
