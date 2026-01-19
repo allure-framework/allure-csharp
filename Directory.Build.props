@@ -19,13 +19,13 @@
         <LangVersion>12</LangVersion>
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
         <UseArtifactsOutput>true</UseArtifactsOutput>
-        <ArtifactsPath>$([MSBuild]::NormalizeDirectory($(MSBuildThisFileDirectory), 'artifacts'))</ArtifactsPath>
+        <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'artifacts'))</ArtifactsPath>
     </PropertyGroup>
 
     <!-- Signing properties -->
     <PropertyGroup>
         <!-- Signing is opt-in -->
         <SignAssembly>false</SignAssembly>
-        <AssemblyOriginatorKeyFile>$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory), 'build', 'identity.snk'))</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', 'build', 'identity.snk'))</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 </Project>
