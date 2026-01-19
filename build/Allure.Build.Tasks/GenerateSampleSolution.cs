@@ -148,12 +148,11 @@ public class GenerateSampleSolution : Task
     List<(string, List<FileSource>)> GenerateProjects() =>
         [.. this.SampleSources2
             .GroupBy(
-                static (sample) => sample.GetMetadataValueEscaped("ProjectSuffix") ?? "",
-                static (sample) => sample.EvaluatedIncludeEscaped)
+                static (sample) => sample.GetMetadataValueEscaped("ProjectSuffix") ?? "")
             .Select(this.GenerateProject)
             .Where(static (pair) => pair.Item1 is not null)];
 
-    (string, List<FileSource>) GenerateProject(IGrouping<string, string> projectSourcesGroup)
+    (string, List<FileSource>) GenerateProject(IGrouping<string, ITaskItem2> projectSourcesGroup)
     {
         var projectSuffix = projectSourcesGroup.Key;
         if (string.IsNullOrEmpty(projectSuffix))
@@ -181,7 +180,7 @@ public class GenerateSampleSolution : Task
     }
 
     (string, List<FileSource>) CreateProjectFileSources(
-        IGrouping<string, string> sampleGroup,
+        IGrouping<string, ITaskItem2> sampleGroup,
         string projectSuffix,
         string greatestCommonPrefix
     )
@@ -189,7 +188,7 @@ public class GenerateSampleSolution : Task
         var sampleProjectName = $"{this.SampleSolutionName}.{projectSuffix}";
         var sampleProjectDir = Path.Combine(this.SampleSolutionDir, sampleProjectName);
 
-        var csproj = GenerateCsproj(sampleProjectName, sampleProjectDir);
+        var csproj = GenerateCsproj(sampleProjectName, sampleProjectDir, sampleGroup);
         var sampleSources = this.PrepareSampleSources(
             sampleGroup,
             greatestCommonPrefix,
@@ -200,7 +199,7 @@ public class GenerateSampleSolution : Task
     }
 
     IEnumerable<MappedFileSource> PrepareSampleSources(
-        IGrouping<string, string> sampleGroup,
+        IGrouping<string, ITaskItem2> sampleGroup,
         string greatestCommonPrefix,
         string sampleProjectDir
     ) =>
@@ -212,10 +211,11 @@ public class GenerateSampleSolution : Task
     MappedFileSource PrepareSampleSource(
         string sampleProjectDir,
         string greatestCommonPrefix,
-        string sample
+        ITaskItem2 sample
     )
     {
-        var relativeSampleFilePath = Path.GetRelativePath(greatestCommonPrefix, sample);
+        var absolutePath = sample.EvaluatedIncludeEscaped;
+        var relativeSampleFilePath = Path.GetRelativePath(greatestCommonPrefix, absolutePath);
         if (relativeSampleFilePath.StartsWith($"..{Path.DirectorySeparatorChar}"))
         {
             this.ShowFileOutsideProjectWarning(sampleProjectDir, sample, relativeSampleFilePath);
@@ -224,20 +224,20 @@ public class GenerateSampleSolution : Task
         else
         {
             var destination = Path.Combine(sampleProjectDir, relativeSampleFilePath);
-            return new (sample, destination);
+            return new (absolutePath, destination);
         }
     }
 
     void ShowFileOutsideProjectWarning(
         string sampleProjectDir,
-        string sample,
+        ITaskItem2 sample,
         string relativeSampleFilePath
     )
     {
         this.Log.LogWarning(
             "Ignoring '{0}': the file's calculated destination '{1}' is outside of the "
                 + "sample project directory '{2}'",
-            sample,
+            sample.EvaluatedIncludeEscaped,
             relativeSampleFilePath,
             sampleProjectDir
         );
@@ -253,31 +253,76 @@ public class GenerateSampleSolution : Task
         );
     }
 
-    void ShowMissingCommonPrefixWarning(IGrouping<string, string> sampleGroup, string projectSuffix)
+    void ShowMissingCommonPrefixWarning(IGrouping<string, ITaskItem2> sampleGroup, string projectSuffix)
     {
         this.Log.LogWarning(
             "Ignoring {0}: the sample files [{1}] don't have a common prefix.",
             projectSuffix,
-            string.Join(", ", sampleGroup.Select(static (sample) => $"'{sample}'"))
+            string.Join(
+                ", ",
+                sampleGroup.Select(static (sample) => $"'{sample.EvaluatedIncludeEscaped}'")
+            )
         );
     }
 
-    void ShowItemsWithNoSuffix(IGrouping<string, string> sampleGroup)
+    void ShowItemsWithNoSuffix(IGrouping<string, ITaskItem2> sampleGroup)
     {
         foreach (var sample in sampleGroup)
         {
-            this.Log.LogWarning("Ignoring '{0}': no ProjectSuffix defined on the item.", sample);
+            this.Log.LogWarning(
+                "Ignoring '{0}': no ProjectSuffix defined on the item.",
+                sample.EvaluatedIncludeEscaped
+            );
         }
     }
 
-    static XDocument CreateCsprojXml() => new(
-        new XElement(
+    static XDocument CreateCsprojXml(IEnumerable<ITaskItem2> sampleSources)
+    {
+        var project = new XElement(
             "Project",
             new XAttribute("Sdk", "Microsoft.NET.Sdk")
-        )
-    );
+        );
 
-    void ShowInvalidSuffixWarning(IGrouping<string, string> sampleGroup, string projectSuffix)
+        var properties = GetSampleSpecificProperties(sampleSources);
+
+        if (properties.Count > 0)
+        {
+            project.Add(new XElement(
+                "PropertyGroup",
+                properties.Select(
+                    static (p) => new XElement(p.Key, p.Value)
+                )
+            ));
+        }
+
+        return new(project);
+    }
+
+    static List<(string Key, string Value)> GetSampleSpecificProperties(
+        IEnumerable<ITaskItem2> sampleSources
+    ) => [
+        .. sampleSources
+            .Select(static (item) => item.GetMetadataValueEscaped("Properties"))
+            .Where(static (p) => !string.IsNullOrEmpty(p))
+            .SelectMany(
+                static (p) => p.Split(';', StringSplitOptions.RemoveEmptyEntries)
+            )
+            .Select(
+                static (p) => p.Split('=', StringSplitOptions.RemoveEmptyEntries)
+            )
+            .Where(
+                static (p) => p.Length == 2
+            )
+            .Select(
+                static (p) => (Key: p[0], Value: p[1])
+            )
+            .GroupBy(
+                static (p) => p.Key,
+                static (key, values) => (Key: key, values.Last().Value)
+            )
+        ];
+
+    void ShowInvalidSuffixWarning(IGrouping<string, ITaskItem2> sampleGroup, string projectSuffix)
     {
         this.Log.LogWarning(
             "Ignoring {0} sample file(s): invalid ProjectSuffix '{1}' defined on the item(s). "
@@ -296,13 +341,14 @@ public class GenerateSampleSolution : Task
             projectSuffix,
             string.Join(
                 "\n",
-                sampleGroup.Select(static (file) => $"  - {file}")
+                sampleGroup.Select(static (item) => $"  - {item.EvaluatedIncludeEscaped}")
             )
         );
     }
 
-    static string GetGreatestCommonPrefix(IEnumerable<string> paths)
+    static string GetGreatestCommonPrefix(IEnumerable<ITaskItem2> items)
     {
+        var paths = items.Select(static (item) => item.EvaluatedIncludeEscaped);
         var first = paths.First();
         var rest = paths.Skip(1).ToList();
 
@@ -486,9 +532,13 @@ public class GenerateSampleSolution : Task
         Path.Combine(this.SampleSolutionDir, "Directory.Solution.targets")
     );
 
-    static GeneratedFileSource GenerateCsproj(string sampleProjectName, string sampleProjectDir)
+    static GeneratedFileSource GenerateCsproj(
+        string sampleProjectName,
+        string sampleProjectDir,
+        IEnumerable<ITaskItem2> sampleSources
+    )
     {
-        var csprojXml = CreateCsprojXml();
+        var csprojXml = CreateCsprojXml(sampleSources);
         var csprojPath = Path.Combine(sampleProjectDir, $"{sampleProjectName}.csproj");
 
         return GeneratedFileSource.FromXmlDocument(csprojXml, csprojPath, omitDeclaration: true);
