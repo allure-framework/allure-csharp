@@ -12,6 +12,7 @@ internal class LabelTests
             AllureSampleRegistry.AttributeLabelOnMethod,
             AllureSampleRegistry.AddLabelFromSetUp,
             AllureSampleRegistry.AddLabelFromTest,
+            AllureSampleRegistry.AddLabelFromTearDown,
         ];
 
         return labelSamples.Select(static (sample) =>
