@@ -6,10 +6,7 @@ namespace Allure.NUnit.Examples
     [AllureNUnit]
     public class TestsClass
     {
-        [Test]
-        public void TestMethod()
-        {
-            AllureApi.AddLabel("foo", "bar");
-        }
+        [TestCase("bar")]
+        public void TestMethod(string foo) { }
     }
 }

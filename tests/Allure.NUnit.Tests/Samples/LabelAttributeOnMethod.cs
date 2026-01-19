@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
@@ -7,9 +8,7 @@ namespace Allure.NUnit.Examples
     public class TestsClass
     {
         [Test]
-        public void TestMethod()
-        {
-            AllureApi.AddLabel("foo", "bar");
-        }
+        [AllureLabel("foo", "bar")]
+        public void TestMethod() { }
     }
 }

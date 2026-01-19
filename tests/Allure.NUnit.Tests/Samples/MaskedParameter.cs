@@ -1,3 +1,4 @@
+using System;
 using Allure.Net.Commons;
 using NUnit.Framework;
 
@@ -9,7 +10,7 @@ namespace Allure.NUnit.Examples
         [Test]
         public void TestMethod()
         {
-            AllureApi.AddLabel("foo", "bar");
+            AllureApi.AddTestParameter("foo", "bar", ParameterMode.Masked);
         }
     }
 }

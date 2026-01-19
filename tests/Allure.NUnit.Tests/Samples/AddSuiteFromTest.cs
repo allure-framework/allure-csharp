@@ -1,14 +1,15 @@
 using Allure.Net.Commons;
-using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Examples
 {
     [AllureNUnit]
-    [AllureLabel("foo", "bar")]
-    public class AllureLabelTest
+    public class TestsClass
     {
         [Test]
-        public void RunTest() { }
+        public void TestMethod()
+        {
+            AllureApi.AddSuite("foo");
+        }
     }
 }

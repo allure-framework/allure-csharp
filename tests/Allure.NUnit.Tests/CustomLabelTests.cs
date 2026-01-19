@@ -3,19 +3,20 @@ using Allure.Testing;
 
 namespace Allure.NUnit.Tests;
 
-internal class LabelTests
+internal class CustomLabelTests
 {
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetCustomLabelSamples()
     {
-        IEnumerable<AllureSampleRegistryEntry> labelSamples = [
-            AllureSampleRegistry.AttributeLabelOnClass,
-            AllureSampleRegistry.AttributeLabelOnMethod,
+        IEnumerable<AllureSampleRegistryEntry> samples = [
+            AllureSampleRegistry.LabelAttributeOnClass,
+            AllureSampleRegistry.LabelAttributeOnMethod,
+            AllureSampleRegistry.LabelAttributeOnBaseClass,
             AllureSampleRegistry.AddLabelFromSetUp,
             AllureSampleRegistry.AddLabelFromTest,
             AllureSampleRegistry.AddLabelFromTearDown,
         ];
 
-        return labelSamples.Select(static (sample) =>
+        return samples.Select(static (sample) =>
             new TestDataRow<AllureSampleRegistryEntry>(sample, DisplayName: sample.Id));
     }
 

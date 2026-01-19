@@ -5,10 +5,10 @@ using NUnit.Framework;
 namespace Allure.NUnit.Examples
 {
     [AllureNUnit]
-    public class AllureLabelTest
+    [AllureStory("foo")]
+    public class TestsClass
     {
         [Test]
-        [AllureLabel("foo", "bar")]
-        public void RunTest() { }
+        public void TestMethod() { }
     }
 }

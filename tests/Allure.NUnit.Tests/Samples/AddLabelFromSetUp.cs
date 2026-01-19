@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Allure.NUnit.Examples
 {
     [AllureNUnit]
-    public class AllureLabelTest
+    public class TestsClass
     {
         [SetUp]
         public void SetUp()
@@ -13,6 +13,6 @@ namespace Allure.NUnit.Examples
         }
 
         [Test]
-        public void RunTest() { }
+        public void TestMethod() { }
     }
 }

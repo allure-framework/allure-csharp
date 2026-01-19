@@ -9,7 +9,7 @@ namespace Allure.NUnit.Examples
         [Test]
         public void TestMethod()
         {
-            AllureApi.AddLabel("foo", "bar");
+            AllureApi.AddSubSuite("foo");
         }
     }
 }
