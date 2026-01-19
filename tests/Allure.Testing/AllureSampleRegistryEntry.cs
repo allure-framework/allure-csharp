@@ -27,7 +27,7 @@ namespace Allure.Testing;
 /// pointed by <paramref name="DefaultResultsPath"/>.
 /// The results are typically prepared by <c>dotnet msbuild -t:Allure_RunTestSamples</c>.
 /// </param>
-public record class AllureSampleRegistryEntry(
+public record AllureSampleRegistryEntry(
     string Id,
     string ProjectPath,
     string DefaultResultsPath,

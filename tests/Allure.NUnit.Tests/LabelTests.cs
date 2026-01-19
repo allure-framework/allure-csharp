@@ -5,55 +5,24 @@ namespace Allure.NUnit.Tests;
 
 internal class LabelTests
 {
-    [Test]
-    public async Task ClassLevelCustomLabels()
+    public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetCustomLabelSamples()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AttributeLabelOnClass);
+        IEnumerable<AllureSampleRegistryEntry> labelSamples = [
+            AllureSampleRegistry.AttributeLabelOnClass,
+            AllureSampleRegistry.AttributeLabelOnMethod,
+            AllureSampleRegistry.AddLabelFromSetUp,
+            AllureSampleRegistry.AddLabelFromTest,
+        ];
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "foo" && (string)l["value"] == "bar";
-            }
-        );
+        return labelSamples.Select(static (sample) =>
+            new TestDataRow<AllureSampleRegistryEntry>(sample, DisplayName: sample.Id));
     }
 
     [Test]
-    public async Task MethodLevelCustomLabels()
+    [MethodDataSource(nameof(GetCustomLabelSamples))]
+    public async Task CheckCustomLabelIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AttributeLabelOnMethod);
-
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "foo" && (string)l["value"] == "bar";
-            }
-        );
-    }
-
-    [Test]
-    public async Task AddLabelFromTest()
-    {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddLabelFromTest);
-
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "foo" && (string)l["value"] == "bar";
-            }
-        );
-    }
-
-    [Test]
-    public async Task AddLabelFromSetUp()
-    {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddLabelFromSetUp);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
         var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
