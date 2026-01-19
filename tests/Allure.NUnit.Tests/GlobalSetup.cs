@@ -2,6 +2,8 @@
 
 [assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 
+[assembly: NotInParallel(["Allure.NUnit", "Allure.Net.Commons"])]
+
 namespace Allure.NUnit.Tests;
 
 public class GlobalHooks
