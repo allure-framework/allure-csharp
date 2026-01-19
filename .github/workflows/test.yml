@@ -39,7 +39,8 @@ jobs:
           dotnet build ${{ env.SOLUTION_PATH }}\
             --no-restore\
             --configuration ${{ env.BUILD_CONFIGURATION }}\
-            -p:Allure_PreBuildSamples=true
+            -p:Allure_PreBuildTestSamples=true\
+            -p:Allure_AssertionOnlyTesting=true
 
       - name: 'Run test samples'
         run: |
