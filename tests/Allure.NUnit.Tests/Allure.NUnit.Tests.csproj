@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AllureSample Update="Samples/DefaultStepAttributes.cs" Properties="AspectInjector_Enabled=true" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="TUnit" Version="1.12.3" />
   </ItemGroup>
 
