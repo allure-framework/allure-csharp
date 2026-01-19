@@ -38,13 +38,22 @@ jobs:
         run: |
           dotnet build ${{ env.SOLUTION_PATH }}\
             --no-restore\
-            --configuration ${{ env.BUILD_CONFIGURATION }}
+            --configuration ${{ env.BUILD_CONFIGURATION }}\
+            -p:Allure_PreBuildSamples=true
+
+      - name: 'Run test samples'
+        run: |
+          dotnet msbuild ${{ env.SOLUTION_PATH }}\
+            -t:Allure_RunTestSamples\
+            -p:Allure_SampleConfiguration=${{ env.BUILD_CONFIGURATION }}
 
       - name: 'Run tests'
         run: |
           dotnet test ./tests/Allure.Net.Commons.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
+          dotnet run --project ./tests/Allure.NUnit.Tests\
+            --no-build
           dotnet test ./tests/Allure.SpecFlow.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
