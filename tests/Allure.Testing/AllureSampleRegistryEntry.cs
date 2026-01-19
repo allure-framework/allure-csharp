@@ -24,7 +24,7 @@ namespace Allure.Testing;
 /// If <c>true</c>, indicates the assertion-only mode should be used by the runner.
 /// In the assertion-only mode, the runner don't run the sample.
 /// Instead, it parses the result files that must be prepared in advance in the directory
-/// pointed by <see cref="DefaultResultsPath"/>.
+/// pointed by <paramref name="DefaultResultsPath"/>.
 /// The results are typically prepared by <c>dotnet msbuild -t:Allure_RunTestSamples</c>.
 /// </param>
 public record class AllureSampleRegistryEntry(

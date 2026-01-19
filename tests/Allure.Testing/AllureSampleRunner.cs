@@ -44,9 +44,9 @@ public class AllureSampleRunner
     /// <exception cref="InvalidOperationException" />
     public static async Task<AllureResults> RunAsync(
         AllureSampleRegistryEntry sample,
-        CancellationToken token
+        CancellationToken ct
     ) =>
-        await RunAsync(sample, AllureSampleRunInput.Default, token);
+        await RunAsync(sample, AllureSampleRunInput.Default, ct);
 
     /// <summary>
     /// Runs a test sample project and reads the results.
