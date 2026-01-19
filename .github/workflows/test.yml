@@ -54,7 +54,8 @@ jobs:
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
           dotnet run --project ./tests/Allure.NUnit.Tests\
-            --no-build
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
           dotnet test ./tests/Allure.SpecFlow.Tests\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
