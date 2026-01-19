@@ -94,6 +94,8 @@
                 Version="$(Allure_TestTargetVersion)" />
         </ItemGroup>
 
+        <MakeDir Directories="$(Allure_LocalNugetRepository)" />
+
         <Allure.Build.Tasks.GenerateSampleSolution
             SampleSources="@(AllureSample)"
             SamplePackageReferences="@(SamplePackageReference)"
