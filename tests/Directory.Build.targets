@@ -118,7 +118,11 @@
 
         <CallTarget
             Targets="Allure_BuildTestSamples"
-            Condition=" '$(Allure_PreBuildTestSamples)' == 'true' "/>
+            Condition=" '$(Allure_PreBuildTestSamples)' == 'true' or '$(Allure_PreRunTestSamples)' == 'true' " />
+
+        <CallTarget
+            Targets="Allure_RunTestSamples"
+            Condition=" '$(Allure_PreRunTestSamples)' == 'true' "/>
 
     </Target>
 

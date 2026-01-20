@@ -52,6 +52,11 @@
         <Allure_PreBuildTestSamples
             Condition=" '$(Allure_PreBuildTestSamples)' == '' ">false</Allure_PreBuildTestSamples>
 
+        <!-- If set to true, the sample solution will be tested right after it's generated
+         and built. This property simplifies using the pre-run flow for development. -->
+        <Allure_PreRunTestSamples
+            Condition=" '$(Allure_PreRunTestSamples)' == '' ">false</Allure_PreRunTestSamples>
+
         <!-- The framework to run the sample projects against.
          Must be one of the frameworks listed by Allure_SampleSupportedTargetFrameworks. -->
         <Allure_SampleSelectedTargetFramework
@@ -62,10 +67,11 @@
         <Allure_SampleConfiguration
             Condition=" '$(Allure_SampleConfiguration)' == '' "></Allure_SampleConfiguration>
 
-        <!-- If set to true, integration tests don't invoke the sample projects. Instead, they proceed to asserting
-         already generated results in the directory provided via Allure_SampleResultsDirectoryFormat.
+        <!-- If set to true, integration tests don't invoke the sample projects. Instead, they proceed to
+         asserting already generated results in the directory provided via Allure_SampleResultsDirectoryFormat.
          It's implied the Allure_RunTestSamples target have been run prior to running the tests. -->
-        <Allure_PreRunTestingFlow Condition=" '$(Allure_PreRunTestingFlow)' == '' ">false</Allure_PreRunTestingFlow>
+        <Allure_PreRunTestingFlow
+            Condition=" '$(Allure_PreRunTestingFlow)' == '' ">$(Allure_PreRunTestSamples)</Allure_PreRunTestingFlow>
 
         <!-- A format string of the default allure-results directory path.
          Must contain a {0} placeholder for a sample project suffix.
