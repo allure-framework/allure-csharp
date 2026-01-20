@@ -34,13 +34,26 @@ jobs:
         run: |
           dotnet restore ${{ env.SOLUTION_PATH }}
 
-      - name: 'Build project using dotnet'
+      - name: 'Build solution using dotnet'
         run: |
           dotnet build ${{ env.SOLUTION_PATH }}\
             --no-restore\
             --configuration ${{ env.BUILD_CONFIGURATION }}\
-            -p:Allure_PreBuildTestSamples=true\
+            -p:Allure_TestTargetVersion=SNAPSHOT\
             -p:Allure_AssertionOnlyTesting=true
+
+      - name: Create NuGet packages
+        run: |
+          dotnet pack ${{ env.SOLUTION_PATH }}\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      - name: Build test samples
+        run: |
+          dotnet msbuild ${{ env.SOLUTION_PATH }}\
+            -t:Allure_BuildTestSamples
+            -p:Allure_SampleConfiguration=${{ env.BUILD_CONFIGURATION }}
 
       - name: 'Run test samples'
         run: |

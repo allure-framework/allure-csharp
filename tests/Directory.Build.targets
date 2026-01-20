@@ -78,6 +78,10 @@
             DestinationFolder="$(IntermediateOutputPath)"
             SkipUnchangedFiles="true" />
 
+        <PropertyGroup Condition=" '$(Allure_TestTargetVersion)' == 'SNAPSHOT' ">
+            <Allure_TestTargetVersion>$(Version)</Allure_TestTargetVersion>
+        </PropertyGroup>
+
         <ItemGroup Condition=" '$(Allure_TestTargetVersion)' == '' ">
             <SampleProjectReference Include="@(ProjectUnderTest)" />
         </ItemGroup>
