@@ -47,6 +47,47 @@
 
     </ItemGroup>
 
+    <!-- This should go before _GenerateCompileDependencyCache.
+     Otherwise, changes in DefineConstants won't be detected by CoreCompile.
+     See https://github.com/dotnet/msbuild/pull/3978. -->
+    <Target Name="Allure_ResolveTestTarget"
+            BeforeTargets="ResolveAssemblyReferences"
+            Condition=" '@(AllureSample)' != '' ">
+
+        <PropertyGroup Condition=" '$(Allure_TestTargetVersion)' == 'SNAPSHOT' ">
+            <Allure_TestTargetVersion>$(Version)</Allure_TestTargetVersion>
+        </PropertyGroup>
+
+        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' == '' ">
+            <SampleProjectReference Include="@(ProjectUnderTest)" />
+        </ItemGroup>
+
+        <Exec
+            Condition=" '$(Allure_TestTargetVersion)' != '' "
+            Command="dotnet msbuild -getProperty:PackageId '%(ProjectUnderTest.Identity)'"
+            ConsoleToMsBuild="true"
+            StandardOutputImportance="low">
+
+            <Output TaskParameter="ConsoleOutput" ItemName="_Allure_PackageUnderTest" />
+
+        </Exec>
+
+        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' != '' ">
+            <SamplePackageReference
+                Include="@(_Allure_PackageUnderTest)"
+                Version="$(Allure_TestTargetVersion)" />
+        </ItemGroup>
+
+        <!-- Enable parallel test execution:
+          1. In pre-run flow: no conflicting dotnet test runs at all.
+          2. If no projects are referenced (only NuGet packages): dotnet test doesn't build shared dependencies.
+          NOTE: don't forget to alter this condition if sample-specific project references becomes supported.  -->
+        <PropertyGroup Condition=" '$(Allure_PreRunTestingFlow)' == 'true' or '@(SampleProjectReference)' == '' ">
+            <DefineConstants>$(DefineConstants);ALLURE_TEST_PARALLEL</DefineConstants>
+        </PropertyGroup>
+
+    </Target>
+
     <Target Name="Allure_GenerateTestSamples"
             AfterTargets="CopyFilesToOutputDirectory"
             Condition=" '@(AllureSample)' != '' ">
@@ -77,30 +118,6 @@
             SourceFiles="@(AllureBuildTasksAssembly)"
             DestinationFolder="$(IntermediateOutputPath)"
             SkipUnchangedFiles="true" />
-
-        <PropertyGroup Condition=" '$(Allure_TestTargetVersion)' == 'SNAPSHOT' ">
-            <Allure_TestTargetVersion>$(Version)</Allure_TestTargetVersion>
-        </PropertyGroup>
-
-        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' == '' ">
-            <SampleProjectReference Include="@(ProjectUnderTest)" />
-        </ItemGroup>
-
-        <Exec
-            Condition=" '$(Allure_TestTargetVersion)' != '' "
-            Command="dotnet msbuild -getProperty:PackageId '%(ProjectUnderTest.Identity)'"
-            ConsoleToMsBuild="true"
-            StandardOutputImportance="low">
-
-            <Output TaskParameter="ConsoleOutput" ItemName="_Allure_PackageUnderTest" />
-
-        </Exec>
-
-        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' != '' ">
-            <SamplePackageReference
-                Include="@(_Allure_PackageUnderTest)"
-                Version="$(Allure_TestTargetVersion)" />
-        </ItemGroup>
 
         <MakeDir Directories="$(Allure_LocalNugetRepository)" />
 
