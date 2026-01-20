@@ -95,7 +95,7 @@ public class AllureSampleRunner
         AllureSampleRunInput input,
         CancellationToken ct
     ) =>
-        sample.IsAssertionOnly
+        sample.IsPreRunFlow
             ? EnsureExistingAllureResultsDirectory(sample)
             : await ProduceSampleResults(sample, input, ct);
 

@@ -146,7 +146,7 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
                         {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_TARGET_FRAMEWORK }},
                         {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_CONFIGURATION }},
                         global::System.StringComparer.OrdinalIgnoreCase.Equals(
-                            {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_ASSERT_ONLY }},
+                            {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_PRERUN_FLOW }},
                             "true"
                         )
                     );

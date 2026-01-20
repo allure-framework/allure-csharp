@@ -40,7 +40,7 @@ jobs:
             --no-restore\
             --configuration ${{ env.BUILD_CONFIGURATION }}\
             -p:Allure_TestTargetVersion=SNAPSHOT\
-            -p:Allure_AssertionOnlyTesting=true
+            -p:Allure_PreRunTestingFlow=true
 
       - name: Create NuGet packages
         run: |

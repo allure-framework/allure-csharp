@@ -31,8 +31,8 @@
 
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Allure_AssertionOnlyTesting)' == 'true' ">
-        <DefineConstants>$(DefineConstants);ALLURE_TEST_ASSERT_ONLY</DefineConstants>
+    <PropertyGroup Condition=" '$(Allure_PreRunTestingFlow)' == 'true' ">
+        <DefineConstants>$(DefineConstants);ALLURE_TEST_PRERUN_FLOW</DefineConstants>
     </PropertyGroup>
 
     <!-- At this point, all AllureSample items must be already defined.

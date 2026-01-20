@@ -65,11 +65,11 @@
         <!-- If set to true, integration tests don't invoke the sample projects. Instead, they proceed to asserting
          already generated results in the directory provided via Allure_SampleResultsDirectoryFormat.
          It's implied the Allure_RunTestSamples target have been run prior to running the tests. -->
-        <Allure_AssertionOnlyTesting Condition=" '$(Allure_AssertOnlyTesting)' == '' ">false</Allure_AssertionOnlyTesting>
+        <Allure_PreRunTestingFlow Condition=" '$(Allure_PreRunTestingFlow)' == '' ">false</Allure_PreRunTestingFlow>
 
         <!-- A format string of the default allure-results directory path.
          Must contain a {0} placeholder for a sample project suffix.
-         Used to collect test results in the assertion-only testing mode.
+         Used to collect test results in the pre-run testing flow.
          The default value is set in ./tests/Directory.Build.targets. -->
         <Allure_SampleResultsDirectoryFormat
             Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' "></Allure_SampleResultsDirectoryFormat>
@@ -84,7 +84,7 @@
     <PropertyGroup>
         <!-- The list of Allure properties used by the sample runner. -->
         <Allure_CompilerVisibleProperties>
-            Allure_AssertionOnlyTesting;
+            Allure_PreRunTestingFlow;
             Allure_LocalNugetRepository;
             Allure_SampleResultsDirectoryFormat;
             Allure_SampleConfiguration;

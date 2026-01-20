@@ -20,9 +20,9 @@ namespace Allure.Testing;
 /// A configuration to use when building the sample.
 /// Example: <c>"Debug"</c>.
 /// </param>
-/// <param name="IsAssertionOnly">
-/// If <c>true</c>, indicates the assertion-only mode should be used by the runner.
-/// In the assertion-only mode, the runner don't run the sample.
+/// <param name="IsPreRunFlow">
+/// If <c>true</c>, indicates the pre-run flow should be respected by the runner.
+/// In this flow, the runner don't run the sample.
 /// Instead, it parses the result files that must be prepared in advance in the directory
 /// pointed by <paramref name="DefaultResultsPath"/>.
 /// The results are typically prepared by <c>dotnet msbuild -t:Allure_RunTestSamples</c>.
@@ -33,5 +33,5 @@ public record struct AllureSampleRegistryEntry(
     string DefaultResultsPath,
     string TargetFramework,
     string BuildConfiguration,
-    bool IsAssertionOnly
+    bool IsPreRunFlow
 );
