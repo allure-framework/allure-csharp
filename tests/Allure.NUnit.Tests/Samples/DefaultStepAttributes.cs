@@ -2,7 +2,7 @@ using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Examples
+namespace Allure.NUnit.Tests.Samples.DefaultStepAttributes
 {
     [AllureNUnit]
     public class TestsClass
@@ -17,3 +17,4 @@ namespace Allure.NUnit.Examples
         void Foo() { }
     }
 }
+

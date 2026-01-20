@@ -2,7 +2,7 @@ using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Examples
+namespace Allure.NUnit.Tests.Samples.SubSuiteAttributeOnBaseClass
 {
     [AllureSubSuite("foo")]
     public class BaseClass {}
@@ -14,3 +14,4 @@ namespace Allure.NUnit.Examples
         public void TestMethod() { }
     }
 }
+

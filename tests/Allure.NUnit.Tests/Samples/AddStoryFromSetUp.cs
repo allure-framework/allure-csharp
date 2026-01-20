@@ -1,7 +1,7 @@
 using Allure.Net.Commons;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Examples
+namespace Allure.NUnit.Tests.Samples.AddStoryFromSetUp
 {
     [AllureNUnit]
     public class TestsClass
@@ -16,3 +16,4 @@ namespace Allure.NUnit.Examples
         public void TestMethod() { }
     }
 }
+

@@ -2,7 +2,7 @@ using System;
 using Allure.Net.Commons;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Examples
+namespace Allure.NUnit.Tests.Samples.ExcludedParameter
 {
     [AllureNUnit]
     public class TestsClass
@@ -15,3 +15,4 @@ namespace Allure.NUnit.Examples
         }
     }
 }
+
