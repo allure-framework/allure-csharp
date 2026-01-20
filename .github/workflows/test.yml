@@ -52,7 +52,7 @@ jobs:
       - name: Build test samples
         run: |
           dotnet msbuild ${{ env.SOLUTION_PATH }}\
-            -t:Allure_BuildTestSamples
+            -t:Allure_BuildTestSamples\
             -p:Allure_SampleConfiguration=${{ env.BUILD_CONFIGURATION }}
 
       - name: 'Run test samples'
