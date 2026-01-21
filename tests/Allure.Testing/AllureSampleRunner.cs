@@ -125,10 +125,15 @@ public class AllureSampleRunner
 
         ApplyExtraEnvironmentVariables(input.EnvironmentVariables, psi);
 
-        using var allureConfigGuard
-            = await MaybeApplyAllureConfig(input.AllureConfiguration, psi, ct);
         using var resultsDirGuard
-            = ApplyAllureResultsDirectory(psi, input.AllureResultsDirectory);
+            = EnsureAllureResultsDirectory(input.AllureResultsDirectory);
+        using var allureConfigGuard
+            = await ApplyAllureConfig(
+                input.AllureConfiguration,
+                resultsDirGuard.Value.FullName,
+                psi,
+                ct
+            );
 
         LogProcessStart(psi, input);
 
@@ -232,17 +237,14 @@ public class AllureSampleRunner
         }
     }
 
-    static async Task<Guard<string>?> MaybeApplyAllureConfig(
-        object? allureConfig,
+    static async Task<Guard<string>?> ApplyAllureConfig(
+        object? allureConfigInput,
+        string resultsDir,
         ProcessStartInfo psi,
         CancellationToken ct
     )
     {
-        if (allureConfig is null)
-        {
-            return null;
-        }
-
+        var allureConfig = ResolveAllureConfig(allureConfigInput, resultsDir);
         var configPath = Path.GetTempFileName();
 
         using var fs = new FileStream(configPath, FileMode.Create, FileAccess.Write);
@@ -258,8 +260,41 @@ public class AllureSampleRunner
         return Guard.WrapFile(configPath);
     }
 
-    static Guard<DirectoryInfo> ApplyAllureResultsDirectory(
-        ProcessStartInfo psi,
+    static JsonObject ResolveAllureConfig(object? config, string resultsDir)
+    {
+        if (config is null)
+        {
+            return GetDirectoryOnlyAllureConfig(resultsDir);
+        }
+
+        var allureConfigJson = JsonSerializer.SerializeToNode(config);
+        if (allureConfigJson is not JsonObject allureConfigJsonObject)
+        {
+            throw new InvalidOperationException("Allure config must be an object");
+        }
+
+        var allure = allureConfigJsonObject["allure"];
+        if (allure is not null)
+        {
+            allure["directory"] = resultsDir;
+        }
+        else
+        {
+            allureConfigJsonObject["allure"] = new JsonObject([new("directory", resultsDir)]);
+        }
+
+        return allureConfigJsonObject;
+    }
+
+    static JsonObject GetDirectoryOnlyAllureConfig(string resultsDir) => new ([
+        new (
+            "allure",
+            new JsonObject([new("directory", resultsDir)])
+        ),
+    ]);
+
+
+    static Guard<DirectoryInfo> EnsureAllureResultsDirectory(
         string? explicitAllureResultsDirectory
     )
     {
@@ -268,8 +303,7 @@ public class AllureSampleRunner
             Directory.CreateTempSubdirectory("allure-results-")
                 ?? throw new InvalidOperationException("Can't create the Allure result directory")
             : new(explicitAllureResultsDirectory!);
-        psi.Environment["ALLURE_RESULTSDIR"] = resultsDir.FullName;
-        return Guard.WrapDirectory(resultsDir, useTempDir);
+        return Guard.WrapDirectory(resultsDir, own: useTempDir);
     }
 
     static async Task<(string, string)> SetProcessStreamCollection(
