@@ -6,4 +6,8 @@
     <AspectInjector_Enabled>false</AspectInjector_Enabled>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.12.3" />
+  </ItemGroup>
+
 </Project>
