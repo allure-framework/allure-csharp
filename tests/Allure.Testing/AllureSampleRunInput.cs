@@ -33,9 +33,20 @@ public record class AllureSampleRunInput
     public List<string> ProcessArguments { get; init; } = [];
 
     /// <summary>
-    /// A timeout of the sample run.
+    /// A timeout of the sample run. Can be set via the <c>ALLURE_TEST_TIMEOUT</c> environment
+    /// variable. The default is 30 seconds.
     /// </summary>
-    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(10);
+    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(
+        ResolveTestTimeoutSeconds()
+    );
 
     public static AllureSampleRunInput Default { get; } = new();
+
+    static int ResolveTestTimeoutSeconds()
+    {
+        var envVar = Environment.GetEnvironmentVariable("ALLURE_TEST_TIMEOUT");
+        return int.TryParse(envVar, out int value)
+            ? value
+            : 30;
+    }
 }
