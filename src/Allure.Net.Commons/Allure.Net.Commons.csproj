@@ -2,12 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <IsPackable>true</IsPackable>
         <Authors>Alexander Bakanov, Nikolay Laptev, Maksim Stepanov</Authors>
         <Description>Provides common facilities to build Allure adapters for .NET test frameworks.</Description>
         <PackageIcon>Allure-Color.png</PackageIcon>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>CS1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

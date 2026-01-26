@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>Exe</OutputType>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AllureSample Update="Samples/DefaultStepAttributes.cs" Properties="AspectInjector_Enabled=true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.12.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SamplePackageReference Include="NUnit" Version="4.4.0" />
+    <SamplePackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+    <SamplePackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectUnderTest Include="../../src/Allure.NUnit/Allure.NUnit.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../build/Allure.Build.SourceGenerators/Allure.Build.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../Allure.Testing/Allure.Testing.csproj" />
+  </ItemGroup>
+
+</Project>

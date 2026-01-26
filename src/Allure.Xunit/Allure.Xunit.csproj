@@ -5,11 +5,12 @@
         <AssemblyName>Allure.Xunit.reporters</AssemblyName>
         <RootNamespace>Allure.Xunit</RootNamespace>
         <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
-        <IsPackable>true</IsPackable>
         <Authors>Shumakov Ivan</Authors>
         <Description>Create beautiful reports from your xUnit.net tests.</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) xunit</PackageTags>
+
+        <!-- This assembly can't be signed becasue of Lib.Harmony -->
         <SignAssembly>false</SignAssembly>
     </PropertyGroup>
 

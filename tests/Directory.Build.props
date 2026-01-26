@@ -1,0 +1,147 @@
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+            Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+    <PropertyGroup>
+        <!-- Don't compile samples as a part of test projects. -->
+        <DefaultItemExcludes>$(DefaultItemExcludes);@(AllureSample)</DefaultItemExcludes>
+
+        <!-- Marks everything in ./tests/ as test projects. The only exception is Allure.Testing,
+         which exclicitly opts out. -->
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- The full path of the directory containing locally built NuGet packages. -->
+        <Allure_LocalNugetRepository Condition=" '$(Allure_LocalNugetRepository)' == '' ">$(
+            [MSBuild]::NormalizeDirectory('$(ArtifactsPath)', 'package', 'release')
+        )</Allure_LocalNugetRepository>
+
+        <!-- A path to the NuGet cache directory.
+         Having a local package cache allows to not pollute the system cache with locally
+         built packages. -->
+        <Allure_PackageCacheDirectory Condition=" '$(Allure_PackageCacheDirectory)' == '' ">$(
+            [MSBuild]::NormalizeDirectory(
+                '$(MSBuildThisFileDirectory)',
+                '..',
+                'packages'
+            )
+        )</Allure_PackageCacheDirectory>
+
+        <!-- The full list of frameworks the samples can be compiled and run against. -->
+        <Allure_SampleSupportedTargetFrameworks
+            Condition=" '$(Allure_SampleSupportedTargetFrameworks)' == '' ">$(TargetFramework)</Allure_SampleSupportedTargetFrameworks>
+
+        <!-- A name of the test sample solution.
+         It also served as the name prefix of the sample projects in this solution. -->
+        <Allure_SampleSolutionName
+            Condition=" '$(Allure_SampleSolutionName)' == '' ">$(MSBuildProjectName).Samples</Allure_SampleSolutionName>
+
+        <!-- A directory to put the sample solution in. -->
+        <Allure_SampleSolutionDir Condition=" '$(Allure_SampleSolutionDir)' == '' ">$(
+            [MSBuild]::NormalizeDirectory(
+                '$(ArtifactsPath)',
+                'samples',
+                '$(MSBuildProjectName)'
+            )
+        )</Allure_SampleSolutionDir>
+
+        <!-- If set to true, the sample solution will be built right after it's generated.
+         This improves performance of the subsequent test runs as MSBuild won't build the
+         sample projects again unless changes are detected. -->
+        <Allure_PreBuildTestSamples
+            Condition=" '$(Allure_PreBuildTestSamples)' == '' ">false</Allure_PreBuildTestSamples>
+
+        <!-- If set to true, the sample solution will be tested right after it's generated
+         and built. This property simplifies using the pre-run flow for development. -->
+        <Allure_PreRunTestSamples
+            Condition=" '$(Allure_PreRunTestSamples)' == '' ">false</Allure_PreRunTestSamples>
+
+        <!-- The framework to run the sample projects against.
+         Must be one of the frameworks listed by Allure_SampleSupportedTargetFrameworks. -->
+        <Allure_SampleSelectedTargetFramework
+            Condition=" '$(Allure_SampleSelectedTargetFramework)' == '' ">$(TargetFramework)</Allure_SampleSelectedTargetFramework>
+
+        <!-- The configuration used to compile the samples projects.
+         For the default value, see ./tests/Directory.Build.targets -->
+        <Allure_SampleConfiguration
+            Condition=" '$(Allure_SampleConfiguration)' == '' "></Allure_SampleConfiguration>
+
+        <!-- If set to true, integration tests don't invoke the sample projects. Instead, they proceed to
+         asserting already generated results in the directory provided via Allure_SampleResultsDirectoryFormat.
+         It's implied the Allure_RunTestSamples target have been run prior to running the tests. -->
+        <Allure_PreRunTestingFlow
+            Condition=" '$(Allure_PreRunTestingFlow)' == '' ">$(Allure_PreRunTestSamples)</Allure_PreRunTestingFlow>
+
+        <!-- A format string of the default allure-results directory path.
+         Must contain a {0} placeholder for a sample project suffix.
+         Used to collect test results in the pre-run testing flow.
+         The default value is set in ./tests/Directory.Build.targets. -->
+        <Allure_SampleResultsDirectoryFormat
+            Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' "></Allure_SampleResultsDirectoryFormat>
+
+        <!-- A version of projects under test. If set, all ProjectUnderTest items are converted to
+         PackageReference items of the sample projects. Otherwise, they are converted to
+         ProjectReference items. -->
+        <Allure_TestTargetVersion
+            Condition=" '$(Allure_TestTargetVersion)' == '' "></Allure_TestTargetVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- The list of Allure properties used by the sample runner. -->
+        <Allure_CompilerVisibleProperties>
+            Allure_PreRunTestingFlow;
+            Allure_LocalNugetRepository;
+            Allure_SampleResultsDirectoryFormat;
+            Allure_SampleConfiguration;
+            Allure_SampleSolutionDir;
+            Allure_SampleSolutionName;
+            Allure_SampleSelectedTargetFramework;
+        </Allure_CompilerVisibleProperties>
+
+        <!-- Put Allure properties in a single line and replaces the separator to ':'.
+         Otherwise, the value won't be picked up by *.GeneratedMSBuil dEditorConfig.editorconfig,
+         which is an ini file. Roslyn will then make the properties accessible by source generators.
+         AllureMsbuildPropsGenerator will pass them to the compilation making them consumable by
+         the sample runner. -->
+        <Allure_PropertyNames>$(
+            Allure_CompilerVisibleProperties
+                .Replace('%0D', '')
+                .Replace('%0A', '')
+                .Replace(' ', '')
+                .Replace(';', ':')
+        )</Allure_PropertyNames>
+
+        <!-- The default project directory containing the samples to test. -->
+        <Allure_SamplesDirectory>$(
+            [MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', 'Samples')
+        )</Allure_SamplesDirectory>
+        <Allure_SamplesPattern>$(
+            [MSBuild]::Unescape(
+                '$([MSBuild]::NormalizePath('$(Allure_SamplesDirectory)', '**', '*'))'
+            )
+        )</Allure_SamplesPattern>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <CompilerVisibleProperty Include="Allure_PropertyNames" />
+        <CompilerVisibleProperty Include="$(Allure_CompilerVisibleProperties)" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_ProjectSuffix" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AllureSample Include="$(Allure_SamplesPattern)">
+            <ProjectSuffix>$(
+                [System.Text.RegularExpressions.Regex]::Replace(
+                    '$([MSBuild]::MakeRelative(
+                        '$(Allure_SamplesDirectory)',
+                        '%(FullPath)'
+                    ))',
+                    '[\\/\.].*',
+                    ''
+                )
+            )</ProjectSuffix>
+        </AllureSample>
+    </ItemGroup>
+
+</Project>

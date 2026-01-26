@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <IsTestProject>false</IsTestProject>
+    <AspectInjector_Enabled>false</AspectInjector_Enabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.12.3" />
+  </ItemGroup>
+
+</Project>

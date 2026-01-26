@@ -63,4 +63,10 @@
             <_InjectionNeeded>true</_InjectionNeeded>
         </PropertyGroup>
     </Target>
+
+    <Target Name="Allure_GenerateTestSamples" />
+    <Target Name="Allure_BuildTestSamples" />
+    <Target Name="Allure_RunTestSamples" />
+    <Target Name="Allure_CleanTestSamples" />
+    <Target Name="Allure_DeleteTestSamples" />
 </Project>

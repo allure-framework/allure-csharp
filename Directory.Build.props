@@ -7,17 +7,25 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
+    <!-- Common packaging properties -->
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <WarnOnPackingNonPackableProject>true</WarnOnPackingNonPackableProject>
+    </PropertyGroup>
+
     <!-- Common build properties -->
     <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
         <LangVersion>12</LangVersion>
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
         <UseArtifactsOutput>true</UseArtifactsOutput>
-        <ArtifactsPath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'artifacts'))</ArtifactsPath>
+        <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'artifacts'))</ArtifactsPath>
     </PropertyGroup>
 
     <!-- Signing properties -->
     <PropertyGroup>
-        <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'build', 'identity.snk'))</AssemblyOriginatorKeyFile>
+        <!-- Signing is opt-in -->
+        <SignAssembly>false</SignAssembly>
+        <AssemblyOriginatorKeyFile>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', 'build', 'identity.snk'))</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 </Project>

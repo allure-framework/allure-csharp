@@ -22,17 +22,21 @@
   <Folder Name="/build/">
     <File Path="build/findvstool.ps1" />
     <File Path="build/TransformReadmeForNuget.cs" />
+    <Project Path="build/Allure.Build.SourceGenerators/Allure.Build.SourceGenerators.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="build/Allure.Build.Tasks/Allure.Build.Tasks.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/build/AspectInjector/win-x64/">
     <File Path="build/AspectInjector/win-x64/AspectInjector.exe" />
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/Allure.NUnit.Examples/Allure.NUnit.Examples.csproj">
-      <BuildType Solution="Publish|*" Project="Debug" />
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="examples/Allure.Xunit.Examples/Allure.Xunit.Examples.csproj">
-      <BuildType Solution="Publish|*" Project="Debug" />
       <Build Solution="Publish|*" Project="false" />
     </Project>
   </Folder>
@@ -62,23 +66,24 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj">
-      <BuildType Solution="Publish|*" Project="Debug" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.NUnit.Tests/Allure.NUnit.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Reqnroll.Tests/Allure.Reqnroll.Tests.csproj">
-      <BuildType Solution="Publish|*" Project="Release" />
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.SpecFlow.Tests.Samples/Allure.SpecFlow.Tests.Samples.csproj">
-      <BuildType Solution="Publish|*" Project="Debug" />
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.SpecFlow.Tests/Allure.SpecFlow.Tests.csproj">
-      <BuildType Solution="Publish|*" Project="Debug" />
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Reqnroll.Tests.Samples/Allure.Reqnroll.Tests.Samples.csproj">
-      <BuildType Solution="Publish|*" Project="Release" />
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.Testing/Allure.Testing.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
   </Folder>

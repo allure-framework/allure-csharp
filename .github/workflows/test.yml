@@ -34,20 +34,48 @@ jobs:
         run: |
           dotnet restore ${{ env.SOLUTION_PATH }}
 
-      - name: 'Build project using dotnet'
+      - name: 'Build solution using dotnet'
         run: |
           dotnet build ${{ env.SOLUTION_PATH }}\
             --no-restore\
+            --configuration ${{ env.BUILD_CONFIGURATION }}\
+            -p:Allure_TestTargetVersion=SNAPSHOT\
+            -p:Allure_PreRunTestingFlow=true
+
+      - name: Create NuGet packages
+        run: |
+          dotnet pack ${{ env.SOLUTION_PATH }}\
+            --no-restore\
+            --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      - name: Build test samples
+        run: |
+          dotnet msbuild ${{ env.SOLUTION_PATH }}\
+            -t:Allure_BuildTestSamples\
+            -p:Allure_SampleConfiguration=${{ env.BUILD_CONFIGURATION }}
+
+      - name: 'Run test samples'
+        run: |
+          dotnet msbuild ${{ env.SOLUTION_PATH }}\
+            -t:Allure_RunTestSamples\
+            -p:Allure_SampleConfiguration=${{ env.BUILD_CONFIGURATION }}
 
       - name: 'Run tests'
         run: |
           dotnet test ./tests/Allure.Net.Commons.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+          dotnet run --project ./tests/Allure.NUnit.Tests\
+            --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
           dotnet test ./tests/Allure.SpecFlow.Tests\
+            --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
           dotnet test ./tests/Allure.Reqnroll.Tests\
+            --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}

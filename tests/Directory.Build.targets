@@ -1,0 +1,250 @@
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
+            Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+
+    <UsingTask
+        TaskName="Allure.Build.Tasks.GenerateSampleSolution"
+        AssemblyFile="$([MSBuild]::NormalizePath($(IntermediateOutputPath), 'Allure.Build.Tasks.dll'))"/>
+
+    <PropertyGroup>
+
+        <!-- The Configuration property is unset in Directory.Build.props.
+         Setting the default values of dependent properties here. -->
+        <Allure_SampleConfiguration
+            Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
+        <Allure_SampleResultsDirectoryFormat Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' ">$(
+            [MSBuild]::NormalizeDirectory(
+                '$(ArtifactsPath)',
+                'bin',
+                '$(Allure_SampleSolutionName).{0}',
+                '$(Allure_SampleConfiguration.ToLower())_$(Allure_SampleSelectedTargetFramework)',
+                'allure-results'
+            )
+        )</Allure_SampleResultsDirectoryFormat>
+
+        <_Allure_SampleSolutionPath>$(
+            [MSBuild]::NormalizePath(
+                '$(Allure_SampleSolutionDir)',
+                '$(Allure_SampleSolutionName).slnx'
+            )
+        )</_Allure_SampleSolutionPath>
+
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Allure_PreRunTestingFlow)' == 'true' ">
+        <DefineConstants>$(DefineConstants);ALLURE_TEST_PRERUN_FLOW</DefineConstants>
+    </PropertyGroup>
+
+    <!-- At this point, all AllureSample items must be already defined.
+     We're converting them to AdditionalFiles items to make them visible
+     by the source generators. Only items with ProjectSuffix metadata set
+     are converted. -->
+    <ItemGroup>
+
+        <AdditionalFiles
+            Include="@(AllureSample)"
+            Allure_ProjectSuffix="%(ProjectSuffix)"/>
+
+    </ItemGroup>
+
+    <!-- This should go before _GenerateCompileDependencyCache.
+     Otherwise, changes in DefineConstants won't be detected by CoreCompile.
+     See https://github.com/dotnet/msbuild/pull/3978. -->
+    <Target Name="Allure_ResolveTestTarget"
+            BeforeTargets="ResolveAssemblyReferences"
+            Condition=" '@(AllureSample)' != '' ">
+
+        <PropertyGroup Condition=" '$(Allure_TestTargetVersion)' == 'SNAPSHOT' ">
+            <Allure_TestTargetVersion>$(Version)</Allure_TestTargetVersion>
+        </PropertyGroup>
+
+        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' == '' ">
+            <SampleProjectReference Include="@(ProjectUnderTest)" />
+        </ItemGroup>
+
+        <Exec
+            Condition=" '$(Allure_TestTargetVersion)' != '' "
+            Command="dotnet msbuild -getProperty:PackageId '%(ProjectUnderTest.Identity)'"
+            ConsoleToMsBuild="true"
+            StandardOutputImportance="low">
+
+            <Output TaskParameter="ConsoleOutput" ItemName="_Allure_PackageUnderTest" />
+
+        </Exec>
+
+        <ItemGroup Condition=" '$(Allure_TestTargetVersion)' != '' ">
+            <SamplePackageReference
+                Include="@(_Allure_PackageUnderTest)"
+                Version="$(Allure_TestTargetVersion)" />
+        </ItemGroup>
+
+        <!-- Enable parallel test execution:
+          1. In pre-run flow: no conflicting dotnet test runs at all.
+          2. If no projects are referenced (only NuGet packages): dotnet test doesn't build shared dependencies.
+          NOTE: don't forget to alter this condition if sample-specific project references becomes supported.  -->
+        <PropertyGroup Condition=" '$(Allure_PreRunTestingFlow)' == 'true' or '@(SampleProjectReference)' == '' ">
+            <DefineConstants>$(DefineConstants);ALLURE_TEST_PARALLEL</DefineConstants>
+        </PropertyGroup>
+
+    </Target>
+
+    <Target Name="Allure_GenerateTestSamples"
+            AfterTargets="CopyFilesToOutputDirectory"
+            Condition=" '@(AllureSample)' != '' ">
+
+        <PropertyGroup>
+            <_Allure_BuildTasksProject>$(
+                [MSBuild]::NormalizePath(
+                    '$(MSBuildThisFileDirectory)',
+                    '..',
+                    'build',
+                    'Allure.Build.Tasks',
+                    'Allure.Build.Tasks.csproj'
+                )
+            )</_Allure_BuildTasksProject>
+        </PropertyGroup>
+
+        <MSBuild
+            Projects="$(_Allure_BuildTasksProject)"
+            Targets="Restore;Build"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="Configuration=Release">
+
+            <Output TaskParameter="TargetOutputs" ItemName="AllureBuildTasksAssembly" />
+
+        </MSBuild>
+
+        <Copy
+            SourceFiles="@(AllureBuildTasksAssembly)"
+            DestinationFolder="$(IntermediateOutputPath)"
+            SkipUnchangedFiles="true" />
+
+        <MakeDir Directories="$(Allure_LocalNugetRepository)" />
+
+        <Allure.Build.Tasks.GenerateSampleSolution
+            SampleSources="@(AllureSample)"
+            SamplePackageReferences="@(SamplePackageReference)"
+            SampleProjectReferences="@(SampleProjectReference)"
+            SampleSolutionDir="$(Allure_SampleSolutionDir)"
+            SampleSolutionName="$(Allure_SampleSolutionName)"
+            SampleSolutionPath="$(_Allure_SampleSolutionPath)"
+            SampleTargetFrameworks="$(Allure_SampleSupportedTargetFrameworks)"
+            LocalNugetRepository="$(Allure_LocalNugetRepository)"
+            PackageCacheDirectory="$(Allure_PackageCacheDirectory)"
+        />
+
+        <CallTarget
+            Targets="Allure_BuildTestSamples"
+            Condition=" '$(Allure_PreBuildTestSamples)' == 'true' or '$(Allure_PreRunTestSamples)' == 'true' " />
+
+        <CallTarget
+            Targets="Allure_RunTestSamples"
+            Condition=" '$(Allure_PreRunTestSamples)' == 'true' "/>
+
+    </Target>
+
+    <Target Name="Allure_BuildTestSamples"
+            Condition=" '@(AllureSample)' != '' ">
+
+        <MSBuild
+            Projects="$(_Allure_SampleSolutionPath)"
+            Targets="Restore;Build"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="Configuration=$(Allure_SampleConfiguration)"
+            RemoveProperties="Platform" />
+
+    </Target>
+
+    <Target Name="Allure_RunTestSamples"
+            Condition=" '@(AllureSample)' != '' ">
+
+        <Error Text="The sample solution $(_Allure_SampleSolutionPath) doesn't exist. Build $(MSBuildProjectName) to generate it"
+            Condition=" !Exists('$(_Allure_SampleSolutionPath)') " />
+
+        <ItemGroup>
+            <AllureSampleResultDirectory
+                Include="@(
+                    AllureSample -> '$(
+                        [System.String]::Format(
+                            '$(Allure_SampleResultsDirectoryFormat)',
+                            '%(AllureSample.ProjectSuffix)'
+                        )
+                    )'
+                )"/>
+        </ItemGroup>
+
+        <RemoveDir Directories="@(AllureSampleResultDirectory)" />
+
+        <MSBuild
+            Projects="$(_Allure_SampleSolutionPath)"
+            Targets="Allure_RunTestSamples"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="
+                Allure_TestSampleTarget=VSTest;
+                Configuration=$(Allure_SampleConfiguration);
+                Allure_BuildInParallel=$(BuildInParallel);
+            "
+            RemoveProperties="Platform"
+            ContinueOnError="true" />
+
+    </Target>
+
+    <Target Name="Allure_CleanTestSamples"
+            BeforeTargets="CoreClean"
+            Condition="Exists('$(_Allure_SampleSolutionPath)')">
+
+        <MSBuild
+            Projects="$(_Allure_SampleSolutionPath)"
+            Targets="Clean"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="Configuration=$(Allure_SampleConfiguration)"
+            RemoveProperties="Platform"
+            ContinueOnError="True" />
+
+    </Target>
+
+    <Target Name="Allure_DeleteTestSamples">
+
+        <PropertyGroup>
+            <Allure_SampleProjectBinFormat>$(
+                [MSBuild]::NormalizeDirectory(
+                    '$(ArtifactsPath)',
+                    'bin',
+                    '$(Allure_SampleSolutionName).{0}'
+                )
+            )</Allure_SampleProjectBinFormat>
+
+            <Allure_SampleProjectObjFormat>$(
+                [MSBuild]::NormalizeDirectory(
+                    '$(ArtifactsPath)',
+                    'obj',
+                    '$(Allure_SampleSolutionName).{0}'
+                )
+            )</Allure_SampleProjectObjFormat>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <AllureSampleProjectOutputDirectory
+                Include="@(
+                    AllureSample -> '$(
+                        [System.String]::Format(
+                            '$(Allure_SampleProjectBinFormat)',
+                            '%(AllureSample.ProjectSuffix)'
+                        )
+                    )'
+                )"/>
+            <AllureSampleProjectOutputDirectory
+                Include="@(
+                    AllureSample -> '$(
+                        [System.String]::Format(
+                            '$(Allure_SampleProjectObjFormat)',
+                            '%(AllureSample.ProjectSuffix)'
+                        )
+                    )'
+                )"/>
+        </ItemGroup>
+
+        <RemoveDir Directories="@(AllureSampleProjectOutputDirectory)" />
+        <RemoveDir Directories="$(Allure_SampleSolutionDir)" />
+    </Target>
+</Project>

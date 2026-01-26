@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>Allure.SpecFlow</PackageId>
         <AssemblyName>Allure.SpecFlowPlugin</AssemblyName>
         <RootNamespace>Allure.SpecFlowPlugin</RootNamespace>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
-        <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
         <Authors>Alexander Bakanov</Authors>
         <Description>Create beautiful reports from your SpecFlow tests.</Description>
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) specflow</PackageTags>
+
+        <!-- This assembly can't be signed becasue of Lib.Harmony -->
         <SignAssembly>false</SignAssembly>
     </PropertyGroup>
 
