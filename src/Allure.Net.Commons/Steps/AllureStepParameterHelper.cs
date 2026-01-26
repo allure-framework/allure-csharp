@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
 
 namespace Allure.Net.Commons.Steps
@@ -146,8 +147,8 @@ namespace Allure.Net.Commons.Steps
         {
             return metadata.GetParameters()
                 .Select(x => (
-                    name: x.GetCustomAttribute<AbstractNameAttribute>()?.Name ?? x.Name,
-                    skip: x.GetCustomAttribute<AbstractSkipAttribute>() != null))
+                    name: GetCustomParameterName(x) ?? x.Name,
+                    skip: ShouldParameterBeIgnored(x)))
                 .Zip(args,
                     (parameter, value) => parameter.skip
                         ? null
@@ -159,6 +160,14 @@ namespace Allure.Net.Commons.Steps
                 .Where(x => x != null)
                 .ToList();
         }
+
+        static string GetCustomParameterName(ParameterInfo pInfo) =>
+            pInfo.GetCustomAttribute<AllureParameterAttribute>()?.Name
+                ?? pInfo.GetCustomAttribute<AbstractNameAttribute>()?.Name;
+
+        static bool ShouldParameterBeIgnored(ParameterInfo pInfo) =>
+            pInfo.GetCustomAttribute<AllureParameterAttribute>()?.Ignore == true
+                || pInfo.GetCustomAttribute<AbstractSkipAttribute>() is not null;
 
         private static bool TrySplit(string s, char separator, out string[] parts)
         {
