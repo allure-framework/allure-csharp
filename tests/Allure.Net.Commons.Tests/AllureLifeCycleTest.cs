@@ -169,6 +169,31 @@ namespace Allure.Net.Commons.Tests
         }
 
         [Test]
+        public async Task AsyncContextCapturingTest()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            AllureContext context = null;
+            await Task.Factory.StartNew(() =>
+            {
+                lifecycle.StartTestCase(new()
+                {
+                    uuid = Guid.NewGuid().ToString(),
+                    fullName = "test"
+                });
+                context = lifecycle.Context;
+            });
+            await lifecycle.RunInContextAsync(context, async () =>
+            {
+                lifecycle.StopTestCase();
+                await Task.Delay(1);
+                lifecycle.WriteTestCase();
+            });
+
+            Assert.That(writer.testResults, Is.Not.Empty);
+        }
+
+        [Test]
         public async Task ContextCapturingHasNoEffectIfContextIsNull()
         {
             var writer = new InMemoryResultsWriter();
@@ -184,6 +209,27 @@ namespace Allure.Net.Commons.Tests
 
             Assert.That(() => lifecycle.RunInContext(null, () =>
             {
+                lifecycle.StopTestCase();
+            }), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public async Task AsyncContextCapturingHasNoEffectIfContextIsNull()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(_ => writer);
+            await Task.Factory.StartNew(() =>
+            {
+                lifecycle.StartTestCase(new()
+                {
+                    uuid = Guid.NewGuid().ToString(),
+                    fullName = "test"
+                });
+            });
+
+            Assert.That(async () => await lifecycle.RunInContextAsync(null, async () =>
+            {
+                await Task.Delay(1);
                 lifecycle.StopTestCase();
             }), Throws.InvalidOperationException);
         }
