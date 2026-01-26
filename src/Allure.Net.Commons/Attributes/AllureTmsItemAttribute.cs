@@ -11,7 +11,10 @@ namespace Allure.Net.Commons.Attributes;
 /// </param>
 public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureMetadataAttribute
 {
-    string Title { get; set; }
+    /// <summary>
+    /// A display text of the TMS item link.
+    /// </summary>
+    public string Title { get; set; }
 
     /// <inheritdoc/>
     protected internal override void Apply(TestResult testResult)

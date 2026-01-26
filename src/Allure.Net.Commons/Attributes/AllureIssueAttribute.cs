@@ -11,7 +11,10 @@ namespace Allure.Net.Commons.Attributes;
 /// </param>
 public class AllureIssueAttribute(string issueIdOrUrl) : AllureMetadataAttribute
 {
-    string Title { get; set; }
+    /// <summary>
+    /// A display text of the issue link.
+    /// </summary>
+    public string Title { get; set; }
 
     /// <inheritdoc/>
     protected internal override void Apply(TestResult testResult)
