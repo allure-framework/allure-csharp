@@ -8,23 +8,14 @@ class FeatureAttributeTests
     [Test]
     public void FeatureCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureFeatureAttribute("foo").Apply(ctx);
+        new AllureFeatureAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([new Label { name = "feature", value = "foo" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureFeatureAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

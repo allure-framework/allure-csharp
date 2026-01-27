@@ -8,12 +8,12 @@ class TagAttributeTests
     [Test]
     public void ItAddsSingleTagToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureTagAttribute("foo").Apply(ctx);
+        new AllureTagAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([new Label { name = "tag", value = "foo" }])
                 .UsingPropertiesComparer()
         );
@@ -22,26 +22,17 @@ class TagAttributeTests
     [Test]
     public void ItAddsMultipleTagsToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureTagAttribute("foo", "bar", "baz").Apply(ctx);
+        new AllureTagAttribute("foo", "bar", "baz").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([
                 new Label { name = "tag", value = "foo" },
                 new Label { name = "tag", value = "bar" },
                 new Label { name = "tag", value = "baz" },
             ]).UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureTagAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

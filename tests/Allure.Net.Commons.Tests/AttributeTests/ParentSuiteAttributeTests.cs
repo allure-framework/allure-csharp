@@ -8,23 +8,14 @@ class ParentSuiteAttributeTests
     [Test]
     public void ParentSuiteCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureParentSuiteAttribute("foo").Apply(ctx);
+        new AllureParentSuiteAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([new Label { name = "parentSuite", value = "foo" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureParentSuiteAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

@@ -10,7 +10,7 @@ public class AllureTagAttribute(string tag, params string[] moreTags)
     : AllureMetadataAttribute
 {
     /// <inheritdoc/>
-    protected internal override void Apply(TestResult testResult)
+    public override void Apply(TestResult testResult)
     {
         testResult.labels.Add(Label.Tag(tag));
         testResult.labels.AddRange(moreTags.Select(Label.Tag));

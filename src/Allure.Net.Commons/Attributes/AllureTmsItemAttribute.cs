@@ -17,7 +17,7 @@ public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureMetadataAttri
     public string Title { get; set; }
 
     /// <inheritdoc/>
-    protected internal override void Apply(TestResult testResult)
+    public override void Apply(TestResult testResult)
     {
         testResult.links.Add(new()
         {

@@ -8,19 +8,10 @@ class DescriptionAttributeTests
     [Test]
     public void SetsTestDescription()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureDescriptionAttribute("foo").Apply(ctx);
+        new AllureDescriptionAttribute("foo").Apply(tr);
 
-        Assert.That(ctx.CurrentTest.description, Is.EqualTo("foo"));
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureDescriptionAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
+        Assert.That(tr.description, Is.EqualTo("foo"));
     }
 }

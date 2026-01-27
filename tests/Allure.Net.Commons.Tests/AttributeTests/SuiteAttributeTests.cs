@@ -8,23 +8,14 @@ class SuiteAttributeTests
     [Test]
     public void SuiteCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureSuiteAttribute("foo").Apply(ctx);
+        new AllureSuiteAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([new Label { name = "suite", value = "foo" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureSuiteAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

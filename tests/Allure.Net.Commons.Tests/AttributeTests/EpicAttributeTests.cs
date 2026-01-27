@@ -8,23 +8,14 @@ class EpicAttributeTests
     [Test]
     public void EpicCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureEpicAttribute("foo").Apply(ctx);
+        new AllureEpicAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([new Label { name = "epic", value = "foo" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureEpicAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

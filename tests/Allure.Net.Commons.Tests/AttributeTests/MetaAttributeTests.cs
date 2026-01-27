@@ -14,30 +14,21 @@ class MetaAttributeTests
     [Test]
     public void AttributesOfTheMetaAttributeAreApplied()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new FooAttribute().Apply(ctx);
+        new FooAttribute().Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([
                 new Label { name = "tag", value = "foo" },
                 new Label { name = "suite", value = "bar" },
             ]).UsingPropertiesComparer()
         );
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo", name = "bar", type = "issue" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new FooAttribute();
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

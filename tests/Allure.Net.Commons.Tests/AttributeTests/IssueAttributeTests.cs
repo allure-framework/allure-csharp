@@ -8,12 +8,12 @@ class IssueAttributeTests
     [Test]
     public void UrlOnlyIssueCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureIssueAttribute("foo").Apply(ctx);
+        new AllureIssueAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo", type = "issue" }])
                 .UsingPropertiesComparer()
         );
@@ -22,26 +22,17 @@ class IssueAttributeTests
     [Test]
     public void IssueWithTitleCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
         new AllureIssueAttribute("foo")
         {
             Title = "bar",
-        }.Apply(ctx);
+        }.Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo", name = "bar", type = "issue" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureIssueAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

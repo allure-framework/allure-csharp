@@ -8,12 +8,12 @@ class LinkAttributeTests
     [Test]
     public void UrlOnlyLinkCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureLinkAttribute("foo").Apply(ctx);
+        new AllureLinkAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo" }])
                 .UsingPropertiesComparer()
         );
@@ -22,15 +22,15 @@ class LinkAttributeTests
     [Test]
     public void LinkWithUrlAndTitleCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
         new AllureLinkAttribute("foo")
         {
             Title = "bar",
-        }.Apply(ctx);
+        }.Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo", name = "bar" }])
                 .UsingPropertiesComparer()
         );
@@ -39,27 +39,18 @@ class LinkAttributeTests
     [Test]
     public void LinkWithUrlTitleAndTypeCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
         new AllureLinkAttribute("foo")
         {
             Title = "bar",
             Type = "baz",
-        }.Apply(ctx);
+        }.Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo", name = "bar", type = "baz" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureLinkAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

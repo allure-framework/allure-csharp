@@ -8,19 +8,10 @@ class NameAttributeTests
     [Test]
     public void ItSetsTestName()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureNameAttribute("foo").Apply(ctx);
+        new AllureNameAttribute("foo").Apply(tr);
 
-        Assert.That(ctx.CurrentTest.name, Is.EqualTo("foo"));
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureNameAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
+        Assert.That(tr.name, Is.EqualTo("foo"));
     }
 }

@@ -43,7 +43,7 @@ public class AllureSuiteHierarchyAttribute : AllureMetadataAttribute
     }
 
     /// <inheritdoc/>
-    protected internal override void Apply(TestResult testResult)
+    public override void Apply(TestResult testResult)
     {
         var labels = testResult.labels;
 

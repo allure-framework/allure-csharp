@@ -8,12 +8,12 @@ class SuiteHierarchyAttributeTests
     [Test]
     public void SingleSuiteCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureSuiteHierarchyAttribute("foo").Apply(ctx);
+        new AllureSuiteHierarchyAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([new Label { name = "suite", value = "foo" }])
                 .UsingPropertiesComparer()
         );
@@ -22,12 +22,12 @@ class SuiteHierarchyAttributeTests
     [Test]
     public void TwoLevelSuiteHierarchyCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureSuiteHierarchyAttribute("foo", "bar").Apply(ctx);
+        new AllureSuiteHierarchyAttribute("foo", "bar").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([
                 new Label { name = "parentSuite", value = "foo" },
                 new Label { name = "suite", value = "bar" },
@@ -38,26 +38,17 @@ class SuiteHierarchyAttributeTests
     [Test]
     public void ThreeLevelSuiteHierarchyCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureSuiteHierarchyAttribute("foo", "bar", "baz").Apply(ctx);
+        new AllureSuiteHierarchyAttribute("foo", "bar", "baz").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([
                 new Label { name = "parentSuite", value = "foo" },
                 new Label { name = "suite", value = "bar" },
                 new Label { name = "subSuite", value = "baz" },
             ]).UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureSuiteHierarchyAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

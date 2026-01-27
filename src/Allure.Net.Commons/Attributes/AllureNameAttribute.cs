@@ -14,7 +14,7 @@ namespace Allure.Net.Commons.Attributes;
 public class AllureNameAttribute(string name) : AllureMetadataAttribute
 {
     /// <inheritdoc/>
-    protected internal override void Apply(TestResult testResult)
+    public override void Apply(TestResult testResult)
     {
         testResult.name = name;
     }

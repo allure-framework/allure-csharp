@@ -8,23 +8,14 @@ class LabelAttributeTests
     [Test]
     public void ItAddsLabelToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureLabelAttribute("foo", "bar").Apply(ctx);
+        new AllureLabelAttribute("foo", "bar").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.labels,
+            tr.labels,
             Is.EquivalentTo([new Label { name = "foo", value = "bar" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureLabelAttribute("foo", "bar");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

@@ -10,7 +10,7 @@ namespace Allure.Net.Commons.Attributes;
 public class AllureLabelAttribute(string name, string value) : AllureMetadataAttribute
 {
     /// <inheritdoc/>
-    protected internal override void Apply(TestResult testResult)
+    public override void Apply(TestResult testResult)
     {
         testResult.labels.Add(new() { name = name, value = value });
     }

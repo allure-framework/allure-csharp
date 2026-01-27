@@ -8,12 +8,12 @@ class TmsItemAttributeTests
     [Test]
     public void UrlOnlyTmsItemCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
-        new AllureTmsItemAttribute("foo").Apply(ctx);
+        new AllureTmsItemAttribute("foo").Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo", type = "tms" }])
                 .UsingPropertiesComparer()
         );
@@ -22,26 +22,17 @@ class TmsItemAttributeTests
     [Test]
     public void TmsItemWithTitleCanBeAddedToTest()
     {
-        var ctx = new AllureContext().WithTestContext(new());
+        TestResult tr = new();
 
         new AllureTmsItemAttribute("foo")
         {
             Title = "bar",
-        }.Apply(ctx);
+        }.Apply(tr);
 
         Assert.That(
-            ctx.CurrentTest.links,
+            tr.links,
             Is.EquivalentTo([new Link { url = "foo", name = "bar", type = "tms" }])
                 .UsingPropertiesComparer()
         );
-    }
-
-    [Test]
-    public void NoEffectIfNoTestIsRunning()
-    {
-        var ctx = new AllureContext();
-        var attr = new AllureTmsItemAttribute("foo");
-
-        Assert.That(() => attr.Apply(ctx), Throws.Nothing);
     }
 }

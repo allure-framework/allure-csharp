@@ -18,7 +18,7 @@ public abstract class AllureMetaAttribute : AllureMetadataAttribute
     }
 
     /// <inheritdoc/>
-    sealed protected internal override void Apply(TestResult testResult)
+    sealed public override void Apply(TestResult testResult)
     {
         foreach (var attr in this.attributes)
         {

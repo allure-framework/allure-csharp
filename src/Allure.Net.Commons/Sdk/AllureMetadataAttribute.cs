@@ -12,18 +12,8 @@ namespace Allure.Net.Commons.Sdk;
 )]
 public abstract class AllureMetadataAttribute : Attribute
 {
-    internal void Apply(AllureContext context)
-    {
-        if (context.HasTest)
-        {
-            this.Apply(context.CurrentTest);
-        }
-    }
-
     /// <summary>
-    /// Applies the metadata denoted by the attribute to a test result.
-    /// It's only called if a test is running.
+    /// Applies the attribute to a test result.
     /// </summary>
-    /// <param name="testResult">A test result to apply the metadata to.</param>
-    protected internal abstract void Apply(TestResult testResult);
+    public abstract void Apply(TestResult testResult);
 }
