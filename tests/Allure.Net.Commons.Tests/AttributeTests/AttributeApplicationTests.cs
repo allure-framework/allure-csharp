@@ -1,9 +1,8 @@
 using Allure.Net.Commons.Attributes;
-using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Sdk;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.FunctionTests.ModelFunctionTests;
+namespace Allure.Net.Commons.Tests.AttributeTests;
 
 class AttributeApplicationTests
 {
