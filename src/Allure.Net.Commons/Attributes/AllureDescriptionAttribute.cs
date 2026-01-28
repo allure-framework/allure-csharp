@@ -1,22 +1,48 @@
 using System;
 using Allure.Net.Commons.Sdk;
 
+#nullable enable
+
 namespace Allure.Net.Commons.Attributes;
 
 /// <summary>
 /// Applies a description.
 /// </summary>
 /// <param name="description">A description text. Markdown is supported.</param>
-[AttributeUsage(
-    AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method,
-    AllowMultiple = false,
-    Inherited = true
-)]
+[AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
 public class AllureDescriptionAttribute(string description) : AllureMetadataAttribute
 {
+    /// <summary>
+    /// If set to <c>true</c>, the description is appended to the existing one with <c>"\n\n"</c>.
+    /// Otherwise, the existing description will be overwritten with the new one.
+    /// </summary>
+    /// <remarks>
+    /// Here is a list of guarantees about the order in which attribute targets are considered when
+    /// the attributes are applied:
+    /// <list type="number">
+    /// <item>Interfaces before classes/structs.</item>
+    /// <item>Base classes/structs before derived classes/structs.</item>
+    /// <item>Classes/structs before methods.</item>
+    /// <item>Base methods before method overrides.</item>
+    /// </list>
+    /// </remarks>
+    public bool Append { get; init; }
+
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        testResult.description = description;
+        if (description is null)
+        {
+            return;
+        }
+
+        if (this.Append && !string.IsNullOrEmpty(testResult.description))
+        {
+            testResult.description += $"\n\n{description}";
+        }
+        else
+        {
+            testResult.description = description;
+        }
     }
 }

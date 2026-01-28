@@ -1,3 +1,4 @@
+using System.Reflection;
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
@@ -5,6 +6,20 @@ namespace Allure.Net.Commons.Tests.AttributeTests;
 
 class LinkAttributeTests
 {
+    [AllureLink("foo")]
+    class TargetBase { }
+
+    [AllureLink("bar")]
+    class TargetDerived : TargetBase { }
+
+    [Test]
+    public void CanBeQueriedFromBaseAndInheritedClasses()
+    {
+        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureLinkAttribute>();
+
+        Assert.That(typeAttributes, Has.Exactly(2).Items);
+    }
+
     [Test]
     public void UrlOnlyLinkCanBeAddedToTest()
     {
@@ -52,5 +67,15 @@ class LinkAttributeTests
             Is.EquivalentTo([new Link { url = "foo", name = "bar", type = "baz" }])
                 .UsingPropertiesComparer()
         );
+    }
+
+    [Test]
+    public void DoesNothingIfUrlIsNull()
+    {
+        TestResult tr = new();
+
+        new AllureLinkAttribute(null).Apply(tr);
+
+        Assert.That(tr.links, Is.Empty);
     }
 }

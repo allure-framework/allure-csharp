@@ -1,3 +1,4 @@
+using System.Reflection;
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
@@ -5,6 +6,20 @@ namespace Allure.Net.Commons.Tests.AttributeTests;
 
 class SuiteHierarchyAttributeTests
 {
+    [AllureSuiteHierarchy("foo")]
+    class TargetBase { }
+
+    [AllureSuiteHierarchy("bar")]
+    class TargetDerived : TargetBase { }
+
+    [Test]
+    public void CantBeInherited()
+    {
+        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureSuiteHierarchyAttribute>();
+
+        Assert.That(typeAttributes, Has.Exactly(1).Items);
+    }
+
     [Test]
     public void SingleSuiteCanBeAddedToTest()
     {

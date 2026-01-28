@@ -1,8 +1,13 @@
+using System;
+
+#nullable enable
+
 namespace Allure.Net.Commons.Attributes;
 
 /// <summary>
 /// Wraps each call of the method in an Allure step.
 /// </summary>
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 public class AllureStepAttribute : Steps.AllureStepAttributes.AbstractStepAttribute
 {
     /// <summary>

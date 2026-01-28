@@ -1,3 +1,4 @@
+using System;
 using Allure.Net.Commons.Sdk;
 
 #nullable enable
@@ -7,6 +8,7 @@ namespace Allure.Net.Commons.Attributes;
 /// <summary>
 /// Applies the whole BDD hierarchy at once.
 /// </summary>
+[AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = false, Inherited = true)]
 public class AllureBddHierarchyAttribute : AllureMetadataAttribute
 {
     string? Epic { get; init; }

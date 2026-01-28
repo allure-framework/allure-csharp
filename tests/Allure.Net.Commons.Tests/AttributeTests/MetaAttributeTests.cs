@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
@@ -9,6 +11,7 @@ class MetaAttributeTests
     [AllureTag("foo")]
     [AllureSuite("bar")]
     [AllureIssue("foo", Title = "bar")]
+    [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
     class FooAttribute : AllureMetaAttribute { }
 
     [Test]

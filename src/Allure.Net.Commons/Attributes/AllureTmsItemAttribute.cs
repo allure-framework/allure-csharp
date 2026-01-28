@@ -1,4 +1,7 @@
+using System;
 using Allure.Net.Commons.Sdk;
+
+#nullable enable
 
 namespace Allure.Net.Commons.Attributes;
 
@@ -9,16 +12,22 @@ namespace Allure.Net.Commons.Attributes;
 /// The item's ID or URL. If ID is specified, make sure a corresponding link template
 /// exists in the configuration.
 /// </param>
+[AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
 public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureMetadataAttribute
 {
     /// <summary>
     /// A display text of the TMS item link.
     /// </summary>
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
+        if (tmsItemIdOrUrl is null)
+        {
+            return;
+        }
+
         testResult.links.Add(new()
         {
             url = tmsItemIdOrUrl,
