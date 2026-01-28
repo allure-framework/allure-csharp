@@ -8,5 +8,5 @@ namespace Allure.Net.Commons.Attributes;
 /// Applies a <c>severity</c> label.
 /// </summary>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = false, Inherited = true)]
-public class AllureSeverity(SeverityLevel severity)
+public class AllureSeverityAttribute(SeverityLevel severity)
     : AllureLabelAttribute(LabelName.SEVERITY, severity.ToString());
