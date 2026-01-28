@@ -8,9 +8,9 @@ class SubSuiteTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetSubSuiteSamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.SubSuiteAttributeOnClass,
-            AllureSampleRegistry.SubSuiteAttributeOnMethod,
-            AllureSampleRegistry.SubSuiteAttributeOnBaseClass,
+            AllureSampleRegistry.LegacySubSuiteAttributeOnClass,
+            AllureSampleRegistry.LegacySubSuiteAttributeOnMethod,
+            AllureSampleRegistry.LegacySubSuiteAttributeOnBaseClass,
             AllureSampleRegistry.AddSubSuiteFromSetUp,
             AllureSampleRegistry.AddSubSuiteFromTest,
             AllureSampleRegistry.AddSubSuiteFromTearDown,

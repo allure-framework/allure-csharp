@@ -8,9 +8,9 @@ class SuiteTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetSuiteSamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.SuiteAttributeOnClass,
-            AllureSampleRegistry.SuiteAttributeOnMethod,
-            AllureSampleRegistry.SuiteAttributeOnBaseClass,
+            AllureSampleRegistry.LegacySuiteAttributeOnClass,
+            AllureSampleRegistry.LegacySuiteAttributeOnMethod,
+            AllureSampleRegistry.LegacySuiteAttributeOnBaseClass,
             AllureSampleRegistry.AddSuiteFromSetUp,
             AllureSampleRegistry.AddSuiteFromTest,
             AllureSampleRegistry.AddSuiteFromTearDown,

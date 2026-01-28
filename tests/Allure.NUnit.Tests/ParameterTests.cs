@@ -34,7 +34,7 @@ class ParameterTests
     [Test]
     public async Task CheckMaskedParameter()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.MaskedParameter);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddMaskedParameter);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
 
@@ -47,7 +47,7 @@ class ParameterTests
     [Test]
     public async Task CheckHiddenParameter()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.HiddenParameter);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddHiddenParameter);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
 
@@ -60,7 +60,7 @@ class ParameterTests
     [Test]
     public async Task CheckExcludedParameter()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.ExcludedParameter);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddExcludedParameter);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(2);
 

@@ -8,9 +8,9 @@ class CustomLabelTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetCustomLabelSamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.LabelAttributeOnClass,
-            AllureSampleRegistry.LabelAttributeOnMethod,
-            AllureSampleRegistry.LabelAttributeOnBaseClass,
+            AllureSampleRegistry.LegacyLabelAttributeOnClass,
+            AllureSampleRegistry.LegacyLabelAttributeOnMethod,
+            AllureSampleRegistry.LegacyLabelAttributeOnBaseClass,
             AllureSampleRegistry.AddLabelFromSetUp,
             AllureSampleRegistry.AddLabelFromTest,
             AllureSampleRegistry.AddLabelFromTearDown,

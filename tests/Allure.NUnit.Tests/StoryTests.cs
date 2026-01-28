@@ -8,9 +8,9 @@ class StoryTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetStorySamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.StoryAttributeOnClass,
-            AllureSampleRegistry.StoryAttributeOnMethod,
-            AllureSampleRegistry.StoryAttributeOnBaseClass,
+            AllureSampleRegistry.LegacyStoryAttributeOnClass,
+            AllureSampleRegistry.LegacyStoryAttributeOnMethod,
+            AllureSampleRegistry.LegacyStoryAttributeOnBaseClass,
             AllureSampleRegistry.AddStoryFromSetUp,
             AllureSampleRegistry.AddStoryFromTest,
             AllureSampleRegistry.AddStoryFromTearDown,
