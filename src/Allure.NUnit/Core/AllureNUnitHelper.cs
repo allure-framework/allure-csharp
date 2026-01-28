@@ -366,22 +366,48 @@ namespace Allure.NUnit.Core
 
         private void UpdateTestDataFromNUnitProperties()
         {
-            foreach (var p in GetTestProperties(PropertyNames.Description))
+            this.ApplyNUnitDescriptions();
+            this.ApplyNUnitAuthors();
+            this.ApplyNUnitCategories();
+        }
+
+        void ApplyNUnitDescriptions()
+        {
+            bool hasDescription = false;
+            AllureLifecycle.UpdateTestCase((tr) =>
             {
-                AllureLifecycle.UpdateTestCase(x => x.description += $"{p}\n"
-                );
+                hasDescription = tr.description is not null || tr.descriptionHtml is not null;
+            });
+
+            if (hasDescription)
+            {
+                // If a description is provided via the Allure API,
+                // NUnit descriptions are ignored.
+                return;
             }
 
-            foreach (var p in GetTestProperties(PropertyNames.Author))
+            foreach (var p in EnumerateTestProperties(PropertyNames.Description))
             {
-                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Owner(p))
-                );
+                AllureLifecycle.UpdateTestCase(x =>
+                    x.description = string.IsNullOrEmpty(x.description)
+                        ? p
+                        : $"{x.description}\n\n{p}");
             }
+        }
 
-            foreach (var p in GetTestProperties(PropertyNames.Category))
+        void ApplyNUnitAuthors()
+        {
+            foreach (var p in EnumerateTestProperties(PropertyNames.Author))
             {
-                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Tag(p))
-                );
+                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Owner(p)));
+            }
+        }
+
+        void ApplyNUnitCategories()
+        {
+            foreach (var p in EnumerateTestProperties(PropertyNames.Category))
+            {
+                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Tag(p)));
             }
         }
 
@@ -402,30 +428,32 @@ namespace Allure.NUnit.Core
             }
         }
 
-        private IEnumerable<string> GetTestProperties(string name)
+        IEnumerable<string> EnumerateTestProperties(string name)
         {
-            var list = new List<string>();
-            var currentTest = _test;
-            while (currentTest.GetType() != typeof(TestSuite)
-                   && currentTest.GetType() != typeof(TestAssembly))
+            var propertyContainers = EnumeratePropertyContainers().Reverse();
+            foreach (var obj in propertyContainers)
             {
-                if (currentTest.Properties.ContainsKey(name))
+                if (obj.Properties.ContainsKey(name))
                 {
-                    if (currentTest.Properties[name].Count > 0)
+                    for (var i = 0; i < obj.Properties[name].Count; i++)
                     {
-                        for (var i = 0; i < currentTest.Properties[name].Count; i++)
-                        {
-                            list.Add(
-                                currentTest.Properties[name][i].ToString()
-                            );
-                        }
+                        yield return obj.Properties[name][i].ToString();
                     }
                 }
+            }
+        }
 
-                currentTest = currentTest.Parent;
+        IEnumerable<ITest> EnumeratePropertyContainers()
+        {
+            for (var test = this._test; ShouldContinue(test); test = test.Parent)
+            {
+                yield return test;
             }
 
-            return list;
+            static bool ShouldContinue(ITest test)
+                => test is not null
+                    && test.GetType() != typeof(TestSuite)
+                    && test.GetType() != typeof(TestAssembly);
         }
 
         private string ContainerId => $"tc-{_test.Id}";
