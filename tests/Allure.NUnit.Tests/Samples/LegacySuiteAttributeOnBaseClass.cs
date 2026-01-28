@@ -1,8 +1,7 @@
-using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.SuiteAttributeOnBaseClass
+namespace Allure.NUnit.Tests.Samples.LegacySuiteAttributeOnBaseClass
 {
     [AllureSuite("foo")]
     public class BaseClass {}
@@ -14,4 +13,3 @@ namespace Allure.NUnit.Tests.Samples.SuiteAttributeOnBaseClass
         public void TestMethod() { }
     }
 }
-

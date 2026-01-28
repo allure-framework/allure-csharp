@@ -10,4 +10,3 @@ namespace Allure.NUnit.Tests.Samples.OneNUnitTestCaseWithOneParameter
         public void TestMethod(string foo) { }
     }
 }
-

@@ -1,8 +1,7 @@
-using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.LabelAttributeOnMethod
+namespace Allure.NUnit.Tests.Samples.LegacyLabelAttributeOnMethod
 {
     [AllureNUnit]
     public class TestsClass
@@ -12,4 +11,3 @@ namespace Allure.NUnit.Tests.Samples.LabelAttributeOnMethod
         public void TestMethod() { }
     }
 }
-

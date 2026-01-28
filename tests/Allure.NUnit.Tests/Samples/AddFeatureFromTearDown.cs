@@ -16,4 +16,3 @@ namespace Allure.NUnit.Tests.Samples.AddFeatureFromTearDown
         public void TestMethod() { }
     }
 }
-

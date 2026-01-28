@@ -1,8 +1,7 @@
-using System;
 using Allure.Net.Commons;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.MaskedParameter
+namespace Allure.NUnit.Tests.Samples.AddMaskedParameter
 {
     [AllureNUnit]
     public class TestsClass
@@ -14,4 +13,3 @@ namespace Allure.NUnit.Tests.Samples.MaskedParameter
         }
     }
 }
-

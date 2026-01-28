@@ -1,8 +1,7 @@
-using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.SubSuiteAttributeOnClass
+namespace Allure.NUnit.Tests.Samples.LegacySubSuiteAttributeOnClass
 {
     [AllureNUnit]
     [AllureSubSuite("foo")]
@@ -12,4 +11,3 @@ namespace Allure.NUnit.Tests.Samples.SubSuiteAttributeOnClass
         public void TestMethod() { }
     }
 }
-

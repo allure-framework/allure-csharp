@@ -1,8 +1,7 @@
-using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.EpicAttributeOnMethod
+namespace Allure.NUnit.Tests.Samples.LegacyEpicAttributeOnMethod
 {
     [AllureNUnit]
     public class TestsClass
@@ -12,4 +11,3 @@ namespace Allure.NUnit.Tests.Samples.EpicAttributeOnMethod
         public void TestMethod() { }
     }
 }
-

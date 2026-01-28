@@ -16,4 +16,3 @@ namespace Allure.NUnit.Tests.Samples.AddLabelFromSetUp
         public void TestMethod() { }
     }
 }
-

@@ -1,8 +1,7 @@
-using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.StoryAttributeOnMethod
+namespace Allure.NUnit.Tests.Samples.LegacyStoryAttributeOnMethod
 {
     [AllureNUnit]
     public class TestsClass
@@ -12,4 +11,3 @@ namespace Allure.NUnit.Tests.Samples.StoryAttributeOnMethod
         public void TestMethod() { }
     }
 }
-

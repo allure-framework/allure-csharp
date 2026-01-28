@@ -1,8 +1,7 @@
-using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.ParentSuiteAttributeOnClass
+namespace Allure.NUnit.Tests.Samples.LegacyParentSuiteAttributeOnClass
 {
     [AllureNUnit]
     [AllureParentSuite("foo")]
@@ -12,4 +11,3 @@ namespace Allure.NUnit.Tests.Samples.ParentSuiteAttributeOnClass
         public void TestMethod() { }
     }
 }
-

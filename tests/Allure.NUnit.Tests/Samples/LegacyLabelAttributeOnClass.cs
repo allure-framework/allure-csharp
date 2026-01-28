@@ -1,8 +1,7 @@
-using Allure.Net.Commons;
 using Allure.NUnit.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.LabelAttributeOnClass
+namespace Allure.NUnit.Tests.Samples.LegacyLabelAttributeOnClass
 {
     [AllureNUnit]
     [AllureLabel("foo", "bar")]
@@ -12,4 +11,3 @@ namespace Allure.NUnit.Tests.Samples.LabelAttributeOnClass
         public void TestMethod() { }
     }
 }
-
