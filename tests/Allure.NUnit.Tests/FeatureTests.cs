@@ -8,12 +8,16 @@ class FeatureTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetFeatureSamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.LegacyFeatureAttributeOnClass,
-            AllureSampleRegistry.LegacyFeatureAttributeOnMethod,
-            AllureSampleRegistry.LegacyFeatureAttributeOnBaseClass,
+            AllureSampleRegistry.FeatureAttributeOnClass,
+            AllureSampleRegistry.FeatureAttributeOnMethod,
+            AllureSampleRegistry.FeatureAttributeOnBaseClass,
+            AllureSampleRegistry.FeatureAttributeOnInterface,
             AllureSampleRegistry.AddFeatureFromSetUp,
             AllureSampleRegistry.AddFeatureFromTest,
             AllureSampleRegistry.AddFeatureFromTearDown,
+            AllureSampleRegistry.LegacyFeatureAttributeOnClass,
+            AllureSampleRegistry.LegacyFeatureAttributeOnMethod,
+            AllureSampleRegistry.LegacyFeatureAttributeOnBaseClass,
         ];
 
         return samples.Select(static (sample) =>

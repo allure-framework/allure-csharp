@@ -8,12 +8,16 @@ class StoryTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetStorySamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.LegacyStoryAttributeOnClass,
-            AllureSampleRegistry.LegacyStoryAttributeOnMethod,
-            AllureSampleRegistry.LegacyStoryAttributeOnBaseClass,
+            AllureSampleRegistry.StoryAttributeOnClass,
+            AllureSampleRegistry.StoryAttributeOnMethod,
+            AllureSampleRegistry.StoryAttributeOnBaseClass,
+            AllureSampleRegistry.StoryAttributeOnInterface,
             AllureSampleRegistry.AddStoryFromSetUp,
             AllureSampleRegistry.AddStoryFromTest,
             AllureSampleRegistry.AddStoryFromTearDown,
+            AllureSampleRegistry.LegacyStoryAttributeOnClass,
+            AllureSampleRegistry.LegacyStoryAttributeOnMethod,
+            AllureSampleRegistry.LegacyStoryAttributeOnBaseClass,
         ];
 
         return samples.Select(static (sample) =>

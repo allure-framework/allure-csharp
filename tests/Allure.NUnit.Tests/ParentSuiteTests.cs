@@ -8,12 +8,16 @@ class ParentSuiteTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetParentSuiteSamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.LegacyParentSuiteAttributeOnClass,
-            AllureSampleRegistry.LegacyParentSuiteAttributeOnMethod,
-            AllureSampleRegistry.LegacyParentSuiteAttributeOnBaseClass,
+            AllureSampleRegistry.ParentSuiteAttributeOnClass,
+            AllureSampleRegistry.ParentSuiteAttributeOnMethod,
+            AllureSampleRegistry.ParentSuiteAttributeOnBaseClass,
+            AllureSampleRegistry.ParentSuiteAttributeOnInterface,
             AllureSampleRegistry.AddParentSuiteFromSetUp,
             AllureSampleRegistry.AddParentSuiteFromTest,
             AllureSampleRegistry.AddParentSuiteFromTearDown,
+            AllureSampleRegistry.LegacyParentSuiteAttributeOnClass,
+            AllureSampleRegistry.LegacyParentSuiteAttributeOnMethod,
+            AllureSampleRegistry.LegacyParentSuiteAttributeOnBaseClass,
         ];
 
         return samples.Select(static (sample) =>

@@ -8,12 +8,16 @@ class EpicTests
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetEpicSamples()
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.LegacyEpicAttributeOnClass,
-            AllureSampleRegistry.LegacyEpicAttributeOnMethod,
-            AllureSampleRegistry.LegacyEpicAttributeOnBaseClass,
+            AllureSampleRegistry.EpicAttributeOnClass,
+            AllureSampleRegistry.EpicAttributeOnMethod,
+            AllureSampleRegistry.EpicAttributeOnBaseClass,
+            AllureSampleRegistry.EpicAttributeOnInterface,
             AllureSampleRegistry.AddEpicFromSetUp,
             AllureSampleRegistry.AddEpicFromTest,
             AllureSampleRegistry.AddEpicFromTearDown,
+            AllureSampleRegistry.LegacyEpicAttributeOnClass,
+            AllureSampleRegistry.LegacyEpicAttributeOnMethod,
+            AllureSampleRegistry.LegacyEpicAttributeOnBaseClass,
         ];
 
         return samples.Select(static (sample) =>
