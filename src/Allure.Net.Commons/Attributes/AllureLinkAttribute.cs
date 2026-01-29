@@ -21,7 +21,8 @@ public class AllureLinkAttribute(string url) : AllureMetadataAttribute
     public string? Title { get; set; }
 
     /// <summary>
-    /// A type of the link.
+    /// A type of the link. Use this property to select the correct link template from the
+    /// configuration.
     /// </summary>
     public string? Type { get; set; }
 
