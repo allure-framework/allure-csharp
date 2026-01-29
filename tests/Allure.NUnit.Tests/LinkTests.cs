@@ -144,4 +144,70 @@ class LinkTests
                 && l["name"] is null
                 && (string)l["type"] == "issue");
     }
+
+    [Test]
+    public async Task CheckTmsLinksRuntimeApiWorks()
+    {
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddTmsItemsAtRuntime);
+
+        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
+        var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
+        await Assert.That(links.Count).IsEqualTo(3);
+        await Assert.That(links[0]).Satisfies(static (l) =>
+            (string)l["url"] == "url-1"
+                && l["name"] is null
+                && (string)l["type"] == "tms");
+        await Assert.That(links[1]).Satisfies(static (l) =>
+            (string)l["url"] == "url-2"
+                && (string)l["name"] == "name-2"
+                && (string)l["type"] == "tms");
+        await Assert.That(links[2]).Satisfies(static (l) =>
+            (string)l["url"] == "url-3"
+                && (string)l["name"] == "name-3"
+                && (string)l["type"] == "tms");
+    }
+
+    [Test]
+    public async Task CheckLegacyTmsAttributesWork()
+    {
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyTmsAttributes);
+
+        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
+        var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
+        await Assert.That(links.Count).IsEqualTo(3);
+        await Assert.That(links[0]).Satisfies(static (l) =>
+            (string)l["url"] == "url-3"
+                && (string)l["name"] == "url-3"
+                && (string)l["type"] == "tms");
+        await Assert.That(links[1]).Satisfies(static (l) =>
+            (string)l["url"] == "url-2"
+                && (string)l["name"] == "name-2"
+                && (string)l["type"] == "tms");
+        await Assert.That(links[2]).Satisfies(static (l) =>
+            (string)l["url"] == "url-1"
+                && (string)l["name"] == "url-1"
+                && (string)l["type"] == "tms");
+    }
+
+    [Test]
+    public async Task CheckTmsItemAttributesWork()
+    {
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.TmsItemAttributes);
+
+        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
+        var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
+        await Assert.That(links.Count).IsEqualTo(3);
+        await Assert.That(links[0]).Satisfies(static (l) =>
+            (string)l["url"] == "url-1"
+                && l["name"] is null
+                && (string)l["type"] == "tms");
+        await Assert.That(links[1]).Satisfies(static (l) =>
+            (string)l["url"] == "url-2"
+                && (string)l["name"] == "name-2"
+                && (string)l["type"] == "tms");
+        await Assert.That(links[2]).Satisfies(static (l) =>
+            (string)l["url"] == "url-3"
+                && l["name"] is null
+                && (string)l["type"] == "tms");
+    }
 }
