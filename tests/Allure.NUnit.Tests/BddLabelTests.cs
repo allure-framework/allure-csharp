@@ -3,7 +3,7 @@ using Allure.Testing;
 
 namespace Allure.NUnit.Tests;
 
-class BddHierarchyTests
+class BddLabelTests
 {
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetBddHierarchySamples()
     {

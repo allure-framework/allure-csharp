@@ -3,7 +3,7 @@ using Allure.Testing;
 
 namespace Allure.NUnit.Tests;
 
-class SuiteHierarchyTests
+class SuiteLabelTests
 {
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetSuiteHierarchySamples()
     {
