@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.NUnitDescriptionPropertyOnClass
+namespace Allure.NUnit.Tests.Samples.NUnitDescriptionPropertyOnTestFixture
 {
     [AllureNUnit]
     [TestFixture(Description = "Lorem Ipsum")]

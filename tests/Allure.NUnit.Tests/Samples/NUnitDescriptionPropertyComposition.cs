@@ -7,6 +7,7 @@ namespace Allure.NUnit.Tests.Samples.NUnitDescriptionPropertyComposition
     public class TestsClass
     {
         [Test(Description = "Dolor Sit Amet")]
-        public void TestMethod() { }
+        [TestCase(1, Description = "Consectetur Adipiscing Elit")]
+        public void TestMethod(int _) { }
     }
 }

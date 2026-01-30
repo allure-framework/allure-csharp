@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Samples.NUnitDescriptionPropertyOnMethod
+namespace Allure.NUnit.Tests.Samples.NUnitDescriptionPropertyOnTest
 {
     [AllureNUnit]
     public class TestsClass

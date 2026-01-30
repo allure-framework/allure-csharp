@@ -10,8 +10,9 @@ class DescriptionTests
         IEnumerable<AllureSampleRegistryEntry> samples = [
             AllureSampleRegistry.NUnitDescriptionAttributeOnMethod,
             AllureSampleRegistry.NUnitDescriptionAttributeOnClass,
-            AllureSampleRegistry.NUnitDescriptionPropertyOnMethod,
-            AllureSampleRegistry.NUnitDescriptionPropertyOnClass,
+            AllureSampleRegistry.NUnitDescriptionPropertyOnTest,
+            AllureSampleRegistry.NUnitDescriptionPropertyOnTestCase,
+            AllureSampleRegistry.NUnitDescriptionPropertyOnTestFixture,
             AllureSampleRegistry.DescriptionAttributeOnMethod,
             AllureSampleRegistry.DescriptionAttributeOnClass,
             AllureSampleRegistry.DescriptionAttributeOnBaseClass,
@@ -63,27 +64,30 @@ class DescriptionTests
         await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo("Lorem Ipsum");
     }
 
-    public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetNUnitDescriptionCompositionSamples()
-    {
-        IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.NUnitDescriptionAttributeComposition,
-            AllureSampleRegistry.NUnitDescriptionPropertyComposition,
-        ];
-
-        return samples.Select(static (sample) =>
-            new TestDataRow<AllureSampleRegistryEntry>(sample, DisplayName: sample.Id));
-    }
-
     [Test]
-    [MethodDataSource(nameof(GetNUnitDescriptionCompositionSamples))]
-    public async Task NUnitDescriptionAttributeCompose(AllureSampleRegistryEntry sample)
+    public async Task NUnitDescriptionAttributesCompose()
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync(
+            AllureSampleRegistry.NUnitDescriptionAttributeComposition
+        );
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
         await Assert
             .That((string)results.TestResults[0]["description"])
             .IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
+    }
+
+    [Test]
+    public async Task NUnitDescriptionPropertiesCompose()
+    {
+        var results = await AllureSampleRunner.RunAsync(
+            AllureSampleRegistry.NUnitDescriptionPropertyComposition
+        );
+
+        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
+        await Assert
+            .That((string)results.TestResults[0]["description"])
+            .IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet\n\nConsectetur Adipiscing Elit");
     }
 
     [Test]
