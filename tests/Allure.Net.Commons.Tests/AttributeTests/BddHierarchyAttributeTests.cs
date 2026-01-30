@@ -24,9 +24,13 @@ class BddHierarchyAttributeTests
     public void SingleFeatureCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureBddHierarchyAttribute("foo");
 
-        new AllureBddHierarchyAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Epic, Is.Null);
+        Assert.That(attr.Feature, Is.EqualTo("foo"));
+        Assert.That(attr.Story, Is.Null);
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "feature", value = "foo" }])
@@ -38,9 +42,13 @@ class BddHierarchyAttributeTests
     public void EpicAndFeatureCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureBddHierarchyAttribute("foo", "bar");
 
-        new AllureBddHierarchyAttribute("foo", "bar").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Epic, Is.EqualTo("foo"));
+        Assert.That(attr.Feature, Is.EqualTo("bar"));
+        Assert.That(attr.Story, Is.Null);
         Assert.That(
             tr.labels,
             Is.EquivalentTo([
@@ -54,9 +62,13 @@ class BddHierarchyAttributeTests
     public void EpicFeatureAndStoryCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureBddHierarchyAttribute("foo", "bar", "baz");
 
-        new AllureBddHierarchyAttribute("foo", "bar", "baz").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Epic, Is.EqualTo("foo"));
+        Assert.That(attr.Feature, Is.EqualTo("bar"));
+        Assert.That(attr.Story, Is.EqualTo("baz"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([

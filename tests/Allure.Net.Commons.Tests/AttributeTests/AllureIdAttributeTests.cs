@@ -9,9 +9,12 @@ class AllureIdAttributeTests
     public void AllureIdCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureIdAttribute(1001);
 
-        new AllureIdAttribute(1001).Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("ALLURE_ID"));
+        Assert.That(attr.Value, Is.EqualTo("1001"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "ALLURE_ID", value = "1001" }])

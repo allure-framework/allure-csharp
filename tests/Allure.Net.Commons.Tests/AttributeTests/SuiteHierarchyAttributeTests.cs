@@ -24,9 +24,13 @@ class SuiteHierarchyAttributeTests
     public void SingleSuiteCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureSuiteHierarchyAttribute("foo");
 
-        new AllureSuiteHierarchyAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.ParentSuite, Is.Null);
+        Assert.That(attr.Suite, Is.EqualTo("foo"));
+        Assert.That(attr.SubSuite, Is.Null);
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "suite", value = "foo" }])
@@ -38,9 +42,13 @@ class SuiteHierarchyAttributeTests
     public void TwoLevelSuiteHierarchyCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureSuiteHierarchyAttribute("foo", "bar");
 
-        new AllureSuiteHierarchyAttribute("foo", "bar").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.ParentSuite, Is.EqualTo("foo"));
+        Assert.That(attr.Suite, Is.EqualTo("bar"));
+        Assert.That(attr.SubSuite, Is.Null);
         Assert.That(
             tr.labels,
             Is.EquivalentTo([
@@ -54,9 +62,13 @@ class SuiteHierarchyAttributeTests
     public void ThreeLevelSuiteHierarchyCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureSuiteHierarchyAttribute("foo", "bar", "baz");
 
-        new AllureSuiteHierarchyAttribute("foo", "bar", "baz").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.ParentSuite, Is.EqualTo("foo"));
+        Assert.That(attr.Suite, Is.EqualTo("bar"));
+        Assert.That(attr.SubSuite, Is.EqualTo("baz"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([

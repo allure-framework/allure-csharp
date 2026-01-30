@@ -35,9 +35,12 @@ class OwnerAttributeTests
     public void OwnerCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureOwnerAttribute("John Doe");
 
-        new AllureOwnerAttribute("John Doe").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("owner"));
+        Assert.That(attr.Value, Is.EqualTo("John Doe"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "owner", value = "John Doe" }])

@@ -11,9 +11,20 @@ namespace Allure.Net.Commons.Attributes;
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = false, Inherited = true)]
 public class AllureSuiteHierarchyAttribute : AllureMetadataAttribute
 {
-    string? ParentSuite { get; init; }
-    string? Suite { get; init; }
-    string? SubSuite { get; init; }
+    /// <summary>
+    /// The value of the <c>parentSuite</c> label.
+    /// </summary>
+    public string? ParentSuite { get; init; }
+
+    /// <summary>
+    /// The value of the <c>suite</c> label.
+    /// </summary>
+    public string? Suite { get; init; }
+
+    /// <summary>
+    /// The value of the <c>subSuite</c> label.
+    /// </summary>
+    public string? SubSuite { get; init; }
 
     /// <summary>
     /// A shorthand for <see cref="AllureParentSuiteAttribute"/>,

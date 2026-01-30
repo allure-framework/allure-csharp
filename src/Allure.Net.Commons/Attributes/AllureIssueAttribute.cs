@@ -16,6 +16,11 @@ namespace Allure.Net.Commons.Attributes;
 public class AllureIssueAttribute(string issueIdOrUrl) : AllureMetadataAttribute
 {
     /// <summary>
+    /// The ID of the issue or its full URL.
+    /// </summary>
+    public string IdOrUrl { get; init; } = issueIdOrUrl;
+
+    /// <summary>
     /// A display text of the issue link.
     /// </summary>
     public string? Title { get; set; }
@@ -23,14 +28,14 @@ public class AllureIssueAttribute(string issueIdOrUrl) : AllureMetadataAttribute
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        if (issueIdOrUrl is null)
+        if (this.IdOrUrl is null)
         {
             return;
         }
 
         testResult.links.Add(new()
         {
-            url = issueIdOrUrl,
+            url = this.IdOrUrl,
             name = this.Title,
             type = LinkType.ISSUE,
         });

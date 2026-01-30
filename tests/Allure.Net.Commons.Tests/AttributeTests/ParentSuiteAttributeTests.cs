@@ -24,9 +24,12 @@ class ParentSuiteAttributeTests
     public void ParentSuiteCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureParentSuiteAttribute("foo");
 
-        new AllureParentSuiteAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("parentSuite"));
+        Assert.That(attr.Value, Is.EqualTo("foo"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "parentSuite", value = "foo" }])

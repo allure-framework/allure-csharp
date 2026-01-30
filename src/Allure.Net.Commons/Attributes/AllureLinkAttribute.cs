@@ -16,27 +16,32 @@ namespace Allure.Net.Commons.Attributes;
 public class AllureLinkAttribute(string url) : AllureMetadataAttribute
 {
     /// <summary>
+    /// The URL of the link.
+    /// </summary>
+    public string Url { get; init; } = url;
+
+    /// <summary>
     /// A display text of the link.
     /// </summary>
-    public string? Title { get; set; }
+    public string? Title { get; init; }
 
     /// <summary>
     /// A type of the link. Use this property to select the correct link template from the
     /// configuration.
     /// </summary>
-    public string? Type { get; set; }
+    public string? Type { get; init; }
 
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        if (url is null)
+        if (this.Url is null)
         {
             return;
         }
 
         testResult.links.Add(new()
         {
-            url = url,
+            url = this.Url,
             name = this.Title,
             type = this.Type,
         });

@@ -16,6 +16,11 @@ namespace Allure.Net.Commons.Attributes;
 public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureMetadataAttribute
 {
     /// <summary>
+    /// The ID of the TMS item or its full URL.
+    /// </summary>
+    public string IdOrUrl { get; init; } = tmsItemIdOrUrl;
+
+    /// <summary>
     /// A display text of the TMS item link.
     /// </summary>
     public string? Title { get; set; }
@@ -23,14 +28,14 @@ public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureMetadataAttri
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        if (tmsItemIdOrUrl is null)
+        if (this.IdOrUrl is null)
         {
             return;
         }
 
         testResult.links.Add(new()
         {
-            url = tmsItemIdOrUrl,
+            url = this.IdOrUrl,
             name = this.Title,
             type = LinkType.TMS_ITEM,
         });

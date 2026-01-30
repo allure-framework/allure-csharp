@@ -24,9 +24,12 @@ class SubSuiteAttributeTests
     public void SubSuiteCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureSubSuiteAttribute("foo");
 
-        new AllureSubSuiteAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("subSuite"));
+        Assert.That(attr.Value, Is.EqualTo("foo"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "subSuite", value = "foo" }])

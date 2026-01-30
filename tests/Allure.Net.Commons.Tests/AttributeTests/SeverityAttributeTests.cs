@@ -35,9 +35,12 @@ class SeverityAttributeTests
     public void SeverityCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureSeverityAttribute(SeverityLevel.critical);
 
-        new AllureSeverityAttribute(SeverityLevel.critical).Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("severity"));
+        Assert.That(attr.Value, Is.EqualTo("critical"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "severity", value = "critical" }])

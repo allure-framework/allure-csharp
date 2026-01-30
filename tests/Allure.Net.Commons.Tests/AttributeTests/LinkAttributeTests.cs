@@ -24,9 +24,11 @@ class LinkAttributeTests
     public void UrlOnlyLinkCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureLinkAttribute("foo");
 
-        new AllureLinkAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Url, Is.EqualTo("foo"));
         Assert.That(
             tr.links,
             Is.EquivalentTo([new Link { url = "foo" }])

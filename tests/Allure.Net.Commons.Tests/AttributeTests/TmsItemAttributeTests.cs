@@ -24,9 +24,11 @@ class TmsItemAttributeTests
     public void UrlOnlyTmsItemCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureTmsItemAttribute("foo");
 
-        new AllureTmsItemAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.IdOrUrl, Is.EqualTo("foo"));
         Assert.That(
             tr.links,
             Is.EquivalentTo([new Link { url = "foo", type = "tms" }])

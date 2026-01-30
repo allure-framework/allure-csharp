@@ -8,10 +8,15 @@ namespace Allure.Net.Commons.Attributes;
 /// <summary>
 /// Applies a description.
 /// </summary>
-/// <param name="description">A description text. Markdown is supported.</param>
+/// <param name="markdownText">A description text. Markdown is supported.</param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureDescriptionAttribute(string description) : AllureMetadataAttribute
+public class AllureDescriptionAttribute(string markdownText) : AllureMetadataAttribute
 {
+    /// <summary>
+    /// Description text in Markdown format.
+    /// </summary>
+    public string MarkdownText { get; init; } = markdownText;
+
     /// <summary>
     /// If set to <c>true</c>, the description is appended to the existing one with <c>"\n\n"</c>.
     /// Otherwise, the existing description will be overwritten with the new one.
@@ -31,18 +36,18 @@ public class AllureDescriptionAttribute(string description) : AllureMetadataAttr
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        if (description is null)
+        if (this.MarkdownText is null)
         {
             return;
         }
 
         if (this.Append && !string.IsNullOrEmpty(testResult.description))
         {
-            testResult.description += $"\n\n{description}";
+            testResult.description += $"\n\n{this.MarkdownText}";
         }
         else
         {
-            testResult.description = description;
+            testResult.description = this.MarkdownText;
         }
     }
 }

@@ -24,9 +24,11 @@ class IssueAttributeTests
     public void UrlOnlyIssueCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureIssueAttribute("foo");
 
-        new AllureIssueAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.IdOrUrl, Is.EqualTo("foo"));
         Assert.That(
             tr.links,
             Is.EquivalentTo([new Link { url = "foo", type = "issue" }])

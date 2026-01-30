@@ -24,9 +24,12 @@ class EpicAttributeTests
     public void EpicCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureEpicAttribute("foo");
 
-        new AllureEpicAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("epic"));
+        Assert.That(attr.Value, Is.EqualTo("foo"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "epic", value = "foo" }])

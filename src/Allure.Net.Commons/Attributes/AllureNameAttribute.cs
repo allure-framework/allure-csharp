@@ -15,12 +15,17 @@ namespace Allure.Net.Commons.Attributes;
 )]
 public class AllureNameAttribute(string name) : AllureMetadataAttribute
 {
+    /// <summary>
+    /// The provided name.
+    /// </summary>
+    public string Name { get; init; } = name;
+
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        if (name is not null)
+        if (this.Name is not null)
         {
-            testResult.name = name;
+            testResult.name = this.Name;
         }
     }
 }

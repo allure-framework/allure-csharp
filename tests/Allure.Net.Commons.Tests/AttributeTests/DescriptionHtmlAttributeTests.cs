@@ -25,9 +25,11 @@ class DescriptionHtmlAttributeTests
     public void SetsTestDescription()
     {
         TestResult tr = new();
+        var attr = new AllureDescriptionHtmlAttribute("foo");
 
-        new AllureDescriptionHtmlAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.HtmlText, Is.EqualTo("foo"));
         Assert.That(tr.descriptionHtml, Is.EqualTo("foo"));
     }
 

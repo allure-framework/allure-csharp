@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Allure.Net.Commons.Sdk;
 
@@ -13,19 +14,27 @@ namespace Allure.Net.Commons.Attributes;
 public class AllureTagAttribute(string tag, params string[] moreTags)
     : AllureMetadataAttribute
 {
+    /// <summary>
+    /// The provided tags.
+    /// </summary>
+    public ImmutableArray<string> Tags { get; init; } = CreateTagArray(tag, moreTags);
+
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        if (!string.IsNullOrEmpty(tag))
-        {
-            testResult.labels.Add(Label.Tag(tag));
-        }
-
         testResult.labels.AddRange(
-            moreTags
+            this.Tags
                 .Where(static (v) =>
                     !string.IsNullOrEmpty(v))
                 .Select(Label.Tag)
         );
+    }
+
+    static ImmutableArray<string> CreateTagArray(string tag, string[] moreTags)
+    {
+        var builder = ImmutableArray.CreateBuilder<string>(moreTags.Length + 1);
+        builder.Add(tag);
+        builder.AddRange(moreTags);
+        return builder.MoveToImmutable();
     }
 }

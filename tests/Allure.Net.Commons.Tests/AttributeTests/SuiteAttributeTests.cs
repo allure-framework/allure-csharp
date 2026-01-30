@@ -24,9 +24,12 @@ class SuiteAttributeTests
     public void SuiteCanBeAddedToTest()
     {
         TestResult tr = new();
+        var attr = new AllureSuiteAttribute("foo");
 
-        new AllureSuiteAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("suite"));
+        Assert.That(attr.Value, Is.EqualTo("foo"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "suite", value = "foo" }])

@@ -11,10 +11,15 @@ namespace Allure.Net.Commons.Attributes;
 /// <remarks>
 /// Prefer <see cref="AllureDescriptionAttribute"/>, which supports markdown.
 /// </remarks>
-/// <param name="descriptionHtml">A description HTML markup.</param>
+/// <param name="htmlText">A description text in HTML.</param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureDescriptionHtmlAttribute(string descriptionHtml) : AllureMetadataAttribute
+public class AllureDescriptionHtmlAttribute(string htmlText) : AllureMetadataAttribute
 {
+    /// <summary>
+    /// Description text in HTML.
+    /// </summary>
+    public string HtmlText { get; init; } = htmlText;
+
     /// <summary>
     /// If set to <c>true</c>, the description is appended to the existing one. No separator is
     /// inserted.
@@ -37,18 +42,18 @@ public class AllureDescriptionHtmlAttribute(string descriptionHtml) : AllureMeta
     /// <inheritdoc/>
     public override void Apply(TestResult testResult)
     {
-        if (descriptionHtml is null)
+        if (this.HtmlText is null)
         {
             return;
         }
 
         if (this.Append && testResult.descriptionHtml is not null)
         {
-            testResult.descriptionHtml += descriptionHtml;
+            testResult.descriptionHtml += this.HtmlText;
         }
         else
         {
-            testResult.descriptionHtml = descriptionHtml;
+            testResult.descriptionHtml = this.HtmlText;
         }
     }
 }

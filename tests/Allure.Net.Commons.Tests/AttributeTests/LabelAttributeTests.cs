@@ -24,9 +24,12 @@ class LabelAttributeTests
     public void ItAddsLabelToTest()
     {
         TestResult tr = new();
+        var attr = new AllureLabelAttribute("foo", "bar");
 
-        new AllureLabelAttribute("foo", "bar").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Name, Is.EqualTo("foo"));
+        Assert.That(attr.Value, Is.EqualTo("bar"));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "foo", value = "bar" }])

@@ -24,9 +24,11 @@ class TagAttributeTests
     public void ItAddsSingleTagToTest()
     {
         TestResult tr = new();
+        var attr = new AllureTagAttribute("foo");
 
-        new AllureTagAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Tags, Is.EqualTo(["foo"]));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([new Label { name = "tag", value = "foo" }])
@@ -38,9 +40,11 @@ class TagAttributeTests
     public void ItAddsMultipleTagsToTest()
     {
         TestResult tr = new();
+        var attr = new AllureTagAttribute("foo", "bar", "baz");
 
-        new AllureTagAttribute("foo", "bar", "baz").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Tags, Is.EqualTo(["foo", "bar", "baz"]));
         Assert.That(
             tr.labels,
             Is.EquivalentTo([
@@ -55,9 +59,11 @@ class TagAttributeTests
     public void NullTagsAreIgnored()
     {
         TestResult tr = new();
+        var attr = new AllureTagAttribute(null, null, null);
 
-        new AllureTagAttribute(null, null, null).Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Tags, Is.EqualTo(new string[]{ null, null, null }));
         Assert.That(tr.labels, Is.Empty);
     }
 
@@ -65,9 +71,11 @@ class TagAttributeTests
     public void EmptyTagsAreIgnored()
     {
         TestResult tr = new();
+        var attr = new AllureTagAttribute("", "", "");
 
-        new AllureTagAttribute("", "", "").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.Tags, Is.EqualTo(["", "", ""]));
         Assert.That(tr.labels, Is.Empty);
     }
 }

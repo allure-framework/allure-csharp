@@ -11,9 +11,20 @@ namespace Allure.Net.Commons.Attributes;
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = false, Inherited = true)]
 public class AllureBddHierarchyAttribute : AllureMetadataAttribute
 {
-    string? Epic { get; init; }
-    string? Feature { get; init; }
-    string? Story { get; init; }
+    /// <summary>
+    /// Value for the <c>epic</c> label.
+    /// </summary>
+    public string? Epic { get; init; }
+
+    /// <summary>
+    /// Value for the <c>feature</c> label.
+    /// </summary>
+    public string? Feature { get; init; }
+
+    /// <summary>
+    /// Value for the <c>story</c> label.
+    /// </summary>
+    public string? Story { get; init; }
 
     /// <summary>
     /// A shorthand for <see cref="AllureEpicAttribute"/>,

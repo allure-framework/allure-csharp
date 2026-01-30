@@ -25,9 +25,11 @@ class DescriptionAttributeTests
     public void SetsTestDescription()
     {
         TestResult tr = new();
+        var attr = new AllureDescriptionAttribute("foo");
 
-        new AllureDescriptionAttribute("foo").Apply(tr);
+        attr.Apply(tr);
 
+        Assert.That(attr.MarkdownText, Is.EqualTo("foo"));
         Assert.That(tr.description, Is.EqualTo("foo"));
     }
 
