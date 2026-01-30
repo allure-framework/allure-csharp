@@ -32,7 +32,7 @@ class LinkTests
     }
 
     [Test]
-    public async Task CheckLegacyLinkAttributesWork()
+    public async Task CheckLegacyLinkAttributeWorks()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyLinkAttributes);
 
@@ -54,7 +54,7 @@ class LinkTests
     }
 
     [Test]
-    public async Task CheckLinkAttributesWork()
+    public async Task CheckLinkAttributeWorks()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LinkAttributes);
 
@@ -102,7 +102,7 @@ class LinkTests
     }
 
     [Test]
-    public async Task CheckLegacyIssueAttributesWork()
+    public async Task CheckLegacyIssueAttributeWorks()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyIssueAttributes);
 
@@ -124,13 +124,13 @@ class LinkTests
     }
 
     [Test]
-    public async Task CheckIssueAttributesWork()
+    public async Task CheckIssueAttributeWorks()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.IssueAttributes);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
         var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        await Assert.That(links.Count).IsEqualTo(3);
+        await Assert.That(links.Count).IsEqualTo(4);
         await Assert.That(links[0]).Satisfies(static (l) =>
             (string)l["url"] == "url-1"
                 && l["name"] is null
@@ -141,6 +141,10 @@ class LinkTests
                 && (string)l["type"] == "issue");
         await Assert.That(links[2]).Satisfies(static (l) =>
             (string)l["url"] == "url-3"
+                && l["name"] is null
+                && (string)l["type"] == "issue");
+        await Assert.That(links[3]).Satisfies(static (l) =>
+            (string)l["url"] == "url-4"
                 && l["name"] is null
                 && (string)l["type"] == "issue");
     }
@@ -168,7 +172,7 @@ class LinkTests
     }
 
     [Test]
-    public async Task CheckLegacyTmsAttributesWork()
+    public async Task CheckLegacyTmsAttributeWorks()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyTmsAttributes);
 
@@ -190,13 +194,13 @@ class LinkTests
     }
 
     [Test]
-    public async Task CheckTmsItemAttributesWork()
+    public async Task CheckTmsItemAttributeWorks()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.TmsItemAttributes);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
         var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        await Assert.That(links.Count).IsEqualTo(3);
+        await Assert.That(links.Count).IsEqualTo(4);
         await Assert.That(links[0]).Satisfies(static (l) =>
             (string)l["url"] == "url-1"
                 && l["name"] is null
@@ -207,6 +211,10 @@ class LinkTests
                 && (string)l["type"] == "tms");
         await Assert.That(links[2]).Satisfies(static (l) =>
             (string)l["url"] == "url-3"
+                && l["name"] is null
+                && (string)l["type"] == "tms");
+        await Assert.That(links[3]).Satisfies(static (l) =>
+            (string)l["url"] == "url-4"
                 && l["name"] is null
                 && (string)l["type"] == "tms");
     }

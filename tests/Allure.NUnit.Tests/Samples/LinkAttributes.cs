@@ -10,7 +10,7 @@ namespace Allure.NUnit.Tests.Samples.LinkAttributes
     public class TestClassBase { }
 
     [AllureNUnit]
-    [AllureLink("url-3", Type = "name-3")]
+    [AllureLink("url-3", Type = "type-3")]
     public class TestsClass : TestClassBase, IMetadata
     {
         [Test]

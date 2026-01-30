@@ -56,7 +56,7 @@ class MetaAttributeTests
                 return (string)l["name"] == "suite" && (string)l["value"] == "Qux";
             }
         );
-        await Assert.That(labels).Any(
+        await Assert.That(links).Any(
             static (l) =>
                 (string)l["url"] == "https://foo.bar/"
                     && l["name"] is null
