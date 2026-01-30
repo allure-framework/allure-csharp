@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Allure.Net.Commons.Attributes;
-using Allure.Net.Commons.Steps;
 using NUnit.Framework;
 
 namespace Allure.Net.Commons.Tests.AttributeTests;
