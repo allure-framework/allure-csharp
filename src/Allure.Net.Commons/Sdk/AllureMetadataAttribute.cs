@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,14 +10,6 @@ namespace Allure.Net.Commons.Sdk;
 /// <summary>
 /// A base class for attributes that apply metadata to test results.
 /// </summary>
-[AttributeUsage(
-    AttributeTargets.Class
-        | AttributeTargets.Struct
-        | AttributeTargets.Method
-        | AttributeTargets.Interface,
-    AllowMultiple = true,
-    Inherited = true
-)]
 public abstract class AllureMetadataAttribute : Attribute
 {
     /// <summary>
