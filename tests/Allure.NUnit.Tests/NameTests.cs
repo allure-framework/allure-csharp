@@ -39,13 +39,20 @@ class NameTests
     }
 
     [Test]
-    public async Task CheckAllureNameAffectsSuite()
+    public async Task CheckAllureNameOnTestFixtureAffectsSuiteOnly()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.NameAttributeOnClass);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var labels = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
+        var testResult = results.TestResults[0];
+        await Assert.That((string)testResult["name"]).IsEqualTo("TestMethod");
+        var labels = testResult["labels"].AsArray().Cast<JsonObject>();
         var subSuiteLabel = labels.First(static (l) => (string)l["name"] == "subSuite");
         await Assert.That((string)subSuiteLabel["value"]).IsEqualTo("Lorem Ipsum");
+        await Assert.That(labels).Any(
+            static (l) => (string)l["name"] == "parentSuite"
+        ).And.Any(
+            static (l) => (string)l["name"] == "suite"
+        );
     }
 }

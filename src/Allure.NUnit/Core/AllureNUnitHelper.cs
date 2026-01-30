@@ -4,9 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
+using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.TestPlan;
-using Allure.NUnit.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -120,7 +121,8 @@ namespace Allure.NUnit.Core
                     ..ModelFunctions.EnumerateGlobalLabels(),
                 ]
             };
-            UpdateTestDataFromAllureAttributes(test, testResult);
+            ApplyLegacyAllureAttributes(test, testResult);
+            ApplyAllureAttributes(test, testResult);
             AddTestParametersFromNUnit(test, testResult);
             SetIdentifiers(test, testResult);
             return testResult;
@@ -262,27 +264,28 @@ namespace Allure.NUnit.Core
 
         static void AddTestParametersFromNUnit(ITest test, TestResult testResult)
         {
-            var arguments = CollectNUnitArguments(test);
+            var parameters = test.Method.MethodInfo.GetParameters();
+            var arguments = test.Arguments;
             var formatters = AllureLifecycle.TypeFormatters;
-            foreach (var (name, value) in arguments)
-            {
-                testResult.parameters.Add(new()
-                {
-                    name = name,
-                    value = FormatFunctions.Format(value, formatters)
-                });
-            }
+
+            testResult.parameters.AddRange(
+                ModelFunctions.CreateParameters(parameters, arguments, formatters)
+            );
         }
 
-        static IEnumerable<(string, object)> CollectNUnitArguments(ITest test) =>
-            test.Method.MethodInfo.GetParameters()
-                .Select(p => p.Name)
-                .Zip(
-                    test.Arguments,
-                    (n, v) => (n, v)
-                );
+        static void ApplyAllureAttributes(ITest test, TestResult testResult)
+        {
+            var testFixtureClass = GetTestFixture(test).TypeInfo.Type;
+            var testFixtureAttributes
+                = AllureMetadataAttribute
+                    .GetTypeAttributes(testFixtureClass)
+                    .Where(static (a) => a is not AllureNameAttribute);
 
-        static void UpdateTestDataFromAllureAttributes(ITest test, TestResult testResult)
+            AllureMetadataAttribute.ApplyAttributes(testResult, testFixtureAttributes);
+            AllureMetadataAttribute.ApplyMethodAttributes(testResult, test.Method.MethodInfo);
+        }
+
+        static void ApplyLegacyAllureAttributes(ITest test, TestResult testResult)
         {
             foreach (var attribute in IterateAllAllureAttribites(test))
             {
@@ -290,12 +293,12 @@ namespace Allure.NUnit.Core
             }
         }
 
-        static IEnumerable<AllureTestCaseAttribute> IterateAllAllureAttribites(ITest test) =>
+        static IEnumerable<Attributes.AllureTestCaseAttribute> IterateAllAllureAttribites(ITest test) =>
             test.Method
-                .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                .GetCustomAttributes<Attributes.AllureTestCaseAttribute>(true)
                 .Concat(
                     GetTestFixture(test)
-                        .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                        .GetCustomAttributes<Attributes.AllureTestCaseAttribute>(true)
                 );
 
         static string GetNamespace(string classFullName)
@@ -308,6 +311,14 @@ namespace Allure.NUnit.Core
                     lastDotIndex
                 );
         }
+
+        static string ResolveSubSuite(TestFixture testFixture)
+            => AllureMetadataAttribute
+                .GetTypeAttributes(testFixture.TypeInfo.Type)
+                .OfType<AllureNameAttribute>()
+                .LastOrDefault()
+                ?.Name
+                ?? GetClassName(testFixture.FullName);
 
         static string GetClassName(string classFullName)
         {
@@ -349,17 +360,18 @@ namespace Allure.NUnit.Core
 
         internal static void ApplyDefaultSuiteHierarchy(ITest test)
         {
-            var testClassFullName = GetTestFixture(test).FullName;
+            var testFixture = GetTestFixture(test);
+            var testClassFullName = testFixture.FullName;
             var assemblyName = test.TypeInfo?.Assembly?.GetName().Name;
             var @namespace = GetNamespace(testClassFullName);
-            var className = GetClassName(testClassFullName);
+            var subSuite = ResolveSubSuite(testFixture);
 
             AllureLifecycle.UpdateTestCase(
                 testResult => ModelFunctions.EnsureSuites(
                     testResult,
                     assemblyName,
                     @namespace,
-                    className
+                    subSuite
                 )
             );
         }
