@@ -49,8 +49,14 @@ namespace Allure.Net.Commons.Steps
             }
         }
 
-        private static void StartFixture(MethodBase metadata, string fixtureName)
+        private static void StartFixture(
+            MethodBase metadata,
+            string fixtureName,
+            List<Parameter> parameters
+        )
         {
+            bool hadFixture = ExtendedApi.HasFixture;
+
             if (IsBeforeFixture(metadata))
             {
                 ExtendedApi.StartBeforeFixture(fixtureName);
@@ -59,6 +65,13 @@ namespace Allure.Net.Commons.Steps
             if (IsAfterFixture(metadata))
             {
                 ExtendedApi.StartAfterFixture(fixtureName);
+            }
+
+            if (!hadFixture && ExtendedApi.HasFixture)
+            {
+                AllureLifecycle.Instance.UpdateFixture(
+                    (fixture) => fixture.parameters.AddRange(parameters)
+                );
             }
         }
 
@@ -88,7 +101,7 @@ namespace Allure.Net.Commons.Steps
         {
             if (ExtendedApi.HasContainer)
             {
-                StartFixture(metadata, stepName.Value);
+                StartFixture(metadata, stepName.Value, stepParameters.Value);
             }
             if (ExtendedApi.HasTestOrFixture)
             {
@@ -221,14 +234,18 @@ namespace Allure.Net.Commons.Steps
         )
         {
             var formatters = AllureLifecycle.Instance.TypeFormatters;
-            var stepNamePattern = metadata.GetCustomAttribute<AbstractStepBaseAttribute>().Name ?? name;
+            var explicitName = metadata.GetCustomAttribute<AbstractStepBaseAttribute>().Name;
             var stepName = new Lazy<string>(
-                () => AllureStepParameterHelper.GetStepName(
-                    stepNamePattern,
-                    metadata,
-                    args,
-                    formatters
-                )
+                explicitName is null
+                    ? () => metadata.IsConstructor && name == ".ctor"
+                        ? $"{metadata.DeclaringType.Name}.ctor"
+                        : name
+                    : () => AllureStepParameterHelper.GetStepName(
+                        explicitName,
+                        metadata,
+                        args,
+                        formatters
+                    )
             );
             var stepParameters = new Lazy<List<Parameter>>(
                 () => AllureStepParameterHelper.GetStepParameters(
