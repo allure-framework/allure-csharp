@@ -30,10 +30,14 @@ public class AllureParameterAttribute : Attribute
     public ParameterMode Mode { get; init; } = ParameterMode.Default;
 
     /// <summary>
-    /// If set to true, the parameter doesn't affect the test's historyId.
+    /// If set to <c>true</c>, the parameter doesn't affect the test's historyId.
+    /// Use for timestamps, random values, and other values that may change across runs by design.
     /// </summary>
     /// <remarks>
-    /// Use for timestamps, random values, and other values that may change across runs by design.
+    /// Setting this property doesn't remove the parameter from the report. To remove the parameter
+    /// entirely, use <see cref="Ignore"/>.
+    /// <br></br>
+    /// Has no effect when applied to a step's parameter.
     /// </remarks>
     public bool Excluded { get; init; } = false;
 }
