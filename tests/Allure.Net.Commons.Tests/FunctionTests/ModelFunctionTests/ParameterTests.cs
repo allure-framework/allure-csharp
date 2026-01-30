@@ -155,7 +155,7 @@ class ParameterTests
         );
     }
 
-    class StringFormatterDummy : TypeFormatter<string>
+    class StringFormatterStub : TypeFormatter<string>
     {
         public override string Format(string value) => "bar";
     }
@@ -165,7 +165,7 @@ class ParameterTests
     {
         var formatters = new Dictionary<Type, ITypeFormatter>
         {
-            { typeof(string), new StringFormatterDummy() },
+            { typeof(string), new StringFormatterStub() },
         };
 
         var parameters = ModelFunctions.CreateParameters([NoAttribute], ["foo"], formatters);
@@ -177,6 +177,57 @@ class ParameterTests
                 {
                     name = "noAttribute",
                     value = "bar",
+                }
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    class StringFormatterDummy : TypeFormatter<string>
+    {
+        public override string Format(string value) => throw new NotImplementedException();
+    }
+
+    [Test]
+    public void FormattingSkippedForIgnoredParameter()
+    {
+        var formatters = new Dictionary<Type, ITypeFormatter>
+        {
+            { typeof(string), new StringFormatterDummy() },
+        };
+
+        var parameters = ModelFunctions.CreateParameters([Ignored], ["foo"], formatters);
+
+        Assert.That(parameters, Is.Empty);
+    }
+
+    [Test]
+    public void MultipleParameters()
+    {
+        var parameters = ModelFunctions.CreateParameters(
+            [NoAttribute, Ignored, Masked, Excluded],
+            ["foo", "bar", "baz", "qux"],
+            emptyFormatters
+        );
+
+        Assert.That(
+            parameters,
+            Is.EqualTo([
+                new Parameter
+                {
+                    name = "noAttribute",
+                    value = "\"foo\"",
+                },
+                new Parameter
+                {
+                    name = "masked",
+                    value = "\"baz\"",
+                    mode = ParameterMode.Masked,
+                },
+                new Parameter
+                {
+                    name = "excluded",
+                    value = "\"qux\"",
+                    excluded = true,
                 }
             ]).UsingPropertiesComparer()
         );
