@@ -119,7 +119,7 @@ public class StepTests
     }
 
     [Test]
-    public void DoesntAddIgnoredParameters()
+    public void IgnoredParametersNotAdded()
     {
         var tr = new TestResult();
 
@@ -161,6 +161,32 @@ public class StepTests
         Assert.That(tr.steps[0].name, Is.EqualTo("\"baz\""));
     }
 
+    [Test]
+    public void AppliesMaskedModeToParameter()
+    {
+        var tr = new TestResult();
+
+        AllureLifecycle.Instance.RunInContext(
+            new AllureContext().WithTestContext(tr),
+            () => MaskedParameter("foo")
+        );
+
+        Assert.That(tr.steps[0].parameters[0].mode, Is.EqualTo(ParameterMode.Masked));
+    }
+
+    [Test]
+    public void AppliesHiddenModeToParameter()
+    {
+        var tr = new TestResult();
+
+        AllureLifecycle.Instance.RunInContext(
+            new AllureContext().WithTestContext(tr),
+            () => HiddenParameter("foo")
+        );
+
+        Assert.That(tr.steps[0].parameters[0].mode, Is.EqualTo(ParameterMode.Hidden));
+    }
+
     [AllureStep]
     static void VoidMethod() { }
 
@@ -197,4 +223,10 @@ public class StepTests
 
     [AllureStep("{foo}")]
     static void InterpolatedRenamedParameter([AllureParameter(Name = "bar")] string foo) { }
+
+    [AllureStep]
+    static void MaskedParameter([AllureParameter(Mode = ParameterMode.Masked)] string foo) { }
+
+    [AllureStep]
+    static void HiddenParameter([AllureParameter(Mode = ParameterMode.Hidden)] string foo) { }
 }
