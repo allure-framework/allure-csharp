@@ -25,12 +25,50 @@ class AttributeApplicationTests
     }
 
     [Test]
+    public void DirectMethodAttributesAreReturned()
+    {
+        TestResult tr = new();
+        var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Foo));
+
+        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Foo epic" },
+                new Label { name = "feature", value = "Foo feature" },
+                new Label { name = "story", value = "Foo story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
     public void AbstractBaseAttributesAreApplies()
     {
         TestResult tr = new();
         var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Bar));
 
         AllureMetadataAttribute.ApplyMethodAttributes(tr, method);
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Bar epic" },
+                new Label { name = "feature", value = "Bar feature" },
+                new Label { name = "story", value = "Bar story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
+    public void AbstractBaseAttributesAreReturned()
+    {
+        TestResult tr = new();
+        var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Bar));
+
+        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -61,6 +99,25 @@ class AttributeApplicationTests
     }
 
     [Test]
+    public void VirtualBaseAttributesAreReturned()
+    {
+        TestResult tr = new();
+        var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Baz));
+
+        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Baz epic" },
+                new Label { name = "feature", value = "Baz feature" },
+                new Label { name = "story", value = "Baz story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
     public void AppliesBaseBeforeOverride()
     {
         TestResult tr = new();
@@ -73,11 +130,42 @@ class AttributeApplicationTests
     }
 
     [Test]
+    public void ReturnsBaseBeforeOverride()
+    {
+        TestResult tr = new();
+        var method = typeof(AttributeApplicationOrderChild)
+            .GetMethod(nameof(AttributeApplicationOrderChild.TargetMethod));
+
+        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+
+        Assert.That(tr.description, Is.EqualTo("baz\n\nqut"));
+    }
+
+    [Test]
     public void DirectTypeAttributesAreApplied()
     {
         TestResult tr = new();
 
         AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(ClassWithAttrs));
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Base epic" },
+                new Label { name = "feature", value = "Base feature" },
+                new Label { name = "story", value = "Base story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
+    public void DirectTypeAttributesAreReturned()
+    {
+        TestResult tr = new();
+
+        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(ClassWithAttrs));
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -107,11 +195,47 @@ class AttributeApplicationTests
     }
 
     [Test]
+    public void AttributesFromBaseClassAreReturned()
+    {
+        TestResult tr = new();
+
+        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(InheritedFromClassAttributes));
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Base epic" },
+                new Label { name = "feature", value = "Base feature" },
+                new Label { name = "story", value = "Base story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
     public void AttributesFromInterfaceAreApplied()
     {
         TestResult tr = new();
 
         AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(InheritedFromInterfaceAttributes));
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Interface epic" },
+                new Label { name = "feature", value = "Interface feature" },
+                new Label { name = "story", value = "Interface story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
+    public void AttributesFromInterfaceAreReturned()
+    {
+        TestResult tr = new();
+
+        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(InheritedFromInterfaceAttributes));
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -147,6 +271,30 @@ class AttributeApplicationTests
     }
 
     [Test]
+    public void AttributesFromDifferentSourcesAreCombinedWhenReturned()
+    {
+        TestResult tr = new();
+
+        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(MultiSourceAttributes));
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Base epic" },
+                new Label { name = "feature", value = "Base feature" },
+                new Label { name = "story", value = "Base story" },
+                new Label { name = "epic", value = "Interface epic" },
+                new Label { name = "feature", value = "Interface feature" },
+                new Label { name = "story", value = "Interface story" },
+                new Label { name = "epic", value = "Direct epic" },
+                new Label { name = "feature", value = "Direct feature" },
+                new Label { name = "story", value = "Direct story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
     public void CheckTypeAttributeApplicationOrder()
     {
         TestResult tr = new();
@@ -157,13 +305,56 @@ class AttributeApplicationTests
     }
 
     [Test]
-    public void ApplyAllAttributesToMethodAndItsTypeAtOnce()
+    public void CheckTypeAttributeReturnOrder()
+    {
+        TestResult tr = new();
+
+        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(AttributeApplicationOrderChild));
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+
+        Assert.That(tr.description, Is.EqualTo("foo\n\nbar\n\nqux"));
+    }
+
+    [Test]
+    public void AppliesAllAttributesToMethodAndItsTypeAtOnce()
     {
         TestResult tr = new();
         var method = typeof(ApplyAllInherited)
             .GetMethod(nameof(ApplyAllInherited.TargetMethod));
 
         AllureMetadataAttribute.ApplyAllAttributes(tr, method);
+
+        Assert.That(
+            tr.labels,
+            Is.EquivalentTo([
+                new Label { name = "epic", value = "Interface epic" },
+                new Label { name = "feature", value = "Interface feature" },
+                new Label { name = "story", value = "Interface story" },
+                new Label { name = "epic", value = "Base epic" },
+                new Label { name = "feature", value = "Base feature" },
+                new Label { name = "story", value = "Base story" },
+                new Label { name = "epic", value = "Derived epic" },
+                new Label { name = "feature", value = "Derived feature" },
+                new Label { name = "story", value = "Derived story" },
+                new Label { name = "epic", value = "Base method epic" },
+                new Label { name = "feature", value = "Base method feature" },
+                new Label { name = "story", value = "Base method story" },
+                new Label { name = "epic", value = "Derived method epic" },
+                new Label { name = "feature", value = "Derived method feature" },
+                new Label { name = "story", value = "Derived method story" },
+            ]).UsingPropertiesComparer()
+        );
+    }
+
+    [Test]
+    public void ReturnsAllAttributesToMethodAndItsTypeAtOnce()
+    {
+        TestResult tr = new();
+        var method = typeof(ApplyAllInherited)
+            .GetMethod(nameof(ApplyAllInherited.TargetMethod));
+
+        var attrs = AllureMetadataAttribute.GetAllAttributes(method);
+        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
