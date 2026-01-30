@@ -5,7 +5,7 @@ namespace Allure.NUnit.Tests;
 
 class StepTests
 {
-    record class ParameterExpectations(string Name, string Value, string Mode = null)
+    internal record class ParameterExpectations(string Name, string Value, string Mode = null)
     {
         public bool Check(JsonObject parameter)
             => (string)parameter["name"] == this.Name
@@ -21,7 +21,7 @@ class StepTests
                     .All(static (p) => p.Second.Check(p.First.AsObject()));
     }
 
-    record class StepExpectations(
+    internal record class StepExpectations(
         string Name,
         string Status,
         List<ParameterExpectations> Parameters,
