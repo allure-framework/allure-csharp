@@ -13,10 +13,27 @@ public class AllureParameterAttribute : Attribute
     /// <summary>
     /// If set to true, the argument will be precluded from the report.
     /// </summary>
-    public bool Ignore { get; init; }
+    public bool Ignore { get; init; } = false;
 
     /// <summary>
     /// A display name of the parameter. If unset, the source name of the parameter will be used.
     /// </summary>
     public string? Name { get; init; }
+
+    /// <summary>
+    /// A display mode of the parameter.
+    /// </summary>
+    /// <remarks>
+    /// This property controls how Allure displays the value of the parameter. It doesn't affect
+    /// how the value is represented in result files.
+    /// </remarks>
+    public ParameterMode Mode { get; init; } = ParameterMode.Default;
+
+    /// <summary>
+    /// If set to true, the parameter doesn't affect the test's historyId.
+    /// </summary>
+    /// <remarks>
+    /// Use for timestamps, random values, and other values that may change across runs by design.
+    /// </remarks>
+    public bool Excluded { get; init; } = false;
 }

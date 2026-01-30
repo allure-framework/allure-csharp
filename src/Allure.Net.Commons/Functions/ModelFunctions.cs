@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Configuration;
 
 #nullable enable
@@ -136,6 +138,59 @@ public static class ModelFunctions
         from kv in Config.GlobalLabels ?? []
         where !string.IsNullOrEmpty(kv.Key) && !string.IsNullOrEmpty(kv.Value)
         select new Label { name = kv.Key, value = kv.Value };
+
+    /// <summary>
+    /// Creates Allure parameter objects from method parameters paired with their values.
+    /// </summary>
+    /// <remarks>
+    /// This method applies <see cref="AllureParameterAttribute"/>.
+    /// </remarks>
+    /// <param name="parameters">
+    /// A sequence of the test method's parameters.
+    /// </param>
+    /// <param name="values">
+    /// A sequence of values.
+    /// The order of the sequence must match the order of <paramref name="parameters"/>
+    /// </param>
+    /// <param name="formatters">
+    /// Custom formatters to convert values of specific types to strings.
+    /// Typically comes from <see cref="AllureLifecycle.TypeFormatters"/>.
+    /// </param>
+    /// <returns>A sequence of Allure parameters.</returns>
+    public static IEnumerable<Parameter> CreateParameters(
+        IEnumerable<ParameterInfo> parameters,
+        IEnumerable<object> values,
+        IReadOnlyDictionary<Type, ITypeFormatter> formatters
+    )
+    {
+        var pairs = parameters.Zip(values, static (p, v) => (p, v));
+        foreach (var (parameter, value) in parameters.Zip(values, static (p, v) => (p, v)))
+        {
+            var attr = parameter.GetCustomAttribute<AllureParameterAttribute>();
+            if (attr?.Ignore == true)
+            {
+                continue;
+            }
+
+            var name = attr?.Name;
+            var mode = attr?.Mode;
+            var excluded = attr?.Excluded == true;
+
+            Parameter allureParameter = new()
+            {
+                name = attr?.Name ?? parameter.Name,
+                value = FormatFunctions.Format(value, formatters),
+                excluded = attr?.Excluded == true
+            };
+
+            if (mode is not null and not ParameterMode.Default)
+            {
+                allureParameter.mode = attr?.Mode;
+            }
+
+            yield return allureParameter;
+        }
+    }
 
     static bool ShouldAddEnvVarAsLabel(
         [NotNullWhen(true)] string? name,
