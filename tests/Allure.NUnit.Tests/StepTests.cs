@@ -5,11 +5,12 @@ namespace Allure.NUnit.Tests;
 
 class StepTests
 {
-    record class ParameterExpectations(string Name, string Value)
+    record class ParameterExpectations(string Name, string Value, string Mode = null)
     {
         public bool Check(JsonObject parameter)
             => (string)parameter["name"] == this.Name
-                && (string)parameter["value"] == this.Value;
+                && (string)parameter["value"] == this.Value
+                && (this.Mode is null || (string)parameter["mode"] == this.Mode);
         public static bool CheckAll(
             List<ParameterExpectations> expectations,
             JsonArray parameters
@@ -48,20 +49,41 @@ class StepTests
                     .All(static (p) => p.Second.Check(p.First.AsObject()));
     }
 
-    public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetStepSamples()
+    [Test]
+    public async Task StepAttributeWorks()
     {
-        IEnumerable<AllureSampleRegistryEntry> samples = [
-            AllureSampleRegistry.StepAttributes,
-            AllureSampleRegistry.LegacyStepAttributes,
-        ];
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.StepAttributes);
 
-        return samples.Select(static (sample) =>
-            new TestDataRow<AllureSampleRegistryEntry>(sample, DisplayName: sample.Id));
+        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
+        var steps = results.TestResults[0]["steps"].AsArray().Cast<JsonObject>().ToArray();
+        await Assert.That(steps).Count().IsEqualTo(6);
+
+        await Assert.That(steps[0]).Satisfies(static (step) =>
+            new StepExpectations("Void", "passed", [], []).Check(step));
+
+        await Assert.That(steps[1]).Satisfies(static (step) =>
+            new StepExpectations("Return", "passed", [], []).Check(step));
+
+        await Assert.That(steps[2]).Satisfies(static (step) =>
+            new StepExpectations("Async", "passed", [], []).Check(step));
+
+        await Assert.That(steps[3]).Satisfies(static (step) =>
+            new StepExpectations("AsyncReturn", "passed", [], []).Check(step));
+
+        await Assert.That(steps[4]).Satisfies(static (step) =>
+            new StepExpectations("Renamed", "passed", [], []).Check(step));
+
+        await Assert.That(steps[5]).Satisfies(static (step) =>
+            new StepExpectations("Parameters", "passed", [
+                new("plain", "1"),
+                new("Bar", "3"),
+                new("masked", "4", "masked"),
+                new("hidden", "5", "hidden"),
+            ], []).Check(step));
     }
 
     [Test]
-    [MethodDataSource(nameof(GetStepSamples))]
-    public async Task CheckStepsFromAnnotatedMethodCalls(AllureSampleRegistryEntry sample)
+    public async Task LegacyStepAttributeWorks()
     {
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyStepAttributes);
 

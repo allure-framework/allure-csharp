@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Allure.Net.Commons;
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
@@ -15,9 +16,7 @@ namespace Allure.NUnit.Tests.Samples.StepAttributes
             await this.Async();
             await this.AsyncReturn();
             this.Named();
-            this.Parameters(1, "baz");
-            this.SkippedParameter(2);
-            this.RenamedParameter(3);
+            this.Parameters(1, 2, 3, 4, 5);
         }
 
         [AllureStep]
@@ -43,12 +42,12 @@ namespace Allure.NUnit.Tests.Samples.StepAttributes
         void Named() { }
 
         [AllureStep]
-        void Parameters(int foo, string bar) { }
-
-        [AllureStep]
-        void SkippedParameter([AllureParameter(Ignore = true)] int foo) { }
-
-        [AllureStep]
-        void RenamedParameter([AllureParameter(Name = "Bar")] int foo) { }
+        void Parameters(
+            int plain,
+            [AllureParameter(Ignore = true)] int ignored,
+            [AllureParameter(Name = "Bar")] int renamed,
+            [AllureParameter(Mode = ParameterMode.Masked)] int masked,
+            [AllureParameter(Mode = ParameterMode.Hidden)] int hidden
+        ) { }
     }
 }
