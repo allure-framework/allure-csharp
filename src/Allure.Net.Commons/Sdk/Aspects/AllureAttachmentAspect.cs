@@ -27,7 +27,12 @@ public class AllureAttachmentAspect
         var attachmentName
             = string.IsNullOrEmpty(attr?.Name)
                 ? name
-                : Steps.AllureStepParameterHelper.GetStepName(attr!.Name, metadata, arguments);
+                : Steps.AllureStepParameterHelper.GetStepName(
+                    attr!.Name,
+                    metadata,
+                    arguments,
+                    AllureApi.CurrentLifecycle.TypeFormatters
+                );
         var contentType
             = attr?.ContentType
                 ?? (returnType == typeof(string)

@@ -12,7 +12,7 @@ class AttachmentTests : AllureApiTestFixture
     [SetUp]
     public void SetUpContext()
     {
-        this.testResult = new();
+        this.lifecycle.AddTypeFormatter(new InterpolationStub.TF());
         this.lifecycle.StartTestCase(this.testResult);
     }
 
@@ -127,6 +127,15 @@ class AttachmentTests : AllureApiTestFixture
     }
 
     [Test]
+    public void UsesTypeFormatters()
+    {
+        AttachCustomFormatter(new());
+
+        var attachment = this.testResult.attachments[0];
+        Assert.That(attachment.name, Is.EqualTo("foo"));
+    }
+
+    [Test]
     public async Task SupportsAsyncFunctions()
     {
         await AttachStringAsync();
@@ -200,4 +209,15 @@ class AttachmentTests : AllureApiTestFixture
         await Task.Yield();
         return "Lorem Ipsum";
     }
+
+    class InterpolationStub
+    {
+        public class TF : TypeFormatter<InterpolationStub>
+        {
+            public override string Format(InterpolationStub value) => "foo";
+        }
+    }
+
+    [AllureAttachment("{arg}")]
+    static byte[] AttachCustomFormatter(InterpolationStub arg) => [];
 }
