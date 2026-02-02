@@ -9,7 +9,7 @@ class AllureIdTests
     {
         IEnumerable<AllureSampleRegistryEntry> samples = [
             AllureSampleRegistry.SetAllureIdFromTest,
-            AllureSampleRegistry.SetAllureIdFromTearDown,
+            AllureSampleRegistry.SetAllureIdFromDispose,
             AllureSampleRegistry.AllureIdAttributeOnMethod,
             AllureSampleRegistry.LegacyAllureIdAttributeOnMethod,
         ];

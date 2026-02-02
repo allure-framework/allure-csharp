@@ -2,13 +2,13 @@ using System;
 using Allure.Net.Commons;
 using Xunit;
 
-namespace Allure.Xunit.Tests.Samples.SetAllureIdFromTearDown
+namespace Allure.Xunit.Tests.Samples.AddEpicFromDispose
 {
     public class TestsClass : IDisposable
     {
         public void Dispose()
         {
-            AllureApi.SetAllureId(1001);
+            AllureApi.AddEpic("foo");
         }
 
         [Fact]

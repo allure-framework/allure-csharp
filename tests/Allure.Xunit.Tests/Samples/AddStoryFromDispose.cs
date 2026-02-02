@@ -2,7 +2,7 @@ using System;
 using Allure.Net.Commons;
 using Xunit;
 
-namespace Allure.Xunit.Tests.Samples.AddStoryFromTearDown
+namespace Allure.Xunit.Tests.Samples.AddStoryFromDispose
 {
     public class TestsClass : IDisposable
     {
