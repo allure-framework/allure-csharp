@@ -37,10 +37,10 @@ public class AllureAttachmentAspect
             = attr?.ContentType
                 ?? (returnType == typeof(string)
                     ? "text/plain"
-                    : "application/octet-stream");
+                    : null);
         var extension
             = attr?.Extension
-                ?? HeyRed.Mime.MimeTypesMap.GetExtension(contentType)
+                ?? (contentType is null ? "" : HeyRed.Mime.MimeTypesMap.GetExtension(contentType))
                 ?? "";
 
         extension

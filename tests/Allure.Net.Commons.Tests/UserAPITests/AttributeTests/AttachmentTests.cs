@@ -24,8 +24,8 @@ class AttachmentTests : AllureApiTestFixture
         Assert.That(this.testResult.attachments, Has.One.Items);
         var attachment = this.testResult.attachments[0];
         Assert.That(attachment.name, Is.EqualTo(nameof(AttachByteArray)));
-        Assert.That(attachment.type, Is.EqualTo("application/octet-stream"));
-        Assert.That(attachment.source, Does.EndWith(".bin"));
+        Assert.That(attachment.type, Is.Null);
+        Assert.That(attachment.source, Does.Not.Contain("."));
         Assert.That(this.writer.attachments, Contains.Item((attachment.source, new byte[]{ 1, 2, 3 })));
     }
 
