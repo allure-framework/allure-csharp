@@ -2,7 +2,7 @@ using System;
 using Allure.Net.Commons;
 using Xunit;
 
-namespace Allure.Xunit.Tests.Samples.AddLabelFromTearDown
+namespace Allure.Xunit.Tests.Samples.AddLabelApi
 {
     public class TestsClass : IDisposable
     {

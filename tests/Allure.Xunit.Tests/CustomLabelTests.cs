@@ -12,17 +12,13 @@ class CustomLabelTests
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
         var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "test" && (string)l["value"] == "foo";
-            }
-        ).Any(
-            l =>
-            {
-                return (string)l["name"] == "dispose" && (string)l["value"] == "bar";
-            }
-        );
+        await Assert.That(nodes)
+            .Any(static (l) =>
+                (string)l["name"] == "test"
+                    && (string)l["value"] == "foo")
+            .And.Any(static (l) =>
+                (string)l["name"] == "dispose"
+                && (string)l["value"] == "bar");
     }
 
     [Test]
@@ -31,28 +27,20 @@ class CustomLabelTests
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LabelAttribute);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var labels = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(labels).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "interface" && (string)l["value"] == "foo";
-            }
-        ).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "baseClass" && (string)l["value"] == "bar";
-            }
-        ).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "class" && (string)l["value"] == "baz";
-            }
-        ).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "method" && (string)l["value"] == "qux";
-            }
-        );
+        var labels = results.TestResults[0]["labels"].AsArray().ToArray();
+        await Assert.That(labels)
+            .Any(static (l) =>
+                (string)l["name"] == "interface"
+                    && (string)l["value"] == "foo")
+            .And.Any(static (l) =>
+                (string)l["name"] == "baseClass"
+                    && (string)l["value"] == "bar")
+            .And.Any(static (l) =>
+                (string)l["name"] == "class"
+                    && (string)l["value"] == "baz")
+            .And.Any(static (l) =>
+                (string)l["name"] == "method"
+                    && (string)l["value"] == "qux");
     }
 
     [Test]
@@ -62,21 +50,12 @@ class CustomLabelTests
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
         var labels = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(labels).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "baseClass" && (string)l["value"] == "foo";
-            }
-        ).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "class" && (string)l["value"] == "bar";
-            }
-        ).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "method" && (string)l["value"] == "baz";
-            }
-        );
+        await Assert.That(labels)
+            .Any(static (l) =>
+                (string)l["name"] == "class"
+                    && (string)l["value"] == "bar")
+            .And.Any(static (l) =>
+                (string)l["name"] == "method"
+                    && (string)l["value"] == "baz");
     }
 }

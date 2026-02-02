@@ -1,7 +1,7 @@
 using Allure.Xunit.Attributes;
 using Xunit;
 
-namespace Allure.Xunit.Tests.Samples.LegacyLabelAttributeOnClass
+namespace Allure.Xunit.Tests.Samples.LegacyLabelAttribute
 {
     [AllureLabel("baseClass", "foo")]
     public class BaseClass {}

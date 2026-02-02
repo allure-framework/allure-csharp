@@ -1,7 +1,7 @@
 using Allure.Net.Commons.Attributes;
 using Xunit;
 
-namespace Allure.Xunit.Tests.Samples.LabelAttributeOnBaseClass
+namespace Allure.Xunit.Tests.Samples.LabelAttribute
 {
     [AllureLabel("interface", "foo")]
     public interface IMetadataInterface {}
@@ -10,7 +10,7 @@ namespace Allure.Xunit.Tests.Samples.LabelAttributeOnBaseClass
     public class BaseClass {}
 
     [AllureLabel("class", "baz")]
-    public class TestsClass : BaseClass
+    public class TestsClass : BaseClass, IMetadataInterface
     {
         [Fact]
         [AllureLabel("method", "qux")]

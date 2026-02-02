@@ -56,7 +56,7 @@ class DescriptionTests
 
     [Test]
     [MethodDataSource(nameof(GetHtmlDescriptionSamples))]
-    public async Task CheckHtmkDescriptionIsAdded(AllureSampleRegistryEntry sample)
+    public async Task CheckHtmlDescriptionIsAdded(AllureSampleRegistryEntry sample)
     {
         var results = await AllureSampleRunner.RunAsync(sample);
 
