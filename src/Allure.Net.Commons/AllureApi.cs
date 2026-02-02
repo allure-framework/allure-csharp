@@ -794,9 +794,9 @@ public static class AllureApi
     }
 
 
-    static void AddAttachmentInternal(
+    internal static void AddAttachmentInternal(
         string name,
-        string type,
+        string? type,
         byte[] content,
         string fileExtension
     )

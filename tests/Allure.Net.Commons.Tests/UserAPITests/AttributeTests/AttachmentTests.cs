@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Attributes;
+using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Tests.UserApiTests;
 using NUnit.Framework;
 
@@ -13,6 +15,11 @@ class AttachmentTests : AllureApiTestFixture
     public void SetUpContext()
     {
         this.lifecycle.AddTypeFormatter(new InterpolationStub.TF());
+        this.lifecycle.AddTypeFormatter(new InterpolationDummy.TF());
+        this.testResult = new() {
+            uuid = IdFunctions.CreateUUID(),
+            fullName = "foo",
+        };
         this.lifecycle.StartTestCase(this.testResult);
     }
 
@@ -169,6 +176,15 @@ class AttachmentTests : AllureApiTestFixture
                 "Lorem Ipsum"u8.ToArray())));
     }
 
+    [Test]
+    public void NoEffectIfNoContextActive()
+    {
+        this.lifecycle.StopTestCase();
+        this.lifecycle.WriteTestCase();
+
+        Assert.That(() => AttachFailedFormatter(new()), Throws.Nothing);
+    }
+
     [AllureAttachment]
     static byte[] AttachByteArray() => [1, 2, 3];
 
@@ -220,4 +236,16 @@ class AttachmentTests : AllureApiTestFixture
 
     [AllureAttachment("{arg}")]
     static byte[] AttachCustomFormatter(InterpolationStub arg) => [];
+
+    class InterpolationDummy
+    {
+        public class TF : TypeFormatter<InterpolationDummy>
+        {
+            public override string Format(InterpolationDummy value)
+                => throw new NotImplementedException();
+        }
+    }
+
+    [AllureAttachment("{arg}")]
+    static byte[] AttachFailedFormatter(InterpolationDummy arg) => [];
 }

@@ -23,6 +23,11 @@ public class AllureAttachmentAspect
         [Argument(Source.ReturnValue)] object? returnValue
     )
     {
+        if (!AllureApi.HasTestOrFixture)
+        {
+            return;
+        }
+
         var attr = metadata.GetCustomAttribute<AllureAttachmentAttribute>();
         var attachmentName
             = string.IsNullOrEmpty(attr?.Name)
@@ -59,6 +64,6 @@ public class AllureAttachmentAspect
             )
         };
 
-        AllureApi.AddAttachment(attachmentName, contentType, content, extension);
+        AllureApi.AddAttachmentInternal(attachmentName, contentType, content, extension);
     }
 }
