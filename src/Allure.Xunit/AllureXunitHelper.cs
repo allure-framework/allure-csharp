@@ -126,7 +126,7 @@ namespace Allure.Xunit
 
             AllureLifecycle.Instance.UpdateTestCase(testResult =>
             {
-                testResult.parameters = parametersList;
+                testResult.parameters = [..parametersList, ..testResult.parameters];
             });
         }
 
