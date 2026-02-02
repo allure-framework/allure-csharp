@@ -2,9 +2,25 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
+    <PropertyGroup>
+        <_Allure_BuildTaskPath>$(
+            [MSBuild]::NormalizePath(
+                '$(ArtifactsPath)',
+                'bin',
+                'Allure.Build.Tasks',
+                'release',
+                'Allure.Build.Tasks.dll'
+            )
+        )</_Allure_BuildTaskPath>
+    </PropertyGroup>
+
     <UsingTask
         TaskName="Allure.Build.Tasks.GenerateSampleSolution"
-        AssemblyFile="$([MSBuild]::NormalizePath($(IntermediateOutputPath), 'Allure.Build.Tasks.dll'))"/>
+        AssemblyFile="$(_Allure_BuildTaskPath)"/>
+
+    <UsingTask
+        TaskName="Allure.Build.Tasks.FillSampleMetadata"
+        AssemblyFile="$(_Allure_BuildTaskPath)"/>
 
     <PropertyGroup>
 
@@ -46,6 +62,32 @@
             Allure_ProjectSuffix="%(ProjectSuffix)"/>
 
     </ItemGroup>
+
+    <Target Name="Allure_CompileBuildTasks">
+
+        <PropertyGroup>
+            <_Allure_BuildTasksProject>$(
+                [MSBuild]::NormalizePath(
+                    '$(MSBuildThisFileDirectory)',
+                    '..',
+                    'build',
+                    'Allure.Build.Tasks',
+                    'Allure.Build.Tasks.csproj'
+                )
+            )</_Allure_BuildTasksProject>
+        </PropertyGroup>
+
+        <MSBuild
+            Projects="$(_Allure_BuildTasksProject)"
+            Targets="Restore;Build"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="Configuration=Release">
+
+            <Output TaskParameter="TargetOutputs" ItemName="AllureBuildTasksAssembly" />
+
+        </MSBuild>
+
+    </Target>
 
     <!-- This should go before _GenerateCompileDependencyCache.
      Otherwise, changes in DefineConstants won't be detected by CoreCompile.
@@ -90,34 +132,8 @@
 
     <Target Name="Allure_GenerateTestSamples"
             AfterTargets="CopyFilesToOutputDirectory"
-            Condition=" '@(AllureSample)' != '' ">
-
-        <PropertyGroup>
-            <_Allure_BuildTasksProject>$(
-                [MSBuild]::NormalizePath(
-                    '$(MSBuildThisFileDirectory)',
-                    '..',
-                    'build',
-                    'Allure.Build.Tasks',
-                    'Allure.Build.Tasks.csproj'
-                )
-            )</_Allure_BuildTasksProject>
-        </PropertyGroup>
-
-        <MSBuild
-            Projects="$(_Allure_BuildTasksProject)"
-            Targets="Restore;Build"
-            BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=Release">
-
-            <Output TaskParameter="TargetOutputs" ItemName="AllureBuildTasksAssembly" />
-
-        </MSBuild>
-
-        <Copy
-            SourceFiles="@(AllureBuildTasksAssembly)"
-            DestinationFolder="$(IntermediateOutputPath)"
-            SkipUnchangedFiles="true" />
+            Condition=" '@(AllureSample)' != '' "
+            DependsOnTargets="Allure_CompileBuildTasks">
 
         <MakeDir Directories="$(Allure_LocalNugetRepository)" />
 
