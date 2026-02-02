@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Functions;
 using HeyRed.Mime;
@@ -21,12 +22,12 @@ public static class AllureApi
     const string DIFF_MEDIA_TYPE = "application/vnd.allure.image.diff";
     const string DIFF_ENTRY_PREFIX = "data:image/png;base64,";
 
-    static AllureLifecycle? lifecycleInstance;
+    static readonly AsyncLocal<AllureLifecycle> lifecycleInstance = new();
 
     internal static AllureLifecycle CurrentLifecycle
     {
-        get => lifecycleInstance ?? AllureLifecycle.Instance;
-        set => lifecycleInstance = value;
+        get => lifecycleInstance.Value ?? AllureLifecycle.Instance;
+        set => lifecycleInstance.Value = value;
     }
 
     internal static bool HasTest => ExtendedApi.HasTest;
