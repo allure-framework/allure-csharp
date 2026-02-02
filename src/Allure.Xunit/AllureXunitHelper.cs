@@ -2,6 +2,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
@@ -90,21 +91,38 @@ namespace Allure.Xunit
         }
 
         internal static void ApplyTestParameters(
+            MethodInfo methodInfo,
             IEnumerable<IParameterInfo> parameters,
             object[] arguments
         )
         {
-            var parametersList = parameters.Zip(
-                arguments,
-                (param, value) => new Parameter
-                {
-                    name = param.Name,
-                    value = FormatFunctions.Format(
-                        value,
-                        AllureLifecycle.Instance.TypeFormatters
-                    )
-                }
-            ).ToList();
+            var runtimeParameters
+                = methodInfo
+                    .GetParameters()
+                    .ToDictionary(static (p) => p.Name);
+
+            var parametersList
+                = parameters
+                    .Zip(arguments, (param, value) => (
+                        param,
+                        attr: runtimeParameters.TryGetValue(param.Name, out var pInfo)
+                            ? pInfo.GetCustomAttribute<AllureParameterAttribute>()
+                            : null,
+                        value))
+                    .Where(static (p) => p.attr?.Ignore != true)
+                    .Select(static (p) => new Parameter
+                    {
+                        name = p.attr?.Name ?? p.param.Name,
+                        value = FormatFunctions.Format(
+                            p.value,
+                            AllureLifecycle.Instance.TypeFormatters
+                        ),
+                        mode = p.attr?.Mode is not ParameterMode.Default
+                            ? p.attr?.Mode
+                            : null,
+                        excluded = p.attr?.Excluded == true,
+                    })
+                    .ToList();
 
             AllureLifecycle.Instance.UpdateTestCase(testResult =>
             {

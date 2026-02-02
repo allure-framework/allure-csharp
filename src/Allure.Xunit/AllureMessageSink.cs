@@ -231,7 +231,11 @@ namespace Allure.Xunit
             }
             else
             {
-                AllureXunitHelper.ApplyTestParameters(parameters, arguments);
+                AllureXunitHelper.ApplyTestParameters(
+                    testCase.TestMethod.Method.ToRuntimeMethod(),
+                    parameters,
+                    arguments
+                );
             }
         }
 
