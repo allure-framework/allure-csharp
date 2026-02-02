@@ -1,7 +1,7 @@
 ﻿using Allure.Net.Commons.Tests.AssertionHelpers;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.UserApiTests.AllureFacadeTests;
+namespace Allure.Net.Commons.Tests.UserApiTests;
 
 class AllureApiTestFixture
 {

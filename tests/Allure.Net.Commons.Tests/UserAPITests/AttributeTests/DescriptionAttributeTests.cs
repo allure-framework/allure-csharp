@@ -1,9 +1,8 @@
 using System.Reflection;
 using Allure.Net.Commons.Attributes;
-using Allure.Net.Commons.Sdk;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.AttributeTests;
+namespace Allure.Net.Commons.Tests.UserAPITests.AttributeTests;
 
 class DescriptionAttributeTests
 {

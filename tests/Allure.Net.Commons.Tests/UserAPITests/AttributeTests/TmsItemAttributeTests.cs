@@ -2,53 +2,53 @@ using System.Reflection;
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.AttributeTests;
+namespace Allure.Net.Commons.Tests.UserAPITests.AttributeTests;
 
-class IssueAttributeTests
+class TmsItemAttributeTests
 {
-    [AllureIssue("foo")]
+    [AllureTmsItem("foo")]
     class TargetBase { }
 
-    [AllureIssue("bar")]
+    [AllureTmsItem("bar")]
     class TargetDerived : TargetBase { }
 
     [Test]
     public void CanBeQueriedFromBaseAndInheritedClasses()
     {
-        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureIssueAttribute>();
+        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureTmsItemAttribute>();
 
         Assert.That(typeAttributes, Has.Exactly(2).Items);
     }
 
     [Test]
-    public void UrlOnlyIssueCanBeAddedToTest()
+    public void UrlOnlyTmsItemCanBeAddedToTest()
     {
         TestResult tr = new();
-        var attr = new AllureIssueAttribute("foo");
+        var attr = new AllureTmsItemAttribute("foo");
 
         attr.Apply(tr);
 
         Assert.That(attr.IdOrUrl, Is.EqualTo("foo"));
         Assert.That(
             tr.links,
-            Is.EquivalentTo([new Link { url = "foo", type = "issue" }])
+            Is.EquivalentTo([new Link { url = "foo", type = "tms" }])
                 .UsingPropertiesComparer()
         );
     }
 
     [Test]
-    public void IssueWithTitleCanBeAddedToTest()
+    public void TmsItemWithTitleCanBeAddedToTest()
     {
         TestResult tr = new();
 
-        new AllureIssueAttribute("foo")
+        new AllureTmsItemAttribute("foo")
         {
             Title = "bar",
         }.Apply(tr);
 
         Assert.That(
             tr.links,
-            Is.EquivalentTo([new Link { url = "foo", name = "bar", type = "issue" }])
+            Is.EquivalentTo([new Link { url = "foo", name = "bar", type = "tms" }])
                 .UsingPropertiesComparer()
         );
     }
@@ -58,7 +58,7 @@ class IssueAttributeTests
     {
         TestResult tr = new();
 
-        new AllureIssueAttribute(null).Apply(tr);
+        new AllureTmsItemAttribute(null).Apply(tr);
 
         Assert.That(tr.links, Is.Empty);
     }

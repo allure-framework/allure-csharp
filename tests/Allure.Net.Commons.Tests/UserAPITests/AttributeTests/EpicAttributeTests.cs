@@ -2,37 +2,37 @@ using System.Reflection;
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.AttributeTests;
+namespace Allure.Net.Commons.Tests.UserAPITests.AttributeTests;
 
-class SuiteAttributeTests
+class EpicAttributeTests
 {
-    [AllureSuite("foo")]
+    [AllureEpic("foo")]
     class TargetBase { }
 
-    [AllureSuite("bar")]
+    [AllureEpic("bar")]
     class TargetDerived : TargetBase { }
 
     [Test]
     public void CanBeQueriedFromBaseAndInheritedClasses()
     {
-        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureSuiteAttribute>();
+        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureEpicAttribute>();
 
         Assert.That(typeAttributes, Has.Exactly(2).Items);
     }
 
     [Test]
-    public void SuiteCanBeAddedToTest()
+    public void EpicCanBeAddedToTest()
     {
         TestResult tr = new();
-        var attr = new AllureSuiteAttribute("foo");
+        var attr = new AllureEpicAttribute("foo");
 
         attr.Apply(tr);
 
-        Assert.That(attr.Name, Is.EqualTo("suite"));
+        Assert.That(attr.Name, Is.EqualTo("epic"));
         Assert.That(attr.Value, Is.EqualTo("foo"));
         Assert.That(
             tr.labels,
-            Is.EquivalentTo([new Label { name = "suite", value = "foo" }])
+            Is.EquivalentTo([new Label { name = "epic", value = "foo" }])
                 .UsingPropertiesComparer()
         );
     }

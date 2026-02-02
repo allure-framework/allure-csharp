@@ -2,37 +2,37 @@ using System.Reflection;
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.AttributeTests;
+namespace Allure.Net.Commons.Tests.UserAPITests.AttributeTests;
 
-class ParentSuiteAttributeTests
+class StoryAttributeTests
 {
-    [AllureParentSuite("foo")]
+    [AllureStory("foo")]
     class TargetBase { }
 
-    [AllureParentSuite("bar")]
+    [AllureStory("bar")]
     class TargetDerived : TargetBase { }
 
     [Test]
     public void CanBeQueriedFromBaseAndInheritedClasses()
     {
-        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureParentSuiteAttribute>();
+        var typeAttributes = typeof(TargetDerived).GetCustomAttributes<AllureStoryAttribute>();
 
         Assert.That(typeAttributes, Has.Exactly(2).Items);
     }
 
     [Test]
-    public void ParentSuiteCanBeAddedToTest()
+    public void StoryCanBeAddedToTest()
     {
         TestResult tr = new();
-        var attr = new AllureParentSuiteAttribute("foo");
+        var attr = new AllureStoryAttribute("foo");
 
         attr.Apply(tr);
 
-        Assert.That(attr.Name, Is.EqualTo("parentSuite"));
+        Assert.That(attr.Name, Is.EqualTo("story"));
         Assert.That(attr.Value, Is.EqualTo("foo"));
         Assert.That(
             tr.labels,
-            Is.EquivalentTo([new Label { name = "parentSuite", value = "foo" }])
+            Is.EquivalentTo([new Label { name = "story", value = "foo" }])
                 .UsingPropertiesComparer()
         );
     }
