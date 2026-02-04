@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
@@ -51,6 +52,63 @@ class AttachmentTests : AllureApiTestFixture
             Contains.Item((
                 attachment.source,
                 "Lorem Ipsum"u8.ToArray())));
+    }
+
+    [Test]
+    public void CreatesAttachmentFromStream()
+    {
+        using var stream = AttachStream();
+
+        Assert.That(this.testResult.attachments, Has.One.Items);
+        var attachment = this.testResult.attachments[0];
+        Assert.That(attachment.name, Is.EqualTo(nameof(AttachStream)));
+        Assert.That(attachment.type, Is.Null);
+        Assert.That(attachment.source, Does.Not.Contain("."));
+        Assert.That(
+            this.writer.attachments,
+            Contains.Item((
+                attachment.source,
+                new byte[]{ 1, 2, 3 })));
+        Assert.That(stream.Position, Is.Zero);
+    }
+
+    [Test]
+    public void ThrowsIfStreamCanNotRead()
+    {
+        Assert.That(
+            AttachNonReadableStream,
+            Throws.InstanceOf<InvalidOperationException>()
+                .With.Message.EqualTo(
+                    $"Can't create an Allure attachment from {typeof(NonReadableStream).FullName}: "
+                        + "this stream does not support the read operation."
+                )
+        );
+    }
+
+    [Test]
+    public void ThrowsIfStreamCanNotSeek()
+    {
+        Assert.That(
+            AttachNonSeekableStream,
+            Throws.InstanceOf<InvalidOperationException>()
+                .With.Message.EqualTo(
+                    $"Can't create an Allure attachment from {typeof(NonSeekableStream).FullName}: "
+                        + "this stream does not support the seek operation."
+                )
+        );
+    }
+
+    [Test]
+    public void ThrowsIfTypeNotSupported()
+    {
+        Assert.That(
+            AttachInt,
+            Throws.InstanceOf<InvalidOperationException>()
+                .With.Message.EqualTo(
+                    "Can't create an Allure attachment from System.Int32. "
+                        + "A string, byte[], or stream was expected."
+                )
+        );
     }
 
     [Test]
@@ -190,6 +248,28 @@ class AttachmentTests : AllureApiTestFixture
 
     [AllureAttachment]
     static string AttachString() => "Lorem Ipsum";
+
+    [AllureAttachment]
+    static Stream AttachStream() => new MemoryStream([1, 2, 3]);
+
+    class NonSeekableStream(byte[] buffer) : MemoryStream(buffer)
+    {
+        public override bool CanSeek => false;
+    }
+
+    [AllureAttachment]
+    static Stream AttachNonSeekableStream() => new NonSeekableStream([]);
+
+    class NonReadableStream(byte[] buffer) : MemoryStream(buffer)
+    {
+        public override bool CanRead => false;
+    }
+
+    [AllureAttachment]
+    static Stream AttachNonReadableStream() => new NonReadableStream([]);
+
+    [AllureAttachment]
+    static int AttachInt() => 1;
 
     [AllureAttachment(Encoding = "UTF-16")]
     static string AttachEncoding() => "Lorem Ipsum";

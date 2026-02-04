@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using Allure.Net.Commons.Attributes;
@@ -58,12 +59,37 @@ public class AllureAttachmentAspect
             null => [],
             byte[] byteArray => byteArray,
             string text => Encoding.GetEncoding(attr?.Encoding ?? "UTF-8").GetBytes(text),
+            Stream stream => ConsumeStream(stream),
             _ => throw new InvalidOperationException(
-                $"Can't create an attachment from {returnValue.GetType().Name}. "
-                    + "String or byte[] expected."
+                $"Can't create an Allure attachment from {returnValue.GetType().FullName}. "
+                    + "A string, byte[], or stream was expected."
             )
         };
 
         AllureApi.AddAttachmentInternal(attachmentName, contentType, content, extension);
+    }
+
+    static byte[] ConsumeStream(Stream stream)
+    {
+        if (!stream.CanRead)
+        {
+            throw new InvalidOperationException(
+                $"Can't create an Allure attachment from {stream.GetType().FullName}: "
+                        + "this stream does not support the read operation."
+            );
+        }
+
+        if (!stream.CanSeek)
+        {
+            throw new InvalidOperationException(
+                $"Can't create an Allure attachment from {stream.GetType().FullName}: "
+                        + "this stream does not support the seek operation."
+            );
+        }
+
+        using var memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+        stream.Position = 0;
+        return memoryStream.ToArray();
     }
 }

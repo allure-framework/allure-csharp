@@ -7,8 +7,10 @@ using AspectInjector.Broker;
 namespace Allure.Net.Commons.Attributes;
 
 /// <summary>
-/// When applied to a function returning <c>byte[]</c> or <c>string</c>, creates an attachment
-/// from the function's return value each time it's called.
+/// When applied to a method returning <c>byte[]</c>, <c>string</c>,
+/// <see cref="System.IO.Stream"/>, or a corresponding async type
+/// (e.g., <c>Task&lt;byte[]></c>), creates an attachment
+/// from the return value each time the method is called.
 /// </summary>
 [Injection(typeof(AllureAttachmentAspect))]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
@@ -16,7 +18,7 @@ public class AllureAttachmentAttribute : Attribute
 {
     /// <summary>
     /// A name of the attachment to display in the report. The <c>{paramName}</c> placeholders can
-    /// be used to interpolate the function's arguments into the name.
+    /// be used to interpolate the method's arguments into the name.
     /// </summary>
     public string? Name { get; }
 
@@ -43,17 +45,18 @@ public class AllureAttachmentAttribute : Attribute
     /// UTF-8 is used.
     /// </summary>
     /// <remarks>
-    /// If the function returns <c>byte[]</c>, this property has no effect.
+    /// If the method returns a type other than <c>string</c> (or its async counterpart),
+    /// this property has no effect.
     /// </remarks>
     public string? Encoding { get; init; }
 
     /// <summary>
-    /// Sets up the target function to create an attachment with the same name as the function.
+    /// Creates attachments named after the method.
     /// </summary>
     public AllureAttachmentAttribute() { }
 
     /// <summary>
-    /// Sets up the target function to create an explicitly named attachment.
+    /// Creates attachments with explicit names. Argument interpolation is supported.
     /// </summary>
     /// <param name="name">
     /// The attachment's name. Use the <c>{paramName}</c> placeholders to interpolate the
