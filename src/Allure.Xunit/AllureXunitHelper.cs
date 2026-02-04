@@ -101,32 +101,22 @@ namespace Allure.Xunit
                     .GetParameters()
                     .ToDictionary(static (p) => p.Name);
 
-            var parametersList
-                = parameters
-                    .Zip(arguments, (param, value) => (
-                        param,
-                        attr: runtimeParameters.TryGetValue(param.Name, out var pInfo)
+            Parameter[] parametersFromMethod = [
+                ..ModelFunctions.CreateParameters(
+                    parameters.Select(static (p) => p.Name),
+                    parameters.Select((p) =>
+                        runtimeParameters.TryGetValue(p.Name, out var pInfo)
                             ? pInfo.GetCustomAttribute<AllureParameterAttribute>()
-                            : null,
-                        value))
-                    .Where(static (p) => p.attr?.Ignore != true)
-                    .Select(static (p) => new Parameter
-                    {
-                        name = p.attr?.Name ?? p.param.Name,
-                        value = FormatFunctions.Format(
-                            p.value,
-                            AllureLifecycle.Instance.TypeFormatters
-                        ),
-                        mode = p.attr?.Mode is not ParameterMode.Default
-                            ? p.attr?.Mode
-                            : null,
-                        excluded = p.attr?.Excluded == true,
-                    })
-                    .ToList();
+                            : null),
+                    arguments,
+                    AllureLifecycle.Instance.TypeFormatters
+                )
+            ];
 
             AllureLifecycle.Instance.UpdateTestCase(testResult =>
             {
-                testResult.parameters = [..parametersList, ..testResult.parameters];
+                var dynamicParameters = testResult.parameters;
+                testResult.parameters = [..parametersFromMethod, ..dynamicParameters];
             });
         }
 
