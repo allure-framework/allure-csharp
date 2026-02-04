@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using Allure.Net.Commons.Attributes;
 using AspectInjector.Broker;
+using HeyRed.Mime;
 
 #nullable enable
 
@@ -30,44 +31,60 @@ public class AllureAttachmentAspect
         }
 
         var attr = metadata.GetCustomAttribute<AllureAttachmentAttribute>();
-        var attachmentName
-            = string.IsNullOrEmpty(attr?.Name)
-                ? name
-                : Steps.AllureStepParameterHelper.GetStepName(
-                    attr!.Name,
-                    metadata,
-                    arguments,
-                    AllureApi.CurrentLifecycle.TypeFormatters
-                );
-        var contentType
-            = attr?.ContentType
-                ?? (returnType == typeof(string)
-                    ? "text/plain"
-                    : null);
-        var extension
-            = attr?.Extension
-                ?? (contentType is null ? "" : HeyRed.Mime.MimeTypesMap.GetExtension(contentType))
-                ?? "";
 
-        extension
-            = extension.Length == 0 || extension.StartsWith(".")
-                ? extension
-                : $".{extension}";
-
-        byte[] content = returnValue switch
-        {
-            null => [],
-            byte[] byteArray => byteArray,
-            string text => Encoding.GetEncoding(attr?.Encoding ?? "UTF-8").GetBytes(text),
-            Stream stream => ConsumeStream(stream),
-            _ => throw new InvalidOperationException(
-                $"Can't create an Allure attachment from {returnValue.GetType().FullName}. "
-                    + "A string, byte[], or stream was expected."
-            )
-        };
+        var attachmentName = ResolveAttachmentName(attr, name, metadata, arguments);
+        var contentType = ResolveContentType(attr, returnType);
+        var extension = ResolveExtension(attr, contentType);
+        byte[] content = ResolveContent(attr, returnValue);
 
         AllureApi.AddAttachmentInternal(attachmentName, contentType, content, extension);
     }
+
+    static string ResolveAttachmentName(
+        AllureAttachmentAttribute? attr,
+        string name,
+        MethodBase methodInfo,
+        object[] arguments
+    )
+        => string.IsNullOrEmpty(attr?.Name)
+            ? name
+            : Steps.AllureStepParameterHelper.GetStepName(
+                attr!.Name,
+                methodInfo,
+                arguments,
+                AllureApi.CurrentLifecycle.TypeFormatters
+            );
+
+    static string? ResolveContentType(AllureAttachmentAttribute? attr, Type valueType)
+        => attr?.ContentType
+            ?? (valueType == typeof(string)
+                ? "text/plain"
+                : null);
+
+    static string ResolveExtension(AllureAttachmentAttribute? attr, string? contentType)
+    {
+        var extension
+            = attr?.Extension
+                ?? (contentType is null
+                    ? ""
+                    : MimeTypesMap.GetExtension(contentType))
+                ?? "";
+        return extension.Length == 0 || extension.StartsWith(".")
+            ? extension
+            : $".{extension}";
+    }
+
+    static byte[] ResolveContent(AllureAttachmentAttribute? attr, object? value) => value switch
+    {
+        null => [],
+        byte[] byteArray => byteArray,
+        string text => Encoding.GetEncoding(attr?.Encoding ?? "UTF-8").GetBytes(text),
+        Stream stream => ConsumeStream(stream),
+        _ => throw new InvalidOperationException(
+            $"Can't create an Allure attachment from {value.GetType().FullName}. "
+                + "A string, byte[], or stream was expected."
+        )
+    };
 
     static byte[] ConsumeStream(Stream stream)
     {
