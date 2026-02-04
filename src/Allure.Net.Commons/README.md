@@ -100,6 +100,183 @@ considered broken. An exception's type matches a name if:
   2. One of its base classes matches the name, OR
   3. It implements an interface that matches the name.
 
+## Attribute API
+
+Use the attributes defined in the `Allure.Net.Commons.Attributes` namespaces:
+
+|Attribute|Effect|Apply to|Notes|
+|--|--|--|--|
+|`[AllureAfter]`          |Creates a tear down fixture from the method call.                      |Method.                  |Uses AspectInjector under the hood.|
+|`[AllureAttachment]`     |Creates an attachment from the method's return value.                  |Method.                  |Only supports `string` and `byte[]` return types. Uses AspectInjector under the hood.|
+|`[AllureBddHierarchy]`   |Adds the `epic`, `feature`, and `story` labels to test results at once.|Method, class, interface.|This is a shorthand for `[AllureEpic]`, `AllureFeature`, and `[AllureStory]`.|
+|`[AllureBefore]`         |Creates a set up fixture from the method or constructor call.          |Method, constructor.     |Uses AspectInjector under the hood.|
+|`[AllureDescription]`    |Sets a description of test results.                                    |Method, class, interface.|If applied multiple times with `Append` set, all the strings are joined with `\n\n`.|
+|`[AllureDescriptionHtml]`|Sets a description of test results in raw HTML.                        |Method, class, interface.|If applied multiple times with `Append` set, all the strings are joined (no separator used).|
+|`[AllureEpic]`           |Adds the `epic` label to test results.                                 |Method, class, interface.|Discards the default BDD hierarchy.|
+|`[AllureFeature]`        |Adds the `feature` label to test results.                              |Method, class, interface.|Discards the default BDD hierarchy.|
+|`[AllureId]`             |Applies the `ALLURE_ID` label to test results.                         |Method.                  |-|
+|`[AllureIssue]`          |Adds an issue link to test results                                     |Method, class, interface.|If a short ID is used instead of a full URL, a link template must exists in the config.|
+|`[AllureLabel]`          |Adds a custom label to test results.                                   |Method, class, interface.|-|
+|`[AllureLink]`           |Adds a link to test results.                                           |Method, class, interface.|If a short ID is used instead of a full URL, a link template must exists in the config.|
+|`[AllureMeta]`           |Applies a custom set of attributes to test results.                    |Method, class, interface.|See #406.|
+|`[AllureName]`           |Sets a display name of test results.                                   |Method, class, interface.|When applied to a test class, affects the value of the  default `suite` label created from this class.|
+|`[AllureOwner]`          |Applies the `owner` label to test results.                             |Method, class, interface.|-|
+|`[AllureParameter]`      |Affects how method arguments are converted to Allure parameters.       |Parameter.               |Allows for ignoring the parameters, see #482.|
+|`[AllureParentSuite]`    |Applies the `parentSuite` label to test results.                       |Method, class, interface.|Discards the default suite hierarchy.|
+|`[AllureSeverity]`       |Applies the `severity` label to test results.                          |Method, class, interface.|-|
+|`[AllureStep]`           |Creates Allure steps from method calls.                                |Method.                  |Uses AspectInjector under the hood.|
+|`[AllureStory]`          |Applies the `story` label to test results.                             |Method, class, interface.|Discards the default BDD hierarchy.|
+|`[AllureSubSuite]`       |Applies the `subSuite` label to test results.                          |Method, class, interface.|Discards the default suite hierarchy.|
+|`[AllureSuite]`          |Applies the `suite` label to test results.                             |Method, class, interface.|Discards the default suite hierarchy.|
+|`[AllureSuiteHierarchy]` |Applies the `parentSuite`, `suite`, and `subSuite` labels at once.     |Method, class, interface.|This is a shorthand for `[AllureParentSuite]`, `[AllureSuite]` and `[AllureSubSuite]`.|
+|`[AllureTag]`            |Applies the `tag` labels to test results.                              |Method, class, interface.|-|
+|`[AllureTmsItem]`        |Applies a TMS item link to test results                                |Method, class, interface.|If a short ID is used instead of a full URL, a link template must exists in the config.|
+
+Most of the attributes are straightforward and can be applied on a method, class, or interface:
+
+  - When applied to a method, they affect test results produced by this method.
+  - When applied to a class, they affect test results produced by all methods of this class and its subclasses.
+  - When applied to an interface, they affect test results produced by all methods of classes that implement the interface.
+
+### AOP attributes
+
+Applying `[AllureStep]` automatically wraps method calls into Allure step. Call arguments are automatically converted to Allure parameters.
+
+Similarly, `[AllureBefore]` and `[AllureAfter]` wrap method calls into fixtures. Apply these to
+setup/teardown methods that are invoked by the framework to add fixtures to the report.
+
+Apply `[AllureAttachment]` to a method that returns `string`, `byte[]`, `System.IO.Stream`,
+or async versions of these types (e.g., `Task<string>`) to automatically attach returned values
+each time the method is called.
+
+Apply `[AllureAttachmentFile]` to a method that returns `string`, `FileInfo`, or async versions
+of these types (e.g., `Task<string>`) to automatically attach files on each call. The returned
+values are treated as file paths.
+
+All four attributes mentioned above requires rely on AspectInjector. If you disable AspectInjector
+(e.g., by setting the `AspectInjector_Enabled` MSBuild property to `false`), the attributes won't
+do anything.
+
+### Controlling parameters
+
+There are two contexts where Allure automatically converts method arguments into Allure parameters:
+
+  - When creating a test result.
+  - When creating a step result.
+
+In both contexts, `[AllureParameter]` can be used to affect the conversion:
+
+  - Set `Ignored` to skip the argument.
+  - Use `Name` to explicitly name the parameter.
+  - Use `Mode` to mask or hide the value (the original value will still exist in the result files).
+  - Set `Excluded` to ignore the parameter when identifying the test that corresponds to the test
+    result (see [here](https://allurereport.org/docs/history-and-retries/#common-pitfall-a-test-s-retries-are-displayed-as-separate-tests)).
+
+Example:
+
+```csharp
+using Allure.Net.Commons;
+
+public class MyTests
+{
+    public void MyParameterizedTestMethod(
+        [AllureParameter(Ignore = true)] IUserService users,
+        [AllureParameter(Name = "User")] string userName,
+        [AllureParameter(Mode = ParameterMode.Masked)] string password,
+        [AllureParameter(Excluded = true)] DateTime timestamp
+    )
+    {
+        // ...
+    }
+}
+```
+
+### Attribute composition
+
+You can compose multiple attributes in two ways.
+
+#### Composition via an interface
+
+Apply the attributes to a new interface and apply the interface to the classes the attributes
+should affect:
+
+```csharp
+using Allure.Net.Commons.Attributes;
+
+[AllureEpic("My epic")]
+[AllureFeature("My feature")]
+[AllureIssue("125")]
+[AllureTag("acceptance")]
+public interface IMyFeatureTests { }
+
+public class MyTestClass : IMyFeatureTests
+{
+    // tests
+}
+
+public class AnotherTestClass : IMyFeatureTests
+{
+    // more tests
+}
+```
+
+#### Composition via `[AllureMeta]`
+
+Define a new attribute class that derives from `AllureMetaAttribute` and apply the attributes
+to this class. Use the new class to apply all the attributes to test classes and methods:
+
+```csharp
+using System;
+using Allure.Net.Commons.Attributes;
+
+[AllureEpic("My epic")]
+[AllureFeature("My feature")]
+[AllureIssue("125")]
+[AllureTag("acceptance")]
+public class MyFeatureAttribute : AllureMetaAttribute { }
+
+[MyFeature]
+public class MyTestClass : IMyFeatureTests
+{
+    // tests
+}
+
+public class AnotherTestClass : IMyFeatureTests
+{
+    [Test]
+    [MyFeature]
+    public void MyTestMethod()
+    {
+        // test body
+    }
+}
+```
+
+### Descriptions
+
+If `[AllureDescription]` is applied multiple times on different levels, the most specific one wins,
+unless you set `Append`. In such a case, all strings are joined with `\n\n` creating separate
+markdown paragraphs:
+
+```csharp
+[AllureDescription("Paragraph 1", Append = true)]
+class Base { }
+
+[AllureDescription("Paragraph 2", Append = true)]
+class TestClass : Base
+{
+    [Test]
+    [AllureDescription("Paragraph 3", Append = true)] // Without Append, the description will be just "Paragraph 3"
+    public void MyTest()
+    {
+        // test body
+    }
+}
+```
+
+For `[AllureDescriptionHtml]`, the behavior is almost the same. The only difference is that no
+separator is used to join multiple strings. Use block elements to keep the descriptions separate.
+
 ## Runtime API
 
 Use this API to enhance the report at runtime.
@@ -200,7 +377,7 @@ Use this class to access some less commonly used functions.
 ## The integration API
 
 This API is designed for adapter or library authors. You may still use it as a
-test author, but we recommend considering the Runtime API first.
+test author, but we recommend considering the Attribute/Runtime API first.
 
 ### AllureLifecycle
 
