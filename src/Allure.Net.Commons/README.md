@@ -116,10 +116,8 @@ functions.
 * `SetStepName`
 * `SetDescription`
 * `SetDescriptionHtml`
-* `SetDescriptionHtml`
 * `AddLabels`
 * `AddLabel`
-* `SetLabel`
 * `SetSeverity`
 * `SetOwner`
 * `SetAllureId`
@@ -132,17 +130,11 @@ functions.
 #### Hierrarchies
 
 * `AddParentSuite`
-* `SetParentSuite`
 * `AddSuite`
-* `SetSuite`
 * `AddSubSuite`
-* `SetSubSuite`
 * `AddEpic`
-* `SetEpic`
 * `AddFeature`
-* `SetFeature`
 * `AddStory`
-* `SetStory`
 
 #### Lambda steps
 
