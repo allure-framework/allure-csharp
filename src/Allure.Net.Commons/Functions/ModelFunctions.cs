@@ -162,35 +162,66 @@ public static class ModelFunctions
         IEnumerable<object> values,
         IReadOnlyDictionary<Type, ITypeFormatter> formatters
     )
-    {
-        var pairs = parameters.Zip(values, static (p, v) => (p, v));
-        foreach (var (parameter, value) in parameters.Zip(values, static (p, v) => (p, v)))
+        => CreateParameters(
+            parameters.Select(static (p) => p.Name),
+            parameters.Select(static (p) => p.GetCustomAttribute<AllureParameterAttribute>()),
+            values,
+            formatters
+        );
+
+    /// <summary>
+    /// Creates Allure parameter objects from parameter names, attributes, and values.
+    /// All three sequences must have a matching order.
+    /// </summary>
+    /// <param name="parameterNames">
+    /// A sequence of parameter names. These names are used by default unless an explicit
+    /// name is provided via <see cref="AllureParameterAttribute.Name"/>.
+    /// </param>
+    /// <param name="attributes">
+    /// A sequence of Allure parameter attributes that affect how the parameters are handled.
+    /// If no attribute is defined for the parameter, the corresponding item of this sequence
+    /// must be <c>null</c>.
+    /// See the description of <see cref="AllureParameterAttribute"/> for more details.
+    /// </param>
+    /// <param name="values">A sequence of values.</param>
+    /// <param name="formatters">
+    /// Custom formatters to convert values of specific types to strings.
+    /// Typically comes from <see cref="AllureLifecycle.TypeFormatters"/>.
+    /// If no formatter is defined to the type, the default algorithm is used that converts
+    /// the value into its JSON representation.
+    /// </param>
+    /// <returns>A sequence of Allure parameters.</returns>
+    public static IEnumerable<Parameter> CreateParameters(
+        IEnumerable<string> parameterNames,
+        IEnumerable<AllureParameterAttribute?> attributes,
+        IEnumerable<object> values,
+        IReadOnlyDictionary<Type, ITypeFormatter> formatters
+    )
+        => parameterNames
+            .Zip(attributes, static (n, a) => (name: n, attr: a))
+            .Zip(values, static (p, v) => (p.name, p.attr, value: v))
+            .Where(static (tuple) => tuple.attr?.Ignore is not true)
+            .Select((tuple) =>
+                CreateParameter(tuple.name, tuple.attr, tuple.value, formatters));
+
+    static Parameter CreateParameter(
+        string parameterName,
+        AllureParameterAttribute? attribute,
+        object? value,
+        IReadOnlyDictionary<Type, ITypeFormatter> formatters
+    )
+        => new()
         {
-            var attr = parameter.GetCustomAttribute<AllureParameterAttribute>();
-            if (attr?.Ignore == true)
-            {
-                continue;
-            }
+            name = attribute?.Name ?? parameterName,
+            value = FormatFunctions.Format(value, formatters),
+            excluded = attribute?.Excluded == true,
+            mode = ResolveParameterMode(attribute)
+        };
 
-            var name = attr?.Name;
-            var mode = attr?.Mode;
-            var excluded = attr?.Excluded == true;
-
-            Parameter allureParameter = new()
-            {
-                name = attr?.Name ?? parameter.Name,
-                value = FormatFunctions.Format(value, formatters),
-                excluded = attr?.Excluded == true
-            };
-
-            if (mode is not null and not ParameterMode.Default)
-            {
-                allureParameter.mode = attr?.Mode;
-            }
-
-            yield return allureParameter;
-        }
-    }
+    static ParameterMode? ResolveParameterMode(AllureParameterAttribute? attribute)
+        => attribute is AllureParameterAttribute { Mode: ParameterMode mode and not ParameterMode.Default }
+            ? mode
+            : null;
 
     static bool ShouldAddEnvVarAsLabel(
         [NotNullWhen(true)] string? name,

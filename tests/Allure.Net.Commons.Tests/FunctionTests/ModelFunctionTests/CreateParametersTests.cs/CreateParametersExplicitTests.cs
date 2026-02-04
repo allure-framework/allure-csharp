@@ -5,46 +5,24 @@ using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
 using NUnit.Framework;
 
-namespace Allure.Net.Commons.Tests.FunctionTests.ModelFunctionTests;
+namespace Allure.Net.Commons.Tests.FunctionTests.ModelFunctionTests.CreateParametersTests.cs;
 
-class ParameterTests
+class CreateParametersExplicitTests
 {
-    static ParameterTests()
-    {
-        var parameters = typeof(ParameterTests).GetMethod(nameof(Target)).GetParameters();
-
-        NoAttribute = parameters[0];
-        NoEffect = parameters[1];
-        Ignored = parameters[2];
-        Renamed = parameters[3];
-        Masked = parameters[4];
-        Hidden = parameters[5];
-        Excluded = parameters[6];
-    }
-
-    public static void Target(
-        int noAttribute,
-        [AllureParameter] int noEffect,
-        [AllureParameter(Ignore = true)] int ignored,
-        [AllureParameter(Name = "New name")] int renamed,
-        [AllureParameter(Mode = ParameterMode.Masked)] int masked,
-        [AllureParameter(Mode = ParameterMode.Hidden)] int hidden,
-        [AllureParameter(Excluded = true)] int excluded
-    ) { }
-
-    static ParameterInfo NoAttribute;
-    static ParameterInfo NoEffect;
-    static ParameterInfo Ignored;
-    static ParameterInfo Renamed;
-    static ParameterInfo Masked;
-    static ParameterInfo Hidden;
-    static ParameterInfo Excluded;
     static readonly Dictionary<Type, ITypeFormatter> emptyFormatters = [];
 
     [Test]
-    public void EmptyParameterInfoSeqGivesEmptySeq()
+    public void EmptyNameSeqGivesEmptySeq()
     {
-        var parameters = ModelFunctions.CreateParameters([], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters([], [new()], ["foo"], emptyFormatters);
+
+        Assert.That(parameters, Is.Empty);
+    }
+
+    [Test]
+    public void EmptyAttrSeqGivesEmptySeq()
+    {
+        var parameters = ModelFunctions.CreateParameters(["p1"], [], ["foo"], emptyFormatters);
 
         Assert.That(parameters, Is.Empty);
     }
@@ -52,15 +30,17 @@ class ParameterTests
     [Test]
     public void EmptyValueSeqGivesEmptySeq()
     {
-        var parameters = ModelFunctions.CreateParameters([], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(["p1"], [new()], [], emptyFormatters);
 
         Assert.That(parameters, Is.Empty);
     }
 
     [Test]
-    public void PlainParameter()
+    public void NoAttribute()
     {
-        var parameters = ModelFunctions.CreateParameters([NoAttribute], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["noAttribute"], [null], ["foo"], emptyFormatters
+        );
 
         Assert.That(
             parameters,
@@ -70,9 +50,14 @@ class ParameterTests
     }
 
     [Test]
-    public void ParameterWithEmptyAttribute()
+    public void EmptyAttribute()
     {
-        var parameters = ModelFunctions.CreateParameters([NoEffect], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["noEffect"],
+            [new()],
+            ["foo"],
+            emptyFormatters
+        );
 
         Assert.That(
             parameters,
@@ -82,9 +67,14 @@ class ParameterTests
     }
 
     [Test]
-    public void IgnoredParameter()
+    public void Ignored()
     {
-        var parameters = ModelFunctions.CreateParameters([Ignored], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["ignored"],
+            [new(){ Ignore = true }],
+            ["foo"],
+            emptyFormatters
+        );
 
         Assert.That(parameters, Is.Empty);
     }
@@ -92,7 +82,12 @@ class ParameterTests
     [Test]
     public void RenamedParameter()
     {
-        var parameters = ModelFunctions.CreateParameters([Renamed], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["original"],
+            [new(){ Name = "New name" }],
+            ["foo"],
+            emptyFormatters
+        );
 
         Assert.That(
             parameters,
@@ -104,7 +99,12 @@ class ParameterTests
     [Test]
     public void MaskedParameter()
     {
-        var parameters = ModelFunctions.CreateParameters([Masked], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["masked"],
+            [new(){ Mode = ParameterMode.Masked }],
+            ["foo"],
+            emptyFormatters
+        );
 
         Assert.That(
             parameters,
@@ -122,7 +122,12 @@ class ParameterTests
     [Test]
     public void HiddenParameter()
     {
-        var parameters = ModelFunctions.CreateParameters([Hidden], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["hidden"],
+            [new(){ Mode = ParameterMode.Hidden }],
+            ["foo"],
+            emptyFormatters
+        );
 
         Assert.That(
             parameters,
@@ -140,7 +145,12 @@ class ParameterTests
     [Test]
     public void ExcludedParameter()
     {
-        var parameters = ModelFunctions.CreateParameters([Excluded], ["foo"], emptyFormatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["excluded"],
+            [new(){ Excluded = true }],
+            ["foo"],
+            emptyFormatters
+        );
 
         Assert.That(
             parameters,
@@ -168,16 +178,12 @@ class ParameterTests
             { typeof(string), new StringFormatterStub() },
         };
 
-        var parameters = ModelFunctions.CreateParameters([NoAttribute], ["foo"], formatters);
+        var parameters = ModelFunctions.CreateParameters(["foo"], [null], ["bar"], formatters);
 
         Assert.That(
             parameters,
             Is.EqualTo([
-                new Parameter
-                {
-                    name = "noAttribute",
-                    value = "bar",
-                }
+                new Parameter { name = "foo", value = "bar" }
             ]).UsingPropertiesComparer()
         );
     }
@@ -195,7 +201,12 @@ class ParameterTests
             { typeof(string), new StringFormatterDummy() },
         };
 
-        var parameters = ModelFunctions.CreateParameters([Ignored], ["foo"], formatters);
+        var parameters = ModelFunctions.CreateParameters(
+            ["foo"],
+            [new(){ Ignore = true }],
+            ["bar"],
+            formatters
+        );
 
         Assert.That(parameters, Is.Empty);
     }
@@ -204,7 +215,13 @@ class ParameterTests
     public void MultipleParameters()
     {
         var parameters = ModelFunctions.CreateParameters(
-            [NoAttribute, Ignored, Masked, Excluded],
+            ["noAttribute", "ignored", "masked", "excluded"],
+            [
+                null,
+                new(){ Ignore = true },
+                new(){ Mode = ParameterMode.Masked },
+                new(){ Excluded = true },
+            ],
             ["foo", "bar", "baz", "qux"],
             emptyFormatters
         );
