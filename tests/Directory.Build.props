@@ -67,18 +67,11 @@
         <Allure_SampleConfiguration
             Condition=" '$(Allure_SampleConfiguration)' == '' "></Allure_SampleConfiguration>
 
-        <!-- If set to true, integration tests don't invoke the sample projects. Instead, they proceed to
-         asserting already generated results in the directory provided via Allure_SampleResultsDirectoryFormat.
+        <!-- If set to true, integration tests won't invoke the sample projects. Instead, they proceed to
+         asserting already generated results in the default results directory.
          It's implied the Allure_RunTestSamples target have been run prior to running the tests. -->
         <Allure_PreRunTestingFlow
             Condition=" '$(Allure_PreRunTestingFlow)' == '' ">$(Allure_PreRunTestSamples)</Allure_PreRunTestingFlow>
-
-        <!-- A format string of the default allure-results directory path.
-         Must contain a {0} placeholder for a sample project suffix.
-         Used to collect test results in the pre-run testing flow.
-         The default value is set in ./tests/Directory.Build.targets. -->
-        <Allure_SampleResultsDirectoryFormat
-            Condition=" '$(Allure_SampleResultsDirectoryFormat)' == '' "></Allure_SampleResultsDirectoryFormat>
 
         <!-- A version of projects under test. If set, all ProjectUnderTest items are converted to
          PackageReference items of the sample projects. Otherwise, they are converted to
@@ -91,8 +84,6 @@
         <!-- The list of Allure properties used by the sample runner. -->
         <Allure_CompilerVisibleProperties>
             Allure_PreRunTestingFlow;
-            Allure_LocalNugetRepository;
-            Allure_SampleResultsDirectoryFormat;
             Allure_SampleConfiguration;
             Allure_SampleSolutionDir;
             Allure_SampleSolutionName;
@@ -100,7 +91,7 @@
         </Allure_CompilerVisibleProperties>
 
         <!-- Put Allure properties in a single line and replaces the separator to ':'.
-         Otherwise, the value won't be picked up by *.GeneratedMSBuil dEditorConfig.editorconfig,
+         Otherwise, the value won't be picked up by *.GeneratedMSBuildEditorConfig.editorconfig,
          which is an ini file. Roslyn will then make the properties accessible by source generators.
          AllureMsbuildPropsGenerator will pass them to the compilation making them consumable by
          the sample runner. -->
@@ -112,36 +103,20 @@
                 .Replace(';', ':')
         )</Allure_PropertyNames>
 
-        <!-- The default project directory containing the samples to test. -->
-        <Allure_SamplesDirectory>$(
-            [MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', 'Samples')
-        )</Allure_SamplesDirectory>
-        <Allure_SamplesPattern>$(
-            [MSBuild]::Unescape(
-                '$([MSBuild]::NormalizePath('$(Allure_SamplesDirectory)', '**', '*'))'
-            )
-        )</Allure_SamplesPattern>
     </PropertyGroup>
 
     <ItemGroup>
         <CompilerVisibleProperty Include="Allure_PropertyNames" />
         <CompilerVisibleProperty Include="$(Allure_CompilerVisibleProperties)" />
-        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_ProjectSuffix" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_SampleName" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_RegistryNamespace" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_ProjectFilePath" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_ProjectRelativePath" />
+        <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Allure_ResultsDirectory" />
     </ItemGroup>
 
     <ItemGroup>
-        <AllureSample Include="$(Allure_SamplesPattern)">
-            <ProjectSuffix>$(
-                [System.Text.RegularExpressions.Regex]::Replace(
-                    '$([MSBuild]::MakeRelative(
-                        '$(Allure_SamplesDirectory)',
-                        '%(FullPath)'
-                    ))',
-                    '[\\/\.].*',
-                    ''
-                )
-            )</ProjectSuffix>
-        </AllureSample>
+        <AllureSample Include="**/Samples/**/*" Exclude="**/.*" />
     </ItemGroup>
 
 </Project>

@@ -13,7 +13,7 @@ class ParameterTests
         ];
 
         return samples.Select(static (sample) =>
-            new TestDataRow<AllureSampleRegistryEntry>(sample, DisplayName: sample.Id));
+            new TestDataRow<AllureSampleRegistryEntry>(sample, DisplayName: sample.SampleId));
     }
 
     [Test]

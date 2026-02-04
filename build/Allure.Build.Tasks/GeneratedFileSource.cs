@@ -5,7 +5,7 @@ using Microsoft.Build.Utilities;
 
 namespace Allure.Build.Tasks;
 
-class GeneratedFileSource(byte[] content, string destinationPath): FileSource(destinationPath)
+public class GeneratedFileSource(byte[] content, string destinationPath): FileSource(destinationPath)
 {
     public byte[] Content { get; init; } = content;
 
@@ -43,18 +43,10 @@ class GeneratedFileSource(byte[] content, string destinationPath): FileSource(de
     }
 
     public override void ShowChanged(TaskLoggingHelper log) =>
-        log.LogMessage(
-            "{0} bytes -> {1} (updated)",
-            this.Content.Length,
-            this.Destination.FullName
-        );
+        Logging.LogGeneratedFileChanged(log, this);
 
     public override void ShowUnchanged(TaskLoggingHelper log) =>
-        log.LogMessage(
-            "{0} bytes skipped, {1} unchanged",
-            this.Content.Length,
-            this.Destination.FullName
-        );
+        Logging.LogGeneratedFileUnchanged(log, this);
 
     public static GeneratedFileSource FromXmlDocument(
         XDocument document,

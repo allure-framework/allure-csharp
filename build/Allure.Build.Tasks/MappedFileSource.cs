@@ -3,7 +3,7 @@ using Microsoft.Build.Utilities;
 
 namespace Allure.Build.Tasks;
 
-class MappedFileSource(string sourcePath, string destinationPath): FileSource(destinationPath)
+public class MappedFileSource(string sourcePath, string destinationPath): FileSource(destinationPath)
 {
     public FileInfo Source { get; } = new(sourcePath);
 
@@ -16,16 +16,8 @@ class MappedFileSource(string sourcePath, string destinationPath): FileSource(de
     }
 
     public override void ShowChanged(TaskLoggingHelper log) =>
-        log.LogMessage(
-            "{0} -> {1} (updated)",
-            this.Source.FullName,
-            this.Destination.FullName
-        );
+        Logging.LogMappingFileChanged(log, this);
 
     public override void ShowUnchanged(TaskLoggingHelper log) =>
-        log.LogMessage(
-            "{0} skipped, {1} is newer",
-            this.Source.FullName,
-            this.Destination.FullName
-        );
+        Logging.LogMappingFileUnchanged(log, this);
 }

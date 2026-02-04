@@ -3,7 +3,7 @@ using Microsoft.Build.Utilities;
 
 namespace Allure.Build.Tasks;
 
-abstract class FileSource(string destinationPath)
+public abstract class FileSource(string destinationPath)
 {
     public FileInfo Destination { get; } = new(destinationPath);
 

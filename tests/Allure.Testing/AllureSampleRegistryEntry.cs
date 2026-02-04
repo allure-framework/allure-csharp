@@ -7,8 +7,11 @@ namespace Allure.Testing;
 /// Instances are typically created and filled by the testing infrastructure. Use the
 /// auto-generated <c>Allure.Testing.AllureSampleRegistry</c> class to access them.
 /// </remarks>
-/// <param name="Id">The id (the project suffix) of the sample.</param>
-/// <param name="ProjectPath">The path to the <c>.csproj</c> file.</param>
+/// <param name="RegistryId">
+/// The id (i.e., the namespace) of the registry that contains the sample.
+/// </param>
+/// <param name="SampleId">The id of the sample in its registry.</param>
+/// <param name="ProjectFilePath">The path to the <c>.csproj</c> file of the sample project.</param>
 /// <param name="DefaultResultsPath">
 /// The path to a directory where Allure result files are stored by default.
 /// </param>
@@ -28,8 +31,9 @@ namespace Allure.Testing;
 /// The results are typically prepared by <c>dotnet msbuild -t:Allure_RunTestSamples</c>.
 /// </param>
 public record struct AllureSampleRegistryEntry(
-    string Id,
-    string ProjectPath,
+    string RegistryId,
+    string SampleId,
+    string ProjectFilePath,
     string DefaultResultsPath,
     string TargetFramework,
     string BuildConfiguration,

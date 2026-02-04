@@ -106,10 +106,11 @@ public class AllureSampleRunner
         if (!dInfo.Exists || !dInfo.EnumerateFiles().Any())
         {
             throw new FileNotFoundException(
-                $"Can't read Allure results of the '{sample.Id}' sample. Please, make sure "
-                    + $"the sample's been run and the results are available at '{path}'. "
-                    + "You can use the 'dotnet msbuild -t:Allure_RunTestSamples' command "
-                    + "to run all samples of the solution/project."
+                $"Can't read Allure results of '{sample.RegistryId}.{sample.SampleId}'. "
+                    + $"Please, make sure the sample's been run and the results are "
+                    + $"available at '{path}'. Run "
+                    + "'dotnet msbuild -t:Allure_RunTestSamples' to execute all the samples of "
+                    + "the solution/project."
             );
         }
         return dInfo;
@@ -209,7 +210,7 @@ public class AllureSampleRunner
         "dotnet",
         [
             "test",
-            sample.ProjectPath,
+            sample.ProjectFilePath,
             "--framework",
             sample.TargetFramework,
             "--configuration",
