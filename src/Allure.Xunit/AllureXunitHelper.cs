@@ -146,7 +146,7 @@ namespace Allure.Xunit
                 ?.Name)
                 ?? (string.IsNullOrEmpty(@namespace)
                     ? xunitTestClass.Name
-                    : xunitTestClass.Name?.Substring(@namespace.Length + 1));
+                    : xunitTestClass.Name?.Substring(@namespace!.Length + 1));
 
         internal static void ReportCurrentTestCase()
         {
