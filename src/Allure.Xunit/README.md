@@ -37,7 +37,162 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 
 ## Notes
 
-### Namespaces consolidated to Allure.Xunit
+### New in 2.15.0: the common Attribute API
+
+Use the attributes in `Allure.Net.Commons.Attributes` instead of `Allure.Xunit.Attributes`. Read more details [here](https://github.com/allure-framework/allure-csharp/pull/647).
+
+In most cases, the migration is straightforward:
+
+```diff
+- using Allure.Xunit.Attributes;
++ using Allure.Net.Commons.Attributes;
+using Xunit;
+
+[AllureFeature("My feature")]
+public class MyTestClass
+{
+    [AllureStory("My story")]
+    [Fact]
+    public void MyTestMethod()
+    {
+
+    }
+}
+```
+
+In some cases, the usage must be updated. Such cases are listed below.
+
+#### `[AllureFeature]`, `[AllureStory]` with multiple values
+
+Use multiple `[AllureFeature]` or `[AllureStory]` attributes instead:
+
+```diff
+- using Allure.Xunit.Attributes;
++ using Allure.Net.Commons.Attributes;
+
+-[AllureFeature("Feature 1", "Feature 2")]
++[AllureFeature("Feature 1")]
++[AllureFeature("Feature 2")]
+-[AllureStory("Story 1", "Story 2")]
++[AllureStory("Story 1")]
++[AllureStory("Story 2")]
+public class MyTestClass
+{
+}
+```
+
+#### `[AllureLink]`, `[AllureIssue]`
+
+Pass the URL or ID as the only positional argument. Use the `Title` property to pass the display
+text:
+
+```diff
+- using Allure.Xunit.Attributes;
++ using Allure.Net.Commons.Attributes;
+
+-[AllureLink("Homepage", "https://allurereport.org")]
++[AllureLink("https://allurereport.org", Title = "Homepage")]
+-[AllureIssue("ISSUE-123", "123")]
++[AllureIssue("123", Title = "ISSUE-123")]
+public class MyTestClass
+{
+}
+```
+
+#### `[AllureSeverity]`
+
+Always pass an explicit value as the argument:
+
+```diff
+- using Allure.Xunit.Attributes;
++ using Allure.Net.Commons.Attributes;
+
+-[AllureSeverity]
++[AllureSeverity(SeverityLevel.normal)]
+public class MyTestClass
+{
+}
+```
+
+#### `[Name]` and `[Skip]`
+
+Use `[AllureParameter]` with `Name` and `Ignore` correspondingly:
+
+```diff
+- using Allure.Xunit.Attributes.Steps;
++ using Allure.Net.Commons.Attributes;
+
+public class MyTestClass
+{
+    [AllureStep]
+    public void MyStepMethod(
+-        [Name("Foo")] int parameter1,
++        [AllureParameter(Name = "Foo")] int parameter1,
+-        [Skip] int parameter2
++        [AllureParameter(Ignore = true)] int parameter2
+    )
+    {
+    }
+}
+```
+
+#### `[AllureId]`
+
+Pass an integer value instead of a string:
+
+```diff
+- using Allure.Xunit.Attributes;
++ using Allure.Net.Commons.Attributes;
+using Xunit;
+
+public class MyTestClass
+{
+    [Fact]
+-   [AllureId("102")]
++   [AllureId(102)]
+    public void MyTestMethod()
+    {
+    }
+}
+```
+
+#### The `Overwrite` argument
+
+The new attributes don't have an equivalent of the `overwrite` argument that removes the existing
+metadata. You should rearrange the attributes to avoid duplicates:
+
+```diff
+-using Allure.Xunit.Attributes;
++using Allure.Net.Commons.Attributes;
+using Xunit;
+
+-[AllureEpic(["Epic 1"], true)]
+public class TestClass
+{
+    [Fact]
+-   [AllureEpic(["Epic 2"], true)]
++   [AllureEpic("Epic 2")]
+    public void Test1()
+    {
+
+    }
+
+    [Fact]
+-   [AllureEpic(["Epic 3"], true)]
++   [AllureEpic("Epic 3")]
+    public void Test1()
+    {
+
+    }
+}
+```
+
+#### Deprecation notice
+
+Attributes from the `Allure.Xunit.Attributes` namespace will be deprecated in one of the future
+releases. Please, migrate to `Allure.Net.Commons.Attributes`.
+
+### New in 2.12.0: Namespaces consolidated to Allure.Xunit
 
 Previously, the package contained a mix of `Allure.Xunit` and `Allure.XUnit`
 namespaces. Starting from 2.12.0, you should only use `Allure.Xunit`. The API is
