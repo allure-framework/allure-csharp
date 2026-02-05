@@ -26,7 +26,7 @@ public class AllureDescriptionAttribute(string markdownText) : AllureMetadataAtt
     /// the attributes are applied:
     /// <list type="number">
     /// <item>Interfaces before classes/structs.</item>
-    /// <item>Base classes/structs before derived classes/structs.</item>
+    /// <item>Base classes before derived classes.</item>
     /// <item>Classes/structs before methods.</item>
     /// <item>Base methods before method overrides.</item>
     /// </list>

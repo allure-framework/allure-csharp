@@ -46,7 +46,7 @@ public abstract class AllureMetadataAttribute : Attribute
     /// <list type="number">
     /// <item>Attributes of interfaces before attributes of classes/structs.</item>
     /// <item>
-    /// Attributes of base classes/structs before attributes of derived classes/structs.
+    /// Attributes of base classes before attributes of derived classes.
     /// </item>
     /// </list>
     /// </remarks>
@@ -69,7 +69,7 @@ public abstract class AllureMetadataAttribute : Attribute
     /// <list type="number">
     /// <item>Attributes of interfaces before attributes of classes/structs.</item>
     /// <item>
-    /// Attributes of base classes/structs before attributes of derived classes/structs.
+    /// Attributes of base classes before attributes of derived classes.
     /// </item>
     /// <item>Attributes of classes/structs before attributes of methods</item>
     /// <item>Attributes of base methods before attributes of methods overrides.</item>
@@ -105,7 +105,7 @@ public abstract class AllureMetadataAttribute : Attribute
     /// The following is guaranteed about the order of application:
     /// <list type="number">
     /// <item>Interfaces are handled before classes/structs.</item>
-    /// <item>Base classes/structs are handled before derived classes/structs.</item>
+    /// <item>Base classes are handled before derived classes.</item>
     /// </list>
     /// </remarks>
     public static void ApplyTypeAttributes(TestResult testResult, Type type)
@@ -124,7 +124,7 @@ public abstract class AllureMetadataAttribute : Attribute
     /// The following is guaranteed about the order of application:
     /// <list type="number">
     /// <item>Interfaces are handled before classes/structs.</item>
-    /// <item>Base classes/structs are handled before derived classes/structs.</item>
+    /// <item>Base classes are handled before derived classes.</item>
     /// <item>Classes/structs are handled before methods</item>
     /// <item>Base methods are handled before methods overrides.</item>
     /// </list>
