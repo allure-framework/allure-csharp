@@ -183,14 +183,16 @@ namespace Allure.Net.Commons.Tests
                 });
                 context = lifecycle.Context;
             });
+
             await lifecycle.RunInContextAsync(context, async () =>
             {
                 lifecycle.StopTestCase();
-                await Task.Delay(1);
+                await Task.Yield();
                 lifecycle.WriteTestCase();
             });
 
             Assert.That(writer.testResults, Is.Not.Empty);
+            Assert.That(lifecycle.Context.HasTest, Is.False);
         }
 
         [Test]

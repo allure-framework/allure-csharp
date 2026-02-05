@@ -202,16 +202,9 @@ public class AllureLifecycle
             return;
         }
 
-        var originalContext = this.Context;
-        try
-        {
-            this.Context = context;
-            await asyncAction();
-        }
-        finally
-        {
-            this.Context = originalContext;
-        }
+        // This change will be discarded once the method exits because it's async.
+        this.Context = context;
+        await asyncAction();
     }
 
     /// <summary>
