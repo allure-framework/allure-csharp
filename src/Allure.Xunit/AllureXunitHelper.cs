@@ -264,12 +264,8 @@ namespace Allure.Xunit
         {
             var method = xunitTestMethod.Method.ToRuntimeMethod();
             var testClass = xunitTestMethod.TestClass.Class.ToRuntimeType();
-            var testClassAttributes
-                = AllureMetadataAttribute
-                    .GetTypeAttributes(testClass)
-                    .Where(static (a) => a is not AllureNameAttribute);
 
-            AllureMetadataAttribute.ApplyAttributes(testResult, testClassAttributes);
+            AllureMetadataAttribute.ApplyTypeAttributes(testResult, testClass);
             AllureMetadataAttribute.ApplyMethodAttributes(testResult, method);
         }
 

@@ -378,6 +378,19 @@ class AttributeApplicationTests
         );
     }
 
+    [Test]
+    public void AllureNameFromTypeNotApplied()
+    {
+        TestResult tr = new();
+        var type = typeof(WithAllureNameOnType);
+        var method = type.GetMethod(nameof(WithAllureNameOnType.TargetMethod));
+
+        AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(WithAllureNameOnType));
+        AllureMetadataAttribute.ApplyAllAttributes(tr, method);
+
+        Assert.That(tr.name, Is.Null);
+    }
+
     #region Types to check attribute application to methods
 
     abstract class MethodsWithAttrsBase
@@ -427,6 +440,12 @@ class AttributeApplicationTests
     [AllureFeature("Direct feature")]
     [AllureStory("Direct story")]
     class MultiSourceAttributes : ClassWithAttrs, IInterfaceWithAttributes { }
+
+    [AllureName("Foo")]
+    class WithAllureNameOnType
+    {
+        public static void TargetMethod() { }
+    }
 
     #endregion
 

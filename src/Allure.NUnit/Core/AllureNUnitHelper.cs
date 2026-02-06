@@ -276,12 +276,8 @@ namespace Allure.NUnit.Core
         static void ApplyAllureAttributes(ITest test, TestResult testResult)
         {
             var testFixtureClass = GetTestFixture(test).TypeInfo.Type;
-            var testFixtureAttributes
-                = AllureMetadataAttribute
-                    .GetTypeAttributes(testFixtureClass)
-                    .Where(static (a) => a is not AllureNameAttribute);
 
-            AllureMetadataAttribute.ApplyAttributes(testResult, testFixtureAttributes);
+            AllureMetadataAttribute.ApplyTypeAttributes(testResult, testFixtureClass);
             AllureMetadataAttribute.ApplyMethodAttributes(testResult, test.Method.MethodInfo);
         }
 

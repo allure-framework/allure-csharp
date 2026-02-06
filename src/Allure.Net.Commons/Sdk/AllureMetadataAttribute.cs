@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Allure.Net.Commons.Attributes;
 
 #nullable enable
 
@@ -110,7 +111,11 @@ public abstract class AllureMetadataAttribute : Attribute
     /// </remarks>
     public static void ApplyTypeAttributes(TestResult testResult, Type type)
     {
-        foreach (var attr in GetTypeAttributes(type))
+        var typeAttributesToApply
+            = GetTypeAttributes(type)
+                .Where(static (a) => a is not AllureNameAttribute);
+
+        foreach (var attr in typeAttributesToApply)
         {
             attr.Apply(testResult);
         }
@@ -131,10 +136,8 @@ public abstract class AllureMetadataAttribute : Attribute
     /// </remarks>
     public static void ApplyAllAttributes(TestResult testResult, MethodInfo method)
     {
-        foreach (var attr in GetAllAttributes(method))
-        {
-            attr.Apply(testResult);
-        }
+        ApplyTypeAttributes(testResult, method.DeclaringType);
+        ApplyMethodAttributes(testResult, method);
     }
 
     /// <summary>
