@@ -109,7 +109,7 @@ Use the attributes defined in the `Allure.Net.Commons.Attributes` namespaces:
 |`[AllureAfter]`          |Creates a tear down fixture from the method call.                      |Method.                  |Uses AspectInjector under the hood.|
 |`[AllureAttachment]`     |Creates an attachment from the method's return value.                  |Method.                  |Only supports `string` and `byte[]` return types. Uses AspectInjector under the hood.|
 |`[AllureBddHierarchy]`   |Adds the `epic`, `feature`, and `story` labels to test results at once.|Method, class, interface.|This is a shorthand for `[AllureEpic]`, `AllureFeature`, and `[AllureStory]`.|
-|`[AllureBefore]`         |Creates a set up fixture from the method or constructor call.          |Method, constructor.     |Uses AspectInjector under the hood.|
+|`[AllureBefore]`         |Creates a setup fixture from the method or constructor call.           |Method, constructor.     |Uses AspectInjector under the hood.|
 |`[AllureDescription]`    |Sets a description of test results.                                    |Method, class, interface.|If applied multiple times with `Append` set, all the strings are joined with `\n\n`.|
 |`[AllureDescriptionHtml]`|Sets a description of test results in raw HTML.                        |Method, class, interface.|If applied multiple times with `Append` set, all the strings are joined (no separator used).|
 |`[AllureEpic]`           |Adds the `epic` label to test results.                                 |Method, class, interface.|Discards the default BDD hierarchy.|
