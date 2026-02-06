@@ -11,7 +11,7 @@ namespace Allure.Net.Commons.Sdk;
 /// <summary>
 /// A base class for attributes that apply metadata to test results.
 /// </summary>
-public abstract class AllureMetadataAttribute : Attribute
+public abstract class AllureApiAttribute : Attribute
 {
     /// <summary>
     /// Default targets for Allure metadata attributes.
@@ -34,9 +34,9 @@ public abstract class AllureMetadataAttribute : Attribute
     /// Attributes of the base methods (virtual or abstract) are guaranteed to appear
     /// before attributes of the derived ones.
     /// </remarks>
-    public static IEnumerable<AllureMetadataAttribute> GetMethodAttributes(MethodInfo method)
+    public static IEnumerable<AllureApiAttribute> GetMethodAttributes(MethodInfo method)
         => method
-            .GetCustomAttributes<AllureMetadataAttribute>()
+            .GetCustomAttributes<AllureApiAttribute>()
             .Reverse();
 
     /// <summary>
@@ -51,14 +51,14 @@ public abstract class AllureMetadataAttribute : Attribute
     /// </item>
     /// </list>
     /// </remarks>
-    public static IEnumerable<AllureMetadataAttribute> GetTypeAttributes(Type type)
+    public static IEnumerable<AllureApiAttribute> GetTypeAttributes(Type type)
         => type
-            .GetCustomAttributes<AllureMetadataAttribute>()
+            .GetCustomAttributes<AllureApiAttribute>()
             .Concat(
                 type
                     .GetInterfaces()
                     .SelectMany(static (iFace) =>
-                        iFace.GetCustomAttributes<AllureMetadataAttribute>()))
+                        iFace.GetCustomAttributes<AllureApiAttribute>()))
             .Reverse();
 
     /// <summary>
@@ -76,7 +76,7 @@ public abstract class AllureMetadataAttribute : Attribute
     /// <item>Attributes of base methods before attributes of methods overrides.</item>
     /// </list>
     /// </remarks>
-    public static IEnumerable<AllureMetadataAttribute> GetAllAttributes(MethodInfo method)
+    public static IEnumerable<AllureApiAttribute> GetAllAttributes(MethodInfo method)
         => GetTypeAttributes(method.DeclaringType)
             .Concat(
                 GetMethodAttributes(method)
@@ -145,7 +145,7 @@ public abstract class AllureMetadataAttribute : Attribute
     /// </summary>
     public static void ApplyAttributes(
         TestResult testResult,
-        IEnumerable<AllureMetadataAttribute> attributes
+        IEnumerable<AllureApiAttribute> attributes
     )
     {
         foreach (var attribute in attributes)

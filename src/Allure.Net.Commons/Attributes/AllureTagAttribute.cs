@@ -12,7 +12,7 @@ namespace Allure.Net.Commons.Attributes;
 /// </summary>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
 public class AllureTagAttribute(string tag, params string[] moreTags)
-    : AllureMetadataAttribute
+    : AllureApiAttribute
 {
     /// <summary>
     /// The provided tags.

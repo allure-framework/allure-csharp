@@ -277,8 +277,8 @@ namespace Allure.NUnit.Core
         {
             var testFixtureClass = GetTestFixture(test).TypeInfo.Type;
 
-            AllureMetadataAttribute.ApplyTypeAttributes(testResult, testFixtureClass);
-            AllureMetadataAttribute.ApplyMethodAttributes(testResult, test.Method.MethodInfo);
+            AllureApiAttribute.ApplyTypeAttributes(testResult, testFixtureClass);
+            AllureApiAttribute.ApplyMethodAttributes(testResult, test.Method.MethodInfo);
         }
 
         static void ApplyLegacyAllureAttributes(ITest test, TestResult testResult)
@@ -309,7 +309,7 @@ namespace Allure.NUnit.Core
         }
 
         static string ResolveSubSuite(TestFixture testFixture)
-            => AllureMetadataAttribute
+            => AllureApiAttribute
                 .GetTypeAttributes(testFixture.TypeInfo.Type)
                 .OfType<AllureNameAttribute>()
                 .LastOrDefault()

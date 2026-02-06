@@ -13,7 +13,7 @@ namespace Allure.Net.Commons.Attributes;
 /// exists in the configuration.
 /// </param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureMetadataAttribute
+public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureApiAttribute
 {
     /// <summary>
     /// The ID of the TMS item or its full URL.

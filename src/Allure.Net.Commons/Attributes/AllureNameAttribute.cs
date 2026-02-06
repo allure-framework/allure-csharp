@@ -13,7 +13,7 @@ namespace Allure.Net.Commons.Attributes;
     AllowMultiple = false,
     Inherited = false
 )]
-public class AllureNameAttribute(string name) : AllureMetadataAttribute
+public class AllureNameAttribute(string name) : AllureApiAttribute
 {
     /// <summary>
     /// The provided name.

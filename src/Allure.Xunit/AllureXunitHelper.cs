@@ -139,7 +139,7 @@ namespace Allure.Xunit
         }
 
         static string? ResolveSubSuite(ITypeInfo xunitTestClass, Type? testClass, string? @namespace)
-            => (testClass is null ? null : AllureMetadataAttribute
+            => (testClass is null ? null : AllureApiAttribute
                 .GetTypeAttributes(testClass)
                 .OfType<AllureNameAttribute>()
                 .LastOrDefault()
@@ -265,8 +265,8 @@ namespace Allure.Xunit
             var method = xunitTestMethod.Method.ToRuntimeMethod();
             var testClass = xunitTestMethod.TestClass.Class.ToRuntimeType();
 
-            AllureMetadataAttribute.ApplyTypeAttributes(testResult, testClass);
-            AllureMetadataAttribute.ApplyMethodAttributes(testResult, method);
+            AllureApiAttribute.ApplyTypeAttributes(testResult, testClass);
+            AllureApiAttribute.ApplyMethodAttributes(testResult, method);
         }
 
         static void ApplyLegacyAllureAttributes(

@@ -13,7 +13,7 @@ namespace Allure.Net.Commons.Attributes;
 /// the link's type must exist in the configuration.
 /// </param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureLinkAttribute(string url) : AllureMetadataAttribute
+public class AllureLinkAttribute(string url) : AllureApiAttribute
 {
     /// <summary>
     /// The URL of the link.

@@ -9,7 +9,7 @@ namespace Allure.Net.Commons.Attributes;
 /// Applies the whole BDD hierarchy at once.
 /// </summary>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = false, Inherited = true)]
-public class AllureBddHierarchyAttribute : AllureMetadataAttribute
+public class AllureBddHierarchyAttribute : AllureApiAttribute
 {
     /// <summary>
     /// Value for the <c>epic</c> label.

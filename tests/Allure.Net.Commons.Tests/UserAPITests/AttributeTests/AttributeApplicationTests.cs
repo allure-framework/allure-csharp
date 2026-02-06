@@ -12,7 +12,7 @@ class AttributeApplicationTests
         TestResult tr = new();
         var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Foo));
 
-        AllureMetadataAttribute.ApplyMethodAttributes(tr, method);
+        AllureApiAttribute.ApplyMethodAttributes(tr, method);
 
         Assert.That(
             tr.labels,
@@ -30,8 +30,8 @@ class AttributeApplicationTests
         TestResult tr = new();
         var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Foo));
 
-        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetMethodAttributes(method);
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -49,7 +49,7 @@ class AttributeApplicationTests
         TestResult tr = new();
         var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Bar));
 
-        AllureMetadataAttribute.ApplyMethodAttributes(tr, method);
+        AllureApiAttribute.ApplyMethodAttributes(tr, method);
 
         Assert.That(
             tr.labels,
@@ -67,8 +67,8 @@ class AttributeApplicationTests
         TestResult tr = new();
         var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Bar));
 
-        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetMethodAttributes(method);
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -86,7 +86,7 @@ class AttributeApplicationTests
         TestResult tr = new();
         var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Baz));
 
-        AllureMetadataAttribute.ApplyMethodAttributes(tr, method);
+        AllureApiAttribute.ApplyMethodAttributes(tr, method);
 
         Assert.That(
             tr.labels,
@@ -104,8 +104,8 @@ class AttributeApplicationTests
         TestResult tr = new();
         var method = typeof(MethodsWithAttrs).GetMethod(nameof(MethodsWithAttrs.Baz));
 
-        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetMethodAttributes(method);
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -124,7 +124,7 @@ class AttributeApplicationTests
         var method = typeof(AttributeApplicationOrderChild)
             .GetMethod(nameof(AttributeApplicationOrderChild.TargetMethod));
 
-        AllureMetadataAttribute.ApplyMethodAttributes(tr, method);
+        AllureApiAttribute.ApplyMethodAttributes(tr, method);
 
         Assert.That(tr.description, Is.EqualTo("baz\n\nqut"));
     }
@@ -136,8 +136,8 @@ class AttributeApplicationTests
         var method = typeof(AttributeApplicationOrderChild)
             .GetMethod(nameof(AttributeApplicationOrderChild.TargetMethod));
 
-        var attrs = AllureMetadataAttribute.GetMethodAttributes(method);
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetMethodAttributes(method);
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(tr.description, Is.EqualTo("baz\n\nqut"));
     }
@@ -147,7 +147,7 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(ClassWithAttrs));
+        AllureApiAttribute.ApplyTypeAttributes(tr, typeof(ClassWithAttrs));
 
         Assert.That(
             tr.labels,
@@ -164,8 +164,8 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(ClassWithAttrs));
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetTypeAttributes(typeof(ClassWithAttrs));
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -182,7 +182,7 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(InheritedFromClassAttributes));
+        AllureApiAttribute.ApplyTypeAttributes(tr, typeof(InheritedFromClassAttributes));
 
         Assert.That(
             tr.labels,
@@ -199,8 +199,8 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(InheritedFromClassAttributes));
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetTypeAttributes(typeof(InheritedFromClassAttributes));
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -217,7 +217,7 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(InheritedFromInterfaceAttributes));
+        AllureApiAttribute.ApplyTypeAttributes(tr, typeof(InheritedFromInterfaceAttributes));
 
         Assert.That(
             tr.labels,
@@ -234,8 +234,8 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(InheritedFromInterfaceAttributes));
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetTypeAttributes(typeof(InheritedFromInterfaceAttributes));
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -252,7 +252,7 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(MultiSourceAttributes));
+        AllureApiAttribute.ApplyTypeAttributes(tr, typeof(MultiSourceAttributes));
 
         Assert.That(
             tr.labels,
@@ -275,8 +275,8 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(MultiSourceAttributes));
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetTypeAttributes(typeof(MultiSourceAttributes));
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -299,7 +299,7 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(AttributeApplicationOrderChild));
+        AllureApiAttribute.ApplyTypeAttributes(tr, typeof(AttributeApplicationOrderChild));
 
         Assert.That(tr.description, Is.EqualTo("foo\n\nbar\n\nqux"));
     }
@@ -309,8 +309,8 @@ class AttributeApplicationTests
     {
         TestResult tr = new();
 
-        var attrs = AllureMetadataAttribute.GetTypeAttributes(typeof(AttributeApplicationOrderChild));
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetTypeAttributes(typeof(AttributeApplicationOrderChild));
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(tr.description, Is.EqualTo("foo\n\nbar\n\nqux"));
     }
@@ -322,7 +322,7 @@ class AttributeApplicationTests
         var method = typeof(ApplyAllInherited)
             .GetMethod(nameof(ApplyAllInherited.TargetMethod));
 
-        AllureMetadataAttribute.ApplyAllAttributes(tr, method);
+        AllureApiAttribute.ApplyAllAttributes(tr, method);
 
         Assert.That(
             tr.labels,
@@ -353,8 +353,8 @@ class AttributeApplicationTests
         var method = typeof(ApplyAllInherited)
             .GetMethod(nameof(ApplyAllInherited.TargetMethod));
 
-        var attrs = AllureMetadataAttribute.GetAllAttributes(method);
-        AllureMetadataAttribute.ApplyAttributes(tr, attrs);
+        var attrs = AllureApiAttribute.GetAllAttributes(method);
+        AllureApiAttribute.ApplyAttributes(tr, attrs);
 
         Assert.That(
             tr.labels,
@@ -385,8 +385,8 @@ class AttributeApplicationTests
         var type = typeof(WithAllureNameOnType);
         var method = type.GetMethod(nameof(WithAllureNameOnType.TargetMethod));
 
-        AllureMetadataAttribute.ApplyTypeAttributes(tr, typeof(WithAllureNameOnType));
-        AllureMetadataAttribute.ApplyAllAttributes(tr, method);
+        AllureApiAttribute.ApplyTypeAttributes(tr, typeof(WithAllureNameOnType));
+        AllureApiAttribute.ApplyAllAttributes(tr, method);
 
         Assert.That(tr.name, Is.Null);
     }

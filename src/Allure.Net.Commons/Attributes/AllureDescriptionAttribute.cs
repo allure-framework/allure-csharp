@@ -10,7 +10,7 @@ namespace Allure.Net.Commons.Attributes;
 /// </summary>
 /// <param name="markdownText">A description text. Markdown is supported.</param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureDescriptionAttribute(string markdownText) : AllureMetadataAttribute
+public class AllureDescriptionAttribute(string markdownText) : AllureApiAttribute
 {
     /// <summary>
     /// Description text in Markdown format.

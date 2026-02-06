@@ -13,7 +13,7 @@ namespace Allure.Net.Commons.Attributes;
 /// </remarks>
 /// <param name="htmlText">A description text in HTML.</param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureDescriptionHtmlAttribute(string htmlText) : AllureMetadataAttribute
+public class AllureDescriptionHtmlAttribute(string htmlText) : AllureApiAttribute
 {
     /// <summary>
     /// Description text in HTML.

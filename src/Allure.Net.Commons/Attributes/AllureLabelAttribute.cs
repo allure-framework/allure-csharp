@@ -11,7 +11,7 @@ namespace Allure.Net.Commons.Attributes;
 /// <param name="name">A label's name.</param>
 /// <param name="value">A label's value.</param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureLabelAttribute(string name, string value) : AllureMetadataAttribute
+public class AllureLabelAttribute(string name, string value) : AllureApiAttribute
 {
     /// <summary>
     /// The name of the label.

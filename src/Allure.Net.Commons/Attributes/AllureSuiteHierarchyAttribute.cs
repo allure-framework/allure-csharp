@@ -9,7 +9,7 @@ namespace Allure.Net.Commons.Attributes;
 /// Applies the whole suite hierarchy at once.
 /// </summary>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = false, Inherited = true)]
-public class AllureSuiteHierarchyAttribute : AllureMetadataAttribute
+public class AllureSuiteHierarchyAttribute : AllureApiAttribute
 {
     /// <summary>
     /// The value of the <c>parentSuite</c> label.

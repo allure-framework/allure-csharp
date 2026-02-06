@@ -9,14 +9,14 @@ namespace Allure.Net.Commons.Attributes;
 /// <summary>
 /// Applies all the attributes applied to its subclass, serving as a shortcut for them.
 /// </summary>
-public abstract class AllureMetaAttribute : AllureMetadataAttribute
+public abstract class AllureMetaAttribute : AllureApiAttribute
 {
-    private readonly AllureMetadataAttribute[] attributes;
+    private readonly AllureApiAttribute[] attributes;
 
     public AllureMetaAttribute()
     {
         this.attributes = [
-            ..this.GetType().GetCustomAttributes<AllureMetadataAttribute>(true),
+            ..this.GetType().GetCustomAttributes<AllureApiAttribute>(true),
         ];
     }
 

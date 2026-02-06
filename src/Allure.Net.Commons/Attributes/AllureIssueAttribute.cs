@@ -13,7 +13,7 @@ namespace Allure.Net.Commons.Attributes;
 /// exists in the configuration.
 /// </param>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureIssueAttribute(string issueIdOrUrl) : AllureMetadataAttribute
+public class AllureIssueAttribute(string issueIdOrUrl) : AllureApiAttribute
 {
     /// <summary>
     /// The ID of the issue or its full URL.
