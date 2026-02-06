@@ -265,8 +265,8 @@ namespace Allure.Xunit
             var method = xunitTestMethod.Method.ToRuntimeMethod();
             var testClass = xunitTestMethod.TestClass.Class.ToRuntimeType();
 
-            AllureApiAttribute.ApplyTypeAttributes(testResult, testClass);
-            AllureApiAttribute.ApplyMethodAttributes(testResult, method);
+            AllureApiAttribute.ApplyTypeAttributes(testClass, testResult);
+            AllureApiAttribute.ApplyMethodAttributes(method, testResult);
         }
 
         static void ApplyLegacyAllureAttributes(

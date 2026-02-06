@@ -277,8 +277,8 @@ namespace Allure.NUnit.Core
         {
             var testFixtureClass = GetTestFixture(test).TypeInfo.Type;
 
-            AllureApiAttribute.ApplyTypeAttributes(testResult, testFixtureClass);
-            AllureApiAttribute.ApplyMethodAttributes(testResult, test.Method.MethodInfo);
+            AllureApiAttribute.ApplyTypeAttributes(testFixtureClass, testResult);
+            AllureApiAttribute.ApplyMethodAttributes(test.Method.MethodInfo, testResult);
         }
 
         static void ApplyLegacyAllureAttributes(ITest test, TestResult testResult)

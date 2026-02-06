@@ -90,7 +90,7 @@ public abstract class AllureApiAttribute : Attribute
     /// Attributes of the base methods (virtual or abstract) are guaranteed to be applied before
     /// attributes of the derived ones.
     /// </remarks>
-    public static void ApplyMethodAttributes(TestResult testResult, MethodInfo method)
+    public static void ApplyMethodAttributes(MethodInfo method, TestResult testResult)
     {
         foreach (var attr in GetMethodAttributes(method))
         {
@@ -109,7 +109,7 @@ public abstract class AllureApiAttribute : Attribute
     /// <item>Base classes are handled before derived classes.</item>
     /// </list>
     /// </remarks>
-    public static void ApplyTypeAttributes(TestResult testResult, Type type)
+    public static void ApplyTypeAttributes(Type type, TestResult testResult)
     {
         var typeAttributesToApply
             = GetTypeAttributes(type)
@@ -134,18 +134,18 @@ public abstract class AllureApiAttribute : Attribute
     /// <item>Base methods are handled before methods overrides.</item>
     /// </list>
     /// </remarks>
-    public static void ApplyAllAttributes(TestResult testResult, MethodInfo method)
+    public static void ApplyAllAttributes(MethodInfo method, TestResult testResult)
     {
-        ApplyTypeAttributes(testResult, method.DeclaringType);
-        ApplyMethodAttributes(testResult, method);
+        ApplyTypeAttributes(method.DeclaringType, testResult);
+        ApplyMethodAttributes(method, testResult);
     }
 
     /// <summary>
     /// Applies <paramref name="attributes"/> to <paramref name="testResult"/>.
     /// </summary>
     public static void ApplyAttributes(
-        TestResult testResult,
-        IEnumerable<AllureApiAttribute> attributes
+        IEnumerable<AllureApiAttribute> attributes,
+        TestResult testResult
     )
     {
         foreach (var attribute in attributes)
