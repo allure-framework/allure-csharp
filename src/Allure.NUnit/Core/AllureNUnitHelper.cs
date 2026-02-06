@@ -4,9 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
+using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.TestPlan;
-using Allure.NUnit.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -120,7 +121,8 @@ namespace Allure.NUnit.Core
                     ..ModelFunctions.EnumerateGlobalLabels(),
                 ]
             };
-            UpdateTestDataFromAllureAttributes(test, testResult);
+            ApplyLegacyAllureAttributes(test, testResult);
+            ApplyAllureAttributes(test, testResult);
             AddTestParametersFromNUnit(test, testResult);
             SetIdentifiers(test, testResult);
             return testResult;
@@ -262,27 +264,24 @@ namespace Allure.NUnit.Core
 
         static void AddTestParametersFromNUnit(ITest test, TestResult testResult)
         {
-            var arguments = CollectNUnitArguments(test);
+            var parameters = test.Method.MethodInfo.GetParameters();
+            var arguments = test.Arguments;
             var formatters = AllureLifecycle.TypeFormatters;
-            foreach (var (name, value) in arguments)
-            {
-                testResult.parameters.Add(new()
-                {
-                    name = name,
-                    value = FormatFunctions.Format(value, formatters)
-                });
-            }
+
+            testResult.parameters.AddRange(
+                ModelFunctions.CreateParameters(parameters, arguments, formatters)
+            );
         }
 
-        static IEnumerable<(string, object)> CollectNUnitArguments(ITest test) =>
-            test.Method.MethodInfo.GetParameters()
-                .Select(p => p.Name)
-                .Zip(
-                    test.Arguments,
-                    (n, v) => (n, v)
-                );
+        static void ApplyAllureAttributes(ITest test, TestResult testResult)
+        {
+            var testFixtureClass = GetTestFixture(test).TypeInfo.Type;
 
-        static void UpdateTestDataFromAllureAttributes(ITest test, TestResult testResult)
+            AllureApiAttribute.ApplyTypeAttributes(testFixtureClass, testResult);
+            AllureApiAttribute.ApplyMethodAttributes(test.Method.MethodInfo, testResult);
+        }
+
+        static void ApplyLegacyAllureAttributes(ITest test, TestResult testResult)
         {
             foreach (var attribute in IterateAllAllureAttribites(test))
             {
@@ -290,12 +289,12 @@ namespace Allure.NUnit.Core
             }
         }
 
-        static IEnumerable<AllureTestCaseAttribute> IterateAllAllureAttribites(ITest test) =>
+        static IEnumerable<Attributes.AllureTestCaseAttribute> IterateAllAllureAttribites(ITest test) =>
             test.Method
-                .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                .GetCustomAttributes<Attributes.AllureTestCaseAttribute>(true)
                 .Concat(
                     GetTestFixture(test)
-                        .GetCustomAttributes<AllureTestCaseAttribute>(true)
+                        .GetCustomAttributes<Attributes.AllureTestCaseAttribute>(true)
                 );
 
         static string GetNamespace(string classFullName)
@@ -308,6 +307,14 @@ namespace Allure.NUnit.Core
                     lastDotIndex
                 );
         }
+
+        static string ResolveSubSuite(TestFixture testFixture)
+            => AllureApiAttribute
+                .GetTypeAttributes(testFixture.TypeInfo.Type)
+                .OfType<AllureNameAttribute>()
+                .LastOrDefault()
+                ?.Name
+                ?? GetClassName(testFixture.FullName);
 
         static string GetClassName(string classFullName)
         {
@@ -349,39 +356,66 @@ namespace Allure.NUnit.Core
 
         internal static void ApplyDefaultSuiteHierarchy(ITest test)
         {
-            var testClassFullName = GetTestFixture(test).FullName;
+            var testFixture = GetTestFixture(test);
+            var testClassFullName = testFixture.FullName;
             var assemblyName = test.TypeInfo?.Assembly?.GetName().Name;
             var @namespace = GetNamespace(testClassFullName);
-            var className = GetClassName(testClassFullName);
+            var subSuite = ResolveSubSuite(testFixture);
 
             AllureLifecycle.UpdateTestCase(
                 testResult => ModelFunctions.EnsureSuites(
                     testResult,
                     assemblyName,
                     @namespace,
-                    className
+                    subSuite
                 )
             );
         }
 
         private void UpdateTestDataFromNUnitProperties()
         {
-            foreach (var p in GetTestProperties(PropertyNames.Description))
+            this.ApplyNUnitDescriptions();
+            this.ApplyNUnitAuthors();
+            this.ApplyNUnitCategories();
+        }
+
+        void ApplyNUnitDescriptions()
+        {
+            bool hasDescription = false;
+            AllureLifecycle.UpdateTestCase((tr) =>
             {
-                AllureLifecycle.UpdateTestCase(x => x.description += $"{p}\n"
-                );
+                hasDescription = tr.description is not null || tr.descriptionHtml is not null;
+            });
+
+            if (hasDescription)
+            {
+                // If a description is provided via the Allure API,
+                // NUnit descriptions are ignored.
+                return;
             }
 
-            foreach (var p in GetTestProperties(PropertyNames.Author))
+            foreach (var p in EnumerateTestProperties(PropertyNames.Description))
             {
-                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Owner(p))
-                );
+                AllureLifecycle.UpdateTestCase(x =>
+                    x.description = string.IsNullOrEmpty(x.description)
+                        ? p
+                        : $"{x.description}\n\n{p}");
             }
+        }
 
-            foreach (var p in GetTestProperties(PropertyNames.Category))
+        void ApplyNUnitAuthors()
+        {
+            foreach (var p in EnumerateTestProperties(PropertyNames.Author))
             {
-                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Tag(p))
-                );
+                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Owner(p)));
+            }
+        }
+
+        void ApplyNUnitCategories()
+        {
+            foreach (var p in EnumerateTestProperties(PropertyNames.Category))
+            {
+                AllureLifecycle.UpdateTestCase(x => x.labels.Add(Label.Tag(p)));
             }
         }
 
@@ -402,30 +436,32 @@ namespace Allure.NUnit.Core
             }
         }
 
-        private IEnumerable<string> GetTestProperties(string name)
+        IEnumerable<string> EnumerateTestProperties(string name)
         {
-            var list = new List<string>();
-            var currentTest = _test;
-            while (currentTest.GetType() != typeof(TestSuite)
-                   && currentTest.GetType() != typeof(TestAssembly))
+            var propertyContainers = EnumeratePropertyContainers().Reverse();
+            foreach (var obj in propertyContainers)
             {
-                if (currentTest.Properties.ContainsKey(name))
+                if (obj.Properties.ContainsKey(name))
                 {
-                    if (currentTest.Properties[name].Count > 0)
+                    for (var i = 0; i < obj.Properties[name].Count; i++)
                     {
-                        for (var i = 0; i < currentTest.Properties[name].Count; i++)
-                        {
-                            list.Add(
-                                currentTest.Properties[name][i].ToString()
-                            );
-                        }
+                        yield return obj.Properties[name][i].ToString();
                     }
                 }
+            }
+        }
 
-                currentTest = currentTest.Parent;
+        IEnumerable<ITest> EnumeratePropertyContainers()
+        {
+            for (var test = this._test; ShouldContinue(test); test = test.Parent)
+            {
+                yield return test;
             }
 
-            return list;
+            static bool ShouldContinue(ITest test)
+                => test is not null
+                    && test.GetType() != typeof(TestSuite)
+                    && test.GetType() != typeof(TestAssembly);
         }
 
         private string ContainerId => $"tc-{_test.Id}";

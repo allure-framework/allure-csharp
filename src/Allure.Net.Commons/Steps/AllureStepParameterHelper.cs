@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
 
 namespace Allure.Net.Commons.Steps
@@ -144,21 +145,36 @@ namespace Allure.Net.Commons.Steps
             IReadOnlyDictionary<Type, ITypeFormatter> formatters
         )
         {
-            return metadata.GetParameters()
-                .Select(x => (
-                    name: x.GetCustomAttribute<AbstractNameAttribute>()?.Name ?? x.Name,
-                    skip: x.GetCustomAttribute<AbstractSkipAttribute>() != null))
-                .Zip(args,
-                    (parameter, value) => parameter.skip
-                        ? null
-                        : new Parameter
-                        {
-                            name = parameter.name,
-                            value = FormatFunctions.Format(value, formatters)
-                        })
-                .Where(x => x != null)
-                .ToList();
+            return [
+                .. metadata
+                    .GetParameters()
+                    .Select(x => (
+                        name: GetCustomParameterName(x) ?? x.Name,
+                        skip: ShouldParameterBeIgnored(x),
+                        mode: GetCustomParameterMode(x)))
+                    .Zip(args,
+                        (parameter, value) => parameter.skip
+                            ? null
+                            : new Parameter
+                            {
+                                name = parameter.name,
+                                value = FormatFunctions.Format(value, formatters),
+                                mode = parameter.mode,
+                            })
+                    .Where(x => x != null)
+            ];
         }
+
+        static string GetCustomParameterName(ParameterInfo pInfo) =>
+            pInfo.GetCustomAttribute<AllureParameterAttribute>()?.Name
+                ?? pInfo.GetCustomAttribute<AbstractNameAttribute>()?.Name;
+
+        static bool ShouldParameterBeIgnored(ParameterInfo pInfo) =>
+            pInfo.GetCustomAttribute<AllureParameterAttribute>()?.Ignore == true
+                || pInfo.GetCustomAttribute<AbstractSkipAttribute>() is not null;
+
+        static ParameterMode? GetCustomParameterMode(ParameterInfo pInfo) =>
+            pInfo.GetCustomAttribute<AllureParameterAttribute>()?.Mode;
 
         private static bool TrySplit(string s, char separator, out string[] parts)
         {

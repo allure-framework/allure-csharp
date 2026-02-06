@@ -2,9 +2,11 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
-using Allure.Xunit.Attributes;
+using Allure.Net.Commons.Sdk;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -89,25 +91,32 @@ namespace Allure.Xunit
         }
 
         internal static void ApplyTestParameters(
+            MethodInfo methodInfo,
             IEnumerable<IParameterInfo> parameters,
             object[] arguments
         )
         {
-            var parametersList = parameters.Zip(
-                arguments,
-                (param, value) => new Parameter
-                {
-                    name = param.Name,
-                    value = FormatFunctions.Format(
-                        value,
-                        AllureLifecycle.Instance.TypeFormatters
-                    )
-                }
-            ).ToList();
+            var runtimeParameters
+                = methodInfo
+                    .GetParameters()
+                    .ToDictionary(static (p) => p.Name);
+
+            Parameter[] parametersFromMethod = [
+                ..ModelFunctions.CreateParameters(
+                    parameters.Select(static (p) => p.Name),
+                    parameters.Select((p) =>
+                        runtimeParameters.TryGetValue(p.Name, out var pInfo)
+                            ? pInfo.GetCustomAttribute<AllureParameterAttribute>()
+                            : null),
+                    arguments,
+                    AllureLifecycle.Instance.TypeFormatters
+                )
+            ];
 
             AllureLifecycle.Instance.UpdateTestCase(testResult =>
             {
-                testResult.parameters = parametersList;
+                var dynamicParameters = testResult.parameters;
+                testResult.parameters = [..parametersFromMethod, ..dynamicParameters];
             });
         }
 
@@ -117,20 +126,27 @@ namespace Allure.Xunit
             var runtimeType = testClass.ToRuntimeType();
             var assemblyName = runtimeType?.Assembly?.GetName().Name;
             var @namespace = runtimeType?.Namespace;
-            var className =
-                string.IsNullOrEmpty(@namespace)
-                    ? testClass.Name
-                    : testClass.Name?.Substring(@namespace!.Length + 1);
+            var subSuite = ResolveSubSuite(testClass, runtimeType, @namespace);
 
             AllureLifecycle.Instance.UpdateTestCase(
                 testResult => ModelFunctions.EnsureSuites(
                     testResult,
                     assemblyName,
                     @namespace,
-                    className
+                    subSuite
                 )
             );
         }
+
+        static string? ResolveSubSuite(ITypeInfo xunitTestClass, Type? testClass, string? @namespace)
+            => (testClass is null ? null : AllureApiAttribute
+                .GetTypeAttributes(testClass)
+                .OfType<AllureNameAttribute>()
+                .LastOrDefault()
+                ?.Name)
+                ?? (string.IsNullOrEmpty(@namespace)
+                    ? xunitTestClass.Name
+                    : xunitTestClass.Name?.Substring(@namespace!.Length + 1));
 
         internal static void ReportCurrentTestCase()
         {
@@ -179,7 +195,8 @@ namespace Allure.Xunit
                 ]
             };
             SetTestResultIdentifiers(testCase, displayName, testResult);
-            UpdateTestDataFromAttributes(testResult, testMethod);
+            ApplyLegacyAllureAttributes(testResult, testMethod);
+            ApplyAllureAttributes(testResult, testMethod);
             return testResult;
         }
 
@@ -243,23 +260,32 @@ namespace Allure.Xunit
             testResult.historyId = displayName;
         }
 
-        static void UpdateTestDataFromAttributes(
+        static void ApplyAllureAttributes(TestResult testResult, ITestMethod xunitTestMethod)
+        {
+            var method = xunitTestMethod.Method.ToRuntimeMethod();
+            var testClass = xunitTestMethod.TestClass.Class.ToRuntimeType();
+
+            AllureApiAttribute.ApplyTypeAttributes(testClass, testResult);
+            AllureApiAttribute.ApplyMethodAttributes(method, testResult);
+        }
+
+        static void ApplyLegacyAllureAttributes(
             TestResult testResult,
             ITestMethod method
         )
         {
             var classAttributes = method.TestClass.Class.GetCustomAttributes(
-                typeof(IAllureInfo)
+                typeof(Attributes.IAllureInfo)
             );
             var methodAttributes = method.Method.GetCustomAttributes(
-                typeof(IAllureInfo)
+                typeof(Attributes.IAllureInfo)
             );
 
             foreach (var attribute in classAttributes.Concat(methodAttributes))
             {
                 switch (((IReflectionAttributeInfo)attribute).Attribute)
                 {
-                    case AllureFeatureAttribute featureAttribute:
+                    case Attributes.AllureFeatureAttribute featureAttribute:
                         testResult.labels.AddDistinct(
                             "feature",
                             featureAttribute.Features,
@@ -267,43 +293,43 @@ namespace Allure.Xunit
                         );
                         break;
 
-                    case AllureLinkAttribute linkAttribute:
+                    case Attributes.AllureLinkAttribute linkAttribute:
                         testResult.links.Add(linkAttribute.Link);
                         break;
 
-                    case AllureIssueAttribute issueAttribute:
+                    case Attributes.AllureIssueAttribute issueAttribute:
                         testResult.links.Add(issueAttribute.IssueLink);
                         break;
 
-                    case AllureOwnerAttribute ownerAttribute:
+                    case Attributes.AllureOwnerAttribute ownerAttribute:
                         testResult.labels.AddDistinct(
                             Label.Owner(ownerAttribute.Owner),
                             ownerAttribute.Overwrite
                         );
                         break;
 
-                    case AllureSuiteAttribute suiteAttribute:
+                    case Attributes.AllureSuiteAttribute suiteAttribute:
                         testResult.labels.AddDistinct(
                             Label.Suite(suiteAttribute.Suite),
                             suiteAttribute.Overwrite
                         );
                         break;
 
-                    case AllureSubSuiteAttribute subSuiteAttribute:
+                    case Attributes.AllureSubSuiteAttribute subSuiteAttribute:
                         testResult.labels.AddDistinct(
                             Label.SubSuite(subSuiteAttribute.SubSuite),
                             subSuiteAttribute.Overwrite
                         );
                         break;
 
-                    case AllureEpicAttribute epicAttribute:
+                    case Attributes.AllureEpicAttribute epicAttribute:
                         testResult.labels.AddDistinct(
                             Label.Epic(epicAttribute.Epic),
                             epicAttribute.Overwrite
                         );
                         break;
 
-                    case AllureTagAttribute tagAttribute:
+                    case Attributes.AllureTagAttribute tagAttribute:
                         testResult.labels.AddDistinct(
                             "tag",
                             tagAttribute.Tags,
@@ -311,21 +337,21 @@ namespace Allure.Xunit
                         );
                         break;
 
-                    case AllureSeverityAttribute severityAttribute:
+                    case Attributes.AllureSeverityAttribute severityAttribute:
                         testResult.labels.AddDistinct(
                             Label.Severity(severityAttribute.Severity),
                             true
                         );
                         break;
 
-                    case AllureParentSuiteAttribute parentSuiteAttribute:
+                    case Attributes.AllureParentSuiteAttribute parentSuiteAttribute:
                         testResult.labels.AddDistinct(
                             Label.ParentSuite(parentSuiteAttribute.ParentSuite),
                             parentSuiteAttribute.Overwrite
                         );
                         break;
 
-                    case AllureStoryAttribute storyAttribute:
+                    case Attributes.AllureStoryAttribute storyAttribute:
                         testResult.labels.AddDistinct(
                             "story",
                             storyAttribute.Stories,
@@ -333,11 +359,11 @@ namespace Allure.Xunit
                         );
                         break;
 
-                    case AllureDescriptionAttribute descriptionAttribute:
+                    case Attributes.AllureDescriptionAttribute descriptionAttribute:
                         testResult.description = descriptionAttribute.Description;
                         break;
 
-                    case AllureIdAttribute allureIdAttribute:
+                    case Attributes.AllureIdAttribute allureIdAttribute:
                         var allureIdLabel = new Label
                         {
                             name = "ALLURE_ID",
@@ -346,7 +372,7 @@ namespace Allure.Xunit
                         testResult.labels.AddDistinct(allureIdLabel, false);
                         break;
 
-                    case AllureLabelAttribute labelAttribute:
+                    case Attributes.AllureLabelAttribute labelAttribute:
                         var label = new Label()
                         {
                             name = labelAttribute.Label,

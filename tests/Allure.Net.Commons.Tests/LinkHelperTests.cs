@@ -38,7 +38,7 @@ namespace Allure.Net.Commons.Tests
             {
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("123456"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("Custom Url"));
-                Assert.That(urls, Has.Exactly(1).Items.EqualTo("Empty Type"));
+                Assert.That(urls, Has.Exactly(1).Items.EqualTo("Empty%20Type"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://TMS.com/"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://Issue.com/"));
                 Assert.That(urls, Has.Exactly(1).Items.EqualTo("http://Issue.com/Issue%20URL"));

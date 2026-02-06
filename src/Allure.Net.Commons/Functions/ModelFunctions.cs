@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Configuration;
 
 #nullable enable
@@ -136,6 +138,90 @@ public static class ModelFunctions
         from kv in Config.GlobalLabels ?? []
         where !string.IsNullOrEmpty(kv.Key) && !string.IsNullOrEmpty(kv.Value)
         select new Label { name = kv.Key, value = kv.Value };
+
+    /// <summary>
+    /// Creates Allure parameter objects from method parameters paired with their values.
+    /// </summary>
+    /// <remarks>
+    /// This method applies <see cref="AllureParameterAttribute"/>.
+    /// </remarks>
+    /// <param name="parameters">
+    /// A sequence of the test method's parameters.
+    /// </param>
+    /// <param name="values">
+    /// A sequence of values.
+    /// The order of the sequence must match the order of <paramref name="parameters"/>
+    /// </param>
+    /// <param name="formatters">
+    /// Custom formatters to convert values of specific types to strings.
+    /// Typically comes from <see cref="AllureLifecycle.TypeFormatters"/>.
+    /// </param>
+    /// <returns>A sequence of Allure parameters.</returns>
+    public static IEnumerable<Parameter> CreateParameters(
+        IEnumerable<ParameterInfo> parameters,
+        IEnumerable<object> values,
+        IReadOnlyDictionary<Type, ITypeFormatter> formatters
+    )
+        => CreateParameters(
+            parameters.Select(static (p) => p.Name),
+            parameters.Select(static (p) => p.GetCustomAttribute<AllureParameterAttribute>()),
+            values,
+            formatters
+        );
+
+    /// <summary>
+    /// Creates Allure parameter objects from parameter names, attributes, and values.
+    /// All three sequences must have a matching order.
+    /// </summary>
+    /// <param name="parameterNames">
+    /// A sequence of parameter names. These names are used by default unless an explicit
+    /// name is provided via <see cref="AllureParameterAttribute.Name"/>.
+    /// </param>
+    /// <param name="attributes">
+    /// A sequence of Allure parameter attributes that affect how the parameters are handled.
+    /// If no attribute is defined for the parameter, the corresponding item of this sequence
+    /// must be <c>null</c>.
+    /// See the description of <see cref="AllureParameterAttribute"/> for more details.
+    /// </param>
+    /// <param name="values">A sequence of values.</param>
+    /// <param name="formatters">
+    /// Custom formatters to convert values of specific types to strings.
+    /// Typically comes from <see cref="AllureLifecycle.TypeFormatters"/>.
+    /// If no formatter is defined to the type, the default algorithm is used that converts
+    /// the value into its JSON representation.
+    /// </param>
+    /// <returns>A sequence of Allure parameters.</returns>
+    public static IEnumerable<Parameter> CreateParameters(
+        IEnumerable<string> parameterNames,
+        IEnumerable<AllureParameterAttribute?> attributes,
+        IEnumerable<object> values,
+        IReadOnlyDictionary<Type, ITypeFormatter> formatters
+    )
+        => parameterNames
+            .Zip(attributes, static (n, a) => (name: n, attr: a))
+            .Zip(values, static (p, v) => (p.name, p.attr, value: v))
+            .Where(static (tuple) => tuple.attr?.Ignore is not true)
+            .Select((tuple) =>
+                CreateParameter(tuple.name, tuple.attr, tuple.value, formatters));
+
+    static Parameter CreateParameter(
+        string parameterName,
+        AllureParameterAttribute? attribute,
+        object? value,
+        IReadOnlyDictionary<Type, ITypeFormatter> formatters
+    )
+        => new()
+        {
+            name = attribute?.Name ?? parameterName,
+            value = FormatFunctions.Format(value, formatters),
+            excluded = attribute?.Excluded == true,
+            mode = ResolveParameterMode(attribute)
+        };
+
+    static ParameterMode? ResolveParameterMode(AllureParameterAttribute? attribute)
+        => attribute is AllureParameterAttribute { Mode: ParameterMode mode and not ParameterMode.Default }
+            ? mode
+            : null;
 
     static bool ShouldAddEnvVarAsLabel(
         [NotNullWhen(true)] string? name,

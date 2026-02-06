@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.TestPlan;
@@ -175,6 +176,35 @@ public class AllureLifecycle
         {
             this.Context = originalContext;
         }
+    }
+
+    /// <summary>
+    /// Binds the provided value as the current Allure context and executes
+    /// the specified function. The context is then restored to the initial
+    /// value. That allows the Allure context to bypass .NET execution
+    /// context boundaries.
+    /// </summary>
+    /// <remarks>
+    /// Unlike <see cref="RunInContext"/>, this method doesn't have a return value
+    /// because changed made by <paramref name="asyncAction"/> to the context
+    /// may be auotmatically reverted upon its exit.
+    /// </remarks>
+    /// <param name="context">
+    /// A context that was previously captured with <see cref="Context"/>.
+    /// If it is null, the code is executed in the current context.
+    /// </param>
+    /// <param name="asyncAction">A code to run.</param>
+    public async Task RunInContextAsync(AllureContext? context, Func<Task> asyncAction)
+    {
+        if (context is null)
+        {
+            await asyncAction();
+            return;
+        }
+
+        // This change will be discarded once the method exits because it's async.
+        this.Context = context;
+        await asyncAction();
     }
 
     /// <summary>

@@ -1,5 +1,4 @@
-using Allure.Net.Commons;
-using Allure.NUnit.Attributes;
+using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
 namespace Allure.NUnit.Tests.Samples.ParentSuiteAttributeOnBaseClass
@@ -14,4 +13,3 @@ namespace Allure.NUnit.Tests.Samples.ParentSuiteAttributeOnBaseClass
         public void TestMethod() { }
     }
 }
-

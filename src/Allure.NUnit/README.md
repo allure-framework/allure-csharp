@@ -32,7 +32,155 @@ Some examples are available [here](https://github.com/allure-framework/allure-cs
 
 ## Notes
 
-### Namespace changed to Allure.NUnit
+### New in 2.15.0: the common Attribute API
+
+Use the attributes in `Allure.Net.Commons.Attributes` instead of `Allure.NUnit.Attributes`. Read more details [here](https://github.com/allure-framework/allure-csharp/pull/647).
+
+In most cases, the migration is as simple as swapping the using directive:
+
+```diff
+- using Allure.NUnit.Attributes;
++ using Allure.Net.Commons.Attributes;
+using Allure.NUnit;
+using NUnit.Framework;
+
+[AllureFeature("My feature")]
+class MyTestClass
+{
+    [AllureStory("My story")]
+    [Test]
+    public void MyTestMethod()
+    {
+
+    }
+}
+```
+
+In some cases, the usage must be updated. They are listed below.
+
+#### `[AllureDescription]`
+
+Set `Append` to keep the concatenation behavior:
+
+```diff
+- using Allure.NUnit.Attributes;
++ using Allure.Net.Commons.Attributes;
+using NUnit.Framework;
+
+-[AllureDescription("First description")]
++[AllureDescription("First description", Append = true)]
+class MyTestClass
+{
+-    [AllureDescription("Second description")]
++    [AllureDescription("Second description", Append = true)]
+    [Test]
+    public void MyTestMethod()
+    {
+
+    }
+}
+```
+
+Use `[AllureDescriptionHtml]` instead of setting `Html`:
+
+```diff
+- using Allure.NUnit.Attributes;
++ using Allure.Net.Commons.Attributes;
+using NUnit.Framework;
+
+class MyTestClass
+{
+-    [AllureDescription("<p>Html text</p>", Html = true)]
++    [AllureDescriptionHtml("<p>Html text</p>")]
+    [Test]
+    public void MyTestMethod()
+    {
+    }
+}
+```
+
+#### `[AllureFeature]`, `[AllureStory]` with multiple values
+
+Use multiple `[AllureFeature]` or `[AllureStory]` attributes instead:
+
+```diff
+- using Allure.NUnit.Attributes;
++ using Allure.Net.Commons.Attributes;
+
+-[AllureFeature("Feature 1", "Feature 2")]
++[AllureFeature("Feature 1")]
++[AllureFeature("Feature 2")]
+-[AllureStory("Story 1", "Story 2")]
++[AllureStory("Story 1")]
++[AllureStory("Story 2")]
+class MyTestClass
+{
+}
+```
+
+#### `[AllureLink]`, `[AllureIssue]`, `[AllureTms]`
+
+Pass the URL or ID as the only positional argument. Use the `Title` property to pass the display
+text. Also, use `[AllureTmsItem]` instead of `[AllureTms]`:
+
+```diff
+- using Allure.NUnit.Attributes;
++ using Allure.Net.Commons.Attributes;
+
+-[AllureLink("Homepage", "https://allurereport.org")]
++[AllureLink("https://allurereport.org", Title = "Homepage")]
+-[AllureIssue("ISSUE-123", "123")]
++[AllureIssue("123", Title = "ISSUE-123")]
+-[AllureTms("TMS-345", "345")]
++[AllureTmsItem("345", Title = "TMS-345")]
+class MyTestClass
+{
+}
+```
+
+#### `[AllureSeverity]`
+
+Always pass an explicit value as the argument:
+
+```diff
+- using Allure.NUnit.Attributes;
++ using Allure.Net.Commons.Attributes;
+
+-[AllureSeverity]
++[AllureSeverity(SeverityLevel.normal)]
+class MyTestClass
+{
+}
+```
+
+#### `[Name]` and `[Skip]`
+
+Use `[AllureParameter]` with `Name` and `Ignore` correspondingly:
+
+```diff
+- using Allure.NUnit.Attributes;
++ using Allure.Net.Commons.Attributes;
+
+class MyTestClass
+{
+    [AllureStep]
+    public void MyStepMethod(
+-        [Name("Foo")] int parameter1,
++        [AllureParameter(Name = "Foo")] int parameter1,
+-        [Skip] int parameter2
++        [AllureParameter(Ignore = true)] int parameter2
+    )
+    {
+    }
+}
+```
+
+#### Deprecation notice
+
+Attributes from the `Allure.NUnit.Attributes` namespace will be deprecated in one of the future
+releases. Please, migrate to `Allure.Net.Commons.Attributes`.
+
+### New in 2.12.0: Namespace changed to Allure.NUnit
 
 Starting from 2.12.0, the namespace `NUnit.Allure` is deprecated. The API in
 that namespace still works, but it will be removed in the future. Please use

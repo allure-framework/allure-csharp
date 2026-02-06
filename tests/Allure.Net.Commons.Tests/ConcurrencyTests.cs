@@ -29,8 +29,8 @@ namespace Allure.Net.Commons.Tests
                 () => this.AddTestWithSteps("test-2", "step-2-1", "step-2-2")
             );
 
-            this.AssertTestWithSteps("test-1", "step-1-1", "step-1-2");
-            this.AssertTestWithSteps("test-2", "step-2-1", "step-2-2");
+            this.AssertTestWithSteps("test-1", false, "step-1-1", "step-1-2");
+            this.AssertTestWithSteps("test-2", false, "step-2-1", "step-2-2");
         }
 
         [Test]
@@ -42,9 +42,9 @@ namespace Allure.Net.Commons.Tests
                 this.AddTestWithStepsAsync("test-3", "step-3-1", "step-3-2")
             );
 
-            this.AssertTestWithSteps("test-1", "step-1-1", "step-1-2");
-            this.AssertTestWithSteps("test-2", "step-2-1", "step-2-2");
-            this.AssertTestWithSteps("test-3", "step-3-1", "step-3-2");
+            this.AssertTestWithSteps("test-1", false, "step-1-1", "step-1-2");
+            this.AssertTestWithSteps("test-2", false, "step-2-1", "step-2-2");
+            this.AssertTestWithSteps("test-3", false, "step-3-1", "step-3-2");
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace Allure.Net.Commons.Tests
                 () => this.AddStep("step-2")
             ));
 
-            this.AssertTestWithSteps("test-1", "step-1", "step-2");
+            this.AssertTestWithSteps("test-1", true, "step-1", "step-2");
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace Allure.Net.Commons.Tests
                 this.AddStepsAsync("step-3")
             ));
 
-            this.AssertTestWithSteps("test-1", "step-1", "step-2", "step-3");
+            this.AssertTestWithSteps("test-1", true, "step-1", "step-2", "step-3");
         }
 
         [Test]
@@ -104,10 +104,11 @@ namespace Allure.Net.Commons.Tests
 
             this.AssertTestWithSteps(
                 "test",
-                ("outer", new object[]
+                false,
+                ("outer", true, new object[]
                 {
-                    ("inner-1", new object[] { "inner-1-1", "inner-1-2" }),
-                    ("inner-2", new object[] { "inner-2-1", "inner-2-2" })
+                    ("inner-1", false, new object[] { "inner-1-1", "inner-1-2" }),
+                    ("inner-2", false, new object[] { "inner-2-1", "inner-2-2" })
                 })
             );
         }
@@ -142,10 +143,11 @@ namespace Allure.Net.Commons.Tests
 
             this.AssertTestWithSteps(
                 "test",
-                ("outer", new object[]
+                false,
+                ("outer", true, new object[]
                 {
-                    ("inner-1", new object[] { "inner-1-1", "inner-1-2" }),
-                    ("inner-2", new object[] { "inner-2-1", "inner-2-2" })
+                    ("inner-1", false, new object[] { "inner-1-1", "inner-1-2" }),
+                    ("inner-2", false, new object[] { "inner-2-1", "inner-2-2" })
                 })
             );
         }
@@ -294,31 +296,37 @@ namespace Allure.Net.Commons.Tests
             this.lifecycle.StopStep();
         }
 
-        void AssertTestWithSteps(string testName, params object[] steps)
+        void AssertTestWithSteps(string testName, bool anyOrder, params object[] steps)
         {
             Assert.That(
                 this.writer.testResults.Select(tr => tr.name),
                 Contains.Item(testName)
             );
             var test = this.writer.testResults.Single(tr => tr.name == testName);
-            this.AssertSteps(test.steps, steps);
+            this.AssertSteps(test.steps, anyOrder, steps);
         }
 
-        void AssertSteps(List<StepResult> actualSteps, params object[] steps)
+        void AssertSteps(List<StepResult> actualSteps, bool anyOrder, params object[] steps)
         {
+            if (anyOrder)
+            {
+                actualSteps = actualSteps.OrderBy(static (sr) => sr.name).ToList();
+            }
+
             var expectedCount = steps.Length;
             Assert.That(actualSteps.Count, Is.EqualTo(expectedCount));
             for (var i = 0; i < expectedCount; i++)
             {
                 var actualStep = actualSteps[i];
                 var step = steps.ElementAt(i);
-                if (!(step is (string expectedStepName, object[] substeps)))
+                if (!(step is (string expectedStepName, bool subStepsInAnyOrder, object[] substeps)))
                 {
                     expectedStepName = (string)step;
-                    substeps = Array.Empty<object>();
+                    substeps = [];
+                    subStepsInAnyOrder = false;
                 }
                 Assert.That(actualStep.name, Is.EqualTo(expectedStepName));
-                this.AssertSteps(actualStep.steps, substeps);
+                this.AssertSteps(actualStep.steps, subStepsInAnyOrder, substeps);
             }
         }
 

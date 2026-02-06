@@ -13,4 +13,3 @@ namespace Allure.NUnit.Tests.Samples.AddParentSuiteFromTest
         }
     }
 }
-

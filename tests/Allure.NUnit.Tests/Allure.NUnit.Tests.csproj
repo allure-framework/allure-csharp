@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AllureSample Update="Samples/DefaultStepAttributes.cs" Properties="AspectInjector_Enabled=true" />
+    <AllureSample Update="Samples/StepAttributes.cs" Properties="AspectInjector_Enabled=true" />
+    <AllureSample Update="Samples/LegacyStepAttributes.cs" Properties="AspectInjector_Enabled=true" />
+    <AllureSample Update="Samples/FixtureAttributes.cs" Properties="AspectInjector_Enabled=true" />
+    <AllureSample Update="Samples/LegacyFixtureAttributes.cs" Properties="AspectInjector_Enabled=true" />
   </ItemGroup>
 
   <ItemGroup>
