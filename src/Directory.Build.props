@@ -5,6 +5,9 @@
     <PropertyGroup>
         <!-- Force public packages declare TFM explicitly -->
         <TargetFramework></TargetFramework>
+
+        <!-- Ensure no project in src is run on its own during dotnet test -->
+        <IsTestProject>false</IsTestProject>
     </PropertyGroup>
 
     <!-- Packaging properties -->

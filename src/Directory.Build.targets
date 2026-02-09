@@ -2,12 +2,19 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
+    <ItemGroup>
+        <!-- Ensure an IDE doesn't run test discovery against these projects. -->
+        <ProjectCapability Remove="TestContainer" />
+    </ItemGroup>
+
     <PropertyGroup>
         <Allure_TransformReadmeSource>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'build', 'TransformReadmeForNuget.cs'))</Allure_TransformReadmeSource>
     </PropertyGroup>
+
     <ItemGroup>
         <NuGetPackInput Include="$(Allure_TransformReadmeSource)" />
     </ItemGroup>
+
     <UsingTask TaskName="Allure_TransformReadmeForNuget"
             TaskFactory="RoslynCodeTaskFactory"
             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
