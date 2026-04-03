@@ -262,9 +262,9 @@
 
         <ItemGroup>
             <_Allure_SampleProjectOutputDirectory
-                Include="@(_Allure_ResolvedSample -> '%(_Allure_ResolvedSample.ProjectBinPath)')"/>
+                Include="@(_Allure_ResolvedSample -> '%(ProjectBinPath)')"/>
             <_Allure_SampleProjectOutputDirectory
-                Include="@(_Allure_ResolvedSample -> '%(_Allure_ResolvedSample.ProjectObjPath)')"/>
+                Include="@(_Allure_ResolvedSample -> '%(ProjectObjPath)')"/>
         </ItemGroup>
 
         <RemoveDuplicates Inputs="@(_Allure_SampleProjectOutputDirectory)">
