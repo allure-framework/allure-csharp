@@ -1,0 +1,15 @@
+using Allure.NUnit.Attributes;
+using NUnit.Framework;
+
+namespace Allure.NUnit.Tests.CustomLabels.Samples.LegacyLabelAttributeOnBaseClass
+{
+    [AllureLabel("foo", "bar")]
+    public class BaseClass {}
+
+    [AllureNUnit]
+    public class TestsClass : BaseClass
+    {
+        [Test]
+        public void TestMethod() { }
+    }
+}
