@@ -51,6 +51,12 @@ public class AllureAttachmentAttribute : Attribute
     public string? Encoding { get; init; }
 
     /// <summary>
+    /// If set to <c>true</c>, creates a global attachment not tied to the current
+    /// test, fixture, or step.
+    /// </summary>
+    public bool Global { get; init; }
+
+    /// <summary>
     /// Creates attachments named after the method.
     /// </summary>
     public AllureAttachmentAttribute() { }

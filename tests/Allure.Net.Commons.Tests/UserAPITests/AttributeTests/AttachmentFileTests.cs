@@ -179,6 +179,35 @@ class AttachmentFileTests : AllureApiTestFixture
         Assert.That(() => this.AttachWithFailedFormatter(new()), Throws.Nothing);
     }
 
+    [Test]
+    public void CreatesGlobalFileAttachmentIfConfiguredWithoutContext()
+    {
+        this.lifecycle.StopTestCase();
+        this.lifecycle.WriteTestCase();
+
+        this.AttachGlobalByFileInfo();
+
+        var globals = this.writer.globals;
+        Assert.That(globals, Has.One.Items);
+
+        var globalAttachments = globals[0].attachments;
+        Assert.That(globalAttachments, Has.One.Items);
+
+        var globalAttachment = globalAttachments[0];
+        Assert.That(globalAttachment.name, Is.EqualTo("foo"));
+        Assert.That(globalAttachment.type, Is.Null);
+    }
+
+    [Test]
+    public void CreatesGlobalFileAttachmentInsteadOfTestAttachmentIfConfigured()
+    {
+        this.AttachGlobalByFileInfo();
+
+        Assert.That(this.testResult.attachments, Is.Empty);
+        Assert.That(this.writer.globals, Has.One.Items);
+        Assert.That(this.writer.globals[0].attachments, Has.One.Items);
+    }
+
     [AllureAttachmentFile]
     string AttachByStringPath() => this.CreateFile("foo", [1,2,3]).FullName;
 
@@ -219,6 +248,9 @@ class AttachmentFileTests : AllureApiTestFixture
         await Task.Yield();
         return this.CreateFile("foo.baz", [1, 2, 3]);
     }
+
+    [AllureAttachmentFile(Global = true)]
+    FileInfo AttachGlobalByFileInfo() => this.CreateFile("foo", [1, 2, 3]);
 
     class InterpolationStub
     {

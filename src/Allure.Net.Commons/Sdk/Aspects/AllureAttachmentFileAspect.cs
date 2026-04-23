@@ -24,7 +24,10 @@ public class AllureAttachmentFileAspect
         [Argument(Source.ReturnValue)] object? returnValue
     )
     {
-        if (!AllureApi.HasTestOrFixture)
+        var attr = metadata.GetCustomAttribute<AllureAttachmentFileAttribute>();
+        var isGlobal = attr?.Global == true;
+
+        if (!isGlobal && !AllureApi.HasTestOrFixture)
         {
             return;
         }
@@ -35,14 +38,19 @@ public class AllureAttachmentFileAspect
             return;
         }
 
-        var attr = metadata.GetCustomAttribute<AllureAttachmentFileAttribute>();
-
         var attachmentName = ResolveAttachmentName(attachmentFile, attr, metadata, arguments);
         var contentType = attr?.ContentType;
         var extension = ResolveExtension(attachmentFile, contentType);
         var content = File.ReadAllBytes(attachmentFile.FullName);
 
-        AllureApi.AddAttachmentInternal(attachmentName, contentType, content, extension);
+        if (isGlobal)
+        {
+            AllureApi.AddGlobalAttachmentInternal(attachmentName, contentType, content, extension);
+        }
+        else
+        {
+            AllureApi.AddAttachmentInternal(attachmentName, contentType, content, extension);
+        }
     }
 
     static FileInfo? ResolveFile(object? value) => value switch

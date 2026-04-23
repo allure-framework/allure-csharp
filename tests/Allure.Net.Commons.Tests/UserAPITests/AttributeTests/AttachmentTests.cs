@@ -243,6 +243,35 @@ class AttachmentTests : AllureApiTestFixture
         Assert.That(() => AttachFailedFormatter(new()), Throws.Nothing);
     }
 
+    [Test]
+    public void CreatesGlobalAttachmentIfConfiguredWithoutContext()
+    {
+        this.lifecycle.StopTestCase();
+        this.lifecycle.WriteTestCase();
+
+        AttachGlobalString();
+
+        var globals = this.writer.globals;
+        Assert.That(globals, Has.One.Items);
+
+        var globalAttachments = globals[0].attachments;
+        Assert.That(globalAttachments, Has.One.Items);
+
+        var globalAttachment = globalAttachments[0];
+        Assert.That(globalAttachment.name, Is.EqualTo(nameof(AttachGlobalString)));
+        Assert.That(globalAttachment.type, Is.EqualTo("text/plain"));
+    }
+
+    [Test]
+    public void CreatesGlobalAttachmentInsteadOfTestAttachmentIfConfigured()
+    {
+        AttachGlobalString();
+
+        Assert.That(this.testResult.attachments, Is.Empty);
+        Assert.That(this.writer.globals, Has.One.Items);
+        Assert.That(this.writer.globals[0].attachments, Has.One.Items);
+    }
+
     [AllureAttachment]
     static byte[] AttachByteArray() => [1, 2, 3];
 
@@ -305,6 +334,9 @@ class AttachmentTests : AllureApiTestFixture
         await Task.Yield();
         return "Lorem Ipsum";
     }
+
+    [AllureAttachment(Global = true)]
+    static string AttachGlobalString() => "Lorem Ipsum";
 
     class InterpolationStub
     {
