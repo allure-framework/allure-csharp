@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <LangVersion>14</LangVersion>
     <Nullable>enable</Nullable>
     <IsTestProject>false</IsTestProject>
     <AspectInjector_Enabled>false</AspectInjector_Enabled>
