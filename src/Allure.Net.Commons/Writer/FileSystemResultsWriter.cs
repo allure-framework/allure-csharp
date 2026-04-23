@@ -47,6 +47,11 @@ namespace Allure.Net.Commons.Writer
             Write(testResult, AllureConstants.TEST_RESULT_CONTAINER_FILE_SUFFIX);
         }
 
+        public void Write(Globals globals)
+        {
+            Write(globals, AllureConstants.GLOBALS_FILE_SUFFIX);
+        }
+
         public void Write(string source, byte[] content)
         {
             using var task = new WriteTask { Filepath = Path.Combine(outputDirectory, source), Content = content };

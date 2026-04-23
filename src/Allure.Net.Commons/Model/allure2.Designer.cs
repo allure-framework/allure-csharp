@@ -548,6 +548,89 @@ namespace Allure.Net.Commons
     }
 
     [System.Diagnostics.DebuggerStepThroughAttribute()]
+    public partial class GlobalAttachment : Attachment
+    {
+
+        #region Private fields
+        private long _timestamp;
+        #endregion
+
+        public long timestamp
+        {
+            get
+            {
+                return this._timestamp;
+            }
+            set
+            {
+                this._timestamp = value;
+            }
+        }
+    }
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    public partial class GlobalError : StatusDetails
+    {
+
+        #region Private fields
+        private long _timestamp;
+        #endregion
+
+        public long timestamp
+        {
+            get
+            {
+                return this._timestamp;
+            }
+            set
+            {
+                this._timestamp = value;
+            }
+        }
+    }
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    public partial class Globals
+    {
+
+        #region Private fields
+        private List<GlobalAttachment> _attachments;
+
+        private List<GlobalError> _errors;
+        #endregion
+
+        public Globals()
+        {
+            this._attachments = new List<GlobalAttachment>();
+            this._errors = new List<GlobalError>();
+        }
+
+        public List<GlobalAttachment> attachments
+        {
+            get
+            {
+                return this._attachments;
+            }
+            set
+            {
+                this._attachments = value;
+            }
+        }
+
+        public List<GlobalError> errors
+        {
+            get
+            {
+                return this._errors;
+            }
+            set
+            {
+                this._errors = value;
+            }
+        }
+    }
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
     public partial class Parameter
     {
 

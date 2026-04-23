@@ -86,5 +86,28 @@ namespace Allure.Net.Commons.Tests
             var resultJson = File.ReadAllText(resultFile.FullName, Encoding.UTF8);
             Assert.That(resultJson, Does.Contain("  "));
         }
+
+        [Test]
+        public void ShouldWriteGlobalsChunk()
+        {
+            var config = new AllureConfiguration { Directory = this.tmpDir.FullName };
+            var writer = new FileSystemResultsWriter(config);
+            var globals = new Globals
+            {
+                errors = new()
+                {
+                    new GlobalError { message = "boom", timestamp = 1 }
+                }
+            };
+
+            writer.Write(globals);
+
+            var resultFile = this.tmpDir.EnumerateFiles().Single();
+            var resultJson = JObject.Parse(File.ReadAllText(resultFile.FullName, Encoding.UTF8));
+            Assert.That(resultFile.Name, Does.EndWith(AllureConstants.GLOBALS_FILE_SUFFIX));
+            Assert.That(resultJson["attachments"], Is.Not.Null);
+            Assert.That(resultJson["errors"], Is.Not.Null);
+            Assert.That(resultJson["errors"]!.Single()!["message"]!.Value<string>(), Is.EqualTo("boom"));
+        }
     }
 }
