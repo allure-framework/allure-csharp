@@ -528,6 +528,87 @@ public static class AllureApi
     }
 
     /// <summary>
+    /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="path">The path to the attached file.</param>
+    public static void AddGlobalAttachment(
+        string name,
+        string type,
+        string path
+    ) =>
+        AddGlobalAttachmentInternal(
+            name: name ?? Path.GetFileName(path),
+            type: type,
+            content: File.ReadAllBytes(path),
+            fileExtension: Path.GetExtension(path)
+        );
+
+    /// <summary>
+    /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="fileExtension">
+    /// The extension of the file that will be available for downloading.
+    /// </param>
+    public static void AddGlobalAttachment(
+        string name,
+        string type,
+        byte[] content,
+        string fileExtension = ""
+    ) => AddGlobalAttachmentInternal(name, type, content, fileExtension);
+
+    /// <summary>
+    /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">
+    /// The name of the attachment. If null, the file name is used.
+    /// </param>
+    public static void AddGlobalAttachment(
+        string path,
+        string? name = null
+    ) =>
+        AddGlobalAttachmentInternal(
+            name: name ?? Path.GetFileName(path),
+            type: MimeTypesMap.GetMimeType(path),
+            content: File.ReadAllBytes(path),
+            fileExtension: Path.GetExtension(path)
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="error">The error to persist.</param>
+    public static void AddGlobalError(Exception error) =>
+        AddGlobalErrorInternal(
+            CreateGlobalError(
+                ModelFunctions.ToStatusDetails(error)
+            )
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="message">The error message to persist.</param>
+    public static void AddGlobalError(string message) =>
+        AddGlobalErrorInternal(
+            CreateGlobalError(
+                new StatusDetails { message = message }
+            )
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="statusDetails">The error details to persist.</param>
+    public static void AddGlobalError(StatusDetails statusDetails) =>
+        AddGlobalErrorInternal(CreateGlobalError(statusDetails));
+
+    /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
@@ -801,9 +882,7 @@ public static class AllureApi
         string fileExtension
     )
     {
-        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
-        var uuid = IdFunctions.CreateUUID();
-        var source = $"{uuid}{suffix}{fileExtension}";
+        var source = CreateAttachmentSource(fileExtension);
         var attachment = new Attachment
         {
             name = name,
@@ -814,6 +893,62 @@ public static class AllureApi
         CurrentLifecycle.UpdateExecutableItem(
             item => item.attachments.Add(attachment)
         );
+    }
+
+    internal static void AddGlobalAttachmentInternal(
+        string name,
+        string? type,
+        byte[] content,
+        string fileExtension
+    )
+    {
+        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        var source = CreateAttachmentSource(fileExtension);
+        CurrentLifecycle.Writer.Write(source, content);
+        CurrentLifecycle.Writer.Write(
+            new Globals
+            {
+                attachments = new()
+                {
+                    new GlobalAttachment
+                    {
+                        name = name,
+                        type = type,
+                        source = source,
+                        timestamp = timestamp
+                    }
+                }
+            }
+        );
+    }
+
+    internal static void AddGlobalErrorInternal(GlobalError error) =>
+        CurrentLifecycle.Writer.Write(
+            new Globals
+            {
+                errors = new() { error }
+            }
+        );
+
+    static string CreateAttachmentSource(string fileExtension)
+    {
+        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
+        var uuid = IdFunctions.CreateUUID();
+        return $"{uuid}{suffix}{fileExtension}";
+    }
+
+    static GlobalError CreateGlobalError(StatusDetails? statusDetails)
+    {
+        statusDetails ??= new StatusDetails();
+        return new GlobalError
+        {
+            message = statusDetails.message,
+            trace = statusDetails.trace,
+            flaky = statusDetails.flaky,
+            muted = statusDetails.muted,
+            known = statusDetails.known,
+            timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
+        };
     }
 
     static void AddScreenDiffInternal(

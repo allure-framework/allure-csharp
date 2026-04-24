@@ -8,6 +8,7 @@ namespace Allure.Net.Commons.Tests
         readonly object monitor = new();
         internal List<TestResult> testResults = new();
         internal List<TestResultContainer> testContainers = new();
+        internal List<Globals> globals = new();
         internal List<(string Source, byte[] Content)> attachments = new();
 
         public void CleanUp()
@@ -16,6 +17,7 @@ namespace Allure.Net.Commons.Tests
             {
                 this.testResults.Clear();
                 this.testContainers.Clear();
+                this.globals.Clear();
                 this.attachments.Clear();
             }
         }
@@ -33,6 +35,14 @@ namespace Allure.Net.Commons.Tests
             lock (this.monitor)
             {
                 this.testContainers.Add(testResult);
+            }
+        }
+
+        public void Write(Globals globals)
+        {
+            lock (this.monitor)
+            {
+                this.globals.Add(globals);
             }
         }
 

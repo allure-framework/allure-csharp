@@ -25,19 +25,27 @@ public class AllureAttachmentAspect
         [Argument(Source.ReturnValue)] object? returnValue
     )
     {
-        if (!AllureApi.HasTestOrFixture)
+        var attr = metadata.GetCustomAttribute<AllureAttachmentAttribute>();
+        var isGlobal = attr?.Global == true;
+
+        if (!isGlobal && !AllureApi.HasTestOrFixture)
         {
             return;
         }
-
-        var attr = metadata.GetCustomAttribute<AllureAttachmentAttribute>();
 
         var attachmentName = ResolveAttachmentName(attr, name, metadata, arguments);
         var contentType = ResolveContentType(attr, returnType);
         var extension = ResolveExtension(attr, contentType);
         byte[] content = ResolveContent(attr, returnValue);
 
-        AllureApi.AddAttachmentInternal(attachmentName, contentType, content, extension);
+        if (isGlobal)
+        {
+            AllureApi.AddGlobalAttachmentInternal(attachmentName, contentType, content, extension);
+        }
+        else
+        {
+            AllureApi.AddAttachmentInternal(attachmentName, contentType, content, extension);
+        }
     }
 
     static string ResolveAttachmentName(

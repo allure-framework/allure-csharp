@@ -4,6 +4,7 @@
     {
         void Write(TestResult testResult);
         void Write(TestResultContainer testResult);
+        void Write(Globals globals);
         void Write(string source, byte[] attachment);
         void CleanUp();
     }

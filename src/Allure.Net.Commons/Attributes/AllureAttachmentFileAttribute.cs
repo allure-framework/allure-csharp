@@ -33,6 +33,12 @@ public class AllureAttachmentFileAttribute : Attribute
     public string? ContentType { get; init; }
 
     /// <summary>
+    /// If set to <c>true</c>, creates a global attachment not tied to the current
+    /// test, fixture, or step.
+    /// </summary>
+    public bool Global { get; init; }
+
+    /// <summary>
     /// Creates attachments with the same names as the original files.
     /// </summary>
     public AllureAttachmentFileAttribute() { }
