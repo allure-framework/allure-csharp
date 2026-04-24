@@ -128,10 +128,18 @@ namespace Allure.Xunit
                 return;
             }
 
-            this.RunInTestContext(
-                test,
-                () => AllureXunitHelper.ApplyTestFailure(args.Message)
-            );
+            var testData = this.GetOrCreateTestData(test);
+            this.UpdateTestContext(test, () =>
+            {
+                if (!AllureContext.HasTest)
+                {
+                    AllureXunitHelper.StartAllureTestCase(
+                        test,
+                        testData.TestResult
+                    );
+                }
+                AllureXunitHelper.ApplyTestFailure(args.Message);
+            });
         }
 
         void OnTestPassed(MessageHandlerArgs<ITestPassed> args)
@@ -143,10 +151,18 @@ namespace Allure.Xunit
                 return;
             }
 
-            this.RunInTestContext(
-                test,
-                () => AllureXunitHelper.ApplyTestSuccess(args.Message)
-            );
+            var testData = this.GetOrCreateTestData(test);
+            this.UpdateTestContext(test, () =>
+            {
+                if (!AllureContext.HasTest)
+                {
+                    AllureXunitHelper.StartAllureTestCase(
+                        test,
+                        testData.TestResult
+                    );
+                }
+                AllureXunitHelper.ApplyTestSuccess(args.Message);
+            });
         }
 
         void OnTestSkipped(MessageHandlerArgs<ITestSkipped> args)
