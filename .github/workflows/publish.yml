@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish:
@@ -25,7 +26,7 @@ jobs:
             3.1.x
             6.0.x
 
-      - name: 'Restore packages'
+      - name: 'Restore the packages'
         shell: pwsh
         run: |
           dotnet restore ${{ env.SOLUTION_PATH }}
@@ -41,7 +42,7 @@ jobs:
       # Use AspectInjector 2.8.2 which, unlike 2.8.1, correctly sets PdbChecksum
       # The only reason we're still referencing 2.8.1 from projects is that
       # 2.8.2 doesn't work well on Mac OS ARM
-      - name: 'Build project using dotnet'
+      - name: 'Build the solution'
         shell: pwsh
         run: |
           dotnet build ${{ env.SOLUTION_PATH }} `
@@ -59,7 +60,7 @@ jobs:
             & $SnExe -vf $_.FullName
           }
 
-      - name: 'Pack project'
+      - name: 'Pack the packages'
         shell: pwsh
         run: |
           dotnet pack ${{ env.SOLUTION_PATH }} `
@@ -68,11 +69,15 @@ jobs:
             --configuration ${{ env.BUILD_CONFIGURATION }} `
             "-p:PackageReleaseNotes=${{ github.event.release.html_url }}"
 
-      - name: 'NuGet publish'
+      - name: 'Get a NuGet API key'
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: qameta
+
+      - name: 'Publish the packages to NuGet'
         shell: pwsh
         run: |
           dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" `
-            --api-key "$Env:NUGET_TOKEN" `
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" `
             --source "https://api.nuget.org/v3/index.json"
-        env:
-          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
