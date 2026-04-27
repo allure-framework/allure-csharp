@@ -1,20 +1,25 @@
-﻿using Xunit;
-using Xunit.Abstractions;
+﻿using System.Threading.Tasks;
+using Xunit.Runner.Common;
+using Xunit.Sdk;
 
-#nullable enable
+[assembly: RegisterRunnerReporter(typeof(Allure.Xunit.AllureRunnerReporter))]
 
-namespace Allure.Xunit
+namespace Allure.Xunit;
+
+public sealed class AllureRunnerReporter : IRunnerReporter
 {
-    public class AllureRunnerReporter : IRunnerReporter
-    {
-        public string Description { get; }
-            = "Creates allure input files for xunit tests";
+    public bool CanBeEnvironmentallyEnabled => false;
 
-        public bool IsEnvironmentallyEnabled { get; } = true;
+    public string Description => "Creates allure input files for xUnit.net v3 tests";
 
-        public string RunnerSwitch { get; } = "allure";
+    public bool ForceNoLogo => false;
 
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
-            AllureXunitFacade.CreateAllureXunitMessageHandler(logger);
-    }
+    public bool IsEnvironmentallyEnabled => false;
+
+    public string RunnerSwitch => "allure";
+
+    public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
+        IRunnerLogger logger,
+        IMessageSink diagnosticMessageSink
+    ) => new(new AllureV3MessageHandler(logger, diagnosticMessageSink));
 }

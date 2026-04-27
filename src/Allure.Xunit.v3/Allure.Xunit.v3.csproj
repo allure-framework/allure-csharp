@@ -16,14 +16,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="README.md" Pack="true" PackagePath="\" />
-        <None Include="../../img/Allure-X-Color.png" Pack="true" PackagePath="\" />
+        <Compile Remove="AllureMessageSink.cs" />
+        <Compile Remove="AllureXunitFacade.cs" />
+        <Compile Remove="AllureXunitPatcher.cs" />
+        <Compile Remove="AllureXunitTestData.cs" />
+        <Compile Remove="ComposedMessageSink.cs" />
+        <Compile Remove="AllureXunitConfiguration.cs" />
+        <Compile Remove="TypeExtensions.cs" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="build\Allure.Xunit.v3.targets" Pack="true" PackagePath="build\" />
-        <None Include="build\Allure.Xunit.v3.targets" Pack="true" PackagePath="buildMultiTargeting\" />
-        <None Include="build\Allure.Xunit.v3.ReporterRegistration.cs" Pack="true" PackagePath="build\" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../img/Allure-X-Color.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,7 +37,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="build\" />
     </ItemGroup>
 
 </Project>

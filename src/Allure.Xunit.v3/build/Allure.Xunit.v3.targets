@@ -1,1 +1,0 @@
-<Project><ItemGroup Condition="'$(AllureXunitV3RegisterReporter)' != 'false'"><Compile Include="$(MSBuildThisFileDirectory)Allure.Xunit.v3.ReporterRegistration.cs" Link="Allure.Xunit.v3.ReporterRegistration.cs" /></ItemGroup></Project>
