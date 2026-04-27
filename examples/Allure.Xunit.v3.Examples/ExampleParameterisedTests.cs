@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Allure.Xunit.Attributes;
-using Allure.Xunit.Examples.TestData;
+using Allure.Xunit.v3.Examples.TestData;
 using Xunit;
 
 namespace Allure.Xunit.v3.Examples

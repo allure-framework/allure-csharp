@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ReporterRegistration.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AllureSample Update="Samples/**/*.cs" Properties="OutputType=Exe;UseAppHost=true" />
+    <AllureSample Include="ReporterRegistration.cs" />
   </ItemGroup>
 
   <ItemGroup>
