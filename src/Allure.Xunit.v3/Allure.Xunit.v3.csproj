@@ -5,9 +5,8 @@
         <AssemblyName>Allure.Xunit.v3.reporters</AssemblyName>
         <RootNamespace>Allure.Xunit</RootNamespace>
         <TargetFramework>net8.0</TargetFramework>
-        <OutputType>Exe</OutputType>
-        <UseAppHost>true</UseAppHost>
-        <Authors>Shumakov Ivan</Authors>
+        <IsPackable>true</IsPackable>
+        <Authors>grootstebozewolf</Authors>
         <Description>Create beautiful reports from your xUnit.net v3 tests.</Description>
         <PackageIcon>Allure-X-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) xunit xunitv3</PackageTags>
@@ -22,8 +21,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Lib.Harmony" Version="2.4.2" />
-        <PackageReference Include="xunit.v3" Version="3.2.2" />
+        <None Include="build\Allure.Xunit.v3.targets" Pack="true" PackagePath="build\" />
+        <None Include="build\Allure.Xunit.v3.targets" Pack="true" PackagePath="buildMultiTargeting\" />
+        <None Include="build\Allure.Xunit.v3.ReporterRegistration.cs" Pack="true" PackagePath="build\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Lib.Harmony" Version="2.4.2" PrivateAssets="all" />
+        <PackageReference Include="xunit.v3.runner.common" Version="3.2.2" PrivateAssets="all" IncludeAssets="compile;build" />
+        <PackageReference Include="xunit.v3.runner.utility" Version="3.2.2" PrivateAssets="all" IncludeAssets="compile;build" />
     </ItemGroup>
 
     <ItemGroup>
