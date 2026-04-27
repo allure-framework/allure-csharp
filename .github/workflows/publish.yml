@@ -73,7 +73,7 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: qameta
+          user: baev
 
       - name: 'Publish the packages to NuGet'
         shell: pwsh
