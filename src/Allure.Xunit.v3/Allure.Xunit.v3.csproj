@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>Allure.Xunit.v3</PackageId>
+        <AssemblyName>Allure.Xunit.v3.reporters</AssemblyName>
+        <RootNamespace>Allure.Xunit</RootNamespace>
+        <TargetFramework>net8.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <UseAppHost>true</UseAppHost>
+        <Authors>Shumakov Ivan</Authors>
+        <Description>Create beautiful reports from your xUnit.net v3 tests.</Description>
+        <PackageIcon>Allure-X-Color.png</PackageIcon>
+        <PackageTags>$(PackageTags) xunit xunitv3</PackageTags>
+
+        <!-- This assembly can't be signed becasue of Lib.Harmony -->
+        <SignAssembly>false</SignAssembly>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../img/Allure-X-Color.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Lib.Harmony" Version="2.4.2" />
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj"/>
+    </ItemGroup>
+
+</Project>
