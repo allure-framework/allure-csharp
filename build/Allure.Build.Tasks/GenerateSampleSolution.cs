@@ -145,14 +145,28 @@ public class GenerateSampleSolution : Task
         )
     );
 
-    List<(string, List<FileSource>)> GenerateProjects() =>
-        [.. this.SampleSources2
+    List<(string, List<FileSource>)> GenerateProjects()
+    {
+        var allSampleSources = this.SampleSources2.ToArray();
+        var sharedSampleSources = allSampleSources
+            .Where(static (sample) => IsSharedSampleSource(sample))
+            .ToArray();
+
+        return [.. allSampleSources
+            .Where(static (sample) => !IsSharedSampleSource(sample))
             .GroupBy(
                 static (sample) => sample.GetMetadataValueEscaped("ProjectSuffix") ?? "")
-            .Select(this.GenerateProject)
+            .Select((group) => this.GenerateProject(group, sharedSampleSources))
             .Where(static (pair) => pair.Item1 is not null)];
+    }
 
-    (string, List<FileSource>) GenerateProject(IGrouping<string, ITaskItem2> projectSourcesGroup)
+    static bool IsSharedSampleSource(ITaskItem2 sample) =>
+        string.IsNullOrEmpty(sample.GetMetadataValueEscaped("ProjectSuffix"));
+
+    (string, List<FileSource>) GenerateProject(
+        IGrouping<string, ITaskItem2> projectSourcesGroup,
+        IReadOnlyCollection<ITaskItem2> sharedSampleSources
+    )
     {
         var projectSuffix = projectSourcesGroup.Key;
         if (string.IsNullOrEmpty(projectSuffix))
@@ -176,11 +190,17 @@ public class GenerateSampleSolution : Task
 
         this.ShowGreatestCommonPrefixMessage(projectSuffix, greatestCommonPrefix);
 
-        return CreateProjectFileSources(projectSourcesGroup, projectSuffix, greatestCommonPrefix);
+        return CreateProjectFileSources(
+            projectSourcesGroup,
+            sharedSampleSources,
+            projectSuffix,
+            greatestCommonPrefix
+        );
     }
 
     (string, List<FileSource>) CreateProjectFileSources(
-        IGrouping<string, ITaskItem2> sampleGroup,
+        IEnumerable<ITaskItem2> sampleGroup,
+        IEnumerable<ITaskItem2> sharedSampleSources,
         string projectSuffix,
         string greatestCommonPrefix
     )
@@ -194,12 +214,24 @@ public class GenerateSampleSolution : Task
             greatestCommonPrefix,
             sampleProjectDir
         );
+        var sharedSources = this.PrepareSharedSampleSources(sharedSampleSources, sampleProjectDir);
 
-        return (sampleProjectName, [csproj, ..sampleSources]);
+        return (sampleProjectName, [csproj, ..sampleSources, ..sharedSources]);
     }
 
+    IEnumerable<MappedFileSource> PrepareSharedSampleSources(
+        IEnumerable<ITaskItem2> sharedSampleSources,
+        string sampleProjectDir
+    ) =>
+        sharedSampleSources.Select((sample) =>
+        {
+            var absolutePath = sample.EvaluatedIncludeEscaped;
+            var destination = Path.Combine(sampleProjectDir, Path.GetFileName(absolutePath));
+            return new MappedFileSource(absolutePath, destination);
+        });
+
     IEnumerable<MappedFileSource> PrepareSampleSources(
-        IGrouping<string, ITaskItem2> sampleGroup,
+        IEnumerable<ITaskItem2> sampleGroup,
         string greatestCommonPrefix,
         string sampleProjectDir
     ) =>
@@ -320,7 +352,7 @@ public class GenerateSampleSolution : Task
                 static (p) => p.Key,
                 static (key, values) => (Key: key, values.Last().Value)
             )
-        ];
+    ];
 
     void ShowInvalidSuffixWarning(IGrouping<string, ITaskItem2> sampleGroup, string projectSuffix)
     {

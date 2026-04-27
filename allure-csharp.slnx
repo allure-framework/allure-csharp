@@ -29,6 +29,7 @@
       <Build Solution="Publish|*" Project="false" />
     </Project>
   </Folder>
+  <Folder Name="/build/AspectInjector/" />
   <Folder Name="/build/AspectInjector/win-x64/">
     <File Path="build/AspectInjector/win-x64/AspectInjector.exe" />
   </Folder>
@@ -38,6 +39,9 @@
     </Project>
     <Project Path="examples/Allure.Xunit.Examples/Allure.Xunit.Examples.csproj">
       <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="examples/Allure.Xunit.v3.Examples/Allure.Xunit.v3.Examples.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
     </Project>
   </Folder>
   <Folder Name="/img/">
@@ -60,6 +64,9 @@
     <Project Path="src/Allure.SpecFlow/Allure.SpecFlow.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
+    <Project Path="src/Allure.Xunit.v3/Allure.Xunit.v3.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.Xunit/Allure.Xunit.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
@@ -71,6 +78,9 @@
     <Project Path="tests/Allure.NUnit.Tests/Allure.NUnit.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
+    <Project Path="tests/Allure.Reqnroll.Tests.Samples/Allure.Reqnroll.Tests.Samples.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
     <Project Path="tests/Allure.Reqnroll.Tests/Allure.Reqnroll.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
@@ -80,14 +90,14 @@
     <Project Path="tests/Allure.SpecFlow.Tests/Allure.SpecFlow.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
-    <Project Path="tests/Allure.Reqnroll.Tests.Samples/Allure.Reqnroll.Tests.Samples.csproj">
-      <Build Solution="Publish|*" Project="false" />
-    </Project>
     <Project Path="tests/Allure.Testing/Allure.Testing.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Xunit.Tests/Allure.Xunit.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.Xunit.v3.Tests/Allure.Xunit.v3.Tests.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
     </Project>
   </Folder>
   <Folder Name="/Solution Items/">

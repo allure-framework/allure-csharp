@@ -205,26 +205,69 @@ public class AllureSampleRunner
     static ProcessStartInfo CreateProcessStartInfo(
         AllureSampleRegistryEntry sample,
         IEnumerable<string> args
-    ) => new(
-        "dotnet",
-        [
-            "test",
-            sample.ProjectPath,
-            "--framework",
-            sample.TargetFramework,
-            "--configuration",
-            sample.BuildConfiguration,
-            ..args,
-        ]
     )
     {
-        CreateNoWindow = true,
-        RedirectStandardError = true,
-        RedirectStandardOutput = true,
-        StandardErrorEncoding = encoding,
-        StandardOutputEncoding = encoding,
-        UseShellExecute = false,
-    };
+        var projectPath = sample.ProjectPath;
+        var isXunitV3Sample = IsXunitV3SampleProject(projectPath);
+
+        var processArgs = isXunitV3Sample
+            ? CreateDotnetRunArgs(sample, args)
+            : CreateDotnetTestArgs(sample, args);
+
+        return new ProcessStartInfo("dotnet", processArgs)
+        {
+            CreateNoWindow = true,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            StandardErrorEncoding = encoding,
+            StandardOutputEncoding = encoding,
+            UseShellExecute = false,
+        };
+    }
+
+    static string[] CreateDotnetTestArgs(
+        AllureSampleRegistryEntry sample,
+        IEnumerable<string> args
+    ) =>
+    [
+        "test",
+        sample.ProjectPath,
+        "--framework",
+        sample.TargetFramework,
+        "--configuration",
+        sample.BuildConfiguration,
+        ..args,
+    ];
+
+    static string[] CreateDotnetRunArgs(
+        AllureSampleRegistryEntry sample,
+        IEnumerable<string> args
+    ) =>
+    [
+        "run",
+        "--project",
+        sample.ProjectPath,
+        "--framework",
+        sample.TargetFramework,
+        "--configuration",
+        sample.BuildConfiguration,
+        "--",
+        "-reporter",
+        "allure",
+        ..args,
+    ];
+
+    static bool IsXunitV3SampleProject(string projectPath) =>
+        xunitV3DetectionCache.GetOrAdd(projectPath, static path =>
+        {
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+
+            var projectXml = File.ReadAllText(path);
+            return projectXml.Contains("xunit.v3", StringComparison.OrdinalIgnoreCase);
+        });
 
     static void ApplyExtraEnvironmentVariables(
         IEnumerable<KeyValuePair<string, string>> envVars,
@@ -406,6 +449,9 @@ public class AllureSampleRunner
         }
         return attachments.ToImmutableDictionary();
     }
+
+    static readonly System.Collections.Concurrent.ConcurrentDictionary<string, bool>
+        xunitV3DetectionCache = new(StringComparer.OrdinalIgnoreCase);
 
     static readonly Encoding encoding = new UTF8Encoding(false, false);
 
