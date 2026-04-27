@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <UseAppHost>true</UseAppHost>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="allureConfig.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Allure.Xunit.v3\Allure.Xunit.v3.csproj" />
+    </ItemGroup>
+
+</Project>
