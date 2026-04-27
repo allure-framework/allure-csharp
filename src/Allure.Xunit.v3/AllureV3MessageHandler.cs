@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Sdk;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -12,7 +15,6 @@ internal sealed class AllureV3MessageHandler(
     IMessageSink diagnosticMessageSink
 ) : IRunnerReporterMessageHandler
 {
-    private readonly MessageMetadataCache _metadataCache = new();
     private readonly ConcurrentDictionary<string, AllureContext> _contexts = new();
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
@@ -23,12 +25,7 @@ internal sealed class AllureV3MessageHandler(
 
         switch (message)
         {
-            case ITestCaseStarting testCaseStarting:
-                _metadataCache.Set(testCaseStarting);
-                break;
-
             case ITestStarting testStarting:
-                _metadataCache.Set(testStarting);
                 StartTest(testStarting);
                 break;
 
@@ -77,7 +74,6 @@ internal sealed class AllureV3MessageHandler(
 
             case ITestFinished testFinished:
                 FinishTest(testFinished);
-                _metadataCache.TryRemove(testFinished);
                 break;
         }
 
@@ -86,13 +82,15 @@ internal sealed class AllureV3MessageHandler(
 
     private void StartTest(ITestStarting testStarting)
     {
-        var testCaseMetadata = _metadataCache.TryGetTestCaseMetadata(testStarting);
-        var metadata = _metadataCache.TryGetTestMetadata(testStarting);
+        var testClassName = GetStringProperty(testStarting, "TestClassName");
+        var testMethodName = GetStringProperty(testStarting, "TestMethodName")
+            ?? GetStringProperty(testStarting, "MethodName");
+        var method = ResolveTestMethod(testStarting, testClassName, testMethodName);
 
         var testResult = new TestResult
         {
             uuid = testStarting.TestUniqueID,
-            name = metadata?.TestDisplayName ?? testCaseMetadata?.TestCaseDisplayName ?? testStarting.TestUniqueID,
+            name = testStarting.TestDisplayName,
             fullName = testStarting.TestUniqueID,
             labels =
             [
@@ -103,15 +101,26 @@ internal sealed class AllureV3MessageHandler(
             ]
         };
 
-        if (!string.IsNullOrEmpty(testCaseMetadata?.TestClassName))
+        if (!string.IsNullOrEmpty(testClassName))
         {
-            testResult.labels.Add(Label.TestClass(testCaseMetadata.TestClassName));
-            testResult.labels.Add(Label.Package(testCaseMetadata.TestClassName));
+            testResult.labels.Add(Label.TestClass(testClassName));
+            testResult.labels.Add(Label.Package(testClassName));
         }
 
-        if (!string.IsNullOrEmpty(testCaseMetadata?.TestMethodName))
+        if (!string.IsNullOrEmpty(testMethodName))
         {
-            testResult.labels.Add(Label.TestMethod(testCaseMetadata.TestMethodName));
+            testResult.labels.Add(Label.TestMethod(testMethodName));
+        }
+
+        if (method is not null)
+        {
+            AllureApiAttribute.ApplyAllAttributes(method, testResult);
+
+            var legacyIdAttrs = method.GetCustomAttributes<global::Allure.Xunit.Attributes.AllureIdAttribute>();
+            foreach (var attr in legacyIdAttrs)
+            {
+                testResult.labels.Add(new Label { name = "ALLURE_ID", value = attr.AllureId });
+            }
         }
 
         var context = AllureLifecycle.Instance.RunInContext(new AllureContext(), () =>
@@ -144,5 +153,73 @@ internal sealed class AllureV3MessageHandler(
 
             logger.LogRaw($"[allure] finish {testFinished.TestUniqueID}");
         }
+    }
+
+    private static MethodInfo? ResolveTestMethod(
+        ITestStarting testStarting,
+        string? testClassName,
+        string? testMethodName
+    )
+    {
+        if (string.IsNullOrEmpty(testClassName) || string.IsNullOrEmpty(testMethodName))
+        {
+            return null;
+        }
+
+        var testClass = ResolveTestClass(testClassName);
+        if (testClass is null)
+        {
+            return null;
+        }
+
+        var candidates = testClass
+            .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+            .Where(method => string.Equals(method.Name, testMethodName, StringComparison.Ordinal))
+            .ToArray();
+
+        if (candidates.Length <= 1)
+        {
+            return candidates.FirstOrDefault();
+        }
+
+        var metadataToken = GetInt32Property(testStarting, "TestMethodMetadataToken");
+        return metadataToken is null
+            ? candidates.FirstOrDefault()
+            : candidates.FirstOrDefault(method => method.MetadataToken == metadataToken.Value);
+    }
+
+    private static Type? ResolveTestClass(string testClassName)
+    {
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var type = assembly.GetType(testClassName, throwOnError: false, ignoreCase: false);
+            if (type is not null)
+            {
+                return type;
+            }
+        }
+
+        return Type.GetType(testClassName, throwOnError: false, ignoreCase: false);
+    }
+
+    private static string? GetStringProperty(object source, string propertyName) =>
+        source
+            .GetType()
+            .GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)
+            ?.GetValue(source) as string;
+
+    private static int? GetInt32Property(object source, string propertyName)
+    {
+        var value = source
+            .GetType()
+            .GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)
+            ?.GetValue(source);
+
+        if (value is int intValue)
+        {
+            return intValue;
+        }
+
+        return value as int?;
     }
 }

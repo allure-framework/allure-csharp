@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Exe</OutputType>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <Allure_PreBuildTestSamples>true</Allure_PreBuildTestSamples>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,5 +33,5 @@
     <ProjectReference Include="../../build/Allure.Build.SourceGenerators/Allure.Build.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="../Allure.Testing/Allure.Testing.csproj" />
   </ItemGroup>
-
+		
 </Project>
