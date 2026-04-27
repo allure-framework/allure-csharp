@@ -1,0 +1,15 @@
+using Allure.Xunit.Attributes;
+using Xunit;
+
+namespace Allure.Xunit.Tests.Samples.LegacyDescriptionAttribute
+{
+    public class TestsClass
+    {
+        [Fact]
+        [AllureDescription("Lorem Ipsum")]
+        public void TestMethod() { }
+    }
+}
+
+
+

@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>Exe</OutputType>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AllureSample Update="Samples/**/*.cs" Properties="OutputType=Exe;UseAppHost=true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.12.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SamplePackageReference Include="xunit.v3" Version="3.2.2" />
+    <SamplePackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectUnderTest Include="../../src/Allure.Xunit.v3/Allure.Xunit.v3.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../build/Allure.Build.SourceGenerators/Allure.Build.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../Allure.Testing/Allure.Testing.csproj" />
+  </ItemGroup>
+
+</Project>
