@@ -4,20 +4,51 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
-using Allure.Net.Commons.Sdk;
+using Allure.Net.Commons.TestPlan;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Allure.Xunit;
 
-internal sealed class AllureV3MessageHandler(
+internal sealed class AllureMessageSink(
     IRunnerLogger logger,
     IMessageSink diagnosticMessageSink
 ) : IRunnerReporterMessageHandler
 {
-    private readonly ConcurrentDictionary<string, AllureContext> _contexts = new();
+    static AllureTestPlan TestPlan => AllureLifecycle.Instance.TestPlan;
 
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    static AllureContext AllureContext => AllureLifecycle.Instance.Context;
+
+    readonly ConcurrentDictionary<string, AllureV3TestData> allureTestData = new();
+
+    public ValueTask DisposeAsync()
+    {
+        foreach (var kv in allureTestData.ToArray())
+        {
+            if (!allureTestData.TryRemove(kv.Key, out var data))
+            {
+                continue;
+            }
+
+            if (data.IsSelected)
+            {
+                AllureLifecycle.Instance.RunInContext(data.Context, () =>
+                {
+                    if (AllureContext.HasTest)
+                    {
+                        AllureXunitHelper.ReportCurrentTestCase();
+                    }
+
+                    if (AllureContext.HasContainer)
+                    {
+                        AllureXunitHelper.ReportCurrentTestContainer();
+                    }
+                });
+            }
+        }
+
+        return ValueTask.CompletedTask;
+    }
 
     public bool OnMessage(IMessageSinkMessage message)
     {
@@ -26,141 +57,207 @@ internal sealed class AllureV3MessageHandler(
         switch (message)
         {
             case ITestStarting testStarting:
-                StartTest(testStarting);
+                OnTestStarting(testStarting);
                 break;
 
             case ITestPassed testPassed:
-                UpdateTest(testPassed, () =>
-                {
-                    AllureLifecycle.Instance.UpdateTestCase(result =>
-                    {
-                        result.status = Status.passed;
-                        if (!string.IsNullOrEmpty(testPassed.Output))
-                        {
-                            var details = result.statusDetails ??= new();
-                            details.message = testPassed.Output;
-                        }
-                    });
-                });
+                OnTestPassed(testPassed);
                 break;
 
             case ITestSkipped testSkipped:
-                UpdateTest(testSkipped, () =>
-                {
-                    AllureLifecycle.Instance.UpdateTestCase(result =>
-                    {
-                        result.status = Status.skipped;
-                        var details = result.statusDetails ??= new();
-                        details.message = testSkipped.Reason;
-                    });
-                });
+                OnTestSkipped(testSkipped);
                 break;
 
             case ITestFailed testFailed:
-                UpdateTest(testFailed, () =>
-                {
-                    AllureLifecycle.Instance.UpdateTestCase(result =>
-                    {
-                        result.status = testFailed.Cause == FailureCause.Assertion
-                            ? Status.failed
-                            : Status.broken;
-
-                        var details = result.statusDetails ??= new();
-                        details.message = ExceptionUtility.CombineMessages(testFailed);
-                        details.trace = ExceptionUtility.CombineStackTraces(testFailed);
-                    });
-                });
+                OnTestFailed(testFailed);
                 break;
 
             case ITestFinished testFinished:
-                FinishTest(testFinished);
+                OnTestFinished(testFinished);
                 break;
         }
 
         return true;
     }
 
-    private void StartTest(ITestStarting testStarting)
+    void OnTestStarting(ITestStarting message)
+    {
+        var testData = GetOrCreateTestData(message.TestUniqueID);
+        var method = ResolveTestMethod(message);
+
+        if (method is null)
+        {
+            testData.IsSelected = false;
+            return;
+        }
+
+        var testResult = AllureXunitHelper.CreateTestResult(method, message.TestDisplayName);
+        var isSelected = TestPlan.IsSelected(testResult);
+
+        testData.TestMethod = method;
+        testData.TestResult = testResult;
+        testData.IsSelected = isSelected;
+
+        if (!isSelected)
+        {
+            return;
+        }
+
+        if (IsStaticTestMethod(method))
+        {
+            AllureXunitHelper.StartAllureTestCase(testResult);
+            CaptureTestContext(message.TestUniqueID);
+        }
+        else
+        {
+            AllureXunitHelper.StartNewAllureContainer(method.DeclaringType?.FullName ?? method.DeclaringType?.Name ?? "unknown");
+            CaptureTestContext(message.TestUniqueID);
+        }
+
+        logger.LogRaw($"[allure] start {testResult.name}");
+    }
+
+    void OnTestPassed(ITestPassed message)
+    {
+        if (!allureTestData.TryGetValue(message.TestUniqueID, out var testData) || !testData.IsSelected)
+        {
+            return;
+        }
+
+        UpdateTestContext(message.TestUniqueID, () =>
+        {
+            EnsureTestStarted(testData);
+            AllureXunitHelper.ApplyTestSuccess(message.Output);
+        });
+    }
+
+    void OnTestSkipped(ITestSkipped message)
+    {
+        if (!allureTestData.TryGetValue(message.TestUniqueID, out var testData) || !testData.IsSelected)
+        {
+            return;
+        }
+
+        UpdateTestContext(message.TestUniqueID, () =>
+        {
+            EnsureTestStarted(testData);
+            AllureXunitHelper.ApplyTestSkip(message.Reason);
+        });
+    }
+
+    void OnTestFailed(ITestFailed message)
+    {
+        if (!allureTestData.TryGetValue(message.TestUniqueID, out var testData) || !testData.IsSelected)
+        {
+            return;
+        }
+
+        UpdateTestContext(message.TestUniqueID, () =>
+        {
+            EnsureTestStarted(testData);
+            AllureXunitHelper.ApplyTestFailure(message);
+        });
+    }
+
+    void OnTestFinished(ITestFinished message)
+    {
+        if (!allureTestData.TryRemove(message.TestUniqueID, out var testData) || !testData.IsSelected)
+        {
+            return;
+        }
+
+        RunInTestContext(message.TestUniqueID, () =>
+        {
+            EnsureTestStarted(testData);
+            var arguments = testData.Arguments ?? GetArguments(message);
+            AddAllureParameters(testData.TestMethod, arguments);
+            AllureXunitHelper.ApplyDefaultSuites(testData.TestMethod);
+            AllureXunitHelper.ReportCurrentTestCase();
+
+            if (!IsStaticTestMethod(testData.TestMethod) && AllureContext.HasContainer)
+            {
+                AllureXunitHelper.ReportCurrentTestContainer();
+            }
+        });
+
+        logger.LogRaw($"[allure] finish {message.TestUniqueID}");
+    }
+
+    static object[] GetArguments(object message)
+    {
+        var argsProperty = message.GetType().GetProperty("TestMethodArguments", BindingFlags.Instance | BindingFlags.Public)
+            ?? message.GetType().GetProperty("Arguments", BindingFlags.Instance | BindingFlags.Public);
+
+        return argsProperty?.GetValue(message) as object[] ?? [];
+    }
+
+    AllureV3TestData GetOrCreateTestData(string testUniqueId)
+    {
+        if (!allureTestData.TryGetValue(testUniqueId, out var data))
+        {
+            data = new AllureV3TestData();
+            allureTestData[testUniqueId] = data;
+        }
+
+        return data;
+    }
+
+    void AddAllureParameters(MethodInfo? method, object[]? arguments)
+    {
+        if (method is null)
+        {
+            return;
+        }
+
+        var parameters = method.GetParameters();
+        arguments ??= [];
+
+        if (parameters.Any() && !arguments.Any())
+        {
+            return;
+        }
+
+        AllureXunitHelper.ApplyTestParameters(method, arguments);
+    }
+
+    void CaptureTestContext(string testUniqueId)
+    {
+        var data = GetOrCreateTestData(testUniqueId);
+        data.Context = AllureContext;
+        AllureLifecycle.Instance.RestoreContext(data.Context);
+    }
+
+    AllureContext RunInTestContext(string testUniqueId, Action action)
+    {
+        var data = GetOrCreateTestData(testUniqueId);
+        var updatedContext = AllureLifecycle.Instance.RunInContext(data.Context, action);
+        data.Context = updatedContext;
+        return updatedContext;
+    }
+
+    void UpdateTestContext(string testUniqueId, Action action)
+    {
+        _ = RunInTestContext(testUniqueId, action);
+    }
+
+    static void EnsureTestStarted(AllureV3TestData testData)
+    {
+        if (AllureContext.HasTest)
+        {
+            return;
+        }
+
+        AllureXunitHelper.StartAllureTestCase(testData.TestResult);
+    }
+
+    static bool IsStaticTestMethod(MethodInfo method) => method.IsStatic;
+
+    static MethodInfo? ResolveTestMethod(ITestStarting testStarting)
     {
         var testClassName = GetStringProperty(testStarting, "TestClassName");
         var testMethodName = GetStringProperty(testStarting, "TestMethodName")
             ?? GetStringProperty(testStarting, "MethodName");
-        var method = ResolveTestMethod(testStarting, testClassName, testMethodName);
 
-        var testResult = new TestResult
-        {
-            uuid = testStarting.TestUniqueID,
-            name = testStarting.TestDisplayName,
-            fullName = testStarting.TestUniqueID,
-            labels =
-            [
-                Label.Language(),
-                Label.Framework("xUnit.net v3"),
-                Label.Thread(),
-                Label.Host()
-            ]
-        };
-
-        if (!string.IsNullOrEmpty(testClassName))
-        {
-            testResult.labels.Add(Label.TestClass(testClassName));
-            testResult.labels.Add(Label.Package(testClassName));
-        }
-
-        if (!string.IsNullOrEmpty(testMethodName))
-        {
-            testResult.labels.Add(Label.TestMethod(testMethodName));
-        }
-
-        if (method is not null)
-        {
-            AllureApiAttribute.ApplyAllAttributes(method, testResult);
-
-            var legacyIdAttrs = method.GetCustomAttributes<global::Allure.Xunit.Attributes.AllureIdAttribute>();
-            foreach (var attr in legacyIdAttrs)
-            {
-                testResult.labels.Add(new Label { name = "ALLURE_ID", value = attr.AllureId });
-            }
-        }
-
-        var context = AllureLifecycle.Instance.RunInContext(new AllureContext(), () =>
-        {
-            AllureLifecycle.Instance.StartTestCase(testResult);
-        });
-
-        _contexts[testStarting.TestUniqueID] = context;
-        logger.LogRaw($"[allure] start {testResult.name}");
-    }
-
-    private void UpdateTest(ITestMessage message, Action action)
-    {
-        if (_contexts.TryGetValue(message.TestUniqueID, out var context))
-        {
-            var updatedContext = AllureLifecycle.Instance.RunInContext(context, action);
-            _contexts[message.TestUniqueID] = updatedContext;
-        }
-    }
-
-    private void FinishTest(ITestFinished testFinished)
-    {
-        if (_contexts.TryRemove(testFinished.TestUniqueID, out var context))
-        {
-            AllureLifecycle.Instance.RunInContext(context, () =>
-            {
-                AllureLifecycle.Instance.StopTestCase();
-                AllureLifecycle.Instance.WriteTestCase();
-            });
-
-            logger.LogRaw($"[allure] finish {testFinished.TestUniqueID}");
-        }
-    }
-
-    private static MethodInfo? ResolveTestMethod(
-        ITestStarting testStarting,
-        string? testClassName,
-        string? testMethodName
-    )
-    {
         if (string.IsNullOrEmpty(testClassName) || string.IsNullOrEmpty(testMethodName))
         {
             return null;
@@ -188,7 +285,7 @@ internal sealed class AllureV3MessageHandler(
             : candidates.FirstOrDefault(method => method.MetadataToken == metadataToken.Value);
     }
 
-    private static Type? ResolveTestClass(string testClassName)
+    static Type? ResolveTestClass(string testClassName)
     {
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
@@ -202,13 +299,13 @@ internal sealed class AllureV3MessageHandler(
         return Type.GetType(testClassName, throwOnError: false, ignoreCase: false);
     }
 
-    private static string? GetStringProperty(object source, string propertyName) =>
+    static string? GetStringProperty(object source, string propertyName) =>
         source
             .GetType()
             .GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)
             ?.GetValue(source) as string;
 
-    private static int? GetInt32Property(object source, string propertyName)
+    static int? GetInt32Property(object source, string propertyName)
     {
         var value = source
             .GetType()
@@ -221,5 +318,18 @@ internal sealed class AllureV3MessageHandler(
         }
 
         return value as int?;
+    }
+
+    sealed class AllureV3TestData
+    {
+        public bool IsSelected { get; set; }
+
+        public TestResult? TestResult { get; set; }
+
+        public MethodInfo? TestMethod { get; set; }
+
+        public object[]? Arguments { get; set; }
+
+        public AllureContext Context { get; set; } = new();
     }
 }

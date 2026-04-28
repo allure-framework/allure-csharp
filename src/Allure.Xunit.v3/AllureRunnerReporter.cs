@@ -21,5 +21,5 @@ public sealed class AllureRunnerReporter : IRunnerReporter
     public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
         IRunnerLogger logger,
         IMessageSink diagnosticMessageSink
-    ) => new(new AllureV3MessageHandler(logger, diagnosticMessageSink));
+    ) => new(new AllureMessageSink(logger, diagnosticMessageSink));
 }
