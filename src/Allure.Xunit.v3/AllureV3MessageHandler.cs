@@ -15,6 +15,8 @@ internal sealed class AllureMessageSink(
     IMessageSink diagnosticMessageSink
 ) : IRunnerReporterMessageHandler
 {
+    static bool s_loggedStartMessageShape;
+
     static AllureTestPlan TestPlan => AllureLifecycle.Instance.TestPlan;
 
     static AllureContext AllureContext => AllureLifecycle.Instance.Context;
@@ -82,6 +84,23 @@ internal sealed class AllureMessageSink(
 
     void OnTestStarting(ITestStarting message)
     {
+        if (!s_loggedStartMessageShape)
+        {
+            s_loggedStartMessageShape = true;
+            try
+            {
+                var props = message
+                    .GetType()
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Select(static p => p.Name)
+                    .ToArray();
+                logger.LogRaw("[allure] ITestStarting properties: " + string.Join(",", props));
+            }
+            catch
+            {
+            }
+        }
+
         var testData = GetOrCreateTestData(message.TestUniqueID);
         var method = ResolveTestMethod(message);
 
