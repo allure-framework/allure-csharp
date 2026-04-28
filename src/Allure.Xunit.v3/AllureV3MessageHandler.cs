@@ -15,7 +15,7 @@ internal sealed class AllureMessageSink(
     IMessageSink diagnosticMessageSink
 ) : IRunnerReporterMessageHandler
 {
-    static bool s_loggedStartMessageShape;
+    static bool s_loggedPatcherDisabled;
 
     static AllureTestPlan TestPlan => AllureLifecycle.Instance.TestPlan;
 
@@ -23,38 +23,15 @@ internal sealed class AllureMessageSink(
 
     readonly ConcurrentDictionary<string, AllureV3TestData> allureTestData = new();
 
-    public ValueTask DisposeAsync()
-    {
-        foreach (var kv in allureTestData.ToArray())
-        {
-            if (!allureTestData.TryRemove(kv.Key, out var data))
-            {
-                continue;
-            }
-
-            if (data.IsSelected)
-            {
-                AllureLifecycle.Instance.RunInContext(data.Context, () =>
-                {
-                    if (AllureContext.HasTest)
-                    {
-                        AllureXunitHelper.ReportCurrentTestCase();
-                    }
-
-                    if (AllureContext.HasContainer)
-                    {
-                        AllureXunitHelper.ReportCurrentTestContainer();
-                    }
-                });
-            }
-        }
-
-        return ValueTask.CompletedTask;
-    }
-
     public bool OnMessage(IMessageSinkMessage message)
     {
         diagnosticMessageSink?.OnMessage(message);
+
+        if (!s_loggedPatcherDisabled)
+        {
+            s_loggedPatcherDisabled = true;
+            logger.LogRaw("[allure] Patcher disabled for v3 — using message-based context only");
+        }
 
         switch (message)
         {
@@ -84,47 +61,29 @@ internal sealed class AllureMessageSink(
 
     void OnTestStarting(ITestStarting message)
     {
-        if (!s_loggedStartMessageShape)
-        {
-            s_loggedStartMessageShape = true;
-            try
-            {
-                var props = message
-                    .GetType()
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Select(static p => p.Name)
-                    .ToArray();
-                logger.LogRaw("[allure] ITestStarting properties: " + string.Join(",", props));
-            }
-            catch
-            {
-            }
-        }
-
         var testData = GetOrCreateTestData(message.TestUniqueID);
         var method = ResolveTestMethod(message);
 
         var testResult = method is not null
             ? AllureXunitHelper.CreateTestResult(method, message.TestDisplayName)
             : CreateFallbackTestResult(message);
-        var isSelected = true;
 
         testData.TestMethod = method;
         testData.TestResult = testResult;
-        testData.IsSelected = isSelected;
+        testData.IsSelected = true;
+        testData.Context = AllureLifecycle.Instance.Context;
 
-        if (!isSelected)
+        testData.Context = AllureLifecycle.Instance.RunInContext(testData.Context, () =>
         {
-            return;
-        }
+            if (method is not null && !IsStaticTestMethod(method))
+            {
+                AllureXunitHelper.StartNewAllureContainer(method.DeclaringType?.FullName ?? method.DeclaringType?.Name ?? "unknown");
+            }
 
-        if (method is not null && !IsStaticTestMethod(method))
-        {
-            AllureXunitHelper.StartNewAllureContainer(method.DeclaringType?.FullName ?? method.DeclaringType?.Name ?? "unknown");
-        }
+            AllureXunitHelper.StartAllureTestCase(testResult);
+        });
 
-        AllureXunitHelper.StartAllureTestCase(testResult);
-        CaptureTestContext(message.TestUniqueID);
+        AllureLifecycle.Instance.RestoreContext(testData.Context);
 
         logger.LogRaw($"[allure] start {testResult.name}");
     }
@@ -135,6 +94,8 @@ internal sealed class AllureMessageSink(
         {
             return;
         }
+
+        RefreshStoredContext(testData);
 
         UpdateTestContext(message.TestUniqueID, () =>
         {
@@ -150,6 +111,8 @@ internal sealed class AllureMessageSink(
             return;
         }
 
+        RefreshStoredContext(testData);
+
         UpdateTestContext(message.TestUniqueID, () =>
         {
             EnsureTestStarted(testData);
@@ -164,6 +127,8 @@ internal sealed class AllureMessageSink(
             return;
         }
 
+        RefreshStoredContext(testData);
+
         UpdateTestContext(message.TestUniqueID, () =>
         {
             EnsureTestStarted(testData);
@@ -177,6 +142,8 @@ internal sealed class AllureMessageSink(
         {
             return;
         }
+
+        RefreshStoredContext(testData);
 
         AllureLifecycle.Instance.RunInContext(testData.Context, () =>
         {
@@ -200,6 +167,37 @@ internal sealed class AllureMessageSink(
         });
 
         logger.LogRaw($"[allure] finish {message.TestUniqueID}");
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        foreach (var kv in allureTestData.ToArray())
+        {
+            if (!allureTestData.TryRemove(kv.Key, out var data))
+            {
+                continue;
+            }
+
+            if (!data.IsSelected)
+            {
+                continue;
+            }
+
+            AllureLifecycle.Instance.RunInContext(data.Context, () =>
+            {
+                if (AllureContext.HasTest)
+                {
+                    AllureXunitHelper.ReportCurrentTestCase();
+                }
+
+                if (AllureContext.HasContainer)
+                {
+                    AllureXunitHelper.ReportCurrentTestContainer();
+                }
+            });
+        }
+
+        return ValueTask.CompletedTask;
     }
 
     static object[] GetArguments(object message)
@@ -228,10 +226,15 @@ internal sealed class AllureMessageSink(
             return;
         }
 
-        var parameters = method.GetParameters();
         arguments ??= [];
 
-        if (parameters.Any() && !arguments.Any())
+        var parameters = method.GetParameters();
+        if (parameters.Length == 0)
+        {
+            return;
+        }
+
+        if (!arguments.Any())
         {
             return;
         }
@@ -280,7 +283,13 @@ internal sealed class AllureMessageSink(
         var testMethodName = GetStringProperty(testStarting, "TestMethodName")
             ?? GetStringProperty(testStarting, "MethodName");
 
-        return ResolveTestMethod(testStarting, testClassName, testMethodName);
+        var resolved = ResolveTestMethodByClassAndName(testStarting, testClassName, testMethodName);
+        if (resolved is not null)
+        {
+            return resolved;
+        }
+
+        return ResolveTestMethodFromDisplayName(testStarting.TestDisplayName);
     }
 
     static MethodInfo? ResolveTestMethod(ITestFinished testFinished)
@@ -289,10 +298,42 @@ internal sealed class AllureMessageSink(
         var testMethodName = GetStringProperty(testFinished, "TestMethodName")
             ?? GetStringProperty(testFinished, "MethodName");
 
-        return ResolveTestMethod(testFinished, testClassName, testMethodName);
+        var resolved = ResolveTestMethodByClassAndName(testFinished, testClassName, testMethodName);
+        if (resolved is not null)
+        {
+            return resolved;
+        }
+
+        return ResolveTestMethodFromDisplayName(GetStringProperty(testFinished, "TestDisplayName"));
     }
 
-    static MethodInfo? ResolveTestMethod(object message, string? testClassName, string? testMethodName)
+    static MethodInfo? ResolveTestMethodFromDisplayName(string? displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            return null;
+        }
+
+        var normalized = displayName;
+        var argsIndex = normalized.IndexOf('(');
+        if (argsIndex > 0)
+        {
+            normalized = normalized.Substring(0, argsIndex);
+        }
+
+        var lastDot = normalized.LastIndexOf('.');
+        if (lastDot <= 0 || lastDot >= normalized.Length - 1)
+        {
+            return null;
+        }
+
+        var testClassName = normalized.Substring(0, lastDot);
+        var testMethodName = normalized.Substring(lastDot + 1);
+
+        return ResolveTestMethodByClassAndName(new object(), testClassName, testMethodName);
+    }
+
+    static MethodInfo? ResolveTestMethodByClassAndName(object message, string? testClassName, string? testMethodName)
     {
         if (string.IsNullOrEmpty(testClassName) || string.IsNullOrEmpty(testMethodName))
         {
@@ -391,6 +432,14 @@ internal sealed class AllureMessageSink(
         }
 
         return value as int?;
+    }
+
+    static void RefreshStoredContext(AllureV3TestData testData)
+    {
+        if (AllureContext.HasTest || AllureContext.HasContainer || AllureContext.HasFixture)
+        {
+            testData.Context = AllureContext;
+        }
     }
 
     sealed class AllureV3TestData
