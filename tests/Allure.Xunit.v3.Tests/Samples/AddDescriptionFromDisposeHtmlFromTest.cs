@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.NUnit.Tests.Samples.AddDescriptionFromDisposeHtmlFromTest
@@ -9,12 +10,18 @@ namespace Allure.NUnit.Tests.Samples.AddDescriptionFromDisposeHtmlFromTest
         [Fact]
         public void TestMethod()
         {
-            AllureApi.SetDescriptionHtml("Lorem Ipsum");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.SetDescriptionHtml("Lorem Ipsum");
+            }
         }
 
         public void Dispose()
         {
-            AllureApi.SetDescription("Dolor Sit Amet");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.SetDescription("Dolor Sit Amet");
+            }
         }
     }
 }

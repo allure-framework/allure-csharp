@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddFeatureFromDispose
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.AddFeatureFromDispose
     {
         public void Dispose()
         {
-            AllureApi.AddFeature("foo");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddFeature("foo");
+            }
         }
 
         [Fact]

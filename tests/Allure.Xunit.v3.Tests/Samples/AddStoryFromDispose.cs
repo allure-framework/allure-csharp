@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddStoryFromDispose
@@ -8,13 +9,18 @@ namespace Allure.Xunit.Tests.Samples.AddStoryFromDispose
     {
         public void Dispose()
         {
-            AllureApi.AddStory("foo");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddStory("foo");
+            }
         }
 
         [Fact]
         public void TestMethod() { }
     }
 }
+
+
 
 
 

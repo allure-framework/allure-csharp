@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddEpicFromDispose
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.AddEpicFromDispose
     {
         public void Dispose()
         {
-            AllureApi.AddEpic("foo");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddEpic("foo");
+            }
         }
 
         [Fact]

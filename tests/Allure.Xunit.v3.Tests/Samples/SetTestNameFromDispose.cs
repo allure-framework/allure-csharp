@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.SetTestNameFromDispose
@@ -11,10 +12,15 @@ namespace Allure.Xunit.Tests.Samples.SetTestNameFromDispose
 
         public void Dispose()
         {
-            AllureApi.SetTestName("Lorem Ipsum");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.SetTestName("Lorem Ipsum");
+            }
         }
     }
 }
+
+
 
 
 

@@ -1,6 +1,7 @@
 using System;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Attributes;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.LinkRuntimeApi
@@ -10,17 +11,23 @@ namespace Allure.Xunit.Tests.Samples.LinkRuntimeApi
         [Fact]
         public void TestMethod()
         {
-            AllureApi.AddLink("url-1");
-            AllureApi.AddLink("name-2", "type-2", "url-2");
-            AllureApi.AddIssue("url-3");
-            AllureApi.AddTmsItem("url-4");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddLink("url-1");
+                AllureApi.AddLink("name-2", "type-2", "url-2");
+                AllureApi.AddIssue("url-3");
+                AllureApi.AddTmsItem("url-4");
+            }
         }
 
         public void Dispose()
         {
-            AllureApi.AddLink("name-5", "url-5");
-            AllureApi.AddIssue("name-6", "url-6");
-            AllureApi.AddTmsItem("name-7", "url-7");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddLink("name-5", "url-5");
+                AllureApi.AddIssue("name-6", "url-6");
+                AllureApi.AddTmsItem("name-7", "url-7");
+            }
         }
     }
 }

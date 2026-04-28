@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.SetAllureIdFromTest
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.SetAllureIdFromTest
         [Fact]
         public void TestMethod()
         {
-            AllureApi.SetAllureId(1001);
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.SetAllureId(1001);
+            }
         }
     }
 }

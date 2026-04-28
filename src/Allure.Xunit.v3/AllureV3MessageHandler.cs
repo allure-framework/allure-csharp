@@ -16,12 +16,47 @@ internal sealed class AllureMessageSink(
 ) : IRunnerReporterMessageHandler
 {
     static bool s_loggedPatcherDisabled;
+    static readonly ConcurrentDictionary<string, AllureContext> s_contextsByTestUniqueId = new();
+    static readonly ConcurrentDictionary<string, byte> s_activeTestUniqueIds = new();
 
     static AllureTestPlan TestPlan => AllureLifecycle.Instance.TestPlan;
 
     static AllureContext AllureContext => AllureLifecycle.Instance.Context;
 
     readonly ConcurrentDictionary<string, AllureV3TestData> allureTestData = new();
+
+    internal static bool TryGetStoredContext(string testUniqueId, out AllureContext context) =>
+        s_contextsByTestUniqueId.TryGetValue(testUniqueId, out context!);
+
+    internal static bool TryGetSingleStoredContext(out string testUniqueId, out AllureContext context)
+    {
+        if (s_contextsByTestUniqueId.Count == 1)
+        {
+            var entry = s_contextsByTestUniqueId.First();
+            testUniqueId = entry.Key;
+            context = entry.Value;
+            return true;
+        }
+
+        testUniqueId = string.Empty;
+        context = default!;
+        return false;
+    }
+
+    internal static bool TryGetSingleActiveTestUniqueId(out string testUniqueId)
+    {
+        if (s_activeTestUniqueIds.Count == 1)
+        {
+            testUniqueId = s_activeTestUniqueIds.Keys.First();
+            return true;
+        }
+
+        testUniqueId = string.Empty;
+        return false;
+    }
+
+    internal static void SaveStoredContext(string testUniqueId, AllureContext context) =>
+        s_contextsByTestUniqueId[testUniqueId] = context;
 
     public bool OnMessage(IMessageSinkMessage message)
     {
@@ -61,6 +96,8 @@ internal sealed class AllureMessageSink(
 
     void OnTestStarting(ITestStarting message)
     {
+        s_activeTestUniqueIds[message.TestUniqueID] = 0;
+
         var testData = GetOrCreateTestData(message.TestUniqueID);
         var method = ResolveTestMethod(message);
 
@@ -83,6 +120,7 @@ internal sealed class AllureMessageSink(
             AllureXunitHelper.StartAllureTestCase(testResult);
         });
 
+        SaveStoredContext(message.TestUniqueID, testData.Context);
         AllureLifecycle.Instance.RestoreContext(testData.Context);
 
         logger.LogRaw($"[allure] start {testResult.name}");
@@ -95,7 +133,7 @@ internal sealed class AllureMessageSink(
             return;
         }
 
-        RefreshStoredContext(testData);
+        RefreshStoredContext(message.TestUniqueID, testData);
 
         UpdateTestContext(message.TestUniqueID, () =>
         {
@@ -111,7 +149,7 @@ internal sealed class AllureMessageSink(
             return;
         }
 
-        RefreshStoredContext(testData);
+        RefreshStoredContext(message.TestUniqueID, testData);
 
         UpdateTestContext(message.TestUniqueID, () =>
         {
@@ -127,7 +165,7 @@ internal sealed class AllureMessageSink(
             return;
         }
 
-        RefreshStoredContext(testData);
+        RefreshStoredContext(message.TestUniqueID, testData);
 
         UpdateTestContext(message.TestUniqueID, () =>
         {
@@ -140,10 +178,12 @@ internal sealed class AllureMessageSink(
     {
         if (!allureTestData.TryRemove(message.TestUniqueID, out var testData) || !testData.IsSelected)
         {
+            s_activeTestUniqueIds.TryRemove(message.TestUniqueID, out _);
+            s_contextsByTestUniqueId.TryRemove(message.TestUniqueID, out _);
             return;
         }
 
-        RefreshStoredContext(testData);
+        RefreshStoredContext(message.TestUniqueID, testData);
 
         AllureLifecycle.Instance.RunInContext(testData.Context, () =>
         {
@@ -166,6 +206,8 @@ internal sealed class AllureMessageSink(
             }
         });
 
+        s_activeTestUniqueIds.TryRemove(message.TestUniqueID, out _);
+        s_contextsByTestUniqueId.TryRemove(message.TestUniqueID, out _);
         logger.LogRaw($"[allure] finish {message.TestUniqueID}");
     }
 
@@ -195,6 +237,9 @@ internal sealed class AllureMessageSink(
                     AllureXunitHelper.ReportCurrentTestContainer();
                 }
             });
+
+            s_activeTestUniqueIds.TryRemove(kv.Key, out _);
+            s_contextsByTestUniqueId.TryRemove(kv.Key, out _);
         }
 
         return ValueTask.CompletedTask;
@@ -246,6 +291,7 @@ internal sealed class AllureMessageSink(
     {
         var data = GetOrCreateTestData(testUniqueId);
         data.Context = AllureContext;
+        SaveStoredContext(testUniqueId, data.Context);
         AllureLifecycle.Instance.RestoreContext(data.Context);
     }
 
@@ -254,6 +300,7 @@ internal sealed class AllureMessageSink(
         var data = GetOrCreateTestData(testUniqueId);
         var updatedContext = AllureLifecycle.Instance.RunInContext(data.Context, action);
         data.Context = updatedContext;
+        SaveStoredContext(testUniqueId, updatedContext);
         return updatedContext;
     }
 
@@ -434,11 +481,18 @@ internal sealed class AllureMessageSink(
         return value as int?;
     }
 
-    static void RefreshStoredContext(AllureV3TestData testData)
+    static void RefreshStoredContext(string testUniqueId, AllureV3TestData testData)
     {
+        if (TryGetStoredContext(testUniqueId, out var storedContext))
+        {
+            testData.Context = storedContext;
+            return;
+        }
+
         if (AllureContext.HasTest || AllureContext.HasContainer || AllureContext.HasFixture)
         {
             testData.Context = AllureContext;
+            SaveStoredContext(testUniqueId, testData.Context);
         }
     }
 

@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.SetAllureIdFromDispose
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.SetAllureIdFromDispose
     {
         public void Dispose()
         {
-            AllureApi.SetAllureId(1001);
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.SetAllureId(1001);
+            }
         }
 
         [Fact]

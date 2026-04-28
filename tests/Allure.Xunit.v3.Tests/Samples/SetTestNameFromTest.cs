@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.SetTestNameFromTest
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.SetTestNameFromTest
         [Fact]
         public void TestMethod()
         {
-            AllureApi.SetTestName("Lorem Ipsum");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.SetTestName("Lorem Ipsum");
+            }
         }
     }
 }

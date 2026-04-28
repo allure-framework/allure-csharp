@@ -43,6 +43,20 @@ Not supported by xUnit v3 custom reporters:
 3. Select reporter switch `allure`.
 4. Generate the report from produced `allure-results`.
 
+## Runtime API scope requirement (xUnit v3)
+
+Under Microsoft Testing Platform execution, runtime `AllureApi` calls are captured only inside an explicit runtime scope:
+
+```csharp
+using (AllureRuntimeScope.Begin())
+{
+    AllureApi.AddEpic("foo");
+    AllureApi.SetDescription("details");
+}
+```
+
+This applies to runtime mutations executed in the test body and `Dispose`.
+
 ## Examples
 
 See:

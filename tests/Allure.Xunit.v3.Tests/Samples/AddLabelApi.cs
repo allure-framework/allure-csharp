@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddLabelApi
@@ -9,12 +10,18 @@ namespace Allure.Xunit.Tests.Samples.AddLabelApi
         [Fact]
         public void TestMethod()
         {
-            AllureApi.AddLabel("test", "foo");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddLabel("test", "foo");
+            }
         }
 
         public void Dispose()
         {
-            AllureApi.AddLabel("dispose", "bar");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddLabel("dispose", "bar");
+            }
         }
     }
 }

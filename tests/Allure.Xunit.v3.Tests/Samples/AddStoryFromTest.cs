@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddStoryFromTest
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.AddStoryFromTest
         [Fact]
         public void TestMethod()
         {
-            AllureApi.AddStory("foo");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddStory("foo");
+            }
         }
     }
 }

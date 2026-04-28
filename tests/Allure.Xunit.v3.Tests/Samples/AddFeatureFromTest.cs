@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddFeatureFromTest
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.AddFeatureFromTest
         [Fact]
         public void TestMethod()
         {
-            AllureApi.AddFeature("foo");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddFeature("foo");
+            }
         }
     }
 }

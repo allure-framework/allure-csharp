@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddEpicFromTest
@@ -8,7 +9,10 @@ namespace Allure.Xunit.Tests.Samples.AddEpicFromTest
         [Fact]
         public void TestMethod()
         {
-            AllureApi.AddEpic("foo");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddEpic("foo");
+            }
         }
     }
 }

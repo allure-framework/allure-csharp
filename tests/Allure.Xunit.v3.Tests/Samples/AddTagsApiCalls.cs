@@ -1,5 +1,6 @@
 using System;
 using Allure.Net.Commons;
+using Allure.Xunit;
 using Xunit;
 
 namespace Allure.Xunit.Tests.Samples.AddTagsApiCalls
@@ -9,12 +10,18 @@ namespace Allure.Xunit.Tests.Samples.AddTagsApiCalls
         [Fact]
         public void TestMethod()
         {
-            AllureApi.AddTags("foo", "bar");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddTags("foo", "bar");
+            }
         }
 
         public void Dispose()
         {
-            AllureApi.AddTags("baz");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.AddTags("baz");
+            }
         }
     }
 }
