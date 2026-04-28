@@ -1,7 +1,7 @@
 <Project>
     <!-- Common metadata -->
     <PropertyGroup>
-        <Version>2.15-SNAPSHOT</Version>
+        <Version>2.16-SNAPSHOT</Version>
         <Company>Qameta Software</Company>
         <RepositoryUrl>https://github.com/allure-framework/allure-csharp</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
