@@ -1,123 +1,167 @@
 using System;
-using Allure.Net.Commons.TestPlan;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
+using Allure.Net.Commons;
 using HarmonyLib;
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Runner.Common;
 
 namespace Allure.Xunit;
 
 internal static class AllureXunitPatcher
 {
-    private const string ALLURE_ID = "io.qameta.allure.xunit";
-    private static bool _isPatched;
-    private static IRunnerLogger _logger;
+    const string ALLURE_ID = "io.qameta.allure.xunit.v3";
 
-    private static AllureMessageSink CurrentSink
+    static bool isPatched;
+    static IRunnerLogger? logger;
+
+    static readonly ConcurrentDictionary<string, AllureContext> contextsByTestUniqueId = new();
+
+    internal static void Enable(IRunnerLogger runnerLogger)
     {
-        get
-        {
-            var sink = AllureMessageSink.CurrentSink;
-
-            if (sink is null)
-            {
-                _logger.LogWarning(
-                    "{0}: Unable to get current message sink.",
-                    AllureXunitFacade.LOG_SOURCE
-                );
-            }
-
-            return sink;
-        }
-    }
-
-    internal static void PatchXunit(IRunnerLogger runnerLogger)
-    {
-        if (_isPatched)
+        if (isPatched)
         {
             return;
         }
 
-        _logger = runnerLogger;
+        logger = runnerLogger;
 
-        var patcher = new Harmony(ALLURE_ID);
-        PatchXunitTestRunnerCtors(patcher);
-        _isPatched = true;
-    }
-
-    private static void PatchXunitTestRunnerCtors(Harmony patcher)
-    {
-        var testRunnerType = typeof(XunitTestRunner);
-        var wasPatched = false;
-
-        foreach (var ctor in testRunnerType.GetConstructors())
+        try
         {
-            try
+            var patcher = new Harmony(ALLURE_ID);
+            var runnerBaseType = ResolveXunitType("Xunit.v3.XunitTestRunnerBase`2");
+
+            if (runnerBaseType is null)
             {
-                patcher.Patch(
-                    ctor,
-                    prefix: new HarmonyMethod(
-                        typeof(AllureXunitPatcher),
-                        nameof(OnTestRunnerCreating)
-                    ),
-                    postfix: new HarmonyMethod(
-                        typeof(AllureXunitPatcher),
-                        nameof(OnTestRunnerCreated)
-                    )
-                );
-
-                wasPatched = true;
-
-                _logger.LogImportantMessage(
-                    "{0}: {1}'s {2} has been patched",
-                    AllureXunitFacade.LOG_SOURCE,
-                    testRunnerType.Name,
-                    ctor.ToString()
-                );
+                logger.LogWarning("[allure] Unable to locate Xunit.v3.XunitTestRunnerBase`2 for patching");
+                return;
             }
-            catch (Exception e)
+
+            var invokeTest = runnerBaseType
+                .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+                .FirstOrDefault(static m =>
+                    string.Equals(m.Name, "InvokeTest", StringComparison.Ordinal)
+                    && m.GetParameters().Length == 2
+                );
+
+            if (invokeTest is null)
             {
-                _logger.LogWarning(
-                    "{0}: Unable to patch {1}'s {2}: {3}",
-                    AllureXunitFacade.LOG_SOURCE,
-                    testRunnerType.Name,
-                    ctor.ToString(),
-                    e.ToString()
-                );
+                logger.LogWarning("[allure] Unable to locate Xunit.v3.XunitTestRunnerBase`2.InvokeTest for patching");
+                return;
             }
-        }
 
-        if (!wasPatched)
-        {
-            _logger.LogWarning(
-                "{0}: No constructors of {1} were patched. Some theories may " +
-                "miss their parameters in the report",
-                AllureXunitFacade.LOG_SOURCE,
-                testRunnerType.Name
+            patcher.Patch(
+                invokeTest,
+                prefix: new HarmonyMethod(typeof(AllureXunitPatcher), nameof(BeforeInvokeTest)),
+                postfix: new HarmonyMethod(typeof(AllureXunitPatcher), nameof(AfterInvokeTest))
             );
+
+            isPatched = true;
+            logger.LogRaw("[allure] xunit v3 invoker patch enabled");
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning("[allure] Failed to patch xunit v3 invoker: {0}", e.ToString());
         }
     }
 
-    private static void OnTestRunnerCreating(ITest test, ref string skipReason)
+    internal static void RegisterContext(string testUniqueId, AllureContext context)
     {
-        if (AllureXunitHelper.IsOnExternalAuthority(test))
+        if (string.IsNullOrEmpty(testUniqueId) || context is null)
         {
             return;
         }
 
-        if (!CurrentSink.SelectByTestPlan(test))
-        {
-            skipReason = AllureTestPlan.SkipReason;
-        }
+        contextsByTestUniqueId[testUniqueId] = context;
     }
 
-    private static void OnTestRunnerCreated(ITest test, object[] testMethodArguments)
+    internal static void UnregisterContext(string testUniqueId)
     {
-        if (AllureXunitHelper.IsOnExternalAuthority(test))
+        if (string.IsNullOrEmpty(testUniqueId))
         {
             return;
         }
 
-        CurrentSink.OnTestArgumentsCreated(test, testMethodArguments);
+        contextsByTestUniqueId.TryRemove(testUniqueId, out _);
+    }
+
+    static void BeforeInvokeTest(object ctxt)
+    {
+        var testUniqueId = ResolveTestUniqueId(ctxt);
+        if (testUniqueId is null)
+        {
+            return;
+        }
+
+        if (contextsByTestUniqueId.TryGetValue(testUniqueId, out var context))
+        {
+            AllureLifecycle.Instance.RestoreContext(context);
+        }
+    }
+
+    static void AfterInvokeTest(object ctxt)
+    {
+        var testUniqueId = ResolveTestUniqueId(ctxt);
+        if (testUniqueId is null)
+        {
+            return;
+        }
+
+        if (contextsByTestUniqueId.TryGetValue(testUniqueId, out _))
+        {
+            contextsByTestUniqueId[testUniqueId] = AllureLifecycle.Instance.Context;
+        }
+    }
+
+    static string? ResolveTestUniqueId(object ctxt)
+    {
+        var test = ctxt
+            .GetType()
+            .GetProperty("Test", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.GetValue(ctxt);
+
+        if (test is null)
+        {
+            return null;
+        }
+
+        var testType = test.GetType();
+
+        var publicUniqueId = testType
+            .GetProperty("UniqueID", BindingFlags.Instance | BindingFlags.Public)
+            ?.GetValue(test) as string;
+        if (!string.IsNullOrEmpty(publicUniqueId))
+        {
+            return publicUniqueId;
+        }
+
+        var publicTestUniqueId = testType
+            .GetProperty("TestUniqueID", BindingFlags.Instance | BindingFlags.Public)
+            ?.GetValue(test) as string;
+        if (!string.IsNullOrEmpty(publicTestUniqueId))
+        {
+            return publicTestUniqueId;
+        }
+
+        var hiddenUniqueId = testType
+            .GetProperties(BindingFlags.Instance | BindingFlags.NonPublic)
+            .FirstOrDefault(static p => p.Name.EndsWith("UniqueID", StringComparison.Ordinal))
+            ?.GetValue(test) as string;
+
+        return hiddenUniqueId;
+    }
+
+    static Type? ResolveXunitType(string typeName)
+    {
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var type = assembly.GetType(typeName, throwOnError: false, ignoreCase: false);
+            if (type is not null)
+            {
+                return type;
+            }
+        }
+
+        return null;
     }
 }
