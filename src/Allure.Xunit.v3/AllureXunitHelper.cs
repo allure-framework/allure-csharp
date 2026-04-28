@@ -83,7 +83,7 @@ namespace Allure.Xunit
             Parameter[] parametersFromMethod =
             [
                 ..ModelFunctions.CreateParameters(
-                    parameters.Select(static p => p.Name),
+                    parameters.Select(static p => p.Name ?? string.Empty),
                     parameters.Select(static p => p.GetCustomAttribute<AllureParameterAttribute>()),
                     arguments,
                     AllureLifecycle.Instance.TypeFormatters

@@ -5,6 +5,7 @@
         <AssemblyName>Allure.Xunit.v3.reporters</AssemblyName>
         <RootNamespace>Allure.Xunit</RootNamespace>
         <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
         <Authors>grootstebozewolf</Authors>
         <Description>Create beautiful reports from your xUnit.net v3 tests.</Description>

@@ -7,7 +7,7 @@ namespace Allure.Xunit.Attributes.Steps
 {
     public class AllureStepAttribute : AllureStepAttributes.AbstractStepAttribute
     {
-        public AllureStepAttribute(string name = null) : base(name)
+        public AllureStepAttribute(string? name = null) : base(name)
         {
         }
     }
@@ -19,7 +19,7 @@ namespace Allure.XUnit.Attributes.Steps
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class AllureStepAttribute : AllureStepAttributes.AbstractStepAttribute
     {
-        public AllureStepAttribute(string name = null) : base(name)
+        public AllureStepAttribute(string? name = null) : base(name)
         {
         }
     }
