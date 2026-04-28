@@ -265,9 +265,46 @@ public class AllureSampleRunner
                 return false;
             }
 
-            var projectXml = File.ReadAllText(path);
-            return projectXml.Contains("xunit.v3", StringComparison.OrdinalIgnoreCase);
+            if (ProjectContainsXunitV3(path))
+            {
+                return true;
+            }
+
+            return DirectoryBuildPropsContainsXunitV3(path);
         });
+
+    static bool ProjectContainsXunitV3(string projectPath)
+    {
+        var projectXml = File.ReadAllText(projectPath);
+        return projectXml.Contains("xunit.v3", StringComparison.OrdinalIgnoreCase);
+    }
+
+    static bool DirectoryBuildPropsContainsXunitV3(string projectPath)
+    {
+        var projectDirectory = Path.GetDirectoryName(projectPath);
+        if (string.IsNullOrEmpty(projectDirectory))
+        {
+            return false;
+        }
+
+        var current = new DirectoryInfo(projectDirectory);
+        while (current is not null)
+        {
+            var directoryBuildPropsPath = Path.Combine(current.FullName, "Directory.Build.props");
+            if (File.Exists(directoryBuildPropsPath))
+            {
+                var propsXml = File.ReadAllText(directoryBuildPropsPath);
+                if (propsXml.Contains("xunit.v3", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            current = current.Parent;
+        }
+
+        return false;
+    }
 
     static void ApplyExtraEnvironmentVariables(
         IEnumerable<KeyValuePair<string, string>> envVars,
