@@ -2,9 +2,15 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
+    <PropertyGroup>
+        <_Allure_BuildTasksAssemblyPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath), 'Allure.Build.Tasks.dll'))</_Allure_BuildTasksAssemblyPath>
+    </PropertyGroup>
+
     <UsingTask
         TaskName="Allure.Build.Tasks.GenerateSampleSolution"
-        AssemblyFile="$([MSBuild]::NormalizePath($(IntermediateOutputPath), 'Allure.Build.Tasks.dll'))"/>
+        AssemblyFile="$(_Allure_BuildTasksAssemblyPath)"
+        Condition="Exists('$(_Allure_BuildTasksAssemblyPath)')"
+        Runtime="NET" />
 
     <PropertyGroup>
 
@@ -102,22 +108,24 @@
                     'Allure.Build.Tasks.csproj'
                 )
             )</_Allure_BuildTasksProject>
+            <_Allure_BuildTasksSourceAssemblyPath>$([MSBuild]::NormalizePath('$(ArtifactsPath)', 'bin', 'Allure.Build.Tasks', 'release', 'Allure.Build.Tasks.dll'))</_Allure_BuildTasksSourceAssemblyPath>
         </PropertyGroup>
 
         <MSBuild
             Projects="$(_Allure_BuildTasksProject)"
             Targets="Restore;Build"
-            BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=Release">
-
-            <Output TaskParameter="TargetOutputs" ItemName="AllureBuildTasksAssembly" />
-
-        </MSBuild>
+            BuildInParallel="false"
+            Properties="Configuration=Release;BuildInParallel=false" />
 
         <Copy
-            SourceFiles="@(AllureBuildTasksAssembly)"
-            DestinationFolder="$(IntermediateOutputPath)"
-            SkipUnchangedFiles="true" />
+            SourceFiles="$(_Allure_BuildTasksSourceAssemblyPath)"
+            DestinationFiles="$(_Allure_BuildTasksAssemblyPath)"
+            Condition="!Exists('$(_Allure_BuildTasksAssemblyPath)')"
+            SkipUnchangedFiles="true"
+            Retries="30"
+            RetryDelayMilliseconds="200"
+            OverwriteReadOnlyFiles="true"
+            ContinueOnError="false" />
 
         <MakeDir Directories="$(Allure_LocalNugetRepository)" />
 
