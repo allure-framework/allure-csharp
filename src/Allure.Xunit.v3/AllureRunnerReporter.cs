@@ -10,7 +10,7 @@ public sealed class AllureRunnerReporter : IRunnerReporter
 {
     public bool CanBeEnvironmentallyEnabled => false;
 
-    public string Description => "Creates allure input files for xUnit.net v3 tests";
+    public string Description => "Create Allure results from xUnit.net v3 in-process runs";
 
     public bool ForceNoLogo => false;
 
@@ -21,5 +21,5 @@ public sealed class AllureRunnerReporter : IRunnerReporter
     public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
         IRunnerLogger logger,
         IMessageSink diagnosticMessageSink
-    ) => new(new AllureMessageSink(logger, diagnosticMessageSink));
+    ) => new(new AllureMessageSink(diagnosticMessageSink));
 }

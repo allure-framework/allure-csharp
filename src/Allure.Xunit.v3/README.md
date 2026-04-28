@@ -55,6 +55,13 @@ using (AllureRuntimeScope.Begin())
 }
 ```
 
+For late lifecycle phases (for example `Dispose`), activate the test context explicitly before runtime mutations:
+
+```csharp
+AllureRuntimeScope.ActivateContextForDispose();
+AllureApi.SetDescription("details from Dispose");
+```
+
 This applies to runtime mutations executed in the test body and `Dispose`.
 
 ## Examples

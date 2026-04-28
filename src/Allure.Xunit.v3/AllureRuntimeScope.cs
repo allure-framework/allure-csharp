@@ -18,6 +18,9 @@ public sealed class AllureRuntimeScope : IDisposable
         this.isActive = isActive;
     }
 
+    public static void ActivateContextForDispose() =>
+        AllureMessageSink.ActivateContextForDispose();
+
     public static AllureRuntimeScope Begin()
     {
         var lifecycle = AllureLifecycle.Instance;

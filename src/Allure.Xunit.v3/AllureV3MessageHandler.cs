@@ -2,24 +2,22 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
-using Allure.Net.Commons.TestPlan;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Allure.Xunit;
 
 internal sealed class AllureMessageSink(
-    IRunnerLogger logger,
     IMessageSink diagnosticMessageSink
 ) : IRunnerReporterMessageHandler
 {
-    static bool s_loggedPatcherDisabled;
     static readonly ConcurrentDictionary<string, AllureContext> s_contextsByTestUniqueId = new();
     static readonly ConcurrentDictionary<string, byte> s_activeTestUniqueIds = new();
-
-    static AllureTestPlan TestPlan => AllureLifecycle.Instance.TestPlan;
+    static readonly ConcurrentDictionary<string, AllureContext> s_lastKnownTestContext = new();
+    static string? s_lastKnownTestUniqueId;
 
     static AllureContext AllureContext => AllureLifecycle.Instance.Context;
 
@@ -55,18 +53,49 @@ internal sealed class AllureMessageSink(
         return false;
     }
 
-    internal static void SaveStoredContext(string testUniqueId, AllureContext context) =>
+    internal static void SaveStoredContext(string testUniqueId, AllureContext context)
+    {
         s_contextsByTestUniqueId[testUniqueId] = context;
+        RegisterTestForDispose(testUniqueId, context);
+    }
+
+    internal static void RegisterTestForDispose(string uniqueId, AllureContext context)
+    {
+        s_lastKnownTestContext[uniqueId] = context;
+        Interlocked.Exchange(ref s_lastKnownTestUniqueId, uniqueId);
+    }
+
+    internal static void ActivateContextForDispose()
+    {
+        var lifecycle = AllureLifecycle.Instance;
+
+        if (TryGetSingleActiveTestUniqueId(out var activeUniqueId)
+            && s_lastKnownTestContext.TryGetValue(activeUniqueId, out var activeContext))
+        {
+            lifecycle.RestoreContext(activeContext);
+            return;
+        }
+
+        var lastKnownUniqueId = Volatile.Read(ref s_lastKnownTestUniqueId);
+        if (!string.IsNullOrWhiteSpace(lastKnownUniqueId)
+            && s_lastKnownTestContext.TryGetValue(lastKnownUniqueId, out var lastKnownContext))
+        {
+            lifecycle.RestoreContext(lastKnownContext);
+            return;
+        }
+
+        if (s_lastKnownTestContext.Count > 0)
+        {
+            lifecycle.RestoreContext(s_lastKnownTestContext.Values.Last());
+            return;
+        }
+
+        lifecycle.UpdateTestCase(_ => { });
+    }
 
     public bool OnMessage(IMessageSinkMessage message)
     {
         diagnosticMessageSink?.OnMessage(message);
-
-        if (!s_loggedPatcherDisabled)
-        {
-            s_loggedPatcherDisabled = true;
-            logger.LogRaw("[allure] Patcher disabled for v3 — using message-based context only");
-        }
 
         switch (message)
         {
@@ -122,8 +151,6 @@ internal sealed class AllureMessageSink(
 
         SaveStoredContext(message.TestUniqueID, testData.Context);
         AllureLifecycle.Instance.RestoreContext(testData.Context);
-
-        logger.LogRaw($"[allure] start {testResult.name}");
     }
 
     void OnTestPassed(ITestPassed message)
@@ -180,6 +207,7 @@ internal sealed class AllureMessageSink(
         {
             s_activeTestUniqueIds.TryRemove(message.TestUniqueID, out _);
             s_contextsByTestUniqueId.TryRemove(message.TestUniqueID, out _);
+            s_lastKnownTestContext.TryRemove(message.TestUniqueID, out _);
             return;
         }
 
@@ -208,7 +236,7 @@ internal sealed class AllureMessageSink(
 
         s_activeTestUniqueIds.TryRemove(message.TestUniqueID, out _);
         s_contextsByTestUniqueId.TryRemove(message.TestUniqueID, out _);
-        logger.LogRaw($"[allure] finish {message.TestUniqueID}");
+        s_lastKnownTestContext.TryRemove(message.TestUniqueID, out _);
     }
 
     public ValueTask DisposeAsync()
@@ -240,6 +268,7 @@ internal sealed class AllureMessageSink(
 
             s_activeTestUniqueIds.TryRemove(kv.Key, out _);
             s_contextsByTestUniqueId.TryRemove(kv.Key, out _);
+            s_lastKnownTestContext.TryRemove(kv.Key, out _);
         }
 
         return ValueTask.CompletedTask;
@@ -285,14 +314,6 @@ internal sealed class AllureMessageSink(
         }
 
         AllureXunitHelper.ApplyTestParameters(method, arguments);
-    }
-
-    void CaptureTestContext(string testUniqueId)
-    {
-        var data = GetOrCreateTestData(testUniqueId);
-        data.Context = AllureContext;
-        SaveStoredContext(testUniqueId, data.Context);
-        AllureLifecycle.Instance.RestoreContext(data.Context);
     }
 
     AllureContext RunInTestContext(string testUniqueId, Action action)

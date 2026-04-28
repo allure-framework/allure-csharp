@@ -25,6 +25,18 @@
 | [Allure.Xunit](./src/Allure.Xunit)         | [https://allurereport.org/docs/xunit/](https://allurereport.org/docs/xunit/) | [Shumakov Ivan](https://github.com/IvanWR1995) | [![Nuget](https://img.shields.io/nuget/v/Allure.Xunit)](https://www.nuget.org/packages/Allure.Xunit/) |
 | [Allure.Xunit.v3](./src/Allure.Xunit.v3)   | [README](./src/Allure.Xunit.v3/README.md) | Community | Alpha preview |
 
+### xUnit v3 support notes
+
+`Allure.Xunit.v3` currently targets xUnit v3 **in-process** reporter execution.
+
+For runtime `AllureApi` calls in late lifecycle phases (for example `Dispose`), use explicit activation:
+
+```csharp
+AllureRuntimeScope.ActivateContextForDispose();
+```
+
+See [src/Allure.Xunit.v3/README.md](./src/Allure.Xunit.v3/README.md) for scope and limitations.
+
 ## Allure.Net.Commons
 
 [![](http://img.shields.io/nuget/v/Allure.Net.Commons.svg?style=flat)](https://www.nuget.org/packages/Allure.Net.Commons)
