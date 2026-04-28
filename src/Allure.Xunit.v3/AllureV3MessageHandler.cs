@@ -85,14 +85,10 @@ internal sealed class AllureMessageSink(
         var testData = GetOrCreateTestData(message.TestUniqueID);
         var method = ResolveTestMethod(message);
 
-        if (method is null)
-        {
-            testData.IsSelected = false;
-            return;
-        }
-
-        var testResult = AllureXunitHelper.CreateTestResult(method, message.TestDisplayName);
-        var isSelected = TestPlan.IsSelected(testResult);
+        var testResult = method is not null
+            ? AllureXunitHelper.CreateTestResult(method, message.TestDisplayName)
+            : CreateFallbackTestResult(message);
+        var isSelected = true;
 
         testData.TestMethod = method;
         testData.TestResult = testResult;
@@ -103,16 +99,13 @@ internal sealed class AllureMessageSink(
             return;
         }
 
-        if (IsStaticTestMethod(method))
-        {
-            AllureXunitHelper.StartAllureTestCase(testResult);
-            CaptureTestContext(message.TestUniqueID);
-        }
-        else
+        if (method is not null && !IsStaticTestMethod(method))
         {
             AllureXunitHelper.StartNewAllureContainer(method.DeclaringType?.FullName ?? method.DeclaringType?.Name ?? "unknown");
-            CaptureTestContext(message.TestUniqueID);
         }
+
+        AllureXunitHelper.StartAllureTestCase(testResult);
+        CaptureTestContext(message.TestUniqueID);
 
         logger.LogRaw($"[allure] start {testResult.name}");
     }
@@ -166,15 +159,22 @@ internal sealed class AllureMessageSink(
             return;
         }
 
-        RunInTestContext(message.TestUniqueID, () =>
+        AllureLifecycle.Instance.RunInContext(testData.Context, () =>
         {
-            EnsureTestStarted(testData);
+            if (testData.TestMethod is null)
+            {
+                testData.TestMethod = ResolveTestMethod(message);
+            }
+
             var arguments = testData.Arguments ?? GetArguments(message);
             AddAllureParameters(testData.TestMethod, arguments);
-            AllureXunitHelper.ApplyDefaultSuites(testData.TestMethod);
+            if (testData.TestMethod is not null)
+            {
+                AllureXunitHelper.ApplyDefaultSuites(testData.TestMethod);
+            }
             AllureXunitHelper.ReportCurrentTestCase();
 
-            if (!IsStaticTestMethod(testData.TestMethod) && AllureContext.HasContainer)
+            if (testData.TestMethod is not null && !IsStaticTestMethod(testData.TestMethod) && AllureContext.HasContainer)
             {
                 AllureXunitHelper.ReportCurrentTestContainer();
             }
@@ -247,7 +247,10 @@ internal sealed class AllureMessageSink(
             return;
         }
 
-        AllureXunitHelper.StartAllureTestCase(testData.TestResult);
+        if (testData.TestResult is not null)
+        {
+            AllureXunitHelper.StartAllureTestCase(testData.TestResult);
+        }
     }
 
     static bool IsStaticTestMethod(MethodInfo method) => method.IsStatic;
@@ -258,6 +261,20 @@ internal sealed class AllureMessageSink(
         var testMethodName = GetStringProperty(testStarting, "TestMethodName")
             ?? GetStringProperty(testStarting, "MethodName");
 
+        return ResolveTestMethod(testStarting, testClassName, testMethodName);
+    }
+
+    static MethodInfo? ResolveTestMethod(ITestFinished testFinished)
+    {
+        var testClassName = GetStringProperty(testFinished, "TestClassName");
+        var testMethodName = GetStringProperty(testFinished, "TestMethodName")
+            ?? GetStringProperty(testFinished, "MethodName");
+
+        return ResolveTestMethod(testFinished, testClassName, testMethodName);
+    }
+
+    static MethodInfo? ResolveTestMethod(object message, string? testClassName, string? testMethodName)
+    {
         if (string.IsNullOrEmpty(testClassName) || string.IsNullOrEmpty(testMethodName))
         {
             return null;
@@ -279,10 +296,47 @@ internal sealed class AllureMessageSink(
             return candidates.FirstOrDefault();
         }
 
-        var metadataToken = GetInt32Property(testStarting, "TestMethodMetadataToken");
+        var metadataToken = GetInt32Property(message, "TestMethodMetadataToken");
         return metadataToken is null
             ? candidates.FirstOrDefault()
             : candidates.FirstOrDefault(method => method.MetadataToken == metadataToken.Value);
+    }
+
+    static TestResult CreateFallbackTestResult(ITestStarting message)
+    {
+        var testClassName = GetStringProperty(message, "TestClassName");
+        var testMethodName = GetStringProperty(message, "TestMethodName")
+            ?? GetStringProperty(message, "MethodName");
+
+        var labels = new System.Collections.Generic.List<Label>
+        {
+            Label.Thread(),
+            Label.Host(),
+            Label.Language(),
+            Label.Framework("xUnit.net v3")
+        };
+
+        labels.AddRange(Allure.Net.Commons.Functions.ModelFunctions.EnumerateEnvironmentLabels());
+        labels.AddRange(Allure.Net.Commons.Functions.ModelFunctions.EnumerateGlobalLabels());
+
+        if (!string.IsNullOrEmpty(testClassName))
+        {
+            labels.Add(Label.TestClass(testClassName));
+            labels.Add(Label.Package(testClassName));
+        }
+
+        if (!string.IsNullOrEmpty(testMethodName))
+        {
+            labels.Add(Label.TestMethod(testMethodName));
+        }
+
+        return new TestResult
+        {
+            uuid = Allure.Net.Commons.Functions.IdFunctions.CreateUUID(),
+            name = message.TestDisplayName,
+            fullName = message.TestUniqueID,
+            labels = labels
+        };
     }
 
     static Type? ResolveTestClass(string testClassName)
