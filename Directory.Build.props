@@ -22,6 +22,11 @@
         <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'artifacts'))</ArtifactsPath>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+        <RestoreFallbackFolders></RestoreFallbackFolders>
+        <RestoreAdditionalProjectFallbackFolders></RestoreAdditionalProjectFallbackFolders>
+    </PropertyGroup>
+
     <!-- Signing properties -->
     <PropertyGroup>
         <!-- Signing is opt-in -->
