@@ -9,7 +9,6 @@
     <UsingTask
         TaskName="Allure.Build.Tasks.GenerateSampleSolution"
         AssemblyFile="$(_Allure_BuildTasksAssemblyPath)"
-        Condition="Exists('$(_Allure_BuildTasksAssemblyPath)')"
         Runtime="NET" />
 
     <PropertyGroup>
@@ -35,6 +34,10 @@
             )
         )</_Allure_SampleSolutionPath>
 
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Allure.Xunit.v3.Tests'">
+        <Allure_PreRunTestingFlow>false</Allure_PreRunTestingFlow>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Allure_PreRunTestingFlow)' == 'true' ">
@@ -70,7 +73,7 @@
 
         <Exec
             Condition=" '$(Allure_TestTargetVersion)' != '' "
-            Command="dotnet msbuild -getProperty:PackageId '%(ProjectUnderTest.Identity)'"
+            Command="dotnet msbuild -getProperty:PackageId &quot;%(ProjectUnderTest.FullPath)&quot;"
             ConsoleToMsBuild="true"
             StandardOutputImportance="low">
 
@@ -158,7 +161,7 @@
             Projects="$(_Allure_SampleSolutionPath)"
             Targets="Restore;Build"
             BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=$(Allure_SampleConfiguration)"
+            Properties="Configuration=$(Allure_SampleConfiguration);RestoreEnablePackageSourceMapping=false"
             RemoveProperties="Platform" />
 
     </Target>
@@ -191,6 +194,7 @@
                 Allure_TestSampleTarget=VSTest;
                 Configuration=$(Allure_SampleConfiguration);
                 Allure_BuildInParallel=$(BuildInParallel);
+                RestoreEnablePackageSourceMapping=false;
             "
             RemoveProperties="Platform"
             ContinueOnError="true" />

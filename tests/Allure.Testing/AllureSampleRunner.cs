@@ -94,10 +94,14 @@ public class AllureSampleRunner
         AllureSampleRegistryEntry sample,
         AllureSampleRunInput input,
         CancellationToken ct
-    ) =>
-        sample.IsPreRunFlow
+    )
+    {
+        var isXunitV3Sample = IsXunitV3SampleProject(sample.ProjectPath);
+
+        return sample.IsPreRunFlow && !isXunitV3Sample
             ? EnsureExistingAllureResultsDirectory(sample)
             : await ProduceSampleResults(sample, input, ct);
+    }
 
     static DirectoryInfo EnsureExistingAllureResultsDirectory(AllureSampleRegistryEntry sample)
     {
