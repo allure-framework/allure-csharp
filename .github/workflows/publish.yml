@@ -3,7 +3,6 @@ name: Publish
 env:
   SOLUTION_PATH: allure-csharp.slnx
   BUILD_CONFIGURATION: 'Publish'
-  PACKAGE_OUTPUT_PATH: './artifacts/package/release'
 
 on:
   release:
@@ -78,6 +77,6 @@ jobs:
       - name: 'Publish the packages to NuGet'
         shell: pwsh
         run: |
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" `
+          dotnet nuget push ".\artifacts\package\release\*.nupkg" `
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" `
             --source "https://api.nuget.org/v3/index.json"
