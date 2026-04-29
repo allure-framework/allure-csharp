@@ -18,8 +18,10 @@ namespace Allure.NUnit.Tests.Samples.AddDescriptionFromDisposeHtmlFromTest
 
         public void Dispose()
         {
-            AllureRuntimeScope.ActivateContextForDispose();
-            AllureApi.SetDescription("Dolor Sit Amet");
+            using (AllureRuntimeScope.Begin())
+            {
+                AllureApi.SetDescription("Dolor Sit Amet");
+            }
         }
     }
 }
