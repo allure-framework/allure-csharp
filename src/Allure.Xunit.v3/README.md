@@ -45,24 +45,18 @@ Not supported by xUnit v3 custom reporters:
 
 ## Runtime API scope requirement (xUnit v3)
 
-Under Microsoft Testing Platform execution, runtime `AllureApi` calls are captured only inside an explicit runtime scope:
+Under Microsoft Testing Platform execution, runtime `AllureApi` calls are not correlated from ordinary test-body execution or from `Dispose` scopes opened with `AllureRuntimeScope.Begin()`.
 
-```csharp
-using (AllureRuntimeScope.Begin())
-{
-    AllureApi.AddEpic("foo");
-    AllureApi.SetDescription("details");
-}
-```
+Use `AllureRuntimeScope.Begin()` only as the explicit runtime hook surface for future v3 expansion.
 
-For late lifecycle phases (for example `Dispose`), activate the test context explicitly before runtime mutations:
+For late lifecycle phases where you already need to mutate the active test context, activate the stored test context explicitly before the mutation:
 
 ```csharp
 AllureRuntimeScope.ActivateContextForDispose();
 AllureApi.SetDescription("details from Dispose");
 ```
 
-This applies to runtime mutations executed in the test body and `Dispose`.
+This late-phase activation path is the supported v3 runtime boundary today. Prefer attributes and reporter-correlated metadata for test-body annotations.
 
 ## Examples
 

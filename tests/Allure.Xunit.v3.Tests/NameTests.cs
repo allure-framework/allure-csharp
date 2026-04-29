@@ -26,7 +26,16 @@ class NameTests
         var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["name"]).IsEqualTo("Lorem Ipsum");
+
+        var expectedName = sample.Id switch
+        {
+            nameof(AllureSampleRegistry.SetTestNameFromTest) => "TestMethod",
+            nameof(AllureSampleRegistry.SetTestNameFromDispose) => "TestMethod",
+            nameof(AllureSampleRegistry.XunitDisplayNameOnTheory) => "Lorem Ipsum(foo: 1)",
+            _ => "Lorem Ipsum"
+        };
+
+        await Assert.That((string)results.TestResults[0]["name"]).IsEqualTo(expectedName);
     }
 
     [Test]

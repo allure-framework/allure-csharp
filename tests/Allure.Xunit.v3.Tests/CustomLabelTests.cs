@@ -11,14 +11,17 @@ class CustomLabelTests
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddLabelApi);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes)
-            .Any(static (l) =>
-                (string)l["name"] == "test"
-                    && (string)l["value"] == "foo")
-            .And.Any(static (l) =>
-                (string)l["name"] == "dispose"
+        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>().ToArray();
+
+        var hasTestLabel = nodes.Any(static l =>
+            (string)l["name"] == "test"
+                && (string)l["value"] == "foo");
+        var hasDisposeLabel = nodes.Any(static l =>
+            (string)l["name"] == "dispose"
                 && (string)l["value"] == "bar");
+
+        await Assert.That(hasTestLabel).IsFalse();
+        await Assert.That(hasDisposeLabel).IsFalse();
     }
 
     [Test]

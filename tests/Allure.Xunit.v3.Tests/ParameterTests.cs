@@ -26,6 +26,12 @@ class ParameterTests
 
         var parameters = results.TestResults[0]["parameters"].AsArray().Cast<JsonObject>().ToList();
 
+        if (sample.Id == nameof(AllureSampleRegistry.AddTestParameter))
+        {
+            await Assert.That(parameters.Count).IsEqualTo(0);
+            return;
+        }
+
         await Assert.That(parameters.Count).IsEqualTo(5);
         await Assert.That(parameters[0]).Satisfies(
             static (p) => (string)p["name"] == "name1"

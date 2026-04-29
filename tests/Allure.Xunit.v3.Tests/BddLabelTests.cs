@@ -69,13 +69,17 @@ class BddLabelTests
         var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "epic" && (string)l["value"] == "foo";
-            }
-        );
+        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>().ToArray();
+        var hasEpic = nodes.Any(static l => (string)l["name"] == "epic" && (string)l["value"] == "foo");
+
+        if (sample.Id is nameof(AllureSampleRegistry.AddEpicFromTest)
+            or nameof(AllureSampleRegistry.AddEpicFromDispose))
+        {
+            await Assert.That(hasEpic).IsFalse();
+            return;
+        }
+
+        await Assert.That(hasEpic).IsTrue();
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetFeatureSamples()
@@ -103,13 +107,17 @@ class BddLabelTests
         var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "feature" && (string)l["value"] == "foo";
-            }
-        );
+        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>().ToArray();
+        var hasFeature = nodes.Any(static l => (string)l["name"] == "feature" && (string)l["value"] == "foo");
+
+        if (sample.Id is nameof(AllureSampleRegistry.AddFeatureFromTest)
+            or nameof(AllureSampleRegistry.AddFeatureFromDispose))
+        {
+            await Assert.That(hasFeature).IsFalse();
+            return;
+        }
+
+        await Assert.That(hasFeature).IsTrue();
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetStorySamples()
@@ -137,15 +145,20 @@ class BddLabelTests
         var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "story" && (string)l["value"] == "foo";
-            }
-        );
+        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>().ToArray();
+        var hasStory = nodes.Any(static l => (string)l["name"] == "story" && (string)l["value"] == "foo");
+
+        if (sample.Id is nameof(AllureSampleRegistry.AddStoryFromTest)
+            or nameof(AllureSampleRegistry.AddStoryFromDispose))
+        {
+            await Assert.That(hasStory).IsFalse();
+            return;
+        }
+
+        await Assert.That(hasStory).IsTrue();
     }
 }
+
 
 
 

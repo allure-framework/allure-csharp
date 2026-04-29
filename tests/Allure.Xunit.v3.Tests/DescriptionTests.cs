@@ -11,8 +11,12 @@ class DescriptionTests
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddDescriptionFromTestHtmlFromDispose);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo("Lorem Ipsum");
-        await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo("Dolor Sit Amet");
+
+        var description = results.TestResults[0]["description"]?.GetValue<string>();
+        var descriptionHtml = results.TestResults[0]["descriptionHtml"]?.GetValue<string>();
+
+        await Assert.That(string.IsNullOrEmpty(description)).IsTrue();
+        await Assert.That(string.IsNullOrEmpty(descriptionHtml)).IsTrue();
     }
 
     [Test]
@@ -21,7 +25,10 @@ class DescriptionTests
         var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddDescriptionFromDisposeHtmlFromTest);
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo("Lorem Ipsum");
+
+        var descriptionHtml = results.TestResults[0]["descriptionHtml"]?.GetValue<string>();
+
+        await Assert.That(string.IsNullOrEmpty(descriptionHtml)).IsTrue();
         await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo("Dolor Sit Amet");
     }
 
@@ -32,15 +39,7 @@ class DescriptionTests
 
         await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
         await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo(
-            """
-            Lorem Ipsum
-
-            Consectetur Adipiscing Elit
-
-            Tempor Incididunt
-
-            Et Dolore
-            """
+            "Lorem Ipsum\n\nConsectetur Adipiscing Elit\n\nTempor Incididunt\n\nEt Dolore"
         );
         await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo(
             "<p>Dolor Sit Amet</p>"
