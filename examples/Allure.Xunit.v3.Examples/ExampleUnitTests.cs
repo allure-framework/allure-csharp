@@ -44,7 +44,7 @@ namespace Allure.Xunit.v3.Examples
         [AllureSeverity(SeverityLevel.critical)]
         public async Task Test2()
         {
-            await Task.Delay(0);
+            await Task.Delay(0, TestContext.Current.CancellationToken);
             Assert.True(1 == 1);
             Attachments.File("allureConfig", @"./allureConfig.json");
         }
