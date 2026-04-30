@@ -31,7 +31,14 @@ namespace Allure.Xunit.Examples.TestData
 
         private static object[] CreateTestData()
         {
-            return new object[] {GetRandomNumber(), GetRandomNumber(), GetRandomNumber()};
+            var value1 = GetRandomNumber();
+            var value2 = GetRandomNumber();
+            // Compute expected using unchecked arithmetic (allow overflow to match runtime behavior)
+            unchecked
+            {
+                var expected = value1 + value2;
+                return new object[] { value1, value2, expected };
+            }
         }
 
         private static int GetRandomNumber()
