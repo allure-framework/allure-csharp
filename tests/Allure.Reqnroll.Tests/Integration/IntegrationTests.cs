@@ -104,10 +104,19 @@ class IntegrationTests
             WorkingDirectory = samplesProjectDir,
             FileName = "dotnet",
             Arguments = $"test --configuration {configuration}",
+            UseShellExecute = false,
         };
-        dotnetTestProcessInfo.Environment[AllureConstants.ALLURE_CONFIG_ENV_VARIABLE] =
-            allureConfigFile.FullName;
-        Process.Start(dotnetTestProcessInfo)?.WaitForExit();
+        // Preserve existing environment variables and add Allure config
+        foreach (System.Collections.DictionaryEntry envVar in Environment.GetEnvironmentVariables())
+        {
+            if (!dotnetTestProcessInfo.Environment.ContainsKey(envVar.Key?.ToString() ?? string.Empty))
+            {
+                dotnetTestProcessInfo.Environment[envVar.Key?.ToString() ?? string.Empty] = envVar.Value?.ToString();
+            }
+        }
+        dotnetTestProcessInfo.Environment[AllureConstants.ALLURE_CONFIG_ENV_VARIABLE] = allureConfigFile.FullName;
+        using var process = Process.Start(dotnetTestProcessInfo);
+        process?.WaitForExit();
     }
 
     [TestCase(Status.passed)]
