@@ -60,6 +60,9 @@
     <Project Path="src/Allure.SpecFlow/Allure.SpecFlow.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
+    <Project Path="src/Allure.TestingPlatform/Allure.TestingPlatform.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.Xunit/Allure.Xunit.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
