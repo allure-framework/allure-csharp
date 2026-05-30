@@ -74,13 +74,15 @@ public class FillSampleMetadata : Task
 
         if (IsMetadataMissing(sample, "RegistryNamespace"))
         {
-            var registryNamespace = string.Join(".", [this.RootNamespace, ..fragments[..^1]]);
+            string[] registryNamespaceParts = [this.RootNamespace, ..fragments[..^1]];
+            var registryNamespace = string.Join(".", registryNamespaceParts);
             sample.SetMetadataValueLiteral("RegistryNamespace", registryNamespace);
         }
 
         if (IsMetadataMissing(sample, "ProjectName"))
         {
-            var projectName = string.Join(".", [this.SampleSolutionName, ..fragments]);
+            string[] projectNameParts = [this.SampleSolutionName, ..fragments];
+            var projectName = string.Join(".", projectNameParts);
             sample.SetMetadataValueLiteral("ProjectName", projectName);
         }
 
