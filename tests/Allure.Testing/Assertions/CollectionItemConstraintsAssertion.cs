@@ -1,34 +1,33 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Allure.Testing.Internal;
 using TUnit.Assertions.Core;
 
 namespace Allure.Testing.Assertions;
 
-public class CollectionMatchesItemConstraintsAssertion<C, E>(
-    AssertionContext<C> context,
-    Func<IAssertionSource<E>, Assertion<E>?>[] itemConstraints,
+public class CollectionItemConstraintsAssertion<TCollection, TItem>(
+    AssertionContext<TCollection> context,
+    Func<IAssertionSource<TItem>, IAssertion>[] itemConstraints,
     string itemDescription
 ) :
-    Assertion<C>(context)
+    Assertion<TCollection>(context)
 
-    where C : IReadOnlyList<E>
+    where TCollection : IReadOnlyList<TItem>
 {
-    readonly Func<IAssertionSource<E>, Assertion<E>?>[] itemConstraints = itemConstraints;
+    readonly Func<IAssertionSource<TItem>, IAssertion>[] itemConstraints = itemConstraints;
     readonly string itemDescription = itemDescription;
     readonly string itemDescriptionPlural =
         itemConstraints.Length == 1
             ? itemDescription
             : $"{itemDescription}s";
 
-    (int, Assertion<E>?)? lastCheckedItem = null;
+    (int, string?)? lastExpectation = null;
 
     int ExpectedCount => this.itemConstraints.Length;
 
     protected override async Task<AssertionResult> CheckAsync(
-        EvaluationMetadata<C> metadata
+        EvaluationMetadata<TCollection> metadata
     ) =>
         metadata switch
         {
@@ -42,13 +41,13 @@ public class CollectionMatchesItemConstraintsAssertion<C, E>(
         };
 
     protected override string GetExpectation() =>
-        this.lastCheckedItem is var (index, assertion)
-            ? AssertionFunctions.GetAssertionExpectation(assertion) is { } itemExpectation
-                ? $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} at {index} {itemExpectation}"
+        this.lastExpectation is var (index, expectation)
+            ? expectation is not null
+                ? $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} at {index} {expectation}"
                 : $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} at {index} satisfying the corresponding constraints"
             : $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} each satisfying the corresponding constraints";
 
-    async Task<AssertionResult> ApplyItemConstraints(IReadOnlyList<E> items)
+    async Task<AssertionResult> ApplyItemConstraints(IReadOnlyList<TItem> items)
     {
         var actualCount = items.Count;
 
@@ -71,16 +70,18 @@ public class CollectionMatchesItemConstraintsAssertion<C, E>(
 
             var (result, assertion) = await AssertionFunctions.ExecuteInlineAssertionAsync(
                 item,
-                $"{this.itemDescription} at {i}",
+                $"{this.itemDescription}s[{i}]",
                 constraint
             );
 
-            this.lastCheckedItem = (i, assertion);
 
             if (!result.IsPassed)
             {
+                var (expected, actual) = NarrowingFunctions.ExtractExpectedAndActual(result.Message, 0);
+
+                this.lastExpectation = (i, expected);
                 return AssertionResult.Failed(
-                    $"{this.itemDescription} at {i} {result.Message}"
+                    $"{this.itemDescription} at {i} {actual}"
                 );
             }
         }

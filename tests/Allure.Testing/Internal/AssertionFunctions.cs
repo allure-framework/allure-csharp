@@ -8,14 +8,14 @@ namespace Allure.Testing.Internal;
 
 public static class AssertionFunctions
 {
-    public static async Task<(AssertionResult Result, Assertion<T>? InnerAssertion)> ExecuteInlineAssertionAsync<T>(
+    public static async Task<(AssertionResult Result, IAssertion? InnerAssertion)> ExecuteInlineAssertionAsync<T>(
         T actualValue,
         string label,
-        Func<IAssertionSource<T>, Assertion<T>?> assertion
+        Func<IAssertionSource<T>, IAssertion?> assertion
     )
     {
         ValueAssertion<T> arg = new(actualValue, label);
-        Assertion<T>? resultingAssertion = assertion(arg);
+        IAssertion? resultingAssertion = assertion(arg);
         if (resultingAssertion == null)
         {
             return (Result: AssertionResult.Passed, InnerAssertion: null);
@@ -32,7 +32,24 @@ public static class AssertionFunctions
         }
     }
 
-    public static string? GetAssertionExpectation<T>(Assertion<T>? assertion)
+    public static string? GetAssertionExpectation(IAssertion? assertion)
+    {
+        if (assertion is null)
+        {
+            return null;
+        }
+
+        var method =
+            assertion
+                .GetType()
+                .GetMethod(
+                    "GetExpectation",
+                    BindingFlags.Instance | BindingFlags.NonPublic, []);
+
+        return (string?)method?.Invoke(assertion, []);
+    }
+
+    public static string? GetAssertionFailureMessage(IAssertion? assertion, AssertionResult result)
     {
         if (assertion is null)
         {

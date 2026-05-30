@@ -1,0 +1,52 @@
+using System.Text.Json;
+using Allure.Testing.Internal;
+
+namespace Allure.Testing.Assertions.Model;
+
+public readonly record struct AllureStepResult(JsonElement Json)
+    : IAllureExecutableItem<AllureStepResult>
+{
+    public static AllureStepResult Constructor(JsonElement json) => new(json);
+
+    public static string? Validate(JsonElement json) => json switch
+    {
+        { ValueKind: JsonValueKind.Null } =>
+            "the step result was null",
+
+        { ValueKind: not JsonValueKind.Object } =>
+            "the step result was not a JSON object",
+
+        _ => CheckProperties(json),
+    };
+
+    static string? CheckProperties(JsonElement stepResult)
+    {
+        if (CheckName(stepResult) is {} badName)
+        {
+            return badName;
+        }
+
+        if (CheckStatus(stepResult) is {} badStatus)
+        {
+            return badStatus;
+        }
+
+        return null;
+    }
+
+    static string? CheckName(JsonElement stepResult) =>
+        JsonFunctions.GetStringProperty(stepResult, "name") is { IsPassed: false, Message: var error }
+            ? error
+            : null;
+
+    static string? CheckStatus(JsonElement stepResult) =>
+        JsonFunctions.GetStringProperty(stepResult, "status") switch
+        {
+            { IsPassed: true, Value: "passed" or "failed" or "broken" or "skipped" or "unknown" } =>
+                null,
+
+            { IsPassed: true, Value: var value } => $"got an unexpected status {value}",
+
+            { Message: var error } => error,
+        };
+}

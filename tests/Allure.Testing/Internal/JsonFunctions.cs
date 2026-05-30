@@ -1,45 +1,13 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Allure.Testing.Assertions.Model;
-using Allure.Testing.Assertions.Model.AssertionTargets.Properties;
+using Allure.Testing.Assertions.Model.Properties;
+using TUnit.Assertions.Core;
 
 namespace Allure.Testing.Internal;
 
 public abstract class JsonFunctions
 {
-    public static V AssertedGetPropertyValue<V, P>(P? item, string propertyName)
-        where P : IAllureProperty<V, P>
-            =>
-                item is { Json: var json }
-                    ? json.TryGetProperty(propertyName, out var propertyValue)
-                        ? propertyValue.ValueKind == JsonValueKind.Null
-                            ? throw new InvalidOperationException(
-                                $"the value of \"{propertyName}\" was null"
-                            )
-                            : propertyValue.ValueKind switch
-                            {
-                                _ when TypeMatchesValue(P.JsonType, propertyValue.ValueKind) =>
-                                    TryConvertJsonProperty<V, P>(propertyValue, out var value)
-                                        ? value
-                                        : throw new InvalidOperationException(
-                                            $"the value of \"{propertyName}\" had an invalid format"
-                                        ),
-
-                                JsonValueKind.Null => throw new InvalidOperationException(
-                                    $"the value of \"{propertyName}\" was null"
-                                ),
-
-                                _ => throw new InvalidOperationException(
-                                    $"the value of \"{propertyName}\" was not a JSON {GetJsonTypeString<V, P>()}"
-                                ),
-
-                            }
-                        : throw new InvalidOperationException(
-                            $"the object didn't have \"{propertyName}\""
-                        )
-                    : throw new InvalidOperationException("the object was null");
-
     public static bool TypeMatchesValue(JsonType jsonType, JsonValueKind jsonValueKind) =>
         jsonType switch
         {
@@ -53,7 +21,7 @@ public abstract class JsonFunctions
         };
 
     public static string GetJsonTypeString<V, P>()
-        where P : IAllureProperty<V, P>
+        where P : IAllureModelObject<P>, IAllureProperty<V, P>
     =>
         P.JsonType switch
         {
@@ -66,22 +34,25 @@ public abstract class JsonFunctions
             _ => throw new NotImplementedException(),
         };
 
-    public static bool TryConvertJsonProperty<V, P>(JsonElement json, [NotNullWhen(true)] out V? value)
-        where P : IAllureProperty<V, P>
-    {
-        var rawValue = P.GetValue(json);
-        if (rawValue is not null)
+    public static string GetJsonKindTypeString(JsonValueKind kind) =>
+        kind switch
         {
-            value = rawValue;
-            return true;
-        }
+            JsonValueKind.Undefined => "undefined",
+            JsonValueKind.Null => "null",
+            JsonValueKind.False => "boolean",
+            JsonValueKind.True => "boolean",
+            JsonValueKind.Number => "number",
+            JsonValueKind.String => "string",
+            JsonValueKind.Array => "array",
+            JsonValueKind.Object => "object",
+            _ => throw new NotImplementedException(),
+        };
 
-        value = default;
-        return false;
-    }
-
-    public static string? GetStringProperty(JsonElement obj, string propertyName) =>
-        obj.TryGetProperty(propertyName, out var propertyValue) && propertyValue.ValueKind is JsonValueKind.String
-            ? propertyValue.GetString()
-            : null;
+    public static AssertionResult<string> GetStringProperty(JsonElement obj, string propertyName) =>
+        obj.TryGetProperty(propertyName, out var propertyValue)
+            ? propertyValue.ValueKind is JsonValueKind.String
+                ? AssertionResult<string>.Passed(propertyValue.GetString()!)
+                : AssertionResult.Failed(
+                    $"{propertyName} was {GetJsonKindTypeString(propertyValue.ValueKind)} instead of string")
+            : AssertionResult.Failed($"{propertyName} did not exist");
 }
