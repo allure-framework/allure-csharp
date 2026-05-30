@@ -2,274 +2,193 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using Allure.Testing.Assertions;
-using Allure.Testing.Assertions.Json;
 using Allure.Testing.Assertions.Model;
-using Allure.Testing.Assertions.Model.AssertionTargets;
-using Allure.Testing.Assertions.Model.AssertionTargets.Properties;
+using Allure.Testing.Assertions.Model.Properties;
+using Allure.Testing.Internal.TUnitAccessors;
 using TUnit.Assertions.Core;
 
 namespace Allure.Testing;
 
 public static partial class AllureAssertionExtensions
 {
-    extension (IAssertionSource<ImmutableArray<AllureTestResult>> source)
-    {
-        public CollectionGetSingleItemAssertion<ImmutableArray<AllureTestResult>, AllureTestResult, AllureTestResult> SingleTestResultExists()
-        {
-            source.Context.ExpressionBuilder.Append(".SingleTestResultExists()");
-            return new(source.Context, static e => e, static e => e.Validate(), "test result");
-        }
-
-        public CollectionFindSingleItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult, AllureTestResult> SingleTestResultExists(
-            Func<IAssertionSource<AllureTestResult>, Assertion<AllureTestResult>> criteria,
-            [CallerArgumentExpression(nameof(criteria))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".SingleTestResultExists({expression})");
-            return new(source.Context, criteria, static e => e, static e => e.Validate(), "test result");
-        }
-
-        public CollectionFindSingleItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult, AllureTestResult> SingleTestResultExists(
-            string name,
-            [CallerArgumentExpression(nameof(name))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".SingleTestResultExists({expression})");
-            return new(source.Context, tr => tr.HasName(name), static e => e, static e => e.Validate(), "test result");
-        }
-    }
-
-    extension (IAssertionSource<ImmutableArray<AllureStepResult>> source)
-    {
-        public CollectionGetSingleItemAssertion<ImmutableArray<AllureStepResult>, AllureStepResult, AllureStepResult> SingleStepExists()
-        {
-            source.Context.ExpressionBuilder.Append(".SingleStepExists()");
-            return new(source.Context, static e => e, static e => null, "step result");
-        }
-
-        public CollectionFindSingleItemByCriteriaAssertion<ImmutableArray<AllureStepResult>, AllureStepResult, AllureStepResult> SingleStepExists(
-            Func<IAssertionSource<AllureStepResult>, Assertion<AllureStepResult>> criteria,
-            [CallerArgumentExpression(nameof(criteria))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".SingleStepExists({expression})");
-            return new(source.Context, criteria, static e => e, static e => null, "step result");
-        }
-
-        public CollectionFindSingleItemByCriteriaAssertion<ImmutableArray<AllureStepResult>, AllureStepResult, AllureStepResult> SingleStepExists(
-            string name,
-            [CallerArgumentExpression(nameof(name))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".SingleStepExists({expression})");
-            return new(source.Context, s => s.HasName(name), static e => e, static e => null, "step result");
-        }
-    }
-
     extension (IAssertionSource<AllureResults2> source)
     {
-        public CollectionGetSingleItemAssertion<ImmutableArray<JsonElement>, JsonElement, AllureTestResult> SingleTestResultExists()
+        public NarrowCollectionAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasSingleTestResult()
         {
-            source.Context.ExpressionBuilder.Append(".SingleTestResultExists()");
-            return new(
-                source.Context.Map(static async (ar) => ar?.TestResults ?? []),
-                static e => new AllureTestResult(e),
-                static tr => tr.Validate(),
-                "test result");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleTestResult)}()");
+
+            return new(source.Context.Map(ctx => ctx!.TestResults), "test result");
         }
 
-        public CollectionFindSingleItemByCriteriaAssertion<ImmutableArray<JsonElement>, JsonElement, AllureTestResult> SingleTestResultExists(
-            Func<IAssertionSource<AllureTestResult>, Assertion<AllureTestResult>> criteria,
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
+            Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".SingleTestResultExists({expression})");
-            return new(
-                source.Context.Map(static async (ar) => ar?.TestResults ?? []),
-                criteria,
-                static e => new AllureTestResult(e),
-                static e => e.Validate(),
-                "test result");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({expression ?? "..."})");
+
+            return new(source.Context.Map(ctx => ctx!.TestResults), criteria, "test result");
         }
 
-        public CollectionFindSingleItemByCriteriaAssertion<ImmutableArray<JsonElement>, JsonElement, AllureTestResult> SingleTestResultExists(
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".SingleTestResultExists({expression})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({expression ?? "..."})");
+
             return new(
-                source.Context.Map(static async (ar) => ar?.TestResults ?? []),
-                tr => tr.HasName(name),
-                static e => new AllureTestResult(e),
-                static e => e.Validate(),
-                "test result");
-        }
-    }
-
-    extension<T> (IAssertionSource<T> source)
-        where T : IAllureStepsProperty
-    {
-        public HasJsonPropertyTransformingAssertion<ImmutableArray<AllureStepResult>, IAllureStepsProperty, T> HasStepsDefined()
-        {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasStepsDefined)}()");
-
-            return new(source.Context);
+                source.Context.Map(
+                    ctx => ctx!.TestResults),
+                    (tr) => tr.HasName(name),
+                    "test result");
         }
 
-        public HasJsonPropertyInlineAssertion<ImmutableArray<AllureStepResult>, IAllureStepsProperty, T> HasSteps(
-            Func<IAssertionSource<AllureStepResult>, Assertion<AllureStepResult>?>[] constraints,
-            [CallerArgumentExpression(nameof(constraints))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".HasSteps({expression})");
-
-            return new (
-                source.Context,
-                (steps) =>
-                    new CollectionMatchesItemConstraintsAssertion<ImmutableArray<AllureStepResult>, AllureStepResult>(
-                        steps.Context,
-                        constraints,
-                        "step"
-                    )
-            );
-        }
-
-        public CollectionGetSingleItemAssertion<ImmutableArray<AllureStepResult>, AllureStepResult, AllureStepResult> HasSingleStepDefined()
-        {
-            source.Context.ExpressionBuilder.Append($".HasSingleStepDefined()");
-
-            var getStepsAssertion =
-                new HasJsonPropertyTransformingAssertion<ImmutableArray<AllureStepResult>, IAllureStepsProperty, T>(
-                    source.Context);
-
-            return new(getStepsAssertion.And.Context, static e => e, static e => null, "step");
-        }
-
-        public CollectionFindSingleItemByCriteriaAssertion<ImmutableArray<AllureStepResult>, AllureStepResult, AllureStepResult> HasSingleStep(
-            Func<IAssertionSource<AllureStepResult>, Assertion<AllureStepResult>> criteria,
-            [CallerArgumentExpression(nameof(criteria))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".HasSingleStep({expression})");
-
-            var getStepsAssertion =
-                new HasJsonPropertyTransformingAssertion<ImmutableArray<AllureStepResult>, IAllureStepsProperty, T>(
-                    source.Context);
-            return new(getStepsAssertion.And.Context, criteria, static e => e, static e => null, "step");
-        }
-    }
-
-    extension<T> (IAssertionSource<T> source)
-        where T : IAllureNameProperty
-    {
-        public HasJsonPropertyTransformingAssertion<string, IAllureNameProperty, T> HasNameDefined()
-        {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasNameDefined)}()");
-
-            return new(source.Context);
-        }
-
-        public HasJsonPropertyInlineAssertion<string, IAllureNameProperty, T> HasName(
-            Func<IAssertionSource<string>, Assertion<string>?> constraints,
-            [CallerArgumentExpression(nameof(constraints))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasName)}({expression})");
-
-            return new(source.Context, constraints);
-        }
-
-        public HasJsonPropertyEqualsInlineAssertion<string, IAllureNameProperty, T> HasName(
-            string expectedName,
-            [CallerArgumentExpression(nameof(expectedName))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasName)}({expression})");
-
-            return new(source.Context, expectedName, StringComparer.Ordinal);
-        }
-
-        public HasJsonPropertyEqualsInlineAssertion<string, IAllureNameProperty, T> HasName(
-            string expectedName,
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
+            string name,
             IEqualityComparer<string> comparer,
-            [CallerArgumentExpression(nameof(expectedName))] string? expectedNameExpression = null,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
             [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
         )
         {
-            source.Context.ExpressionBuilder.Append(
-                $".{nameof(HasName)}({expectedNameExpression}, {comparerExpression})"
-            );
+            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
 
-            return new(source.Context, expectedName, comparer);
+            return new(
+                source.Context.Map(
+                    ctx => ctx!.TestResults),
+                    (tr) => tr.HasName(name, comparer),
+                    "test result");
         }
-    }
 
-    extension<T> (IAssertionSource<T> source)
-        where T : IAllureMessageProperty
-    {
-        public HasJsonPropertyTransformingAssertion<string, IAllureMessageProperty, T> HasMessageDefined()
+        public NarrowCollectionByIndexAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResultAt(
+            int index,
+            [CallerArgumentExpression(nameof(index))] string? expression = null
+        )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasMessageDefined)}()");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasTestResultAt)}({expression ?? "..."})");
 
-            return new(source.Context);
+            return new(source.Context.Map(ctx => ctx!.TestResults), index, "test result");
         }
 
-        public HasJsonPropertyInlineAssertion<string, IAllureMessageProperty, T> HasMessage(
-            Func<IAssertionSource<string>, Assertion<string>?> constraints,
+        public CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResults(
+            Func<IAssertionSource<AllureTestResult>, IAssertion>[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasMessage)}({expression})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasTestResults)}({expression ?? "..."})");
 
-            return new(source.Context, constraints);
-        }
-
-        public HasJsonPropertyEqualsInlineAssertion<string, IAllureMessageProperty, T> HasMessage(
-            string expectedMessage,
-            [CallerArgumentExpression(nameof(expectedMessage))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasMessage)}({expression})");
-
-            return new(source.Context, expectedMessage, StringComparer.Ordinal);
-        }
-
-        public HasJsonPropertyEqualsInlineAssertion<string, IAllureMessageProperty, T> HasMessage(
-            string expectedMessage,
-            IEqualityComparer<string> comparer,
-            [CallerArgumentExpression(nameof(expectedMessage))] string? expectedMessageExpression = null,
-            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append(
-                $".{nameof(HasMessage)}({expectedMessageExpression}, {comparerExpression})"
-            );
-
-            return new(source.Context, expectedMessage, comparer);
+            return new(source.Context.Map(ctx => ctx!.TestResults), constraints, "test result");
         }
     }
 
-    extension<T> (IAssertionSource<T> source)
-        where T : IAllureStatusDetailsProperty
+    extension<TObject, TProperty, TValue> (NarrowToJsonPropertyAssertion<TObject, TProperty, TValue> source)
+        where TObject : IAllureModelObject<TObject>, TProperty
+        where TProperty: IAllureProperty<TValue, TObject>
     {
-        public HasJsonPropertyTransformingAssertion<AllureStatusDetails, IAllureStatusDetailsProperty, T> HasStatusDetailsDefined()
+        public AndContinuation<TValue> That
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasStatusDetailsDefined)}()");
+            get
+            {
+                var and = source.And;
+                var expressionBuilder = and.Context.ExpressionBuilder;
 
-            return new(source.Context);
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
         }
+    }
 
-        public HasJsonPropertyInlineAssertion<AllureStatusDetails, IAllureStatusDetailsProperty, T> HasStatusDetails(
-            Func<IAssertionSource<AllureStatusDetails>, Assertion<AllureStatusDetails>?> constraints,
-            [CallerArgumentExpression(nameof(constraints))] string? expression = null
-        )
+    extension<TObject, TProperty, TValue, TItem> (NarrowToJsonCollectionPropertyAssertion<TObject, TProperty, TValue, TItem> source)
+        where TObject : IAllureModelObject<TObject>, TProperty
+        where TProperty: IAllureProperty<TValue, TObject>
+        where TValue : IReadOnlyList<TItem>
+    {
+        public CollectionAndContinuation<TValue, TItem> That
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasStatusDetails)}({expression})");
+            get
+            {
+                var and = source.And!;
 
-            return new(source.Context, constraints);
+                var context = AssertionAccessors<TValue>.GetContext(and);
+
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
+        }
+    }
+
+    extension<TCollection, TItem> (NarrowCollectionAssertion<TCollection, TItem> source)
+        where TCollection : IReadOnlyList<TItem>
+    {
+        public AndContinuation<TItem> That
+        {
+            get
+            {
+                var and = source.And!;
+                var context = and.Context;
+
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
+        }
+    }
+
+    extension<TCollection, TItemCollection, TItem> (
+        NarrowCollectionToCollectionAssertion<TCollection, TItemCollection, TItem> source)
+
+        where TCollection : IReadOnlyList<TItemCollection>
+        where TItemCollection : IReadOnlyList<TItem>
+    {
+        public CollectionAndContinuation<TItemCollection, TItem> That
+        {
+            get
+            {
+                var and = source.And!;
+
+                var context = AssertionAccessors<TItemCollection>.GetContext(and);
+
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
+        }
+    }
+
+    extension<T> (Assertion<T> source)
+        where T: IAllureModelObject<T>
+    {
+        public PropertyAssertionFactory<T> With
+        {
+            get
+            {
+                var and = source.And;
+                var context = and.Context;
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .With
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".With");
+
+                return new(context);
+            }
         }
     }
 }
