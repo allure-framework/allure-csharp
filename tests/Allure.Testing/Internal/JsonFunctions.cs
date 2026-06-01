@@ -47,12 +47,4 @@ public abstract class JsonFunctions
             JsonValueKind.Object => "object",
             _ => throw new NotImplementedException(),
         };
-
-    public static AssertionResult<string> GetStringProperty(JsonElement obj, string propertyName) =>
-        obj.TryGetProperty(propertyName, out var propertyValue)
-            ? propertyValue.ValueKind is JsonValueKind.String
-                ? AssertionResult<string>.Passed(propertyValue.GetString()!)
-                : AssertionResult.Failed(
-                    $"\"{propertyName}\" was {GetJsonKindTypeString(propertyValue.ValueKind)} instead of string")
-            : AssertionResult.Failed($"\"{propertyName}\" was missing");
 }

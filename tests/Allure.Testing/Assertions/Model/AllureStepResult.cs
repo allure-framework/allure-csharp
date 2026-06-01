@@ -36,7 +36,7 @@ public readonly record struct AllureStepResult(JsonElement Json)
     }
 
     static string? CheckName(JsonElement stepResult) =>
-        JsonFunctions.GetStringProperty(stepResult, "name") is { IsPassed: false, Message: var error }
+        IAllureNameProperty<AllureStepResult>.GetValue(stepResult, "name") is { IsPassed: false, Message: var error}
             ? error
             : null;
 

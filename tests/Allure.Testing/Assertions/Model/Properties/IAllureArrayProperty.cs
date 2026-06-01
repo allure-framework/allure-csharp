@@ -6,8 +6,9 @@ using TUnit.Assertions.Core;
 
 namespace Allure.Testing.Assertions.Model.Properties;
 
-public interface IAllureArrayProperty<TElement, TSelf> : IAllureProperty<ImmutableArray<TElement>, TSelf>
-    where TSelf : IAllureModelObject<TSelf>, IAllureArrayProperty<TElement, TSelf>
+public interface IAllureArrayProperty<TElement, TFactory, TSelf> : IAllureProperty<ImmutableArray<TElement>, TSelf>
+    where TFactory : IArrayItemFactory<TElement>
+    where TSelf : IAllureModelObject<TSelf>, IAllureArrayProperty<TElement, TFactory, TSelf>
 {
     static JsonType IAllureProperty<ImmutableArray<TElement>, TSelf>.JsonType { get; } =
         JsonType.Array;
@@ -17,7 +18,7 @@ public interface IAllureArrayProperty<TElement, TSelf> : IAllureProperty<Immutab
     ) =>
         json
             .EnumerateArray()
-            .Select((json, index) => TSelf.Factory(json) switch
+            .Select((json, index) => TFactory.Create(json) switch
             {
                 { IsPassed: true, Value: var value } =>
                     value is not null
@@ -37,6 +38,4 @@ public interface IAllureArrayProperty<TElement, TSelf> : IAllureProperty<Immutab
                     : AssertionResult<ImmutableArray<TElement>>.Passed(
                         [..array.Where(t => t.IsPassed).Select(t => t.Value!)]),
         };
-
-    protected static abstract Func<JsonElement, AssertionResult<TElement>> Factory { get; }
 }
