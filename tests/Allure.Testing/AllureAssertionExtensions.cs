@@ -23,14 +23,26 @@ public static partial class AllureAssertionExtensions
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
         /// </remarks>
-        public CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResults(
+        public MemberAssertionResult<AllureResults2> HasTestResults(
             Func<IAssertionSource<AllureTestResult>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasTestResults)}({expression ?? "..."})");
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasTestResults)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
 
-            return new(source.Context.Map(ctx => ctx!.TestResults), constraints, "test result");
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    constraints,
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
         }
 
         /// <summary>
@@ -347,14 +359,26 @@ public static partial class AllureAssertionExtensions
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
         /// </remarks>
-        public CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasContainers(
+        public MemberAssertionResult<AllureResults2> HasContainers(
             Func<IAssertionSource<AllureContainer>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasContainers)}({expression ?? "..."})");
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasContainers)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
 
-            return new(source.Context.Map(static ctx => ctx!.Containers), constraints, "container");
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    constraints,
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
         }
 
         /// <summary>

@@ -51,11 +51,6 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
     {
         var actualCount = items.Count;
 
-        if (actualCount == 0)
-        {
-            return AssertionResult.Failed($"the collection was empty");
-        }
-
         if (actualCount != this.ExpectedCount)
         {
             return AssertionResult.Failed(

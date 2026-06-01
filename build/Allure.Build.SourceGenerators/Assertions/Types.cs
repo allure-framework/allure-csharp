@@ -11,13 +11,22 @@ public static class Types
     public static string IEqualityComparer(string type) =>
         $"global::System.Collections.Generic.IEqualityComparer<{type}>";
 
+    public static string EqualityComparer(string type) =>
+        $"global::System.Collections.Generic.EqualityComparer<{type}>";
+
     public static string Func(string parameterType, string returnType) =>
         $"global::System.Func<{parameterType}, {returnType}>";
 
-    public static string Constraint(string type) =>
+    public static string ScalarConstraint(string type) =>
         Func(IAssertionSource(type), IAssertion);
 
-    public static string OptionalConstraint(string type) =>
+    public static string CollectionConstraint(string type) =>
+        Func(CollectionAssertion(type), IAssertion);
+
+    public static string OptionalScalarConstraint(string type) =>
+        $"{Func(IAssertionSource(type), $"{IAssertion}?")}?";
+
+    public static string OptionalCollectionConstraint(string type) =>
         $"{Func(IAssertionSource(type), $"{IAssertion}?")}?";
 
     public const string IAssertion =
@@ -25,6 +34,9 @@ public static class Types
 
     public static string IAssertionSource(string typeArgument) =>
         $"global::TUnit.Assertions.Core.IAssertionSource<{typeArgument}>";
+
+    public static string CollectionAssertion(string typeArgument) =>
+        $"global::TUnit.Assertions.Sources.CollectionAssertion<{typeArgument}>";
 
     public const string GenerateAllureAssertionsAttribute = "Allure.Testing.Assertions.GenerateAllureAssertionsAttribute";
 
@@ -69,6 +81,9 @@ public static class Types
 
     public static string JsonPropertyCriteriaAssertion(string target, PropertyMetadata property) =>
         $"global::Allure.Testing.Assertions.JsonPropertyCriteriaAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
+
+    public static string JsonCollectionPropertyCriteriaAssertion(string target, CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.JsonCollectionPropertyCriteriaAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}, {property.ItemType}>";
 
     public static string NarrowToJsonCollectionPropertyAssertion(string target, CollectionPropertyMetadata property) =>
         $"global::Allure.Testing.Assertions.NarrowToJsonCollectionPropertyAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}, {property.ItemType}>";

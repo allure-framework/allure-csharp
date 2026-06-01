@@ -31,7 +31,7 @@ public static class Methods
                 }
         """;
 
-    public static string PropertyEquals(string methodName, PropertyMetadata property) =>
+    public static string PropertyEquatable(string methodName, PropertyMetadata property) =>
         $$"""
                 /// <summary>
                 /// Checks if the value of "{{property.JsonName}}" is equal to the expected value.
@@ -45,6 +45,27 @@ public static class Methods
                     ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
 
                     return new ("{{property.JsonName}}", ctx, expectedValue);
+                }
+        """;
+
+    public static string PropertyEquals(string methodName, PropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if the value of "{{property.JsonName}}" is equal to the expected value.
+                /// </summary>
+                public {{Types.JsonPropertyComparerAssertion("TObject", property)}} {{methodName}}(
+                    {{property.ValueType}} expected{{property.Name}},
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.Name}")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new (
+                        "{{property.JsonName}}",
+                        ctx,
+                        expected{{property.Name}},
+                        {{Types.EqualityComparer(property.ValueType)}}.Default);
                 }
         """;
 
@@ -73,7 +94,24 @@ public static class Methods
                 /// Checks if the value of "{{property.JsonName}}" satisfies the provided constraints.
                 /// </summary>
                 public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
-                    {{Types.Constraint(property.ValueType)}} constraints,
+                    {{Types.ScalarConstraint(property.ValueType)}} constraints,
+                    {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new ("{{property.JsonName}}", ctx, constraints);
+                }
+        """;
+
+    public static string CollectionPropertyConstrained(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if the value of "{{property.JsonName}}" satisfies the provided constraints.
+                /// </summary>
+                public {{Types.JsonCollectionPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.CollectionConstraint(property.ItemType)}} constraints,
                     {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
                 )
                 {
@@ -100,6 +138,32 @@ public static class Methods
         """;
 
     public static string OneComparableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{property.ItemType}} expected{{property.ItemMethodName}},
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasOneComparableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            {{Types.EqualityComparer(property.ItemType)}}.Default,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string OneCustomComparableItem(string methodName, CollectionPropertyMetadata property) =>
         $$"""
                 /// <summary>
                 /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
@@ -158,7 +222,7 @@ public static class Methods
                 /// matches the provided criteria.
                 /// </summary>
                 public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
-                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Types.ScalarConstraint(property.ItemType)}} criteria,
                     {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
                 )
                 {
@@ -234,6 +298,32 @@ public static class Methods
                 /// </summary>
                 public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
                     {{property.ItemType}} expected{{property.ItemMethodName}},
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasComparableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            {{Types.EqualityComparer(property.ItemType)}}.Default,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string CustomComparableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains at least one {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{property.ItemType}} expected{{property.ItemMethodName}},
                     {{Types.IEqualityComparer(property.ItemType)}} comparer,
                     {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expected{{property.ItemMethodName}}Expression = null,
                     {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
@@ -285,7 +375,7 @@ public static class Methods
                 /// matches the provided criteria.
                 /// </summary>
                 public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
-                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Types.ScalarConstraint(property.ItemType)}} criteria,
                     {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
                 )
                 {
@@ -361,6 +451,32 @@ public static class Methods
                 /// </summary>
                 public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
                     {{property.ItemType}} expected{{property.ItemMethodName}},
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasNoComparableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            {{Types.EqualityComparer(property.ItemType)}}.Default,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string NoCustomComparableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Passes if "{{property.JsonName}}" does not contain {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{property.ItemType}} expected{{property.ItemMethodName}},
                     {{Types.IEqualityComparer(property.ItemType)}} comparer,
                     {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expected{{property.ItemMethodName}}Expression = null,
                     {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
@@ -412,7 +528,7 @@ public static class Methods
                 /// matches the provided criteria.
                 /// </summary>
                 public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
-                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Types.ScalarConstraint(property.ItemType)}} criteria,
                     {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
                 )
                 {
@@ -513,7 +629,7 @@ public static class Methods
                 /// matches the provided criteria and narrows the assertion chain to that {{property.ItemName}}.
                 /// </summary>
                 public {{Types.NarrowCollectionByCriteriaAssertion(property)}} {{methodName}}(
-                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Types.ScalarConstraint(property.ItemType)}} criteria,
                     {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
                 )
                 {
@@ -633,26 +749,21 @@ public static class Methods
                 /// <remarks>
                 /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
                 /// </remarks>
-                public {{Types.CollectionItemConstraintsAssertion(property)}} {{methodName}}(
-                    {{Types.OptionalConstraint(property.ItemType)}}[] constraints,
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.OptionalScalarConstraint(property.ItemType)}}[] constraints,
                     {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
                 )
                 {
                     var ctx = source.Context;
                     ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
 
-                    var propertyAssertion =
-                        new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                            "{{property.JsonName}}",
-                            source.Context);
-
-                    var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                        propertyAssertion.And
-                    );
-
-                    narrowedContext.ExpressionBuilder.Length -= 4;
-
-                    return new(narrowedContext, constraints, "{{property.ItemName}}");
+                    return new {{Types.JsonPropertyCriteriaAssertion("TObject", property)}}(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        prop => new {{Types.CollectionItemConstraintsAssertion(property)}}(
+                            prop.Context,
+                            constraints,
+                            "{{property.ItemName}}"));
                 }
         """;
 
@@ -689,7 +800,7 @@ public static class Methods
                 /// matches the provided criteria and narrows the assertion chain to that {{property.ItemName}}.
                 /// </summary>
                 public {{Types.NarrowCollectionToCollectionByCriteriaAssertion(property)}} {{methodName}}(
-                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Types.ScalarConstraint(property.ItemType)}} criteria,
                     {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
                 )
                 {
