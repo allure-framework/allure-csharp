@@ -1,133 +1,16 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Allure.Build.SourceGenerators;
+namespace Allure.Build.SourceGenerators.Assertions;
 
 [Generator]
 public class AllureAssertionsGenerator : IIncrementalGenerator
 {
-    record class MethodNames(
-        string PropertyExistsAnyValue,
-        string PropertyEquals,
-        string PropertyEqualsCustom,
-        string PropertySatisfiesConstraints,
-        string SingleItem = "",
-        string SingleItemByCriteria = "",
-        string SingleItemByName = "",
-        string SingleItemByNameComparator = "",
-        string ItemByIndex = "",
-        string ItemsSatisfyConstraints = ""
-    )
-    {
-        public static MethodNames ForFactory(PropertyMetadata property) => property switch
-        {
-            CollectionPropertyMetadata ccProperty =>
-                new(
-                    PropertyExistsAnyValue: ccProperty.PropertyNamePascalCase,
-                    PropertyEquals: ccProperty.PropertyNamePascalCase,
-                    PropertyEqualsCustom: ccProperty.PropertyNamePascalCase,
-                    PropertySatisfiesConstraints: ccProperty.PropertyNamePascalCase,
-                    SingleItem: $"Single{ccProperty.ItemNamePascalCase}",
-                    SingleItemByCriteria: $"OnlyOne{ccProperty.ItemNamePascalCase}",
-                    SingleItemByName: $"OnlyOne{ccProperty.ItemNamePascalCase}",
-                    SingleItemByNameComparator: $"OnlyOne{ccProperty.ItemNamePascalCase}",
-                    ItemByIndex: $"{ccProperty.ItemNamePascalCase}At",
-                    ItemsSatisfyConstraints: $"{ccProperty.ItemNamePascalCase}"
-                ),
-            _ => new(
-                PropertyExistsAnyValue: property.PropertyNamePascalCase,
-                    PropertyEquals: property.PropertyNamePascalCase,
-                    PropertyEqualsCustom: property.PropertyNamePascalCase,
-                    PropertySatisfiesConstraints: property.PropertyNamePascalCase
-            ),
-        };
-
-        public static MethodNames ForAssertionSource(PropertyMetadata property) => property switch
-        {
-            CollectionPropertyMetadata ccProperty =>
-                new(
-                    PropertyExistsAnyValue: $"Has{ccProperty.PropertyNamePascalCase}",
-                    PropertyEquals: $"Has{ccProperty.PropertyNamePascalCase}",
-                    PropertyEqualsCustom: $"Has{ccProperty.PropertyNamePascalCase}",
-                    PropertySatisfiesConstraints: $"Has{ccProperty.PropertyNamePascalCase}",
-                    SingleItem: $"HasSingle{ccProperty.ItemNamePascalCase}",
-                    SingleItemByCriteria: $"HasOnlyOne{ccProperty.ItemNamePascalCase}",
-                    SingleItemByName: $"HasOnlyOne{ccProperty.ItemNamePascalCase}",
-                    SingleItemByNameComparator: $"HasOnlyOne{ccProperty.ItemNamePascalCase}",
-                    ItemByIndex: $"Has{ccProperty.ItemNamePascalCase}At",
-                    ItemsSatisfyConstraints: $"Has{ccProperty.ItemNamePascalCase}"
-                ),
-            _ => new(
-                PropertyExistsAnyValue: $"Has{property.PropertyNamePascalCase}",
-                    PropertyEquals: $"Has{property.PropertyNamePascalCase}",
-                    PropertyEqualsCustom: $"Has{property.PropertyNamePascalCase}",
-                    PropertySatisfiesConstraints: $"Has{property.PropertyNamePascalCase}"
-            ),
-        };
-    }
-
-    record class PropertyMetadata(
-        string InterfaceName,
-        string InterfaceFullName,
-        string PropertyNamePascalCase,
-        string PropertyNameCamelCase,
-        string ValueType,
-        ImmutableArray<string> EquatableTypes
-    );
-
-    record class CollectionPropertyMetadata(
-        string InterfaceName,
-        string InterfaceFullName,
-        string PropertyNamePascalCase,
-        string PropertyNameCamelCase,
-        string ValueType,
-        ImmutableArray<string> EquatableTypes,
-        string ItemName,
-        string ItemNamePascalCase,
-        string ItemType,
-        bool ItemHasName
-    ) : PropertyMetadata(
-        InterfaceName: InterfaceName,
-        InterfaceFullName: InterfaceFullName,
-        PropertyNamePascalCase: PropertyNamePascalCase,
-        PropertyNameCamelCase: PropertyNameCamelCase,
-        ValueType: ValueType,
-        EquatableTypes: EquatableTypes);
-
-    record class CollectionCollectionPropertyMetadata(
-        string InterfaceName,
-        string InterfaceFullName,
-        string PropertyNamePascalCase,
-        string PropertyNameCamelCase,
-        string ValueType,
-        ImmutableArray<string> EquatableTypes,
-        string ItemName,
-        string ItemNamePascalCase,
-        string ItemType,
-        bool ItemHasName,
-        string ItemItemType
-    ) : CollectionPropertyMetadata(
-        InterfaceName: InterfaceName,
-        InterfaceFullName: InterfaceFullName,
-        PropertyNamePascalCase: PropertyNamePascalCase,
-        PropertyNameCamelCase: PropertyNameCamelCase,
-        ValueType: ValueType,
-        EquatableTypes: EquatableTypes,
-        ItemName: ItemName,
-        ItemNamePascalCase: ItemNamePascalCase,
-        ItemType: ItemType,
-        ItemHasName: ItemHasName);
-
-    static readonly Regex propertyNamePattern = new(@"^IAllure(?<name>\w+)Property$");
-
-    static readonly Regex wsBeforeCapitalPattern = new(@"(?<!^)(?=[A-Z])");
-
     static readonly SymbolDisplayFormat FullyQualifiedNoTypeParameters = new(
         globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces
@@ -153,7 +36,18 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                 namespace Allure.Testing.Assertions
                 {
                     [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
-                    internal class GenerateAllureAssertionsAttribute: global::System.Attribute { }
+                    internal class GenerateAllureAssertionsAttribute: global::System.Attribute
+                    {
+                        public string PropertyName { get; init; }
+
+                        public string JsonName { get; init; }
+
+                        public string MethodName { get; init; }
+
+                        public string ItemMethodName { get; init; }
+
+                        public string ItemName { get; init; }
+                    }
                 }
                 """
             );
@@ -202,9 +96,114 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                 if (fullName == Types.GenerateAllureAssertionsAttribute)
                 {
-                    return GetMetadataFromPropertyInterface(ctx, iFaceDeclarationSyntax);
+
+                    return GetMetadataFromPropertyInterface(ctx, iFaceDeclarationSyntax, attributeContainingTypeSymbol);
                 }
             }
+        }
+
+        return null;
+    }
+
+    static PropertyMetadata? GetMetadataFromPropertyInterface(
+        GeneratorSyntaxContext ctx,
+        InterfaceDeclarationSyntax propertyInterfaceSyntax,
+        INamedTypeSymbol attributeTypeSymbol
+    )
+    {
+        if (ctx.SemanticModel.GetDeclaredSymbol(propertyInterfaceSyntax) is not INamedTypeSymbol propertyInterfaceSymbol)
+        {
+            return null;
+        }
+
+        var nameProperties = AttributeProperties.Resolve(attributeTypeSymbol, propertyInterfaceSymbol);
+        if (nameProperties is null)
+        {
+            return null;
+        }
+
+        var propertyInterfaceName = propertyInterfaceSymbol.Name;
+
+        var interfaceFullName = propertyInterfaceSymbol.ToDisplayString(FullyQualifiedNoTypeParameters);
+        var propertyInterface = propertyInterfaceSymbol
+            .AllInterfaces
+            .FirstOrDefault(static i => i.OriginalDefinition.ToString() == Types.Open.IAllureProperty);
+
+        if (propertyInterface is not null)
+        {
+            var valueType = propertyInterface.TypeArguments[0];
+
+            var equatableTo = valueType
+                .AllInterfaces
+                .Where(static i => i.OriginalDefinition.ToString() == Types.Open.IEquatable)
+                .Select(static i => i.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
+                .ToImmutableArray();
+
+            var valueTypeName =
+                propertyInterface
+                    .TypeArguments[0]
+                    .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            var propertyArrayInterface = propertyInterfaceSymbol
+                .AllInterfaces
+                .FirstOrDefault(static i => i.OriginalDefinition.ToString() == Types.Open.IAllureArrayProperty);
+
+            if (propertyArrayInterface is null)
+            {
+                return new PropertyMetadata(
+                    InterfaceName: propertyInterfaceName,
+                    InterfaceFullName: interfaceFullName,
+                    Name: nameProperties.PropertyName,
+                    MethodName: nameProperties.MethodName,
+                    JsonName: nameProperties.JsonName,
+                    ValueType: valueTypeName,
+                    EquatableTypes: equatableTo
+                );
+            }
+
+            var itemType = propertyArrayInterface.TypeArguments[0];
+
+            var itemHasName = itemType
+                .AllInterfaces
+                .Select(i => i.OriginalDefinition.ToString())
+                .Contains(Types.Open.IAllureNameProperty);
+
+            var itemTypeName = itemType
+                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            var itemItemTypeName =
+                itemType
+                    .AllInterfaces
+                    .FirstOrDefault(static i => i.OriginalDefinition.ToString() == Types.Open.IReadOnlyList)
+                    ?.TypeArguments[0]
+                    ?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            return itemItemTypeName is null
+                ? new CollectionPropertyMetadata(
+                    InterfaceName: propertyInterfaceName,
+                    InterfaceFullName: interfaceFullName,
+                    Name: nameProperties.PropertyName,
+                    MethodName: nameProperties.MethodName,
+                    JsonName: nameProperties.JsonName,
+                    ValueType: valueTypeName,
+                    EquatableTypes: equatableTo,
+                    ItemMethodName: nameProperties.ItemMethodName,
+                    ItemName: nameProperties.ItemName,
+                    ItemType: itemTypeName,
+                    ItemHasName: itemHasName)
+                : new CollectionOfCollectionsPropertyMetadata(
+                    InterfaceName: propertyInterfaceName,
+                    InterfaceFullName: interfaceFullName,
+                    Name: nameProperties.PropertyName,
+                    MethodName: nameProperties.MethodName,
+                    JsonName: nameProperties.JsonName,
+                    ValueType: valueTypeName,
+                    EquatableTypes: equatableTo,
+                    ItemMethodName: nameProperties.ItemMethodName,
+                    ItemName: nameProperties.ItemName,
+                    ItemType: itemTypeName,
+                    ItemHasName: itemHasName,
+                    ItemItemType: itemItemTypeName);
         }
 
         return null;
@@ -238,118 +237,9 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         sb.AppendLine("}");
 
         ctx.AddSource(
-            $"AllureAssertionExtensions.{property.PropertyNamePascalCase}.g.cs",
+            $"AllureAssertionExtensions.{property.InterfaceName}.g.cs",
             sb.ToString()
         );
-    }
-
-    static PropertyMetadata? GetMetadataFromPropertyInterface(
-        GeneratorSyntaxContext ctx,
-        InterfaceDeclarationSyntax propertyInterfaceSyntax
-    )
-    {
-        if (ctx.SemanticModel.GetDeclaredSymbol(propertyInterfaceSyntax) is not INamedTypeSymbol propertyInterfaceSymbol)
-        {
-            return null;
-        }
-
-        var propertyInterfaceName = propertyInterfaceSymbol.Name;
-
-        var propertyNameMatch = propertyNamePattern.Match(propertyInterfaceName);
-        if (!propertyNameMatch.Success)
-        {
-            return null;
-        }
-        var propertyNamePascalCase = propertyNameMatch.Groups["name"].Value;
-        var propertyNameCamelCase = propertyNamePascalCase[0] + propertyNamePascalCase.Substring(1);
-
-        var interfaceFullName = propertyInterfaceSymbol.ToDisplayString(FullyQualifiedNoTypeParameters);
-        var propertyInterface = propertyInterfaceSymbol
-            .AllInterfaces
-            .FirstOrDefault(static i => i.OriginalDefinition.ToString() == Types.Open.IAllureProperty);
-
-        if (propertyInterface is not null)
-        {
-            var valueType = propertyInterface.TypeArguments[0];
-
-            var equatableTo = valueType
-                .AllInterfaces
-                .Where(static i => i.OriginalDefinition.ToString() == Types.Open.IEquatable)
-                .Select(static i => i.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
-                .ToImmutableArray();
-
-            var valueTypeName =
-                propertyInterface
-                    .TypeArguments[0]
-                    .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            var propertyArrayInterface = propertyInterfaceSymbol
-                .AllInterfaces
-                .FirstOrDefault(static i => i.OriginalDefinition.ToString() == Types.Open.IAllureArrayProperty);
-
-            if (propertyArrayInterface is null)
-            {
-                return new PropertyMetadata(
-                    InterfaceName: propertyInterfaceName,
-                    InterfaceFullName: interfaceFullName,
-                    PropertyNamePascalCase: propertyNamePascalCase,
-                    PropertyNameCamelCase: propertyNameCamelCase,
-                    ValueType: valueTypeName,
-                    EquatableTypes: equatableTo
-                );
-            }
-
-            var itemType = propertyArrayInterface.TypeArguments[0];
-
-            var itemHasName = itemType
-                .AllInterfaces
-                .Select(i => i.OriginalDefinition.ToString())
-                .Contains(Types.Open.IAllureNameProperty);
-
-            var itemTypeName = itemType
-                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            var itemNamePascalCase =
-                propertyNamePascalCase[propertyNamePascalCase.Length - 1] == 's'
-                    ? propertyNamePascalCase.Substring(0, propertyNamePascalCase.Length - 1)
-                    : $"{propertyNamePascalCase}Item";
-
-            var itemName = wsBeforeCapitalPattern.Replace(propertyNamePascalCase, " ").ToLowerInvariant();
-
-            var itemItemTypeName =
-                itemType
-                    .AllInterfaces
-                    .FirstOrDefault(static i => i.OriginalDefinition.ToString() == Types.Open.IReadOnlyList)
-                    ?.TypeArguments[0]
-                    ?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            return itemItemTypeName is null
-                ? new CollectionPropertyMetadata(
-                    InterfaceName: propertyInterfaceName,
-                    InterfaceFullName: interfaceFullName,
-                    PropertyNamePascalCase: propertyNamePascalCase,
-                    PropertyNameCamelCase: propertyNameCamelCase,
-                    ValueType: valueTypeName,
-                    EquatableTypes: equatableTo,
-                    ItemName: itemName,
-                    ItemNamePascalCase: itemNamePascalCase,
-                    ItemType: itemTypeName,
-                    ItemHasName: itemHasName)
-                : new CollectionCollectionPropertyMetadata(
-                    InterfaceName: propertyInterfaceName,
-                    InterfaceFullName: interfaceFullName,
-                    PropertyNamePascalCase: propertyNamePascalCase,
-                    PropertyNameCamelCase: propertyNameCamelCase,
-                    ValueType: valueTypeName,
-                    EquatableTypes: equatableTo,
-                    ItemName: itemName,
-                    ItemNamePascalCase: itemNamePascalCase,
-                    ItemType: itemTypeName,
-                    ItemHasName: itemHasName,
-                    ItemItemType: itemItemTypeName);
-        }
-
-        return null;
     }
 
     static void AddFactoryExtensionBlock(StringBuilder sb, PropertyMetadata property)
@@ -420,19 +310,6 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         AddCollectionSpecificMethods(sb, methodNames, property);
     }
 
-    static void AddScalarPropertyExistsMethod(StringBuilder sb, string methodName, PropertyMetadata property) =>
-        sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowToJsonPropertyAssertion("TObject", property)}} {{methodName}}()
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
-
-                        return new ("{{property.PropertyNameCamelCase}}", ctx);
-                    }
-            """
-        );
-
     static void AddScalarPropertyEqualsMethods(StringBuilder sb, string methodName, PropertyMetadata property)
     {
         if (property.EquatableTypes.Any())
@@ -447,72 +324,9 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         }
     }
 
-    static void AddScalarPropertyEqualsMethod(StringBuilder sb, string methodName, PropertyMetadata property, string equatableType) =>
-        sb.AppendLine(
-            $$"""
-                    public {{Types.JsonPropertyEquatableAssertion("TObject", property, equatableType)}} {{methodName}}(
-                        {{equatableType}} expectedValue,
-                        {{Attributes.CallerArgumentExpressionFor("expectedValue")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        return new ("{{property.PropertyNameCamelCase}}", ctx, expectedValue);
-                    }
-            """
-        );
-
-    static void AddScalarPropertyEqualsByComparerMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
-        sb.AppendLine(
-            $$"""
-                    public {{Types.JsonPropertyComparerAssertion("TObject", property)}} {{methodName}}(
-                        {{property.ValueType}} expected{{property.PropertyNamePascalCase}},
-                        {{Types.IEqualityComparer(property.ValueType)}} comparer,
-                        {{Attributes.CallerArgumentExpressionFor($"expected{property.PropertyNamePascalCase}")}} string? expected{{property.PropertyNamePascalCase}}Expression = null,
-                        {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expected{{property.PropertyNamePascalCase}}Expression ?? "..."}, {comparerExpression ?? "..."})");
-
-                        return new ("{{property.PropertyNameCamelCase}}", ctx, expected{{property.PropertyNamePascalCase}}, comparer);
-                    }
-            """
-        );
-
-    static void AddScalarPropertyConstrainedMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
-        sb.AppendLine(
-            $$"""
-                    public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
-                        {{Types.Constraint(property.ValueType)}} constraints,
-                        {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        return new ("{{property.PropertyNameCamelCase}}", ctx, constraints);
-                    }
-            """
-        );
-
-    static void AddCollectionPropertyExistsMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
-        sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}} {{methodName}}()
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
-
-                        return new ("{{property.PropertyNameCamelCase}}", ctx);
-                    }
-            """
-        );
-
     static void AddCollectionSpecificMethods(StringBuilder sb, MethodNames methodNames, CollectionPropertyMetadata property)
     {
-        if (property is CollectionCollectionPropertyMetadata collectionCollectionProperty)
+        if (property is CollectionOfCollectionsPropertyMetadata collectionCollectionProperty)
         {
             AddCollectionOfScalarsMethods(sb, methodNames, collectionCollectionProperty);
         }
@@ -540,7 +354,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         AddConstrainedScalarsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
     }
 
-    static void AddCollectionOfScalarsMethods(StringBuilder sb, MethodNames methodNames, CollectionCollectionPropertyMetadata property)
+    static void AddCollectionOfScalarsMethods(StringBuilder sb, MethodNames methodNames, CollectionOfCollectionsPropertyMetadata property)
     {
         AddSingleCollectionMethod(sb, methodNames.SingleItem, property);
         sb.AppendLine();
@@ -550,6 +364,82 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         sb.AppendLine();
         AddConstrainedScalarsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
     }
+
+    static void AddScalarPropertyExistsMethod(StringBuilder sb, string methodName, PropertyMetadata property) =>
+        sb.AppendLine(
+            $$"""
+                    public {{Types.NarrowToJsonPropertyAssertion("TObject", property)}} {{methodName}}()
+                    {
+                        var ctx = source.Context;
+                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
+
+                        return new ("{{property.JsonName}}", ctx);
+                    }
+            """
+        );
+
+    static void AddScalarPropertyEqualsMethod(StringBuilder sb, string methodName, PropertyMetadata property, string equatableType) =>
+        sb.AppendLine(
+            $$"""
+                    public {{Types.JsonPropertyEquatableAssertion("TObject", property, equatableType)}} {{methodName}}(
+                        {{equatableType}} expectedValue,
+                        {{Attributes.CallerArgumentExpressionFor("expectedValue")}} string? expression = null
+                    )
+                    {
+                        var ctx = source.Context;
+                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                        return new ("{{property.JsonName}}", ctx, expectedValue);
+                    }
+            """
+        );
+
+    static void AddScalarPropertyEqualsByComparerMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
+        sb.AppendLine(
+            $$"""
+                    public {{Types.JsonPropertyComparerAssertion("TObject", property)}} {{methodName}}(
+                        {{property.ValueType}} expected{{property.Name}},
+                        {{Types.IEqualityComparer(property.ValueType)}} comparer,
+                        {{Attributes.CallerArgumentExpressionFor($"expected{property.Name}")}} string? expected{{property.Name}}Expression = null,
+                        {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
+                    )
+                    {
+                        var ctx = source.Context;
+                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expected{{property.Name}}Expression ?? "..."}, {comparerExpression ?? "..."})");
+
+                        return new ("{{property.JsonName}}", ctx, expected{{property.Name}}, comparer);
+                    }
+            """
+        );
+
+    static void AddScalarPropertyConstrainedMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
+        sb.AppendLine(
+            $$"""
+                    public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                        {{Types.Constraint(property.ValueType)}} constraints,
+                        {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
+                    )
+                    {
+                        var ctx = source.Context;
+                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                        return new ("{{property.JsonName}}", ctx, constraints);
+                    }
+            """
+        );
+
+    static void AddCollectionPropertyExistsMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            $$"""
+                    public {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}} {{methodName}}()
+                    {
+                        var ctx = source.Context;
+                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
+
+                        return new ("{{property.JsonName}}", ctx);
+                    }
+            """
+        );
 
     static void AddSingleScalarMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
@@ -561,7 +451,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -588,7 +478,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -615,7 +505,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -644,7 +534,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -671,7 +561,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -698,7 +588,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -712,7 +602,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
             """
         );
 
-    static void AddSingleCollectionMethod(StringBuilder sb, string methodName, CollectionCollectionPropertyMetadata property) =>
+    static void AddSingleCollectionMethod(StringBuilder sb, string methodName, CollectionOfCollectionsPropertyMetadata property) =>
         sb.AppendLine(
             $$"""
                     public {{Types.NarrowCollectionToCollectionAssertion(property)}} {{methodName}}()
@@ -722,7 +612,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -736,7 +626,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
             """
         );
 
-    static void AddOneCollectionByCriteriaMethod(StringBuilder sb, string methodName, CollectionCollectionPropertyMetadata property) =>
+    static void AddOneCollectionByCriteriaMethod(StringBuilder sb, string methodName, CollectionOfCollectionsPropertyMetadata property) =>
         sb.AppendLine(
             $$"""
                     public {{Types.NarrowCollectionToCollectionByCriteriaAssertion(property)}} {{methodName}}(
@@ -749,7 +639,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -763,7 +653,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
             """
         );
 
-    static void AddOneCollectionByIndexMethod(StringBuilder sb, string methodName, CollectionCollectionPropertyMetadata property) =>
+    static void AddOneCollectionByIndexMethod(StringBuilder sb, string methodName, CollectionOfCollectionsPropertyMetadata property) =>
         sb.AppendLine(
             $$"""
                     public {{Types.NarrowCollectionToCollectionByIndexAssertion(property)}} {{methodName}}(
@@ -776,7 +666,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.PropertyNameCamelCase}}",
+                                "{{property.JsonName}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -789,92 +679,4 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                     }
             """
         );
-
-    static class Types
-    {
-        public const string GenerateAllureAssertionsAttribute = "Allure.Testing.Assertions.GenerateAllureAssertionsAttribute";
-
-        public static string NarrowToJsonPropertyAssertion(string target, PropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowToJsonPropertyAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
-
-        public static string JsonPropertyEquatableAssertion(string target, PropertyMetadata property, string equatableType) =>
-            $"global::Allure.Testing.Assertions.JsonPropertyEquatableAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}, {equatableType}>";
-
-        public static string JsonPropertyComparerAssertion(string target, PropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.JsonPropertyComparerAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
-
-        public static string JsonPropertyCriteriaAssertion(string target, PropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.JsonPropertyCriteriaAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
-
-        public const string CallerArgumentExpression =
-            $"global::System.Runtime.CompilerServices.CallerArgumentExpression";
-
-        public static string IEqualityComparer(string type) =>
-            $"global::System.Collections.Generic.IEqualityComparer<{type}>";
-
-        public const string IAssertion =
-            "global::TUnit.Assertions.Core.IAssertion";
-
-        public static string IAssertionSource(string typeArgument) =>
-            $"global::TUnit.Assertions.Core.IAssertionSource<{typeArgument}>";
-
-        public static string Func(string parameterType, string returnType) =>
-            $"global::System.Func<{parameterType}, {returnType}>";
-
-        public static string Constraint(string type) =>
-            Func(IAssertionSource(type), IAssertion);
-
-        public static string NarrowToJsonCollectionPropertyAssertion(string target, CollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowToJsonCollectionPropertyAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}, {property.ItemType}>";
-
-        public static string NarrowCollectionAssertion(CollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowCollectionAssertion<{property.ValueType}, {property.ItemType}>";
-
-        public static string AssertionAccessors(string type) =>
-            $"global::Allure.Testing.Internal.TUnitAccessors.AssertionAccessors<{type}>";
-
-        public static string PropertyAssertionFactory(string type) =>
-            $"global::Allure.Testing.Assertions.PropertyAssertionFactory<{type}>";
-
-        public static string IAllureModelObject(string type) =>
-            $"global::Allure.Testing.Assertions.Model.IAllureModelObject<{type}>";
-
-        public static string NarrowCollectionByCriteriaAssertion(CollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowCollectionByCriteriaAssertion<{property.ValueType}, {property.ItemType}>";
-
-        public static string NarrowCollectionByIndexAssertion(CollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowCollectionByIndexAssertion<{property.ValueType}, {property.ItemType}>";
-
-        public static string CollectionItemConstraintsAssertion(CollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.CollectionItemConstraintsAssertion<{property.ValueType}, {property.ItemType}>";
-
-        public static string NarrowCollectionToCollectionAssertion(CollectionCollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowCollectionToCollectionAssertion<{property.ValueType}, {property.ItemType}, {property.ItemItemType}>";
-
-        public static string NarrowCollectionToCollectionByCriteriaAssertion(CollectionCollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowCollectionToCollectionByCriteriaAssertion<{property.ValueType}, {property.ItemType}, {property.ItemItemType}>";
-
-        public static string NarrowCollectionToCollectionByIndexAssertion(CollectionCollectionPropertyMetadata property) =>
-            $"global::Allure.Testing.Assertions.NarrowCollectionToCollectionByIndexAssertion<{property.ValueType}, {property.ItemType}, {property.ItemItemType}>";
-
-        public static class Open
-        {
-            public const string IEquatable = "System.IEquatable<T>";
-
-            public const string IAllureProperty = "Allure.Testing.Assertions.Model.Properties.IAllureProperty<TValue, TSelf>";
-
-            public const string IAllureArrayProperty = "Allure.Testing.Assertions.Model.Properties.IAllureArrayProperty<TElement, TSelf>";
-
-            public const string IAllureNameProperty = "Allure.Testing.Assertions.Model.Properties.IAllureNameProperty<TSelf>";
-
-            public const string IReadOnlyList = "System.Collections.Generic.IReadOnlyList<T>";
-        }
-
-    }
-
-    static class Attributes
-    {
-        public static string CallerArgumentExpressionFor(string parameter) =>
-            $"[{Types.CallerArgumentExpression}(nameof({parameter}))]";
-    }
 }
