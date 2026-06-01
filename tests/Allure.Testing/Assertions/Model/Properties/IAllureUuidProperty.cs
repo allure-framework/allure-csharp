@@ -19,6 +19,6 @@ public interface IAllureUuidProperty<TSelf> : IAllureProperty<Guid, TSelf>
             var text =>
                 Guid.TryParse(text, out var uuid)
                     ? AssertionResult<Guid>.Passed(uuid)
-                    : AssertionResult.Failed($"was not a valid uuid: \"{text}\""),
+                    : AssertionResult.Failed($"was \"{text}\", which is not a valid UUID"),
         };
 }
