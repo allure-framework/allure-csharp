@@ -5,6 +5,9 @@ namespace Allure.Testing.Assertions.Model;
 
 public readonly record struct AllureContainer(JsonElement Json) :
     IAllureModelObject<AllureContainer>,
+    IAllureAftersProperty<AllureContainer>,
+    IAllureBeforesProperty<AllureContainer>,
+    IAllureChildrenProperty<AllureContainer>,
     IAllureNameProperty<AllureContainer>,
     IAllureUuidProperty<AllureContainer>
 {
