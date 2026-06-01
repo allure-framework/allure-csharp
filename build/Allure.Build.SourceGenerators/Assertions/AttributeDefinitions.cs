@@ -7,6 +7,7 @@ public static class AttributeDefinitions
         namespace Allure.Testing.Assertions
         {
             [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
+            [global::System.AttributeUsage(global::System.AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
             internal class GenerateAllureAssertionsAttribute: global::System.Attribute
             {
                 public string PropertyName { get; init; }
