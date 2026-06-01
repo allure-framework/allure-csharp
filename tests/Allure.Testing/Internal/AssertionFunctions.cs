@@ -8,7 +8,7 @@ namespace Allure.Testing.Internal;
 
 public static class AssertionFunctions
 {
-    public static async Task<(AssertionResult Result, IAssertion? InnerAssertion)> ExecuteInlineAssertionAsync<T>(
+    public static async Task<AssertionResult> ExecuteInlineAssertionAsync<T>(
         T actualValue,
         string label,
         Func<IAssertionSource<T>, IAssertion?> assertion
@@ -18,17 +18,17 @@ public static class AssertionFunctions
         IAssertion? resultingAssertion = assertion(arg);
         if (resultingAssertion == null)
         {
-            return (Result: AssertionResult.Passed, InnerAssertion: null);
+            return AssertionResult.Passed;
         }
 
         try
         {
             await resultingAssertion.AssertAsync();
-            return (Result: AssertionResult.Passed, InnerAssertion: resultingAssertion);
+            return AssertionResult.Passed;
         }
         catch (Exception ex)
         {
-            return (Result: AssertionResult.Failed(ex.Message), InnerAssertion: resultingAssertion);
+            return AssertionResult.Failed(ex.Message);
         }
     }
 

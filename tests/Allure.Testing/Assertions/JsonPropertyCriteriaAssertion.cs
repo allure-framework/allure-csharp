@@ -42,7 +42,7 @@ public class JsonPropertyCriteriaAssertion<TObject, TProperty, TValue>(
 
     async Task<AssertionResult> InvokePropertyValueAssertion(TValue actual)
     {
-        var (result, _)
+        var result
             = await AssertionFunctions.ExecuteInlineAssertionAsync(actual, propertyName, constraints);
 
         if (!result.IsPassed)

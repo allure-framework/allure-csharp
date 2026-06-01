@@ -15,7 +15,7 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
 
     where TCollection : IReadOnlyList<TItem>
 {
-    readonly Func<IAssertionSource<TItem>, IAssertion>[] itemConstraints = itemConstraints;
+    readonly Func<IAssertionSource<TItem>, IAssertion?>?[] itemConstraints = itemConstraints;
     readonly string itemDescription = itemDescription;
     readonly string itemDescriptionPlural =
         itemConstraints.Length == 1
@@ -68,7 +68,7 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
             var item = items[i];
             var constraint = this.itemConstraints[i];
 
-            var (result, assertion) = await AssertionFunctions.ExecuteInlineAssertionAsync(
+            var result = await AssertionFunctions.ExecuteInlineAssertionAsync(
                 item,
                 $"{this.itemDescription}s[{i}]",
                 constraint

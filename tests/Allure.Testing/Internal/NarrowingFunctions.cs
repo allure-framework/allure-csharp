@@ -158,14 +158,10 @@ internal static class NarrowingFunctions
         Func<IAssertionSource<T>, IAssertion?> criteria,
         string itemDescription
     ) =>
-        async (item, i) =>
-        {
-            var (result, _) = await AssertionFunctions.ExecuteInlineAssertionAsync(
-                item,
-                $"{itemDescription}s[{i}]",
-                criteria);
-            return result;
-        };
+        async (item, i) => await AssertionFunctions.ExecuteInlineAssertionAsync(
+            item,
+            $"{itemDescription}s[{i}]",
+            criteria);
 
     static string FormatMismatches(string itemDescription, IEnumerable<CriteriaMatchFailure> failures) =>
         string.Join(
