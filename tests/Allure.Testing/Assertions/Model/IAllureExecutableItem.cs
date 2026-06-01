@@ -7,6 +7,7 @@ public interface IAllureExecutableItem<TSelf> :
     IAllureDescriptionProperty<TSelf>,
     IAllureDescriptionHtmlProperty<TSelf>,
     IAllureNameProperty<TSelf>,
+    IAllureParametersProperty<TSelf>,
     IAllureStartProperty<TSelf>,
     IAllureStopProperty<TSelf>,
     IAllureStepsProperty<TSelf>,
