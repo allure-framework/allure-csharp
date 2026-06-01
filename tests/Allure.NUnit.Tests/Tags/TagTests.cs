@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Nodes;
-using Allure.Testing;
+﻿using Allure.Testing;
 
 namespace Allure.NUnit.Tests.Tags;
 
@@ -8,70 +7,47 @@ class TagTests
     [Test]
     public async Task AddTagsApiWorks()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddTagsApiCalls);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddTagsApiCalls);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var tags = results.TestResults[0]["labels"]
-            .AsArray()
-            .Cast<JsonObject>()
-            .Where(static (l) => (string)l["name"] == "tag")
-            .Select(static (l) => (string)l["value"])
-            .ToArray();
-        await Assert.That(tags).IsEquivalentTo(
-            ["foo", "bar", "baz", "qux"],
-            TUnit.Assertions.Enums.CollectionOrdering.Matching
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.Label(l => l.HasName("tag").And.HasValue("foo"))
+            .With.Label(l => l.HasName("tag").And.HasValue("bar"))
+            .With.Label(l => l.HasName("tag").And.HasValue("baz"))
+            .With.Label(l => l.HasName("tag").And.HasValue("qux"));
     }
 
     [Test]
     public async Task TagAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.TagAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.TagAttributes);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var tags = results.TestResults[0]["labels"]
-            .AsArray()
-            .Cast<JsonObject>()
-            .Where(static (l) => (string)l["name"] == "tag")
-            .Select(static (l) => (string)l["value"]);
-        await Assert.That(tags).IsEquivalentTo(
-            ["foo", "bar", "baz", "qux", "qut"],
-            TUnit.Assertions.Enums.CollectionOrdering.Matching
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.Label(l => l.HasName("tag").And.HasValue("foo"))
+            .With.Label(l => l.HasName("tag").And.HasValue("bar"))
+            .With.Label(l => l.HasName("tag").And.HasValue("baz"))
+            .With.Label(l => l.HasName("tag").And.HasValue("qux"))
+            .With.Label(l => l.HasName("tag").And.HasValue("qut"));
     }
 
     [Test]
     public async Task LegacyTagAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyTagAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyTagAttributes);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var tags = results.TestResults[0]["labels"]
-            .AsArray()
-            .Cast<JsonObject>()
-            .Where(static (l) => (string)l["name"] == "tag")
-            .Select(static (l) => (string)l["value"]);
-        await Assert.That(tags).IsEquivalentTo(
-            ["baz", "qux", "bar", "foo"],
-            TUnit.Assertions.Enums.CollectionOrdering.Matching
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.Label(l => l.HasName("tag").And.HasValue("foo"))
+            .With.Label(l => l.HasName("tag").And.HasValue("bar"))
+            .With.Label(l => l.HasName("tag").And.HasValue("baz"))
+            .With.Label(l => l.HasName("tag").And.HasValue("qux"));
     }
 
     [Test]
     public async Task NUnitCategoriesAreConvertedToTags()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.NUnitCategoryAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.NUnitCategoryAttributes);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var tags = results.TestResults[0]["labels"]
-            .AsArray()
-            .Cast<JsonObject>()
-            .Where(static (l) => (string)l["name"] == "tag")
-            .Select(static (l) => (string)l["value"]);
-        Console.WriteLine(string.Join(", ", tags));
-        await Assert.That(tags).IsEquivalentTo(
-            ["foo", "bar"],
-            TUnit.Assertions.Enums.CollectionOrdering.Matching
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.Label(l => l.HasName("tag").And.HasValue("foo"))
+            .With.Label(l => l.HasName("tag").And.HasValue("bar"));
     }
 }

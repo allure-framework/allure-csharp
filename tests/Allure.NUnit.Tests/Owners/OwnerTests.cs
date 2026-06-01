@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Nodes;
-using Allure.Testing;
+﻿using Allure.Testing;
 
 namespace Allure.NUnit.Tests.Owners;
 
@@ -31,11 +30,9 @@ class OwnerTests
     [MethodDataSource(nameof(GetOwnerSamples))]
     public async Task CheckOwnerIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var labels = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        var owner = labels.First(static (l) => (string)l["name"] == "owner");
-        await Assert.That((string)owner["value"]).IsEqualTo("John Doe");
+        await Assert.That(results).HasSingleTestResult()
+            .With.SingleLabel("owner").With.Value("John Doe");
     }
 }

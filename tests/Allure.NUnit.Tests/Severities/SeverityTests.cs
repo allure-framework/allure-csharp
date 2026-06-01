@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
 
 namespace Allure.NUnit.Tests.Severities;
@@ -28,15 +27,9 @@ class SeverityTests
     [MethodDataSource(nameof(GetSeveritySamples))]
     public async Task CheckSuiteLabelsAreAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var labels = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(labels).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "severity" && (string)l["value"] == "critical";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.SingleLabel("severity").With.Value("critical");
     }
 }

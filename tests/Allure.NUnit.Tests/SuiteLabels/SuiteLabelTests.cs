@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
 
 namespace Allure.NUnit.Tests.SuiteLabels;
@@ -22,26 +21,12 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetSuiteHierarchySamples))]
     public async Task CheckSuiteLabelsAreAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "parentSuite" && (string)l["value"] == "foo";
-            }
-        ).And.Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "suite" && (string)l["value"] == "bar";
-            }
-        ).And.Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "subSuite" && (string)l["value"] == "baz";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.OnlyOneLabel(l => l.HasName("parentSuite").And.HasValue("foo"))
+            .With.OnlyOneLabel(l => l.HasName("suite").And.HasValue("bar"))
+            .With.OnlyOneLabel(l => l.HasName("subSuite").And.HasValue("baz"));
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetParentSuiteSamples()
@@ -67,16 +52,10 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetParentSuiteSamples))]
     public async Task CheckParentSuiteIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "parentSuite" && (string)l["value"] == "foo";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.SingleLabel("parentSuite").With.Value("foo");
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetSuiteSamples()
@@ -102,16 +81,10 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetSuiteSamples))]
     public async Task CheckSuiteIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "suite" && (string)l["value"] == "foo";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.SingleLabel("suite").With.Value("foo");
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetSubSuiteSamples()
@@ -137,15 +110,9 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetSubSuiteSamples))]
     public async Task CheckSubSuiteIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "subSuite" && (string)l["value"] == "foo";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .With.SingleLabel("subSuite").With.Value("foo");
     }
 }

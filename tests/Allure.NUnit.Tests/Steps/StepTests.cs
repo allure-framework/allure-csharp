@@ -1,122 +1,101 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
+using Allure.Testing.Assertions.Model;
 
 namespace Allure.NUnit.Tests.Steps;
 
 class StepTests
 {
-    internal record class ParameterExpectations(string Name, string Value, string Mode = null)
+    [Test]
+    public async Task StepAttributeWorks()
     {
-        public bool Check(JsonObject parameter)
-            => (string)parameter["name"] == this.Name
-                && (string)parameter["value"] == this.Value
-                && (this.Mode is null || (string)parameter["mode"] == this.Mode);
-        public static bool CheckAll(
-            List<ParameterExpectations> expectations,
-            JsonArray parameters
-        )
-            => parameters.Count == expectations.Count
-                && parameters
-                    .Zip(expectations)
-                    .All(static (p) => p.Second.Check(p.First.AsObject()));
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.StepAttributes);
+
+        await Assert.That(results).HasSingleTestResult()
+            .With.StepsMatching([
+                step => step.HasName("Void")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Return")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Async")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("AsyncReturn")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Renamed")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Parameters")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([
+                        p => p.HasName("plain")
+                            .And.HasValue("1")
+                            .And.HasNoMode(),
+                        p => p.HasName("Bar")
+                            .And.HasValue("3")
+                            .And.HasMode(AllureParameterMode.Default),
+                        p => p.HasName("masked")
+                            .And.HasValue("4")
+                            .And.HasMode(AllureParameterMode.Masked),
+                        p => p.HasName("hidden")
+                            .And.HasValue("5")
+                            .And.HasMode(AllureParameterMode.Hidden),
+                    ])
+                    .And.HasStepsMatching([]),
+            ]);
     }
 
-    internal record class StepExpectations(
-        string Name,
-        string Status,
-        List<ParameterExpectations> Parameters,
-        List<StepExpectations> Substeps
-    )
+    [Test]
+    public async Task LegacyStepAttributeWorks()
     {
-        public bool Check(JsonObject step)
-            => (string)step["name"] == this.Name
-                && (string)step["status"] == this.Status
-                && (string)step["stage"] == "finished"
-                && step["parameters"].AsArray().Count == this.Parameters.Count
-                && ParameterExpectations.CheckAll(this.Parameters, step["parameters"].AsArray())
-                && step["steps"]
-                    .AsArray()
-                    .Select(static (n) => n.AsObject())
-                    .All(this.Check);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyStepAttributes);
 
-        public static bool CheckAll(
-            List<StepExpectations> expectations,
-            JsonArray steps
-        )
-            => steps.Count == expectations.Count
-                && steps
-                    .Zip(expectations)
-                    .All(static (p) => p.Second.Check(p.First.AsObject()));
+        await Assert.That(results).HasSingleTestResult()
+            .With.StepsMatching([
+                step => step.HasName("Void")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Return")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Async")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("AsyncReturn")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Renamed")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("Parameters")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([
+                        p => p.HasName("foo").And.HasValue("1"),
+                        p => p.HasName("bar").And.HasValue("\"baz\""),
+                    ])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("SkippedParameter")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([])
+                    .And.HasStepsMatching([]),
+                step => step.HasName("RenamedParameter")
+                    .And.HasStatus(AllureStatus.Passed)
+                    .And.HasParametersMatching([
+                        p => p.HasName("Bar"),
+                    ])
+                    .And.HasStepsMatching([]),
+            ]);
     }
-
-    // [Test]
-    // public async Task StepAttributeWorks()
-    // {
-    //     var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.StepAttributes);
-
-    //     await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-    //     var steps = results.TestResults[0]["steps"].AsArray().Cast<JsonObject>().ToArray();
-    //     await Assert.That(steps).Count().IsEqualTo(6);
-
-    //     await Assert.That(steps[0]).Satisfies(static (step) =>
-    //         new StepExpectations("Void", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[1]).Satisfies(static (step) =>
-    //         new StepExpectations("Return", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[2]).Satisfies(static (step) =>
-    //         new StepExpectations("Async", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[3]).Satisfies(static (step) =>
-    //         new StepExpectations("AsyncReturn", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[4]).Satisfies(static (step) =>
-    //         new StepExpectations("Renamed", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[5]).Satisfies(static (step) =>
-    //         new StepExpectations("Parameters", "passed", [
-    //             new("plain", "1"),
-    //             new("Bar", "3"),
-    //             new("masked", "4", "masked"),
-    //             new("hidden", "5", "hidden"),
-    //         ], []).Check(step));
-    // }
-
-    // [Test]
-    // public async Task LegacyStepAttributeWorks()
-    // {
-    //     var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyStepAttributes);
-
-    //     await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-    //     var steps = results.TestResults[0]["steps"].AsArray().Cast<JsonObject>().ToArray();
-    //     await Assert.That(steps).Count().IsEqualTo(8);
-
-    //     await Assert.That(steps[0]).Satisfies(static (step) =>
-    //         new StepExpectations("Void", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[1]).Satisfies(static (step) =>
-    //         new StepExpectations("Return", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[2]).Satisfies(static (step) =>
-    //         new StepExpectations("Async", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[3]).Satisfies(static (step) =>
-    //         new StepExpectations("AsyncReturn", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[4]).Satisfies(static (step) =>
-    //         new StepExpectations("Renamed", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[5]).Satisfies(static (step) =>
-    //         new StepExpectations(
-    //             "Parameters",
-    //             "passed",
-    //             [new("foo", "1"), new("bar", "\"baz\"")],
-    //             []).Check(step));
-
-    //     await Assert.That(steps[6]).Satisfies(static (step) =>
-    //         new StepExpectations("SkippedParameter", "passed", [], []).Check(step));
-
-    //     await Assert.That(steps[7]).Satisfies(static (step) =>
-    //         new StepExpectations("RenamedParameter", "passed", [new("Bar", "3")], []).Check(step));
-    // }
 }

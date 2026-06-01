@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Nodes;
-using Allure.Testing;
+﻿using Allure.Testing;
 
 namespace Allure.NUnit.Tests.CustomLabels;
 
@@ -28,15 +27,10 @@ class CustomLabelTests
     [MethodDataSource(nameof(GetCustomLabelSamples))]
     public async Task CheckCustomLabelIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "foo" && (string)l["value"] == "bar";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .That.HasSingleLabel("foo")
+            .With.Value("bar");
     }
 }

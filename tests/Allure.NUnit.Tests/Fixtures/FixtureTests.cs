@@ -1,79 +1,59 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
-using Allure.NUnit.Tests.Steps;
+using Allure.Testing.Assertions.Model;
 
 namespace Allure.NUnit.Tests.Fixtures;
 
 class FixtureTests
 {
-    record class ContainerExpectation(
-        string Name,
-        List<StepTests.StepExpectations> Befores,
-        List<StepTests.StepExpectations> Afters
-    )
-    {
-        public bool Check(JsonObject fixture)
-            => (string)fixture["name"] == this.Name
-                && StepTests.StepExpectations.CheckAll(
-                    this.Befores,
-                    fixture["befores"].AsArray())
-                && StepTests.StepExpectations.CheckAll(
-                    this.Afters,
-                    fixture["afters"].AsArray());
-    }
-
     [Test]
     [Skip("Can't emit OneTime-fixture container: need sdk hook")]
     public async Task FixtureAttributesWork()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.FixtureAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.FixtureAttributes);
 
-        var testResults = results.TestResults.Cast<JsonObject>().ToArray();
-        var containers = results.Containers.Cast<JsonObject>().ToArray();
+        var uuid = await Assert.That(results).HasSingleTestResult().With.Uuid();
+        await Assert.That(results.Containers).Count().IsEqualTo(2);
+        await Assert.That(results)
+            .HasSingleContainer("Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass")
+            .With.BeforesMatching(
+                [fixture => fixture.HasName("OneTimeSetUp")
+                    .And.HasStatus(AllureStatus.Passed)]);
 
-        await Assert.That(containers).Count().IsEqualTo(2);
-        await Assert.That(testResults).Count().IsEqualTo(1);
-        var uuid = (string)testResults[0]["uuid"];
-        await Assert.That(containers).Any(
-            (c) => new ContainerExpectation(
-                "Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass",
-                [new StepTests.StepExpectations("OneTimeSetUp", "passed", [], [])],
-                [new StepTests.StepExpectations("Bar", "passed", [], [])]
-            ).Check(c)
-        );
-        await Assert.That(containers).Any(
-            (c) => new ContainerExpectation(
-                "Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass.TestMethod",
-                [new StepTests.StepExpectations("Foo", "passed", [], [])],
-                [new StepTests.StepExpectations("TearDown", "passed", [], [])]
-            ).Check(c)
-        );
+        await Assert.That(results)
+            .HasSingleContainer("Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass.TestMethod")
+            .With.OnlyOneBeforeFixture(
+                fixture => fixture.HasName("Foo")
+                    .And.HasStatus(AllureStatus.Passed))
+            .With.OnlyOneAfterFixture(
+                fixture => fixture.HasName("TearDown")
+                    .And.HasStatus(AllureStatus.Passed))
+            .With.SingleChild().That.IsEqualTo(uuid);
     }
 
     [Test]
     public async Task LegacyFixtureAttributesWork()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyFixtureAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyFixtureAttributes);
 
-        var testResults = results.TestResults.Cast<JsonObject>().ToArray();
-        var containers = results.Containers.Cast<JsonObject>().ToArray();
-
-        await Assert.That(containers).Count().IsEqualTo(2);
-        await Assert.That(testResults).Count().IsEqualTo(1);
-        var uuid = (string)testResults[0]["uuid"];
-        await Assert.That(containers).Any(
-            (c) => new ContainerExpectation(
-                "Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass",
-                [new StepTests.StepExpectations("OneTimeSetUp", "passed", [], [])],
-                [new StepTests.StepExpectations("Bar", "passed", [], [])]
-            ).Check(c)
-        );
-        await Assert.That(containers).Any(
-            (c) => new ContainerExpectation(
-                "Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass.TestMethod",
-                [new StepTests.StepExpectations("Foo", "passed", [], [])],
-                [new StepTests.StepExpectations("TearDown", "passed", [], [])]
-            ).Check(c)
-        );
+        var uuid = await Assert.That(results).HasSingleTestResult().With.Uuid();
+        await Assert.That(results.Containers).Count().IsEqualTo(2);
+        await Assert.That(results)
+            .HasSingleContainer("Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass")
+            .With.OnlyOneBeforeFixture(
+                fixture => fixture.HasName("OneTimeSetUp")
+                    .And.HasStatus(AllureStatus.Passed))
+            .With.OnlyOneAfterFixture(
+                fixture => fixture.HasName("Bar")
+                    .And.HasStatus(AllureStatus.Passed))
+            .With.SingleChild().That.IsEqualTo(uuid);
+        await Assert.That(results)
+            .HasSingleContainer("Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass.TestMethod")
+            .With.OnlyOneBeforeFixture(
+                fixture => fixture.HasName("Foo")
+                    .And.HasStatus(AllureStatus.Passed))
+            .With.OnlyOneAfterFixture(
+                fixture => fixture.HasName("TearDown")
+                    .And.HasStatus(AllureStatus.Passed))
+            .With.SingleChild().That.IsEqualTo(uuid);
     }
 }

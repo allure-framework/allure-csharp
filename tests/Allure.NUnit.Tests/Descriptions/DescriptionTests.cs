@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
 
 namespace Allure.NUnit.Tests.Descriptions;
@@ -31,10 +30,10 @@ class DescriptionTests
     [MethodDataSource(nameof(GetCommonDescriptionSamples))]
     public async Task CheckDescriptionIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo("Lorem Ipsum");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Description("Lorem Ipsum");
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetHtmlDescriptionSamples()
@@ -58,61 +57,53 @@ class DescriptionTests
     [MethodDataSource(nameof(GetHtmlDescriptionSamples))]
     public async Task CheckHtmlDescriptionIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo("Lorem Ipsum");
+        await Assert.That(results).HasSingleTestResult()
+            .With.DescriptionHtml("Lorem Ipsum");
     }
 
     [Test]
     public async Task NUnitDescriptionAttributesCompose()
     {
-        var results = await AllureSampleRunner.RunAsync(
+        var results = await AllureSampleRunner.RunAsync2(
             AllureSampleRegistry.NUnitDescriptionAttributeComposition
         );
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert
-            .That((string)results.TestResults[0]["description"])
-            .IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Description("Lorem Ipsum\n\nDolor Sit Amet");
     }
 
     [Test]
     public async Task NUnitDescriptionPropertiesCompose()
     {
-        var results = await AllureSampleRunner.RunAsync(
+        var results = await AllureSampleRunner.RunAsync2(
             AllureSampleRegistry.NUnitDescriptionPropertyComposition
         );
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert
-            .That((string)results.TestResults[0]["description"])
-            .IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet\n\nConsectetur Adipiscing Elit");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Description("Lorem Ipsum\n\nDolor Sit Amet\n\nConsectetur Adipiscing Elit");
     }
 
     [Test]
     public async Task NUnitDescriptionIgnoredIfDescriptionAlreadyProvided()
     {
-        var results = await AllureSampleRunner.RunAsync(
+        var results = await AllureSampleRunner.RunAsync2(
             AllureSampleRegistry.NUnitDescriptionPropertyWithAllureDescription
         );
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert
-            .That((string)results.TestResults[0]["description"])
-            .IsEqualTo("Lorem Ipsum");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Description("Lorem Ipsum");
     }
 
     [Test]
     public async Task NUnitDescriptionIgnoredIfDescriptionHtmlAlreadyProvided()
     {
-        var results = await AllureSampleRunner.RunAsync(
+        var results = await AllureSampleRunner.RunAsync2(
             AllureSampleRegistry.NUnitDescriptionPropertyWithAllureDescriptionHtml
         );
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert
-            .That((string)results.TestResults[0]["description"])
-            .IsNull();
+        await Assert.That(results).HasSingleTestResult()
+            .With.NoDescription();
     }
 }

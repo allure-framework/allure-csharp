@@ -1,9 +1,8 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
+using Allure.Testing.Assertions.Model;
 
 namespace Allure.NUnit.Tests.Parameters;
 
-[Skip("Compilation errors under .NET 10")]
 class ParameterTests
 {
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetParameterSamples()
@@ -21,42 +20,30 @@ class ParameterTests
     [MethodDataSource(nameof(GetParameterSamples))]
     public async Task AddTestParameterApiWorks(AllureSampleRegistryEntry sample)
     {
-        // var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-
-        // var parameters = results.TestResults[0]["parameters"].AsArray().Cast<JsonObject>().ToList();
-
-        // await Assert.That(parameters.Count).IsEqualTo(5);
-        // await Assert.That(parameters[0]).Satisfies(
-        //     static (p) => (string)p["name"] == "name1"
-        //         && (string)p["value"] == "\"value-1\""
-        //         && p["mode"] is null
-        //         && (bool)p["excluded"] is false
-        // );
-        // await Assert.That(parameters[1]).Satisfies(
-        //     static (p) => (string)p["name"] == "name2"
-        //         && (string)p["value"] == "\"value-2\""
-        //         && (string)p["mode"] == "masked"
-        //         && (bool)p["excluded"] is false
-        // );
-        // await Assert.That(parameters[2]).Satisfies(
-        //     static (p) => (string)p["name"] == "name3"
-        //         && (string)p["value"] == "\"value-3\""
-        //         && (string)p["mode"] == "hidden"
-        //         && (bool)p["excluded"] is false
-        // );
-        // await Assert.That(parameters[3]).Satisfies(
-        //     static (p) => (string)p["name"] == "name4"
-        //         && (string)p["value"] == "\"value-4\""
-        //         && p["mode"] is null
-        //         && (bool)p["excluded"] is true
-        // );
-        // await Assert.That(parameters[4]).Satisfies(
-        //     static (p) => (string)p["name"] == "name5"
-        //         && (string)p["value"] == "\"value-5\""
-        //         && (string)p["mode"] == "masked"
-        //         && (bool)p["excluded"] is true
-        // );
+        await Assert.That(results).HasSingleTestResult()
+            .With.ParametersMatching([
+                p => p.HasName("name1")
+                    .And.HasValue("\"value-1\"")
+                    .And.HasNoMode()
+                    .And.HasExcluded(false),
+                p => p.HasName("name2")
+                    .And.HasValue("\"value-2\"")
+                    .And.HasMode(AllureParameterMode.Masked)
+                    .And.HasExcluded(false),
+                p => p.HasName("name3")
+                    .And.HasValue("\"value-3\"")
+                    .And.HasMode(AllureParameterMode.Hidden)
+                    .And.HasExcluded(false),
+                p => p.HasName("name4")
+                    .And.HasValue("\"value-4\"")
+                    .And.HasNoMode()
+                    .And.HasExcluded(true),
+                p => p.HasName("name5")
+                    .And.HasValue("\"value-5\"")
+                    .And.HasMode(AllureParameterMode.Masked)
+                    .And.HasExcluded(true),
+            ]);
     }
 }

@@ -1,222 +1,189 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
 
 namespace Allure.NUnit.Tests.Links;
 
-[Skip("Compilation errors under .NET 10")]
 class LinkTests
 {
     [Test]
     public async Task CheckLinksRuntimeApiWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddLinksAtRuntime);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddLinksAtRuntime);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(4);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && l["name"] is null
-        //         && l["type"] is null);
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && l["type"] is null);
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && (string)l["name"] == "name-3"
-        //         && (string)l["type"] == "type-3");
-        // await Assert.That(links[3]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-4"
-        //         && (string)l["name"] == "name-4"
-        //         && (string)l["type"] == "type-4");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-1")
+                    .And.HasNoName()
+                    .And.HasNoType(),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasNoType(),
+                link => link.HasUrl("url-3")
+                    .And.HasName("name-3")
+                    .And.HasType("type-3"),
+                link => link.HasUrl("url-4")
+                    .And.HasName("name-4")
+                    .And.HasType("type-4"),
+            ]);
     }
 
     [Test]
     public async Task CheckLegacyLinkAttributeWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyLinkAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyLinkAttributes);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(3);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && (string)l["name"] == "name-3"
-        //         && (string)l["type"] == "link");
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && (string)l["type"] == "link");
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && (string)l["name"] == "url-1"
-        //         && (string)l["type"] == "link");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-3")
+                    .And.HasName("name-3")
+                    .And.HasType("link"),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasType("link"),
+                link => link.HasUrl("url-1")
+                    .And.HasName("url-1")
+                    .And.HasType("link"),
+            ]);
     }
 
     [Test]
     public async Task CheckLinkAttributeWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LinkAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LinkAttributes);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(4);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && l["name"] is null
-        //         && l["type"] is null);
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && l["type"] is null);
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "type-3");
-        // await Assert.That(links[3]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-4"
-        //         && (string)l["name"] == "name-4"
-        //         && (string)l["type"] == "type-4");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-1")
+                    .And.HasNoName()
+                    .And.HasNoType(),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasNoType(),
+                link => link.HasUrl("url-3")
+                    .And.HasNoName()
+                    .And.HasType("type-3"),
+                link => link.HasUrl("url-4")
+                    .And.HasName("name-4")
+                    .And.HasType("type-4"),
+            ]);
     }
 
     [Test]
     public async Task CheckIssuesRuntimeApiWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddIssuesAtRuntime);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddIssuesAtRuntime);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(3);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "issue");
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && (string)l["type"] == "issue");
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && (string)l["name"] == "name-3"
-        //         && (string)l["type"] == "issue");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-1")
+                    .And.HasNoName()
+                    .And.HasType("issue"),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasType("issue"),
+                link => link.HasUrl("url-3")
+                    .And.HasName("name-3")
+                    .And.HasType("issue"),
+            ]);
     }
 
     [Test]
     public async Task CheckLegacyIssueAttributeWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyIssueAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyIssueAttributes);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(3);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && (string)l["name"] == "url-3"
-        //         && (string)l["type"] == "issue");
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && (string)l["type"] == "issue");
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && (string)l["name"] == "url-1"
-        //         && (string)l["type"] == "issue");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-3")
+                    .And.HasName("url-3")
+                    .And.HasType("issue"),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasType("issue"),
+                link => link.HasUrl("url-1")
+                    .And.HasName("url-1")
+                    .And.HasType("issue"),
+            ]);
     }
 
     [Test]
     public async Task CheckIssueAttributeWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.IssueAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.IssueAttributes);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(4);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "issue");
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && (string)l["type"] == "issue");
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "issue");
-        // await Assert.That(links[3]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-4"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "issue");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-1")
+                    .And.HasNoName()
+                    .And.HasType("issue"),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasType("issue"),
+                link => link.HasUrl("url-3")
+                    .And.HasNoName()
+                    .And.HasType("issue"),
+                link => link.HasUrl("url-4")
+                    .And.HasNoName()
+                    .And.HasType("issue"),
+            ]);
     }
 
     [Test]
     public async Task CheckTmsLinksRuntimeApiWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddTmsItemsAtRuntime);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddTmsItemsAtRuntime);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(3);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "tms");
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && (string)l["type"] == "tms");
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && (string)l["name"] == "name-3"
-        //         && (string)l["type"] == "tms");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-1")
+                    .And.HasNoName()
+                    .And.HasType("tms"),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasType("tms"),
+                link => link.HasUrl("url-3")
+                    .And.HasName("name-3")
+                    .And.HasType("tms"),
+            ]);
     }
 
     [Test]
     public async Task CheckLegacyTmsAttributeWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyTmsAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyTmsAttributes);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(3);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && (string)l["name"] == "url-3"
-        //         && (string)l["type"] == "tms");
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && (string)l["type"] == "tms");
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && (string)l["name"] == "url-1"
-        //         && (string)l["type"] == "tms");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-3")
+                    .And.HasName("url-3")
+                    .And.HasType("tms"),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasType("tms"),
+                link => link.HasUrl("url-1")
+                    .And.HasName("url-1")
+                    .And.HasType("tms"),
+            ]);
     }
 
     [Test]
     public async Task CheckTmsItemAttributeWorks()
     {
-        // var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.TmsItemAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.TmsItemAttributes);
 
-        // await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        // var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>().ToList();
-        // await Assert.That(links.Count).IsEqualTo(4);
-        // await Assert.That(links[0]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-1"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "tms");
-        // await Assert.That(links[1]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-2"
-        //         && (string)l["name"] == "name-2"
-        //         && (string)l["type"] == "tms");
-        // await Assert.That(links[2]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-3"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "tms");
-        // await Assert.That(links[3]).Satisfies(static (l) =>
-        //     (string)l["url"] == "url-4"
-        //         && l["name"] is null
-        //         && (string)l["type"] == "tms");
+        await Assert.That(results).HasSingleTestResult()
+            .With.LinksMatching([
+                link => link.HasUrl("url-1")
+                    .And.HasNoName()
+                    .And.HasType("tms"),
+                link => link.HasUrl("url-2")
+                    .And.HasName("name-2")
+                    .And.HasType("tms"),
+                link => link.HasUrl("url-3")
+                    .And.HasNoName()
+                    .And.HasType("tms"),
+                link => link.HasUrl("url-4")
+                    .And.HasNoName()
+                    .And.HasType("tms"),
+            ]);
     }
 }
