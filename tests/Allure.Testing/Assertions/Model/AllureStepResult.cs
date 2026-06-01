@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Allure.Testing.Assertions.Model.Properties;
-using Allure.Testing.Internal;
 
 namespace Allure.Testing.Assertions.Model;
 
