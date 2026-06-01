@@ -195,7 +195,7 @@ public static class Methods
     public static string ConstrainedItems(string methodName, CollectionPropertyMetadata property) =>
         $$"""
                 public {{Types.CollectionItemConstraintsAssertion(property)}} {{methodName}}(
-                    {{Types.Constraint(property.ItemType)}}[] constraints,
+                    {{Types.OptionalConstraint(property.ItemType)}}[] constraints,
                     {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
                 )
                 {

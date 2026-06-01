@@ -72,7 +72,7 @@ public static partial class AllureAssertionExtensions
         }
 
         public CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResults(
-            Func<IAssertionSource<AllureTestResult>, IAssertion>[] constraints,
+            Func<IAssertionSource<AllureTestResult>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
         )
         {

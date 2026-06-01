@@ -8,7 +8,7 @@ namespace Allure.Testing.Assertions;
 
 public class CollectionItemConstraintsAssertion<TCollection, TItem>(
     AssertionContext<TCollection> context,
-    Func<IAssertionSource<TItem>, IAssertion>[] itemConstraints,
+    Func<IAssertionSource<TItem>, IAssertion?>?[] itemConstraints,
     string itemDescription
 ) :
     Assertion<TCollection>(context)
@@ -68,11 +68,13 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
             var item = items[i];
             var constraint = this.itemConstraints[i];
 
-            var result = await AssertionFunctions.ExecuteInlineAssertionAsync(
-                item,
-                $"{this.itemDescription}s[{i}]",
-                constraint
-            );
+            var result = constraint is not null
+                ? await AssertionFunctions.ExecuteInlineAssertionAsync(
+                    item,
+                    $"{this.itemDescription}s[{i}]",
+                    constraint
+                )
+                : AssertionResult.Passed;
 
 
             if (!result.IsPassed)

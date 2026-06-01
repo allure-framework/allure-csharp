@@ -34,6 +34,9 @@ public static class Types
     public static string Constraint(string type) =>
         Func(IAssertionSource(type), IAssertion);
 
+    public static string OptionalConstraint(string type) =>
+        $"{Func(IAssertionSource(type), $"{IAssertion}?")}?";
+
     public static string NarrowToJsonCollectionPropertyAssertion(string target, CollectionPropertyMetadata property) =>
         $"global::Allure.Testing.Assertions.NarrowToJsonCollectionPropertyAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}, {property.ItemType}>";
 
