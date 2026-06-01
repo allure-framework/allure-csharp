@@ -53,6 +53,6 @@ public abstract class JsonFunctions
             ? propertyValue.ValueKind is JsonValueKind.String
                 ? AssertionResult<string>.Passed(propertyValue.GetString()!)
                 : AssertionResult.Failed(
-                    $"{propertyName} was {GetJsonKindTypeString(propertyValue.ValueKind)} instead of string")
-            : AssertionResult.Failed($"{propertyName} did not exist");
+                    $"\"{propertyName}\" was {GetJsonKindTypeString(propertyValue.ValueKind)} instead of string")
+            : AssertionResult.Failed($"\"{propertyName}\" was missing");
 }
