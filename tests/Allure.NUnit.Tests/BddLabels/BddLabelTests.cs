@@ -25,9 +25,9 @@ class BddLabelTests
 
         var testResult = await Assert.That(results).HasSingleTestResult();
 
-        await Assert.That(testResult).HasOnlyOneLabel("epic").With.Value("foo");
-        await Assert.That(testResult).HasOnlyOneLabel("feature").With.Value("bar");
-        await Assert.That(testResult).HasOnlyOneLabel("story").With.Value("baz");
+        await Assert.That(testResult).HasSingleLabel("epic").With.Value("foo");
+        await Assert.That(testResult).HasSingleLabel("feature").With.Value("bar");
+        await Assert.That(testResult).HasSingleLabel("story").With.Value("baz");
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetEpicSamples()
@@ -56,7 +56,7 @@ class BddLabelTests
         var results = await AllureSampleRunner.RunAsync2(sample);
 
         await Assert.That(results).HasSingleTestResult()
-            .That.HasOnlyOneLabel("epic")
+            .That.HasSingleLabel("epic")
             .With.Value("foo");
     }
 
@@ -86,7 +86,7 @@ class BddLabelTests
         var results = await AllureSampleRunner.RunAsync2(sample);
 
         await Assert.That(results).HasSingleTestResult()
-            .That.HasOnlyOneLabel("feature")
+            .That.HasSingleLabel("feature")
             .With.Value("foo");
     }
 
@@ -116,7 +116,7 @@ class BddLabelTests
         var results = await AllureSampleRunner.RunAsync2(sample);
 
         await Assert.That(results).HasSingleTestResult()
-            .That.HasOnlyOneLabel("story")
+            .That.HasSingleLabel("story")
             .With.Value("foo");
     }
 }

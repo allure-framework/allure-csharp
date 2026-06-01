@@ -25,7 +25,7 @@ class AllureIdTests
         var results = await AllureSampleRunner.RunAsync2(sample);
 
         await Assert.That(results).HasSingleTestResult()
-            .That.HasOnlyOneLabel("ALLURE_ID")
+            .That.HasSingleLabel("ALLURE_ID")
             .With.Value("1001");
     }
 }
