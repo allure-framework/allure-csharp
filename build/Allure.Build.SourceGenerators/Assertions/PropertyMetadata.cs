@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace Allure.Build.SourceGenerators.Assertions;
 
 public record class PropertyMetadata(
@@ -8,6 +6,5 @@ public record class PropertyMetadata(
     string Name,
     string MethodName,
     string JsonName,
-    string ValueType,
-    ImmutableArray<string> EquatableTypes
+    string ValueType
 );

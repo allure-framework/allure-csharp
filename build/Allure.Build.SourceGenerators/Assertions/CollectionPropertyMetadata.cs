@@ -9,7 +9,6 @@ public record class CollectionPropertyMetadata(
     string MethodName,
     string JsonName,
     string ValueType,
-    ImmutableArray<string> EquatableTypes,
     string ItemMethodName,
     string ItemName,
     string ItemType,
@@ -20,5 +19,4 @@ public record class CollectionPropertyMetadata(
     Name: Name,
     MethodName: MethodName,
     JsonName: JsonName,
-    ValueType: ValueType,
-    EquatableTypes: EquatableTypes);
+    ValueType: ValueType);

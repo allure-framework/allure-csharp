@@ -17,13 +17,13 @@ public static class Methods
                 }
         """;
 
-    public static string ScalarPropertyEquals(string methodName, PropertyMetadata property, string equatableType) =>
+    public static string PropertyEquals(string methodName, PropertyMetadata property) =>
         $$"""
                 /// <summary>
                 /// Checks if the value of "{{property.JsonName}}" is equal to the expected value.
                 /// </summary>
-                public {{Types.JsonPropertyEquatableAssertion("TObject", property, equatableType)}} {{methodName}}(
-                    {{equatableType}} expectedValue,
+                public {{Types.JsonPropertyEquatableAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.IEquatable(property.ValueType)}} expectedValue,
                     {{Attributes.CallerArgumentExpressionFor("expectedValue")}} string? expression = null
                 )
                 {
@@ -34,7 +34,7 @@ public static class Methods
                 }
         """;
 
-    public static string ScalarPropertyEqualsByComparer(string methodName, PropertyMetadata property) =>
+    public static string PropertyEqualsByComparer(string methodName, PropertyMetadata property) =>
         $$"""
                 /// <summary>
                 /// Checks if the value of "{{property.JsonName}}" is equal to the expected value.

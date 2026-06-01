@@ -19,6 +19,9 @@ public static class Types
     public const string CallerArgumentExpression =
         $"global::System.Runtime.CompilerServices.CallerArgumentExpression";
 
+    public static string IEquatable(string type) =>
+        $"global::System.IEquatable<{type}>";
+
     public static string IEqualityComparer(string type) =>
         $"global::System.Collections.Generic.IEqualityComparer<{type}>";
 

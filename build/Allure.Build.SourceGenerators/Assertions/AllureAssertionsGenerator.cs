@@ -116,12 +116,6 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         {
             var valueType = propertyInterface.TypeArguments[0];
 
-            var equatableTo = valueType
-                .AllInterfaces
-                .Where(static i => i.OriginalDefinition.ToString() == Types.Open.IEquatable)
-                .Select(static i => i.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
-                .ToImmutableArray();
-
             var valueTypeName =
                 propertyInterface
                     .TypeArguments[0]
@@ -139,8 +133,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                     Name: nameProperties.PropertyName,
                     MethodName: nameProperties.MethodName,
                     JsonName: nameProperties.JsonName,
-                    ValueType: valueTypeName,
-                    EquatableTypes: equatableTo
+                    ValueType: valueTypeName
                 );
             }
 
@@ -169,7 +162,6 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                     MethodName: nameProperties.MethodName,
                     JsonName: nameProperties.JsonName,
                     ValueType: valueTypeName,
-                    EquatableTypes: equatableTo,
                     ItemMethodName: nameProperties.ItemMethodName,
                     ItemName: nameProperties.ItemName,
                     ItemType: itemTypeName,
@@ -181,7 +173,6 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                     MethodName: nameProperties.MethodName,
                     JsonName: nameProperties.JsonName,
                     ValueType: valueTypeName,
-                    EquatableTypes: equatableTo,
                     ItemMethodName: nameProperties.ItemMethodName,
                     ItemName: nameProperties.ItemName,
                     ItemType: itemTypeName,
@@ -273,38 +264,24 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
     {
         AddScalarPropertyExistsMethod(sb, methodNames.PropertyExistsAnyValue, property);
         sb.AppendLine();
-        AddScalarPropertyEqualsMethods(sb, methodNames.PropertyEquals, property);
+        AddPropertyEqualsMethod(sb, methodNames.PropertyEquals, property);
         sb.AppendLine();
-        AddScalarPropertyEqualsByComparerMethods(sb, methodNames.PropertyEqualsCustom, property);
+        AddPropertyEqualsByComparerMethods(sb, methodNames.PropertyEqualsCustom, property);
         sb.AppendLine();
-        AddScalarPropertyConstrainedMethods(sb, methodNames.PropertySatisfiesConstraints, property);
+        AddPropertyConstrainedMethods(sb, methodNames.PropertySatisfiesConstraints, property);
     }
 
     static void AddMethodsForCollectionProperty(StringBuilder sb, MethodNames methodNames, CollectionPropertyMetadata property)
     {
         AddCollectionPropertyExistsMethod(sb, methodNames.PropertyExistsAnyValue, property);
         sb.AppendLine();
-        AddScalarPropertyEqualsMethods(sb, methodNames.PropertyEquals, property);
+        AddPropertyEqualsMethod(sb, methodNames.PropertyEquals, property);
         sb.AppendLine();
-        AddScalarPropertyEqualsByComparerMethods(sb, methodNames.PropertyEqualsCustom, property);
+        AddPropertyEqualsByComparerMethods(sb, methodNames.PropertyEqualsCustom, property);
         sb.AppendLine();
-        AddScalarPropertyConstrainedMethods(sb, methodNames.PropertySatisfiesConstraints, property);
+        AddPropertyConstrainedMethods(sb, methodNames.PropertySatisfiesConstraints, property);
         sb.AppendLine();
         AddCollectionSpecificMethods(sb, methodNames, property);
-    }
-
-    static void AddScalarPropertyEqualsMethods(StringBuilder sb, string methodName, PropertyMetadata property)
-    {
-        if (property.EquatableTypes.Any())
-        {
-            AddScalarPropertyEqualsMethod(sb, methodName, property, property.EquatableTypes[0]);
-        }
-
-        foreach (var equatableType in property.EquatableTypes.Skip(1))
-        {
-            sb.AppendLine();
-            AddScalarPropertyEqualsMethod(sb, methodName, property, equatableType);
-        }
     }
 
     static void AddCollectionSpecificMethods(StringBuilder sb, MethodNames methodNames, CollectionPropertyMetadata property)
@@ -353,17 +330,17 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
             Methods.ScalarPropertyExists(methodName, property)
         );
 
-    static void AddScalarPropertyEqualsMethod(StringBuilder sb, string methodName, PropertyMetadata property, string equatableType) =>
+    static void AddPropertyEqualsMethod(StringBuilder sb, string methodName, PropertyMetadata property) =>
         sb.AppendLine(
-            Methods.ScalarPropertyEquals(methodName, property, equatableType)
+            Methods.PropertyEquals(methodName, property)
         );
 
-    static void AddScalarPropertyEqualsByComparerMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
+    static void AddPropertyEqualsByComparerMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
         sb.AppendLine(
-            Methods.ScalarPropertyEqualsByComparer(methodName, property)
+            Methods.PropertyEqualsByComparer(methodName, property)
         );
 
-    static void AddScalarPropertyConstrainedMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
+    static void AddPropertyConstrainedMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
         sb.AppendLine(
             Methods.ScalarPropertyConstrained(methodName, property)
         );

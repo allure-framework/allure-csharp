@@ -7,16 +7,15 @@ using TUnit.Assertions.Core;
 
 namespace Allure.Testing.Assertions;
 
-public class JsonPropertyEquatableAssertion<TObject, TProperty, TValue, TOther>(
+public class JsonPropertyEquatableAssertion<TObject, TProperty, TValue>(
     string propertyName,
     AssertionContext<TObject> context,
-    TOther expectedValue
+    IEquatable<TValue>? expectedValue
 ) :
     Assertion<TObject>(context)
 
     where TObject : IAllureModelObject<TObject>, TProperty
     where TProperty : IAllureProperty<TValue, TObject>
-    where TValue: IEquatable<TOther>
 {
     protected override async Task<AssertionResult> CheckAsync(
         EvaluationMetadata<TObject> metadata
@@ -30,7 +29,7 @@ public class JsonPropertyEquatableAssertion<TObject, TProperty, TValue, TOther>(
                 TProperty.GetValue(item, propertyName) switch
                 {
                     { IsPassed: true, Value: var value } =>
-                        value is not null && value.Equals(expectedValue)
+                        expectedValue?.Equals(value) ?? value is null
                             ? await Task.FromResult(AssertionResult.Passed)
                             : await Task.FromResult(
                                 AssertionResult.Failed($"received {FormatFunctions.FormatAsStringLiteral(value)}")),
