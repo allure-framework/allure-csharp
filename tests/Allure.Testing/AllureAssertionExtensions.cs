@@ -6,6 +6,7 @@ using Allure.Testing.Assertions;
 using Allure.Testing.Assertions.Model;
 using Allure.Testing.Assertions.Model.Properties;
 using Allure.Testing.Internal.TUnitAccessors;
+using TUnit.Assertions.Conditions;
 using TUnit.Assertions.Core;
 using TUnit.Assertions.Sources;
 
@@ -15,6 +16,257 @@ public static partial class AllureAssertionExtensions
 {
     extension (IAssertionSource<AllureResults2> source)
     {
+        /// <summary>
+        /// Checks if the exact number of test results were written to the output and each result satisfies the corresponding
+        /// constraints.
+        /// </summary>
+        /// <remarks>
+        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+        /// </remarks>
+        public CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResults(
+            Func<IAssertionSource<AllureTestResult>, IAssertion?>?[] constraints,
+            [CallerArgumentExpression(nameof(constraints))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasTestResults)}({expression ?? "..."})");
+
+            return new(source.Context.Map(ctx => ctx!.TestResults), constraints, "test result");
+        }
+
+        /// <summary>
+        /// Checks if the output contains exactly one test result that matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasOnlyOneTestResult(
+            Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasOneItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    criteria,
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains exactly one test result with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasOnlyOneTestResult(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasOneItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    tr => tr.HasName(name),
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains exactly one test result with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasOnlyOneTestResult(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append(
+                $".{nameof(HasOnlyOneTestResult)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasOneItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    tr => tr.HasName(name, comparer),
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains at least one test result that matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasTestResult(
+            Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasTestResult)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    criteria,
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains at least one test result with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasTestResult(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasTestResult)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    tr => tr.HasName(name),
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains at least one test result with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasTestResult(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append(
+                $".{nameof(HasTestResult)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    tr => tr.HasName(name, comparer),
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Passes if no test result matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasNoTestResult(
+            Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasNoTestResult)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasNoItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    criteria,
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Passes if no test result has the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasNoTestResult(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasNoTestResult)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasNoItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    tr => tr.HasName(name),
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Passes if no test result has the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasNoTestResult(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append(
+                $".{nameof(HasNoTestResult)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.TestResults,
+                tr => new HasNoItemByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                    tr.Context,
+                    tr => tr.HasName(name, comparer),
+                    "test result"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
         /// <summary>
         /// Checks if exactly one test result was written to the output and narrows the assertion chain to that result.
         /// </summary>
@@ -28,12 +280,12 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if exactly one test result matches the provided criteria and narrows the assertion chain to that result.
         /// </summary>
-        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasSingleTestResult(
             Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({expression ?? "..."})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleTestResult)}({expression ?? "..."})");
 
             return new(source.Context.Map(ctx => ctx!.TestResults), criteria, "test result");
         }
@@ -41,12 +293,12 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if exactly one test result has the provided name and narrows the assertion chain to that result.
         /// </summary>
-        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasSingleTestResult(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({expression ?? "..."})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleTestResult)}({expression ?? "..."})");
 
             return new(
                 source.Context.Map(
@@ -58,14 +310,14 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if exactly one test result has the provided name and narrows the assertion chain to that result.
         /// </summary>
-        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasSingleTestResult(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
             [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneTestResult)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleTestResult)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
 
             return new(
                 source.Context.Map(
@@ -89,20 +341,254 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the exact number of test results were written to the output and each result satisfies the corresponding
-        /// constraints.
+        /// Checks if the exact number of containers were written to the output and each container satisfies
+        /// the corresponding constraints.
         /// </summary>
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
         /// </remarks>
-        public CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResults(
-            Func<IAssertionSource<AllureTestResult>, IAssertion?>?[] constraints,
+        public CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasContainers(
+            Func<IAssertionSource<AllureContainer>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasTestResults)}({expression ?? "..."})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasContainers)}({expression ?? "..."})");
 
-            return new(source.Context.Map(ctx => ctx!.TestResults), constraints, "test result");
+            return new(source.Context.Map(static ctx => ctx!.Containers), constraints, "container");
+        }
+
+        /// <summary>
+        /// Checks if the output contains exactly one container that matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasOnlyOneContainer(
+            Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasOneItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    criteria,
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains exactly one container with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasOnlyOneContainer(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasOneItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    c => c.HasName(name),
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains exactly one container with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasOnlyOneContainer(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append(
+                $".{nameof(HasOnlyOneContainer)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasOneItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    c => c.HasName(name, comparer),
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains at least one container that matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasContainer(
+            Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasContainer)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    criteria,
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains at least one container with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasContainer(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasContainer)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    c => c.HasName(name),
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains at least one container with the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasContainer(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append(
+                $".{nameof(HasContainer)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    c => c.HasName(name, comparer),
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Passes if no container matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasNoContainer(
+            Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasNoContainer)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasNoItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    criteria,
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Passes if no container has the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasNoContainer(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasNoContainer)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasNoItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    c => c.HasName(name),
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Passes if no container has the provided name.
+        /// </summary>
+        public MemberAssertionResult<AllureResults2> HasNoContainer(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append(
+                $".{nameof(HasNoContainer)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Containers,
+                ca => new HasNoItemByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                    ca.Context,
+                    c => c.HasName(name, comparer),
+                    "container"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
         }
 
         /// <summary>
@@ -118,12 +604,12 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if exactly one container matches the provided criteria and narrows the assertion chain to that container.
         /// </summary>
-        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasSingleContainer(
             Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({expression ?? "..."})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleContainer)}({expression ?? "..."})");
 
             return new(source.Context.Map(ctx => ctx!.Containers), criteria, "container");
         }
@@ -131,12 +617,12 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if exactly one container has the provided name and narrows the assertion chain to that container.
         /// </summary>
-        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasSingleContainer(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({expression ?? "..."})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleContainer)}({expression ?? "..."})");
 
             return new(
                 source.Context.Map(
@@ -148,14 +634,14 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if exactly one container has the provided name and narrows the assertion chain to that container.
         /// </summary>
-        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasSingleContainer(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
             [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
         )
         {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleContainer)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
 
             return new(
                 source.Context.Map(
@@ -176,23 +662,6 @@ public static partial class AllureAssertionExtensions
             source.Context.ExpressionBuilder.Append($".{nameof(HasContainerAt)}({expression ?? "..."})");
 
             return new(source.Context.Map(ctx => ctx!.Containers), index, "container");
-        }
-
-        /// <summary>
-        /// Checks if the exact number of containers were written to the output and each container satisfies
-        /// the corresponding constraints.
-        /// </summary>
-        /// <remarks>
-        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
-        /// </remarks>
-        public CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasContainers(
-            Func<IAssertionSource<AllureContainer>, IAssertion?>?[] constraints,
-            [CallerArgumentExpression(nameof(constraints))] string? expression = null
-        )
-        {
-            source.Context.ExpressionBuilder.Append($".{nameof(HasContainers)}({expression ?? "..."})");
-
-            return new(source.Context.Map(static ctx => ctx!.Containers), constraints, "container");
         }
     }
 

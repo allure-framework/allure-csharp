@@ -2,20 +2,6 @@ namespace Allure.Build.SourceGenerators.Assertions;
 
 public static class Types
 {
-    public const string GenerateAllureAssertionsAttribute = "Allure.Testing.Assertions.GenerateAllureAssertionsAttribute";
-
-    public static string NarrowToJsonPropertyAssertion(string target, PropertyMetadata property) =>
-        $"global::Allure.Testing.Assertions.NarrowToJsonPropertyAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
-
-    public static string JsonPropertyEquatableAssertion(string target, PropertyMetadata property, string equatableType) =>
-        $"global::Allure.Testing.Assertions.JsonPropertyEquatableAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}, {equatableType}>";
-
-    public static string JsonPropertyComparerAssertion(string target, PropertyMetadata property) =>
-        $"global::Allure.Testing.Assertions.JsonPropertyComparerAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
-
-    public static string JsonPropertyCriteriaAssertion(string target, PropertyMetadata property) =>
-        $"global::Allure.Testing.Assertions.JsonPropertyCriteriaAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
-
     public const string CallerArgumentExpression =
         $"global::System.Runtime.CompilerServices.CallerArgumentExpression";
 
@@ -25,12 +11,6 @@ public static class Types
     public static string IEqualityComparer(string type) =>
         $"global::System.Collections.Generic.IEqualityComparer<{type}>";
 
-    public const string IAssertion =
-        "global::TUnit.Assertions.Core.IAssertion";
-
-    public static string IAssertionSource(string typeArgument) =>
-        $"global::TUnit.Assertions.Core.IAssertionSource<{typeArgument}>";
-
     public static string Func(string parameterType, string returnType) =>
         $"global::System.Func<{parameterType}, {returnType}>";
 
@@ -39,6 +19,56 @@ public static class Types
 
     public static string OptionalConstraint(string type) =>
         $"{Func(IAssertionSource(type), $"{IAssertion}?")}?";
+
+    public const string IAssertion =
+        "global::TUnit.Assertions.Core.IAssertion";
+
+    public static string IAssertionSource(string typeArgument) =>
+        $"global::TUnit.Assertions.Core.IAssertionSource<{typeArgument}>";
+
+    public const string GenerateAllureAssertionsAttribute = "Allure.Testing.Assertions.GenerateAllureAssertionsAttribute";
+
+    public static string NoJsonPropertyAssertion(string target) =>
+        $"global::Allure.Testing.Assertions.NoJsonPropertyAssertion<{target}>";
+
+    public static string HasComparableItemAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasComparableItemAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasEquatableItemAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasEquatableItemAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasItemByCriteriaAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasItemByCriteriaAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasOneComparableItemAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasOneComparableItemAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasOneEquatableItemAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasOneEquatableItemAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasOneItemByCriteriaAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasOneItemByCriteriaAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasNoComparableItemAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasNoComparableItemAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasNoEquatableItemAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasNoEquatableItemAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string HasNoItemByCriteriaAssertion(CollectionPropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.HasNoItemByCriteriaAssertion<{property.ValueType}, {property.ItemType}>";
+
+    public static string NarrowToJsonPropertyAssertion(string target, PropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.NarrowToJsonPropertyAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
+
+    public static string JsonPropertyEquatableAssertion(string target, PropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.JsonPropertyEquatableAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
+
+    public static string JsonPropertyComparerAssertion(string target, PropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.JsonPropertyComparerAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
+
+    public static string JsonPropertyCriteriaAssertion(string target, PropertyMetadata property) =>
+        $"global::Allure.Testing.Assertions.JsonPropertyCriteriaAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}>";
 
     public static string NarrowToJsonCollectionPropertyAssertion(string target, CollectionPropertyMetadata property) =>
         $"global::Allure.Testing.Assertions.NarrowToJsonCollectionPropertyAssertion<{target}, {property.InterfaceFullName}<TObject>, {property.ValueType}, {property.ItemType}>";

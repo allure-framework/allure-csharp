@@ -262,6 +262,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
     static void AddMethodsForScalarProperty(StringBuilder sb, MethodNames methodNames, PropertyMetadata property)
     {
+        AddNoPropertyMethod(sb, methodNames.NoProperty, property);
+        sb.AppendLine();
         AddScalarPropertyExistsMethod(sb, methodNames.PropertyExistsAnyValue, property);
         sb.AppendLine();
         AddPropertyEqualsMethod(sb, methodNames.PropertyEquals, property);
@@ -273,6 +275,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
     static void AddMethodsForCollectionProperty(StringBuilder sb, MethodNames methodNames, CollectionPropertyMetadata property)
     {
+        AddNoPropertyMethod(sb, methodNames.NoProperty, property);
+        sb.AppendLine();
         AddCollectionPropertyExistsMethod(sb, methodNames.PropertyExistsAnyValue, property);
         sb.AppendLine();
         AddPropertyEqualsMethod(sb, methodNames.PropertyEquals, property);
@@ -286,6 +290,10 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
     static void AddCollectionSpecificMethods(StringBuilder sb, MethodNames methodNames, CollectionPropertyMetadata property)
     {
+        AddCommonCollectionSpecificMethods(sb, methodNames, property);
+
+        sb.AppendLine();
+
         if (property is CollectionOfCollectionsPropertyMetadata collectionCollectionProperty)
         {
             AddCollectionOfScalarsMethods(sb, methodNames, collectionCollectionProperty);
@@ -295,6 +303,124 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
             AddCollectionOfCollectionsMethods(sb, methodNames, property);
         }
     }
+
+    static void AddCommonCollectionSpecificMethods(StringBuilder sb, MethodNames methodNames, CollectionPropertyMetadata property)
+    {
+        AddConstrainedItemsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
+
+        sb.AppendLine();
+        AddOneComparableItem(sb, methodNames.OneComparableItem, property);
+        sb.AppendLine();
+        AddComparableItem(sb, methodNames.ComparableItem, property);
+        sb.AppendLine();
+        AddNoComparableItem(sb, methodNames.NoComparableItem, property);
+
+        sb.AppendLine();
+        AddOneEquatableItem(sb, methodNames.OneEquatableItem, property);
+        sb.AppendLine();
+        AddEquatableItem(sb, methodNames.EquatableItem, property);
+        sb.AppendLine();
+        AddNoEquatableItem(sb, methodNames.NoEquatableItem, property);
+
+        sb.AppendLine();
+        AddOneItemByCriteria(sb, methodNames.OneItemByCriteria, property);
+        sb.AppendLine();
+        AddItemByCriteria(sb, methodNames.ItemByCriteria, property);
+        sb.AppendLine();
+        AddNoItemByCriteria(sb, methodNames.NoItemByCriteria, property);
+
+        if (property.ItemHasName)
+        {
+            sb.AppendLine();
+            AddOneItemByName(sb, methodNames.OneItemByName, property);
+            sb.AppendLine();
+            AddItemByName(sb, methodNames.ItemByName, property);
+            sb.AppendLine();
+            AddNoItemByName(sb, methodNames.NoItemByName, property);
+
+            sb.AppendLine();
+            AddOneItemByNameComparator(sb, methodNames.OneItemByNameComparator, property);
+            sb.AppendLine();
+            AddItemByNameComparator(sb, methodNames.ItemByNameComparator, property);
+            sb.AppendLine();
+            AddNoItemByNameComparator(sb, methodNames.NoItemByNameComparator, property);
+        }
+    }
+
+    static void AddOneComparableItem(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.OneComparableItem(methodName, property)
+        );
+
+    static void AddOneEquatableItem(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.OneEquatableItem(methodName, property)
+        );
+
+    static void AddOneItemByCriteria(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.OneItemByCriteria(methodName, property)
+        );
+
+    static void AddOneItemByName(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.OneItemByName(methodName, property)
+        );
+
+    static void AddOneItemByNameComparator(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.OneItemByNameComparator(methodName, property)
+        );
+
+    static void AddComparableItem(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.ComparableItem(methodName, property)
+        );
+
+    static void AddEquatableItem(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.EquatableItem(methodName, property)
+        );
+
+    static void AddItemByCriteria(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.ItemByCriteria(methodName, property)
+        );
+
+    static void AddItemByName(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.ItemByName(methodName, property)
+        );
+
+    static void AddItemByNameComparator(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.ItemByNameComparator(methodName, property)
+        );
+
+    static void AddNoComparableItem(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.NoComparableItem(methodName, property)
+        );
+
+    static void AddNoEquatableItem(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.NoEquatableItem(methodName, property)
+        );
+
+    static void AddNoItemByCriteria(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.NoItemByCriteria(methodName, property)
+        );
+
+    static void AddNoItemByName(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.NoItemByName(methodName, property)
+        );
+
+    static void AddNoItemByNameComparator(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.NoItemByNameComparator(methodName, property)
+        );
 
     static void AddCollectionOfCollectionsMethods(StringBuilder sb, MethodNames methodNames, CollectionPropertyMetadata property)
     {
@@ -310,8 +436,6 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         }
         sb.AppendLine();
         AddOneScalarByIndexMethod(sb, methodNames.ItemByIndex, property);
-        sb.AppendLine();
-        AddConstrainedItemsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
     }
 
     static void AddCollectionOfScalarsMethods(StringBuilder sb, MethodNames methodNames, CollectionOfCollectionsPropertyMetadata property)
@@ -321,9 +445,12 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         AddOneCollectionByCriteriaMethod(sb, methodNames.SingleItemByCriteria, property);
         sb.AppendLine();
         AddOneCollectionByIndexMethod(sb, methodNames.ItemByIndex, property);
-        sb.AppendLine();
-        AddConstrainedItemsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
     }
+
+    static void AddNoPropertyMethod(StringBuilder sb, string methodName, PropertyMetadata property) =>
+        sb.AppendLine(
+            Methods.NoProperty(methodName, property)
+        );
 
     static void AddScalarPropertyExistsMethod(StringBuilder sb, string methodName, PropertyMetadata property) =>
         sb.AppendLine(

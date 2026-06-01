@@ -163,7 +163,7 @@ internal static class NarrowingFunctions
             $"{itemDescription}s[{i}]",
             criteria);
 
-    static string FormatMismatches(string itemDescription, IEnumerable<CriteriaMatchFailure> failures) =>
+    public static string FormatMismatches(string itemDescription, IEnumerable<CriteriaMatchFailure> failures) =>
         string.Join(
             Environment.NewLine,
             failures.Select(e => FormatMismatchLine(itemDescription, e)));

@@ -2,6 +2,20 @@ namespace Allure.Build.SourceGenerators.Assertions;
 
 public static class Methods
 {
+    public static string NoProperty(string methodName, PropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Passes if the object doesn't include the \"{{property.JsonName}}\" property.
+                /// </summary>
+                public {{Types.NoJsonPropertyAssertion("TObject")}} {{methodName}}()
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
+
+                    return new ("{{property.JsonName}}", ctx);
+                }
+        """;
+
     public static string ScalarPropertyExists(string methodName, PropertyMetadata property) =>
         $$"""
                 /// <summary>
@@ -82,6 +96,387 @@ public static class Methods
                     ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
 
                     return new ("{{property.JsonName}}", ctx);
+                }
+        """;
+
+    public static string OneComparableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{property.ItemType}} expected{{property.ItemMethodName}},
+                    {{Types.IEqualityComparer(property.ItemType)}} comparer,
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expected{{property.ItemMethodName}}Expression = null,
+                    {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({expected{{property.ItemMethodName}}Expression ?? "..."}, {comparerExpression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasOneComparableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            comparer,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string OneEquatableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.IEquatable(property.ItemType)}}? expected{{property.ItemMethodName}},
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasOneEquatableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string OneItemByCriteria(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// matches the provided criteria.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasOneItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            criteria,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string OneItemByName(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// has the provided name.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    string name,
+                    {{Attributes.CallerArgumentExpressionFor("name")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasOneItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            item => item.HasName(name),
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string OneItemByNameComparator(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// has the provided name.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    string name,
+                    {{Types.IEqualityComparer("string")}} comparer,
+                    {{Attributes.CallerArgumentExpressionFor("name")}} string? nameExpression = null,
+                    {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasOneItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            item => item.HasName(name, comparer),
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string ComparableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains at least one {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{property.ItemType}} expected{{property.ItemMethodName}},
+                    {{Types.IEqualityComparer(property.ItemType)}} comparer,
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expected{{property.ItemMethodName}}Expression = null,
+                    {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({expected{{property.ItemMethodName}}Expression ?? "..."}, {comparerExpression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasComparableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            comparer,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string EquatableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains at least one {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.IEquatable(property.ItemType)}}? expected{{property.ItemMethodName}},
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasEquatableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string ItemByCriteria(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains at least one {{property.ItemName}} that
+                /// matches the provided criteria.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            criteria,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string ItemByName(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// has the provided name.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    string name,
+                    {{Attributes.CallerArgumentExpressionFor("name")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            item => item.HasName(name),
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string ItemByNameComparator(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Checks if "{{property.JsonName}}" contains exactly one {{property.ItemName}} that
+                /// has the provided name.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    string name,
+                    {{Types.IEqualityComparer("string")}} comparer,
+                    {{Attributes.CallerArgumentExpressionFor("name")}} string? nameExpression = null,
+                    {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            item => item.HasName(name, comparer),
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string NoComparableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Passes if "{{property.JsonName}}" does not contain {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{property.ItemType}} expected{{property.ItemMethodName}},
+                    {{Types.IEqualityComparer(property.ItemType)}} comparer,
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expected{{property.ItemMethodName}}Expression = null,
+                    {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({expected{{property.ItemMethodName}}Expression ?? "..."}, {comparerExpression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasNoComparableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            comparer,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string NoEquatableItem(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Passes if "{{property.JsonName}}" does not contain {{property.ItemName}} that
+                /// is equal to the provided one.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.IEquatable(property.ItemType)}}? expected{{property.ItemMethodName}},
+                    {{Attributes.CallerArgumentExpressionFor($"expected{property.ItemMethodName}")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasNoEquatableItemAssertion(property)}}(
+                            coll.Context,
+                            expected{{property.ItemMethodName}},
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string NoItemByCriteria(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Passes if "{{property.JsonName}}" does not contain {{property.ItemName}} that
+                /// matches the provided criteria.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    {{Types.Constraint(property.ItemType)}} criteria,
+                    {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasNoItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            criteria,
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string NoItemByName(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Passes if "{{property.JsonName}}" does not contain {{property.ItemName}} that
+                /// has the provided name.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    string name,
+                    {{Attributes.CallerArgumentExpressionFor("name")}} string? expression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasNoItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            item => item.HasName(name),
+                            "{{property.ItemName}}"));
+                }
+        """;
+
+    public static string NoItemByNameComparator(string methodName, CollectionPropertyMetadata property) =>
+        $$"""
+                /// <summary>
+                /// Passes if "{{property.JsonName}}" does not contain {{property.ItemName}} that
+                /// has the provided name.
+                /// </summary>
+                public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
+                    string name,
+                    {{Types.IEqualityComparer("string")}} comparer,
+                    {{Attributes.CallerArgumentExpressionFor("name")}} string? nameExpression = null,
+                    {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
+                )
+                {
+                    var ctx = source.Context;
+                    ctx.ExpressionBuilder.Append(
+                        $".{nameof({{methodName}})}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+                    return new(
+                        "{{property.JsonName}}",
+                        source.Context,
+                        coll => new {{Types.HasNoItemByCriteriaAssertion(property)}}(
+                            coll.Context,
+                            item => item.HasName(name, comparer),
+                            "{{property.ItemName}}"));
                 }
         """;
 
