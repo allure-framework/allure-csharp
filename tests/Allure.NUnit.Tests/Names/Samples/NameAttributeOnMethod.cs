@@ -1,7 +1,7 @@
 using Allure.Net.Commons.Attributes;
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Names.Samples.LegacyNameAttribute
+namespace Allure.NUnit.Tests.Names.Samples.NameAttributeOnMethod
 {
     [AllureNUnit]
     public class TestsClass

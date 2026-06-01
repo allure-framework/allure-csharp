@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Allure.NUnit.Tests.Names.Samples.LegacyNameAttribute
+namespace Allure.NUnit.Tests.Names.Samples.SingleTescCase
 {
     [AllureNUnit]
     public class TestsClass
