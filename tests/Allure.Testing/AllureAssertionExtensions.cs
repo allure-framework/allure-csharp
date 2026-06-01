@@ -81,6 +81,72 @@ public static partial class AllureAssertionExtensions
 
             return new(source.Context.Map(ctx => ctx!.TestResults), constraints, "test result");
         }
+        public NarrowCollectionAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasSingleContainer()
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleContainer)}()");
+
+            return new(source.Context.Map(ctx => ctx!.Containers), "container");
+        }
+
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
+            Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({expression ?? "..."})");
+
+            return new(source.Context.Map(ctx => ctx!.Containers), criteria, "container");
+        }
+
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({expression ?? "..."})");
+
+            return new(
+                source.Context.Map(
+                    ctx => ctx!.Containers),
+                    (tr) => tr.HasName(name),
+                    "container");
+        }
+
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasOnlyOneContainer)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(
+                source.Context.Map(
+                    ctx => ctx!.Containers),
+                    (tr) => tr.HasName(name, comparer),
+                    "container");
+        }
+
+        public NarrowCollectionByIndexAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasContainerAt(
+            int index,
+            [CallerArgumentExpression(nameof(index))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasContainerAt)}({expression ?? "..."})");
+
+            return new(source.Context.Map(ctx => ctx!.Containers), index, "container");
+        }
+
+        public CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasContainers(
+            Func<IAssertionSource<AllureContainer>, IAssertion?>?[] constraints,
+            [CallerArgumentExpression(nameof(constraints))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasContainers)}({expression ?? "..."})");
+
+            return new(source.Context.Map(static ctx => ctx!.Containers), constraints, "container");
+        }
     }
 
     extension<TObject, TProperty, TValue> (NarrowToJsonPropertyAssertion<TObject, TProperty, TValue> source)
