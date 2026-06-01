@@ -68,13 +68,15 @@ public record class AttributeProperties(
             return null;
         }
 
-        itemMethodName ??= propertyName[propertyName.Length - 1] == 's'
-            ? propertyName.Substring(0, propertyName.Length - 1)
-            : $"{propertyName}Item";
+        methodName ??= propertyName;
+
+        itemMethodName ??= methodName[methodName.Length - 1] == 's'
+            ? methodName.Substring(0, methodName.Length - 1)
+            : $"{methodName}Item";
 
         return new(
             PropertyName: propertyName,
-            MethodName: methodName ?? propertyName,
+            MethodName: methodName,
             JsonName: jsonName ?? GetJsonName(propertyName),
             ItemMethodName: itemMethodName,
             ItemName: itemName ?? GetItemName(itemMethodName)
