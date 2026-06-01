@@ -32,24 +32,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
             ctx.AddEmbeddedAttributeDefinition();
             ctx.AddSource(
                 "AssertableProperty.g.cs",
-                """
-                namespace Allure.Testing.Assertions
-                {
-                    [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
-                    internal class GenerateAllureAssertionsAttribute: global::System.Attribute
-                    {
-                        public string PropertyName { get; init; }
-
-                        public string JsonName { get; init; }
-
-                        public string MethodName { get; init; }
-
-                        public string ItemMethodName { get; init; }
-
-                        public string ItemName { get; init; }
-                    }
-                }
-                """
+                AttributeDefinitions.GenerateAllureAssertionsAttribute
             );
         });
     }
@@ -351,7 +334,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         sb.AppendLine();
         AddOneScalarByIndexMethod(sb, methodNames.ItemByIndex, property);
         sb.AppendLine();
-        AddConstrainedScalarsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
+        AddConstrainedItemsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
     }
 
     static void AddCollectionOfScalarsMethods(StringBuilder sb, MethodNames methodNames, CollectionOfCollectionsPropertyMetadata property)
@@ -362,321 +345,76 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         sb.AppendLine();
         AddOneCollectionByIndexMethod(sb, methodNames.ItemByIndex, property);
         sb.AppendLine();
-        AddConstrainedScalarsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
+        AddConstrainedItemsMethod(sb, methodNames.ItemsSatisfyConstraints, property);
     }
 
     static void AddScalarPropertyExistsMethod(StringBuilder sb, string methodName, PropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowToJsonPropertyAssertion("TObject", property)}} {{methodName}}()
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
-
-                        return new ("{{property.JsonName}}", ctx);
-                    }
-            """
+            Methods.ScalarPropertyExists(methodName, property)
         );
 
     static void AddScalarPropertyEqualsMethod(StringBuilder sb, string methodName, PropertyMetadata property, string equatableType) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.JsonPropertyEquatableAssertion("TObject", property, equatableType)}} {{methodName}}(
-                        {{equatableType}} expectedValue,
-                        {{Attributes.CallerArgumentExpressionFor("expectedValue")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        return new ("{{property.JsonName}}", ctx, expectedValue);
-                    }
-            """
+            Methods.ScalarPropertyEquals(methodName, property, equatableType)
         );
 
     static void AddScalarPropertyEqualsByComparerMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.JsonPropertyComparerAssertion("TObject", property)}} {{methodName}}(
-                        {{property.ValueType}} expected{{property.Name}},
-                        {{Types.IEqualityComparer(property.ValueType)}} comparer,
-                        {{Attributes.CallerArgumentExpressionFor($"expected{property.Name}")}} string? expected{{property.Name}}Expression = null,
-                        {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expected{{property.Name}}Expression ?? "..."}, {comparerExpression ?? "..."})");
-
-                        return new ("{{property.JsonName}}", ctx, expected{{property.Name}}, comparer);
-                    }
-            """
+            Methods.ScalarPropertyEqualsByComparer(methodName, property)
         );
 
     static void AddScalarPropertyConstrainedMethods(StringBuilder sb, string methodName, PropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
-                        {{Types.Constraint(property.ValueType)}} constraints,
-                        {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        return new ("{{property.JsonName}}", ctx, constraints);
-                    }
-            """
+            Methods.ScalarPropertyConstrained(methodName, property)
         );
 
     static void AddCollectionPropertyExistsMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}} {{methodName}}()
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
-
-                        return new ("{{property.JsonName}}", ctx);
-                    }
-            """
+            Methods.CollectionPropertyExists(methodName, property)
         );
 
     static void AddSingleScalarMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionAssertion(property)}} {{methodName}}()
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, "{{property.ItemName}}");
-                    }
-            """
+            Methods.SingleScalar(methodName, property)
         );
 
     static void AddOneScalarByCriteriaMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionByCriteriaAssertion(property)}} {{methodName}}(
-                        {{Types.Constraint(property.ItemType)}} criteria,
-                        {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, criteria, "{{property.ItemName}}");
-                    }
-            """
+            Methods.OneScalarByCriteria(methodName, property)
         );
 
     static void AddOneScalarByNameMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionByCriteriaAssertion(property)}} {{methodName}}(
-                        string name,
-                        {{Attributes.CallerArgumentExpressionFor("name")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, e => e.HasName(name), "{{property.ItemName}}");
-                    }
-            """
+            Methods.OneScalarByName(methodName, property)
         );
 
     static void AddOneScalarByNameWithComparerMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionByCriteriaAssertion(property)}} {{methodName}}(
-                        string name,
-                        {{Types.IEqualityComparer("string")}} comparer,
-                        {{Attributes.CallerArgumentExpressionFor("name")}} string? nameExpression = null,
-                        {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, e => e.HasName(name, comparer), "{{property.ItemName}}");
-                    }
-            """
+            Methods.OneScalarByNameWithComparer(methodName, property)
         );
 
     static void AddOneScalarByIndexMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionByIndexAssertion(property)}} {{methodName}}(
-                        int index,
-                        {{Attributes.CallerArgumentExpressionFor("index")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, index, "{{property.ItemName}}");
-                    }
-            """
+            Methods.OneScalarByIndex(methodName, property)
         );
 
-    static void AddConstrainedScalarsMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
+    static void AddConstrainedItemsMethod(StringBuilder sb, string methodName, CollectionPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.CollectionItemConstraintsAssertion(property)}} {{methodName}}(
-                        {{Types.Constraint(property.ItemType)}}[] constraints,
-                        {{Attributes.CallerArgumentExpressionFor("constraints")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, constraints, "{{property.ItemName}}");
-                    }
-            """
+            Methods.ConstrainedItems(methodName, property)
         );
 
     static void AddSingleCollectionMethod(StringBuilder sb, string methodName, CollectionOfCollectionsPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionToCollectionAssertion(property)}} {{methodName}}()
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, "{{property.ItemName}}");
-                    }
-            """
+            Methods.SingleCollection(methodName, property)
         );
 
     static void AddOneCollectionByCriteriaMethod(StringBuilder sb, string methodName, CollectionOfCollectionsPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionToCollectionByCriteriaAssertion(property)}} {{methodName}}(
-                        {{Types.Constraint(property.ItemType)}} criteria,
-                        {{Attributes.CallerArgumentExpressionFor("criteria")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, criteria, "{{property.ItemName}}");
-                    }
-            """
+            Methods.OneCollectionByCriteria(methodName, property)
         );
 
     static void AddOneCollectionByIndexMethod(StringBuilder sb, string methodName, CollectionOfCollectionsPropertyMetadata property) =>
         sb.AppendLine(
-            $$"""
-                    public {{Types.NarrowCollectionToCollectionByIndexAssertion(property)}} {{methodName}}(
-                        int index,
-                        {{Attributes.CallerArgumentExpressionFor("index")}} string? expression = null
-                    )
-                    {
-                        var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
-
-                        var propertyAssertion =
-                            new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
-                                "{{property.JsonName}}",
-                                source.Context);
-
-                        var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
-                            propertyAssertion.And
-                        );
-
-                        narrowedContext.ExpressionBuilder.Length -= 4;
-
-                        return new(narrowedContext, index, "{{property.ItemName}}");
-                    }
-            """
+            Methods.OneCollectionByIndex(methodName, property)
         );
 }
