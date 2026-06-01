@@ -5,7 +5,9 @@ namespace Allure.Testing.Assertions.Model;
 
 public readonly record struct AllureAttachment(JsonElement Json) :
     IAllureModelObject<AllureAttachment>,
-    IAllureNameProperty<AllureAttachment>
+    IAllureNameProperty<AllureAttachment>,
+    IAllureAttachmentSourceProperty<AllureAttachment>,
+    IAllureLinkTypeProperty<AllureAttachment>
 {
     public static string? Validate(JsonElement json) => default;
 

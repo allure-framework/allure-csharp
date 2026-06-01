@@ -9,8 +9,8 @@ public readonly record struct AllureContainer(JsonElement Json) :
     IAllureBeforesProperty<AllureContainer>,
     IAllureChildrenProperty<AllureContainer>,
     IAllureNameProperty<AllureContainer>,
-    IAllureStartProperty<AllureTestResult>,
-    IAllureStopProperty<AllureTestResult>,
+    IAllureStartProperty<AllureContainer>,
+    IAllureStopProperty<AllureContainer>,
     IAllureUuidProperty<AllureContainer>
 {
     public static string? Validate(JsonElement json) => default;

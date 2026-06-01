@@ -5,7 +5,11 @@ namespace Allure.Testing.Assertions.Model;
 
 public readonly record struct AllureStatusDetails(JsonElement Json) :
     IAllureModelObject<AllureStatusDetails>,
-    IAllureMessageProperty<AllureStatusDetails>
+    IAllureFlakyProperty<AllureStatusDetails>,
+    IAllureKnownProperty<AllureStatusDetails>,
+    IAllureMessageProperty<AllureStatusDetails>,
+    IAllureMutedProperty<AllureStatusDetails>,
+    IAllureTraceProperty<AllureStatusDetails>
 {
     public static string? Validate(JsonElement json) => default;
 

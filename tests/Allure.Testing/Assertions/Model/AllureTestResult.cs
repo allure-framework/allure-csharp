@@ -6,6 +6,7 @@ namespace Allure.Testing.Assertions.Model;
 
 public readonly record struct AllureTestResult(JsonElement Json) :
     IAllureExecutableItem<AllureTestResult>,
+    IAllureFullNameProperty<AllureTestResult>,
     IAllureHistoryIdProperty<AllureTestResult>,
     IAllureLabelsProperty<AllureTestResult>,
     IAllureLinksProperty<AllureTestResult>,

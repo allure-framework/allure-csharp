@@ -5,7 +5,8 @@ namespace Allure.Testing.Assertions.Model;
 
 public readonly record struct AllureLabel(JsonElement Json) :
     IAllureModelObject<AllureLabel>,
-    IAllureNameProperty<AllureLabel>
+    IAllureNameProperty<AllureLabel>,
+    IAllureParameterValueProperty<AllureLabel>
 {
     public static string? Validate(JsonElement json) => default;
 
