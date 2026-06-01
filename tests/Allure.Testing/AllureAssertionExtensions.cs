@@ -7,6 +7,7 @@ using Allure.Testing.Assertions.Model;
 using Allure.Testing.Assertions.Model.Properties;
 using Allure.Testing.Internal.TUnitAccessors;
 using TUnit.Assertions.Core;
+using TUnit.Assertions.Sources;
 
 namespace Allure.Testing;
 
@@ -149,6 +150,98 @@ public static partial class AllureAssertionExtensions
 
     extension<TCollection, TItemCollection, TItem> (
         NarrowCollectionToCollectionAssertion<TCollection, TItemCollection, TItem> source)
+
+        where TCollection : IReadOnlyList<TItemCollection>
+        where TItemCollection : IReadOnlyList<TItem>
+    {
+        public CollectionAndContinuation<TItemCollection, TItem> That
+        {
+            get
+            {
+                var and = source.And!;
+
+                var context = AssertionAccessors<TItemCollection>.GetContext(and);
+
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
+        }
+    }
+
+    extension<TCollection, TItem> (NarrowCollectionByCriteriaAssertion<TCollection, TItem> source)
+        where TCollection : IReadOnlyList<TItem>
+    {
+        public AndContinuation<TItem> That
+        {
+            get
+            {
+                var and = source.And!;
+                var context = and.Context;
+
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
+        }
+    }
+
+    extension<TCollection, TItemCollection, TItem> (
+        NarrowCollectionToCollectionByCriteriaAssertion<TCollection, TItemCollection, TItem> source)
+
+        where TCollection : IReadOnlyList<TItemCollection>
+        where TItemCollection : IReadOnlyList<TItem>
+    {
+        public CollectionAndContinuation<TItemCollection, TItem> That
+        {
+            get
+            {
+                var and = source.And!;
+
+                var context = AssertionAccessors<TItemCollection>.GetContext(and);
+
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
+        }
+    }
+
+    extension<TCollection, TItem> (NarrowCollectionByIndexAssertion<TCollection, TItem> source)
+        where TCollection : IReadOnlyList<TItem>
+    {
+        public AndContinuation<TItem> That
+        {
+            get
+            {
+                var and = source.And!;
+                var context = and.Context;
+
+                var expressionBuilder = context.ExpressionBuilder;
+
+                // .And -> .That
+                expressionBuilder.Length -= 4;
+                expressionBuilder.Append(".That");
+
+                return and;
+            }
+        }
+    }
+
+    extension<TCollection, TItemCollection, TItem> (
+        NarrowCollectionToCollectionByIndexAssertion<TCollection, TItemCollection, TItem> source)
 
         where TCollection : IReadOnlyList<TItemCollection>
         where TItemCollection : IReadOnlyList<TItem>
