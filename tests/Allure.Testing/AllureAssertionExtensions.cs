@@ -15,6 +15,9 @@ public static partial class AllureAssertionExtensions
 {
     extension (IAssertionSource<AllureResults2> source)
     {
+        /// <summary>
+        /// Checks if exactly one test result was written to the output and narrows the assertion chain to that result.
+        /// </summary>
         public NarrowCollectionAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasSingleTestResult()
         {
             source.Context.ExpressionBuilder.Append($".{nameof(HasSingleTestResult)}()");
@@ -22,6 +25,9 @@ public static partial class AllureAssertionExtensions
             return new(source.Context.Map(ctx => ctx!.TestResults), "test result");
         }
 
+        /// <summary>
+        /// Checks if exactly one test result matches the provided criteria and narrows the assertion chain to that result.
+        /// </summary>
         public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
             Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
@@ -32,6 +38,9 @@ public static partial class AllureAssertionExtensions
             return new(source.Context.Map(ctx => ctx!.TestResults), criteria, "test result");
         }
 
+        /// <summary>
+        /// Checks if exactly one test result has the provided name and narrows the assertion chain to that result.
+        /// </summary>
         public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
@@ -46,6 +55,9 @@ public static partial class AllureAssertionExtensions
                     "test result");
         }
 
+        /// <summary>
+        /// Checks if exactly one test result has the provided name and narrows the assertion chain to that result.
+        /// </summary>
         public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasOnlyOneTestResult(
             string name,
             IEqualityComparer<string> comparer,
@@ -62,6 +74,10 @@ public static partial class AllureAssertionExtensions
                     "test result");
         }
 
+        /// <summary>
+        /// Checks if enough test results were written to the output and narrows the assertion chain to the result
+        /// at the specified index.
+        /// </summary>
         public NarrowCollectionByIndexAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResultAt(
             int index,
             [CallerArgumentExpression(nameof(index))] string? expression = null
@@ -72,6 +88,13 @@ public static partial class AllureAssertionExtensions
             return new(source.Context.Map(ctx => ctx!.TestResults), index, "test result");
         }
 
+        /// <summary>
+        /// Checks if the exact number of test results were written to the output and each result satisfies the corresponding
+        /// constraints.
+        /// </summary>
+        /// <remarks>
+        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+        /// </remarks>
         public CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult> HasTestResults(
             Func<IAssertionSource<AllureTestResult>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
@@ -81,6 +104,10 @@ public static partial class AllureAssertionExtensions
 
             return new(source.Context.Map(ctx => ctx!.TestResults), constraints, "test result");
         }
+
+        /// <summary>
+        /// Checks if exactly one container was written to the output and narrows the assertion chain to that container.
+        /// </summary>
         public NarrowCollectionAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasSingleContainer()
         {
             source.Context.ExpressionBuilder.Append($".{nameof(HasSingleContainer)}()");
@@ -88,6 +115,9 @@ public static partial class AllureAssertionExtensions
             return new(source.Context.Map(ctx => ctx!.Containers), "container");
         }
 
+        /// <summary>
+        /// Checks if exactly one container matches the provided criteria and narrows the assertion chain to that container.
+        /// </summary>
         public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
             Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
@@ -98,6 +128,9 @@ public static partial class AllureAssertionExtensions
             return new(source.Context.Map(ctx => ctx!.Containers), criteria, "container");
         }
 
+        /// <summary>
+        /// Checks if exactly one container has the provided name and narrows the assertion chain to that container.
+        /// </summary>
         public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
@@ -112,6 +145,9 @@ public static partial class AllureAssertionExtensions
                     "container");
         }
 
+        /// <summary>
+        /// Checks if exactly one container has the provided name and narrows the assertion chain to that container.
+        /// </summary>
         public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasOnlyOneContainer(
             string name,
             IEqualityComparer<string> comparer,
@@ -128,6 +164,10 @@ public static partial class AllureAssertionExtensions
                     "container");
         }
 
+        /// <summary>
+        /// Checks if enough containers were written to the output and narrows the assertion chain to the container
+        /// at the specified index.
+        /// </summary>
         public NarrowCollectionByIndexAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasContainerAt(
             int index,
             [CallerArgumentExpression(nameof(index))] string? expression = null
@@ -138,6 +178,13 @@ public static partial class AllureAssertionExtensions
             return new(source.Context.Map(ctx => ctx!.Containers), index, "container");
         }
 
+        /// <summary>
+        /// Checks if the exact number of containers were written to the output and each container satisfies
+        /// the corresponding constraints.
+        /// </summary>
+        /// <remarks>
+        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+        /// </remarks>
         public CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer> HasContainers(
             Func<IAssertionSource<AllureContainer>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
@@ -153,6 +200,9 @@ public static partial class AllureAssertionExtensions
         where TObject : IAllureModelObject<TObject>, TProperty
         where TProperty: IAllureProperty<TValue, TObject>
     {
+        /// <summary>
+        /// A readability alias for <see cref="Assertion{TValue}.And"/>.
+        /// </summary>
         public AndContinuation<TValue> That
         {
             get
@@ -174,6 +224,9 @@ public static partial class AllureAssertionExtensions
         where TProperty: IAllureProperty<TValue, TObject>
         where TValue : IReadOnlyList<TItem>
     {
+        /// <summary>
+        /// A readability alias for <see cref="CollectionAssertionBase{TValue, TItem}.And"/>.
+        /// </summary>
         public CollectionAndContinuation<TValue, TItem> That
         {
             get
@@ -196,6 +249,9 @@ public static partial class AllureAssertionExtensions
     extension<TCollection, TItem> (NarrowCollectionAssertion<TCollection, TItem> source)
         where TCollection : IReadOnlyList<TItem>
     {
+        /// <summary>
+        /// A readability alias for <see cref="Assertion{TItem}.And"/>.
+        /// </summary>
         public AndContinuation<TItem> That
         {
             get
@@ -220,6 +276,9 @@ public static partial class AllureAssertionExtensions
         where TCollection : IReadOnlyList<TItemCollection>
         where TItemCollection : IReadOnlyList<TItem>
     {
+        /// <summary>
+        /// A readability alias for <see cref="CollectionAssertionBase{TItemCollection, TItem}.And"/>.
+        /// </summary>
         public CollectionAndContinuation<TItemCollection, TItem> That
         {
             get
@@ -242,6 +301,9 @@ public static partial class AllureAssertionExtensions
     extension<TCollection, TItem> (NarrowCollectionByCriteriaAssertion<TCollection, TItem> source)
         where TCollection : IReadOnlyList<TItem>
     {
+        /// <summary>
+        /// A readability alias for <see cref="Assertion{TItem}.And"/>.
+        /// </summary>
         public AndContinuation<TItem> That
         {
             get
@@ -266,6 +328,9 @@ public static partial class AllureAssertionExtensions
         where TCollection : IReadOnlyList<TItemCollection>
         where TItemCollection : IReadOnlyList<TItem>
     {
+        /// <summary>
+        /// A readability alias for <see cref="CollectionAssertionBase{TItemCollection, TItem}.And"/>.
+        /// </summary>
         public CollectionAndContinuation<TItemCollection, TItem> That
         {
             get
@@ -288,6 +353,9 @@ public static partial class AllureAssertionExtensions
     extension<TCollection, TItem> (NarrowCollectionByIndexAssertion<TCollection, TItem> source)
         where TCollection : IReadOnlyList<TItem>
     {
+        /// <summary>
+        /// A readability alias for <see cref="Assertion{TItem}.And"/>.
+        /// </summary>
         public AndContinuation<TItem> That
         {
             get
@@ -312,6 +380,9 @@ public static partial class AllureAssertionExtensions
         where TCollection : IReadOnlyList<TItemCollection>
         where TItemCollection : IReadOnlyList<TItem>
     {
+        /// <summary>
+        /// A readability alias for <see cref="CollectionAssertionBase{TItemCollection, TItem}.And"/>.
+        /// </summary>
         public CollectionAndContinuation<TItemCollection, TItem> That
         {
             get
@@ -334,6 +405,9 @@ public static partial class AllureAssertionExtensions
     extension<T> (Assertion<T> source)
         where T: IAllureModelObject<T>
     {
+        /// <summary>
+        /// A readability alias for <see cref="Assertion{T}.And"/>.
+        /// </summary>
         public PropertyAssertionFactory<T> With
         {
             get
