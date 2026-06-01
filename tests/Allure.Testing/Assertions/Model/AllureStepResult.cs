@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Allure.Testing.Assertions.Model.Properties;
 using Allure.Testing.Internal;
 
 namespace Allure.Testing.Assertions.Model;
@@ -40,13 +41,7 @@ public readonly record struct AllureStepResult(JsonElement Json)
             : null;
 
     static string? CheckStatus(JsonElement stepResult) =>
-        JsonFunctions.GetStringProperty(stepResult, "status") switch
-        {
-            { IsPassed: true, Value: "passed" or "failed" or "broken" or "skipped" or "unknown" } =>
-                null,
-
-            { IsPassed: true, Value: var value } => $"got an unexpected status {value}",
-
-            { Message: var error } => error,
-        };
+        IAllureStatusProperty<AllureStepResult>.GetValue(stepResult, "status") is { IsPassed: false, Message: var error}
+            ? error
+            : null;
 }

@@ -1,11 +1,17 @@
 using System;
 using System.Text.Json;
-using Allure.Testing.Internal;
+using Allure.Testing.Assertions.Model.Properties;
 
 namespace Allure.Testing.Assertions.Model;
 
-public readonly record struct AllureTestResult(JsonElement Json)
-    : IAllureExecutableItem<AllureTestResult>
+public readonly record struct AllureTestResult(JsonElement Json) :
+    IAllureExecutableItem<AllureTestResult>,
+    IAllureHistoryIdProperty<AllureTestResult>,
+    IAllureLabelsProperty<AllureTestResult>,
+    IAllureLinksProperty<AllureTestResult>,
+    IAllureTestCaseIdProperty<AllureTestResult>,
+    IAllureTitlePathProperty<AllureTestResult>,
+    IAllureUuidProperty<AllureTestResult>
 {
     public static string? Validate(JsonElement json) => json switch
     {
@@ -49,40 +55,27 @@ public readonly record struct AllureTestResult(JsonElement Json)
     }
 
     public static string? CheckUuid(JsonElement testResult) =>
-        JsonFunctions.GetStringProperty(testResult, "uuid") switch
-        {
-            { IsPassed: true, Value: var value } when Guid.TryParse(value, out _) =>
-                null,
-
-            { IsPassed: true, Value: var value } =>
-                $"{value} is not a valid UUID",
-
-            { Message: var error } => error,
-        };
-
-    public static string? CheckName(JsonElement testResult) =>
-        JsonFunctions.GetStringProperty(testResult, "name") is { IsPassed: false, Message: var error }
+        IAllureUuidProperty<AllureTestResult>.GetValue(testResult, "uuid") is { IsPassed: false, Message: var error}
             ? error
             : null;
 
-    public static string? CheckStatus(JsonElement testResult) =>
-        JsonFunctions.GetStringProperty(testResult, "status") switch
-        {
-            { IsPassed: true, Value: "passed" or "failed" or "broken" or "skipped" or "unknown" } =>
-                null,
+    public static string? CheckName(JsonElement testResult) =>
+        IAllureNameProperty<AllureTestResult>.GetValue(testResult, "name") is { IsPassed: false, Message: var error}
+            ? error
+            : null;
 
-            { IsPassed: true, Value: var value } => $"got an unexpected status {value}",
-
-            { Message: var error } => error,
-        };
+    static string? CheckStatus(JsonElement testResult) =>
+        IAllureStatusProperty<AllureTestResult>.GetValue(testResult, "status") is { IsPassed: false, Message: var error}
+            ? error
+            : null;
 
     public static string? CheckTestCaseId(JsonElement testResult) =>
-        JsonFunctions.GetStringProperty(testResult, "testCaseId") is { IsPassed: false, Message: var error }
+        IAllureTestCaseIdProperty<AllureTestResult>.GetValue(testResult, "testCaseId") is { IsPassed: false, Message: var error}
             ? error
             : null;
 
     public static string? CheckHistoryId(JsonElement testResult) =>
-        JsonFunctions.GetStringProperty(testResult, "historyId") is { IsPassed: false, Message: var error }
+        IAllureHistoryIdProperty<AllureTestResult>.GetValue(testResult, "historyId") is { IsPassed: false, Message: var error}
             ? error
             : null;
 
