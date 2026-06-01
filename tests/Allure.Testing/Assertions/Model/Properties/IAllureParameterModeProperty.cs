@@ -3,7 +3,7 @@ using TUnit.Assertions.Core;
 
 namespace Allure.Testing.Assertions.Model.Properties;
 
-[GenerateAllureAssertions]
+[GenerateAllureAssertions(PropertyName = "Mode")]
 public interface IAllureParameterModeProperty<TSelf> : IAllureProperty<AllureParameterMode, TSelf>
     where TSelf : IAllureModelObject<TSelf>, IAllureParameterModeProperty<TSelf>
 {
