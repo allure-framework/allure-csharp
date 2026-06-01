@@ -10,6 +10,8 @@ public interface IAllureObjectProperty<TObject, TSelf> : IAllureProperty<TObject
     static JsonType IAllureProperty<TObject, TSelf>.JsonType { get; } =
         JsonType.Object;
 
-    static AssertionResult<TObject> IAllureProperty<TObject, TSelf>.TryGetPropertyValue(JsonElement json) =>
+    static AssertionResult<TObject> IAllureProperty<TObject, TSelf>.TryConvertToPropertyValue(
+        JsonElement json
+    ) =>
         TObject.Create(json);
 }

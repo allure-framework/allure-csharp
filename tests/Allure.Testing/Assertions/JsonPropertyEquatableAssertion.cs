@@ -8,6 +8,7 @@ using TUnit.Assertions.Core;
 namespace Allure.Testing.Assertions;
 
 public class JsonPropertyEquatableAssertion<TObject, TProperty, TValue, TOther>(
+    string propertyName,
     AssertionContext<TObject> context,
     TOther expectedValue
 ) :
@@ -26,7 +27,7 @@ public class JsonPropertyEquatableAssertion<TObject, TProperty, TValue, TOther>(
                 await Task.FromResult(AssertionResult.Failed(message)),
 
             { Value: var item } =>
-                TProperty.GetValue(item) switch
+                TProperty.GetValue(item, propertyName) switch
                 {
                     { IsPassed: true, Value: var value } =>
                         value is not null && value.Equals(expectedValue)
@@ -40,6 +41,6 @@ public class JsonPropertyEquatableAssertion<TObject, TProperty, TValue, TOther>(
         };
 
     protected override string GetExpectation() =>
-        $"\"{TProperty.PropertyName}\""
+        $"\"{propertyName}\""
             + $" being equal to {FormatFunctions.FormatAsStringLiteral(expectedValue)}";
 }

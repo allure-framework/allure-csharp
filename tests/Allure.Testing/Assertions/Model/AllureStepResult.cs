@@ -11,10 +11,10 @@ public readonly record struct AllureStepResult(JsonElement Json)
     public static string? Validate(JsonElement json) => json switch
     {
         { ValueKind: JsonValueKind.Null } =>
-            "the step result was null",
+            "was null",
 
         { ValueKind: not JsonValueKind.Object } =>
-            "the step result was not a JSON object",
+            "was not a JSON object",
 
         _ => CheckProperties(json),
     };

@@ -29,10 +29,10 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         {
             CollectionPropertyMetadata ccProperty =>
                 new(
-                    PropertyExistsAnyValue: ccProperty.PropertyName,
-                    PropertyEquals: ccProperty.PropertyName,
-                    PropertyEqualsCustom: ccProperty.PropertyName,
-                    PropertySatisfiesConstraints: ccProperty.PropertyName,
+                    PropertyExistsAnyValue: ccProperty.PropertyNamePascalCase,
+                    PropertyEquals: ccProperty.PropertyNamePascalCase,
+                    PropertyEqualsCustom: ccProperty.PropertyNamePascalCase,
+                    PropertySatisfiesConstraints: ccProperty.PropertyNamePascalCase,
                     SingleItem: $"Single{ccProperty.ItemNamePascalCase}",
                     SingleItemByCriteria: $"OnlyOne{ccProperty.ItemNamePascalCase}",
                     SingleItemByName: $"OnlyOne{ccProperty.ItemNamePascalCase}",
@@ -41,10 +41,10 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                     ItemsSatisfyConstraints: $"{ccProperty.ItemNamePascalCase}"
                 ),
             _ => new(
-                PropertyExistsAnyValue: property.PropertyName,
-                    PropertyEquals: property.PropertyName,
-                    PropertyEqualsCustom: property.PropertyName,
-                    PropertySatisfiesConstraints: property.PropertyName
+                PropertyExistsAnyValue: property.PropertyNamePascalCase,
+                    PropertyEquals: property.PropertyNamePascalCase,
+                    PropertyEqualsCustom: property.PropertyNamePascalCase,
+                    PropertySatisfiesConstraints: property.PropertyNamePascalCase
             ),
         };
 
@@ -52,10 +52,10 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         {
             CollectionPropertyMetadata ccProperty =>
                 new(
-                    PropertyExistsAnyValue: $"Has{ccProperty.PropertyName}",
-                    PropertyEquals: $"Has{ccProperty.PropertyName}",
-                    PropertyEqualsCustom: $"Has{ccProperty.PropertyName}",
-                    PropertySatisfiesConstraints: $"Has{ccProperty.PropertyName}",
+                    PropertyExistsAnyValue: $"Has{ccProperty.PropertyNamePascalCase}",
+                    PropertyEquals: $"Has{ccProperty.PropertyNamePascalCase}",
+                    PropertyEqualsCustom: $"Has{ccProperty.PropertyNamePascalCase}",
+                    PropertySatisfiesConstraints: $"Has{ccProperty.PropertyNamePascalCase}",
                     SingleItem: $"HasSingle{ccProperty.ItemNamePascalCase}",
                     SingleItemByCriteria: $"HasOnlyOne{ccProperty.ItemNamePascalCase}",
                     SingleItemByName: $"HasOnlyOne{ccProperty.ItemNamePascalCase}",
@@ -64,10 +64,10 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                     ItemsSatisfyConstraints: $"Has{ccProperty.ItemNamePascalCase}"
                 ),
             _ => new(
-                PropertyExistsAnyValue: $"Has{property.PropertyName}",
-                    PropertyEquals: $"Has{property.PropertyName}",
-                    PropertyEqualsCustom: $"Has{property.PropertyName}",
-                    PropertySatisfiesConstraints: $"Has{property.PropertyName}"
+                PropertyExistsAnyValue: $"Has{property.PropertyNamePascalCase}",
+                    PropertyEquals: $"Has{property.PropertyNamePascalCase}",
+                    PropertyEqualsCustom: $"Has{property.PropertyNamePascalCase}",
+                    PropertySatisfiesConstraints: $"Has{property.PropertyNamePascalCase}"
             ),
         };
     }
@@ -75,7 +75,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
     record class PropertyMetadata(
         string InterfaceName,
         string InterfaceFullName,
-        string PropertyName,
+        string PropertyNamePascalCase,
+        string PropertyNameCamelCase,
         string ValueType,
         ImmutableArray<string> EquatableTypes
     );
@@ -83,7 +84,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
     record class CollectionPropertyMetadata(
         string InterfaceName,
         string InterfaceFullName,
-        string PropertyName,
+        string PropertyNamePascalCase,
+        string PropertyNameCamelCase,
         string ValueType,
         ImmutableArray<string> EquatableTypes,
         string ItemName,
@@ -93,14 +95,16 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
     ) : PropertyMetadata(
         InterfaceName: InterfaceName,
         InterfaceFullName: InterfaceFullName,
-        PropertyName: PropertyName,
+        PropertyNamePascalCase: PropertyNamePascalCase,
+        PropertyNameCamelCase: PropertyNameCamelCase,
         ValueType: ValueType,
         EquatableTypes: EquatableTypes);
 
     record class CollectionCollectionPropertyMetadata(
         string InterfaceName,
         string InterfaceFullName,
-        string PropertyName,
+        string PropertyNamePascalCase,
+        string PropertyNameCamelCase,
         string ValueType,
         ImmutableArray<string> EquatableTypes,
         string ItemName,
@@ -111,7 +115,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
     ) : CollectionPropertyMetadata(
         InterfaceName: InterfaceName,
         InterfaceFullName: InterfaceFullName,
-        PropertyName: PropertyName,
+        PropertyNamePascalCase: PropertyNamePascalCase,
+        PropertyNameCamelCase: PropertyNameCamelCase,
         ValueType: ValueType,
         EquatableTypes: EquatableTypes,
         ItemName: ItemName,
@@ -233,7 +238,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         sb.AppendLine("}");
 
         ctx.AddSource(
-            $"AllureAssertionExtensions.{property.PropertyName}.g.cs",
+            $"AllureAssertionExtensions.{property.PropertyNamePascalCase}.g.cs",
             sb.ToString()
         );
     }
@@ -255,7 +260,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         {
             return null;
         }
-        var propertyName = propertyNameMatch.Groups["name"].Value;
+        var propertyNamePascalCase = propertyNameMatch.Groups["name"].Value;
+        var propertyNameCamelCase = propertyNamePascalCase[0] + propertyNamePascalCase.Substring(1);
 
         var interfaceFullName = propertyInterfaceSymbol.ToDisplayString(FullyQualifiedNoTypeParameters);
         var propertyInterface = propertyInterfaceSymbol
@@ -286,7 +292,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                 return new PropertyMetadata(
                     InterfaceName: propertyInterfaceName,
                     InterfaceFullName: interfaceFullName,
-                    PropertyName: propertyName,
+                    PropertyNamePascalCase: propertyNamePascalCase,
+                    PropertyNameCamelCase: propertyNameCamelCase,
                     ValueType: valueTypeName,
                     EquatableTypes: equatableTo
                 );
@@ -303,11 +310,11 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                 .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             var itemNamePascalCase =
-                propertyName[propertyName.Length - 1] == 's'
-                    ? propertyName.Substring(0, propertyName.Length - 1)
-                    : $"{propertyName}Item";
+                propertyNamePascalCase[propertyNamePascalCase.Length - 1] == 's'
+                    ? propertyNamePascalCase.Substring(0, propertyNamePascalCase.Length - 1)
+                    : $"{propertyNamePascalCase}Item";
 
-            var itemName = wsBeforeCapitalPattern.Replace(propertyName, " ").ToLowerInvariant();
+            var itemName = wsBeforeCapitalPattern.Replace(propertyNamePascalCase, " ").ToLowerInvariant();
 
             var itemItemTypeName =
                 itemType
@@ -320,7 +327,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                 ? new CollectionPropertyMetadata(
                     InterfaceName: propertyInterfaceName,
                     InterfaceFullName: interfaceFullName,
-                    PropertyName: propertyName,
+                    PropertyNamePascalCase: propertyNamePascalCase,
+                    PropertyNameCamelCase: propertyNameCamelCase,
                     ValueType: valueTypeName,
                     EquatableTypes: equatableTo,
                     ItemName: itemName,
@@ -330,7 +338,8 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                 : new CollectionCollectionPropertyMetadata(
                     InterfaceName: propertyInterfaceName,
                     InterfaceFullName: interfaceFullName,
-                    PropertyName: propertyName,
+                    PropertyNamePascalCase: propertyNamePascalCase,
+                    PropertyNameCamelCase: propertyNameCamelCase,
                     ValueType: valueTypeName,
                     EquatableTypes: equatableTo,
                     ItemName: itemName,
@@ -419,7 +428,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                         var ctx = source.Context;
                         ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
 
-                        return new (ctx);
+                        return new ("{{property.PropertyNameCamelCase}}", ctx);
                     }
             """
         );
@@ -449,7 +458,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                         var ctx = source.Context;
                         ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
 
-                        return new (ctx, expectedValue);
+                        return new ("{{property.PropertyNameCamelCase}}", ctx, expectedValue);
                     }
             """
         );
@@ -458,16 +467,16 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
         sb.AppendLine(
             $$"""
                     public {{Types.JsonPropertyComparerAssertion("TObject", property)}} {{methodName}}(
-                        {{property.ValueType}} expected{{property.PropertyName}},
+                        {{property.ValueType}} expected{{property.PropertyNamePascalCase}},
                         {{Types.IEqualityComparer(property.ValueType)}} comparer,
-                        {{Attributes.CallerArgumentExpressionFor($"expected{property.PropertyName}")}} string? expected{{property.PropertyName}}Expression = null,
+                        {{Attributes.CallerArgumentExpressionFor($"expected{property.PropertyNamePascalCase}")}} string? expected{{property.PropertyNamePascalCase}}Expression = null,
                         {{Attributes.CallerArgumentExpressionFor("comparer")}} string? comparerExpression = null
                     )
                     {
                         var ctx = source.Context;
-                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expected{{property.PropertyName}}Expression ?? "..."}, {comparerExpression ?? "..."})");
+                        ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expected{{property.PropertyNamePascalCase}}Expression ?? "..."}, {comparerExpression ?? "..."})");
 
-                        return new (ctx, expected{{property.PropertyName}}, comparer);
+                        return new ("{{property.PropertyNameCamelCase}}", ctx, expected{{property.PropertyNamePascalCase}}, comparer);
                     }
             """
         );
@@ -483,7 +492,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                         var ctx = source.Context;
                         ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}({expression ?? "..."})");
 
-                        return new (ctx, constraints);
+                        return new ("{{property.PropertyNameCamelCase}}", ctx, constraints);
                     }
             """
         );
@@ -496,7 +505,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
                         var ctx = source.Context;
                         ctx.ExpressionBuilder.Append($".{nameof({{methodName}})}()");
 
-                        return new (ctx);
+                        return new ("{{property.PropertyNameCamelCase}}", ctx);
                     }
             """
         );
@@ -552,6 +561,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -578,6 +588,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -604,6 +615,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -632,6 +644,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -658,6 +671,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -684,6 +698,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -707,6 +722,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -733,6 +749,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(
@@ -759,6 +776,7 @@ public class AllureAssertionsGenerator : IIncrementalGenerator
 
                         var propertyAssertion =
                             new {{Types.NarrowToJsonCollectionPropertyAssertion("TObject", property)}}(
+                                "{{property.PropertyNameCamelCase}}",
                                 source.Context);
 
                         var narrowedContext = {{Types.AssertionAccessors(property.ValueType)}}.GetContext(

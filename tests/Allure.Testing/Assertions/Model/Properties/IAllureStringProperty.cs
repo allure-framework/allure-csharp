@@ -9,8 +9,8 @@ public interface IAllureStringProperty<TSelf> : IAllureProperty<string, TSelf>
     static JsonType IAllureProperty<string, TSelf>.JsonType { get; } =
         JsonType.String;
 
-    static AssertionResult<string> IAllureProperty<string, TSelf>.TryGetPropertyValue(JsonElement json) =>
-        json.GetString() is { } notNull
-            ? AssertionResult<string>.Passed(notNull)
-            : AssertionResult.Failed($"\"{TSelf.PropertyName}\" was null");
+    static AssertionResult<string> IAllureProperty<string, TSelf>.TryConvertToPropertyValue(
+        JsonElement json
+    ) =>
+        AssertionResult<string>.Passed(json.GetString()!);
 }

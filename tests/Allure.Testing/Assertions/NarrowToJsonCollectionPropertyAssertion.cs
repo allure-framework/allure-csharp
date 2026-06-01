@@ -9,9 +9,10 @@ using TUnit.Assertions.Sources;
 namespace Allure.Testing.Assertions;
 
 public class NarrowToJsonCollectionPropertyAssertion<TObject, TProperty, TValue, TItem>(
+    string propertyName,
     AssertionContext<TObject> context
 ) :
-    CollectionAssertionBase<TValue, TItem>(context.Map(Mapper))
+    CollectionAssertionBase<TValue, TItem>(context.Map(CreateMapper(propertyName)))
 
     where TObject : IAllureModelObject<TObject>, TProperty
     where TProperty : IAllureProperty<TValue, TObject>
@@ -25,11 +26,11 @@ public class NarrowToJsonCollectionPropertyAssertion<TObject, TProperty, TValue,
             : await Task.FromResult(AssertionResult.Passed);
 
     protected override string GetExpectation() =>
-        $"\"{TProperty.PropertyName}\"";
+        $"\"{propertyName}\"";
 
-    public static Func<TObject?, TValue?> Mapper { get;} =
+    public static Func<TObject?, TValue?> CreateMapper(string propertyName) =>
         item =>
-            TProperty.GetValue(item) switch
+            TProperty.GetValue(item, propertyName) switch
             {
                 { IsPassed: true, Value: var value } => value,
 
