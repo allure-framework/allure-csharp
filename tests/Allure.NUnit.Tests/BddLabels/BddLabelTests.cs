@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
 
 namespace Allure.NUnit.Tests.BddLabels;
@@ -22,26 +21,13 @@ class BddLabelTests
     [MethodDataSource(nameof(GetBddHierarchySamples))]
     public async Task CheckBddLabelsAreAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "epic" && (string)l["value"] == "foo";
-            }
-        ).And.Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "feature" && (string)l["value"] == "bar";
-            }
-        ).And.Any(
-            static (l) =>
-            {
-                return (string)l["name"] == "story" && (string)l["value"] == "baz";
-            }
-        );
+        var testResult = await Assert.That(results).HasSingleTestResult();
+
+        await Assert.That(testResult).HasOnlyOneLabel("epic").With.Value("foo");
+        await Assert.That(testResult).HasOnlyOneLabel("feature").With.Value("bar");
+        await Assert.That(testResult).HasOnlyOneLabel("story").With.Value("baz");
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetEpicSamples()
@@ -67,16 +53,11 @@ class BddLabelTests
     [MethodDataSource(nameof(GetEpicSamples))]
     public async Task CheckEpicIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "epic" && (string)l["value"] == "foo";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .That.HasOnlyOneLabel("epic")
+            .With.Value("foo");
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetFeatureSamples()
@@ -102,16 +83,11 @@ class BddLabelTests
     [MethodDataSource(nameof(GetFeatureSamples))]
     public async Task CheckFeatureIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "feature" && (string)l["value"] == "foo";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .That.HasOnlyOneLabel("feature")
+            .With.Value("foo");
     }
 
     public static IEnumerable<TestDataRow<AllureSampleRegistryEntry>> GetStorySamples()
@@ -137,15 +113,10 @@ class BddLabelTests
     [MethodDataSource(nameof(GetStorySamples))]
     public async Task CheckStoryIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "story" && (string)l["value"] == "foo";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .That.HasOnlyOneLabel("story")
+            .With.Value("foo");
     }
 }
