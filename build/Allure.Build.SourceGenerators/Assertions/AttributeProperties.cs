@@ -50,7 +50,7 @@ public record class AttributeProperties(
                     methodName = providedMethodName;
                 }
 
-                if (kv.Key == "ItemNameMethod" && kv.Value.Value?.ToString() is { } providedItemMethodName)
+                if (kv.Key == "ItemMethodName" && kv.Value.Value?.ToString() is { } providedItemMethodName)
                 {
                     itemMethodName = providedItemMethodName;
                 }
