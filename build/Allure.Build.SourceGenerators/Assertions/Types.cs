@@ -76,7 +76,7 @@ public static class Types
 
         public const string IAllureProperty = "Allure.Testing.Assertions.Model.Properties.IAllureProperty<TValue, TSelf>";
 
-        public const string IAllureArrayProperty = "Allure.Testing.Assertions.Model.Properties.IAllureArrayProperty<TElement, TSelf>";
+        public const string IAllureArrayProperty = "Allure.Testing.Assertions.Model.Properties.IAllureArrayProperty<TElement, TFactory, TSelf>";
 
         public const string IAllureNameProperty = "Allure.Testing.Assertions.Model.Properties.IAllureNameProperty<TSelf>";
 

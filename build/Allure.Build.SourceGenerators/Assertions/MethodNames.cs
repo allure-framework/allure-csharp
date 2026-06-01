@@ -26,7 +26,7 @@ public record class MethodNames(
                 SingleItemByName: $"OnlyOne{ccProperty.ItemMethodName}",
                 SingleItemByNameComparator: $"OnlyOne{ccProperty.ItemMethodName}",
                 ItemByIndex: $"{ccProperty.ItemMethodName}At",
-                ItemsSatisfyConstraints: $"{ccProperty.ItemMethodName}"
+                ItemsSatisfyConstraints: $"{ccProperty.MethodName}"
             ),
         _ => new(
             PropertyExistsAnyValue: property.MethodName,
@@ -49,7 +49,7 @@ public record class MethodNames(
                 SingleItemByName: $"HasOnlyOne{ccProperty.ItemMethodName}",
                 SingleItemByNameComparator: $"HasOnlyOne{ccProperty.ItemMethodName}",
                 ItemByIndex: $"Has{ccProperty.ItemMethodName}At",
-                ItemsSatisfyConstraints: $"Has{ccProperty.ItemMethodName}"
+                ItemsSatisfyConstraints: $"Has{ccProperty.MethodName}"
             ),
         _ => new(
             PropertyExistsAnyValue: $"Has{property.MethodName}",
