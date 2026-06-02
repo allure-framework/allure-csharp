@@ -1,6 +1,8 @@
 using Allure.Xunit.Attributes;
 using Xunit;
 
+#pragma warning disable xUnit1026
+
 namespace Allure.Xunit.Tests.Names.Samples.XunitDisplayNameOnTheory
 {
     public class TestsClass

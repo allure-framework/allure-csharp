@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Nodes;
-using Allure.Testing;
+﻿using Allure.Testing;
 
 namespace Allure.Xunit.Tests.MetaAttributes;
 
@@ -8,41 +7,21 @@ class MetaAttributeTests
     [Test]
     public async Task MetaAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.MetaAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.MetaAttributes);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-
-        var labels = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        var links = results.TestResults[0]["links"].AsArray().Cast<JsonObject>();
-
-        await Assert.That(labels)
-            .Any(static (l) =>
-                (string)l["name"] == "epic"
-                    && (string)l["value"] == "Foo")
-            .And.Any(static (l) =>
-                (string)l["name"] == "owner"
-                    && (string)l["value"] == "John Doe")
-            .And.Any(static (l) =>
-                (string)l["name"] == "feature"
-                    && (string)l["value"] == "Bar")
-            .And.Any(static (l) =>
-                (string)l["name"] == "tag"
-                    && (string)l["value"] == "foo")
-            .And.Any(static (l) =>
-                (string)l["name"] == "tag"
-                    && (string)l["value"] == "bar")
-            .And.Any(static (l) =>
-                (string)l["name"] == "story"
-                    && (string)l["value"] == "Baz")
-            .And.Any(static (l) =>
-                (string)l["name"] == "severity"
-                    && (string)l["value"] == "critical")
-            .And.Any(static (l) =>
-                (string)l["name"] == "suite"
-                    && (string)l["value"] == "Qux");
-        await Assert.That(links).Any(static (l) =>
-            (string)l["url"] == "https://foo.bar/"
-                && l["name"] is null
-                && l["type"] is null);
+        await Assert.That(results).HasSingleTestResult()
+            .With.OnlyOneLabel(l => l.HasName("epic").And.HasValue("Foo"))
+            .With.OnlyOneLabel(l => l.HasName("owner").And.HasValue("John Doe"))
+            .With.OnlyOneLabel(l => l.HasName("feature").And.HasValue("Bar"))
+            .With.OnlyOneLabel(l => l.HasName("tag").And.HasValue("foo"))
+            .With.OnlyOneLabel(l => l.HasName("tag").And.HasValue("bar"))
+            .With.OnlyOneLabel(l => l.HasName("story").And.HasValue("Baz"))
+            .With.OnlyOneLabel(l => l.HasName("severity").And.HasValue("critical"))
+            .With.OnlyOneLabel(l => l.HasName("suite").And.HasValue("Qux"))
+            .With.SingleLink(
+                link => link.HasUrl("https://foo.bar/")
+                    .And.HasNoName()
+                    .And.HasNoType()
+            );
     }
 }

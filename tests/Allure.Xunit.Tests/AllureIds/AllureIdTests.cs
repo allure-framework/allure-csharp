@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
 
 namespace Allure.Xunit.Tests.AllureIds;
@@ -22,15 +21,10 @@ class AllureIdTests
     [MethodDataSource(nameof(GetAllureIdSamples))]
     public async Task CheckAllureIdLabelIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync(sample);
+        var results = await AllureSampleRunner.RunAsync2(sample);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes).Any(
-            l =>
-            {
-                return (string)l["name"] == "ALLURE_ID" && (string)l["value"] == "1001";
-            }
-        );
+        await Assert.That(results).HasSingleTestResult()
+            .That.HasSingleLabel("ALLURE_ID")
+            .With.Value("1001");
     }
 }

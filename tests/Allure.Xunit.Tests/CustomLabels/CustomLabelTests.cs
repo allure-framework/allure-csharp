@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Nodes;
-using Allure.Testing;
+﻿using Allure.Testing;
 
 namespace Allure.Xunit.Tests.CustomLabels;
 
@@ -8,54 +7,32 @@ class CustomLabelTests
     [Test]
     public async Task CheckCustomLabelIsAdded()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddLabelApi);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddLabelApi);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var nodes = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(nodes)
-            .Any(static (l) =>
-                (string)l["name"] == "test"
-                    && (string)l["value"] == "foo")
-            .And.Any(static (l) =>
-                (string)l["name"] == "dispose"
-                && (string)l["value"] == "bar");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Label(l => l.HasName("test").And.HasValue("foo"))
+            .With.Label(l => l.HasName("dispose").And.HasValue("bar"));
     }
 
     [Test]
     public async Task LabelAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LabelAttribute);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LabelAttribute);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var labels = results.TestResults[0]["labels"].AsArray().ToArray();
-        await Assert.That(labels)
-            .Any(static (l) =>
-                (string)l["name"] == "interface"
-                    && (string)l["value"] == "foo")
-            .And.Any(static (l) =>
-                (string)l["name"] == "baseClass"
-                    && (string)l["value"] == "bar")
-            .And.Any(static (l) =>
-                (string)l["name"] == "class"
-                    && (string)l["value"] == "baz")
-            .And.Any(static (l) =>
-                (string)l["name"] == "method"
-                    && (string)l["value"] == "qux");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Label(l => l.HasName("interface").And.HasValue("foo"))
+            .With.Label(l => l.HasName("baseClass").And.HasValue("bar"))
+            .With.Label(l => l.HasName("class").And.HasValue("baz"))
+            .With.Label(l => l.HasName("method").And.HasValue("qux"));
     }
 
     [Test]
     public async Task LegacyLabelAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyLabelAttribute);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyLabelAttribute);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        var labels = results.TestResults[0]["labels"].AsArray().Cast<JsonObject>();
-        await Assert.That(labels)
-            .Any(static (l) =>
-                (string)l["name"] == "class"
-                    && (string)l["value"] == "bar")
-            .And.Any(static (l) =>
-                (string)l["name"] == "method"
-                    && (string)l["value"] == "baz");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Label(l => l.HasName("class").And.HasValue("bar"))
+            .With.Label(l => l.HasName("method").And.HasValue("baz"));
     }
 }

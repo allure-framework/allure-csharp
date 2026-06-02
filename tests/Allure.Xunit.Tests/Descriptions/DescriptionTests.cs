@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Allure.Testing;
 
 namespace Allure.Xunit.Tests.Descriptions;
@@ -6,56 +5,54 @@ namespace Allure.Xunit.Tests.Descriptions;
 class DescriptionTests
 {
     [Test]
-    public async Task CheckDescriptionAndDescriptionHtmlCanBeAdded()
+    public async Task CheckRuntimeApiDescriptionFromTestAndDescriptionHtmlFromDispose()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddDescriptionFromTestHtmlFromDispose);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddDescriptionFromTestHtmlFromDispose);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo("Lorem Ipsum");
-        await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo("Dolor Sit Amet");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Description("Lorem Ipsum")
+            .With.DescriptionHtml("Dolor Sit Amet");
     }
 
     [Test]
-    public async Task CheckDescriptionHtmlAndDescriptionCanBeAdded()
+    public async Task CheckRuntimeApiDescriptionHtmlFromTestAndDescriptionFromDispose()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddDescriptionFromDisposeHtmlFromTest);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddDescriptionFromDisposeHtmlFromTest);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo("Lorem Ipsum");
-        await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo("Dolor Sit Amet");
+        await Assert.That(results).HasSingleTestResult()
+            .With.DescriptionHtml("Lorem Ipsum")
+            .With.Description("Dolor Sit Amet");
     }
 
     [Test]
     public async Task DescriptionAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.DescriptionAttributes);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.DescriptionAttributes);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo(
-            """
-            Lorem Ipsum
+        await Assert.That(results).HasSingleTestResult()
+            .With.Description(
+                """
+                Lorem Ipsum
 
-            Consectetur Adipiscing Elit
+                Consectetur Adipiscing Elit
 
-            Tempor Incididunt
+                Tempor Incididunt
 
-            Et Dolore
-            """
-        );
-        await Assert.That((string)results.TestResults[0]["descriptionHtml"]).IsEqualTo(
-            "<p>Dolor Sit Amet</p>"
-                + "<p>Sed Do Eiusmod</p>"
-                + "<p>Ut Labore</p>"
-                + "<p>Magna Aliqua</p>"
-        );
+                Et Dolore
+                """)
+            .With.DescriptionHtml(
+                "<p>Dolor Sit Amet</p>"
+                    + "<p>Sed Do Eiusmod</p>"
+                    + "<p>Ut Labore</p>"
+                    + "<p>Magna Aliqua</p>");
     }
 
     [Test]
     public async Task LegacyDescriptionAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyDescriptionAttribute);
+        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyDescriptionAttribute);
 
-        await Assert.That(results.TestResults.Cast<JsonObject>()).Count().IsEqualTo(1);
-        await Assert.That((string)results.TestResults[0]["description"]).IsEqualTo("Lorem Ipsum");
+        await Assert.That(results).HasSingleTestResult()
+            .With.Description("Lorem Ipsum");
     }
 }
