@@ -41,20 +41,6 @@ public static class Logging
             )
         );
 
-    public static void LogItemsWithNoSuffix(
-        TaskLoggingHelper log,
-        IGrouping<string, ITaskItem2> sampleGroup
-    )
-    {
-        foreach (var sample in sampleGroup)
-        {
-            log.LogWarning(
-                "Ignoring '{0}': no ProjectSuffix defined on the item.",
-                sample.EvaluatedIncludeEscaped
-            );
-        }
-    }
-
     public static void LogNoPath(TaskLoggingHelper log, ITaskItem2 item) =>
         log.LogWarning("Ignoring '{0}': bad path.", item.EvaluatedIncludeEscaped);
 
