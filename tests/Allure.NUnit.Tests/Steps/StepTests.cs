@@ -8,7 +8,7 @@ class StepTests
     [Test]
     public async Task StepAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.StepAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.StepAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.StepsMatching([
@@ -55,7 +55,7 @@ class StepTests
     [Test]
     public async Task LegacyStepAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyStepAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyStepAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.StepsMatching([

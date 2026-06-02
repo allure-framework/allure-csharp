@@ -7,7 +7,7 @@ class LinkTests
     [Test]
     public async Task LinkRuntimeApiShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LinkRuntimeApi);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LinkRuntimeApi);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -38,7 +38,7 @@ class LinkTests
     [Test]
     public async Task LinkAttributesShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LinkAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LinkAttributes);
 
         var links = await Assert.That(results).HasSingleTestResult()
             .With.Links().Count().IsEqualTo(12);;
@@ -103,7 +103,7 @@ class LinkTests
     [Test]
     public async Task LegacyLinkAttributesShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyLinkAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyLinkAttributes);
 
         var links = await Assert.That(results).HasSingleTestResult()
             .With.Links().Count().IsEqualTo(4);

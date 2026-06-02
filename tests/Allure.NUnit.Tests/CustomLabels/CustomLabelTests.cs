@@ -27,7 +27,7 @@ class CustomLabelTests
     [MethodDataSource(nameof(GetCustomLabelSamples))]
     public async Task CheckCustomLabelIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .That.HasSingleLabel("foo")

@@ -93,78 +93,6 @@ public class AllureSampleRunner
         return allureResults;
     }
 
-    /// <summary>
-    /// Runs a test sample project and reads the results.
-    /// </summary>
-    /// <param name="sample">
-    /// An entry from the sample registry of the test project.
-    /// The registry is auto-generated for each test project that has at least one sample
-    /// source defined.
-    /// </param>
-    /// <returns>The results of the run, including Allure results.</returns>
-    /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureResults2> RunAsync2(AllureSampleRegistryEntry sample) =>
-        await RunAsync2(sample, AllureSampleRunInput.Default, CancellationToken.None);
-
-    /// <summary>
-    /// Runs a test sample project and reads the results.
-    /// </summary>
-    /// <param name="sample">
-    /// An entry from the sample registry of the test project.
-    /// The registry is auto-generated for each test project that has at least one sample
-    /// source defined.
-    /// </param>
-    /// <param name="ct">A cancellation token to interrupt the sample run.</param>
-    /// <returns>The results of the run, including Allure results.</returns>
-    /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureResults2> RunAsync2(
-        AllureSampleRegistryEntry sample,
-        CancellationToken ct
-    ) =>
-        await RunAsync2(sample, AllureSampleRunInput.Default, ct);
-
-    /// <summary>
-    /// Runs a test sample project and reads the results.
-    /// </summary>
-    /// <param name="sample">
-    /// An entry from the sample registry of the test project.
-    /// The registry is auto-generated for each test project that has at least one sample
-    /// source defined.
-    /// </param>
-    /// <param name="input">Input data for the sample run.</param>
-    /// <returns>The results of the run, including Allure results.</returns>
-    /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureResults2> RunAsync2(
-        AllureSampleRegistryEntry sample,
-        AllureSampleRunInput input
-    ) =>
-        await RunAsync2(sample, input, CancellationToken.None);
-
-    /// <summary>
-    /// Runs a test sample project and reads the results.
-    /// </summary>
-    /// <param name="sample">
-    /// An entry from the sample registry of the test project.
-    /// The registry is auto-generated for each test project that has at least one sample
-    /// source defined.
-    /// </param>
-    /// <param name="input">Input data for the sample run.</param>
-    /// <param name="ct">A cancellation token to interrupt the sample run.</param>
-    /// <returns>The results of the run, including Allure results.</returns>
-    /// <exception cref="InvalidOperationException" />
-    public static async Task<AllureResults2> RunAsync2(
-        AllureSampleRegistryEntry sample,
-        AllureSampleRunInput input,
-        CancellationToken ct
-    )
-    {
-        using var allureResultsDir = await EnsureSampleResults(sample, input, ct);
-
-        var allureResults = await ReadAllureResults2(allureResultsDir.Value, ct);
-
-        return allureResults;
-    }
-
     static async Task<Guard<DirectoryInfo>> EnsureSampleResults(
         AllureSampleRegistryEntry sample,
         AllureSampleRunInput input,
@@ -429,20 +357,6 @@ public class AllureSampleRunner
     {
         var resultFiles = resultsDirectory.GetFiles();
 
-        var testResults = await ReadJsonObjectResults(resultFiles, "-result.json", ct);
-        var containers = await ReadJsonObjectResults(resultFiles, "-container.json", ct);
-        var attachments = await ReadAttachments(resultFiles, ct);
-
-        return new(testResults, containers, attachments);
-    }
-
-    static async Task<AllureResults2> ReadAllureResults2(
-        DirectoryInfo resultsDirectory,
-        CancellationToken ct
-    )
-    {
-        var resultFiles = resultsDirectory.GetFiles();
-
         var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
         var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
 
@@ -463,29 +377,6 @@ public class AllureSampleRunner
             (_, {IsPassed: false, Message: var error}) =>
                 throw new AssertionException(error),
         };
-    }
-
-    static async Task<ImmutableArray<JsonObject>> ReadJsonObjectResults(
-        IEnumerable<FileInfo> allOutputFiles,
-        string suffix,
-        CancellationToken ct
-    )
-    {
-        var jsonResultFiles = allOutputFiles
-            .Where((outputFile) => outputFile.Name.EndsWith(suffix))
-            .ToArray();
-        var jsonObjectResults =
-            ImmutableArray.CreateBuilder<JsonObject>(jsonResultFiles.Length);
-        foreach (var jsonResultFile in jsonResultFiles)
-        {
-            using var jsonResultStream = jsonResultFile.OpenRead();
-            var jsonNode = await JsonNode.ParseAsync(jsonResultStream, cancellationToken: ct);
-            if (jsonNode is JsonObject jsonObject)
-            {
-                jsonObjectResults.Add(jsonObject);
-            }
-        }
-        return jsonObjectResults.MoveToImmutable();
     }
 
     static async Task<AssertionResult<ImmutableArray<T>>> ReadJsonObjectResults2<T>(

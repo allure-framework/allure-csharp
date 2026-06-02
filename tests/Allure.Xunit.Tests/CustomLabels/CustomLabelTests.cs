@@ -7,7 +7,7 @@ class CustomLabelTests
     [Test]
     public async Task CheckCustomLabelIsAdded()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddLabelApi);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddLabelApi);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Label(l => l.HasName("test").And.HasValue("foo"))
@@ -17,7 +17,7 @@ class CustomLabelTests
     [Test]
     public async Task LabelAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LabelAttribute);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LabelAttribute);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Label(l => l.HasName("interface").And.HasValue("foo"))
@@ -29,7 +29,7 @@ class CustomLabelTests
     [Test]
     public async Task LegacyLabelAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyLabelAttribute);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyLabelAttribute);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Label(l => l.HasName("class").And.HasValue("bar"))

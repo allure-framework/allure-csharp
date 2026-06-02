@@ -30,7 +30,7 @@ class OwnerTests
     [MethodDataSource(nameof(GetOwnerSamples))]
     public async Task CheckOwnerIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.SingleLabel("owner").With.Value("John Doe");

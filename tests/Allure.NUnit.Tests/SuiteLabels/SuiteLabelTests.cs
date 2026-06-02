@@ -21,7 +21,7 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetSuiteHierarchySamples))]
     public async Task CheckSuiteLabelsAreAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.OnlyOneLabel(l => l.HasName("parentSuite").And.HasValue("foo"))
@@ -52,7 +52,7 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetParentSuiteSamples))]
     public async Task CheckParentSuiteIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.SingleLabel("parentSuite").With.Value("foo");
@@ -81,7 +81,7 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetSuiteSamples))]
     public async Task CheckSuiteIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.SingleLabel("suite").With.Value("foo");
@@ -110,7 +110,7 @@ class SuiteLabelTests
     [MethodDataSource(nameof(GetSubSuiteSamples))]
     public async Task CheckSubSuiteIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.SingleLabel("subSuite").With.Value("foo");

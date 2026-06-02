@@ -9,7 +9,7 @@ class FixtureTests
     [Skip("Can't emit OneTime-fixture container: need sdk hook")]
     public async Task FixtureAttributesWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.FixtureAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.FixtureAttributes);
 
         var uuid = await Assert.That(results).HasSingleTestResult().With.Uuid();
         await Assert.That(results.Containers).Count().IsEqualTo(2);
@@ -33,7 +33,7 @@ class FixtureTests
     [Test]
     public async Task LegacyFixtureAttributesWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyFixtureAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyFixtureAttributes);
 
         var uuid = await Assert.That(results).HasSingleTestResult().With.Uuid();
         await Assert.That(results.Containers).Count().IsEqualTo(2);

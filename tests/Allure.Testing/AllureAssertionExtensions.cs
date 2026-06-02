@@ -14,7 +14,7 @@ namespace Allure.Testing;
 
 public static partial class AllureAssertionExtensions
 {
-    extension (IAssertionSource<AllureResults2> source)
+    extension (IAssertionSource<AllureResults> source)
     {
         /// <summary>
         /// Checks if the exact number of test results were written to the output and each result satisfies the corresponding
@@ -23,7 +23,7 @@ public static partial class AllureAssertionExtensions
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
         /// </remarks>
-        public MemberAssertionResult<AllureResults2> HasTestResults(
+        public MemberAssertionResult<AllureResults> HasTestResults(
             Func<IAssertionSource<AllureTestResult>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
         )
@@ -48,7 +48,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains exactly one test result that matches the provided criteria.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasOnlyOneTestResult(
+        public MemberAssertionResult<AllureResults> HasOnlyOneTestResult(
             Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
@@ -73,7 +73,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains exactly one test result with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasOnlyOneTestResult(
+        public MemberAssertionResult<AllureResults> HasOnlyOneTestResult(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
@@ -98,7 +98,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains exactly one test result with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasOnlyOneTestResult(
+        public MemberAssertionResult<AllureResults> HasOnlyOneTestResult(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
@@ -126,7 +126,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains at least one test result that matches the provided criteria.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasTestResult(
+        public MemberAssertionResult<AllureResults> HasTestResult(
             Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
@@ -151,7 +151,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains at least one test result with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasTestResult(
+        public MemberAssertionResult<AllureResults> HasTestResult(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
@@ -176,7 +176,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains at least one test result with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasTestResult(
+        public MemberAssertionResult<AllureResults> HasTestResult(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
@@ -204,7 +204,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Passes if no test result matches the provided criteria.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasNoTestResult(
+        public MemberAssertionResult<AllureResults> HasNoTestResult(
             Func<IAssertionSource<AllureTestResult>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
@@ -229,7 +229,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Passes if no test result has the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasNoTestResult(
+        public MemberAssertionResult<AllureResults> HasNoTestResult(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
@@ -254,7 +254,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Passes if no test result has the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasNoTestResult(
+        public MemberAssertionResult<AllureResults> HasNoTestResult(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
@@ -359,7 +359,7 @@ public static partial class AllureAssertionExtensions
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
         /// </remarks>
-        public MemberAssertionResult<AllureResults2> HasContainers(
+        public MemberAssertionResult<AllureResults> HasContainers(
             Func<IAssertionSource<AllureContainer>, IAssertion?>?[] constraints,
             [CallerArgumentExpression(nameof(constraints))] string? expression = null
         )
@@ -384,7 +384,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains exactly one container that matches the provided criteria.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasOnlyOneContainer(
+        public MemberAssertionResult<AllureResults> HasOnlyOneContainer(
             Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
@@ -409,7 +409,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains exactly one container with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasOnlyOneContainer(
+        public MemberAssertionResult<AllureResults> HasOnlyOneContainer(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
@@ -434,7 +434,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains exactly one container with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasOnlyOneContainer(
+        public MemberAssertionResult<AllureResults> HasOnlyOneContainer(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
@@ -462,7 +462,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains at least one container that matches the provided criteria.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasContainer(
+        public MemberAssertionResult<AllureResults> HasContainer(
             Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
@@ -487,7 +487,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains at least one container with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasContainer(
+        public MemberAssertionResult<AllureResults> HasContainer(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
@@ -512,7 +512,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Checks if the output contains at least one container with the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasContainer(
+        public MemberAssertionResult<AllureResults> HasContainer(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
@@ -540,7 +540,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Passes if no container matches the provided criteria.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasNoContainer(
+        public MemberAssertionResult<AllureResults> HasNoContainer(
             Func<IAssertionSource<AllureContainer>, IAssertion> criteria,
             [CallerArgumentExpression(nameof(criteria))] string? expression = null
         )
@@ -565,7 +565,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Passes if no container has the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasNoContainer(
+        public MemberAssertionResult<AllureResults> HasNoContainer(
             string name,
             [CallerArgumentExpression(nameof(name))] string? expression = null
         )
@@ -590,7 +590,7 @@ public static partial class AllureAssertionExtensions
         /// <summary>
         /// Passes if no container has the provided name.
         /// </summary>
-        public MemberAssertionResult<AllureResults2> HasNoContainer(
+        public MemberAssertionResult<AllureResults> HasNoContainer(
             string name,
             IEqualityComparer<string> comparer,
             [CallerArgumentExpression(nameof(name))] string? nameExpression = null,

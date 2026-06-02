@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace Allure.Build.SourceGenerators.Assertions;
 
 public record class CollectionOfCollectionsPropertyMetadata(

@@ -7,7 +7,7 @@ class TagTests
     [Test]
     public async Task AddTagsApiWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddTagsApiCalls);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddTagsApiCalls);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Label(l => l.HasName("tag").And.HasValue("foo"))
@@ -19,7 +19,7 @@ class TagTests
     [Test]
     public async Task TagAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.TagAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.TagAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Label(l => l.HasName("tag").And.HasValue("foo"))
@@ -32,7 +32,7 @@ class TagTests
     [Test]
     public async Task LegacyTagAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyTagAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyTagAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Label(l => l.HasName("tag").And.HasValue("foo"))
@@ -44,7 +44,7 @@ class TagTests
     [Test]
     public async Task NUnitCategoriesAreConvertedToTags()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.NUnitCategoryAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.NUnitCategoryAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Label(l => l.HasName("tag").And.HasValue("foo"))

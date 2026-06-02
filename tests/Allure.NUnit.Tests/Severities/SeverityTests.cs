@@ -27,7 +27,7 @@ class SeverityTests
     [MethodDataSource(nameof(GetSeveritySamples))]
     public async Task CheckSuiteLabelsAreAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.SingleLabel("severity").With.Value("critical");

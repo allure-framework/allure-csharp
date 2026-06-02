@@ -20,7 +20,7 @@ class ParameterTests
     [MethodDataSource(nameof(GetParameterSamples))]
     public async Task ParametersApiWorks(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.ParametersMatching([

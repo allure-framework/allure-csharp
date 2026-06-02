@@ -7,7 +7,7 @@ class LinkTests
     [Test]
     public async Task CheckLinksRuntimeApiWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddLinksAtRuntime);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddLinksAtRuntime);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -29,7 +29,7 @@ class LinkTests
     [Test]
     public async Task CheckLegacyLinkAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyLinkAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyLinkAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -48,7 +48,7 @@ class LinkTests
     [Test]
     public async Task CheckLinkAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LinkAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LinkAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -70,7 +70,7 @@ class LinkTests
     [Test]
     public async Task CheckIssuesRuntimeApiWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddIssuesAtRuntime);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddIssuesAtRuntime);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -89,7 +89,7 @@ class LinkTests
     [Test]
     public async Task CheckLegacyIssueAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyIssueAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyIssueAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -108,7 +108,7 @@ class LinkTests
     [Test]
     public async Task CheckIssueAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.IssueAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.IssueAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -130,7 +130,7 @@ class LinkTests
     [Test]
     public async Task CheckTmsLinksRuntimeApiWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddTmsItemsAtRuntime);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddTmsItemsAtRuntime);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -149,7 +149,7 @@ class LinkTests
     [Test]
     public async Task CheckLegacyTmsAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyTmsAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyTmsAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([
@@ -168,7 +168,7 @@ class LinkTests
     [Test]
     public async Task CheckTmsItemAttributeWorks()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.TmsItemAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.TmsItemAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.LinksMatching([

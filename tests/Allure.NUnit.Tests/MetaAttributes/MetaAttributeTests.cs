@@ -7,7 +7,7 @@ class MetaAttributeTests
     [Test]
     public async Task MetaAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.MetaAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.MetaAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.OnlyOneLabel(l => l.HasName("epic").And.HasValue("Foo"))

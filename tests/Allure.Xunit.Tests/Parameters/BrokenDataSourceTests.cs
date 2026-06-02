@@ -8,7 +8,7 @@ class BrokenDataSourceTests
     [Test]
     public async Task TheoryWithThrowingMemberDataIsRecordedAsBroken()
     {
-        var results = await AllureSampleRunner.RunAsync2(
+        var results = await AllureSampleRunner.RunAsync(
             AllureSampleRegistry.TheoryWithThrowingMemberData
         );
 

@@ -30,7 +30,7 @@ class DescriptionTests
     [MethodDataSource(nameof(GetCommonDescriptionSamples))]
     public async Task CheckDescriptionIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Description("Lorem Ipsum");
@@ -57,7 +57,7 @@ class DescriptionTests
     [MethodDataSource(nameof(GetHtmlDescriptionSamples))]
     public async Task CheckHtmlDescriptionIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .With.DescriptionHtml("Lorem Ipsum");
@@ -66,7 +66,7 @@ class DescriptionTests
     [Test]
     public async Task NUnitDescriptionAttributesCompose()
     {
-        var results = await AllureSampleRunner.RunAsync2(
+        var results = await AllureSampleRunner.RunAsync(
             AllureSampleRegistry.NUnitDescriptionAttributeComposition
         );
 
@@ -77,7 +77,7 @@ class DescriptionTests
     [Test]
     public async Task NUnitDescriptionPropertiesCompose()
     {
-        var results = await AllureSampleRunner.RunAsync2(
+        var results = await AllureSampleRunner.RunAsync(
             AllureSampleRegistry.NUnitDescriptionPropertyComposition
         );
 
@@ -88,7 +88,7 @@ class DescriptionTests
     [Test]
     public async Task NUnitDescriptionIgnoredIfDescriptionAlreadyProvided()
     {
-        var results = await AllureSampleRunner.RunAsync2(
+        var results = await AllureSampleRunner.RunAsync(
             AllureSampleRegistry.NUnitDescriptionPropertyWithAllureDescription
         );
 
@@ -99,7 +99,7 @@ class DescriptionTests
     [Test]
     public async Task NUnitDescriptionIgnoredIfDescriptionHtmlAlreadyProvided()
     {
-        var results = await AllureSampleRunner.RunAsync2(
+        var results = await AllureSampleRunner.RunAsync(
             AllureSampleRegistry.NUnitDescriptionPropertyWithAllureDescriptionHtml
         );
 

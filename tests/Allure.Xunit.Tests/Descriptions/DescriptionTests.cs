@@ -7,7 +7,7 @@ class DescriptionTests
     [Test]
     public async Task CheckRuntimeApiDescriptionFromTestAndDescriptionHtmlFromDispose()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddDescriptionFromTestHtmlFromDispose);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddDescriptionFromTestHtmlFromDispose);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Description("Lorem Ipsum")
@@ -17,7 +17,7 @@ class DescriptionTests
     [Test]
     public async Task CheckRuntimeApiDescriptionHtmlFromTestAndDescriptionFromDispose()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.AddDescriptionFromDisposeHtmlFromTest);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.AddDescriptionFromDisposeHtmlFromTest);
 
         await Assert.That(results).HasSingleTestResult()
             .With.DescriptionHtml("Lorem Ipsum")
@@ -27,7 +27,7 @@ class DescriptionTests
     [Test]
     public async Task DescriptionAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.DescriptionAttributes);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.DescriptionAttributes);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Description(
@@ -50,7 +50,7 @@ class DescriptionTests
     [Test]
     public async Task LegacyDescriptionAttributeShouldWork()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.LegacyDescriptionAttribute);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.LegacyDescriptionAttribute);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Description("Lorem Ipsum");

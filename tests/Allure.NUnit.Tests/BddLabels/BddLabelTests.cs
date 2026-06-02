@@ -21,7 +21,7 @@ class BddLabelTests
     [MethodDataSource(nameof(GetBddHierarchySamples))]
     public async Task CheckBddLabelsAreAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         var testResult = await Assert.That(results).HasSingleTestResult();
 
@@ -53,7 +53,7 @@ class BddLabelTests
     [MethodDataSource(nameof(GetEpicSamples))]
     public async Task CheckEpicIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .That.HasSingleLabel("epic")
@@ -83,7 +83,7 @@ class BddLabelTests
     [MethodDataSource(nameof(GetFeatureSamples))]
     public async Task CheckFeatureIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .That.HasSingleLabel("feature")
@@ -113,7 +113,7 @@ class BddLabelTests
     [MethodDataSource(nameof(GetStorySamples))]
     public async Task CheckStoryIsAdded(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult()
             .That.HasSingleLabel("story")

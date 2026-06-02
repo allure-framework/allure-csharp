@@ -22,7 +22,7 @@ class NameTests
     [MethodDataSource(nameof(GetTestRenameSamples))]
     public async Task CheckTestCanBeRenamed(AllureSampleRegistryEntry sample)
     {
-        var results = await AllureSampleRunner.RunAsync2(sample);
+        var results = await AllureSampleRunner.RunAsync(sample);
 
         await Assert.That(results).HasSingleTestResult().With.Name("Lorem Ipsum");
     }
@@ -30,7 +30,7 @@ class NameTests
     [Test]
     public async Task MethodNameIsUsedForTestCases()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.SingleTescCase);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.SingleTescCase);
 
         await Assert.That(results).HasSingleTestResult().With.Name("TestMethod");
     }
@@ -38,7 +38,7 @@ class NameTests
     [Test]
     public async Task CheckAllureNameOnTestFixtureAffectsSuiteOnly()
     {
-        var results = await AllureSampleRunner.RunAsync2(AllureSampleRegistry.NameAttributeOnClass);
+        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.NameAttributeOnClass);
 
         await Assert.That(results).HasSingleTestResult()
             .With.Name("TestMethod")
