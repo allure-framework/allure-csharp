@@ -46,8 +46,8 @@
 
     <PropertyGroup>
 
-        <!-- The Configuration property is unset in Directory.Build.props.
-         Setting the default values of dependent properties here. -->
+        <!-- The Configuration property is unset in Directory.Build.props,
+         so the default values of dependent properties are set here. -->
         <Allure_SampleConfiguration
             Condition=" '$(Allure_SampleConfiguration)' == '' ">$(Configuration)</Allure_SampleConfiguration>
 
@@ -127,7 +127,7 @@
             Condition=" '@(AllureSample)' != '' "
             DependsOnTargets="_Allure_ResolveSampleRegistryEntries">
 
-        <!-- At this point, all AllureSample items must be already defined,
+        <!-- At this point, all AllureSample items must already be defined,
          the required properties resolved (see FillSampleMetadata) and the corresponding
          _Allure_SampleRegistryEntry items produced (see ResolveRegistryEntries).
          Now, we convert them to AdditionalFiles items to make them visible to the
@@ -177,10 +177,11 @@
                 Version="$(Allure_TestTargetVersion)" />
         </ItemGroup>
 
-        <!-- Enable parallel test execution:
-          1. In pre-run flow: no conflicting dotnet test runs at all.
-          2. If no projects are referenced (only NuGet packages): dotnet test doesn't build shared dependencies.
-          NOTE: don't forget to alter this condition if sample-specific project references becomes supported.  -->
+        <!-- Enable parallel test execution in these cases:
+          1. In pre-run flow, there are no conflicting `dotnet test` runs.
+          2. If no projects are referenced and only NuGet packages are used,
+             `dotnet test` does not build shared dependencies.
+          NOTE: don't forget to alter this condition if sample-specific project references become supported.  -->
         <PropertyGroup Condition=" '$(Allure_PreRunTestingFlow)' == 'true' or '@(SampleProjectReference)' == '' ">
             <DefineConstants>$(DefineConstants);ALLURE_TEST_PARALLEL</DefineConstants>
         </PropertyGroup>

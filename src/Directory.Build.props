@@ -3,10 +3,10 @@
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
-        <!-- Force public packages declare TFM explicitly -->
+        <!-- Require public packages to declare the target framework explicitly. -->
         <TargetFramework></TargetFramework>
 
-        <!-- Ensure no project in src is run on its own during dotnet test -->
+        <!-- Ensure that no project under src is run on its own during dotnet test. -->
         <IsTestProject>false</IsTestProject>
     </PropertyGroup>
 
@@ -46,7 +46,7 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
 
-    <!-- Include LICENSE to all packages -->
+    <!-- Include the LICENSE file in all packages -->
     <ItemGroup Condition="'$(IsPackable)' == 'true'">
         <None Include="$([MSBuild]::GetPathOfFileAbove('LICENSE', '$(MSBuildThisFileDirectory)../'))" Pack="true" PackagePath="\" />
     </ItemGroup>

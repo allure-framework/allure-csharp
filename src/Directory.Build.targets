@@ -3,7 +3,7 @@
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
     <ItemGroup>
-        <!-- Ensure an IDE doesn't run test discovery against these projects. -->
+        <!-- Ensure that the IDE does not run test discovery for these projects. -->
         <ProjectCapability Remove="TestContainer" />
     </ItemGroup>
 
@@ -36,7 +36,7 @@
     </UsingTask>
 
     <!--
-    NuGet don't support <img> (in particular, align, width and height).
+    NuGet doesn't support <img> tags well (in particular, the align, width and height properties).
     This task generates a new README file with those unsupported constructs removed.
     -->
     <Target Name="Allure_GenerateNugetReadmeFiles"

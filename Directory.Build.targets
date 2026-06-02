@@ -1,6 +1,7 @@
 <Project>
-    <!-- Some assemblies have strong names. We should resign them after AspectInjector before publishing on NuGet.
-     Otherwise, they won't pass the `sn.exe -vf <assembly>` check -->
+    <!-- Some assemblies are strong-named.
+     We need to re-sign them after AspectInjector runs and before publishing to NuGet.
+     Otherwise, they will not pass the `sn.exe -vf <assembly>` check. -->
 
     <Target Name="Allure_SetAssemblyTimestampBeforeAspectInjection"
             AfterTargets="CoreCompile"
@@ -21,7 +22,7 @@
     <!--
         Only resign the assembly if all four conditions are met:
             1. We're running on Windows (sn.exe is a Windows-only utility).
-            2. The assembly's been signed during the compilation.
+            2. The assembly was signed during compilation.
             3. A path to sn.exe is given.
             4. AspectInjector has modified the assembly.
     -->
@@ -40,7 +41,7 @@
         />
     </Target>
 
-    <!-- A hacky way to skip AspectInjector's own re-signing logic,
+    <!-- A workaround to skip AspectInjector's own re-signing logic,
      which doesn't work on Linux/Mac (unless there is an sn binary in PATH).
      It's not relevant for AspectInjector 2.9.0+ and should be removed as
      soon as we upgrade. -->
