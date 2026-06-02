@@ -185,7 +185,7 @@ public class GenerateSampleSolution : Task
     string GetRegistryNamespace(ITaskItem2 sample)
     {
         var registryNamespace = this.GetSampleMetadata(sample, "RegistryNamespace");
-        if (registryNamespace.Length > 0 && !IsValidNamespace(registryNamespace))
+        if (registryNamespace.Length > 0 && !Functions.IsValidNamespace(registryNamespace))
         {
             Logging.LogInvalidRegistryNamespaceWarning(
                 this.Log,
@@ -214,11 +214,6 @@ public class GenerateSampleSolution : Task
                     static (key, values) => (Key: key, values.Last().Value)
                 )
         ];
-
-    static bool IsValidNamespace(string namespaceName)
-        => namespaceName
-            .Split('.')
-            .All(SyntaxFacts.IsValidIdentifier);
 
     string GetSampleMetadata(ITaskItem2 sample, string metadataKey)
     {
@@ -327,30 +322,8 @@ public class GenerateSampleSolution : Task
         return new(project);
     }
 
-    static string GetGreatestCommonPrefix(IEnumerable<AllureSample> samples)
-    {
-        var paths = samples.Select(static (sample) => sample.Path);
-        var first = paths.First();
-        var rest = paths.Skip(1).ToList();
-
-        string prefix = first;
-
-        while ((prefix = Path.GetDirectoryName(prefix)) is not null)
-        {
-            if (IsCommonPrefix(rest, prefix))
-            {
-                return prefix;
-            }
-        }
-
-        return "";
-    }
-
-    static bool IsCommonPrefix(List<string> files, string prefix) =>
-        files.All((path) =>
-            path.StartsWith(prefix)
-                && path.Length > prefix.Length
-                && path[prefix.Length] == Path.DirectorySeparatorChar);
+    static string GetGreatestCommonPrefix(IEnumerable<AllureSample> samples) =>
+        Functions.GetGreatestCommonPrefix(samples.Select(static sample => sample.Path));
 
     XDocument CreateNugetConfigXml()
     {

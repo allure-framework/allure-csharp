@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
@@ -7,6 +8,84 @@ namespace Allure.Build.Tasks;
 
 public static class Logging
 {
+    public static void LogResolveRegistryEntryNoMetadata(
+        TaskLoggingHelper log,
+        ITaskItem2 item,
+        string metadataKey
+    ) =>
+        log.LogError(
+            "Invalid sample file '{0}': no {1} defined.",
+            item.EvaluatedIncludeEscaped,
+            metadataKey
+        );
+
+    public static void LogResolveRegistryEntryInvalidNamespace(
+        TaskLoggingHelper log,
+        ITaskItem2 item,
+        string registryNamespace
+    ) =>
+        log.LogError(
+            "Invalid sample file '{0}': invalid RegistryNamespace '{1}'. The value must be a valid namespace.",
+            item.EvaluatedIncludeEscaped,
+            registryNamespace
+        );
+
+    public static void LogResolveRegistryEntryInvalidSampleName(
+        TaskLoggingHelper log,
+        ITaskItem2 item,
+        string sampleName
+    ) =>
+        log.LogError(
+            "Invalid sample file '{0}': invalid SampleName '{1}'. The value must be a valid C# identifier.",
+            item.EvaluatedIncludeEscaped,
+            sampleName
+        );
+
+    public static void LogResolveRegistryEntryMissingCommonPrefix(
+        TaskLoggingHelper log,
+        string registryNamespace,
+        string sampleName,
+        IEnumerable<string> sampleFiles
+    ) =>
+        log.LogError(
+            "Can't resolve registry '{0}' sample '{1}': the sample files [{2}] don't have a common prefix.",
+            registryNamespace,
+            sampleName,
+            string.Join(", ", sampleFiles.Select(static path => $"'{path}'"))
+        );
+
+    public static void LogResolveRegistryEntryInconsistentMetadata(
+        TaskLoggingHelper log,
+        string registryNamespace,
+        string sampleName,
+        string metadataKey,
+        IEnumerable<string> values
+    ) =>
+        log.LogError(
+            "Can't resolve registry '{0}' sample '{1}': inconsistent {2} values [{3}] were resolved for the same registry entry.",
+            registryNamespace,
+            sampleName,
+            metadataKey,
+            string.Join(", ", values.Select(static value => $"'{value}'"))
+        );
+
+    public static void LogResolveRegistryEntryDuplicateValue(
+        TaskLoggingHelper log,
+        string metadataKey,
+        string value,
+        (string Registry, string Entry) first,
+        (string Registry, string Entry) second
+    ) =>
+        log.LogError(
+            "Can't resolve registry '{0}' sample '{1}': {2} '{3}' is already used by registry '{4}' sample '{5}'.",
+            second.Registry,
+            second.Entry,
+            metadataKey,
+            value,
+            first.Registry,
+            first.Entry
+        );
+
     public static void LogUnexpectedLayoutWarning(TaskLoggingHelper log, string path)
         => log.LogWarning(
             $"Can't resolve metadata of '{path}': it's not inside a 'Samples' directory. "

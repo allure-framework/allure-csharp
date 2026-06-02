@@ -40,6 +40,10 @@
         TaskName="Allure.Build.Tasks.FillSampleMetadata"
         AssemblyFile="$(_Allure_BuildTaskPath)"/>
 
+    <UsingTask
+        TaskName="Allure.Build.Tasks.ResolveRegistryEntries"
+        AssemblyFile="$(_Allure_BuildTaskPath)"/>
+
     <PropertyGroup>
 
         <!-- The Configuration property is unset in Directory.Build.props.
@@ -104,23 +108,39 @@
 
     </Target>
 
+    <Target
+        Name="_Allure_ResolveSampleRegistryEntries"
+        Condition=" '@(AllureSample)' != '' "
+        DependsOnTargets="_Allure_ResolveTestSamples">
+
+        <Allure.Build.Tasks.ResolveRegistryEntries
+            SampleFiles="@(_Allure_ResolvedSample)">
+
+            <Output TaskParameter="Entries" ItemName="_Allure_SampleRegistryEntry" />
+
+        </Allure.Build.Tasks.ResolveRegistryEntries>
+
+    </Target>
+
     <Target Name="_Allure_InjectSamplesToSourceGenerator"
             BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun"
             Condition=" '@(AllureSample)' != '' "
-            DependsOnTargets="_Allure_ResolveTestSamples">
+            DependsOnTargets="_Allure_ResolveSampleRegistryEntries">
 
-        <!-- At this point, all AllureSample items must be already defined.
-         We resolve the required proeprties (via FillSampleMetadata) and convert
-         them to AdditionalFiles items to make them visible to the source generators. -->
+        <!-- At this point, all AllureSample items must be already defined,
+         the required properties resolved (see FillSampleMetadata) and the corresponding
+         _Allure_SampleRegistryEntry items produced (see ResolveRegistryEntries).
+         Now, we convert them to AdditionalFiles items to make them visible to the
+         source generators. -->
         <ItemGroup>
 
             <AdditionalFiles
-                Include="@(_Allure_ResolvedSample)"
-                Allure_SampleName="%(_Allure_ResolvedSample.SampleName)"
-                Allure_RegistryNamespace="%(_Allure_ResolvedSample.RegistryNamespace)"
-                Allure_ProjectFilePath="%(_Allure_ResolvedSample.ProjectFilePath)"
-                Allure_ProjectRelativePath="%(_Allure_ResolvedSample.ProjectRelativePath)"
-                Allure_ResultsDirectory="%(_Allure_ResolvedSample.ResultsDirectory)" />
+                Include="@(_Allure_SampleRegistryEntry)"
+                Allure_RegistryNamespace="%(_Allure_SampleRegistryEntry.RegistryNamespace)"
+                Allure_SampleName="%(_Allure_SampleRegistryEntry.SampleName)"
+                Allure_ProjectFilePath="%(_Allure_SampleRegistryEntry.ProjectFilePath)"
+                Allure_ProjectRelativePath="%(_Allure_SampleRegistryEntry.ProjectRelativePath)"
+                Allure_ResultsDirectory="%(_Allure_SampleRegistryEntry.ResultsDirectory)" />
 
         </ItemGroup>
 
