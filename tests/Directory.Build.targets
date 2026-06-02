@@ -190,7 +190,7 @@
     <Target Name="Allure_GenerateTestSamples"
             AfterTargets="CopyFilesToOutputDirectory"
             Condition=" '@(AllureSample)' != '' "
-            DependsOnTargets="_Allure_CompileBuildTasks;_Allure_ResolveTestSamples">
+            DependsOnTargets="_Allure_CompileBuildTasks;_Allure_ResolveTestTarget;_Allure_ResolveTestSamples">
 
         <MakeDir Directories="$(Allure_LocalNugetRepository)" />
 
