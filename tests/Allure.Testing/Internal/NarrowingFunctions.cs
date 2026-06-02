@@ -21,31 +21,31 @@ internal static class NarrowingFunctions
     public static AssertionContext<TItem> MapToSingle<TCollection, TItem>(
         AssertionContext<TCollection> context
     )
-        where TCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItem>
 
         =>
-            context.Map(c => c switch
-        {
-            [var single] => single,
-            [] => throw new InvalidOperationException("nothing was found"),
-            not null => throw new InvalidOperationException($"{c.Count} were received"),
-            null => throw new InvalidOperationException("the collection was null"),
-        });
+            context.Map(c => c?.ToList() switch
+            {
+                [var single] => single,
+                [] => throw new InvalidOperationException("nothing was found"),
+                { } list => throw new InvalidOperationException($"{list.Count} were received"),
+                null => throw new InvalidOperationException("the collection was null"),
+            });
 
     public static AssertionContext<TItem> MapByIndex<TCollection, TItem>(
         AssertionContext<TCollection> context,
         string itemDescription,
         int index
     )
-        where TCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItem>
 
         =>
-            context.Map(c => c switch
+            context.Map(c => c?.ToList() switch
             {
                 null => throw new InvalidOperationException("the collection was null"),
-                { Count: var count } =>
+                { Count: var count } list =>
                     count > index
-                        ? c[index]
+                        ? list[index]
                         : throw new InvalidOperationException(
                             $"the collection has only {count} {itemDescription}s"),
             });
@@ -57,7 +57,7 @@ internal static class NarrowingFunctions
         string itemDescription,
         State<TItem> state
     )
-        where TCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItem>
 
          =>
             context.Map(GetMapper<TCollection, TItem>(criteria, itemDescription, state));
@@ -67,7 +67,7 @@ internal static class NarrowingFunctions
         string itemDescription,
         State<TItem> state
     )
-        where TCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItem>
 
         =>
             async (coll) => await MapToSingleItemAsync(coll, criteria, itemDescription, state);
@@ -99,7 +99,7 @@ internal static class NarrowingFunctions
                 : $"exactly one {itemDescription} matching the provided criteria";
 
     static async Task<T> MapToSingleItemAsync<T>(
-        IReadOnlyList<T>? sequence,
+        IEnumerable<T>? sequence,
         Func<IAssertionSource<T>, IAssertion?> criteria,
         string itemDescription,
         State<T> state

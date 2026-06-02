@@ -17,8 +17,8 @@ public class NarrowCollectionToCollectionByIndexAssertion<TCollection, TItemColl
             itemDescription,
             index))
 
-    where TCollection : IReadOnlyList<TItemCollection>
-    where TItemCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItemCollection>
+    where TItemCollection : IEnumerable<TItem>
 
 {
     protected override async Task<AssertionResult> CheckAsync(

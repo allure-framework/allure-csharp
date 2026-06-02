@@ -14,8 +14,8 @@ public class NarrowCollectionToCollectionAssertion<TCollection, TItemCollection,
         NarrowingFunctions.MapToSingle<TCollection, TItemCollection>(context)
     )
 
-    where TCollection : IReadOnlyList<TItemCollection>
-    where TItemCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItemCollection>
+    where TItemCollection : IEnumerable<TItem>
 
 {
     protected override async Task<AssertionResult> CheckAsync(

@@ -14,7 +14,7 @@ public class HasOneComparableItemAssertion<TCollection, TItem>(
 ) :
     Assertion<TCollection>(context)
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly IEqualityComparer<TItem> comparer = comparer;
 
@@ -28,16 +28,19 @@ public class HasOneComparableItemAssertion<TCollection, TItem>(
             { Exception.Message: var message } =>
                 await Task.FromResult(AssertionResult.Failed(message)),
 
-            { Value.Count: 0 } =>
-                AssertionResult.Failed("the collection was empty"),
+            { Value: { } collection } => collection.ToList() switch
+            {
+                { Count: 0 } =>
+                    AssertionResult.Failed("the collection was empty"),
 
-            { Value: { } items } =>
-                items.Count(item => comparer.Equals(item, other)) switch
-                {
-                    0 => AssertionResult.Failed("nothing was found"),
-                    1 => AssertionResult.Passed,
-                    var matchCount => AssertionResult.Failed($"{matchCount} {itemDescription}s were found"),
-                },
+                var list =>
+                    list.Count(item => comparer.Equals(item, other)) switch
+                    {
+                        0 => AssertionResult.Failed("nothing was found"),
+                        1 => AssertionResult.Passed,
+                        var matchCount => AssertionResult.Failed($"{matchCount} {itemDescription}s were found"),
+                    },
+            },
 
             _ => await Task.FromResult(AssertionResult.Failed("the collection was null")),
         };

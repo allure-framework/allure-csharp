@@ -14,7 +14,7 @@ public class HasNoItemByCriteriaAssertion<TCollection, TItem>(
 ) :
     Assertion<TCollection>(context)
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly Func<IAssertionSource<TItem>, IAssertion> criteria = criteria;
 
@@ -42,12 +42,15 @@ public class HasNoItemByCriteriaAssertion<TCollection, TItem>(
             _ => await Task.FromResult(AssertionResult.Failed("the collection was null")),
         };
 
-    async Task<List<int>> ApplyCriteriaAsync(TCollection items)
+    async Task<List<int>> ApplyCriteriaAsync(IEnumerable<TItem> items)
     {
+        int i = -1;
         List<int> matches = [];
-        for (int i = 0; i < items.Count; i++)
+
+        foreach (var item in items)
         {
-            var item = items[i];
+            i++;
+
             var result = await AssertionFunctions.ExecuteInlineAssertionAsync(
                 item,
                 $"{this.itemDescription}s[{i}]",

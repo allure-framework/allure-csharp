@@ -689,6 +689,361 @@ public static partial class AllureAssertionExtensions
         }
     }
 
+    extension<TItem> (IAssertionSource<IList<TItem>> source)
+    {
+        /// <summary>
+        /// Checks if the collection contains the exact number of items and each item satisfies the corresponding
+        /// constraints.
+        /// </summary>
+        /// <remarks>
+        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+        /// </remarks>
+        public CollectionItemConstraintsAssertion<IList<TItem>, TItem> HasItems(
+            Func<IAssertionSource<TItem>, IAssertion?>?[] constraints,
+            [CallerArgumentExpression(nameof(constraints))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasItems)}({expression ?? "..."})");
+
+            return new(ctx, constraints, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains exactly one item that matches the provided criteria.
+        /// </summary>
+        public HasOneItemByCriteriaAssertion<IList<TItem>, TItem> HasOnlyOneItem(
+            Func<IAssertionSource<TItem>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasOnlyOneItem)}({expression ?? "..."})");
+
+            return new(ctx, criteria, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains exactly one provided item.
+        /// </summary>
+        public HasOneComparableItemAssertion<IList<TItem>, TItem> HasOnlyOneItem(
+            TItem expectedItem,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasOnlyOneItem)}({expression ?? "..."})");
+
+            return new(ctx, expectedItem, EqualityComparer<TItem>.Default, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains exactly one provided item.
+        /// </summary>
+        public HasOneComparableItemAssertion<IList<TItem>, TItem> HasOnlyOneItem(
+            TItem expectedItem,
+            IEqualityComparer<TItem> comparer,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expectedItemExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append(
+                $".{nameof(HasOnlyOneItem)}({expectedItemExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(ctx, expectedItem, comparer, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains exactly one provided item.
+        /// </summary>
+        public HasOneEquatableItemAssertion<IList<TItem>, TItem> HasOnlyOneItem(
+            IEquatable<TItem> expectedItem,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasOnlyOneItem)}({expression ?? "..."})");
+
+            return new(ctx, expectedItem, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains at least one item that matches the provided criteria.
+        /// </summary>
+        public HasItemByCriteriaAssertion<IList<TItem>, TItem> HasItem(
+            Func<IAssertionSource<TItem>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasItem)}({expression ?? "..."})");
+
+            return new(ctx, criteria, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains at least one provided item.
+        /// </summary>
+        public HasComparableItemAssertion<IList<TItem>, TItem> HasItem(
+            TItem expectedItem,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasItem)}({expression ?? "..."})");
+
+            return new(ctx, expectedItem, EqualityComparer<TItem>.Default, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains at least one provided item.
+        /// </summary>
+        public HasComparableItemAssertion<IList<TItem>, TItem> HasItem(
+            TItem expectedItem,
+            IEqualityComparer<TItem> comparer,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expectedItemExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append(
+                $".{nameof(HasItem)}({expectedItemExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(ctx, expectedItem, comparer, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains at least one provided item.
+        /// </summary>
+        public HasEquatableItemAssertion<IList<TItem>, TItem> HasItem(
+            IEquatable<TItem> expectedItem,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasItem)}({expression ?? "..."})");
+
+            return new(ctx, expectedItem, "item");
+        }
+
+        /// <summary>
+        /// Passes if the collection does not contain an item that matches the provided criteria.
+        /// </summary>
+        public HasNoItemByCriteriaAssertion<IList<TItem>, TItem> HasNoItem(
+            Func<IAssertionSource<TItem>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasNoItem)}({expression ?? "..."})");
+
+            return new(ctx, criteria, "item");
+        }
+
+        /// <summary>
+        /// Passes if the collection does not contain the provided item.
+        /// </summary>
+        public HasNoComparableItemAssertion<IList<TItem>, TItem> HasNoItem(
+            TItem expectedItem,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasNoItem)}({expression ?? "..."})");
+
+            return new(ctx, expectedItem, EqualityComparer<TItem>.Default, "item");
+        }
+
+        /// <summary>
+        /// Passes if the collection does not contain the provided item.
+        /// </summary>
+        public HasNoComparableItemAssertion<IList<TItem>, TItem> HasNoItem(
+            TItem expectedItem,
+            IEqualityComparer<TItem> comparer,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expectedItemExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append(
+                $".{nameof(HasNoItem)}({expectedItemExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(ctx, expectedItem, comparer, "item");
+        }
+
+        /// <summary>
+        /// Passes if the collection does not contain the provided item.
+        /// </summary>
+        public HasNoEquatableItemAssertion<IList<TItem>, TItem> HasNoItem(
+            IEquatable<TItem> expectedItem,
+            [CallerArgumentExpression(nameof(expectedItem))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasNoItem)}({expression ?? "..."})");
+
+            return new(ctx, expectedItem, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains exactly one item that matches the provided criteria
+        /// and narrows the assertion chain to that result.
+        /// </summary>
+        public NarrowCollectionByCriteriaAssertion<IList<TItem>, TItem> HasSingleItem(
+            Func<IAssertionSource<TItem>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleItem)}({expression ?? "..."})");
+
+            return new(source.Context, criteria, "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains enough items and narrows the assertion chain to the result at
+        /// the specified index.
+        /// </summary>
+        public NarrowCollectionByIndexAssertion<IList<TItem>, TItem> HasItemAt(
+            int index,
+            [CallerArgumentExpression(nameof(index))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasItemAt)}({expression ?? "..."})");
+
+            return new(source.Context, index, "item");
+        }
+    }
+
+    extension<TCollection, TItem> (IAssertionSource<IList<TItem>> source)
+        where TItem: IAllureModelObject<TItem>, IAllureNameProperty<TItem>
+    {
+        /// <summary>
+        /// Checks if the collection contains exactly one object with the provided name.
+        /// </summary>
+        public HasOneItemByCriteriaAssertion<IList<TItem>, TItem> HasOnlyOneItem(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasOnlyOneItem)}({expression ?? "..."})");
+
+            return new(ctx, obj => obj.HasName(name), "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains exactly one object with the provided name.
+        /// </summary>
+        public HasOneItemByCriteriaAssertion<IList<TItem>, TItem> HasOnlyOneItem(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append(
+                $".{nameof(HasOnlyOneItem)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(ctx, obj => obj.HasName(name, comparer), "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains at least one object with the provided name.
+        /// </summary>
+        public HasItemByCriteriaAssertion<IList<TItem>, TItem> HasItem(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasItem)}({expression ?? "..."})");
+
+            return new(ctx, obj => obj.HasName(name), "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains at least one object with the provided name.
+        /// </summary>
+        public HasItemByCriteriaAssertion<IList<TItem>, TItem> HasItem(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append(
+                $".{nameof(HasItem)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(ctx, obj => obj.HasName(name, comparer), "item");
+        }
+
+        /// <summary>
+        /// Passes if the collection does not contain an object with the provided name.
+        /// </summary>
+        public HasNoItemByCriteriaAssertion<IList<TItem>, TItem> HasNoItem(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append($".{nameof(HasNoItem)}({expression ?? "..."})");
+
+            return new(ctx, obj => obj.HasName(name), "item");
+        }
+
+        /// <summary>
+        /// Passes if the collection does not contain an object with the provided name.
+        /// </summary>
+        public HasNoItemByCriteriaAssertion<IList<TItem>, TItem> HasNoItem(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            var ctx = source.Context;
+            ctx.ExpressionBuilder.Append(
+                $".{nameof(HasNoItem)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(ctx, obj => obj.HasName(name, comparer), "item");
+        }
+
+
+        /// <summary>
+        /// Checks if the collection contains exactly one item with the provided name
+        /// and narrows the assertion chain to that result.
+        /// </summary>
+        public NarrowCollectionByCriteriaAssertion<IList<TItem>, TItem> HasSingleItem(
+            string name,
+            [CallerArgumentExpression(nameof(name))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleItem)}({expression ?? "..."})");
+
+            return new(source.Context, (tr) => tr.HasName(name), "item");
+        }
+
+        /// <summary>
+        /// Checks if the collection contains exactly one item with the provided name
+        /// and narrows the assertion chain to that result.
+        /// </summary>
+        public NarrowCollectionByCriteriaAssertion<IList<TItem>, TItem> HasSingleItem(
+            string name,
+            IEqualityComparer<string> comparer,
+            [CallerArgumentExpression(nameof(name))] string? nameExpression = null,
+            [CallerArgumentExpression(nameof(comparer))] string? comparerExpression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append(
+                $".{nameof(HasSingleItem)}({nameExpression ?? "..."}, {comparerExpression ?? "..."})");
+
+            return new(source.Context, (tr) => tr.HasName(name, comparer), "item");
+        }
+    }
+
     extension<TObject, TProperty, TValue> (NarrowToJsonPropertyAssertion<TObject, TProperty, TValue> source)
         where TObject : IAllureModelObject<TObject>, TProperty
         where TProperty: IAllureProperty<TValue, TObject>
@@ -715,7 +1070,7 @@ public static partial class AllureAssertionExtensions
     extension<TObject, TProperty, TValue, TItem> (NarrowToJsonCollectionPropertyAssertion<TObject, TProperty, TValue, TItem> source)
         where TObject : IAllureModelObject<TObject>, TProperty
         where TProperty: IAllureProperty<TValue, TObject>
-        where TValue : IReadOnlyList<TItem>
+        where TValue : IEnumerable<TItem>
     {
         /// <summary>
         /// A readability alias for <see cref="CollectionAssertionBase{TValue, TItem}.And"/>.
@@ -740,7 +1095,7 @@ public static partial class AllureAssertionExtensions
     }
 
     extension<TCollection, TItem> (NarrowCollectionAssertion<TCollection, TItem> source)
-        where TCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItem>
     {
         /// <summary>
         /// A readability alias for <see cref="Assertion{TItem}.And"/>.
@@ -766,8 +1121,8 @@ public static partial class AllureAssertionExtensions
     extension<TCollection, TItemCollection, TItem> (
         NarrowCollectionToCollectionAssertion<TCollection, TItemCollection, TItem> source)
 
-        where TCollection : IReadOnlyList<TItemCollection>
-        where TItemCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItemCollection>
+        where TItemCollection : IEnumerable<TItem>
     {
         /// <summary>
         /// A readability alias for <see cref="CollectionAssertionBase{TItemCollection, TItem}.And"/>.
@@ -792,7 +1147,7 @@ public static partial class AllureAssertionExtensions
     }
 
     extension<TCollection, TItem> (NarrowCollectionByCriteriaAssertion<TCollection, TItem> source)
-        where TCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItem>
     {
         /// <summary>
         /// A readability alias for <see cref="Assertion{TItem}.And"/>.
@@ -818,8 +1173,8 @@ public static partial class AllureAssertionExtensions
     extension<TCollection, TItemCollection, TItem> (
         NarrowCollectionToCollectionByCriteriaAssertion<TCollection, TItemCollection, TItem> source)
 
-        where TCollection : IReadOnlyList<TItemCollection>
-        where TItemCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItemCollection>
+        where TItemCollection : IEnumerable<TItem>
     {
         /// <summary>
         /// A readability alias for <see cref="CollectionAssertionBase{TItemCollection, TItem}.And"/>.
@@ -844,7 +1199,7 @@ public static partial class AllureAssertionExtensions
     }
 
     extension<TCollection, TItem> (NarrowCollectionByIndexAssertion<TCollection, TItem> source)
-        where TCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItem>
     {
         /// <summary>
         /// A readability alias for <see cref="Assertion{TItem}.And"/>.
@@ -870,8 +1225,8 @@ public static partial class AllureAssertionExtensions
     extension<TCollection, TItemCollection, TItem> (
         NarrowCollectionToCollectionByIndexAssertion<TCollection, TItemCollection, TItem> source)
 
-        where TCollection : IReadOnlyList<TItemCollection>
-        where TItemCollection : IReadOnlyList<TItem>
+        where TCollection : IEnumerable<TItemCollection>
+        where TItemCollection : IEnumerable<TItem>
     {
         /// <summary>
         /// A readability alias for <see cref="CollectionAssertionBase{TItemCollection, TItem}.And"/>.

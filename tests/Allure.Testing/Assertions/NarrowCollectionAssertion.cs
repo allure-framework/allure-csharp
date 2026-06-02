@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Allure.Testing.Internal;
@@ -14,7 +13,7 @@ public class NarrowCollectionAssertion<TCollection, TItem>(
         NarrowingFunctions.MapToSingle<TCollection, TItem>(context)
     )
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 
 {
     protected override async Task<AssertionResult> CheckAsync(

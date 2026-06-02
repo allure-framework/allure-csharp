@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TUnit.Assertions.Core;
 using Allure.Testing.Internal;
+using System.Linq;
 
 namespace Allure.Testing.Assertions;
 
@@ -13,7 +14,7 @@ public class HasItemByCriteriaAssertion<TCollection, TItem>(
 ) :
     Assertion<TCollection>(context)
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly Func<IAssertionSource<TItem>, IAssertion> criteria = criteria;
 
@@ -29,22 +30,25 @@ public class HasItemByCriteriaAssertion<TCollection, TItem>(
             { Exception.Message: var message } =>
                 await Task.FromResult(AssertionResult.Failed(message)),
 
-            { Value.Count: 0 } =>
-                AssertionResult.Failed("the collection was empty"),
+            { Value: { } collection } => collection.ToList() switch
+            {
+                { Count: 0 } =>
+                    AssertionResult.Failed("the collection was empty"),
 
-            { Value: { } items } =>
-                await this.ApplyCriteriaAsync(items) switch
-                {
-                    (0, var errors) => AssertionResult.Failed(
-                        $"no {itemDescription} matched the criteria:{Environment.NewLine}"
-                            + NarrowingFunctions.FormatMismatches(itemDescription, errors)),
-                    _ => AssertionResult.Passed,
-                },
+                var list =>
+                    await this.ApplyCriteriaAsync(list) switch
+                    {
+                        (0, var errors) => AssertionResult.Failed(
+                            $"no {itemDescription} matched the criteria:{Environment.NewLine}"
+                                + NarrowingFunctions.FormatMismatches(itemDescription, errors)),
+                        _ => AssertionResult.Passed,
+                    },
+            },
 
             _ => await Task.FromResult(AssertionResult.Failed("the collection was null")),
         };
 
-    async Task<(int, List<NarrowingFunctions.CriteriaMatchFailure>)> ApplyCriteriaAsync(TCollection items)
+    async Task<(int, List<NarrowingFunctions.CriteriaMatchFailure>)> ApplyCriteriaAsync(List<TItem> items)
     {
         int matches = 0;
         List<NarrowingFunctions.CriteriaMatchFailure> errors = [];

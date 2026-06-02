@@ -16,7 +16,7 @@ public class NarrowToJsonCollectionPropertyAssertion<TObject, TProperty, TValue,
 
     where TObject : IAllureModelObject<TObject>, TProperty
     where TProperty : IAllureProperty<TValue, TObject>
-    where TValue : IReadOnlyList<TItem>
+    where TValue : IEnumerable<TItem>
 {
     protected override async Task<AssertionResult> CheckAsync(
         EvaluationMetadata<TValue> metadata

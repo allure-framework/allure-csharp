@@ -13,7 +13,7 @@ public class HasEquatableItemAssertion<TCollection, TItem>(
 ) :
     Assertion<TCollection>(context)
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly IEquatable<TItem>? other = other;
 
@@ -27,15 +27,18 @@ public class HasEquatableItemAssertion<TCollection, TItem>(
             { Exception.Message: var message } =>
                 await Task.FromResult(AssertionResult.Failed(message)),
 
-            { Value.Count: 0 } =>
-                AssertionResult.Failed("the collection was empty"),
+            { Value: { } collection } => collection.ToList() switch
+            {
+                { Count: 0 } =>
+                    AssertionResult.Failed("the collection was empty"),
 
-            { Value: { } items } =>
-                items.Count(item => other?.Equals(item) ?? item is null) switch
-                {
-                    0 => AssertionResult.Failed("nothing was found"),
-                    _ => AssertionResult.Passed,
-                },
+                var list =>
+                    list.Count(item => other?.Equals(item) ?? item is null) switch
+                    {
+                        0 => AssertionResult.Failed("nothing was found"),
+                        _ => AssertionResult.Passed,
+                    },
+            },
 
             _ => await Task.FromResult(AssertionResult.Failed("the collection was null")),
         };

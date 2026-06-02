@@ -10,8 +10,8 @@ namespace Allure.Testing.Assertions;
 public class NarrowCollectionToCollectionByCriteriaAssertion<TCollection, TItemCollection, TItem>
     : CollectionAssertionBase<TItemCollection, TItem>
 
-    where TCollection : IReadOnlyList<TItemCollection>
-    where TItemCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItemCollection>
+    where TItemCollection : IEnumerable<TItem>
 {
     readonly string itemDescription;
     readonly NarrowingFunctions.State<TItemCollection> state;

@@ -14,7 +14,7 @@ public class HasNoComparableItemAssertion<TCollection, TItem>(
 ) :
     Assertion<TCollection>(context)
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly IEqualityComparer<TItem> comparer = comparer;
 

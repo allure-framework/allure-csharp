@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Allure.Testing.Internal;
 using TUnit.Assertions.Core;
@@ -13,7 +14,7 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
 ) :
     Assertion<TCollection>(context)
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly Func<IAssertionSource<TItem>, IAssertion?>?[] itemConstraints = itemConstraints;
     readonly string itemDescription = itemDescription;
@@ -47,9 +48,10 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
                 : $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} at {index} satisfying the corresponding constraints"
             : $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} each satisfying the corresponding constraints";
 
-    async Task<AssertionResult> ApplyItemConstraints(IReadOnlyList<TItem> items)
+    async Task<AssertionResult> ApplyItemConstraints(IEnumerable<TItem> items)
     {
-        var actualCount = items.Count;
+        var list = items.ToList();
+        var actualCount = list.Count;
 
         if (actualCount != this.ExpectedCount)
         {
@@ -60,7 +62,7 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
 
         for (var i = 0; i < actualCount; i++)
         {
-            var item = items[i];
+            var item = list[i];
             var constraint = this.itemConstraints[i];
 
             var result = constraint is not null

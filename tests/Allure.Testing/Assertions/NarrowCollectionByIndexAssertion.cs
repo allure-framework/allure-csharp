@@ -12,17 +12,17 @@ public class NarrowCollectionByIndexAssertion<TCollection, TItem>(
     int index,
     string itemDescription
 ) :
-    Assertion<TItem>(context.Map(c => c switch
+    Assertion<TItem>(context.Map(c => c?.ToList() switch
     {
         null => throw new InvalidOperationException("the collection was null"),
-        { Count: var count } =>
+        { Count: var count } list =>
             count > index
-                ? c[index]
+                ? list[index]
                 : throw new InvalidOperationException(
                     $"the collection has only {count} {itemDescription}s"),
     }))
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 
 {
     protected override async Task<AssertionResult> CheckAsync(

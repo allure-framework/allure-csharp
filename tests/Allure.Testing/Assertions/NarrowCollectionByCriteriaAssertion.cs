@@ -7,7 +7,7 @@ using TUnit.Assertions.Core;
 namespace Allure.Testing.Assertions;
 
 public class NarrowCollectionByCriteriaAssertion<TCollection, TItem> : Assertion<TItem>
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly string itemDescription;
     readonly NarrowingFunctions.State<TItem> state;

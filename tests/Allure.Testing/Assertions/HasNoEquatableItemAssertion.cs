@@ -13,7 +13,7 @@ public class HasNoEquatableItemAssertion<TCollection, TItem>(
 ) :
     Assertion<TCollection>(context)
 
-    where TCollection : IReadOnlyList<TItem>
+    where TCollection : IEnumerable<TItem>
 {
     readonly IEquatable<TItem>? other = other;
 
