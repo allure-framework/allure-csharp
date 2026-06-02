@@ -12,6 +12,10 @@ namespace Allure.Build.Tasks;
 
 public class GenerateSampleSolution : Task
 {
+    static readonly StringComparer fsComparer = OperatingSystem.IsWindows()
+        ? StringComparer.OrdinalIgnoreCase
+        : StringComparer.Ordinal;
+
     [Required]
     public ITaskItem[] SampleSources { get; set; }
 
@@ -81,16 +85,51 @@ public class GenerateSampleSolution : Task
 
     void CommitSampleFiles(IEnumerable<FileSource> sources)
     {
-        var summary = WriteSampleFiles(sources);
-        Logging.LogCommitSummary(this.Log, this.SampleSolutionName, summary);
+        var existingFiles = this.CollectExistingFiles();
+        var (isNew, updated, relevantFiles) = this.WriteSampleFiles(sources);
+        int removed = this.RemoveStaleFiles(existing: existingFiles, relevant: relevantFiles);
+        Logging.LogCommitSummary(this.Log, this.SampleSolutionName, (isNew, updated, removed));
     }
 
-    (bool, int) WriteSampleFiles(IEnumerable<FileSource> sources)
+    ImmutableHashSet<string> CollectExistingFiles() =>
+        Directory.Exists(this.SampleSolutionDir)
+            ? Directory.EnumerateFiles(
+                this.SampleSolutionDir,
+                "*",
+                SearchOption.AllDirectories)
+                .ToImmutableHashSet(fsComparer)
+            : [];
+
+    int RemoveStaleFiles(ImmutableHashSet<string> existing, ImmutableHashSet<string> relevant)
     {
+        int removed = 0;
+        foreach (var file in existing.Except(relevant))
+        {
+            try
+            {
+                File.Delete(file);
+                Logging.LogStaleDeletion(this.Log, file);
+                removed++;
+            }
+            catch (Exception e)
+            {
+                Logging.LogStaleDeletionFailedWarning(this.Log, file, e);
+            }
+        }
+        return removed;
+    }
+
+    (bool, int, ImmutableHashSet<string>) WriteSampleFiles(IEnumerable<FileSource> sources)
+    {
+        var files = ImmutableHashSet.CreateBuilder(fsComparer);
+
         bool isNew = true;
         int updatedFilesCount = 0;
         foreach (var source in sources)
         {
+            var fullName = source.Destination.FullName;
+            files.Add(fullName);
+
             if (source.Destination.Exists)
             {
                 isNew = false;
@@ -107,7 +146,7 @@ public class GenerateSampleSolution : Task
                 source.ShowUnchanged(this.Log);
             }
         }
-        return (isNew, updatedFilesCount);
+        return (isNew, updatedFilesCount, files.ToImmutable());
     }
 
     static XDocument CreateSlnxXml(List<(string, List<FileSource>)> projects) => new(

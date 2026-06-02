@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -91,6 +92,12 @@ public static class Logging
             $"Can't resolve metadata of '{path}': it's not inside a 'Samples' directory. "
                 + "Please, fill at least the following metadata: SampleName, "
                 + "RegistryNamespace, and ProjectName.");
+
+    public static void LogStaleDeletionFailedWarning(TaskLoggingHelper log, string path, Exception error)
+        => log.LogWarning($"Couldn't delete a stale file '{path}': {error.Message}.");
+
+    public static void LogStaleDeletion(TaskLoggingHelper log, string path)
+        => log.LogMessage($"Deleted a stale file '{path}'.");
 
     public static void LogFileOutsideProjectWarning(
         TaskLoggingHelper log,
@@ -200,11 +207,10 @@ public static class Logging
     public static void LogCommitSummary(
         TaskLoggingHelper log,
         string sampleSolutionName,
-        (bool, int) summaryData
+        (bool IsNew, int Updated, int Removed) summary
     )
     {
-        var (isNew, updatedFilesCount) = summaryData;
-        if (updatedFilesCount == 0)
+        if (summary.Updated == 0)
         {
             log.LogMessage(
                 MessageImportance.High,
@@ -212,7 +218,7 @@ public static class Logging
                 sampleSolutionName
             );
         }
-        else if (isNew)
+        else if (summary.IsNew)
         {
             log.LogMessage(
                 MessageImportance.High,
@@ -225,8 +231,17 @@ public static class Logging
             log.LogMessage(
                 MessageImportance.High,
                 "{0} files of {1} were updated",
-                updatedFilesCount,
+                summary.Updated,
                 sampleSolutionName
+            );
+        }
+
+        if (summary.Removed > 0)
+        {
+            log.LogMessage(
+                MessageImportance.High,
+                "{0} stale files were deleted",
+                summary.Removed
             );
         }
     }
