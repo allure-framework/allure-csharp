@@ -129,7 +129,7 @@ public class FillSampleMetadata : Task
                 this.ObjDirectory,
                 sample.GetMetadataValueEscaped("ProjectName")
             );
-            sample.SetMetadataValueLiteral("ProjectBinPath", path);
+            sample.SetMetadataValueLiteral("ProjectObjPath", path);
         }
     }
 
