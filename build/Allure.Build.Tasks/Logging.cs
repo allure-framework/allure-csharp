@@ -68,7 +68,8 @@ public static class Logging
     ) =>
         log.LogWarning(
             "Ignoring '{0}': no {1} defined on the item.",
-            item.EvaluatedIncludeEscaped
+            item.EvaluatedIncludeEscaped,
+            metadataKey
         );
 
     public static void LogInvalidSampleNameWarning(
