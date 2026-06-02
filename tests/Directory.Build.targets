@@ -293,6 +293,38 @@
 
         <RemoveDir Directories="@(_Allure_FilteredSampleProjectOutputDirectory)" />
         <RemoveDir Directories="$(Allure_SampleSolutionDir)" />
+
+
+        <ItemGroup>
+            <_Allure_SampleProjectOutputDirectoryStale
+                Include="$(
+                    [System.IO.Directory]::GetDirectories(
+                        '$(_Allure_BinDirectory)',
+                        '$(Allure_SampleSolutionName).*'
+                    )
+                )"
+                Condition="Exists('$(_Allure_BinDirectory)')" />
+            <_Allure_SampleProjectOutputDirectoryStale
+                Include="$(
+                    [System.IO.Directory]::GetDirectories(
+                        '$(_Allure_ObjDirectory)',
+                        '$(Allure_SampleSolutionName).*'
+                    )
+                )"
+                Condition="Exists('$(_Allure_ObjDirectory)')" />
+        </ItemGroup>
+
+        <RemoveDuplicates Inputs="@(_Allure_SampleProjectOutputDirectoryStale)">
+            <Output TaskParameter="Filtered" ItemName="_Allure_FilteredSampleProjectOutputDirectoryStale" />
+        </RemoveDuplicates>
+
+        <Message
+            Text="Removing @(_Allure_FilteredSampleProjectOutputDirectoryStale->Count()) stale intermediate and output directories of deleted samples"
+            Importance="high"
+            Condition=" '@(_Allure_FilteredSampleProjectOutputDirectoryStale)' != '' " />
+
+        <RemoveDir Directories="@(_Allure_FilteredSampleProjectOutputDirectoryStale)" />
+
     </Target>
 
 </Project>
