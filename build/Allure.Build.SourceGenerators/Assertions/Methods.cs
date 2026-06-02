@@ -747,7 +747,7 @@ public static class Methods
                 /// each {{property.ItemName}} satisfies the corresponding constraint.
                 /// </summary>
                 /// <remarks>
-                /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+                /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
                 /// </remarks>
                 public {{Types.JsonPropertyCriteriaAssertion("TObject", property)}} {{methodName}}(
                     {{Types.OptionalScalarConstraint(property.ItemType)}}[] constraints,

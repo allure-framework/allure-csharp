@@ -21,7 +21,7 @@ public static partial class AllureAssertionExtensions
         /// constraints.
         /// </summary>
         /// <remarks>
-        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+        /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
         /// </remarks>
         public MemberAssertionResult<AllureResults> HasTestResults(
             Func<IAssertionSource<AllureTestResult>, IAssertion?>?[] constraints,
@@ -357,7 +357,7 @@ public static partial class AllureAssertionExtensions
         /// the corresponding constraints.
         /// </summary>
         /// <remarks>
-        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+        /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
         /// </remarks>
         public MemberAssertionResult<AllureResults> HasContainers(
             Func<IAssertionSource<AllureContainer>, IAssertion?>?[] constraints,
@@ -696,7 +696,7 @@ public static partial class AllureAssertionExtensions
         /// constraints.
         /// </summary>
         /// <remarks>
-        /// Pass <c>null</c> or a function returning <c>null</c> for a noop constraint.
+        /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
         /// </remarks>
         public CollectionItemConstraintsAssertion<IList<TItem>, TItem> HasItems(
             Func<IAssertionSource<TItem>, IAssertion?>?[] constraints,
@@ -724,7 +724,7 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the collection contains exactly one provided item.
+        /// Checks if the collection contains exactly one instance of the provided item.
         /// </summary>
         public HasOneComparableItemAssertion<IList<TItem>, TItem> HasOnlyOneItem(
             TItem expectedItem,
@@ -738,7 +738,7 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the collection contains exactly one provided item.
+        /// Checks if the collection contains exactly one instance of the provided item.
         /// </summary>
         public HasOneComparableItemAssertion<IList<TItem>, TItem> HasOnlyOneItem(
             TItem expectedItem,
@@ -755,7 +755,7 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the collection contains exactly one provided item.
+        /// Checks if the collection contains exactly one instance of the provided item.
         /// </summary>
         public HasOneEquatableItemAssertion<IList<TItem>, TItem> HasOnlyOneItem(
             IEquatable<TItem> expectedItem,
@@ -783,7 +783,7 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the collection contains at least one provided item.
+        /// Checks if the collection contains at least one instance of the provided item.
         /// </summary>
         public HasComparableItemAssertion<IList<TItem>, TItem> HasItem(
             TItem expectedItem,
@@ -797,7 +797,7 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the collection contains at least one provided item.
+        /// Checks if the collection contains at least one instance of the provided item.
         /// </summary>
         public HasComparableItemAssertion<IList<TItem>, TItem> HasItem(
             TItem expectedItem,
@@ -814,7 +814,7 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the collection contains at least one provided item.
+        /// Checks if the collection contains at least one instance of the provided item.
         /// </summary>
         public HasEquatableItemAssertion<IList<TItem>, TItem> HasItem(
             IEquatable<TItem> expectedItem,
@@ -888,7 +888,7 @@ public static partial class AllureAssertionExtensions
 
         /// <summary>
         /// Checks if the collection contains exactly one item that matches the provided criteria
-        /// and narrows the assertion chain to that result.
+        /// and narrows the assertion chain to that item.
         /// </summary>
         public NarrowCollectionByCriteriaAssertion<IList<TItem>, TItem> HasSingleItem(
             Func<IAssertionSource<TItem>, IAssertion> criteria,
@@ -901,7 +901,7 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the collection contains enough items and narrows the assertion chain to the result at
+        /// Checks if the collection contains enough items and narrows the assertion chain to the item at
         /// the specified index.
         /// </summary>
         public NarrowCollectionByIndexAssertion<IList<TItem>, TItem> HasItemAt(
@@ -1014,7 +1014,7 @@ public static partial class AllureAssertionExtensions
 
         /// <summary>
         /// Checks if the collection contains exactly one item with the provided name
-        /// and narrows the assertion chain to that result.
+        /// and narrows the assertion chain to that item.
         /// </summary>
         public NarrowCollectionByCriteriaAssertion<IList<TItem>, TItem> HasSingleItem(
             string name,
@@ -1028,7 +1028,7 @@ public static partial class AllureAssertionExtensions
 
         /// <summary>
         /// Checks if the collection contains exactly one item with the provided name
-        /// and narrows the assertion chain to that result.
+        /// and narrows the assertion chain to that item.
         /// </summary>
         public NarrowCollectionByCriteriaAssertion<IList<TItem>, TItem> HasSingleItem(
             string name,

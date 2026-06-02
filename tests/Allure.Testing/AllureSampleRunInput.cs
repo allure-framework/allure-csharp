@@ -10,14 +10,13 @@ public record class AllureSampleRunInput
 {
     /// <summary>
     /// An object that defines the content of <c>allureConfig.json</c>. Some supported values
-    /// of this parameter include <c>System.Text.Json.Nodes.JsonObject</c> instances, dictionaries,
-    /// and anonymous objects.
+    /// include <c>System.Text.Json.Nodes.JsonObject</c> instances, dictionaries, and anonymous objects.
     /// </summary>
     public object? AllureConfiguration { get; init; } = null;
 
     /// <summary>
-    /// The path to a directory used to write and read Allure results to/from. An absolute path
-    /// is recommended.
+    /// The path to a directory used to write results Allure results to and read them from.
+    /// An absolute path is recommended.
     /// </summary>
     public string? AllureResultsDirectory { get; init; } = null;
 
@@ -33,7 +32,7 @@ public record class AllureSampleRunInput
     public List<string> ProcessArguments { get; init; } = [];
 
     /// <summary>
-    /// A timeout of the sample run. Can be set via the <c>ALLURE_TEST_TIMEOUT</c> environment
+    /// A timeout for the sample run. Can be set via the <c>ALLURE_TEST_TIMEOUT</c> environment
     /// variable. The default is 30 seconds.
     /// </summary>
     public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(

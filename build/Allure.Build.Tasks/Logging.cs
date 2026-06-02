@@ -45,7 +45,7 @@ public static class Logging
         log.LogWarning("Ignoring '{0}': bad path.", item.EvaluatedIncludeEscaped);
 
     public static void LogFileNotExist(TaskLoggingHelper log, ITaskItem2 item) =>
-        log.LogWarning("Ignoring '{0}': thefile does not exist.", item.EvaluatedIncludeEscaped);
+        log.LogWarning("Ignoring '{0}': the file does not exist.", item.EvaluatedIncludeEscaped);
 
     public static void LogNoMetadata(
         TaskLoggingHelper log,

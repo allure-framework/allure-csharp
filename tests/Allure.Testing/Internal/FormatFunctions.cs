@@ -11,7 +11,7 @@ public static class FormatFunctions
         value?.ToString() is { } text ? FormatStringLiteral(text) : "<null>";
 
     /// <summary>
-    /// <see cref="https://github.com/dotnet/roslyn/blob/e3a102fb75ef112d064feebd2f9385385a445a06/src/Compilers/CSharp/Portable/SymbolDisplay/ObjectDisplay.cs#L212"/>
+    /// <see href="https://github.com/dotnet/roslyn/blob/e3a102fb75ef112d064feebd2f9385385a445a06/src/Compilers/CSharp/Portable/SymbolDisplay/ObjectDisplay.cs#L212"/>
     /// </summary>
     public static string FormatStringLiteral(string value)
     {
