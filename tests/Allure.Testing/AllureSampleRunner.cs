@@ -9,7 +9,10 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Allure.Testing.Assertions.Model;
 using Allure.Testing.Internal;
+using TUnit.Assertions.Core;
+using TUnit.Assertions.Exceptions;
 
 namespace Allure.Testing;
 
@@ -106,10 +109,11 @@ public class AllureSampleRunner
         if (!dInfo.Exists || !dInfo.EnumerateFiles().Any())
         {
             throw new FileNotFoundException(
-                $"Can't read Allure results of the '{sample.Id}' sample. Please, make sure "
-                    + $"the sample's been run and the results are available at '{path}'. "
-                    + "You can use the 'dotnet msbuild -t:Allure_RunTestSamples' command "
-                    + "to run all samples of the solution/project."
+                $"Can't read Allure results of '{sample.RegistryId}.{sample.SampleId}'. "
+                    + $"Please, make sure the sample's been run and the results are "
+                    + $"available at '{path}'. Run "
+                    + "'dotnet msbuild -t:Allure_RunTestSamples' to execute all the samples of "
+                    + "the solution/project."
             );
         }
         return dInfo;
@@ -209,7 +213,7 @@ public class AllureSampleRunner
         "dotnet",
         [
             "test",
-            sample.ProjectPath,
+            sample.ProjectFilePath,
             "--framework",
             sample.TargetFramework,
             "--configuration",
@@ -353,34 +357,70 @@ public class AllureSampleRunner
     {
         var resultFiles = resultsDirectory.GetFiles();
 
-        var testResults = await ReadJsonObjectResults(resultFiles, "-result.json", ct);
-        var containers = await ReadJsonObjectResults(resultFiles, "-container.json", ct);
-        var attachments = await ReadAttachments(resultFiles, ct);
+        var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
+        var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
 
-        return new(testResults, containers, attachments);
+        return (testResults, containers) switch
+        {
+            ({IsPassed: true, Value: var trs}, {IsPassed: true, Value: var conts}) => new(
+                TestResults: trs,
+                Containers: conts,
+                Attachments: await ReadAttachments(resultFiles, ct)
+            ),
+
+            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            ({IsPassed: false, Message: var error}, _) =>
+                throw new AssertionException(error),
+
+            (_, {IsPassed: false, Message: var error}) =>
+                throw new AssertionException(error),
+        };
     }
 
-    static async Task<ImmutableArray<JsonObject>> ReadJsonObjectResults(
+    static async Task<AssertionResult<ImmutableArray<T>>> ReadJsonObjectResults2<T>(
         IEnumerable<FileInfo> allOutputFiles,
         string suffix,
         CancellationToken ct
-    )
+    ) where T : IAllureModelObject<T>
     {
         var jsonResultFiles = allOutputFiles
             .Where((outputFile) => outputFile.Name.EndsWith(suffix))
             .ToArray();
-        var jsonObjectResults =
-            ImmutableArray.CreateBuilder<JsonObject>(jsonResultFiles.Length);
+        var items = ImmutableArray.CreateBuilder<T>(jsonResultFiles.Length);
+        List<string> errors = [];
         foreach (var jsonResultFile in jsonResultFiles)
         {
-            using var jsonResultStream = jsonResultFile.OpenRead();
-            var jsonNode = await JsonNode.ParseAsync(jsonResultStream, cancellationToken: ct);
-            if (jsonNode is JsonObject jsonObject)
+            string? parsingFailureMessage = null;
+
+            try
             {
-                jsonObjectResults.Add(jsonObject);
+                await using var jsonStream = jsonResultFile.OpenRead();
+                using var jsonDocument = await JsonDocument.ParseAsync(jsonStream, cancellationToken: ct);
+                var objCreationResult = T.Create(jsonDocument.RootElement.Clone());
+
+                if (objCreationResult.IsPassed)
+                {
+                    items.Add(objCreationResult.Value!);
+                }
+                else
+                {
+                    errors.Add($"{jsonResultFile.FullName}: {objCreationResult.Message}");
+                }
+            }
+            catch (JsonException e)
+            {
+                parsingFailureMessage = e.Message;
+                errors.Add($"{jsonResultFile.FullName}: {parsingFailureMessage}");
             }
         }
-        return jsonObjectResults.MoveToImmutable();
+
+        return errors.Count == 0
+            ? AssertionResult<ImmutableArray<T>>.Passed(items.MoveToImmutable())
+            : AssertionResult.Failed(
+                $"Errors while parsing {suffix} files:"
+                    + string.Join("", errors.Select(e => $"{Environment.NewLine}  - {e}")));
     }
 
     static async Task<ImmutableDictionary<string, ReadOnlyMemory<byte>>> ReadAttachments(

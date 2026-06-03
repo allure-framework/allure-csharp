@@ -1,0 +1,7 @@
+namespace Allure.Testing.Assertions.Model.Properties;
+
+[GenerateAllureAssertions]
+public interface IAllureMessageProperty<TSelf> : IAllureStringProperty<TSelf>
+    where TSelf : IAllureModelObject<TSelf>, IAllureMessageProperty<TSelf>
+{
+}

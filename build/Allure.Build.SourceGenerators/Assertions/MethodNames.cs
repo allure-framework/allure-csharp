@@ -1,0 +1,125 @@
+namespace Allure.Build.SourceGenerators.Assertions;
+
+public record class MethodNames(
+    string NoProperty,
+    string PropertyExistsAnyValue,
+    string PropertyEquatable,
+    string PropertyEquals,
+    string PropertyEqualsCustom,
+    string PropertySatisfiesConstraints,
+    string OneComparableItem = "",
+    string OneCustomComparableItem = "",
+    string OneEquatableItem = "",
+    string OneItemByCriteria = "",
+    string OneItemByName = "",
+    string OneItemByNameComparator = "",
+    string ComparableItem = "",
+    string CustomComparableItem = "",
+    string EquatableItem = "",
+    string ItemByCriteria = "",
+    string ItemByName = "",
+    string ItemByNameComparator = "",
+    string NoComparableItem = "",
+    string NoCustomComparableItem = "",
+    string NoEquatableItem = "",
+    string NoItemByCriteria = "",
+    string NoItemByName = "",
+    string NoItemByNameComparator = "",
+    string SingleItem = "",
+    string SingleItemByCriteria = "",
+    string SingleItemByName = "",
+    string SingleItemByNameComparator = "",
+    string ItemByIndex = "",
+    string ItemsSatisfyConstraints = ""
+)
+{
+    public static MethodNames ForFactory(PropertyMetadata property) => property switch
+    {
+        CollectionPropertyMetadata ccProperty =>
+            new(
+                NoProperty: $"No{ccProperty.MethodName}",
+                PropertyExistsAnyValue: ccProperty.MethodName,
+                PropertyEquatable: ccProperty.MethodName,
+                PropertyEquals: ccProperty.MethodName,
+                PropertyEqualsCustom: ccProperty.MethodName,
+                PropertySatisfiesConstraints: ccProperty.MethodName,
+                OneComparableItem: $"OnlyOne{ccProperty.ItemMethodName}",
+                OneCustomComparableItem: $"OnlyOne{ccProperty.ItemMethodName}",
+                OneEquatableItem: $"OnlyOne{ccProperty.ItemMethodName}",
+                OneItemByCriteria: $"OnlyOne{ccProperty.ItemMethodName}",
+                OneItemByName: $"OnlyOne{ccProperty.ItemMethodName}",
+                OneItemByNameComparator: $"OnlyOne{ccProperty.ItemMethodName}",
+                ComparableItem: ccProperty.ItemMethodName,
+                CustomComparableItem: ccProperty.ItemMethodName,
+                EquatableItem: ccProperty.ItemMethodName,
+                ItemByCriteria: ccProperty.ItemMethodName,
+                ItemByName: ccProperty.ItemMethodName,
+                ItemByNameComparator: ccProperty.ItemMethodName,
+                NoComparableItem: $"No{ccProperty.ItemMethodName}",
+                NoCustomComparableItem: $"No{ccProperty.ItemMethodName}",
+                NoEquatableItem: $"No{ccProperty.ItemMethodName}",
+                NoItemByCriteria: $"No{ccProperty.ItemMethodName}",
+                NoItemByName: $"No{ccProperty.ItemMethodName}",
+                NoItemByNameComparator: $"No{ccProperty.ItemMethodName}",
+                SingleItem: $"Single{ccProperty.ItemMethodName}",
+                SingleItemByCriteria: $"Single{ccProperty.ItemMethodName}",
+                SingleItemByName: $"Single{ccProperty.ItemMethodName}",
+                SingleItemByNameComparator: $"Single{ccProperty.ItemMethodName}",
+                ItemByIndex: $"{ccProperty.ItemMethodName}At",
+                ItemsSatisfyConstraints: $"{ccProperty.MethodName}Matching"
+            ),
+        _ => new(
+            NoProperty: $"No{property.MethodName}",
+            PropertyExistsAnyValue: property.MethodName,
+            PropertyEquatable: property.MethodName,
+            PropertyEquals: property.MethodName,
+            PropertyEqualsCustom: property.MethodName,
+            PropertySatisfiesConstraints: property.MethodName
+        ),
+    };
+
+    public static MethodNames ForAssertionSource(PropertyMetadata property) => property switch
+    {
+        CollectionPropertyMetadata ccProperty =>
+            new(
+                NoProperty: $"HasNo{property.MethodName}",
+                PropertyExistsAnyValue: $"Has{ccProperty.MethodName}",
+                PropertyEquatable: $"Has{ccProperty.MethodName}",
+                PropertyEquals: $"Has{ccProperty.MethodName}",
+                PropertyEqualsCustom: $"Has{ccProperty.MethodName}",
+                PropertySatisfiesConstraints: $"Has{ccProperty.MethodName}",
+                OneComparableItem: $"HasOnlyOne{ccProperty.ItemMethodName}",
+                OneCustomComparableItem: $"HasOnlyOne{ccProperty.ItemMethodName}",
+                OneEquatableItem: $"HasOnlyOne{ccProperty.ItemMethodName}",
+                OneItemByCriteria: $"HasOnlyOne{ccProperty.ItemMethodName}",
+                OneItemByName: $"HasOnlyOne{ccProperty.ItemMethodName}",
+                OneItemByNameComparator: $"HasOnlyOne{ccProperty.ItemMethodName}",
+                ComparableItem: $"Has{ccProperty.ItemMethodName}",
+                CustomComparableItem: $"Has{ccProperty.ItemMethodName}",
+                EquatableItem: $"Has{ccProperty.ItemMethodName}",
+                ItemByCriteria: $"Has{ccProperty.ItemMethodName}",
+                ItemByName: $"Has{ccProperty.ItemMethodName}",
+                ItemByNameComparator: $"Has{ccProperty.ItemMethodName}",
+                NoComparableItem: $"HasNo{ccProperty.ItemMethodName}",
+                NoCustomComparableItem: $"HasNo{ccProperty.ItemMethodName}",
+                NoEquatableItem: $"HasNo{ccProperty.ItemMethodName}",
+                NoItemByCriteria: $"HasNo{ccProperty.ItemMethodName}",
+                NoItemByName: $"HasNo{ccProperty.ItemMethodName}",
+                NoItemByNameComparator: $"HasNo{ccProperty.ItemMethodName}",
+                SingleItem: $"HasSingle{ccProperty.ItemMethodName}",
+                SingleItemByCriteria: $"HasSingle{ccProperty.ItemMethodName}",
+                SingleItemByName: $"HasSingle{ccProperty.ItemMethodName}",
+                SingleItemByNameComparator: $"HasSingle{ccProperty.ItemMethodName}",
+                ItemByIndex: $"Has{ccProperty.ItemMethodName}At",
+                ItemsSatisfyConstraints: $"Has{ccProperty.MethodName}Matching"
+            ),
+        _ => new(
+                NoProperty: $"HasNo{property.MethodName}",
+                PropertyExistsAnyValue: $"Has{property.MethodName}",
+                PropertyEquatable: $"Has{property.MethodName}",
+                PropertyEquals: $"Has{property.MethodName}",
+                PropertyEqualsCustom: $"Has{property.MethodName}",
+                PropertySatisfiesConstraints: $"Has{property.MethodName}"
+        ),
+    };
+}

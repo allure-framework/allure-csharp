@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -10,76 +9,108 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Allure.Build.SourceGenerators;
 
-using SampleProjectSources = ImmutableArray<(string, ImmutableArray<string>)>;
+using SampleRegistryArray = ImmutableArray<(string, ImmutableArray<SampleRegistryEntry>)>;
 
 [Generator]
 public class AllureSampleRegistryGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        IncrementalValueProvider<SampleProjectSources> sampleSourceStream
+        IncrementalValueProvider<SampleRegistryArray> sampleSourceStream
             = SetupGroupedSampleSourcesStream(context);
 
-        context.RegisterSourceOutput(sampleSourceStream, GenerateSampleRegistry);
+        context.RegisterSourceOutput(sampleSourceStream, GenerateSampleRegistries);
     }
 
-    static IncrementalValueProvider<SampleProjectSources> SetupGroupedSampleSourcesStream(
+    static IncrementalValueProvider<SampleRegistryArray> SetupGroupedSampleSourcesStream(
         IncrementalGeneratorInitializationContext context
     ) =>
         context.AdditionalTextsProvider
             .Combine(context.AnalyzerConfigOptionsProvider)
-            .Select(PairWithSuffix)
-            .Where(IsSampleSourceWellDefined)
+            .Select(ReadSampleMetadata)
+            .Where(static (sample) => sample is not null)
             .Collect()
-            .Select(GroupSampleSourcesBySuffix);
+            .Select(GroupSampleSourcesByRegistry!);
 
-    static (string, string) PairWithSuffix(
+    static SampleRegistryEntry? ReadSampleMetadata(
         (AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair,
         CancellationToken _
-    ) =>
-        pair.Right
-            .GetOptions(pair.Left)
-            .TryGetValue(Constants.PROJECT_SUFFIX_METADATA_NAME, out var value)
-                && SyntaxFacts.IsValidIdentifier(value)
-                ? (value, pair.Left.Path)
-                : ("", "");
+    )
+    {
+        var opts = pair.Right.GetOptions(pair.Left);
 
-    static bool IsSampleSourceWellDefined((string, string) pair) =>
-        pair.Item1 is not "" && pair.Item2 is not "";
+        if (opts.TryGetValue(Constants.SAMPLE_NAME_METADATA_NAME, out var sampleName)
+            && opts.TryGetValue(Constants.REGISTRY_NAMESPACE_METADATA_NAME, out var registryNamespace)
+            && opts.TryGetValue(Constants.PROJECT_FILE_PATH_METADATA_NAME, out var projectFilePath)
+            && opts.TryGetValue(Constants.PROJECT_RELATIVE_PATH_METADATA_NAME, out var projectRelativePath)
+            && opts.TryGetValue(Constants.RESULTS_DIRECTORY_METADATA_NAME, out var resultsDirectory))
+        {
+            return new SampleRegistryEntry(
+                RegistryNamespace: registryNamespace,
+                SampleName: sampleName,
+                SourcePath: pair.Left.Path,
+                ProjectFilePath: projectFilePath,
+                ProjectRelativePath: projectRelativePath,
+                ResultsDirectory: resultsDirectory
+            );
+        }
+        return null;
+    }
 
-    static SampleProjectSources GroupSampleSourcesBySuffix(
-        ImmutableArray<(string, string)> sampleSources,
+    static SampleRegistryArray GroupSampleSourcesByRegistry(
+        ImmutableArray<SampleRegistryEntry> registryEntries,
         CancellationToken _
     ) =>
         [
-            .. sampleSources
+            .. registryEntries
                 .GroupBy(
-                    (pair) => pair.Item1,
-                    (pair) => pair.Item2,
-                    (key, values) => (key, values.ToImmutableArray())
+                    static (sample) => sample.RegistryNamespace,
+                    static (registryNamespace, registrySamples) => (
+                        registryNamespace,
+                        registrySamples.ToImmutableArray()
+                    )
                 )
         ];
 
-    static void GenerateSampleRegistry(
+    static void GenerateSampleRegistries(
         SourceProductionContext productionContext,
-        SampleProjectSources sampleSources
+        SampleRegistryArray sampleRegistries
     )
     {
-        var code = GetSampleRegistryCode(sampleSources);
-
-        productionContext.AddSource(Constants.REGISTRY_FILENAME, code);
+        foreach (var (registryNamespace, registryEntries) in sampleRegistries)
+        {
+            GenerateSampleRegistry(productionContext, registryNamespace, registryEntries);
+        }
     }
 
-    static string GetSampleRegistryCode(SampleProjectSources sampleSources)
+    static void GenerateSampleRegistry(
+        SourceProductionContext productionContext,
+        string registryNamespace,
+        ImmutableArray<SampleRegistryEntry> registryEntries
+    )
+    {
+        var code = GetSampleRegistryCode(registryNamespace, registryEntries);
+        var path = Path.Combine(registryNamespace, Constants.REGISTRY_FILENAME);
+        productionContext.AddSource(path, code);
+    }
+
+    static string GetSampleRegistryCode(
+        string registryNamespace,
+        ImmutableArray<SampleRegistryEntry> entries
+    )
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"namespace { Constants.NAMESPACE_NAME };");
+        sb.AppendLine($"namespace { registryNamespace };");
         sb.AppendLine();
-        AppendRegistryClass(sb, sampleSources);
+        AppendRegistryClass(sb, registryNamespace, entries);
         return sb.ToString();
     }
 
-    static void AppendRegistryClass(StringBuilder sb, SampleProjectSources sampleSources)
+    static void AppendRegistryClass(
+        StringBuilder sb,
+        string registryNamespace,
+        ImmutableArray<SampleRegistryEntry> entries
+    )
     {
         sb.Append(
             $$"""
@@ -95,57 +126,65 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
 
             """
         );
-        AppendRegistryEntryProperties(sb, sampleSources);
+        AppendRegistryEntryProperties(sb, registryNamespace, entries);
         sb.AppendLine("}");
     }
 
-    static void AppendRegistryEntryProperties(StringBuilder sb, SampleProjectSources sampleSources)
+    static void AppendRegistryEntryProperties(
+        StringBuilder sb,
+        string registryNamespace,
+        ImmutableArray<SampleRegistryEntry> entries
+    )
     {
-        if (sampleSources.Length > 0)
+        if (entries.Length > 0)
         {
-            var (suffix, files) = sampleSources[0];
-            AppendRegistryEntryProperty(sb, suffix, files);
+            AppendRegistryEntryProperty(sb, registryNamespace, entries[0]);
         }
 
-        foreach (var (suffix, files) in sampleSources.Skip(1))
+        foreach (var entry in entries.Skip(1))
         {
             sb.AppendLine();
-            AppendRegistryEntryProperty(sb, suffix, files);
+            AppendRegistryEntryProperty(sb, registryNamespace, entry);
         }
     }
 
-    static void AppendRegistryEntryProperty(StringBuilder sb, string suffix, ImmutableArray<string> files)
+    static void AppendRegistryEntryProperty(
+        StringBuilder sb,
+        string registryNamespace,
+        SampleRegistryEntry entry
+    )
     {
-        var pathPrefix = files.Length == 1 ? files[0] : GetGreatestCommonPrefix(files);
+        var sampleName = entry.SampleName;
+        var sourcePath = entry.SourcePath;
+        var projectFilePath = entry.ProjectFilePath;
+        var projectRelativePath = entry.ProjectRelativePath;
+        var resultsDirectory = entry.ResultsDirectory;
+
+        var resultsDirectoryName = Path.GetFileName(resultsDirectory);
 
         sb.Append(
             $$"""
                 /// <summary>
-                /// <a href="file://{{ pathPrefix }}">
-                /// {{ pathPrefix }}
+                /// Source: <a href="file://{{ sourcePath }}">
+                /// {{ Path.GetFileName(sourcePath) }}
                 /// </a>
                 /// </summary>
-                public static {{ Constants.REGISTRY_ENTRY_CLASSNAME_FULL }} {{ suffix }} { get; }
+                /// <remarks>
+                /// How to run: <c>dotnet test {{ projectRelativePath }}</c>.
+                /// <br></br>
+                /// Default results directory: <a href="file://{{ resultsDirectory }}">
+                /// {{ resultsDirectoryName }}
+                /// </a>
+                /// </remarks>
+                public static {{ Constants.REGISTRY_ENTRY_CLASSNAME_FULL }} {{ sampleName }} { get; }
                     = new(
-                        "{{ suffix }}",
-                        global::System.IO.Path.Combine(
-                            {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_SOLUTION_DIR }},
-                            string.Format(
-                                "{0}.{{ suffix }}",
-                                {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_SOLUTION_NAME }}
-                            ),
-                            string.Format(
-                                "{0}.{{ suffix }}.csproj",
-                                {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_SOLUTION_NAME }}
-                            )
-                        ),
-                        string.Format(
-                            {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_RESULTS_DIRECTORY_FMT }},
-                            "{{ suffix }}"
-                        ),
-                        {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_TARGET_FRAMEWORK }},
-                        {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_CONFIGURATION }},
-                        global::System.StringComparer.OrdinalIgnoreCase.Equals(
+                        RegistryId: "{{ registryNamespace }}",
+                        SampleId: "{{ sampleName }}",
+                        ProjectFilePath: {{ SymbolDisplay.FormatLiteral(projectFilePath, true) }},
+                        DefaultResultsPath: {{ SymbolDisplay.FormatLiteral(resultsDirectory, true) }},
+                        TargetFramework: {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_TARGET_FRAMEWORK }},
+                        BuildConfiguration: {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_CONFIGURATION }},
+                        IsPreRunFlow: global::System.StringComparer.OrdinalIgnoreCase.Equals(
                             {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_PRERUN_FLOW }},
                             "true"
                         )
@@ -154,28 +193,4 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
             """
         );
     }
-
-    static string GetGreatestCommonPrefix(IEnumerable<string> paths)
-    {
-        var first = paths.First();
-        var rest = paths.Skip(1).ToList();
-
-        string prefix = first;
-
-        while ((prefix = Path.GetDirectoryName(prefix)) is not null)
-        {
-            if (IsCommonPrefix(rest, prefix))
-            {
-                return prefix;
-            }
-        }
-
-        return "";
-    }
-
-    static bool IsCommonPrefix(List<string> files, string prefix) =>
-        files.All((path) =>
-            path.StartsWith(prefix)
-                && path.Length > prefix.Length
-                && path[prefix.Length] == Path.DirectorySeparatorChar);
 }

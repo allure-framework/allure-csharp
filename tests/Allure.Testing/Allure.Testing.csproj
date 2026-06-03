@@ -4,10 +4,16 @@
     <Nullable>enable</Nullable>
     <IsTestProject>false</IsTestProject>
     <AspectInjector_Enabled>false</AspectInjector_Enabled>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TUnit" Version="1.12.3" />
+    <PackageReference Include="TUnit.Core" Version="1.35.2" />
+    <PackageReference Include="TUnit.Assertions" Version="1.35.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../build/Allure.Build.SourceGenerators/Allure.Build.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

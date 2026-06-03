@@ -2,12 +2,19 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
+    <ItemGroup>
+        <!-- Ensure that the IDE does not run test discovery for these projects. -->
+        <ProjectCapability Remove="TestContainer" />
+    </ItemGroup>
+
     <PropertyGroup>
         <Allure_TransformReadmeSource>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'build', 'TransformReadmeForNuget.cs'))</Allure_TransformReadmeSource>
     </PropertyGroup>
+
     <ItemGroup>
         <NuGetPackInput Include="$(Allure_TransformReadmeSource)" />
     </ItemGroup>
+
     <UsingTask TaskName="Allure_TransformReadmeForNuget"
             TaskFactory="RoslynCodeTaskFactory"
             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -29,7 +36,7 @@
     </UsingTask>
 
     <!--
-    NuGet don't support <img> (in particular, align, width and height).
+    NuGet doesn't support <img> tags well (in particular, the align, width and height properties).
     This task generates a new README file with those unsupported constructs removed.
     -->
     <Target Name="Allure_GenerateNugetReadmeFiles"
