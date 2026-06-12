@@ -111,7 +111,6 @@ class AttachmentTests : AllureApiTestFixture
     [Test]
     public void UsesEncodingToConvertStrings()
     {
-        var expectedFileName = this.testResult.attachments[0].source;
         byte[] expectedContent = [
             0x4c, 0x00, 0x6f, 0x00, 0x72, 0x00, 0x65, 0x00, 0x6d, 0x00, 0x20,
             0x00, 0x49, 0x00, 0x70, 0x00, 0x73, 0x00, 0x75, 0x00, 0x6D, 0x00,
@@ -119,11 +118,12 @@ class AttachmentTests : AllureApiTestFixture
 
         AttachEncoding();
 
+        var fileName = this.testResult.attachments[0].source;
         Assert.That(
             this.writer.ByteAttachments,
-            Contains.Key(expectedFileName));
+            Contains.Key(fileName));
         Assert.That(
-            this.writer.ByteAttachments[expectedFileName], Is.EqualTo(expectedContent));
+            this.writer.ByteAttachments[fileName], Is.EqualTo(expectedContent));
     }
 
     [Test]
