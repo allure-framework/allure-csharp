@@ -29,6 +29,7 @@
       <Build Solution="Publish|*" Project="false" />
     </Project>
   </Folder>
+  <Folder Name="/build/AspectInjector/" />
   <Folder Name="/build/AspectInjector/win-x64/">
     <File Path="build/AspectInjector/win-x64/AspectInjector.exe" />
   </Folder>
@@ -60,6 +61,9 @@
     <Project Path="src/Allure.SpecFlow/Allure.SpecFlow.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
+    <Project Path="src/Allure.TestingPlatform/Allure.TestingPlatform.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.Xunit/Allure.Xunit.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
@@ -84,6 +88,9 @@
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Testing/Allure.Testing.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.TestingPlatform.Tests/Allure.TestingPlatform.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Xunit.Tests/Allure.Xunit.Tests.csproj">
