@@ -461,11 +461,14 @@ public static class AllureApi
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="path">The path to the attached file.</param>
     public static void AddAttachment(
         string name,
-        string type,
+        string? type,
         string path
     )
     {
@@ -485,14 +488,17 @@ public static class AllureApi
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">
     /// The extension of the file that will be available for downloading.
     /// </param>
     public static void AddAttachment(
         string name,
-        string type,
+        string? type,
         byte[] content,
         string fileExtension = ""
     )
@@ -504,7 +510,8 @@ public static class AllureApi
     }
 
     /// <summary>
-    /// Adds an attachment to the current fixture, test or step.
+    /// Adds an attachment to the current fixture, test or step. Derives the media type
+    /// from the file extension.
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
@@ -520,7 +527,9 @@ public static class AllureApi
         {
             AddAttachmentFileInternal(
                 name: name ?? Path.GetFileName(path),
-                type: MimeTypesMap.GetMimeType(path),
+                type: Path.GetExtension(path) is { Length: >0 }
+                    ? MimeTypesMap.GetMimeType(path)
+                    : null,
                 path: path,
                 fileExtension: Path.GetExtension(path)
             );
@@ -531,11 +540,14 @@ public static class AllureApi
     /// Adds a global attachment not tied to the current fixture, test, or step.
     /// </summary>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="path">The path to the attached file.</param>
     public static void AddGlobalAttachment(
         string name,
-        string type,
+        string? type,
         string path
     ) =>
         AddGlobalAttachmentFileInternal(
@@ -549,20 +561,24 @@ public static class AllureApi
     /// Adds a global attachment not tied to the current fixture, test, or step.
     /// </summary>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">
     /// The extension of the file that will be available for downloading.
     /// </param>
     public static void AddGlobalAttachment(
         string name,
-        string type,
+        string? type,
         byte[] content,
         string fileExtension = ""
     ) => AddGlobalAttachmentInternal(name, type, content, fileExtension);
 
     /// <summary>
     /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// Derives the media type from the file extension.
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">
