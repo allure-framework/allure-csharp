@@ -121,6 +121,7 @@ public class AllureLifecycle
     /// The full path to the Allure results directory.
     /// </summary>
     public string ResultsDirectory => writer.ToString();
+    public string ResultsDirectory => this.AllureConfiguration.Directory;
 
     /// <summary>
     /// The current instance of the Allure lifecycle.

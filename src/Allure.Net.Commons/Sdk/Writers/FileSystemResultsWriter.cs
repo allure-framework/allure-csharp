@@ -17,7 +17,7 @@ namespace Allure.Net.Commons.Sdk.Writers
 
         public FileSystemResultsWriter(string outputDirectory, bool indentOutput)
         {
-            this.outputDirectory = GetResultsDirectory(outputDirectory);
+            this.outputDirectory = outputDirectory;
 
             serializer.NullValueHandling = NullValueHandling.Ignore;
             if (indentOutput)
@@ -86,34 +86,6 @@ namespace Allure.Net.Commons.Sdk.Writers
             }
 
             return filePath;
-        }
-
-        bool HasDirectoryAccess(string directory)
-        {
-            var tempFile = Path.Combine(directory, Guid.NewGuid().ToString());
-            try
-            {
-                File.WriteAllText(tempFile, string.Empty);
-                File.Delete(tempFile);
-                return true;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return false;
-            }
-        }
-
-        string GetResultsDirectory(string outputDirectory)
-        {
-            var parentDir = new DirectoryInfo(outputDirectory).Parent.FullName;
-            outputDirectory = HasDirectoryAccess(parentDir)
-                ? outputDirectory
-                : Path.Combine(
-                    Path.GetTempPath(), AllureConstants.DEFAULT_RESULTS_FOLDER);
-
-            Directory.CreateDirectory(outputDirectory);
-
-            return new DirectoryInfo(outputDirectory).FullName;
         }
     }
 }

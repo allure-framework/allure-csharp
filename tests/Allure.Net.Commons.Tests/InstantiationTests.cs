@@ -49,7 +49,9 @@ namespace Allure.Net.Commons.Tests
             File.WriteAllText(configFile, configuration);
             Environment.SetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE, configFile);
 
-            Assert.That(new AllureLifecycle().AllureConfiguration.Directory, Is.EqualTo("env"));
+            var directoryAbsolutePath = new AllureLifecycle().AllureConfiguration.Directory;
+
+            Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, directoryAbsolutePath), Is.EqualTo("env"));
         }
 
         [Test]
@@ -59,7 +61,9 @@ namespace Allure.Net.Commons.Tests
             Assert.That(Environment.GetEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE), Is.Null);
             File.WriteAllText(AllureConstants.CONFIG_FILENAME, configContent);
 
-            Assert.That(new AllureLifecycle().AllureConfiguration.Directory, Is.EqualTo("bin"));
+            var directoryAbsolutePath = new AllureLifecycle().AllureConfiguration.Directory;
+
+            Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, directoryAbsolutePath), Is.EqualTo("bin"));
         }
     }
 }

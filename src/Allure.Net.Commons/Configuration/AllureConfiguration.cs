@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -14,12 +15,12 @@ namespace Allure.Net.Commons.Configuration
         protected AllureConfiguration(string title, string directory, HashSet<string> links)
         {
             Title = title ?? Title;
-            Directory = directory ?? Directory;
+            Directory = Path.GetFullPath(directory ?? Directory);
             Links = links ?? Links;
         }
 
         public string Title { get; init; }
-        public string Directory { get; init; } = AllureConstants.DEFAULT_RESULTS_FOLDER;
+        public string Directory { get; init; } = Path.GetFullPath(AllureConstants.DEFAULT_RESULTS_FOLDER);
         public HashSet<string> Links { get; } = [];
         public List<string> FailExceptions { get; set; }
         public bool UseLegacyIds { get; set; } = false;
