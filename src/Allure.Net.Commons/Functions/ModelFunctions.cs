@@ -204,6 +204,18 @@ public static class ModelFunctions
             .Select((tuple) =>
                 CreateParameter(tuple.name, tuple.attr, tuple.value, formatters));
 
+    /// <summary>
+    /// Returns a name for an attachment file.
+    /// </summary>
+    /// <param name="fileExtension">An optional file extension.</param>
+    public static string GetAttachmentSourceName(string fileExtension = "")
+    {
+        fileExtension ??= "";
+        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
+        var uuid = IdFunctions.CreateUUID();
+        return $"{uuid}{suffix}{fileExtension}";
+    }
+
     static Parameter CreateParameter(
         string parameterName,
         AllureParameterAttribute? attribute,

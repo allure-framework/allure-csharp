@@ -10,6 +10,7 @@ namespace Allure.Net.Commons.Tests
         internal List<TestResultContainer> testContainers = new();
         internal List<Globals> globals = new();
         internal List<(string Source, byte[] Content)> attachments = new();
+        internal List<(string Source, string Path)> attachmentFiles = new();
 
         public void CleanUp()
         {
@@ -46,11 +47,19 @@ namespace Allure.Net.Commons.Tests
             }
         }
 
-        public void Write(string source, byte[] attachment)
+        public void Write(string destinationFileName, byte[] content)
         {
             lock (this.monitor)
             {
-                this.attachments.Add((source, attachment));
+                this.attachments.Add((destinationFileName, content));
+            }
+        }
+
+        public void Write(string destinationFileName, string sourceFilePath)
+        {
+            lock (this.monitor)
+            {
+                this.attachmentFiles.Add((destinationFileName, sourceFilePath));
             }
         }
     }

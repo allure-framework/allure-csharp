@@ -52,11 +52,16 @@ namespace Allure.Net.Commons.Writer
             Write(globals, AllureConstants.GLOBALS_FILE_SUFFIX);
         }
 
-        public void Write(string source, byte[] content)
+        public void Write(string outputFileName, byte[] content)
         {
-            using var task = new WriteTask { Filepath = Path.Combine(outputDirectory, source), Content = content };
-            ThreadPool.QueueUserWorkItem(WriteBinary, task);
-            task.WaitOne();
+            var outputFilePath = Path.Combine(outputDirectory, outputFileName);
+            File.WriteAllBytes(outputFilePath, content);
+        }
+
+        public void Write(string destinationFileName, string sourceFilePath)
+        {
+            var destinationPath = Path.Combine(outputDirectory, destinationFileName);
+            File.Copy(sourceFilePath, destinationPath);
         }
 
         public void CleanUp()
@@ -88,25 +93,6 @@ namespace Allure.Net.Commons.Writer
             return filePath;
         }
 
-        protected void WriteBinary(object writeTask)
-        {
-            if (writeTask is WriteTask task)
-            {
-                lock (BytesWriterLock)
-                {
-                    using (var writer = new BinaryWriter(File.Open(task.Filepath, FileMode.Append, FileAccess.Write)))
-                    {
-                        writer.Write(task.Content);
-                        task.Set();
-                    }
-                }
-            }
-            else
-            {
-                throw new ArgumentException("Argument cannot be casted from WriteTask class", nameof(writeTask));
-            }
-        }
-
         internal virtual bool HasDirectoryAccess(string directory)
         {
             var tempFile = Path.Combine(directory, Guid.NewGuid().ToString());
@@ -133,13 +119,6 @@ namespace Allure.Net.Commons.Writer
             Directory.CreateDirectory(outputDirectory);
 
             return new DirectoryInfo(outputDirectory).FullName;
-        }
-
-        private class WriteTask : EventWaitHandle
-        {
-            internal WriteTask() : base(false, EventResetMode.ManualReset) { }
-            public string Filepath;
-            public byte[] Content;
         }
     }
 }

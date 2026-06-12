@@ -471,10 +471,10 @@ public static class AllureApi
     {
         if (HasTestOrFixture)
         {
-            AddAttachmentInternal(
+            AddAttachmentFileInternal(
                 name: name ?? Path.GetFileName(path),
                 type: type,
-                content: File.ReadAllBytes(path),
+                path: path,
                 fileExtension: Path.GetExtension(path)
             );
         }
@@ -518,10 +518,10 @@ public static class AllureApi
     {
         if (HasTestOrFixture)
         {
-            AddAttachmentInternal(
+            AddAttachmentFileInternal(
                 name: name ?? Path.GetFileName(path),
                 type: MimeTypesMap.GetMimeType(path),
-                content: File.ReadAllBytes(path),
+                path: path,
                 fileExtension: Path.GetExtension(path)
             );
         }
@@ -538,10 +538,10 @@ public static class AllureApi
         string type,
         string path
     ) =>
-        AddGlobalAttachmentInternal(
+        AddGlobalAttachmentFileInternal(
             name: name ?? Path.GetFileName(path),
             type: type,
-            content: File.ReadAllBytes(path),
+            path: path,
             fileExtension: Path.GetExtension(path)
         );
 
@@ -572,10 +572,10 @@ public static class AllureApi
         string path,
         string? name = null
     ) =>
-        AddGlobalAttachmentInternal(
+        AddGlobalAttachmentFileInternal(
             name: name ?? Path.GetFileName(path),
             type: MimeTypesMap.GetMimeType(path),
-            content: File.ReadAllBytes(path),
+            path: path,
             fileExtension: Path.GetExtension(path)
         );
 
@@ -882,7 +882,7 @@ public static class AllureApi
         string fileExtension
     )
     {
-        var source = CreateAttachmentSource(fileExtension);
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
         var attachment = new Attachment
         {
             name = name,
@@ -890,6 +890,26 @@ public static class AllureApi
             source = source
         };
         CurrentLifecycle.Writer.Write(source, content);
+        CurrentLifecycle.UpdateExecutableItem(
+            item => item.attachments.Add(attachment)
+        );
+    }
+
+    internal static void AddAttachmentFileInternal(
+        string name,
+        string? type,
+        string path,
+        string fileExtension
+    )
+    {
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        var attachment = new Attachment
+        {
+            name = name,
+            type = type,
+            source = source
+        };
+        CurrentLifecycle.Writer.Write(source, path);
         CurrentLifecycle.UpdateExecutableItem(
             item => item.attachments.Add(attachment)
         );
@@ -903,13 +923,13 @@ public static class AllureApi
     )
     {
         var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = CreateAttachmentSource(fileExtension);
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
         CurrentLifecycle.Writer.Write(source, content);
         CurrentLifecycle.Writer.Write(
             new Globals
             {
-                attachments = new()
-                {
+                attachments =
+                [
                     new GlobalAttachment
                     {
                         name = name,
@@ -917,7 +937,34 @@ public static class AllureApi
                         source = source,
                         timestamp = timestamp
                     }
-                }
+                ]
+            }
+        );
+    }
+
+    internal static void AddGlobalAttachmentFileInternal(
+        string name,
+        string? type,
+        string path,
+        string fileExtension
+    )
+    {
+        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        CurrentLifecycle.Writer.Write(source, path);
+        CurrentLifecycle.Writer.Write(
+            new Globals
+            {
+                attachments =
+                [
+                    new GlobalAttachment
+                    {
+                        name = name,
+                        type = type,
+                        source = source,
+                        timestamp = timestamp
+                    }
+                ]
             }
         );
     }
@@ -929,13 +976,6 @@ public static class AllureApi
                 errors = new() { error }
             }
         );
-
-    static string CreateAttachmentSource(string fileExtension)
-    {
-        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
-        var uuid = IdFunctions.CreateUUID();
-        return $"{uuid}{suffix}{fileExtension}";
-    }
 
     static GlobalError CreateGlobalError(StatusDetails? statusDetails)
     {

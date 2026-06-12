@@ -41,25 +41,17 @@ internal class GlobalTests : AllureApiTestFixture
     [Test]
     public void GlobalAttachmentFromPathUsesFileNameAndMimeType()
     {
-        var (path, content) = DataGenerator.GetAttachment(".txt");
+        var path = Path.Combine("foo", "bar.txt");
 
-        try
-        {
-            var expectedFileName = Path.GetFileName(path);
+        AllureApi.AddGlobalAttachment(path);
 
-            AllureApi.AddGlobalAttachment(path);
-
-            var globalAttachment = this.writer.globals.Single().attachments.Single();
-
-            Assert.That(globalAttachment.name, Is.EqualTo(expectedFileName));
-            Assert.That(globalAttachment.type, Is.EqualTo("text/plain"));
-            Assert.That(globalAttachment.source, Does.EndWith(".txt"));
-            Assert.That(this.writer.attachments.Single().Content, Is.EqualTo(content));
-        }
-        finally
-        {
-            File.Delete(path);
-        }
+        var globalAttachment = this.writer.globals.Single().attachments.Single();
+        Assert.That(globalAttachment.name, Is.EqualTo("bar.txt"));
+        Assert.That(globalAttachment.type, Is.EqualTo("text/plain"));
+        Assert.That(globalAttachment.source, Does.EndWith(".txt"));
+        var actualAbsolutePath = this.writer.attachmentFiles.Single().Path;
+        var actualRelativePath = Path.GetRelativePath(Environment.CurrentDirectory, actualAbsolutePath);
+        Assert.That(actualRelativePath, Is.EqualTo(path));
     }
 
     [Test]
