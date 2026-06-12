@@ -1,28 +1,26 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using Allure.Net.Commons.Configuration;
-using Allure.Net.Commons.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace Allure.Net.Commons.Writer
 {
-    internal class FileSystemResultsWriter : IAllureResultsWriter
+    /// <summary>
+    /// Writer that emits results to an output directory.
+    /// </summary>
+    public class FileSystemResultsWriter : IAllureResultsWriter
     {
-        private readonly AllureConfiguration configuration;
-
         private readonly string outputDirectory;
-        private readonly JsonSerializer serializer = new JsonSerializer();
+        private readonly JsonSerializer serializer = new();
 
-        internal FileSystemResultsWriter(AllureConfiguration configuration)
+        public FileSystemResultsWriter(string outputDirectory, bool indentOutput)
         {
-            this.configuration = configuration;
-            outputDirectory = GetResultsDirectory(configuration.Directory);
+            this.outputDirectory = GetResultsDirectory(outputDirectory);
 
             serializer.NullValueHandling = NullValueHandling.Ignore;
-            if (configuration.IndentOutput)
+            if (indentOutput)
             {
                 serializer.Formatting = Formatting.Indented;
             }
@@ -36,13 +34,11 @@ namespace Allure.Net.Commons.Writer
 
         public void Write(TestResult testResult)
         {
-            LinkHelper.UpdateLinks(testResult.links, configuration.Links);
             Write(testResult, AllureConstants.TEST_RESULT_FILE_SUFFIX);
         }
 
         public void Write(TestResultContainer testResult)
         {
-            LinkHelper.UpdateLinks(testResult.links, configuration.Links);
             Write(testResult, AllureConstants.TEST_RESULT_CONTAINER_FILE_SUFFIX);
         }
 
