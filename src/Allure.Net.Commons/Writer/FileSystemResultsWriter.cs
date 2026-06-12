@@ -13,7 +13,6 @@ namespace Allure.Net.Commons.Writer
     {
         private readonly AllureConfiguration configuration;
 
-        private static readonly object BytesWriterLock = new object();
         private readonly string outputDirectory;
         private readonly JsonSerializer serializer = new JsonSerializer();
 
