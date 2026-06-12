@@ -9,7 +9,8 @@ using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Helpers;
 using Allure.Net.Commons.TestPlan;
-using Allure.Net.Commons.Writer;
+using Allure.Net.Commons.Sdk;
+using Allure.Net.Commons.Sdk.Writers;
 using Newtonsoft.Json.Linq;
 
 #nullable enable

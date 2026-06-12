@@ -34,12 +34,15 @@ class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.name, Is.EqualTo(nameof(AttachByteArray)));
         Assert.That(attachment.type, Is.Null);
         Assert.That(attachment.source, Does.Not.Contain("."));
-        Assert.That(this.writer.attachments, Contains.Item((attachment.source, new byte[]{ 1, 2, 3 })));
+        Assert.That(this.writer.ByteAttachments, Contains.Key(attachment.source));
+        Assert.That(this.writer.ByteAttachments[attachment.source], Is.EqualTo(new byte[]{ 1, 2, 3 }));
     }
 
     [Test]
     public void CreatesAttachmentFromString()
     {
+        var expectedContent = "Lorem Ipsum"u8.ToArray();
+
         AttachString();
 
         Assert.That(this.testResult.attachments, Has.One.Items);
@@ -47,11 +50,8 @@ class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.name, Is.EqualTo(nameof(AttachString)));
         Assert.That(attachment.type, Is.EqualTo("text/plain"));
         Assert.That(attachment.source, Does.EndWith(".txt"));
-        Assert.That(
-            this.writer.attachments,
-            Contains.Item((
-                attachment.source,
-                "Lorem Ipsum"u8.ToArray())));
+        Assert.That(this.writer.ByteAttachments, Contains.Key(attachment.source));
+        Assert.That(this.writer.ByteAttachments[attachment.source], Is.EqualTo(expectedContent));
     }
 
     [Test]
@@ -64,11 +64,8 @@ class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.name, Is.EqualTo(nameof(AttachStream)));
         Assert.That(attachment.type, Is.Null);
         Assert.That(attachment.source, Does.Not.Contain("."));
-        Assert.That(
-            this.writer.attachments,
-            Contains.Item((
-                attachment.source,
-                new byte[]{ 1, 2, 3 })));
+        Assert.That(this.writer.ByteAttachments, Contains.Key(attachment.source));
+        Assert.That(this.writer.ByteAttachments[attachment.source], Is.EqualTo(new byte[]{ 1, 2, 3 }));
         Assert.That(stream.Position, Is.Zero);
     }
 
@@ -114,17 +111,19 @@ class AttachmentTests : AllureApiTestFixture
     [Test]
     public void UsesEncodingToConvertStrings()
     {
+        var expectedFileName = this.testResult.attachments[0].source;
+        byte[] expectedContent = [
+            0x4c, 0x00, 0x6f, 0x00, 0x72, 0x00, 0x65, 0x00, 0x6d, 0x00, 0x20,
+            0x00, 0x49, 0x00, 0x70, 0x00, 0x73, 0x00, 0x75, 0x00, 0x6D, 0x00,
+        ];
+
         AttachEncoding();
 
         Assert.That(
-            this.writer.attachments,
-            Contains.Item((
-                this.testResult.attachments[0].source,
-                new byte[]
-                {
-                    0x4c, 0x00, 0x6f, 0x00, 0x72, 0x00, 0x65, 0x00, 0x6d, 0x00, 0x20, 0x00,
-                    0x49, 0x00, 0x70, 0x00, 0x73, 0x00, 0x75, 0x00, 0x6D, 0x00
-                })));
+            this.writer.ByteAttachments,
+            Contains.Key(expectedFileName));
+        Assert.That(
+            this.writer.ByteAttachments[expectedFileName], Is.EqualTo(expectedContent));
     }
 
     [Test]
@@ -203,6 +202,8 @@ class AttachmentTests : AllureApiTestFixture
     [Test]
     public async Task SupportsAsyncFunctions()
     {
+        var expectedContent = "Lorem Ipsum"u8.ToArray();
+
         await AttachStringAsync();
 
         Assert.That(this.testResult.attachments, Has.One.Items);
@@ -210,16 +211,15 @@ class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.name, Is.EqualTo(nameof(AttachStringAsync)));
         Assert.That(attachment.type, Is.EqualTo("text/plain"));
         Assert.That(attachment.source, Does.EndWith(".txt"));
-        Assert.That(
-            this.writer.attachments,
-            Contains.Item((
-                attachment.source,
-                "Lorem Ipsum"u8.ToArray())));
+        Assert.That(this.writer.ByteAttachments, Contains.Key(attachment.source));
+        Assert.That(this.writer.ByteAttachments[attachment.source], Is.EqualTo(expectedContent));
     }
 
     [Test]
     public async Task SupportsValueTask()
     {
+        var expectedContent = "Lorem Ipsum"u8.ToArray();
+
         await AttachStringValueTask();
 
         Assert.That(this.testResult.attachments, Has.One.Items);
@@ -227,11 +227,8 @@ class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.name, Is.EqualTo(nameof(AttachStringValueTask)));
         Assert.That(attachment.type, Is.EqualTo("text/plain"));
         Assert.That(attachment.source, Does.EndWith(".txt"));
-        Assert.That(
-            this.writer.attachments,
-            Contains.Item((
-                attachment.source,
-                "Lorem Ipsum"u8.ToArray())));
+        Assert.That(this.writer.ByteAttachments, Contains.Key(attachment.source));
+        Assert.That(this.writer.ByteAttachments[attachment.source], Is.EqualTo(expectedContent));
     }
 
     [Test]
@@ -251,7 +248,7 @@ class AttachmentTests : AllureApiTestFixture
 
         AttachGlobalString();
 
-        var globals = this.writer.globals;
+        var globals = this.writer.Globals;
         Assert.That(globals, Has.One.Items);
 
         var globalAttachments = globals[0].attachments;
@@ -268,8 +265,8 @@ class AttachmentTests : AllureApiTestFixture
         AttachGlobalString();
 
         Assert.That(this.testResult.attachments, Is.Empty);
-        Assert.That(this.writer.globals, Has.One.Items);
-        Assert.That(this.writer.globals[0].attachments, Has.One.Items);
+        Assert.That(this.writer.Globals, Has.One.Items);
+        Assert.That(this.writer.Globals[0].attachments, Has.One.Items);
     }
 
     [AllureAttachment]

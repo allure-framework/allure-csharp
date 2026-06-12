@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Allure.Net.Commons.Sdk.Writers;
 using NUnit.Framework;
 
 namespace Allure.Net.Commons.Tests
@@ -130,17 +131,17 @@ namespace Allure.Net.Commons.Tests
                 .WriteTestCase()
                 .WriteTestContainer();
 
-            Assert.That(writer.testContainers.Count, Is.EqualTo(1));
-            Assert.That(writer.testContainers[0].uuid, Is.EqualTo(container.uuid));
+            Assert.That(writer.TestContainers.Count, Is.EqualTo(1));
+            Assert.That(writer.TestContainers[0].uuid, Is.EqualTo(container.uuid));
 
-            Assert.That(writer.testContainers[0].befores.Count, Is.EqualTo(1));
-            Assert.That(writer.testContainers[0].befores[0].name, Is.EqualTo("fixture"));
+            Assert.That(writer.TestContainers[0].befores.Count, Is.EqualTo(1));
+            Assert.That(writer.TestContainers[0].befores[0].name, Is.EqualTo("fixture"));
 
-            Assert.That(writer.testContainers[0].children.Count, Is.EqualTo(1));
-            Assert.That(writer.testContainers[0].children[0], Is.EqualTo(testResult.uuid));
+            Assert.That(writer.TestContainers[0].children.Count, Is.EqualTo(1));
+            Assert.That(writer.TestContainers[0].children[0], Is.EqualTo(testResult.uuid));
 
-            Assert.That(writer.testResults.Count, Is.EqualTo(1));
-            Assert.That(writer.testResults[0].uuid, Is.EqualTo(testResult.uuid));
+            Assert.That(writer.TestResults.Count, Is.EqualTo(1));
+            Assert.That(writer.TestResults[0].uuid, Is.EqualTo(testResult.uuid));
         }
 
         [Test]
@@ -164,7 +165,7 @@ namespace Allure.Net.Commons.Tests
                 lifecycle.WriteTestCase();
             });
 
-            Assert.That(writer.testResults, Is.Not.Empty);
+            Assert.That(writer.TestResults, Is.Not.Empty);
             Assert.That(modifiedContext.HasTest, Is.False);
         }
 
@@ -191,7 +192,7 @@ namespace Allure.Net.Commons.Tests
                 lifecycle.WriteTestCase();
             });
 
-            Assert.That(writer.testResults, Is.Not.Empty);
+            Assert.That(writer.TestResults, Is.Not.Empty);
             Assert.That(lifecycle.Context.HasTest, Is.False);
         }
 
@@ -286,7 +287,7 @@ namespace Allure.Net.Commons.Tests
 
             lifecycle.WriteTestContainer();
 
-            Assert.That(writer.testContainers, Is.Empty);
+            Assert.That(writer.TestContainers, Is.Empty);
         }
 
         [Test]
@@ -301,7 +302,7 @@ namespace Allure.Net.Commons.Tests
 
             lifecycle.WriteTestContainer();
 
-            Assert.That(writer.testContainers, Has.One.Items);
+            Assert.That(writer.TestContainers, Has.One.Items);
         }
 
         [Test]
@@ -316,7 +317,7 @@ namespace Allure.Net.Commons.Tests
 
             lifecycle.WriteTestContainer();
 
-            Assert.That(writer.testContainers, Has.One.Items);
+            Assert.That(writer.TestContainers, Has.One.Items);
         }
     }
 }

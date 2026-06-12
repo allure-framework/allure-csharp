@@ -23,7 +23,7 @@ internal class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.type, Is.Null);
         Assert.That(attachment.source, Does.EndWith("-attachment"));
 
-        var (outputName, sourceAbsolutePath) = this.writer.attachmentFiles.Single();
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
         Assert.That(outputName, Is.EqualTo(attachment.source));
         Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
     }
@@ -42,7 +42,7 @@ internal class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.type, Is.EqualTo("application/json"));
         Assert.That(attachment.source, Does.EndWith("-attachment.json"));
 
-        var (outputName, sourceAbsolutePath) = this.writer.attachmentFiles.Single();
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
         Assert.That(outputName, Is.EqualTo(attachment.source));
         Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
     }
@@ -61,7 +61,7 @@ internal class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.type, Is.Null);
         Assert.That(attachment.source, Does.EndWith("-attachment"));
 
-        var (outputName, sourceAbsolutePath) = this.writer.attachmentFiles.Single();
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
         Assert.That(outputName, Is.EqualTo(attachment.source));
         Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
     }
@@ -80,7 +80,7 @@ internal class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.type, Is.EqualTo("text/plain"));
         Assert.That(attachment.source, Does.EndWith("-attachment"));
 
-        var (outputName, sourceAbsolutePath) = this.writer.attachmentFiles.Single();
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
         Assert.That(outputName, Is.EqualTo(attachment.source));
         Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
     }
@@ -98,7 +98,7 @@ internal class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.type, Is.EqualTo("text/plain"));
         Assert.That(attachment.source, Does.EndWith("-attachment"));
 
-        var (outputName, content) = this.writer.attachments.Single();
+        var (outputName, content) = this.writer.ByteAttachments.Single();
         Assert.That(outputName, Is.EqualTo(attachment.source));
         Assert.That(content, Is.EqualTo([1, 2, 3]));
     }
@@ -116,7 +116,7 @@ internal class AttachmentTests : AllureApiTestFixture
         Assert.That(attachment.type, Is.EqualTo("text/plain"));
         Assert.That(attachment.source, Does.EndWith("-attachment.txt"));
 
-        var (outputName, content) = this.writer.attachments.Single();
+        var (outputName, content) = this.writer.ByteAttachments.Single();
         Assert.That(outputName, Is.EqualTo(attachment.source));
         Assert.That(content, Is.EqualTo([1, 2, 3]));
     }
@@ -134,7 +134,7 @@ internal class AttachmentTests : AllureApiTestFixture
         var attachment = this.Context.CurrentTest.attachments.Single();
         var content = JsonConvert.DeserializeAnonymousType(
             Encoding.UTF8.GetString(
-                this.writer.attachments.Single().Content
+                this.writer.ByteAttachments.Values.Single()
             ),
             new { expected = "", actual = "", diff = "" }
         );
@@ -213,7 +213,7 @@ internal class AttachmentTests : AllureApiTestFixture
         var attachment = this.Context.CurrentTest.attachments.Single();
         var content = JsonConvert.DeserializeAnonymousType(
             Encoding.UTF8.GetString(
-                this.writer.attachments.Single().Content
+                this.writer.ByteAttachments.Values.Single()
             ),
             new { expected = "", actual = "", diff = "" }
         );

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-namespace Allure.Net.Commons.Writer
+namespace Allure.Net.Commons.Sdk.Writers
 {
     /// <summary>
     /// Writer that emits results to an output directory.
@@ -61,25 +61,25 @@ namespace Allure.Net.Commons.Writer
 
         public void CleanUp()
         {
-            using (var mutex = new Mutex(false, "729dc988-0e9c-49d0-9e50-17e0df3cd82b"))
+            using var mutex = new Mutex(false, "729dc988-0e9c-49d0-9e50-17e0df3cd82b");
+
+            mutex.WaitOne();
+            var directory = new DirectoryInfo(outputDirectory);
+            foreach (var file in directory.GetFiles())
             {
-                mutex.WaitOne();
-                var directory = new DirectoryInfo(outputDirectory);
-                foreach (var file in directory.GetFiles()) file.Delete();
-                foreach (var dir in directory.GetDirectories()) dir.Delete(true);
-
-                mutex.ReleaseMutex();
+                file.Delete();
             }
+            foreach (var dir in directory.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+            mutex.ReleaseMutex();
         }
 
-        public override string ToString()
+        string Write(object allureObject, string fileSuffix)
         {
-            return outputDirectory;
-        }
-
-        protected string Write(object allureObject, string fileSuffix)
-        {
-            var filePath = Path.Combine(outputDirectory, $"{Guid.NewGuid().ToString("N")}{fileSuffix}");
+            var uuid = Guid.NewGuid();
+            var filePath = Path.Combine(outputDirectory, $"{uuid:N}{fileSuffix}");
             using (var fileStream = File.CreateText(filePath))
             {
                 serializer.Serialize(fileStream, allureObject);
@@ -88,7 +88,7 @@ namespace Allure.Net.Commons.Writer
             return filePath;
         }
 
-        internal virtual bool HasDirectoryAccess(string directory)
+        bool HasDirectoryAccess(string directory)
         {
             var tempFile = Path.Combine(directory, Guid.NewGuid().ToString());
             try
@@ -103,7 +103,7 @@ namespace Allure.Net.Commons.Writer
             }
         }
 
-        private string GetResultsDirectory(string outputDirectory)
+        string GetResultsDirectory(string outputDirectory)
         {
             var parentDir = new DirectoryInfo(outputDirectory).Parent.FullName;
             outputDirectory = HasDirectoryAccess(parentDir)

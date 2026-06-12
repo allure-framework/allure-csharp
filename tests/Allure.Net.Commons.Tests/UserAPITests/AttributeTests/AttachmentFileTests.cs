@@ -51,7 +51,12 @@ class AttachmentFileTests : AllureApiTestFixture
         Assert.That(attachment.name, Is.EqualTo("foo"));
         Assert.That(attachment.type, Is.Null);
         Assert.That(attachment.source, Does.Not.Contain("."));
-        Assert.That(this.writer.attachments, Contains.Item((attachment.source, new byte[]{ 1, 2, 3 })));
+        Assert.That(
+            this.writer.ByteAttachments,
+            Contains.Key(attachment.source));
+        Assert.That(
+            this.writer.ByteAttachments[attachment.source],
+            Is.EqualTo(new byte[]{ 1, 2, 3 }));
     }
 
     [Test]
@@ -64,7 +69,12 @@ class AttachmentFileTests : AllureApiTestFixture
         Assert.That(attachment.name, Is.EqualTo("foo"));
         Assert.That(attachment.type, Is.Null);
         Assert.That(attachment.source, Does.Not.Contain("."));
-        Assert.That(this.writer.attachments, Contains.Item((attachment.source, new byte[]{ 1, 2, 3 })));
+        Assert.That(
+            this.writer.ByteAttachments,
+            Contains.Key(attachment.source));
+        Assert.That(
+            this.writer.ByteAttachments[attachment.source],
+            Is.EqualTo(new byte[]{ 1, 2, 3 }));
     }
 
     [Test]
@@ -73,7 +83,7 @@ class AttachmentFileTests : AllureApiTestFixture
         Assert.That(this.AttachByNull, Throws.Nothing);
 
         Assert.That(this.testResult.attachments, Is.Empty);
-        Assert.That(this.writer.attachments, Is.Empty);
+        Assert.That(this.writer.ByteAttachments, Is.Empty);
     }
 
     [Test]
@@ -151,10 +161,11 @@ class AttachmentFileTests : AllureApiTestFixture
 
         var attachment = this.testResult.attachments[0];
         Assert.That(
-            this.writer.attachments,
-            Contains.Item((
-                attachment.source,
-                new byte[]{ 1, 2, 3 })));
+            this.writer.ByteAttachments,
+            Contains.Key(attachment.source));
+        Assert.That(
+            this.writer.ByteAttachments[attachment.source],
+            Is.EqualTo(new byte[]{ 1, 2, 3 }));
     }
 
     [Test]
@@ -164,10 +175,11 @@ class AttachmentFileTests : AllureApiTestFixture
 
         var attachment = this.testResult.attachments[0];
         Assert.That(
-            this.writer.attachments,
-            Contains.Item((
-                attachment.source,
-                new byte[]{ 1, 2, 3 })));
+            this.writer.ByteAttachments,
+            Contains.Key(attachment.source));
+        Assert.That(
+            this.writer.ByteAttachments[attachment.source],
+            Is.EqualTo(new byte[]{ 1, 2, 3 }));
     }
 
     [Test]
@@ -187,7 +199,7 @@ class AttachmentFileTests : AllureApiTestFixture
 
         this.AttachGlobalByFileInfo();
 
-        var globals = this.writer.globals;
+        var globals = this.writer.Globals;
         Assert.That(globals, Has.One.Items);
 
         var globalAttachments = globals[0].attachments;
@@ -204,8 +216,8 @@ class AttachmentFileTests : AllureApiTestFixture
         this.AttachGlobalByFileInfo();
 
         Assert.That(this.testResult.attachments, Is.Empty);
-        Assert.That(this.writer.globals, Has.One.Items);
-        Assert.That(this.writer.globals[0].attachments, Has.One.Items);
+        Assert.That(this.writer.Globals, Has.One.Items);
+        Assert.That(this.writer.Globals[0].attachments, Has.One.Items);
     }
 
     [AllureAttachmentFile]

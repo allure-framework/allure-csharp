@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Allure.Net.Commons.Sdk.Writers;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -299,10 +300,10 @@ namespace Allure.Net.Commons.Tests
         void AssertTestWithSteps(string testName, bool anyOrder, params object[] steps)
         {
             Assert.That(
-                this.writer.testResults.Select(tr => tr.name),
+                this.writer.TestResults.Select(tr => tr.name),
                 Contains.Item(testName)
             );
-            var test = this.writer.testResults.Single(tr => tr.name == testName);
+            var test = this.writer.TestResults.Single(tr => tr.name == testName);
             this.AssertSteps(test.steps, anyOrder, steps);
         }
 

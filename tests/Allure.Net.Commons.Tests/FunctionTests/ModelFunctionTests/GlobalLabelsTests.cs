@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using Allure.Net.Commons.Functions;
-using System.Collections.Generic;
 using System.Linq;
 using Allure.Net.Commons.Configuration;
 

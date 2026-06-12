@@ -1,4 +1,4 @@
-﻿namespace Allure.Net.Commons.Writer
+﻿namespace Allure.Net.Commons.Sdk
 {
     /// <summary>
     /// An implementation of this interface is responsible for storing Allure results
@@ -12,7 +12,7 @@
         void Write(TestResult testResult);
 
         /// <summary>
-        /// Writes a container after its test results have all been writtern and
+        /// Writes a container after its test results have all been written and
         /// its fixtures are fully populated.
         /// </summary>
         void Write(TestResultContainer container);
