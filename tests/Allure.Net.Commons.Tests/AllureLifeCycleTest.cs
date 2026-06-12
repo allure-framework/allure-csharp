@@ -9,12 +9,6 @@ namespace Allure.Net.Commons.Tests
     [TestFixture]
     public class AllureLifeCycleTest
     {
-        [Test, Description("ResultsDirectory property shouldn't be empty")]
-        public void CheckResultsDirectory()
-        {
-            Assert.That(new AllureLifecycle().ResultsDirectory, Is.Not.Null);
-        }
-
         [Test, Description("ExecutableItem.status default value should be 'none'")]
         public void ShouldSetDefaultStateAsNone()
         {

@@ -12,6 +12,7 @@ using Allure.Net.Commons.TestPlan;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel;
 
 #nullable enable
 
@@ -120,7 +121,8 @@ public class AllureLifecycle
     /// <summary>
     /// The full path to the Allure results directory.
     /// </summary>
-    public string ResultsDirectory => writer.ToString();
+    [Obsolete("Use AllureConfiguration.Directory instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string ResultsDirectory => this.AllureConfiguration.Directory;
 
     /// <summary>
