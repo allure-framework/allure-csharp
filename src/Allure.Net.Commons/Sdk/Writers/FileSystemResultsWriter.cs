@@ -50,21 +50,32 @@ namespace Allure.Net.Commons.Sdk.Writers
         public void Write(string outputFileName, byte[] content)
         {
             var outputFilePath = Path.Combine(outputDirectory, outputFileName);
+
+            this.EnsureDirectory();
+
             File.WriteAllBytes(outputFilePath, content);
         }
 
         public void Write(string destinationFileName, string sourceFilePath)
         {
             var destinationPath = Path.Combine(outputDirectory, destinationFileName);
+
+            this.EnsureDirectory();
+
             File.Copy(sourceFilePath, destinationPath);
         }
 
         public void CleanUp()
         {
-            using var mutex = new Mutex(false, "729dc988-0e9c-49d0-9e50-17e0df3cd82b");
-
-            mutex.WaitOne();
             var directory = new DirectoryInfo(outputDirectory);
+            if (!directory.Exists)
+            {
+                return;
+            }
+
+            using var mutex = new Mutex(false, "729dc988-0e9c-49d0-9e50-17e0df3cd82b");
+            mutex.WaitOne();
+
             foreach (var file in directory.GetFiles())
             {
                 file.Delete();
@@ -80,12 +91,23 @@ namespace Allure.Net.Commons.Sdk.Writers
         {
             var uuid = Guid.NewGuid();
             var filePath = Path.Combine(outputDirectory, $"{uuid:N}{fileSuffix}");
+
+            this.EnsureDirectory();
+
             using (var fileStream = File.CreateText(filePath))
             {
                 serializer.Serialize(fileStream, allureObject);
             }
 
             return filePath;
+        }
+
+        void EnsureDirectory()
+        {
+            if (!Directory.Exists(this.outputDirectory))
+            {
+                Directory.CreateDirectory(this.outputDirectory);
+            }
         }
     }
 }
