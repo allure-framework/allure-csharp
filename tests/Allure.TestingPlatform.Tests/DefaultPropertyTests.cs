@@ -193,8 +193,6 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         await Assert.That(testResult.labels).Contains(
             l => l.name == "host" && l.value == Environment.MachineName
         ).And.Contains(
-            l => l.name == "thread" && l.value is { Length: >0 }
-        ).And.Contains(
             l => l.name == "language" && l.value == "C#"
         );
     }

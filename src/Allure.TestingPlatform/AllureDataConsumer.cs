@@ -215,7 +215,7 @@ public class AllureDataConsumer : IDataConsumer
             labels = [
                 Label.Language(),
                 Label.Host(),
-                Label.Thread(),
+                // No Label.Thread as we can't tell here in which one the test has been run
             ],
         };
 
