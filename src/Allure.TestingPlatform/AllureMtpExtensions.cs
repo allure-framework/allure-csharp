@@ -7,31 +7,31 @@ namespace Allure.TestingPlatform;
 
 public static class AllureMtpExtensions
 {
-    public static void AddAllure(
-        this ITestApplicationBuilder builder,
-        Action<IAllureRegistrationContext> allureRegistration
-    )
+    extension (ITestApplicationBuilder builder)
     {
-        var allureBuilder = new AllureInfrastructureBuilder();
-
-        builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
-
-        allureRegistration(allureBuilder);
-
-        builder.TestHost.AddDataConsumer((serviceProvider) =>
+        public void AddAllure(Action<IAllureRegistrationContext> allureRegistration)
         {
-            var options = serviceProvider.GetCommandLineOptions();
+            var allureBuilder = new AllureInfrastructureBuilder();
 
-            allureBuilder.SetEnabled(
-                AllureCliOptionsProvider.IsAllureEnabled(options)
-            );
+            builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
 
-            return new AllureDataConsumer(
-                allureBuilder.Build()
-            );
-        });
+            allureRegistration(allureBuilder);
+
+            builder.TestHost.AddDataConsumer((serviceProvider) =>
+            {
+                var options = serviceProvider.GetCommandLineOptions();
+
+                allureBuilder.SetEnabled(
+                    AllureCliOptionsProvider.IsAllureEnabled(options)
+                );
+
+                return new AllureDataConsumer(
+                    allureBuilder.Build()
+                );
+            });
+        }
+
+        public void AddAllure() =>
+            AddAllure(builder, static (_) => {});
     }
-
-    public static void AddAllure(this ITestApplicationBuilder builder) =>
-        AddAllure(builder, static (_) => {});
 }
