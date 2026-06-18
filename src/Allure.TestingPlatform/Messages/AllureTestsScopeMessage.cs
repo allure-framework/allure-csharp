@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 
@@ -16,5 +17,7 @@ public sealed class AllureTestsScopeMessage(
     )
 {
     public string ScopeUid => scopeUid;
-    public List<string> TestUids => [..testUids];
+
+    public ImmutableArray<string> TestUids { get; }
+        = testUids.ToImmutableArray();
 }
