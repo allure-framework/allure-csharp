@@ -8,9 +8,9 @@ namespace Allure.TestingPlatform;
 
 public interface IAllureInfrastructure
 {
+    bool IsEnabled { get; }
     AllureConfiguration Config { get; }
     IAllureResultsWriter Writer { get; }
     AllureLifecycle Lifecycle { get; }
     IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters { get; }
-
 }

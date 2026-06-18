@@ -11,6 +11,8 @@ namespace Allure.TestingPlatform.Registration;
 
 public class AllureInfrastructureBuilder : IAllureRegistrationContext
 {
+    bool isEnabled = true;
+
     Func<AllureConfiguration> configurationFactory = () =>
     {
         var configEnvVarName = AllureConstants.ALLURE_CONFIG_ENV_VARIABLE;
@@ -59,6 +61,12 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
     Func<AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory =
         (cfg) => [];
 
+    public IAllureRegistrationContext SetEnabled(bool enabled)
+    {
+        this.isEnabled = enabled;
+        return this;
+    }
+
     public IAllureRegistrationContext UseConfiguration(Func<AllureConfiguration> configurationFactory)
     {
         this.configurationFactory = configurationFactory;
@@ -90,6 +98,6 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
         var typeFormatters = this.typeFormattersFactory(config);
         var lifecycle = this.lifecycleFactory(new(config, writer, typeFormatters));
 
-        return new AllureInfrastructure(config, writer, lifecycle, typeFormatters);
+        return new AllureInfrastructure(this.isEnabled, config, writer, lifecycle, typeFormatters);
     }
 }

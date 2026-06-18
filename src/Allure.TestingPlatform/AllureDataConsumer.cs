@@ -55,6 +55,8 @@ public class AllureDataConsumer : IDataConsumer
     public string Description { get; } =
         "A data consumer extension that creates Allure data from Microsoft Testing Platform messages";
 
+    public Task<bool> IsEnabledAsync() => Task.FromResult(this.allure.IsEnabled);
+
     public AllureLifecycle Lifecycle => this.allure.Lifecycle;
 
     readonly List<Func<IDataProducer, IData, CancellationToken, Task<bool>>> consumeFunctions;
@@ -97,8 +99,6 @@ public class AllureDataConsumer : IDataConsumer
             }
         }
     }
-
-    public Task<bool> IsEnabledAsync() => Task.FromResult(true);
 
     bool TryConsumeMessage<TMessage>(IData message, Action<TMessage> consume) where TMessage : IData
     {

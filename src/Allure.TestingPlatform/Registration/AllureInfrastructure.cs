@@ -7,6 +7,7 @@ using Allure.Net.Commons.Sdk;
 namespace Allure.TestingPlatform.Registration;
 
 public class AllureInfrastructure(
+    bool isEnabled,
     AllureConfiguration config,
     IAllureResultsWriter writer,
     AllureLifecycle lifecycle,
@@ -14,6 +15,7 @@ public class AllureInfrastructure(
 )
     : IAllureInfrastructure
 {
+    public bool IsEnabled { get; } = isEnabled;
     public AllureConfiguration Config { get; } = config;
     public IAllureResultsWriter Writer { get; } = writer;
     public AllureLifecycle Lifecycle { get; } = lifecycle;

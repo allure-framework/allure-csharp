@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Registration;
 
 public interface IAllureRegistrationContext
 {
+    IAllureRegistrationContext SetEnabled(bool enabled);
+
     IAllureRegistrationContext UseConfiguration(
         Func<AllureConfiguration> configurationFactory);
 
