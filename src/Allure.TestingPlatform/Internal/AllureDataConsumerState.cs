@@ -1,201 +1,150 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Allure.Net.Commons;
-using Microsoft.Testing.Platform.TestHost;
 
 namespace Allure.TestingPlatform.Internal;
 
 internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 {
-    readonly Dictionary<(string, string), AllureContext> contexts = [];
-    readonly Dictionary<(string, string), Queue<Action>> pendingUpdates = [];
-    readonly Dictionary<(string, string), bool> sharedUids = [];
-    readonly Dictionary<(string, string), AllureContext> testScopes = [];
+    readonly Dictionary<string, AllureMtpSessionState> sessions = [];
 
-    public bool TryGetContext(SessionUid session, string contextUid, [NotNullWhen(true)] out AllureContext? context) =>
-        this.contexts.TryGetValue((session.Value, contextUid), out context);
+    public void CreateSessionState(string correlationUid)
+    {
+        if (this.sessions.ContainsKey(correlationUid))
+        {
+            throw new InvalidOperationException(
+                $"A state for session {correlationUid} already exists."
+            );
+        }
 
-    public bool TryGetPendingUpdates(
-        SessionUid session,
+        this.sessions[correlationUid] = new(lifecycle);
+    }
+
+    public void RemoveSessionState(string correlationUid)
+    {
+        if (!this.sessions.Remove(correlationUid))
+        {
+            throw new InvalidOperationException(
+                $"No state for session {correlationUid} exists."
+            );
+        }
+    }
+
+    public bool TryGetContext(
+        string correlationUid,
         string contextUid,
-        [NotNullWhen(true)] out Queue<Action>? updates
-    ) =>
-        this.pendingUpdates.TryGetValue((session.Value, contextUid), out updates);
-
-    public void SetContext(SessionUid session, string contextUid, AllureContext context)
+        [NotNullWhen(true)] out AllureContext? context
+    )
     {
-        this.contexts[(session.Value, contextUid)] = context;
-        this.ConsumePendingUpdates(session, contextUid);
-    }
-
-    public void ConsumePendingUpdates(SessionUid session, string contextUid)
-    {
-        if (TryRemove(this.pendingUpdates, (session.Value, contextUid), out var updates))
+        if (this.TryGetSessionState(correlationUid, out var state))
         {
-            foreach (var update in updates)
-            {
-                this.UpdateContext(session, contextUid, update);
-            }
-        }
-    }
-
-    public void AddPendingUpdate(SessionUid session, string contextUid, Action update)
-    {
-        if (this.TryGetPendingUpdates(session, contextUid, out var updates))
-        {
-            updates.Enqueue(update);
-        }
-        else
-        {
-            this.pendingUpdates[(session.Value, contextUid)] = new([update]);
-        }
-    }
-
-    public void RemoveContext(SessionUid session, string contextUid)
-    {
-        TryRemove(this.contexts, (session.Value, contextUid), out var _);
-    }
-
-    public void CaptureContext(SessionUid session, string contextUid)
-    {
-        this.SetContext(session, contextUid, lifecycle.Context);
-    }
-
-    public void InheritContext(SessionUid session, string contextUid, string? parentContextUid, Action init)
-    {
-        if (parentContextUid is not null)
-        {
-            if (this.TryGetContext(session, parentContextUid, out var parentContext))
-            {
-                this.SetContext(
-                    session,
-                    contextUid,
-                    lifecycle.RunInContext(parentContext, init)
-                );
-            }
-            else
-            {
-                // TODO: Cover with tests
-                this.AddPendingUpdate(session, parentContextUid, () =>
-                {
-                    init();
-                    this.SetContext(session, contextUid, lifecycle.Context);
-                });
-            }
-        }
-        else
-        {
-            this.SetContext(
-                session,
-                contextUid,
-                lifecycle.RunInContext(new(), init)
-            );
-        }
-    }
-
-    public void UpdateContext(SessionUid session, string contextUid, Action update)
-    {
-        if (this.TryGetContext(session, contextUid, out var context))
-        {
-            this.SetContext(
-                session,
-                contextUid,
-                lifecycle.RunInContext(context, update)
-            );
-        }
-        else
-        {
-            // TODO: Cover with tests
-            this.AddPendingUpdate(session, contextUid, update);
-        }
-    }
-
-    public void ReleaseContext(SessionUid session, string contextUid, Action commit)
-    {
-        if (this.TryGetContext(session, contextUid, out var context))
-        {
-            lifecycle.RunInContext(context, commit);
-        }
-    }
-
-    public void ReleaseScopeContext(SessionUid session, string contextUid, Action commit)
-    {
-        var key = (session.Value, contextUid);
-        TryRemove(this.testScopes, key, out _);
-        TryRemove(this.sharedUids, key, out _);
-
-        this.ReleaseContext(session, contextUid, commit);
-    }
-
-    public void MakeUidShared(SessionUid session, string uid)
-    {
-        this.sharedUids[(session.Value, uid)] = true;
-    }
-
-    public void RemoveTestContext(SessionUid session, string testUid)
-    {
-        if (TryRemove(this.sharedUids, (session.Value, testUid), out _))
-        {
-            // A scope with the same Uid is active. The context will be removed via AllureScopeStopMessage.
-            // We need to update the context to make sure it has no test result in it.
-            this.CaptureContext(session, testUid);
-        }
-        else
-        {
-            // If no scope with the same Uid is active, we don't need the context anymore
-            this.RemoveContext(session, testUid);
-        }
-    }
-
-    public void AssociateTestsWithScope(SessionUid session, string scopeUid, IEnumerable<string> testUids)
-    {
-        if (!this.TryGetContext(session, scopeUid, out var scope))
-        {
-            return;
+            return state.TryGetContext(contextUid, out context);
         }
 
-        // Remember the association for future test results
-        foreach (var testUid in testUids)
-        {
-            this.testScopes[(session.Value, testUid)] = scope;
-        }
-
-        // Move the current tests to the scope
-        foreach (var testUid in testUids)
-        {
-            string? testUuid = null;
-            if (this.TryGetContext(session, testUid, out var testContext))
-            {
-                lifecycle.RunInContext(testContext, () =>
-                {
-                    lifecycle.UpdateTestCase(tr => testUuid = tr.uuid);
-                });
-
-                lifecycle.RunInContext(scope, () =>
-                {
-                    lifecycle.UpdateTestContainers((c) => c.children.Add(testUuid));
-                });
-            }
-        }
-    }
-
-    public void TryEnterTestScope(SessionUid session, string testUid)
-    {
-        if (!this.sharedUids.ContainsKey((session.Value, testUid))
-            && this.testScopes.TryGetValue((session.Value, testUid), out var scope))
-        {
-            lifecycle.RestoreContext(scope);
-        }
-    }
-
-    static bool TryRemove<K, V>(Dictionary<K, V> dictionary, K key, out V value)
-    {
-        if (dictionary.TryGetValue(key, out value))
-        {
-            dictionary.Remove(key);
-            return true;
-        }
+        context = default;
         return false;
+    }
+
+    public void MakeUidShared(string correlationUid, string contextUid)
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.MakeUidShared(contextUid);
+        }
+    }
+
+    public void TryEnterTestScope(string correlationUid, string contextUid)
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.TryEnterTestScope(contextUid);
+        }
+    }
+
+    public void SetContext(string correlationUid, string contextUid, AllureContext context)
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.SetContext(contextUid, context);
+        }
+    }
+
+    public void RemoveTestContext(string correlationUid, string contextUid)
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.RemoveTestContext(contextUid);
+        }
+    }
+
+    public void InheritContext(
+        string correlationUid,
+        string contextUid,
+        string? parentContextUid,
+        Action init
+    )
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.InheritContext(contextUid, parentContextUid, init);
+        }
+    }
+
+    public void UpdateContext(string correlationUid, string contextUid, Action update)
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.UpdateContext(contextUid, update);
+        }
+    }
+
+    public void ReleaseContext(string correlationUid, string contextUid, Action commit)
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.ReleaseContext(contextUid, commit);
+            if (state.IsEmpty)
+            {
+                this.sessions.Remove(correlationUid);
+            }
+        }
+    }
+
+    public void ReleaseScopeContext(string correlationUid, string contextUid, Action commit)
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.ReleaseScopeContext(contextUid, commit);
+            if (state.IsEmpty)
+            {
+                this.sessions.Remove(correlationUid);
+            }
+        }
+    }
+
+    public void AssociateTestsWithScope(
+        string correlationUid,
+        string scopeUid,
+        ImmutableArray<string> testUids
+    )
+    {
+        if (this.TryGetSessionState(correlationUid, out var state))
+        {
+            state.AssociateTestsWithScope(scopeUid, testUids);
+        }
+    }
+
+    bool TryGetSessionState(
+        string correlationUid,
+        [NotNullWhen(true)] out AllureMtpSessionState state
+    )
+    {
+        if (!this.sessions.TryGetValue(correlationUid, out state))
+        {
+            this.sessions[correlationUid] = state = new(lifecycle);
+        }
+        return true;
     }
 }
