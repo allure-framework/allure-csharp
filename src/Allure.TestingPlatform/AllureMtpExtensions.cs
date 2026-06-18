@@ -20,6 +20,6 @@ public static class AllureMtpExtensions
             ));
     }
 
-    public static void RegisterAllure(this ITestApplicationBuilder builder) =>
+    public static void AddAllure(this ITestApplicationBuilder builder) =>
         AddAllure(builder, static (_) => {});
 }

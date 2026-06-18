@@ -6,6 +6,6 @@ public static class AllureMtpBuilderHook
 {
     public static void AddExtensions(ITestApplicationBuilder builder, string[] _)
     {
-        builder.RegisterAllure();
+        builder.AddAllure();
     }
 }
