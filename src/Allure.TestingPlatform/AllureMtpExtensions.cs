@@ -1,8 +1,10 @@
 using System;
+using System.Threading;
 using Allure.TestingPlatform.Registration;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Messages;
 using Microsoft.Testing.Platform.Services;
+using Microsoft.Testing.Platform.TestHost;
 
 namespace Allure.TestingPlatform;
 
@@ -46,5 +48,16 @@ public static class AllureMtpExtensions
 
         public static IAllureInfrastructure Allure =>
             allure ?? throw new InvalidOperationException("Allure is not initialized");
+    }
+
+    static readonly AsyncLocal<SessionUid?> currentSessionUid = new();
+
+    extension (SessionUid)
+    {
+        public static SessionUid? Current
+        {
+            get => currentSessionUid.Value;
+            internal set => currentSessionUid.Value = value;
+        }
     }
 }
