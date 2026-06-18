@@ -6,6 +6,7 @@ using Allure.Net.Commons.Sdk.Writers;
 namespace Allure.TestingPlatform.Tests.Stubs;
 
 public class AllureInfrastructureStub(
+    bool isEnabled,
     AllureConfiguration config,
     InMemoryResultsWriter writer,
     AllureLifecycle lifecycle,
@@ -13,6 +14,8 @@ public class AllureInfrastructureStub(
 )
     : IAllureInfrastructure
 {
+    public bool IsEnabled => isEnabled;
+
     public AllureConfiguration Config => config;
 
     public IAllureResultsWriter Writer => writer;

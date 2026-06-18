@@ -20,7 +20,7 @@ public abstract class DataConsumerTestsBase
         this.lifecycle = new(_ => this.writer);
         this.config = this.lifecycle.AllureConfiguration;
         this.typeFormatters = [];
-        this.allure = new(this.config, this.writer, this.lifecycle, this.typeFormatters);
+        this.allure = new(true, this.config, this.writer, this.lifecycle, this.typeFormatters);
         this.consumer = new(this.allure);
     }
 }

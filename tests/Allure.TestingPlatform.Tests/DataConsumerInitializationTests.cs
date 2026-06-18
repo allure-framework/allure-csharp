@@ -28,11 +28,11 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
     public async Task ShouldHaveNameAndDescription()
     {
         await Assert.That(this.consumer)
-            .Member(c => c.DisplayName, v => v.IsEqualTo("AllureDataConsumer"))
+            .Member(c => c.DisplayName, v => v.IsEqualTo("Allure.TestingPlatform data consumer"))
             .And.Member(
                 c => c.Description,
                 v => v.IsEqualTo(
-                    "A data consumer extension that creates Allure data from Microsoft Testing Platform messages"));
+                    "Creates Allure results from Microsoft Testing Platform messages"));
     }
 
     [Test]
