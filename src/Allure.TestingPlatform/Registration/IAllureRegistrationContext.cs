@@ -8,17 +8,23 @@ namespace Allure.TestingPlatform.Registration;
 
 public interface IAllureRegistrationContext
 {
-    IAllureRegistrationContext SetEnabled(bool enabled);
-
     IAllureRegistrationContext UseConfiguration(
-        Func<AllureConfiguration> configurationFactory);
+        Func<IServiceProvider, AllureConfiguration> configurationFactory
+    );
+
+    IAllureRegistrationContext SetIsEnabled(
+        Func<IServiceProvider, AllureConfiguration, bool> isEnabled
+    );
 
     IAllureRegistrationContext UseWriter(
-        Func<AllureConfiguration, IAllureResultsWriter> writerFactory);
+        Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory
+    );
 
     IAllureRegistrationContext UseLifecycle(
-        Func<AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory);
+        Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory
+    );
 
     IAllureRegistrationContext UseTypeFormatters(
-        Func<AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory);
+        Func<IServiceProvider, AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory
+    );
 }

@@ -5,15 +5,14 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
+using Microsoft.Testing.Platform.Services;
 using Newtonsoft.Json.Linq;
 
 namespace Allure.TestingPlatform.Registration;
 
 public class AllureInfrastructureBuilder : IAllureRegistrationContext
 {
-    bool isEnabled = true;
-
-    Func<AllureConfiguration> configurationFactory = () =>
+    Func<IServiceProvider, AllureConfiguration> configurationFactory = (_) =>
     {
         var configEnvVarName = AllureConstants.ALLURE_CONFIG_ENV_VARIABLE;
         var jsonConfigPath = Environment.GetEnvironmentVariable(
@@ -52,52 +51,68 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
         );
     };
 
-    Func<AllureConfiguration, IAllureResultsWriter> writerFactory =
-        (cfg) => new FileSystemResultsWriter(cfg.Directory, cfg.IndentOutput);
+    Func<IServiceProvider, AllureConfiguration, bool> isEnabled = (serviceProvider, _) =>
+        AllureCliOptionsProvider.IsAllureEnabled(
+            serviceProvider.GetCommandLineOptions()
+        );
 
-    Func<AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory =
-        (deps) => new AllureLifecycle(deps.Config, deps.Writer, deps.TypeFormatters);
+    Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory =
+        (_, cfg) => new FileSystemResultsWriter(cfg.Directory, cfg.IndentOutput);
 
-    Func<AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory =
-        (cfg) => [];
+    Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory =
+        (_, deps) => new AllureLifecycle(deps.Config, deps.Writer, deps.TypeFormatters);
 
-    public IAllureRegistrationContext SetEnabled(bool enabled)
-    {
-        this.isEnabled = enabled;
-        return this;
-    }
+    Func<IServiceProvider, AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory =
+        (_, cfg) => [];
 
-    public IAllureRegistrationContext UseConfiguration(Func<AllureConfiguration> configurationFactory)
+    public IAllureRegistrationContext UseConfiguration(
+        Func<IServiceProvider, AllureConfiguration> configurationFactory
+    )
     {
         this.configurationFactory = configurationFactory;
         return this;
     }
 
-    public IAllureRegistrationContext UseWriter(Func<AllureConfiguration, IAllureResultsWriter> writerFactory)
+    public IAllureRegistrationContext SetIsEnabled(
+        Func<IServiceProvider, AllureConfiguration, bool> isEnabled
+    )
+    {
+        this.isEnabled = isEnabled;
+        return this;
+    }
+
+    public IAllureRegistrationContext UseWriter(
+        Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory
+    )
     {
         this.writerFactory = writerFactory;
         return this;
     }
 
-    public IAllureRegistrationContext UseLifecycle(Func<AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory)
+    public IAllureRegistrationContext UseLifecycle(
+        Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory
+    )
     {
         this.lifecycleFactory = lifecycleFactory;
         return this;
     }
 
-    public IAllureRegistrationContext UseTypeFormatters(Func<AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory)
+    public IAllureRegistrationContext UseTypeFormatters(
+        Func<IServiceProvider, AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory
+    )
     {
         this.typeFormattersFactory = typeFormattersFactory;
         return this;
     }
 
-    public IAllureInfrastructure Build()
+    public IAllureInfrastructure Build(IServiceProvider serviceProvider)
     {
-        var config = this.configurationFactory();
-        var writer = this.writerFactory(config);
-        var typeFormatters = this.typeFormattersFactory(config);
-        var lifecycle = this.lifecycleFactory(new(config, writer, typeFormatters));
+        var config = this.configurationFactory(serviceProvider);
+        var isEnabled = this.isEnabled(serviceProvider, config);
+        var writer = this.writerFactory(serviceProvider, config);
+        var typeFormatters = this.typeFormattersFactory(serviceProvider, config);
+        var lifecycle = this.lifecycleFactory(serviceProvider, new(config, writer, typeFormatters));
 
-        return new AllureInfrastructure(this.isEnabled, config, writer, lifecycle, typeFormatters);
+        return new AllureInfrastructure(isEnabled, config, writer, lifecycle, typeFormatters);
     }
 }

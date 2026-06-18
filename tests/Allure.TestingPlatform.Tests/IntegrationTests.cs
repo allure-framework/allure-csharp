@@ -9,6 +9,7 @@ using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.Extensions.Messages;
+using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
 
 namespace Allure.TestingPlatform.Tests;
@@ -26,6 +27,8 @@ public class IntegrationTests
             )
         }
     );
+
+    static void TargetMethod(string foo) { }
 
     static AllureTestUpdateMessage TestUpdateMessage(SessionUid session) => new (session, "1")
     {
@@ -70,10 +73,18 @@ public class IntegrationTests
         };
         var lifecycle = new AllureLifecycle(config, writer, typeFormatters);
 
+        IServiceProvider useConfigurationServiceProvider = null;
+
+        IServiceProvider setIsEnabledServiceProvider = null;
+        AllureConfiguration setIsEnabledConfiguration = null;
+
+        IServiceProvider useWriterServiceProvider = null;
         AllureConfiguration useWriterConfig = null;
 
+        IServiceProvider useTypeFormattersServiceProvider = null;
         AllureConfiguration useTypeFormattersConfig = null;
 
+        IServiceProvider useLifecycleServiceProvider = null;
         AllureConfiguration useLifecycleConfig = null;
         IAllureResultsWriter useLifecycleWriter = null;
         Dictionary<Type, ITypeFormatter> useLifecycleTypeFormatters = null;
@@ -90,19 +101,32 @@ public class IntegrationTests
         ]);
         builder.AddAllure(ctx =>
         {
-            ctx.UseConfiguration(() => config);
-            ctx.UseWriter((cfg) =>
+            ctx.UseConfiguration((sp) =>
             {
+                useConfigurationServiceProvider = sp;
+                return config;
+            });
+            ctx.SetIsEnabled((sp, cfg) =>
+            {
+                setIsEnabledServiceProvider = sp;
+                setIsEnabledConfiguration = cfg;
+                return true;
+            });
+            ctx.UseWriter((sp, cfg) =>
+            {
+                useWriterServiceProvider = sp;
                 useWriterConfig = cfg;
                 return writer;
             });
-            ctx.UseTypeFormatters((cfg) =>
+            ctx.UseTypeFormatters((sp, cfg) =>
             {
+                useTypeFormattersServiceProvider = sp;
                 useTypeFormattersConfig = cfg;
                 return typeFormatters;
             });
-            ctx.UseLifecycle((deps) =>
+            ctx.UseLifecycle((sp, deps) =>
             {
+                useLifecycleServiceProvider = sp;
                 useLifecycleConfig = deps.Config;
                 useLifecycleWriter = deps.Writer;
                 useLifecycleTypeFormatters = deps.TypeFormatters;
@@ -125,7 +149,21 @@ public class IntegrationTests
 
         await Assert.That(code).IsEqualTo(0);
 
+        // Check if registration callbacks received the same service provider used for data consumer registration.
+        var dataConsumer =
+            await Assert.That(useConfigurationServiceProvider.GetRequiredService<AllureDataConsumer>())
+                .IsNotNull();
+        await Assert.That(setIsEnabledServiceProvider.GetRequiredService<AllureDataConsumer>())
+            .IsSameReferenceAs(dataConsumer);
+        await Assert.That(useWriterServiceProvider.GetRequiredService<AllureDataConsumer>())
+            .IsSameReferenceAs(dataConsumer);
+        await Assert.That(useTypeFormattersServiceProvider.GetRequiredService<AllureDataConsumer>())
+            .IsSameReferenceAs(dataConsumer);
+        await Assert.That(useLifecycleServiceProvider.GetRequiredService<AllureDataConsumer>())
+            .IsSameReferenceAs(dataConsumer);
+
         // Check if registration callbacks received the created objects.
+        await Assert.That(setIsEnabledConfiguration).IsSameReferenceAs(config);
         await Assert.That(useWriterConfig).IsSameReferenceAs(config);
         await Assert.That(useTypeFormattersConfig).IsSameReferenceAs(config);
         await Assert.That(useLifecycleConfig).IsSameReferenceAs(config);
@@ -146,6 +184,4 @@ public class IntegrationTests
         await Assert.That(parameter.name).IsEqualTo("foo");
         await Assert.That(parameter.value).IsEqualTo("stub");
     }
-
-    static void TargetMethod(string foo) { }
 }

@@ -25,14 +25,8 @@ public static class AllureMtpExtensions
 
             builder.TestHost.AddDataConsumer((serviceProvider) =>
             {
-                var options = serviceProvider.GetCommandLineOptions();
-
-                allureBuilder.SetEnabled(
-                    AllureCliOptionsProvider.IsAllureEnabled(options)
-                );
-
                 messageBus = serviceProvider.GetMessageBus();
-                allure = allureBuilder.Build();
+                allure = allureBuilder.Build(serviceProvider);
                 return new AllureDataConsumer(allure);
             });
         }
