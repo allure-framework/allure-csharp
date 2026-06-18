@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Registration;
 
@@ -14,6 +15,10 @@ public interface IAllureRegistrationContext
 
     IAllureRegistrationContext SetIsEnabled(
         Func<IServiceProvider, AllureConfiguration, bool> isEnabled
+    );
+
+    IAllureRegistrationContext UseCorrelation(
+        Func<IServiceProvider, AllureConfiguration, ICorrelationDefinition> correlationDefinitionFactory
     );
 
     IAllureRegistrationContext UseWriter(

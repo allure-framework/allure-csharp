@@ -5,6 +5,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
+using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Services;
 using Newtonsoft.Json.Linq;
 
@@ -56,6 +57,9 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
             serviceProvider.GetCommandLineOptions()
         );
 
+    Func<IServiceProvider, AllureConfiguration, ICorrelationDefinition> correlationDefinitionFactory =
+        (_, _) => new SessionUidCorrelation();
+
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory =
         (_, cfg) => new FileSystemResultsWriter(cfg.Directory, cfg.IndentOutput);
 
@@ -78,6 +82,14 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
     )
     {
         this.isEnabled = isEnabled;
+        return this;
+    }
+
+    public IAllureRegistrationContext UseCorrelation(
+        Func<IServiceProvider, AllureConfiguration, ICorrelationDefinition> correlationDefinitionFactory
+    )
+    {
+        this.correlationDefinitionFactory = correlationDefinitionFactory;
         return this;
     }
 
@@ -109,10 +121,11 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
     {
         var config = this.configurationFactory(serviceProvider);
         var isEnabled = this.isEnabled(serviceProvider, config);
+        var correlationDefinition = this.correlationDefinitionFactory(serviceProvider, config);
         var writer = this.writerFactory(serviceProvider, config);
         var typeFormatters = this.typeFormattersFactory(serviceProvider, config);
         var lifecycle = this.lifecycleFactory(serviceProvider, new(config, writer, typeFormatters));
 
-        return new AllureInfrastructure(isEnabled, config, writer, lifecycle, typeFormatters);
+        return new AllureInfrastructure(isEnabled, config, correlationDefinition, writer, lifecycle, typeFormatters);
     }
 }

@@ -3,6 +3,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
+using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
 using Allure.TestingPlatform.Tests.Stubs;
@@ -67,6 +68,7 @@ public class IntegrationTests
         {
             Links = ["foo/{issue}/bar"],
         };
+        var correlation = new SessionUidCorrelation();
         var writer = new InMemoryResultsWriter();
         Dictionary<Type, ITypeFormatter> typeFormatters = new()
         {
@@ -78,6 +80,9 @@ public class IntegrationTests
 
         IServiceProvider setIsEnabledServiceProvider = null;
         AllureConfiguration setIsEnabledConfiguration = null;
+
+        IServiceProvider useCorrelationServiceProvider = null;
+        AllureConfiguration useCorrelationConfiguration = null;
 
         IServiceProvider useWriterServiceProvider = null;
         AllureConfiguration useWriterConfig = null;
@@ -112,6 +117,12 @@ public class IntegrationTests
                 setIsEnabledServiceProvider = sp;
                 setIsEnabledConfiguration = cfg;
                 return true;
+            });
+            ctx.UseCorrelation((sp, cfg) =>
+            {
+                useCorrelationServiceProvider = sp;
+                useCorrelationConfiguration = cfg;
+                return correlation;
             });
             ctx.UseWriter((sp, cfg) =>
             {
@@ -156,6 +167,8 @@ public class IntegrationTests
                 .IsNotNull();
         await Assert.That(setIsEnabledServiceProvider.GetRequiredService<AllureDataConsumer>())
             .IsSameReferenceAs(dataConsumer);
+        await Assert.That(useCorrelationServiceProvider.GetRequiredService<AllureDataConsumer>())
+            .IsSameReferenceAs(dataConsumer);
         await Assert.That(useWriterServiceProvider.GetRequiredService<AllureDataConsumer>())
             .IsSameReferenceAs(dataConsumer);
         await Assert.That(useTypeFormattersServiceProvider.GetRequiredService<AllureDataConsumer>())
@@ -165,11 +178,20 @@ public class IntegrationTests
 
         // Check if registration callbacks received the created objects.
         await Assert.That(setIsEnabledConfiguration).IsSameReferenceAs(config);
+        await Assert.That(useCorrelationConfiguration).IsSameReferenceAs(config);
         await Assert.That(useWriterConfig).IsSameReferenceAs(config);
         await Assert.That(useTypeFormattersConfig).IsSameReferenceAs(config);
         await Assert.That(useLifecycleConfig).IsSameReferenceAs(config);
         await Assert.That(useLifecycleWriter).IsSameReferenceAs(writer);
         await Assert.That(useLifecycleTypeFormatters).IsSameReferenceAs(typeFormatters);
+
+        // Check if data consumer received the configured objects
+        await Assert.That(dataConsumer.Allure.Config).IsSameReferenceAs(config);
+        await Assert.That(dataConsumer.Allure.CorrelationDefinition).IsSameReferenceAs(correlation);
+        await Assert.That(dataConsumer.Allure.IsEnabled).IsTrue();
+        await Assert.That(dataConsumer.Allure.Lifecycle).IsSameReferenceAs(lifecycle);
+        await Assert.That(dataConsumer.Allure.Writer).IsSameReferenceAs(writer);
+        await Assert.That(dataConsumer.Lifecycle).IsSameReferenceAs(lifecycle);
 
         // Check if the writer was actually used
         var testResult = await Assert.That(writer.TestResults).HasSingleItem();

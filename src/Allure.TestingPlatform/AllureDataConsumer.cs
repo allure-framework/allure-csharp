@@ -43,8 +43,6 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
 
     readonly ImmutableArray<Func<IDataProducer, IData, CancellationToken, Task<bool>>> highLevelConsumeFunctions;
 
-    readonly ImmutableArray<Func<IDataProducer, DataWithSessionUid, CancellationToken, Task<bool>>> nativeMessageConsumeFunctions;
-
     readonly ImmutableArray<Func<IDataProducer, DataWithCorrelationUid, CancellationToken, Task<bool>>> allureMessageConsumeFunctions;
 
     public AllureDataConsumer(IAllureInfrastructure allure) : base(
@@ -55,7 +53,6 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
     )
     {
         this.state = new(allure.Lifecycle);
-        this.nativeMessageConsumeFunctions = InitializeNativeMtpMessageConsumeFunctions().ToImmutableArray();
         this.allureMessageConsumeFunctions = InitializeAllureMessageConsumeFunctions().ToImmutableArray();
         this.highLevelConsumeFunctions = InitializeHighLevelConsumeFunctions().ToImmutableArray();
     }
@@ -75,24 +72,6 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
         if (message is TMessage typedMessage)
         {
             await consume(typedMessage);
-            return true;
-        }
-        return false;
-    }
-
-    async Task<bool> TryConsumeDataWithSessionUid<TMessage>(
-        DataWithSessionUid message,
-        Func<AllureMtpSessionState, TMessage, Task> consume
-    )
-        where TMessage : DataWithSessionUid
-    {
-        if (message is TMessage { SessionUid.Value: var sessionUid } typedMessage)
-        {
-            CorrelationUid correlationUid = new(sessionUid);
-            await consume(
-                this.state.GetOrCreateSessionState(correlationUid),
-                typedMessage
-            );
             return true;
         }
         return false;
@@ -132,8 +111,16 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
         }
     }
 
-    async Task ConsumeTestNodeUpdateMessage(AllureMtpSessionState state, TestNodeUpdateMessage message)
+    async Task ConsumeTestNodeUpdateMessage(TestNodeUpdateMessage message)
     {
+        var correlationUid = this.Allure.CorrelationDefinition.ForTestNodeUpdateMessage(message);
+        if (correlationUid is null)
+        {
+            return;
+        }
+
+        var state = this.state.GetOrCreateSessionState(correlationUid.Value);
+
         var node = message.TestNode;
         var uid = node.Uid;
         TestContextUid testContextUid = new(node.Uid);
@@ -177,7 +164,7 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
         state.RemoveTestContext(testContextUid);
     }
 
-    async Task ConsumeSessionFileArtifactMessage(AllureMtpSessionState _, SessionFileArtifact message) =>
+    async Task ConsumeSessionFileArtifactMessage(SessionFileArtifact message) =>
         AllureApi.AddGlobalAttachment(message.DisplayName, null!, message.FileInfo.FullName);
 
     async Task ConsumeCreateContextMessage(AllureMtpSessionState state, CreateContextMessage message)
@@ -419,15 +406,6 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
             _ => new () { message = state.Explanation },
         };
 
-    IEnumerable<Func<IDataProducer, DataWithSessionUid, CancellationToken, Task<bool>>> InitializeNativeMtpMessageConsumeFunctions() => [
-        async (_, data, _) => await this.TryConsumeDataWithSessionUid<TestNodeUpdateMessage>(
-            data,
-            this.ConsumeTestNodeUpdateMessage),
-        async (_, data, _) => await this.TryConsumeDataWithSessionUid<SessionFileArtifact>(
-            data,
-            this.ConsumeSessionFileArtifactMessage),
-    ];
-
     IEnumerable<Func<IDataProducer, DataWithCorrelationUid, CancellationToken, Task<bool>>> InitializeAllureMessageConsumeFunctions() => [
         async (_, data, _) => await this.TryConsumeDataWithCorrelationUid<CreateContextMessage>(
             data,
@@ -447,14 +425,13 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
     ];
 
     IEnumerable<Func<IDataProducer, IData, CancellationToken, Task<bool>>> InitializeHighLevelConsumeFunctions() => [
-        async (producer, data, ct) => await TryConsumeMessage<DataWithSessionUid>(
+        async (producer, data, ct) => await TryConsumeMessage<TestNodeUpdateMessage>(
             data,
-            (typedData) => ApplyConsumeFunctionsOneByOne(
-                this.nativeMessageConsumeFunctions,
-                producer,
-                typedData,
-                ct
-            )
+            this.ConsumeTestNodeUpdateMessage
+        ),
+        async (producer, data, ct) => await TryConsumeMessage<SessionFileArtifact>(
+            data,
+            this.ConsumeSessionFileArtifactMessage
         ),
         async (producer, data, ct) => await TryConsumeMessage<DataWithCorrelationUid>(
             data,
