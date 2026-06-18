@@ -54,26 +54,25 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
         this.state = new(allure.Lifecycle);
 
         this.consumeFunctions = [
-            async (_, data, _) => this.TryConsumeMessage<TestNodeUpdateMessage>(
+            async (_, data, _) => await this.TryConsumeMessage<TestNodeUpdateMessage>(
                 data,
                 this.ConsumeTestNodeUpdateMessage),
-            async (_, data, _) => this.TryConsumeMessage<SessionFileArtifact>(
+            async (_, data, _) => await this.TryConsumeMessage<SessionFileArtifact>(
                 data,
-                (sfa) =>
-                    AllureApi.AddGlobalAttachment(sfa.DisplayName, null!, sfa.FileInfo.FullName)),
-            async (_, data, _) => this.TryConsumeMessage<CreateContextMessage>(
+                this.ConsumeSessionFileArtifactMessage),
+            async (_, data, _) => await this.TryConsumeMessage<CreateContextMessage>(
                 data,
                 this.ConsumeCreateContextMessage),
-            async (_, data, _) => this.TryConsumeMessage<MutateModelMessage>(
+            async (_, data, _) => await this.TryConsumeMessage<MutateModelMessage>(
                 data,
                 this.ConsumeMutateModelMessage),
-            async (_, data, _) => this.TryConsumeMessage<AllureScopeStopMessage>(
+            async (_, data, _) => await this.TryConsumeMessage<AllureScopeStopMessage>(
                 data,
                 this.ConsumeScopeStopMessage),
-            async (_, data, _) => this.TryConsumeMessage<RemoveContextMessage>(
+            async (_, data, _) => await this.TryConsumeMessage<RemoveContextMessage>(
                 data,
                 this.ConsumeRemoveContextMessage),
-            async (_, data, _) => this.TryConsumeMessage<AllureTestsScopeMessage>(
+            async (_, data, _) => await this.TryConsumeMessage<AllureTestsScopeMessage>(
                 data,
                 this.ConsumeTestsInScopeMessage),
         ];
@@ -90,19 +89,19 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
         }
     }
 
-    bool TryConsumeMessage<TMessage>(IData message, Action<TMessage> consume) where TMessage : IData
+    async Task<bool> TryConsumeMessage<TMessage>(IData message, Func<TMessage, Task> consume) where TMessage : IData
     {
         if (message is TMessage typedMessage)
         {
-            consume(typedMessage);
+            await consume(typedMessage);
             return true;
         }
         return false;
     }
 
-    void ConsumeTestNodeUpdateMessage(TestNodeUpdateMessage message)
+    async Task ConsumeTestNodeUpdateMessage(TestNodeUpdateMessage message)
     {
-        var session = message.SessionUid;
+        var sessionUid = message.SessionUid.Value;
         var node = message.TestNode;
         var uid = node.Uid;
 
@@ -114,26 +113,26 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
             return;
         }
 
-        if (this.state.TryGetContext(session, uid, out var ctx))
+        if (this.state.TryGetContext(sessionUid, uid, out var ctx))
         {
             if (!ctx.HasTest && ctx.HasContainer)
             {
                 // Has scope with the same UID, most likely - a scope for "before/after each" fixtures
-                this.state.MakeUidShared(session, uid);
+                this.state.MakeUidShared(sessionUid, uid);
             }
             this.Lifecycle.RestoreContext(ctx);
         }
 
         if (stateProperty is InProgressTestNodeStateProperty)
         {
-            this.StartTest(session, node);
-            this.state.SetContext(session, uid, this.Lifecycle.Context);
+            this.StartTest(sessionUid, node);
+            this.state.SetContext(sessionUid, uid, this.Lifecycle.Context);
             return;
         }
 
         if (!this.Lifecycle.Context.HasTest)
         {
-            this.StartTest(session, node);
+            this.StartTest(sessionUid, node);
         }
 
         this.Lifecycle.UpdateTestCase((testResult) =>
@@ -146,58 +145,63 @@ public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
             .StopTestCase()
             .WriteTestCase();
 
-        this.state.RemoveTestContext(session, uid);
+        this.state.RemoveTestContext(sessionUid, uid);
     }
 
-    void ConsumeCreateContextMessage(CreateContextMessage message)
+    async Task ConsumeSessionFileArtifactMessage(SessionFileArtifact message)
+    {
+        AllureApi.AddGlobalAttachment(message.DisplayName, null!, message.FileInfo.FullName);
+    }
+
+    async Task ConsumeCreateContextMessage(CreateContextMessage message)
     {
         var parentContextUid = message.ParentContextUid;
         this.state.InheritContext(
-            message.Session,
+            message.Session.Value,
             message.ContextUid,
             message.ParentContextUid,
             () => message.Mutate(this.Allure)
         );
     }
 
-    void ConsumeMutateModelMessage(MutateModelMessage message)
+    async Task ConsumeMutateModelMessage(MutateModelMessage message)
     {
         var contextUid = message.ContextUid;
         this.state.UpdateContext(
-            message.Session,
+            message.Session.Value,
             message.ContextUid,
             () => message.Mutate(this.Allure)
         );
     }
 
-    void ConsumeRemoveContextMessage(RemoveContextMessage message) =>
+    async Task ConsumeRemoveContextMessage(RemoveContextMessage message) =>
         this.state.ReleaseContext(
-            message.Session,
+            message.Session.Value,
             message.ContextUid,
             () => message.Mutate(this.Allure)
         );
 
-    void ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
+    async Task ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
         this.state.ReleaseScopeContext(
-            message.Session,
+            message.Session.Value,
             message.ContextUid,
             () => message.Mutate(this.Allure)
         );
 
-    void ConsumeTestsInScopeMessage(AllureTestsScopeMessage message)
+    async Task ConsumeTestsInScopeMessage(AllureTestsScopeMessage message)
     {
         this.state.AssociateTestsWithScope(
-            message.SessionUid,
+            message.SessionUid.Value,
             message.ScopeUid,
             message.TestUids
         );
     }
 
-    TestResult StartTest(SessionUid session, TestNode node)
+    TestResult StartTest(string sessionUid, TestNode node)
     {
         var testResult = CreateTestResult(this.Allure.Config);
 
-        this.state.TryEnterTestScope(session, node.Uid);
+        this.state.TryEnterTestScope(sessionUid, node.Uid);
 
         this.Lifecycle.StartTestCase(testResult);
         return testResult;
