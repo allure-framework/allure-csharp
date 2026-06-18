@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Reflection;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
@@ -183,5 +184,40 @@ public class IntegrationTests
         var parameter = await Assert.That(testResult.parameters).HasSingleItem();
         await Assert.That(parameter.name).IsEqualTo("foo");
         await Assert.That(parameter.value).IsEqualTo("stub");
+    }
+
+    [Test]
+    public async Task ShouldDisableDataConsumerIfCliOptionSetToOff()
+    {
+        IServiceProvider capturedServiceProvider = null;
+        var builder = await TestApplication.CreateBuilderAsync([
+            "--no-progress",
+            "--no-ansi",
+            "--output",
+            "Normal",
+            "--show-stdout",
+            "None",
+            "--show-stderr",
+            "None",
+            "--allure",
+            "off"
+        ]);
+        builder.AddAllure((ctx) => ctx.UseWriter((_, _) => new InMemoryResultsWriter()));
+
+        builder.RegisterTestFramework(
+            serviceProvider => new TestFrameworkCapabilities(),
+            (capabilities, serviceProvider) =>
+            {
+                capturedServiceProvider = serviceProvider;
+                return new TestFrameworkStub();
+            }
+        );
+
+        using var app = await builder.BuildAsync();
+        var code = await app.RunAsync();
+        var dataConsumer = capturedServiceProvider.GetService<AllureDataConsumer>();
+
+        await Assert.That(code).IsEqualTo(8); // test session run zero tests
+        await Assert.That(dataConsumer).IsNull();
     }
 }
