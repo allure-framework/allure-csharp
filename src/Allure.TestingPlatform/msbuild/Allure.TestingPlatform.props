@@ -2,7 +2,7 @@
     <ItemGroup>
         <TestingPlatformBuilderHook Include="8ffa1264-cecb-419d-8a11-4f91f24ad5c5">
             <DisplayName>Allure.TestingPlatform</DisplayName>
-            <TypeFullName>Allure.TestingPlatform.AllureTestingPlatformBuilderHook</TypeFullName>
+            <TypeFullName>Allure.TestingPlatform.AllureMtpBuilderHook</TypeFullName>
         </TestingPlatformBuilderHook>
     </ItemGroup>
 </Project>

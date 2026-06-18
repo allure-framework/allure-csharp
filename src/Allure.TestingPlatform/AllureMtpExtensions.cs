@@ -4,7 +4,7 @@ using Microsoft.Testing.Platform.Builder;
 
 namespace Allure.TestingPlatform;
 
-public static class AllureTestingPlatformExtensions
+public static class AllureMtpExtensions
 {
     public static void AddAllure(
         this ITestApplicationBuilder builder,
