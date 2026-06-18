@@ -9,19 +9,17 @@ using System.Threading.Tasks;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
-using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Internal;
 using Allure.TestingPlatform.Messages;
+using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 
 namespace Allure.TestingPlatform;
 
-public class AllureDataConsumer : IDataConsumer
+public class AllureDataConsumer : AllureMtpToggleableExtension, IDataConsumer
 {
-    readonly IAllureInfrastructure allure;
-
     readonly AllureDataConsumerState state;
 
     public Type[] DataTypesConsumed { get; } =
@@ -42,25 +40,17 @@ public class AllureDataConsumer : IDataConsumer
         typeof(AllureTestUpdateMessage),
     ];
 
-    public string Uid { get; } = "dd4f3277-5786-4010-8908-e70f07656ebc";
-
-    public string Version { get; } =
-        ExtensionFunctions.GetCurrentPackageVersion();
-
-    public string DisplayName { get; } = nameof(AllureDataConsumer);
-
-    public string Description { get; } =
-        "A data consumer extension that creates Allure data from Microsoft Testing Platform messages";
-
-    public Task<bool> IsEnabledAsync() => Task.FromResult(this.allure.IsEnabled);
-
-    public AllureLifecycle Lifecycle => this.allure.Lifecycle;
+    public AllureLifecycle Lifecycle => this.Allure.Lifecycle;
 
     readonly List<Func<IDataProducer, IData, CancellationToken, Task<bool>>> consumeFunctions;
 
-    public AllureDataConsumer(IAllureInfrastructure allure)
+    public AllureDataConsumer(IAllureInfrastructure allure) : base(
+        "dd4f3277-5786-4010-8908-e70f07656ebc",
+        "Allure.TestingPlatform data consumer",
+        "Creates Allure results from Microsoft Testing Platform messages",
+        allure
+    )
     {
-        this.allure = allure;
         this.state = new(allure.Lifecycle);
 
         this.consumeFunctions = [
@@ -166,7 +156,7 @@ public class AllureDataConsumer : IDataConsumer
             message.Session,
             message.ContextUid,
             message.ParentContextUid,
-            () => message.Mutate(this.allure)
+            () => message.Mutate(this.Allure)
         );
     }
 
@@ -176,7 +166,7 @@ public class AllureDataConsumer : IDataConsumer
         this.state.UpdateContext(
             message.Session,
             message.ContextUid,
-            () => message.Mutate(this.allure)
+            () => message.Mutate(this.Allure)
         );
     }
 
@@ -184,14 +174,14 @@ public class AllureDataConsumer : IDataConsumer
         this.state.ReleaseContext(
             message.Session,
             message.ContextUid,
-            () => message.Mutate(this.allure)
+            () => message.Mutate(this.Allure)
         );
 
     void ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
         this.state.ReleaseScopeContext(
             message.Session,
             message.ContextUid,
-            () => message.Mutate(this.allure)
+            () => message.Mutate(this.Allure)
         );
 
     void ConsumeTestsInScopeMessage(AllureTestsScopeMessage message)
@@ -205,7 +195,7 @@ public class AllureDataConsumer : IDataConsumer
 
     TestResult StartTest(SessionUid session, TestNode node)
     {
-        var testResult = CreateTestResult(this.allure.Config);
+        var testResult = CreateTestResult(this.Allure.Config);
 
         this.state.TryEnterTestScope(session, node.Uid);
 
