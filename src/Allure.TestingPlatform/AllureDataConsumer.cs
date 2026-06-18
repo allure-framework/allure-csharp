@@ -10,7 +10,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
 using Allure.TestingPlatform.Internal;
-using Allure.TestingPlatform.Messages;
+using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.Messages;

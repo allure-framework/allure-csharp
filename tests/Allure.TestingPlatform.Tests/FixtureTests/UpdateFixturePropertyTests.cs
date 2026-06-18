@@ -1,4 +1,4 @@
-using Allure.TestingPlatform.Properties;
+using Allure.TestingPlatform.Sdk.Properties;
 
 namespace Allure.TestingPlatform.Tests.FixtureTests;
 

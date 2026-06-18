@@ -1,4 +1,4 @@
-using Allure.TestingPlatform.Messages;
+using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.TestHost;
 using Microsoft.Testing.Platform.Extensions.Messages;

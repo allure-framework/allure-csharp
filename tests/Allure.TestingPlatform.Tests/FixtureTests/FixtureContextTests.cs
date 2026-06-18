@@ -1,6 +1,6 @@
 
 using Allure.TestingPlatform.Tests.Stubs;
-using Allure.TestingPlatform.Messages;
+using Allure.TestingPlatform.Sdk.Messages;
 using Allure.Net.Commons;
 using Allure.TestingPlatform.Sdk;
 

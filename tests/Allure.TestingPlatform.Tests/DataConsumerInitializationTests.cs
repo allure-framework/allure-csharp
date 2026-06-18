@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using Allure.TestingPlatform.Messages;
+using Allure.TestingPlatform.Sdk.Messages;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Tests;

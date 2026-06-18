@@ -1,8 +1,8 @@
 using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
-using Allure.TestingPlatform.Messages;
+using Allure.TestingPlatform.Sdk.Messages;
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Properties;
+using Allure.TestingPlatform.Sdk.Properties;
 using Allure.Net.Commons.Attributes;
 using System.Reflection;
 using Microsoft.Testing.Platform.Extensions.Messages;
