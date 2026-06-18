@@ -25,7 +25,7 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) : IAllurePro
 
     public Type TestClass { get; init; } = testMethod.DeclaringType;
 
-    public List<object> Arguments { get; init; } = [];
+    public List<object?> Arguments { get; init; } = [];
 
     public TestMethodUpdateTarget UpdateTargets { get; init; } = TestMethodUpdateTarget.All;
 
