@@ -3,7 +3,7 @@ using Allure.TestingPlatform.Functions;
 using Microsoft.Testing.Platform.Extensions.TestFramework;
 using Microsoft.Testing.Platform.TestHost;
 
-namespace Allure.TestingPlatform;
+namespace Allure.TestingPlatform.Sdk;
 
 public class AllureMtpFrameworkWrapper(
     ITestFramework underlyingFramework
