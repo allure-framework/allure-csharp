@@ -76,6 +76,9 @@ public class AllureDataConsumer : IDataConsumer
             async (_, data, _) => this.TryConsumeMessage<MutateModelMessage>(
                 data,
                 this.ConsumeMutateModelMessage),
+            async (_, data, _) => this.TryConsumeMessage<AllureScopeStopMessage>(
+                data,
+                this.ConsumeScopeStopMessage),
             async (_, data, _) => this.TryConsumeMessage<RemoveContextMessage>(
                 data,
                 this.ConsumeRemoveContextMessage),
@@ -176,15 +179,19 @@ public class AllureDataConsumer : IDataConsumer
         );
     }
 
-    void ConsumeRemoveContextMessage(RemoveContextMessage message)
-    {
-        Action<SessionUid, string, Action> release =
-            message is AllureScopeStopMessage
-                ? this.state.ReleaseScopeContext
-                : this.state.ReleaseContext;
+    void ConsumeRemoveContextMessage(RemoveContextMessage message) =>
+        this.state.ReleaseContext(
+            message.Session,
+            message.ContextUid,
+            () => message.Mutate(this.allure)
+        );
 
-        release(message.Session, message.ContextUid, () => message.Mutate(this.allure));
-    }
+    void ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
+        this.state.ReleaseScopeContext(
+            message.Session,
+            message.ContextUid,
+            () => message.Mutate(this.allure)
+        );
 
     void ConsumeTestsInScopeMessage(AllureTestsScopeMessage message)
     {
