@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Internal;
@@ -204,7 +205,7 @@ public class AllureDataConsumer : IDataConsumer
 
     TestResult StartTest(SessionUid session, TestNode node)
     {
-        var testResult = CreateTestResult(node);
+        var testResult = CreateTestResult(this.allure.Config);
 
         this.state.TryEnterTestScope(session, node.Uid);
 
@@ -212,14 +213,17 @@ public class AllureDataConsumer : IDataConsumer
         return testResult;
     }
 
-    static TestResult CreateTestResult(TestNode node) =>
+    static TestResult CreateTestResult(AllureConfiguration config) =>
         new()
         {
             uuid = IdFunctions.CreateUUID(),
             labels = [
                 Label.Language(),
                 Label.Host(),
-                // No Label.Thread as we can't tell here in which one the test has been run
+
+                // TODO: Cover with tests
+                ..ModelFunctions.EnumerateEnvironmentLabels(),
+                ..ModelFunctions.EnumerateGlobalLabels(config),
             ],
         };
 
