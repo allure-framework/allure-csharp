@@ -13,7 +13,7 @@ namespace Allure.TestingPlatform.Registration;
 
 public class AllureInfrastructureBuilder : IAllureRegistrationContext
 {
-    Func<IServiceProvider, AllureConfiguration> configurationFactory = (_) =>
+    Func<IServiceProvider, AllureConfiguration> configurationFactory = static (serviceProvider) =>
     {
         var configEnvVarName = AllureConstants.ALLURE_CONFIG_ENV_VARIABLE;
         var jsonConfigPath = Environment.GetEnvironmentVariable(
@@ -24,7 +24,7 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
         {
             throw new FileNotFoundException(
                 $"Couldn't find '{jsonConfigPath}' specified " +
-                    $"in {configEnvVarName} environment variable"
+                    $"by the '{configEnvVarName}' environment variable"
             );
         }
 
@@ -40,34 +40,49 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
             AllureConstants.CONFIG_FILENAME
         );
 
+        var mtpConfig = serviceProvider.GetConfiguration();
+        var mtpResultsDir = mtpConfig["platformOptions:resultDirectory"];
+        var defaultResultsDir = mtpResultsDir is not null
+            ? Path.Combine(mtpResultsDir, AllureConstants.DEFAULT_RESULTS_FOLDER)
+            : null;
+
         if (File.Exists(defaultJsonConfigPath))
         {
-            return AllureConfiguration.ReadFromJObject(
-                JObject.Parse(File.ReadAllText(defaultJsonConfigPath))
-            );
+            var json = JObject.Parse(File.ReadAllText(defaultJsonConfigPath));
+            json["allure"] ??= new JObject();
+            if (defaultResultsDir is not null)
+            {
+                json["allure"]!["directory"] ??= defaultResultsDir;
+            }
+            return AllureConfiguration.ReadFromJObject(json);
         }
 
         return AllureConfiguration.ReadFromJObject(
-            JObject.Parse("{}")
+            defaultResultsDir is not null
+                ? new JObject
+                {
+                    { "allure", new JObject { { "directory", defaultResultsDir } } },
+                }
+                : []
         );
     };
 
-    Func<IServiceProvider, AllureConfiguration, bool> isEnabled = (serviceProvider, _) =>
+    Func<IServiceProvider, AllureConfiguration, bool> isEnabled = static (serviceProvider, _) =>
         AllureCliOptionsProvider.IsAllureEnabled(
             serviceProvider.GetCommandLineOptions()
         );
 
     Func<IServiceProvider, AllureConfiguration, ICorrelationDefinition> correlationDefinitionFactory =
-        (_, _) => new SessionUidCorrelation();
+        static (_, _) => new SessionUidCorrelation();
 
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory =
-        (_, cfg) => new FileSystemResultsWriter(cfg.Directory, cfg.IndentOutput);
+        static (_, cfg) => new FileSystemResultsWriter(cfg.Directory, cfg.IndentOutput);
 
     Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory =
-        (_, deps) => new AllureLifecycle(deps.Config, deps.Writer, deps.TypeFormatters);
+        static (_, deps) => new AllureLifecycle(deps.Config, deps.Writer, deps.TypeFormatters);
 
     Func<IServiceProvider, AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory =
-        (_, cfg) => [];
+        static (_, cfg) => [];
 
     public IAllureRegistrationContext UseConfiguration(
         Func<IServiceProvider, AllureConfiguration> configurationFactory
