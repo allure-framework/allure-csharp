@@ -1,19 +1,19 @@
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public sealed class AllureFixtureStopMessage(
-    SessionUid sessionUid,
-    string fixtureUid
+    CorrelationUid correlationUid,
+    FixtureContextUid fixtureUid
 ) :
     RemoveContextMessage(
         "Allure fixture stop",
         "This message reports that an Allure fixture has stopped.",
-        sessionUid,
+        correlationUid,
         fixtureUid
     )
 {
-    public string FixtureUid { get; } = fixtureUid;
+    public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
     public override void Mutate(IAllureInfrastructure allure)
     {

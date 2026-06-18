@@ -1,32 +1,40 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Allure.Net.Commons;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Internal;
 
 internal class AllureMtpSessionState(AllureLifecycle lifecycle)
 {
-    readonly Dictionary<string, AllureContext> contexts = [];
-    readonly Dictionary<string, Queue<Action>> pendingUpdates = [];
-    readonly Dictionary<string, bool> sharedUids = [];
-    readonly Dictionary<string, AllureContext> testScopes = [];
+    readonly Dictionary<IAllureContextUid, AllureContext> contexts = [];
+    readonly Dictionary<TestContextUid, AllureContext> testScopeContexts = [];
+    readonly Dictionary<ScopeContextUid, ImmutableArray<TestContextUid>> scopeTests = [];
+    readonly Dictionary<IAllureContextUid, Queue<Action>> pendingUpdates = [];
 
-    public bool IsEmpty => this.contexts.Count == 0;
+    public bool IsEmpty => this.contexts.Count == 0 && this.pendingUpdates.Count == 0;
 
-    public bool TryGetContext(string contextUid, [NotNullWhen(true)] out AllureContext? context) =>
+    public bool TryGetContext(
+        IAllureContextUid contextUid,
+        [NotNullWhen(true)] out AllureContext? context
+    ) =>
         this.contexts.TryGetValue(contextUid, out context);
 
-    public bool TryGetPendingUpdates(string contextUid, [NotNullWhen(true)] out Queue<Action>? updates) =>
+    public bool TryGetPendingUpdates(
+        IAllureContextUid contextUid,
+        [NotNullWhen(true)] out Queue<Action>? updates
+    ) =>
         this.pendingUpdates.TryGetValue(contextUid, out updates);
 
-    public void SetContext(string contextUid, AllureContext context)
+    public void SetContext(IAllureContextUid contextUid, AllureContext context)
     {
         this.contexts[contextUid] = context;
         this.ConsumePendingUpdates(contextUid);
     }
 
-    public void ConsumePendingUpdates(string contextUid)
+    public void ConsumePendingUpdates(IAllureContextUid contextUid)
     {
         if (TryRemove(this.pendingUpdates, contextUid, out var updates))
         {
@@ -37,7 +45,7 @@ internal class AllureMtpSessionState(AllureLifecycle lifecycle)
         }
     }
 
-    public void AddPendingUpdate(string contextUid, Action update)
+    public void AddPendingUpdate(IAllureContextUid contextUid, Action update)
     {
         if (this.TryGetPendingUpdates(contextUid, out var updates))
         {
@@ -49,17 +57,39 @@ internal class AllureMtpSessionState(AllureLifecycle lifecycle)
         }
     }
 
-    public void RemoveContext(string contextUid)
+    public void RemoveContext(IAllureContextUid contextUid)
     {
         TryRemove(this.contexts, contextUid, out var _);
     }
 
-    public void CaptureContext(string contextUid)
+    public void RemoveTestContext(TestContextUid testUid)
+    {
+        this.RemoveContext(testUid);
+        if (this.contexts.ContainsKey(new ScopeContextUid(testUid.Value)))
+        {
+            // Test-level scope is active. The association is done by the UID.
+            return;
+        }
+
+        // Test UIDs can be reused due to parameterization, retries, etc.
+        // If the test's scope context is present, we reintroduce it as
+        // the initial test context.
+        if (this.testScopeContexts.TryGetValue(testUid, out var scope))
+        {
+            this.SetContext(testUid, scope);
+        }
+    }
+
+    public void CaptureContext(IAllureContextUid contextUid)
     {
         this.SetContext(contextUid, lifecycle.Context);
     }
 
-    public void InheritContext(string contextUid, string? parentContextUid, Action init)
+    public void InheritContext(
+        IAllureContextUid contextUid,
+        IAllureContextUid? parentContextUid,
+        Action init
+    )
     {
         if (parentContextUid is not null)
         {
@@ -89,7 +119,7 @@ internal class AllureMtpSessionState(AllureLifecycle lifecycle)
         }
     }
 
-    public void UpdateContext(string contextUid, Action update)
+    public void UpdateContext(IAllureContextUid contextUid, Action update)
     {
         if (this.TryGetContext(contextUid, out var context))
         {
@@ -105,7 +135,7 @@ internal class AllureMtpSessionState(AllureLifecycle lifecycle)
         }
     }
 
-    public void ReleaseContext(string contextUid, Action commit)
+    public void ReleaseContext(IAllureContextUid contextUid, Action commit)
     {
         if (TryRemove(this.contexts, contextUid, out var context))
         {
@@ -113,72 +143,59 @@ internal class AllureMtpSessionState(AllureLifecycle lifecycle)
         }
     }
 
-    public void ReleaseScopeContext(string contextUid, Action commit)
+    public void ReleaseScopeContext(ScopeContextUid scopeUid, Action commit)
     {
-        this.testScopes.Remove(contextUid);
-        this.sharedUids.Remove(contextUid);
-
-        this.ReleaseContext(contextUid, commit);
-    }
-
-    public void MakeUidShared(string uid)
-    {
-        this.sharedUids[uid] = true;
-    }
-
-    public void RemoveTestContext(string testUid)
-    {
-        if (TryRemove(this.sharedUids, testUid, out _))
+        if (TryRemove(this.scopeTests, scopeUid, out var testUids))
         {
-            // A scope with the same Uid is active. The context will be removed via AllureScopeStopMessage.
-            // We need to update the context to make sure it has no test result in it.
-            this.CaptureContext(testUid);
+            foreach (var testUid in testUids)
+            {
+                this.testScopeContexts.Remove(testUid);
+            }
         }
-        else
-        {
-            // If no scope with the same Uid is active, we don't need the context anymore
-            this.RemoveContext(testUid);
-        }
+        this.ReleaseContext(scopeUid, commit);
     }
 
-    public void AssociateTestsWithScope(string scopeUid, IEnumerable<string> testUids)
+    public void AssociateTestsWithScope(ScopeContextUid scopeUid, ImmutableArray<TestContextUid> testUids)
     {
-        if (!this.TryGetContext(scopeUid, out var scope))
+        if (!this.TryGetContext(scopeUid, out var scopeContext))
         {
             return;
         }
 
-        // Remember the association for future test results
-        foreach (var testUid in testUids)
-        {
-            this.testScopes[testUid] = scope;
-        }
+        this.scopeTests[scopeUid] = testUids;
 
-        // Move the current tests to the scope
         foreach (var testUid in testUids)
         {
-            string? testUuid = null;
-            if (this.TryGetContext(testUid, out var testContext))
+            this.testScopeContexts[testUid] = scopeContext;
+
+            if (this.TryGetContext(testUid, out var testContext) && testContext.HasTest)
             {
+                string? testUuid = null;
                 lifecycle.RunInContext(testContext, () =>
                 {
                     lifecycle.UpdateTestCase(tr => testUuid = tr.uuid);
                 });
 
-                lifecycle.RunInContext(scope, () =>
+                lifecycle.RunInContext(scopeContext, () =>
                 {
                     lifecycle.UpdateTestContainers((c) => c.children.Add(testUuid));
                 });
             }
+            else
+            {
+                this.SetContext(testUid, scopeContext);
+            }
         }
     }
 
-    public void TryEnterTestScope(string testUid)
+    public void EnterContext(AllureContext context) =>
+        lifecycle.RestoreContext(context);
+
+    public void EnterContextIfExists(IAllureContextUid contextUid)
     {
-        if (!this.sharedUids.ContainsKey(testUid)
-            && this.testScopes.TryGetValue(testUid, out var scope))
+        if (this.TryGetContext(contextUid, out var context))
         {
-            lifecycle.RestoreContext(scope);
+            this.EnterContext(context);
         }
     }
 

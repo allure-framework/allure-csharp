@@ -2,6 +2,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Messages;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -126,7 +127,9 @@ public partial class IsolationTests : DataConsumerTestsBase
     public async Task ShouldIsolateUidSharingBySessions()
     {
         var session1 = new SessionUid("session-1");
+        var correlationUid1 = new CorrelationUid("session-1");
         var session2 = new SessionUid("session-2");
+        var correlationUid2 = new CorrelationUid("session-2");
         var testNodeInProgress = new TestNode
         {
             DisplayName = "Foo",
@@ -152,18 +155,18 @@ public partial class IsolationTests : DataConsumerTestsBase
             )
         };
 
-        var session1ScopeStart = new AllureScopeStartMessage(session1, "1");
-        var session2ScopeStart = new AllureScopeStartMessage(session2, "1");
-        var session1FixtureStart = new AllureBeforeFixtureStartMessage(session1, "3", "1", "Foo");
-        var session2FixtureStart = new AllureBeforeFixtureStartMessage(session2, "3", "1", "Foo");
-        var session1FixtureStop = new AllureFixtureStopMessage(session1, "3");
-        var session2FixtureStop = new AllureFixtureStopMessage(session2, "3");
+        var session1ScopeStart = new AllureScopeStartMessage(correlationUid1, new("1"));
+        var session2ScopeStart = new AllureScopeStartMessage(correlationUid2, new("1"));
+        var session1FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid1, new("3"), new("1"), "Foo");
+        var session2FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid2, new("3"), new("1"), "Foo");
+        var session1FixtureStop = new AllureFixtureStopMessage(correlationUid1, new("3"));
+        var session2FixtureStop = new AllureFixtureStopMessage(correlationUid2, new("3"));
         var session1TestStart = new TestNodeUpdateMessage(session1, testNodeInProgress);
         var session2TestStart = new TestNodeUpdateMessage(session2, testNodeInProgress);
         var session1TestStop = new TestNodeUpdateMessage(session1, testNodePassed);
         var session2TestStop = new TestNodeUpdateMessage(session2, testNodeFailed);
-        var session1ScopeStop = new AllureScopeStopMessage(session1, "1");
-        var session2ScopeStop = new AllureScopeStopMessage(session2, "1");
+        var session1ScopeStop = new AllureScopeStopMessage(correlationUid1, new("1"));
+        var session2ScopeStop = new AllureScopeStopMessage(correlationUid2, new("1"));
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session1ScopeStart, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2ScopeStart, CancellationToken.None);
@@ -194,7 +197,9 @@ public partial class IsolationTests : DataConsumerTestsBase
     public async Task ShouldIsolateTestScopesBySession()
     {
         var session1 = new SessionUid("session-1");
+        var correlationUid1 = new CorrelationUid("session-1");
         var session2 = new SessionUid("session-2");
+        var correlationUid2 = new CorrelationUid("session-2");
         var testNodeInProgress = new TestNode
         {
             DisplayName = "Foo",
@@ -220,20 +225,20 @@ public partial class IsolationTests : DataConsumerTestsBase
             )
         };
 
-        var session1ScopeStart = new AllureScopeStartMessage(session1, "2");
-        var session2ScopeStart = new AllureScopeStartMessage(session2, "2");
-        var session1FixtureStart = new AllureBeforeFixtureStartMessage(session1, "3", "2", "Foo");
-        var session2FixtureStart = new AllureBeforeFixtureStartMessage(session2, "3", "2", "Foo");
-        var session1FixtureStop = new AllureFixtureStopMessage(session1, "3");
-        var session2FixtureStop = new AllureFixtureStopMessage(session2, "3");
-        var session1TestsInScope = new AllureTestsScopeMessage(session1, "2", ["1"]);
-        var session2TestsInScope = new AllureTestsScopeMessage(session2, "2", ["1"]);
+        var session1ScopeStart = new AllureScopeStartMessage(correlationUid1, new("2"));
+        var session2ScopeStart = new AllureScopeStartMessage(correlationUid2, new("2"));
+        var session1FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid1, new("3"), new("2"), "Foo");
+        var session2FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid2, new("3"), new("2"), "Foo");
+        var session1FixtureStop = new AllureFixtureStopMessage(correlationUid1, new("3"));
+        var session2FixtureStop = new AllureFixtureStopMessage(correlationUid2, new("3"));
+        var session1TestsInScope = new AllureTestsScopeMessage(correlationUid1, new("2"), [new("1")]);
+        var session2TestsInScope = new AllureTestsScopeMessage(correlationUid2, new("2"), [new("1")]);
         var session1TestStart = new TestNodeUpdateMessage(session1, testNodeInProgress);
         var session2TestStart = new TestNodeUpdateMessage(session2, testNodeInProgress);
         var session1TestStop = new TestNodeUpdateMessage(session1, testNodePassed);
         var session2TestStop = new TestNodeUpdateMessage(session2, testNodeFailed);
-        var session1ScopeStop = new AllureScopeStopMessage(session1, "2");
-        var session2ScopeStop = new AllureScopeStopMessage(session2, "2");
+        var session1ScopeStop = new AllureScopeStopMessage(correlationUid1, new("2"));
+        var session2ScopeStop = new AllureScopeStopMessage(correlationUid2, new("2"));
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session1ScopeStart, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2ScopeStart, CancellationToken.None);

@@ -1,15 +1,15 @@
 using Allure.Net.Commons;
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public sealed class AllureBeforeFixtureStartMessage(
-    SessionUid sessionUid,
-    string fixtureUid,
-    string scopeId,
+    CorrelationUid correlationUid,
+    FixtureContextUid fixtureUid,
+    ScopeContextUid scopeUid,
     string fixtureName
 ) :
-    AllureFixtureStartMessage(sessionUid, fixtureUid, scopeId, fixtureName)
+    AllureFixtureStartMessage(correlationUid, fixtureUid, scopeUid, fixtureName)
 {
     protected override void StartFixture(AllureLifecycle lifecycle, FixtureResult fixtureResult) =>
         lifecycle.StartBeforeFixture(fixtureResult);

@@ -186,7 +186,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
                 InProgressTestNodeStateProperty.CachedInstance
             )
         });
-        var testUpdate = new AllureTestUpdateMessage(new SessionUid("Bar"), "1")
+        var testUpdate = new AllureTestUpdateMessage(new("Bar"), new("1"))
         {
             Properties = [
                 new AllureLabelsProperty([new (){ name = "parentSuite", value = "foo" }])
@@ -252,7 +252,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
                 InProgressTestNodeStateProperty.CachedInstance
             )
         });
-        var testUpdate = new AllureTestUpdateMessage(new SessionUid("Bar"), "1")
+        var testUpdate = new AllureTestUpdateMessage(new("Bar"), new("1"))
         {
             Properties = [
                 new AllureLabelsProperty([new (){ name = "suite", value = "foo" }])
@@ -318,7 +318,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
                 InProgressTestNodeStateProperty.CachedInstance
             )
         });
-        var testUpdate = new AllureTestUpdateMessage(new SessionUid("Bar"), "1")
+        var testUpdate = new AllureTestUpdateMessage(new("Bar"), new("1"))
         {
             Properties = [
                 new AllureLabelsProperty([new (){ name = "subSuite", value = "foo" }])

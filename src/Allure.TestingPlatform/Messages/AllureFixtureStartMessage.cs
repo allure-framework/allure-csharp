@@ -1,23 +1,23 @@
 using Allure.Net.Commons;
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public abstract class AllureFixtureStartMessage(
-    SessionUid sessionUid,
-    string fixtureUid,
-    string scopeId,
+    CorrelationUid correlationUid,
+    FixtureContextUid fixtureUid,
+    ScopeContextUid scopeUid,
     string fixtureName)
         : CreateContextMessage(
             "Allure fixture start",
             "This message reports that an Allure fixture has started.",
-            sessionUid,
+            correlationUid,
             fixtureUid,
-            scopeId)
+            scopeUid)
 {
-    public string ScopeId { get; } = scopeId;
+    public ScopeContextUid ScopeUid { get; } = scopeUid;
 
-    public string FixtureUid { get; } = fixtureUid;
+    public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
     public string FixtureName { get; } = fixtureName;
 

@@ -7,6 +7,7 @@ using Allure.Net.Commons.Attributes;
 using System.Reflection;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Allure.TestingPlatform.Tests.Comparers;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -15,6 +16,7 @@ using AllureTestResult = Net.Commons.TestResult;
 public class TestPropertyTests : DataConsumerTestsBase
 {
     readonly SessionUid sessionUid = new("Bar");
+    readonly CorrelationUid correlationUid = new("Bar");
 
     async Task<AllureTestResult> ArrangeAndAct(params IAllureProperty<AllureTestResult>[] properties)
     {
@@ -28,7 +30,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        var updateTest = new AllureTestUpdateMessage(sessionUid, "1")
+        var updateTest = new AllureTestUpdateMessage(correlationUid, new("1"))
         {
             Properties = [..properties],
         };

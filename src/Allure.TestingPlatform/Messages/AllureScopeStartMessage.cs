@@ -1,21 +1,25 @@
 using Allure.Net.Commons.Functions;
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public sealed class AllureScopeStartMessage(
-    SessionUid sessionUid,
-    string scopeUid,
-    string? parentScopeUid = null
+    CorrelationUid correlationUid,
+    ScopeContextUid scopeUid,
+    ScopeContextUid? parentScopeUid = null
 ) :
     CreateContextMessage(
         "Allure scope start",
         "This message reports that an Allure test scope has started.",
-        sessionUid,
+        correlationUid,
         scopeUid,
         parentScopeUid
     )
 {
+    public ScopeContextUid ScopeUid { get; } = scopeUid;
+
+    public ScopeContextUid? ParentScopeUid { get; } = parentScopeUid;
+
     public override void Mutate(IAllureInfrastructure allure)
     {
         allure.Lifecycle.StartTestContainer(new() { uuid = IdFunctions.CreateUUID() });

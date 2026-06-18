@@ -1,23 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Allure.TestingPlatform.Properties;
-using Microsoft.Testing.Platform.Extensions.Messages;
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public abstract class DataWithAllureProperties(
     string displayName,
     string description,
-    SessionUid sessionUid
-) : IData
+    CorrelationUid correlationUid
+) :
+    DataWithCorrelationUid(displayName, description, correlationUid)
 {
-    public string DisplayName => displayName;
-
-    public string? Description => description;
-
-    public SessionUid Session => sessionUid;
-
     public List<IAllureProperty> Properties { get; init; } = [];
 
     public void ApplyProperties<T>(IAllureInfrastructure allure, T target)

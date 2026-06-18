@@ -1,17 +1,17 @@
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public abstract class MutateModelMessage(
     string displayName,
     string description,
-    SessionUid sessionUid,
-    string contextUid
+    CorrelationUid correlationUid,
+    IAllureContextUid contextUid
 ) :
-    DataWithAllureProperties(displayName, description, sessionUid),
+    DataWithAllureProperties(displayName, description, correlationUid),
     IAllureLifecycleMessage
 {
-    public string ContextUid { get; } = contextUid;
+    public IAllureContextUid ContextUid { get; } = contextUid;
 
     public abstract void Mutate(IAllureInfrastructure allure);
 }

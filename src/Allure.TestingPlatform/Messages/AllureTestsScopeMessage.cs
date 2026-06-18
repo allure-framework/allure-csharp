@@ -1,23 +1,22 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Microsoft.Testing.Platform.Extensions.Messages;
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public sealed class AllureTestsScopeMessage(
-    SessionUid sessionUid,
-    string scopeUid,
-    IEnumerable<string> testUids
+    CorrelationUid correlationUid,
+    ScopeContextUid scopeUid,
+    IEnumerable<TestContextUid> testUids
 ) :
-    DataWithSessionUid(
+    DataWithCorrelationUid(
         "Allure scope tests detected",
         "This message reports that an Allure scope contains a set of tests.",
-        sessionUid
+        correlationUid
     )
 {
-    public string ScopeUid => scopeUid;
+    public ScopeContextUid ScopeUid { get; } = scopeUid;
 
-    public ImmutableArray<string> TestUids { get; }
+    public ImmutableArray<TestContextUid> TestUids { get; }
         = testUids.ToImmutableArray();
 }

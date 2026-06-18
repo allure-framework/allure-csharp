@@ -1,19 +1,19 @@
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public sealed class AllureTestUpdateMessage(
-    SessionUid sessionUid,
-    string testUid
+    CorrelationUid correlationUid,
+    TestContextUid testUid
 ) :
     MutateModelMessage(
         "Allure test result update",
         "This message reports that some data needs to be associated with an Allure test result.",
-        sessionUid,
+        correlationUid,
         testUid
     )
 {
-    public string TestUid { get; } = testUid;
+    public TestContextUid TestUid { get; } = testUid;
 
     public override void Mutate(IAllureInfrastructure allure)
     {

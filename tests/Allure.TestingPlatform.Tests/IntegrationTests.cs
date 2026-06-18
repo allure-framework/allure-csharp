@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Reflection;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
@@ -31,22 +30,23 @@ public class IntegrationTests
 
     static void TargetMethod(string foo) { }
 
-    static AllureTestUpdateMessage TestUpdateMessage(SessionUid session) => new (session, "1")
-    {
-        Properties = [
-            new AllureTestMethodProperty(
-                typeof(IntegrationTests)
-                    .GetMethod(
-                        nameof(TargetMethod),
-                        BindingFlags.Static | BindingFlags.NonPublic
-                    )
-            )
-            {
-                Arguments = ["Lorem Ipsum"]
-            },
-            new AllureLinksProperty([new(){ url = "1", name = "bar", type = "issue" }]),
-        ]
-    };
+    static AllureTestUpdateMessage TestUpdateMessage(SessionUid session) =>
+        new (new(session.Value), new("1"))
+        {
+            Properties = [
+                new AllureTestMethodProperty(
+                    typeof(IntegrationTests)
+                        .GetMethod(
+                            nameof(TargetMethod),
+                            BindingFlags.Static | BindingFlags.NonPublic
+                        )
+                )
+                {
+                    Arguments = ["Lorem Ipsum"]
+                },
+                new AllureLinksProperty([new(){ url = "1", name = "bar", type = "issue" }]),
+            ]
+        };
 
     static TestNodeUpdateMessage TestStopMessage(SessionUid session) => new (
         session,

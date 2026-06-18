@@ -1,17 +1,16 @@
-
-using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Messages;
 using Allure.Net.Commons;
 using Allure.TestingPlatform.Properties;
 using Allure.Net.Commons.Attributes;
 using System.Reflection;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Tests.FixtureTests;
 
 public abstract class FixturePropertyTestBase : DataConsumerTestsBase
 {
-    readonly SessionUid sessionUid = new("Bar");
+    readonly CorrelationUid correlationUid = new("Bar");
 
     protected AllureScopeStartMessage StartScopeMessage { get; }
     protected AllureBeforeFixtureStartMessage StartFixtureMessage { get; }
@@ -22,11 +21,11 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
 
     public FixturePropertyTestBase()
     {
-        this.StartScopeMessage = new AllureScopeStartMessage(sessionUid, "1");
-        this.StartFixtureMessage = new AllureBeforeFixtureStartMessage(sessionUid, "2", "1", "Foo");
-        this.UpdateFixtureMessage = new AllureFixtureUpdateMessage(sessionUid, "2");
-        this.StopFixtureMessage = new AllureFixtureStopMessage(sessionUid, "2");
-        this.StopScopeMessage = new AllureScopeStopMessage(sessionUid, "1");
+        this.StartScopeMessage = new AllureScopeStartMessage(correlationUid, new("1"));
+        this.StartFixtureMessage = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        this.UpdateFixtureMessage = new AllureFixtureUpdateMessage(correlationUid, new("2"));
+        this.StopFixtureMessage = new AllureFixtureStopMessage(correlationUid, new("2"));
+        this.StopScopeMessage = new AllureScopeStopMessage(correlationUid, new("1"));
     }
 
     protected async Task<FixtureResult> ArrangeAndAct(params IAllureProperty[] properties)

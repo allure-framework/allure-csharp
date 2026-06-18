@@ -1,15 +1,20 @@
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
-public sealed class AllureScopeStopMessage(SessionUid sessionUid, string scopeUid) :
+public sealed class AllureScopeStopMessage(
+    CorrelationUid correlationUid,
+    ScopeContextUid scopeUid
+) :
     RemoveContextMessage(
         "Allure scope stop",
         "This message reports that an Allure test scope has stopped.",
-        sessionUid,
+        correlationUid,
         scopeUid
     )
 {
+    public ScopeContextUid ScopeUid { get; } = scopeUid;
+
     public override void Mutate(IAllureInfrastructure allure)
     {
         allure.Lifecycle

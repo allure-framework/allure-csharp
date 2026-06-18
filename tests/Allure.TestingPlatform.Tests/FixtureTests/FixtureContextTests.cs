@@ -1,22 +1,22 @@
 
-using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Messages;
 using Allure.Net.Commons;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Tests.FixtureTests;
 
 public class FixtureContextTests : DataConsumerTestsBase
 {
-    readonly SessionUid sessionUid = new("Bar");
+    readonly CorrelationUid correlationUid = new("Bar");
 
     [Test]
     public async Task ShouldEmitContainerWithBeforeFixture()
     {
-        var startScope = new AllureScopeStartMessage(sessionUid, "1");
-        var startFixture = new AllureBeforeFixtureStartMessage(sessionUid, "2", "1", "Foo");
-        var stopFixture = new AllureFixtureStopMessage(sessionUid, "2");
-        var stopScope = new AllureScopeStopMessage(sessionUid, "1");
+        var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
+        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var stopFixture = new AllureFixtureStopMessage(correlationUid, new("2"));
+        var stopScope = new AllureScopeStopMessage(correlationUid, new("1"));
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, startScope, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, startFixture, CancellationToken.None);
@@ -33,10 +33,10 @@ public class FixtureContextTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldEmitContainerWithAfterFixture()
     {
-        var startScope = new AllureScopeStartMessage(sessionUid, "1");
-        var startFixture = new AllureAfterFixtureStartMessage(sessionUid, "2", "1", "Foo");
-        var stopFixture = new AllureFixtureStopMessage(sessionUid, "2");
-        var stopScope = new AllureScopeStopMessage(sessionUid, "1");
+        var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
+        var startFixture = new AllureAfterFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var stopFixture = new AllureFixtureStopMessage(correlationUid, new("2"));
+        var stopScope = new AllureScopeStopMessage(correlationUid, new("1"));
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, startScope, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, startFixture, CancellationToken.None);

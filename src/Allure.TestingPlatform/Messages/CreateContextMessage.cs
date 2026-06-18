@@ -1,20 +1,20 @@
-using Microsoft.Testing.Platform.TestHost;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Messages;
 
 public abstract class CreateContextMessage(
     string displayName,
     string description,
-    SessionUid sessionUid,
-    string contextUid,
-    string? parentContextUid
+    CorrelationUid correlationUid,
+    IAllureContextUid contextUid,
+    IAllureContextUid? parentContextUid
 ) :
-    DataWithAllureProperties(displayName, description, sessionUid),
+    DataWithAllureProperties(displayName, description, correlationUid),
     IAllureLifecycleMessage
 {
-    public string ContextUid { get; } = contextUid;
+    public IAllureContextUid ContextUid { get; } = contextUid;
 
-    public string? ParentContextUid { get; } = parentContextUid;
+    public IAllureContextUid? ParentContextUid { get; } = parentContextUid;
 
     public abstract void Mutate(IAllureInfrastructure allure);
 }
