@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
+using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Internal;
 using Allure.TestingPlatform.Messages;
 using Microsoft.Testing.Platform.Extensions;
@@ -43,12 +44,7 @@ public class AllureDataConsumer : IDataConsumer
     public string Uid { get; } = "dd4f3277-5786-4010-8908-e70f07656ebc";
 
     public string Version { get; } =
-        Assembly
-            .GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            .InformationalVersion
-            .Split('+')
-            .First();
+        ExtensionFunctions.GetCurrentPackageVersion();
 
     public string DisplayName { get; } = nameof(AllureDataConsumer);
 
