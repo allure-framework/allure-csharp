@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Allure.Net.Commons;
@@ -9,10 +8,10 @@ namespace Allure.TestingPlatform.Internal;
 
 internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 {
-    readonly ConcurrentDictionary<(string, string), AllureContext> contexts = [];
-    readonly ConcurrentDictionary<(string, string), ConcurrentQueue<Action>> pendingUpdates = [];
-    readonly ConcurrentDictionary<(string, string), bool> sharedUids = [];
-    readonly ConcurrentDictionary<(string, string), AllureContext> testScopes = [];
+    readonly Dictionary<(string, string), AllureContext> contexts = [];
+    readonly Dictionary<(string, string), Queue<Action>> pendingUpdates = [];
+    readonly Dictionary<(string, string), bool> sharedUids = [];
+    readonly Dictionary<(string, string), AllureContext> testScopes = [];
 
     public bool TryGetContext(SessionUid session, string contextUid, [NotNullWhen(true)] out AllureContext? context) =>
         this.contexts.TryGetValue((session.Value, contextUid), out context);
@@ -20,7 +19,7 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
     public bool TryGetPendingUpdates(
         SessionUid session,
         string contextUid,
-        [NotNullWhen(true)] out ConcurrentQueue<Action>? updates
+        [NotNullWhen(true)] out Queue<Action>? updates
     ) =>
         this.pendingUpdates.TryGetValue((session.Value, contextUid), out updates);
 
@@ -32,7 +31,7 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 
     public void ConsumePendingUpdates(SessionUid session, string contextUid)
     {
-        if (this.pendingUpdates.TryRemove((session.Value, contextUid), out var updates))
+        if (TryRemove(this.pendingUpdates, (session.Value, contextUid), out var updates))
         {
             foreach (var update in updates)
             {
@@ -55,7 +54,7 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 
     public void RemoveContext(SessionUid session, string contextUid)
     {
-        this.contexts.TryRemove((session.Value, contextUid), out var _);
+        TryRemove(this.contexts, (session.Value, contextUid), out var _);
     }
 
     public void CaptureContext(SessionUid session, string contextUid)
@@ -123,8 +122,8 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
     public void ReleaseScopeContext(SessionUid session, string contextUid, Action commit)
     {
         var key = (session.Value, contextUid);
-        this.testScopes.TryRemove(key, out _);
-        this.sharedUids.TryRemove(key, out _);
+        TryRemove(this.testScopes, key, out _);
+        TryRemove(this.sharedUids, key, out _);
 
         this.ReleaseContext(session, contextUid, commit);
     }
@@ -136,7 +135,7 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 
     public void RemoveTestContext(SessionUid session, string testUid)
     {
-        if (this.sharedUids.TryRemove((session.Value, testUid), out _))
+        if (TryRemove(this.sharedUids, (session.Value, testUid), out _))
         {
             // A scope with the same Uid is active. The context will be removed via AllureScopeStopMessage.
             // We need to update the context to make sure it has no test result in it.
@@ -188,5 +187,15 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
         {
             lifecycle.RestoreContext(scope);
         }
+    }
+
+    static bool TryRemove<K, V>(Dictionary<K, V> dictionary, K key, out V value)
+    {
+        if (dictionary.TryGetValue(key, out value))
+        {
+            dictionary.Remove(key);
+            return true;
+        }
+        return false;
     }
 }

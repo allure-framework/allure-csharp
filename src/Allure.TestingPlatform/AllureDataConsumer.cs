@@ -111,6 +111,7 @@ public class AllureDataConsumer : IDataConsumer
         var session = message.SessionUid;
         var node = message.TestNode;
         var uid = node.Uid;
+
         var stateProperty = node.Properties
             .OfType<TestNodeStateProperty>()
             .SingleOrDefault();
