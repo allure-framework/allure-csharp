@@ -10,15 +10,47 @@ namespace Allure.TestingPlatform.Internal;
 internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 {
     readonly ConcurrentDictionary<(string, string), AllureContext> contexts = [];
+    readonly ConcurrentDictionary<(string, string), ConcurrentQueue<Action>> pendingUpdates = [];
     readonly ConcurrentDictionary<(string, string), bool> sharedUids = [];
     readonly ConcurrentDictionary<(string, string), AllureContext> testScopes = [];
 
     public bool TryGetContext(SessionUid session, string contextUid, [NotNullWhen(true)] out AllureContext? context) =>
         this.contexts.TryGetValue((session.Value, contextUid), out context);
 
+    public bool TryGetPendingUpdates(
+        SessionUid session,
+        string contextUid,
+        [NotNullWhen(true)] out ConcurrentQueue<Action>? updates
+    ) =>
+        this.pendingUpdates.TryGetValue((session.Value, contextUid), out updates);
+
     public void SetContext(SessionUid session, string contextUid, AllureContext context)
     {
         this.contexts[(session.Value, contextUid)] = context;
+        this.ConsumePendingUpdates(session, contextUid);
+    }
+
+    public void ConsumePendingUpdates(SessionUid session, string contextUid)
+    {
+        if (this.pendingUpdates.TryRemove((session.Value, contextUid), out var updates))
+        {
+            foreach (var update in updates)
+            {
+                this.UpdateContext(session, contextUid, update);
+            }
+        }
+    }
+
+    public void AddPendingUpdate(SessionUid session, string contextUid, Action update)
+    {
+        if (this.TryGetPendingUpdates(session, contextUid, out var updates))
+        {
+            updates.Enqueue(update);
+        }
+        else
+        {
+            this.pendingUpdates[(session.Value, contextUid)] = new([update]);
+        }
     }
 
     public void RemoveContext(SessionUid session, string contextUid)
@@ -33,16 +65,34 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 
     public void InheritContext(SessionUid session, string contextUid, string? parentContextUid, Action init)
     {
-        var context =
-            parentContextUid is not null && this.TryGetContext(session, parentContextUid, out var parentContext)
-                ? parentContext
-                : new();
-
-        this.SetContext(
-            session,
-            contextUid,
-            lifecycle.RunInContext(context, init)
-        );
+        if (parentContextUid is not null)
+        {
+            if (this.TryGetContext(session, parentContextUid, out var parentContext))
+            {
+                this.SetContext(
+                    session,
+                    contextUid,
+                    lifecycle.RunInContext(parentContext, init)
+                );
+            }
+            else
+            {
+                // TODO: Cover with tests
+                this.AddPendingUpdate(session, parentContextUid, () =>
+                {
+                    init();
+                    this.SetContext(session, contextUid, lifecycle.Context);
+                });
+            }
+        }
+        else
+        {
+            this.SetContext(
+                session,
+                contextUid,
+                lifecycle.RunInContext(new(), init)
+            );
+        }
     }
 
     public void UpdateContext(SessionUid session, string contextUid, Action update)
@@ -54,6 +104,11 @@ internal class AllureDataConsumerState(AllureLifecycle lifecycle)
                 contextUid,
                 lifecycle.RunInContext(context, update)
             );
+        }
+        else
+        {
+            // TODO: Cover with tests
+            this.AddPendingUpdate(session, contextUid, update);
         }
     }
 
