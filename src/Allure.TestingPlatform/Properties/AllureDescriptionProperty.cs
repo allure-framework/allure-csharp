@@ -12,7 +12,6 @@ public sealed class AllureDescriptionProperty<TObject>(string description) : IAl
 
     public void Apply(IAllureInfrastructure _, TObject obj)
     {
-        Console.WriteLine($"{this.Append}: {obj.description}");
         if (this.Append && obj.description is { Length: > 0 })
         {
             obj.description += $"\n\n{this.Description}";
