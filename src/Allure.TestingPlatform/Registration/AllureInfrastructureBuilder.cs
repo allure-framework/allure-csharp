@@ -72,7 +72,7 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
             serviceProvider.GetCommandLineOptions()
         );
 
-    Func<IServiceProvider, AllureConfiguration, ICorrelationDefinition> correlationDefinitionFactory =
+    Func<IServiceProvider, AllureConfiguration, ICorrelationService> correlationServiceFactory =
         static (_, _) => new SessionUidCorrelation();
 
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory =
@@ -100,11 +100,11 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
         return this;
     }
 
-    public IAllureRegistrationContext UseCorrelation(
-        Func<IServiceProvider, AllureConfiguration, ICorrelationDefinition> correlationDefinitionFactory
+    public IAllureRegistrationContext UseCorrelationService(
+        Func<IServiceProvider, AllureConfiguration, ICorrelationService> correlationServiceFactory
     )
     {
-        this.correlationDefinitionFactory = correlationDefinitionFactory;
+        this.correlationServiceFactory = correlationServiceFactory;
         return this;
     }
 
@@ -136,11 +136,11 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
     {
         var config = this.configurationFactory(serviceProvider);
         var isEnabled = this.isEnabled(serviceProvider, config);
-        var correlationDefinition = this.correlationDefinitionFactory(serviceProvider, config);
+        var correlationService = this.correlationServiceFactory(serviceProvider, config);
         var writer = this.writerFactory(serviceProvider, config);
         var typeFormatters = this.typeFormattersFactory(serviceProvider, config);
         var lifecycle = this.lifecycleFactory(serviceProvider, new(config, writer, typeFormatters));
 
-        return new AllureInfrastructure(isEnabled, config, correlationDefinition, writer, lifecycle, typeFormatters);
+        return new AllureInfrastructure(isEnabled, config, correlationService, writer, lifecycle, typeFormatters);
     }
 }

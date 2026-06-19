@@ -4,14 +4,11 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Sdk;
 
-public class SessionUidCorrelation : ICorrelationService
+public interface ICorrelationService
 {
-    public Task<CorrelationUid?> GetCorrelationAsync(
+    Task<CorrelationUid?> GetCorrelationAsync(
         IDataProducer dataProducer,
         DataWithSessionUid message,
         CancellationToken cancellationToken
-    ) =>
-        Task.FromResult<CorrelationUid?>(
-            new CorrelationUid(message.SessionUid.Value)
-        );
+    );
 }

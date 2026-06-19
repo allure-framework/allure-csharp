@@ -10,7 +10,7 @@ namespace Allure.TestingPlatform.Registration;
 public class AllureInfrastructure(
     bool isEnabled,
     AllureConfiguration config,
-    ICorrelationDefinition correlationDefinition,
+    ICorrelationService correlationService,
     IAllureResultsWriter writer,
     AllureLifecycle lifecycle,
     IReadOnlyDictionary<Type, ITypeFormatter> typeFormatters
@@ -19,7 +19,7 @@ public class AllureInfrastructure(
 {
     public bool IsEnabled { get; } = isEnabled;
     public AllureConfiguration Config { get; } = config;
-    public ICorrelationDefinition CorrelationDefinition { get; } = correlationDefinition;
+    public ICorrelationService CorrelationService { get; } = correlationService;
     public IAllureResultsWriter Writer { get; } = writer;
     public AllureLifecycle Lifecycle { get; } = lifecycle;
     public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters { get; } = typeFormatters;

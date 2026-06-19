@@ -1,25 +1,30 @@
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Sdk;
 
-public class TestMetadataCorrelation : ICorrelationDefinition
+public class TestMetadataCorrelation : ICorrelationService
 {
-    public CorrelationUid? ForTestNodeUpdateMessage(
-        TestNodeUpdateMessage testNodeUpdateMessage
-    ) =>
-        testNodeUpdateMessage
-            .TestNode
-            .Properties
-            .OfType<TestMetadataProperty>()
-            .FirstOrDefault(
-                static (meta) => meta.Key == METADATA_KEY
-            )
-            ?.Value switch
-        {
-            null => null,
-            var value => new(value),
-        };
-
     const string METADATA_KEY = "Allure.TestingPlatform.CorrelationUid";
+
+    public Task<CorrelationUid?> GetCorrelationAsync(
+        IDataProducer dataProducer,
+        DataWithSessionUid message,
+        CancellationToken cancellationToken
+    ) =>
+        Task.FromResult<CorrelationUid?>(
+            message is TestNodeUpdateMessage { TestNode.Properties: var properties }
+                ? properties
+                    .OfType<TestMetadataProperty>()
+                    .FirstOrDefault(
+                        static (meta) => meta.Key == METADATA_KEY
+                    )?.Value switch
+                    {
+                        null => null,
+                        var value => new(value),
+                    }
+                : null
+        );
 }

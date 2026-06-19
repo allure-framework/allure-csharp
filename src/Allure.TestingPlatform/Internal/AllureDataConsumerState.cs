@@ -6,14 +6,19 @@ namespace Allure.TestingPlatform.Internal;
 
 internal class AllureDataConsumerState(AllureLifecycle lifecycle)
 {
-    readonly Dictionary<CorrelationUid, AllureMtpSessionState> sessions = [];
+    readonly Dictionary<CorrelationUid, SessionContextState> sessions = [];
 
-    public AllureMtpSessionState GetOrCreateSessionState(CorrelationUid correlationUid)
+    public SessionContextState GetOrCreateSessionState(CorrelationUid correlationUid)
     {
         if (!this.sessions.TryGetValue(correlationUid, out var state))
         {
             this.sessions[correlationUid] = state = new(lifecycle);
         }
         return state;
+    }
+
+    public void RemoveSession(CorrelationUid correlationUid)
+    {
+        this.sessions.Remove(correlationUid);
     }
 }

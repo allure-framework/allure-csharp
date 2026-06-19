@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Allure.TestingPlatform.Registration;
 using Microsoft.Testing.Platform.Builder;
+using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Messages;
 using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
@@ -23,12 +24,16 @@ public static class AllureMtpExtensions
 
             allureRegistration(allureBuilder);
 
-            builder.TestHost.AddDataConsumer((serviceProvider) =>
-            {
-                messageBus = serviceProvider.GetMessageBus();
-                allure = allureBuilder.Build(serviceProvider);
-                return new AllureDataConsumer(allure);
-            });
+            var factory =
+                new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
+                {
+                    messageBus = serviceProvider.GetMessageBus();
+                    allure = allureBuilder.Build(serviceProvider);
+                    return new AllureDataConsumer(allure);
+                });
+
+            builder.TestHost.AddDataConsumer(factory);
+            builder.TestHost.AddTestSessionLifetimeHandler(factory);
         }
 
         public void AddAllure() =>

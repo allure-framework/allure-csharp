@@ -17,8 +17,8 @@ public interface IAllureRegistrationContext
         Func<IServiceProvider, AllureConfiguration, bool> isEnabled
     );
 
-    IAllureRegistrationContext UseCorrelation(
-        Func<IServiceProvider, AllureConfiguration, ICorrelationDefinition> correlationDefinitionFactory
+    IAllureRegistrationContext UseCorrelationService(
+        Func<IServiceProvider, AllureConfiguration, ICorrelationService> correlationServiceFactory
     );
 
     IAllureRegistrationContext UseWriter(

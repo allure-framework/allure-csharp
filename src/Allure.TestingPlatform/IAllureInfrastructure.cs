@@ -11,7 +11,7 @@ public interface IAllureInfrastructure
 {
     bool IsEnabled { get; }
     AllureConfiguration Config { get; }
-    ICorrelationDefinition CorrelationDefinition { get; }
+    ICorrelationService CorrelationService { get; }
     IAllureResultsWriter Writer { get; }
     AllureLifecycle Lifecycle { get; }
     IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters { get; }

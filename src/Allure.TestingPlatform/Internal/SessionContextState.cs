@@ -7,7 +7,7 @@ using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Internal;
 
-internal class AllureMtpSessionState(AllureLifecycle lifecycle)
+internal class SessionContextState(AllureLifecycle lifecycle)
 {
     readonly Dictionary<IAllureContextUid, AllureContext> contexts = [];
     readonly Dictionary<TestContextUid, AllureContext> testScopeContexts = [];

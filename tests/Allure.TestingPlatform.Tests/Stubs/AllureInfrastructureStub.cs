@@ -9,7 +9,7 @@ namespace Allure.TestingPlatform.Tests.Stubs;
 public class AllureInfrastructureStub(
     bool isEnabled,
     AllureConfiguration config,
-    ICorrelationDefinition correlationDefinition,
+    ICorrelationService correlationService,
     InMemoryResultsWriter writer,
     AllureLifecycle lifecycle,
     Dictionary<Type, ITypeFormatter> typeFormatters
@@ -20,7 +20,7 @@ public class AllureInfrastructureStub(
 
     public AllureConfiguration Config => config;
 
-    public ICorrelationDefinition CorrelationDefinition => correlationDefinition;
+    public ICorrelationService CorrelationService => correlationService;
 
     public IAllureResultsWriter Writer => writer;
 

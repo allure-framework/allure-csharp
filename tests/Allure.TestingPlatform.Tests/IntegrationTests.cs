@@ -118,7 +118,7 @@ public class IntegrationTests
                 setIsEnabledConfiguration = cfg;
                 return true;
             });
-            ctx.UseCorrelation((sp, cfg) =>
+            ctx.UseCorrelationService((sp, cfg) =>
             {
                 useCorrelationServiceProvider = sp;
                 useCorrelationConfiguration = cfg;
@@ -187,7 +187,7 @@ public class IntegrationTests
 
         // Check if data consumer received the configured objects
         await Assert.That(dataConsumer.Allure.Config).IsSameReferenceAs(config);
-        await Assert.That(dataConsumer.Allure.CorrelationDefinition).IsSameReferenceAs(correlation);
+        await Assert.That(dataConsumer.Allure.CorrelationService).IsSameReferenceAs(correlation);
         await Assert.That(dataConsumer.Allure.IsEnabled).IsTrue();
         await Assert.That(dataConsumer.Allure.Lifecycle).IsSameReferenceAs(lifecycle);
         await Assert.That(dataConsumer.Allure.Writer).IsSameReferenceAs(writer);
