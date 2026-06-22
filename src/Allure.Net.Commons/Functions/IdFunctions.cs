@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Allure.Net.Commons.Attributes;
 using Newtonsoft.Json;
 
 namespace Allure.Net.Commons.Functions;
@@ -30,6 +31,7 @@ public static class IdFunctions
     /// <item>type parameters (for generic type definitions)</item>
     /// <item>type arguments (for constructed generic types)</item>
     /// </list>
+    /// The type node can be renamed by applying <see cref="AllureNameAttribute"/> to the class.
     /// </remarks>
     public static List<string> CreateTitlePath(Type type)
     {
@@ -42,14 +44,15 @@ public static class IdFunctions
 
         var assemblyName = type.Assembly.GetName().Name;
         var namespaceParts = (type.Namespace ?? "").Split('.').Where(s => s.Length > 0);
-        var typeName = string.Join("+", ExpandNestness(type).Reverse());
-        var typeArguments = type.GetGenericArguments();
-        var typeArgumentsText = SerializeTypeParameterTypeList(typeArguments);
+        var typeNode = type.GetCustomAttribute<AllureNameAttribute>()?.Name
+            ?? (string.Join("+", ExpandNestness(type).Reverse()) +
+                SerializeTypeParameterTypeList(
+                    type.GetGenericArguments()));
 
         return [
             assemblyName,
             .. namespaceParts,
-            typeName + typeArgumentsText,
+            typeNode,
         ];
     }
 

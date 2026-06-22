@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
 using NUnit.Framework;
 
@@ -93,6 +93,17 @@ class TitlePathTests
                 "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.TitlePathTests+MyClass]]",
         TestName = "Nested constructed generic class - complex"
     )]
+    [TestCase(
+        typeof(ClassWithAllureName<int, string>),
+        "Allure.Net.Commons.Tests",
+        "Allure",
+        "Net",
+        "Commons",
+        "Tests",
+        "FunctionTests",
+        "Foo",
+        TestName = "Class with [AllureName]"
+    )]
     public void TestTitlePathByClass(Type targetClass, params string[] expectedTitlePath)
     {
         Assert.That(
@@ -121,4 +132,7 @@ class TitlePathTests
     }
 
     class MyClass<T1, T2> { }
+
+    [AllureName("Foo")]
+    class ClassWithAllureName<T1, T2> { }
 }
