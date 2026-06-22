@@ -11,13 +11,16 @@ record class CorrelationResult
         IEnumerable<IData> messagesToProcess
     ) => new(correlationUid, messagesToProcess);
 
-    public static CorrelationFailure Failure { get; } =
-        new CorrelationFailure();
+    public static CorrelationNotReady NotReady { get; } =
+        new();
+
+    public static CorrelationFailure Failure(string message) =>
+        new(message);
 };
 
-sealed record class CorrelationSuccess(
-    CorrelationUid CorrelationUid,
-    IEnumerable<IData> MessagesToProcess
-) : CorrelationResult;
+sealed record class CorrelationSuccess(CorrelationUid CorrelationUid, IEnumerable<IData> MessagesToProcess) :
+    CorrelationResult;
 
-sealed record class CorrelationFailure : CorrelationResult;
+sealed record class CorrelationNotReady : CorrelationResult;
+
+sealed record class CorrelationFailure(string Message) : CorrelationResult;

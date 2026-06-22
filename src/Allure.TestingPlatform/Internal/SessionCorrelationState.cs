@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,15 +6,16 @@ using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Messages;
 using Microsoft.Testing.Platform.Extensions.Messages;
+using Microsoft.Testing.Platform.Logging;
 using Microsoft.Testing.Platform.TestHost;
 
 namespace Allure.TestingPlatform.Internal;
 
-class SessionCorrelationState(ICorrelationService correlationService)
+class SessionCorrelationState(ICorrelationService correlationService, ILogger logger)
 {
-    readonly Dictionary<SessionUid, CorrelationUid> map = [];
+    readonly Dictionary<SessionUid, CorrelationUid> sessionCorrelations = [];
 
-    readonly HashSet<CorrelationUid> correlations = [];
+    readonly Dictionary<CorrelationUid, SessionUid> correlationSessions = [];
 
     readonly Dictionary<SessionUid, Queue<(int, DataWithSessionUid)>> sessionUidBuffers = [];
 
@@ -36,14 +36,14 @@ class SessionCorrelationState(ICorrelationService correlationService)
             DataWithCorrelationUid dataWithCorrelationUid =>
                 this.Correlate(dataWithCorrelationUid),
 
-            _ => CorrelationResult.Failure,
+            _ => CorrelationResult.NotReady,
         };
 
     public CorrelationUid? RemoveSessionData(SessionUid sessionUid)
     {
-        if (CollectionAlgorithms.TryRemoveAndGet(this.map, sessionUid, out CorrelationUid correlationUid))
+        if (CollectionAlgorithms.TryRemoveAndGet(this.sessionCorrelations, sessionUid, out CorrelationUid correlationUid))
         {
-            this.correlations.Remove(correlationUid);
+            this.correlationSessions.Remove(correlationUid);
         }
         else
         {
@@ -54,9 +54,9 @@ class SessionCorrelationState(ICorrelationService correlationService)
 
         if (buffer.Any())
         {
-            // TODO: use logger
-            Console.Error.WriteLine(
-                $"[Allure.TestingPlatform]: {buffer.Count} uncorrelated messages have been thrown away."
+            logger.LogError(
+                $"[Allure.TestingPlatform]: {buffer.Count} uncorrelated messages were discarded "
+                    + "because the corresponding MTP session had been finished."
             );
         }
 
@@ -71,17 +71,28 @@ class SessionCorrelationState(ICorrelationService correlationService)
     {
         var sessionUid = message.SessionUid;
 
-        if (this.map.TryGetValue(sessionUid, out var storedCorrelationUid))
+        if (this.sessionCorrelations.TryGetValue(sessionUid, out var storedCorrelationUid))
         {
             // Already has correlation. Pass the message through
             return CorrelationResult.Success(storedCorrelationUid, [message]);
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (await correlationService.GetCorrelationAsync(dataProducer, message, cancellationToken) is CorrelationUid correlationUid)
         {
+            if (this.correlationSessions.TryGetValue(correlationUid, out var existingSession))
+            {
+                return CorrelationResult.Failure(
+                    $"Two active sessions '{existingSession.Value}' and '{sessionUid.Value}' "
+                        + $"share the same correlation UID '{correlationUid.Value}'. All active sessions "
+                        + "must have unique correlation UIDs. This is most likely an issue with the currently "
+                        + "running Allure integration.");
+            }
+
             // New correlation to remember.
-            this.map[sessionUid] = correlationUid;
-            this.correlations.Add(correlationUid);
+            this.sessionCorrelations[sessionUid] = correlationUid;
+            this.correlationSessions[correlationUid] = sessionUid;
 
             // dequeue both buffers and restore the order of buffered messages
             return CorrelationResult.Success(
@@ -93,14 +104,14 @@ class SessionCorrelationState(ICorrelationService correlationService)
         // Can't correlate yet. Buffer the message and yield nothing to process
         Enqueue(message);
 
-        return CorrelationResult.Failure;
+        return CorrelationResult.NotReady;
     }
 
     CorrelationResult Correlate(DataWithCorrelationUid message)
     {
         var correlationUid = message.CorrelationUid;
 
-        if (this.correlations.Contains(correlationUid) || !this.sessionUidBuffers.Any())
+        if (this.correlationSessions.ContainsKey(correlationUid) || !this.sessionUidBuffers.Any())
         {
             // Correlation either exists or not needed so far.
             return CorrelationResult.Success(correlationUid, [message]);
@@ -110,7 +121,7 @@ class SessionCorrelationState(ICorrelationService correlationService)
         // Buffer the message and wait until the correlation is established
         // to prevent out of order delivery.
         Enqueue(message);
-        return CorrelationResult.Failure;
+        return CorrelationResult.NotReady;
     }
 
     void Enqueue(DataWithSessionUid dataWithSessionUid) =>

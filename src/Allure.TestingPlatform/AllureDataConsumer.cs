@@ -13,6 +13,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 using Allure.TestingPlatform.Functions;
 using Microsoft.Testing.Platform.Extensions.TestHost;
 using Microsoft.Testing.Platform.Services;
+using System.Collections.Generic;
 using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform;
@@ -28,7 +29,7 @@ public class AllureDataConsumer(IAllureRuntime allure) :
     ITestSessionLifetimeHandler
 {
     readonly AllureDataConsumerState allureState = new(allure.Lifecycle);
-    readonly SessionCorrelationState correlationState = new(allure.CorrelationService);
+    readonly SessionCorrelationState correlationState = new(allure.CorrelationService, allure.Logger);
 
     public Type[] DataTypesConsumed { get; } =
     [
@@ -86,34 +87,43 @@ public class AllureDataConsumer(IAllureRuntime allure) :
 
         if (correlationResult is CorrelationSuccess { CorrelationUid: var correlationUid, MessagesToProcess: var messages })
         {
-            foreach (var message in messages)
+            await this.ConsumeBufferedMessages(correlationUid, messages);
+        }
+        else if (correlationResult is CorrelationFailure { Message: var message })
+        {
+            await this.Allure.Logger.LogErrorAsync($"Session correlation error: {message}");
+        }
+    }
+
+    async Task ConsumeBufferedMessages(CorrelationUid correlationUid, IEnumerable<IData> messages)
+    {
+        foreach (var message in messages)
+        {
+            await (message switch
             {
-                await (message switch
-                {
-                    TestNodeUpdateMessage testNodeUpdateMessage =>
-                        this.ConsumeTestNodeUpdateMessage(correlationUid, testNodeUpdateMessage),
+                TestNodeUpdateMessage testNodeUpdateMessage =>
+                    this.ConsumeTestNodeUpdateMessage(correlationUid, testNodeUpdateMessage),
 
-                    SessionFileArtifact sessionFileArtifact =>
-                        this.ConsumeSessionFileArtifactMessage(sessionFileArtifact),
+                SessionFileArtifact sessionFileArtifact =>
+                    this.ConsumeSessionFileArtifactMessage(sessionFileArtifact),
 
-                    CreateContextMessage createContextMessage =>
-                        this.ConsumeCreateContextMessage(createContextMessage),
+                CreateContextMessage createContextMessage =>
+                    this.ConsumeCreateContextMessage(createContextMessage),
 
-                    MutateModelMessage mutateModelMessage =>
-                        this.ConsumeMutateModelMessage(mutateModelMessage),
+                MutateModelMessage mutateModelMessage =>
+                    this.ConsumeMutateModelMessage(mutateModelMessage),
 
-                    AllureScopeStopMessage allureScopeStopMessage =>
-                        this.ConsumeScopeStopMessage(allureScopeStopMessage),
+                AllureScopeStopMessage allureScopeStopMessage =>
+                    this.ConsumeScopeStopMessage(allureScopeStopMessage),
 
-                    RemoveContextMessage removeContextMessage =>
-                        this.ConsumeRemoveContextMessage(removeContextMessage),
+                RemoveContextMessage removeContextMessage =>
+                    this.ConsumeRemoveContextMessage(removeContextMessage),
 
-                    AllureTestsScopeMessage allureTestsScopeMessage =>
-                        this.ConsumeTestsInScopeMessage(allureTestsScopeMessage),
+                AllureTestsScopeMessage allureTestsScopeMessage =>
+                    this.ConsumeTestsInScopeMessage(allureTestsScopeMessage),
 
-                    _ => Task.CompletedTask,
-                });
-            }
+                _ => Task.CompletedTask,
+            });
         }
     }
 
