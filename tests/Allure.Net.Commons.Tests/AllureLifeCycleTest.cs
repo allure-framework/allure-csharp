@@ -404,5 +404,34 @@ namespace Allure.Net.Commons.Tests
             var step = writer.TestResults.Single().steps.Single();
             Assert.That(step.stop, Is.EqualTo(100));
         }
+
+        [Test]
+        public void UpdateTestContainersTest()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(new(), writer)
+                .StartTestContainer(new(){ uuid = "c1" })
+                .StartBeforeFixture(new())
+                .StopFixture()
+                .StartTestContainer(new(){ uuid = "c2" })
+                .StartBeforeFixture(new())
+                .StopFixture();
+            List<string> order = [];
+
+            lifecycle.UpdateTestContainers((c) =>
+            {
+                order.Add(c.uuid);
+                c.name = "foo";
+            });
+
+            lifecycle.StopTestContainer()
+                .WriteTestContainer()
+                .StopTestContainer()
+                .WriteTestContainer();
+
+            var names = writer.TestContainers.Select((c) => c.name).ToArray();
+            Assert.That(names, Is.EqualTo(["foo", "foo"]));
+            Assert.That(order, Is.EqualTo(["c2", "c1"]));
+        }
     }
 }
