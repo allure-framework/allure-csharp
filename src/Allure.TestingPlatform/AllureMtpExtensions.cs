@@ -12,13 +12,13 @@ namespace Allure.TestingPlatform;
 public static class AllureMtpExtensions
 {
     static IMessageBus? messageBus = null;
-    static IAllureInfrastructure? allure = null;
+    static IAllureRuntime? allure = null;
 
     extension (ITestApplicationBuilder builder)
     {
         public void AddAllure(Action<IAllureRegistrationContext> allureRegistration)
         {
-            var allureBuilder = new AllureInfrastructureBuilder();
+            var allureBuilder = new AllureRuntimeBuilder();
 
             builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
 
@@ -40,12 +40,12 @@ public static class AllureMtpExtensions
             AddAllure(builder, static (_) => {});
     }
 
-    extension (IAllureInfrastructure)
+    extension (IAllureRuntime)
     {
         public static IMessageBus MessageBus =>
             messageBus ?? throw new InvalidOperationException("Allure is not initialized");
 
-        public static IAllureInfrastructure Allure =>
+        public static IAllureRuntime Allure =>
             allure ?? throw new InvalidOperationException("Allure is not initialized");
     }
 

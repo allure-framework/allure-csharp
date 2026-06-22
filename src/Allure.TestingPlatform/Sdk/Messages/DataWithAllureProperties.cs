@@ -13,7 +13,7 @@ public abstract class DataWithAllureProperties(
 {
     public List<IAllureProperty> Properties { get; init; } = [];
 
-    public void ApplyProperties<T>(IAllureInfrastructure allure, T target)
+    public void ApplyProperties<T>(IAllureRuntime allure, T target)
     {
         foreach (var property in this.Properties.OfType<IAllureProperty<T>>())
         {

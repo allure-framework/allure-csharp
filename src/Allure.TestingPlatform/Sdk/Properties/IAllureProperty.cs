@@ -6,5 +6,5 @@ public interface IAllureProperty : IProperty;
 
 public interface IAllureProperty<TObject> : IAllureProperty
 {
-    public abstract void Apply(IAllureInfrastructure allure, TObject obj);
+    public abstract void Apply(IAllureRuntime allure, TObject obj);
 }

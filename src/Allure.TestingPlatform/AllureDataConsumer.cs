@@ -16,7 +16,7 @@ using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform;
 
-public class AllureDataConsumer(IAllureInfrastructure allure) :
+public class AllureDataConsumer(IAllureRuntime allure) :
     AllureMtpToggleableExtension(
         "dd4f3277-5786-4010-8908-e70f07656ebc",
         "Allure.TestingPlatform data consumer",

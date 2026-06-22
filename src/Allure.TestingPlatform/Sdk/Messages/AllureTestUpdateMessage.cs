@@ -13,7 +13,7 @@ public sealed class AllureTestUpdateMessage(
 {
     public TestContextUid TestUid { get; } = testUid;
 
-    public override void Mutate(IAllureInfrastructure allure)
+    public override void Mutate(IAllureRuntime allure)
     {
         allure.Lifecycle.UpdateTestCase((test) =>
         {

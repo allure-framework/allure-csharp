@@ -20,7 +20,7 @@ public sealed class AllureDefaultSuitesProperty(string? parentSuite, string? sui
     {
     }
 
-    public void Apply(IAllureInfrastructure _, TestResult obj)
+    public void Apply(IAllureRuntime _, TestResult obj)
     {
         ModelFunctions.EnsureSuites(obj, this.ParentSuite, this.Suite, this.SubSuite);
     }

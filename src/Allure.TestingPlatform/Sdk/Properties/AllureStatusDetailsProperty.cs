@@ -7,7 +7,7 @@ public sealed class AllureStatusDetailsProperty<TObject>(StatusDetails statusDet
 {
     public StatusDetails Value { get; } = statusDetails;
 
-    public void Apply(IAllureInfrastructure _, TObject obj)
+    public void Apply(IAllureRuntime _, TObject obj)
     {
         obj.statusDetails = this.Value;
     }

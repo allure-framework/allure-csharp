@@ -14,7 +14,7 @@ public sealed class AllureAttachmentProperty<TObject>(string name, byte[] conten
 
     public string FileExtension { get; init; } = "";
 
-    public void Apply(IAllureInfrastructure allure, TObject obj)
+    public void Apply(IAllureRuntime allure, TObject obj)
     {
         var source = ModelFunctions.GetAttachmentSourceName(this.FileExtension);
         var attachment = new Attachment

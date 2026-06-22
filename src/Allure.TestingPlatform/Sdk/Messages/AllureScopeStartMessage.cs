@@ -19,7 +19,7 @@ public sealed class AllureScopeStartMessage(
 
     public ScopeContextUid? ParentScopeUid { get; } = parentScopeUid;
 
-    public override void Mutate(IAllureInfrastructure allure)
+    public override void Mutate(IAllureRuntime allure)
     {
         allure.Lifecycle.StartTestContainer(new() { uuid = IdFunctions.CreateUUID() });
     }

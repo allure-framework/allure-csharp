@@ -6,7 +6,7 @@ using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Tests.Stubs;
 
-public class AllureInfrastructureStub(
+public class AllureRuntimeStub(
     bool isEnabled,
     AllureConfiguration config,
     ICorrelationService correlationService,
@@ -14,7 +14,7 @@ public class AllureInfrastructureStub(
     AllureLifecycle lifecycle,
     Dictionary<Type, ITypeFormatter> typeFormatters
 )
-    : IAllureInfrastructure
+    : IAllureRuntime
 {
     public bool IsEnabled => isEnabled;
 
@@ -28,5 +28,5 @@ public class AllureInfrastructureStub(
 
     public Dictionary<Type, ITypeFormatter> TypeFormatters => typeFormatters;
 
-    IReadOnlyDictionary<Type, ITypeFormatter> IAllureInfrastructure.TypeFormatters => TypeFormatters;
+    IReadOnlyDictionary<Type, ITypeFormatter> IAllureRuntime.TypeFormatters => TypeFormatters;
 }

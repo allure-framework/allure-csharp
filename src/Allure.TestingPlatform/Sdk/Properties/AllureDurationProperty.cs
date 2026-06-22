@@ -20,7 +20,7 @@ public sealed class AllureDurationProperty<TObject>(long duration) : IAllureProp
 
     public DurationBase RelativeTo { get; init; } = DurationBase.Start;
 
-    public void Apply(IAllureInfrastructure _, TObject obj)
+    public void Apply(IAllureRuntime _, TObject obj)
     {
         if (this.RelativeTo == DurationBase.Start)
         {

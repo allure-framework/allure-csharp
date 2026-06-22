@@ -7,7 +7,7 @@ public sealed class AllureLinksProperty(IEnumerable<Link> links) : IAllureProper
 {
     public List<Link> Links { get; } = [..links];
 
-    public void Apply(IAllureInfrastructure _, TestResult obj)
+    public void Apply(IAllureRuntime _, TestResult obj)
     {
         obj.links.AddRange(this.Links);
     }

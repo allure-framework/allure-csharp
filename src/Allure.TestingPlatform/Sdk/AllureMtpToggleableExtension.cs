@@ -6,10 +6,10 @@ public abstract class AllureMtpToggleableExtension(
     string uid,
     string displayName,
     string description,
-    IAllureInfrastructure allure
+    IAllureRuntime allure
 ) : AllureMtpExtensionBase(uid, displayName, description)
 {
-    public IAllureInfrastructure Allure => allure;
+    public IAllureRuntime Allure => allure;
 
     public override Task<bool> IsEnabledAsync() => Task.FromResult(allure.IsEnabled);
 }

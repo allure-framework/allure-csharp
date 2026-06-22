@@ -9,7 +9,7 @@ public sealed class AllureDescriptionProperty<TObject>(string description) : IAl
 
     public bool Append { get; init; } = false;
 
-    public void Apply(IAllureInfrastructure _, TObject obj)
+    public void Apply(IAllureRuntime _, TObject obj)
     {
         if (this.Append && obj.description is { Length: > 0 })
         {

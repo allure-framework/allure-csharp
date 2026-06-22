@@ -7,7 +7,7 @@ public sealed class AllureNameProperty<TObject>(string name) : IAllureProperty<T
 {
     public string Name { get; } = name;
 
-    public void Apply(IAllureInfrastructure _, TObject obj)
+    public void Apply(IAllureRuntime _, TObject obj)
     {
         obj.name = this.Name;
     }

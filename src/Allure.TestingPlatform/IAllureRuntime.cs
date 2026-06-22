@@ -7,7 +7,7 @@ using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform;
 
-public interface IAllureInfrastructure
+public interface IAllureRuntime
 {
     bool IsEnabled { get; }
     AllureConfiguration Config { get; }

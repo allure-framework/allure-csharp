@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Allure.TestingPlatform.Registration;
 
-public class AllureInfrastructureBuilder : IAllureRegistrationContext
+public class AllureRuntimeBuilder : IAllureRegistrationContext
 {
     Func<IServiceProvider, AllureConfiguration> configurationFactory = static (serviceProvider) =>
     {
@@ -132,7 +132,7 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
         return this;
     }
 
-    public IAllureInfrastructure Build(IServiceProvider serviceProvider)
+    public IAllureRuntime Build(IServiceProvider serviceProvider)
     {
         var config = this.configurationFactory(serviceProvider);
         var isEnabled = this.isEnabled(serviceProvider, config);
@@ -141,6 +141,6 @@ public class AllureInfrastructureBuilder : IAllureRegistrationContext
         var typeFormatters = this.typeFormattersFactory(serviceProvider, config);
         var lifecycle = this.lifecycleFactory(serviceProvider, new(config, writer, typeFormatters));
 
-        return new AllureInfrastructure(isEnabled, config, correlationService, writer, lifecycle, typeFormatters);
+        return new AllureMtpRuntime(isEnabled, config, correlationService, writer, lifecycle, typeFormatters);
     }
 }

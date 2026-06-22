@@ -12,7 +12,7 @@ public sealed class AllureTestMethodArgumentsProperty<TObject>(MethodInfo testMe
 
     public List<object> Arguments { get; } = [..arguments];
 
-    public void Apply(IAllureInfrastructure allure, TObject obj)
+    public void Apply(IAllureRuntime allure, TObject obj)
     {
         obj.parameters.AddRange(
             ModelFunctions.CreateParameters(

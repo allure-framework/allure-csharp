@@ -12,7 +12,7 @@ public abstract class DataConsumerTestsBase
     protected readonly ICorrelationService correlationService;
     protected readonly AllureLifecycle lifecycle;
     protected readonly InMemoryResultsWriter writer;
-    protected readonly AllureInfrastructureStub allure;
+    protected readonly AllureRuntimeStub allure;
     protected readonly AllureDataConsumer consumer;
     protected readonly Dictionary<Type, ITypeFormatter> typeFormatters;
 

@@ -13,7 +13,7 @@ public sealed class AllureFixtureUpdateMessage(
 {
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
-    public override void Mutate(IAllureInfrastructure allure)
+    public override void Mutate(IAllureRuntime allure)
     {
         allure.Lifecycle.UpdateFixture((fixture) =>
         {

@@ -14,5 +14,5 @@ public abstract class CreateContextMessage(
 
     public IAllureContextUid? ParentContextUid { get; } = parentContextUid;
 
-    public abstract void Mutate(IAllureInfrastructure allure);
+    public abstract void Mutate(IAllureRuntime allure);
 }

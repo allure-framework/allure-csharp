@@ -12,7 +12,7 @@ public sealed class AllureStartProperty<TObject>(long start) : IAllureProperty<T
     {
     }
 
-    public void Apply(IAllureInfrastructure _, TObject obj)
+    public void Apply(IAllureRuntime _, TObject obj)
     {
         obj.start = this.Start;
     }

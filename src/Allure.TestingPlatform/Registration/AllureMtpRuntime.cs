@@ -7,7 +7,7 @@ using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Registration;
 
-public class AllureInfrastructure(
+public class AllureMtpRuntime(
     bool isEnabled,
     AllureConfiguration config,
     ICorrelationService correlationService,
@@ -15,7 +15,7 @@ public class AllureInfrastructure(
     AllureLifecycle lifecycle,
     IReadOnlyDictionary<Type, ITypeFormatter> typeFormatters
 )
-    : IAllureInfrastructure
+    : IAllureRuntime
 {
     public bool IsEnabled { get; } = isEnabled;
     public AllureConfiguration Config { get; } = config;

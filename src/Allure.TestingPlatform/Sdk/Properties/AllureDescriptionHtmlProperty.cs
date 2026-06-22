@@ -9,7 +9,7 @@ public sealed class AllureDescriptionHtmlProperty<TObject>(string descriptionHtm
 
     public bool Append { get; init; } = false;
 
-    public void Apply(IAllureInfrastructure _, TObject obj)
+    public void Apply(IAllureRuntime _, TObject obj)
     {
         if (this.Append && obj.descriptionHtml is { Length: > 0 })
         {

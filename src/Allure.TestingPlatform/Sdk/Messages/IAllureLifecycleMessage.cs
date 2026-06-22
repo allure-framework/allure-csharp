@@ -4,5 +4,5 @@ public interface IAllureLifecycleMessage
 {
     IAllureContextUid ContextUid { get; }
 
-    void Mutate(IAllureInfrastructure allure);
+    void Mutate(IAllureRuntime allure);
 }
