@@ -57,6 +57,35 @@ public static class IdFunctions
     }
 
     /// <summary>
+    /// Creates a titlePath: a path to a test class in a tree of test results.
+    /// </summary>
+    /// <param name="method">A test method</param>
+    /// <remarks>
+    /// A titlePath consists of:
+    /// <list type="bullet">
+    /// <item>assembly name</item>
+    /// <item>elements of namespace</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters (for generic type definitions)</item>
+    /// <item>type arguments (for constructed generic types)</item>
+    /// <item>method name with type parameters and parameter types (for parameterized method)</item>
+    /// </list>
+    /// The type and method nodes can be renamed by applying <see cref="AllureNameAttribute"/>.
+    /// </remarks>
+    public static List<string> CreateTitlePath(MethodInfo method)
+    {
+        var titlePath = CreateTitlePath(method.DeclaringType);
+        if (method.GetParameters().Length > 0)
+        {
+            titlePath.Add(
+                method.GetCustomAttribute<AllureNameAttribute>()?.Name
+                    ?? GetMethodId(method)
+            );
+        }
+        return titlePath;
+    }
+
+    /// <summary>
     /// Creates a name that uniquely identifies a given type.
     /// </summary>
     /// <remarks>
