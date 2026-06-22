@@ -148,14 +148,14 @@ internal class ExplicitFixtureAndStepTests : AllureApiTestFixture
     void AssertFixtureStatus(Status status, string message, string trace)
     {
         Assert.That(this.fixture!.status, Is.EqualTo(status));
-        Assert.That(this.fixture.statusDetails.message, Is.EqualTo(message));
-        Assert.That(this.fixture.statusDetails.trace, Contains.Substring(trace));
+        Assert.That(this.fixture.statusDetails?.message, Is.EqualTo(message));
+        Assert.That(this.fixture.statusDetails?.trace, Contains.Substring(trace));
     }
 
     static void AssertStepStatus(StepResult step, Status status, string message, string trace)
     {
         Assert.That(step.status, Is.EqualTo(status));
-        Assert.That(step.statusDetails.message, Is.EqualTo(message));
-        Assert.That(step.statusDetails.trace, Contains.Substring(trace));
+        Assert.That(step.statusDetails?.message, Is.EqualTo(message));
+        Assert.That(step.statusDetails?.trace, Contains.Substring(trace));
     }
 }

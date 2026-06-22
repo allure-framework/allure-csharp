@@ -350,10 +350,10 @@ namespace Allure.SpecFlowPlugin
                 _ => status
             };
 
-        static StatusDetails ResolveTestCaseDetails(
+        static StatusDetails? ResolveTestCaseDetails(
             ScenarioContext scenarioContext,
             Status status,
-            StatusDetails statusDetails
+            StatusDetails? statusDetails
         ) =>
             status switch
             {
