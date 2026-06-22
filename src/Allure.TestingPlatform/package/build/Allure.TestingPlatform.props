@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup>
+        <Allure_TestingPlatformEnableSelfRegistration
+            Condition=" '$(Allure_TestingPlatformEnableSelfRegistration)' == '' ">true</Allure_TestingPlatformEnableSelfRegistration>
+    </PropertyGroup>
+</Project>
