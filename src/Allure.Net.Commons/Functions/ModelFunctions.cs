@@ -25,10 +25,10 @@ public static class ModelFunctions
     /// <param name="e">The exception to check.</param>
     public static bool IsKnownError(IEnumerable<string> knownErrorBases, Exception e) =>
         knownErrorBases
-            .Intersect(
+            ?.Intersect(
                 GetExceptionClassChain(e)
             )
-            .Any();
+            ?.Any() == true;
 
     /// <summary>
     /// Returns a <see cref="Status.failed"/> if a given exception represents
