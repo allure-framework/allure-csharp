@@ -13,7 +13,6 @@ class GlobalLabelsTests
     public void SetUpEnvSource()
     {
         this.config = new();
-        ModelFunctions.Config = this.config;
     }
 
     [TearDown]
@@ -28,7 +27,7 @@ class GlobalLabelsTests
         this.config.GlobalLabels = null;
 
         Assert.That(
-            () => ModelFunctions.EnumerateGlobalLabels().ToList(),
+            () => ModelFunctions.EnumerateGlobalLabels(this.config).ToList(),
             Throws.Nothing
         );
     }
@@ -40,7 +39,7 @@ class GlobalLabelsTests
         this.config.GlobalLabels["baz"] = "qux";
 
         Assert.That(
-            ModelFunctions.EnumerateGlobalLabels(),
+            ModelFunctions.EnumerateGlobalLabels(this.config),
             Is.EquivalentTo(new Label[]
             {
                 new() { name = "foo", value = "bar" },
@@ -54,7 +53,7 @@ class GlobalLabelsTests
     {
         this.config.GlobalLabels["foo"] = null;
 
-        Assert.That(ModelFunctions.EnumerateGlobalLabels(), Is.Empty);
+        Assert.That(ModelFunctions.EnumerateGlobalLabels(this.config), Is.Empty);
     }
 
     [Test]
@@ -62,7 +61,7 @@ class GlobalLabelsTests
     {
         this.config.GlobalLabels["foo"] = "";
 
-        Assert.That(ModelFunctions.EnumerateGlobalLabels(), Is.Empty);
+        Assert.That(ModelFunctions.EnumerateGlobalLabels(this.config), Is.Empty);
     }
 
     [Test]
@@ -70,6 +69,6 @@ class GlobalLabelsTests
     {
         this.config.GlobalLabels[""] = "foo";
 
-        Assert.That(ModelFunctions.EnumerateGlobalLabels(), Is.Empty);
+        Assert.That(ModelFunctions.EnumerateGlobalLabels(this.config), Is.Empty);
     }
 }

@@ -102,7 +102,7 @@ namespace Allure.Net.Commons.Tests
         public void BeforeFixtureMayOverlapsWithTest()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             var container = new TestResultContainer
             {
                 uuid = Guid.NewGuid().ToString()
@@ -142,7 +142,7 @@ namespace Allure.Net.Commons.Tests
         public async Task ContextCapturingTest()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             AllureContext context = null, modifiedContext = null;
             await Task.Factory.StartNew(() =>
             {
@@ -167,7 +167,7 @@ namespace Allure.Net.Commons.Tests
         public async Task AsyncContextCapturingTest()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             AllureContext context = null;
             await Task.Factory.StartNew(() =>
             {
@@ -194,7 +194,7 @@ namespace Allure.Net.Commons.Tests
         public async Task ContextCapturingHasNoEffectIfContextIsNull()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             await Task.Factory.StartNew(() =>
             {
                 lifecycle.StartTestCase(new()
@@ -214,7 +214,7 @@ namespace Allure.Net.Commons.Tests
         public async Task AsyncContextCapturingHasNoEffectIfContextIsNull()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             await Task.Factory.StartNew(() =>
             {
                 lifecycle.StartTestCase(new()
@@ -235,7 +235,7 @@ namespace Allure.Net.Commons.Tests
         public void HistoryAndTestCaseIdsAreSetAfterStop()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             lifecycle.StartTestCase(new()
             {
                 uuid = "uuid",
@@ -256,7 +256,7 @@ namespace Allure.Net.Commons.Tests
         public void HistoryAndTestCaseIdsAreNotOverwrittenAfterStop()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             lifecycle.StartTestCase(new()
             {
                 uuid = "uuid",
@@ -275,7 +275,7 @@ namespace Allure.Net.Commons.Tests
         public void EmptyTestContainerNotWritten()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             lifecycle.StartTestContainer(new() { uuid = "foo" });
             lifecycle.StopTestContainer();
 
@@ -288,7 +288,7 @@ namespace Allure.Net.Commons.Tests
         public void ContainerWithBeforeFixtureIsWritten()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             lifecycle.StartTestContainer(new() { uuid = "foo" });
             lifecycle.StartBeforeFixture(new());
             lifecycle.StopFixture();
@@ -303,7 +303,7 @@ namespace Allure.Net.Commons.Tests
         public void ContainerWithAfterFixtureIsWritten()
         {
             var writer = new InMemoryResultsWriter();
-            var lifecycle = new AllureLifecycle(_ => writer);
+            var lifecycle = new AllureLifecycle(new(), writer);
             lifecycle.StartTestContainer(new() { uuid = "foo" });
             lifecycle.StartAfterFixture(new());
             lifecycle.StopFixture();

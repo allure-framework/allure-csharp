@@ -135,7 +135,14 @@ public static class ModelFunctions
     /// configuration property.
     /// </summary>
     public static IEnumerable<Label> EnumerateGlobalLabels() =>
-        from kv in Config.GlobalLabels ?? []
+        EnumerateGlobalLabels(Config);
+
+    /// <summary>
+    /// Returns a sequence of labels defined by the <c>globalLabels</c>
+    /// configuration property.
+    /// </summary>
+    public static IEnumerable<Label> EnumerateGlobalLabels(AllureConfiguration config) =>
+        from kv in config.GlobalLabels ?? []
         where !string.IsNullOrEmpty(kv.Key) && !string.IsNullOrEmpty(kv.Value)
         select new Label { name = kv.Key, value = kv.Value };
 
@@ -159,7 +166,7 @@ public static class ModelFunctions
     /// <returns>A sequence of Allure parameters.</returns>
     public static IEnumerable<Parameter> CreateParameters(
         IEnumerable<ParameterInfo> parameters,
-        IEnumerable<object> values,
+        IEnumerable<object?> values,
         IReadOnlyDictionary<Type, ITypeFormatter> formatters
     )
         => CreateParameters(
@@ -194,7 +201,7 @@ public static class ModelFunctions
     public static IEnumerable<Parameter> CreateParameters(
         IEnumerable<string> parameterNames,
         IEnumerable<AllureParameterAttribute?> attributes,
-        IEnumerable<object> values,
+        IEnumerable<object?> values,
         IReadOnlyDictionary<Type, ITypeFormatter> formatters
     )
         => parameterNames
