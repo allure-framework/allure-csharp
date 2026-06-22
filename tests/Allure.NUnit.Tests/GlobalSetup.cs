@@ -2,7 +2,7 @@
 
 #if ALLURE_TEST_PARALLEL
 
-[assembly: ParallelLimiter<DotnetParallelLimit>]
+[assembly: ParallelLimiter<Allure.Testing.DotnetParallelLimit>]
 
 #else
 
