@@ -3,12 +3,14 @@ using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
 using Allure.TestingPlatform.Sdk;
+using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Tests.Stubs;
 
 public class AllureRuntimeStub(
-    bool isEnabled,
     AllureConfiguration config,
+    LoggerSpy logger,
+    bool isEnabled,
     ICorrelationService correlationService,
     InMemoryResultsWriter writer,
     AllureLifecycle lifecycle,
@@ -16,9 +18,11 @@ public class AllureRuntimeStub(
 )
     : IAllureRuntime
 {
-    public bool IsEnabled => isEnabled;
-
     public AllureConfiguration Config => config;
+
+    public ILogger Logger => logger;
+
+    public bool IsEnabled => isEnabled;
 
     public ICorrelationService CorrelationService => correlationService;
 

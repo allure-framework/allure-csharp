@@ -9,6 +9,7 @@ namespace Allure.TestingPlatform.Tests;
 public abstract class DataConsumerTestsBase
 {
     protected readonly AllureConfiguration config;
+    protected readonly LoggerSpy logger;
     protected readonly ICorrelationService correlationService;
     protected readonly AllureLifecycle lifecycle;
     protected readonly InMemoryResultsWriter writer;
@@ -22,10 +23,12 @@ public abstract class DataConsumerTestsBase
         this.lifecycle = new(_ => this.writer);
         this.correlationService = new SessionUidCorrelation();
         this.config = this.lifecycle.AllureConfiguration;
+        this.logger = new();
         this.typeFormatters = [];
         this.allure = new(
             isEnabled: true,
             config: this.config,
+            logger: this.logger,
             correlationService: this.correlationService,
             writer: this.writer,
             lifecycle: this.lifecycle,

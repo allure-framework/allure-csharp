@@ -6,6 +6,7 @@ using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
 using Allure.TestingPlatform.Sdk;
+using Microsoft.Testing.Platform.Logging;
 using Microsoft.Testing.Platform.Services;
 using Newtonsoft.Json.Linq;
 
@@ -67,6 +68,11 @@ public class AllureRuntimeBuilder : IAllureRegistrationContext
         );
     };
 
+    Func<IServiceProvider, ILogger> loggerFactory = static (serviceProvider) =>
+        serviceProvider
+            .GetLoggerFactory()
+            .CreateLogger("Allure");
+
     Func<IServiceProvider, AllureConfiguration, bool> isEnabled = static (serviceProvider, _) =>
         AllureCliOptionsProvider.IsAllureEnabled(
             serviceProvider.GetCommandLineOptions()
@@ -83,6 +89,14 @@ public class AllureRuntimeBuilder : IAllureRegistrationContext
 
     Func<IServiceProvider, AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory =
         static (_, cfg) => [];
+
+    public IAllureRegistrationContext UseLogger(
+        Func<IServiceProvider, ILogger> loggerFactory
+    )
+    {
+        this.loggerFactory = loggerFactory;
+        return this;
+    }
 
     public IAllureRegistrationContext UseConfiguration(
         Func<IServiceProvider, AllureConfiguration> configurationFactory
@@ -135,12 +149,13 @@ public class AllureRuntimeBuilder : IAllureRegistrationContext
     public IAllureRuntime Build(IServiceProvider serviceProvider)
     {
         var config = this.configurationFactory(serviceProvider);
+        var logger = this.loggerFactory(serviceProvider);
         var isEnabled = this.isEnabled(serviceProvider, config);
         var correlationService = this.correlationServiceFactory(serviceProvider, config);
         var writer = this.writerFactory(serviceProvider, config);
         var typeFormatters = this.typeFormattersFactory(serviceProvider, config);
         var lifecycle = this.lifecycleFactory(serviceProvider, new(config, writer, typeFormatters));
 
-        return new AllureMtpRuntime(isEnabled, config, correlationService, writer, lifecycle, typeFormatters);
+        return new AllureMtpRuntime(config, logger, isEnabled, correlationService, writer, lifecycle, typeFormatters);
     }
 }

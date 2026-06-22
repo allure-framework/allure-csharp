@@ -4,13 +4,15 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Sdk;
+using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform;
 
 public interface IAllureRuntime
 {
-    bool IsEnabled { get; }
     AllureConfiguration Config { get; }
+    ILogger Logger { get; }
+    bool IsEnabled { get; }
     ICorrelationService CorrelationService { get; }
     IAllureResultsWriter Writer { get; }
     AllureLifecycle Lifecycle { get; }

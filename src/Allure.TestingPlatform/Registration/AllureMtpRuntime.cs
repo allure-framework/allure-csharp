@@ -4,12 +4,14 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Sdk;
+using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Registration;
 
 public class AllureMtpRuntime(
-    bool isEnabled,
     AllureConfiguration config,
+    ILogger logger,
+    bool isEnabled,
     ICorrelationService correlationService,
     IAllureResultsWriter writer,
     AllureLifecycle lifecycle,
@@ -17,8 +19,9 @@ public class AllureMtpRuntime(
 )
     : IAllureRuntime
 {
-    public bool IsEnabled { get; } = isEnabled;
     public AllureConfiguration Config { get; } = config;
+    public ILogger Logger { get; } = logger;
+    public bool IsEnabled { get; } = isEnabled;
     public ICorrelationService CorrelationService { get; } = correlationService;
     public IAllureResultsWriter Writer { get; } = writer;
     public AllureLifecycle Lifecycle { get; } = lifecycle;
