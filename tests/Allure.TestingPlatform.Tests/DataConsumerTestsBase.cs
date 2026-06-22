@@ -6,11 +6,14 @@ using Allure.TestingPlatform.Tests.Stubs;
 
 namespace Allure.TestingPlatform.Tests;
 
-public abstract class DataConsumerTestsBase
+public abstract class DataConsumerTestsBase : DataConsumerTestsBase<SessionUidCorrelation>;
+
+public abstract class DataConsumerTestsBase<TCorrelationService>
+    where TCorrelationService : ICorrelationService, new()
 {
     protected readonly AllureConfiguration config;
     protected readonly LoggerSpy logger;
-    protected readonly ICorrelationService correlationService;
+    protected readonly TCorrelationService correlationService;
     protected readonly AllureLifecycle lifecycle;
     protected readonly InMemoryResultsWriter writer;
     protected readonly AllureRuntimeStub allure;
@@ -21,7 +24,7 @@ public abstract class DataConsumerTestsBase
     {
         this.writer = new();
         this.lifecycle = new(_ => this.writer);
-        this.correlationService = new SessionUidCorrelation();
+        this.correlationService = new TCorrelationService();
         this.config = this.lifecycle.AllureConfiguration;
         this.logger = new();
         this.typeFormatters = [];
