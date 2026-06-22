@@ -13,6 +13,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 using Allure.TestingPlatform.Functions;
 using Microsoft.Testing.Platform.Extensions.TestHost;
 using Microsoft.Testing.Platform.Services;
+using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform;
 
@@ -62,6 +63,23 @@ public class AllureDataConsumer(IAllureRuntime allure) :
     }
 
     public async Task ConsumeAsync(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await this.ConsumeAsyncUnsafe(dataProducer, value, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            if (e is OperationCanceledException)
+            {
+                throw;
+            }
+
+            await this.Allure.Logger.LogErrorAsync($"Error when processing {value}", e);
+        }
+    }
+
+    public async Task ConsumeAsyncUnsafe(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)
     {
         var correlationResult =
             await this.correlationState.Correlate(dataProducer, value, cancellationToken);
