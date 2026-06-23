@@ -221,7 +221,7 @@ namespace Allure.Net.Commons
 
         private Status _status;
 
-        private StatusDetails _statusDetails;
+        private StatusDetails? _statusDetails;
 
         private Stage _stage;
 
@@ -245,7 +245,7 @@ namespace Allure.Net.Commons
             this._parameters = new List<Parameter>();
             this._attachments = new List<Attachment>();
             this._steps = new List<StepResult>();
-            this._statusDetails = new StatusDetails();
+            this._statusDetails = null;
         }
 
         public string name
@@ -272,7 +272,7 @@ namespace Allure.Net.Commons
             }
         }
 
-        public StatusDetails statusDetails
+        public StatusDetails? statusDetails
         {
             get
             {

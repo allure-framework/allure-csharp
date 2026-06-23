@@ -17,7 +17,7 @@ static class AllureReqnrollStateFacade
 
     const string ASSERT_EXC_NUNIT =
         "NUnit.Framework.AssertionException";
-    const string ASSERT_EXC_NUNIT_MULTIPLE = 
+    const string ASSERT_EXC_NUNIT_MULTIPLE =
         "NUnit.Framework.MultipleAssertException";
     const string ASSERT_EXC_XUNIT_NEW = // From v2.4.2 and onward.
         "Xunit.Sdk.IAssertionException";
@@ -190,7 +190,7 @@ static class AllureReqnrollStateFacade
                 break;
             case ScenarioExecutionStatus.StepDefinitionPending:
                 ExtendedApi.SkipStep(
-                    s => s.statusDetails.message = STEP_PENDING_MESSAGE
+                    s => s.statusDetails = new() { message = STEP_PENDING_MESSAGE }
                 );
                 break;
             case ScenarioExecutionStatus.Skipped:
@@ -198,14 +198,13 @@ static class AllureReqnrollStateFacade
                 break;
             case ScenarioExecutionStatus.UndefinedStep:
                 ExtendedApi.BreakStep(
-                    s => s.statusDetails.message = STEP_UNKNOWN_MESSAGE
+                    s => s.statusDetails = new() { message = STEP_UNKNOWN_MESSAGE }
                 );
                 break;
             case ScenarioExecutionStatus.BindingError:
-                ExtendedApi.BreakStep(s =>
-                {
-                    s.statusDetails.message = error!.Message;
-                });
+                ExtendedApi.BreakStep(
+                    s => s.statusDetails = new() { message = error!.Message }
+                );
                 break;
             case ScenarioExecutionStatus.TestError:
                 ExtendedApi.ResolveStep(error!);
