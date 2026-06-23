@@ -236,7 +236,7 @@ public class TestPropertyTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldSetFailedStatusAndDetailsFromError()
     {
-        this.config.FailExceptions.Add("System.Exception");
+        this.config.FailExceptions = ["System.Exception"];
 
         var testResult = await this.ArrangeAndAct(
             new AllureExceptionProperty<AllureTestResult>(new Exception("Foo"))

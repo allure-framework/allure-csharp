@@ -231,7 +231,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     [Test]
     public async Task ShouldSetFailedStatusAndDetailsFromError()
     {
-        this.config.FailExceptions.Add("System.Exception");
+        this.config.FailExceptions = ["System.Exception"];
 
         var fixture = await this.ArrangeAndAct(
             new AllureExceptionProperty<FixtureResult>(new Exception("Foo"))
