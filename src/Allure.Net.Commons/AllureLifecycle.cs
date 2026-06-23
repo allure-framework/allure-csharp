@@ -305,6 +305,25 @@ public class AllureLifecycle
     }
 
     /// <summary>
+    /// Applies the specified update function to all containers that are currently running.
+    /// The order of application is from most to least recently started.
+    /// </summary>
+    public virtual AllureLifecycle UpdateTestContainers(
+        Action<TestResultContainer> update
+    )
+    {
+        var containers = this.Context.ContainerContext;
+        lock (this.modelMonitor)
+        {
+            foreach (TestResultContainer container in containers)
+            {
+                update(container);
+            }
+        }
+        return this;
+    }
+
+    /// <summary>
     /// Stops the current test container.
     /// </summary>
     /// <remarks>
