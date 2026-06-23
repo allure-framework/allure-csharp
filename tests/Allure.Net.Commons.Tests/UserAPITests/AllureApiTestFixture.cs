@@ -15,7 +15,7 @@ class AllureApiTestFixture
     public void SetUp()
     {
         this.writer = new InMemoryResultsWriter();
-        this.lifecycle = new AllureLifecycle(_ => this.writer);
+        this.lifecycle = new AllureLifecycle(new(), writer);
         AllureApi.CurrentLifecycle = lifecycle;
     }
 

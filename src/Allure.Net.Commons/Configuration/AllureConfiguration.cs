@@ -7,12 +7,12 @@ namespace Allure.Net.Commons.Configuration
 {
     public class AllureConfiguration
     {
-        internal AllureConfiguration()
+        public AllureConfiguration()
         {
         }
 
         [JsonConstructor]
-        protected AllureConfiguration(string title, string directory, HashSet<string> links)
+        public AllureConfiguration(string title, string directory, HashSet<string> links)
         {
             Title = title ?? Title;
             Directory = Path.GetFullPath(directory ?? Directory);
@@ -21,7 +21,7 @@ namespace Allure.Net.Commons.Configuration
 
         public string Title { get; init; }
         public string Directory { get; init; } = Path.GetFullPath(AllureConstants.DEFAULT_RESULTS_FOLDER);
-        public HashSet<string> Links { get; } = [];
+        public HashSet<string> Links { get; init; } = [];
         public List<string> FailExceptions { get; set; }
         public bool UseLegacyIds { get; set; } = false;
         public bool IndentOutput { get; set; } = false;

@@ -109,6 +109,38 @@ public class AllureLifecycle
     }
 
     /// <summary>
+    /// Creates an instance of Allure lifecycle.
+    /// </summary>
+    /// <param name="config">A configuration to use.</param>
+    /// <param name="writer">A writer to emit the results to.</param>
+    public AllureLifecycle(AllureConfiguration config, IAllureResultsWriter writer)
+    {
+        this.JsonConfiguration = JObject.FromObject(config).ToString();
+        this.AllureConfiguration = config;
+        this.writer = writer;
+        this.lazyTestPlan = new(AllureTestPlan.FromEnvironment);
+    }
+
+    /// <summary>
+    /// Creates an instance of Allure lifecycle.
+    /// </summary>
+    /// <param name="config">A configuration to use.</param>
+    /// <param name="writer">A writer to emit the results to.</param>
+    /// <param name="typeFormatters">A collection of type formatters to use for parameter serialization.</param>
+    public AllureLifecycle(
+        AllureConfiguration config,
+        IAllureResultsWriter writer,
+        Dictionary<Type, ITypeFormatter> typeFormatters
+    )
+    {
+        this.JsonConfiguration = JObject.FromObject(config).ToString();
+        this.AllureConfiguration = config;
+        this.writer = writer;
+        this.lazyTestPlan = new(AllureTestPlan.FromEnvironment);
+        this.typeFormatters = typeFormatters;
+    }
+
+    /// <summary>
     /// The JSON representation of the current Allure configuration.
     /// </summary>
     public string JsonConfiguration { get; private set; }
