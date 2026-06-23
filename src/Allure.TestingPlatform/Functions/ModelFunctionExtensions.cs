@@ -35,23 +35,30 @@ static class ModelFunctionExtensions
             testResult.stop = timing.GlobalTiming.EndTime.ToUnixTimeMilliseconds();
         }
 
-        public static void ApplyStateAsFallback(TestResult testResult, TestNodeStateProperty property)
+        public static void ApplyStateAsFallback(
+            IReadOnlyList<string> failExceptions,
+            TestResult testResult,
+            TestNodeStateProperty property
+        )
         {
             if (testResult.status == Status.none)
             {
-                testResult.status = ToStatus(property);
+                testResult.status = ToStatus(failExceptions, property);
             }
 
             testResult.statusDetails ??= ToStatusDetails(property);
         }
 
-        static Status ToStatus(TestNodeStateProperty state) =>
+        static Status ToStatus(IReadOnlyList<string> failExceptions, TestNodeStateProperty state) =>
             state switch
             {
                 FailedTestNodeStateProperty => Status.failed,
                 PassedTestNodeStateProperty => Status.passed,
                 SkippedTestNodeStateProperty => Status.skipped,
-                TimeoutTestNodeStateProperty or ErrorTestNodeStateProperty => Status.broken,
+                TimeoutTestNodeStateProperty => Status.broken,
+                ErrorTestNodeStateProperty { Exception: { } exception } =>
+                    ModelFunctions.ResolveErrorStatus(failExceptions, exception),
+                ErrorTestNodeStateProperty => Status.broken,
                 _ => Status.none,
             };
 

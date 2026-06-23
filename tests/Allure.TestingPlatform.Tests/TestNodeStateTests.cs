@@ -314,4 +314,24 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
         await Assert.That(testResult.statusDetails.trace).Contains("System.Exception");
     }
+
+    [Test]
+    public async Task ShouldSetStatusToFailedIfExceptionMatchesFailException()
+    {
+        this.config.FailExceptions = ["System.Exception"];
+        var testNode = new TestNode
+        {
+            DisplayName = "Foo",
+            Properties = new([
+                new ErrorTestNodeStateProperty(new Exception()),
+            ]),
+            Uid = "1"
+        };
+        var message = new TestNodeUpdateMessage(new SessionUid("Bar"), testNode);
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
+
+        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
+        await Assert.That(testResult.status).IsEqualTo(Status.failed);
+    }
 }

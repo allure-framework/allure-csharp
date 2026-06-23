@@ -163,7 +163,7 @@ public class AllureDataConsumer(IAllureRuntime allure) :
 
         this.Lifecycle.UpdateTestCase((testResult) =>
         {
-            ApplyProperties(testResult, node);
+            this.ApplyProperties(testResult, node);
             ApplyFallbacks(testResult, node);
         });
 
@@ -233,19 +233,19 @@ public class AllureDataConsumer(IAllureRuntime allure) :
         return testResult;
     }
 
-    static void ApplyProperties(TestResult testResult, TestNode node)
+    void ApplyProperties(TestResult testResult, TestNode node)
     {
         foreach (var property in node.Properties)
         {
-            ApplyProperty(testResult, property);
+            this.ApplyProperty(testResult, property);
         }
     }
 
-    static TestResult ApplyProperty(TestResult testResult, IProperty property) =>
+    TestResult ApplyProperty(TestResult testResult, IProperty property) =>
         property switch
         {
             TestNodeStateProperty testNodeState =>
-                ApplyTestNodeStateProperty(testResult, testNodeState),
+                ApplyTestNodeStateProperty(this.Allure.Config.FailExceptions, testResult, testNodeState),
 
             TestMethodIdentifierProperty identifier =>
                 ApplyTestMethodIdentifierProperty(testResult, identifier),
@@ -305,9 +305,13 @@ public class AllureDataConsumer(IAllureRuntime allure) :
         testResult.fullName ??= node.Uid;
     }
 
-    static TestResult ApplyTestNodeStateProperty(TestResult testResult, TestNodeStateProperty testNodeState)
+    static TestResult ApplyTestNodeStateProperty(
+        List<string> failExceptions,
+        TestResult testResult,
+        TestNodeStateProperty testNodeState
+    )
     {
-        ModelFunctions.ApplyStateAsFallback(testResult, testNodeState);
+        ModelFunctions.ApplyStateAsFallback(failExceptions, testResult, testNodeState);
         return testResult;
     }
 
