@@ -401,20 +401,27 @@ public class AllureLifecycle
     /// <summary>
     /// Stops the current fixture and deactivates the fixture context.
     /// </summary>
-    /// <param name="beforeStop">
-    /// A function applied to the fixture result before it is stopped.
+    /// <param name="onStop">
+    /// A function applied to the fixture result right after it is stopped.
     /// </param>
     /// <remarks>
     /// This method modifies the Allure context.<br></br>
-    /// Required the fixture context to be active.
+    /// Requires the fixture context to be active.
     /// </remarks>
     /// <exception cref="InvalidOperationException"/>
     public virtual AllureLifecycle StopFixture(
-        Action<FixtureResult> beforeStop
+        Action<FixtureResult> onStop
     )
     {
-        this.UpdateFixture(beforeStop);
-        return this.StopFixture();
+        var fixture = this.Context.CurrentFixture;
+        this.StopFixture();
+
+        lock (this.modelMonitor)
+        {
+            onStop(fixture);
+        }
+
+        return this;
     }
 
     /// <summary>
@@ -422,7 +429,7 @@ public class AllureLifecycle
     /// </summary>
     /// <remarks>
     /// This method modifies the Allure context.<br></br>
-    /// Required the fixture context to be active.
+    /// Requires the fixture context to be active.
     /// </remarks>
     /// <exception cref="InvalidOperationException"/>
     public virtual AllureLifecycle StopFixture()
@@ -513,14 +520,14 @@ public class AllureLifecycle
     /// <remarks>
     /// Requires the test context to be active.
     /// </remarks>
-    /// <param name="beforeStop">
-    /// A function applied to the test result before it is stopped.
+    /// <param name="onStop">
+    /// A function applied to the test result right after it is stopped.
     /// </param>
     /// <exception cref="InvalidOperationException"/>
     public virtual AllureLifecycle StopTestCase(
-        Action<TestResult> beforeStop
+        Action<TestResult> onStop
     ) => this.UpdateTestCase(
-        Chain(beforeStop, stopTestCase)
+        Chain(stopTestCase, onStop)
     );
 
     /// <summary>
@@ -611,14 +618,21 @@ public class AllureLifecycle
     /// This method modifies the Allure context.<br></br>
     /// Requires the step context to be active.
     /// </remarks>
-    /// <param name="beforeStop">
-    /// A function that is applied to the step result before it is stopped.
+    /// <param name="onStop">
+    /// A function that is applied to the step result right after it is stopped.
     /// </param>
     /// <exception cref="InvalidOperationException"/>
-    public virtual AllureLifecycle StopStep(Action<StepResult> beforeStop)
+    public virtual AllureLifecycle StopStep(Action<StepResult> onStop)
     {
-        this.UpdateStep(beforeStop);
-        return this.StopStep();
+        var stepResult = this.Context.CurrentStep;
+        this.StopStep();
+
+        lock (this.modelMonitor)
+        {
+            onStop(stepResult);
+        }
+
+        return this;
     }
 
     /// <summary>
@@ -724,29 +738,32 @@ public class AllureLifecycle
     }
 
     static readonly Action<TestResultContainer> stopContainer =
-        c => c.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        static c => c.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
     static readonly Action<ExecutableItem> startAllureItem =
-        item =>
+        static item =>
         {
             item.stage = Stage.running;
             item.start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         };
 
     static readonly Action<ExecutableItem> stopAllureItem =
-        item =>
+        static item =>
         {
             item.stage = Stage.finished;
-            item.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            if (item.stop == default)
+            {
+                item.stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            }
         };
 
     static readonly Action<TestResult> stopTestCase = Chain(
         stopAllureItem,
-        (TestResult tr) => tr.historyId ??= IdFunctions.CreateHistoryId(
+        static (TestResult tr) => tr.historyId ??= IdFunctions.CreateHistoryId(
             tr.fullName,
             tr.parameters
         ),
-        (TestResult tr) => tr.testCaseId ??= IdFunctions.CreateTestCaseId(
+        static tr => tr.testCaseId ??= IdFunctions.CreateTestCaseId(
             tr.fullName
         )
     );

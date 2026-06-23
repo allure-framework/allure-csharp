@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Sdk.Writers;
 using NUnit.Framework;
@@ -312,6 +313,96 @@ namespace Allure.Net.Commons.Tests
             lifecycle.WriteTestContainer();
 
             Assert.That(writer.TestContainers, Has.One.Items);
+        }
+
+        [Test]
+        public void StopFixtureCallsCallbackAfterStatusSet()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(new(), writer)
+                .StartTestContainer(new() { uuid = "c1" })
+                .StartBeforeFixture(new());
+
+            lifecycle.StopFixture((f) => f.stop = 100)
+                .WriteTestContainer();
+
+            var fixture = writer.TestContainers.Single().befores.Single();
+            Assert.That(fixture.stop, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void StopTestCaseCallsCallbackAfterStatusSet()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(new(), writer)
+                .StartTestCase(new(){ uuid = "t1", fullName = "fn" });
+
+            lifecycle.StopTestCase((t) => t.stop = 100)
+                .WriteTestCase();
+
+            var testResult = writer.TestResults.Single();
+            Assert.That(testResult.stop, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void StopStepCallsCallbackAfterStatusSet()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(new(), writer)
+                .StartTestCase(new(){ uuid = "t1", fullName = "fn" })
+                .StartStep(new());
+
+            lifecycle.StopStep((s) => s.stop = 100)
+                .StopTestCase()
+                .WriteTestCase();
+
+            var step = writer.TestResults.Single().steps.Single();
+            Assert.That(step.stop, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void StopFixtureDoesNotUpdateStopIfAlreadySet()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(new(), writer)
+                .StartTestContainer(new() { uuid = "c1" })
+                .StartBeforeFixture(new() { stop = 100 });
+
+            lifecycle.StopFixture()
+                .WriteTestContainer();
+
+            var fixture = writer.TestContainers.Single().befores.Single();
+            Assert.That(fixture.stop, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void StopTestCaseDoesNotUpdateStopIfAlreadySet()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(new(), writer)
+                .StartTestCase(new(){ uuid = "t1", fullName = "fn", stop = 100 });
+
+            lifecycle.StopTestCase()
+                .WriteTestCase();
+
+            var testResult = writer.TestResults.Single();
+            Assert.That(testResult.stop, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void StopStepDoesNotUpdateStopIfAlreadySet()
+        {
+            var writer = new InMemoryResultsWriter();
+            var lifecycle = new AllureLifecycle(new(), writer)
+                .StartTestCase(new(){ uuid = "t1", fullName = "fn" })
+                .StartStep(new() { stop = 100 });
+
+            lifecycle.StopStep()
+                .StopTestCase()
+                .WriteTestCase();
+
+            var step = writer.TestResults.Single().steps.Single();
+            Assert.That(step.stop, Is.EqualTo(100));
         }
     }
 }
