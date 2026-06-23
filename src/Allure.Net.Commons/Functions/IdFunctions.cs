@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Allure.Net.Commons.Attributes;
 using Newtonsoft.Json;
 
 namespace Allure.Net.Commons.Functions;
@@ -30,6 +31,7 @@ public static class IdFunctions
     /// <item>type parameters (for generic type definitions)</item>
     /// <item>type arguments (for constructed generic types)</item>
     /// </list>
+    /// The type node can be renamed by applying <see cref="AllureNameAttribute"/> to the class.
     /// </remarks>
     public static List<string> CreateTitlePath(Type type)
     {
@@ -42,15 +44,45 @@ public static class IdFunctions
 
         var assemblyName = type.Assembly.GetName().Name;
         var namespaceParts = (type.Namespace ?? "").Split('.').Where(s => s.Length > 0);
-        var typeName = string.Join("+", ExpandNestness(type).Reverse());
-        var typeArguments = type.GetGenericArguments();
-        var typeArgumentsText = SerializeTypeParameterTypeList(typeArguments);
+        var typeNode = type.GetCustomAttribute<AllureNameAttribute>()?.Name
+            ?? (string.Join("+", ExpandNestness(type).Reverse()) +
+                SerializeTypeParameterTypeList(
+                    type.GetGenericArguments()));
 
         return [
             assemblyName,
             .. namespaceParts,
-            typeName + typeArgumentsText,
+            typeNode,
         ];
+    }
+
+    /// <summary>
+    /// Creates a titlePath: a path to a test class in a tree of test results.
+    /// </summary>
+    /// <param name="method">A test method</param>
+    /// <remarks>
+    /// A titlePath consists of:
+    /// <list type="bullet">
+    /// <item>assembly name</item>
+    /// <item>elements of namespace</item>
+    /// <item>name of type (including its declaring types, if any)</item>
+    /// <item>type parameters (for generic type definitions)</item>
+    /// <item>type arguments (for constructed generic types)</item>
+    /// <item>method name with type parameters and parameter types (for parameterized method)</item>
+    /// </list>
+    /// The type and method nodes can be renamed by applying <see cref="AllureNameAttribute"/>.
+    /// </remarks>
+    public static List<string> CreateTitlePath(MethodInfo method)
+    {
+        var titlePath = CreateTitlePath(method.DeclaringType);
+        if (method.GetParameters().Length > 0)
+        {
+            titlePath.Add(
+                method.GetCustomAttribute<AllureNameAttribute>()?.Name
+                    ?? GetMethodId(method)
+            );
+        }
+        return titlePath;
     }
 
     /// <summary>

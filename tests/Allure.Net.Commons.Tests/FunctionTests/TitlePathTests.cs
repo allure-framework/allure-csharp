@@ -1,5 +1,6 @@
 using System;
-using System.Collections.Generic;
+using System.Reflection;
+using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
 using NUnit.Framework;
 
@@ -93,6 +94,17 @@ class TitlePathTests
                 "Allure.Net.Commons.Tests:Allure.Net.Commons.Tests.FunctionTests.TitlePathTests+MyClass]]",
         TestName = "Nested constructed generic class - complex"
     )]
+    [TestCase(
+        typeof(ClassWithAllureName<int, string>),
+        "Allure.Net.Commons.Tests",
+        "Allure",
+        "Net",
+        "Commons",
+        "Tests",
+        "FunctionTests",
+        "Foo",
+        TestName = "Class with [AllureName]"
+    )]
     public void TestTitlePathByClass(Type targetClass, params string[] expectedTitlePath)
     {
         Assert.That(
@@ -101,24 +113,74 @@ class TitlePathTests
         );
     }
 
+    [TestCase(
+        typeof(MyClass),
+        nameof(MyClass.ParameterlessMethod),
+        "Allure.Net.Commons.Tests",
+        "Allure",
+        "Net",
+        "Commons",
+        "Tests",
+        "FunctionTests",
+        "TitlePathTests+MyClass",
+        TestName = "Parameterless method"
+    )]
+    [TestCase(
+        typeof(MyClass),
+        nameof(MyClass.ParameterizedMethod),
+        "Allure.Net.Commons.Tests",
+        "Allure",
+        "Net",
+        "Commons",
+        "Tests",
+        "FunctionTests",
+        "TitlePathTests+MyClass",
+        "ParameterizedMethod(System.Int32)",
+        TestName = "Parameterized method - int"
+    )]
+    [TestCase(
+        typeof(MyClass),
+        nameof(MyClass.ParameterizedMethodWithAllureName),
+        "Allure.Net.Commons.Tests",
+        "Allure",
+        "Net",
+        "Commons",
+        "Tests",
+        "FunctionTests",
+        "TitlePathTests+MyClass",
+        "Foo",
+        TestName = "Method with [AllureName]"
+    )]
+    public void TestTitlePathOfParameterizedMethod(
+        Type targetClass,
+        string targetMethodName,
+        params string[] expectedTitlePath
+    )
+    {
+        var method = targetClass.GetMethod(
+            targetMethodName,
+            BindingFlags.Instance | BindingFlags.NonPublic
+        );
+
+        var actualTitlePath = IdFunctions.CreateTitlePath(method);
+
+        Assert.That(actualTitlePath, Is.EqualTo(expectedTitlePath));
+    }
+
     class MyClass
     {
         internal void ParameterlessMethod() { }
-        internal void MethodWithParameterOfBuiltInType(int _) { }
-        internal void MethodWithParameterOfUserType(MyClass _) { }
-        internal void MethodWithTwoParameters(int _, MyClass __) { }
-        internal void MethodWithRefParameter(ref int _) { }
-        internal void MethodWithGenericParameter<T>() { }
-        internal void MethodWithArgumentOfGenericType<T>(T _) { }
-        internal void MethodWithArgumentOfTypeParametrizedByGenericType<T>(Dictionary<int, T> _) { }
-        internal void MethodWithArgumentOfGenericUserType<T>(MyClass<T> _) { }
+
+        internal void ParameterizedMethod(int _) { }
+
+        [AllureName("Foo")]
+        internal void ParameterizedMethodWithAllureName(int _) { }
     }
 
-    class MyClass<T>
-    {
-        public class Nested<G> { }
-        internal void GenericMethodOfGenericClass<V>(List<T> _, List<V> __) { }
-    }
+    class MyClass<T> { }
 
     class MyClass<T1, T2> { }
+
+    [AllureName("Foo")]
+    class ClassWithAllureName<T1, T2> { }
 }
