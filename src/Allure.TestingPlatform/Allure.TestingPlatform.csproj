@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>Allure.TestingPlatform</PackageId>
+        <RootNamespace>Allure.TestingPlatform</RootNamespace>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <Authors>Allure Framework Contributors</Authors>
+        <Description>Framework-agnostic Allure adapter for Microsoft.Testing.Platform. Consumes MTP messages and drives Allure.Net.Commons; intended as the foundation for framework-specific adapters (xUnit.v3, etc.).</Description>
+        <PackageIcon>Allure-Color.png</PackageIcon>
+        <PackageTags>$(PackageTags) microsoft-testing-platform mtp</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../img/Allure-Color.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Testing.Platform" Version="1.4.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+    </ItemGroup>
+
+</Project>

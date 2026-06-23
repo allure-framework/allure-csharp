@@ -60,6 +60,9 @@
     <Project Path="src/Allure.SpecFlow/Allure.SpecFlow.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
+    <Project Path="src/Allure.TestingPlatform/Allure.TestingPlatform.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.Xunit/Allure.Xunit.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
@@ -78,6 +81,9 @@
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.SpecFlow.Tests/Allure.SpecFlow.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.TestingPlatform.Tests/Allure.TestingPlatform.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Reqnroll.Tests.Samples/Allure.Reqnroll.Tests.Samples.csproj">
