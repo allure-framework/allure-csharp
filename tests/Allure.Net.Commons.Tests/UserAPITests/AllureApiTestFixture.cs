@@ -1,4 +1,5 @@
-﻿using Allure.Net.Commons.Tests.AssertionHelpers;
+﻿using Allure.Net.Commons.Sdk.Writers;
+using Allure.Net.Commons.Tests.AssertionHelpers;
 using NUnit.Framework;
 
 namespace Allure.Net.Commons.Tests.UserApiTests;

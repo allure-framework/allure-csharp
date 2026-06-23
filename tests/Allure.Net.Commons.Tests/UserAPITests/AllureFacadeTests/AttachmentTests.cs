@@ -10,6 +10,118 @@ namespace Allure.Net.Commons.Tests.UserApiTests.AllureFacadeTests;
 internal class AttachmentTests : AllureApiTestFixture
 {
     [Test]
+    public void ShouldAddAttachmentFileWithNoType()
+    {
+        var path = Path.Combine("foo", "bar");
+        this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
+
+        AllureApi.AddAttachment(path);
+
+        var attachment = this.Context.CurrentTest.attachments.Single();
+
+        Assert.That(attachment.name, Is.EqualTo("bar"));
+        Assert.That(attachment.type, Is.Null);
+        Assert.That(attachment.source, Does.EndWith("-attachment"));
+
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
+        Assert.That(outputName, Is.EqualTo(attachment.source));
+        Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
+    }
+
+    [Test]
+    public void ShouldAddAttachmentFileWithTypeFromExtension()
+    {
+        var path = Path.Combine("foo", "bar.json");
+        this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
+
+        AllureApi.AddAttachment(path);
+
+        var attachment = this.Context.CurrentTest.attachments.Single();
+
+        Assert.That(attachment.name, Is.EqualTo("bar.json"));
+        Assert.That(attachment.type, Is.EqualTo("application/json"));
+        Assert.That(attachment.source, Does.EndWith("-attachment.json"));
+
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
+        Assert.That(outputName, Is.EqualTo(attachment.source));
+        Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
+    }
+
+    [Test]
+    public void ShouldAddAttachmentFileWithExplicitName()
+    {
+        var path = Path.Combine("foo", "bar");
+        this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
+
+        AllureApi.AddAttachment(path, "new name");
+
+        var attachment = this.Context.CurrentTest.attachments.Single();
+
+        Assert.That(attachment.name, Is.EqualTo("new name"));
+        Assert.That(attachment.type, Is.Null);
+        Assert.That(attachment.source, Does.EndWith("-attachment"));
+
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
+        Assert.That(outputName, Is.EqualTo(attachment.source));
+        Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
+    }
+
+    [Test]
+    public void ShouldAddAttachmentFileWithExplicitNameAndType()
+    {
+        var path = Path.Combine("foo", "bar");
+        this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
+
+        AllureApi.AddAttachment("new name", "text/plain", path);
+
+        var attachment = this.Context.CurrentTest.attachments.Single();
+
+        Assert.That(attachment.name, Is.EqualTo("new name"));
+        Assert.That(attachment.type, Is.EqualTo("text/plain"));
+        Assert.That(attachment.source, Does.EndWith("-attachment"));
+
+        var (outputName, sourceAbsolutePath) = this.writer.FileAttachments.Single();
+        Assert.That(outputName, Is.EqualTo(attachment.source));
+        Assert.That(Path.GetRelativePath(Environment.CurrentDirectory, sourceAbsolutePath), Is.EqualTo(path));
+    }
+
+    [Test]
+    public void ShouldAddAttachmentContent()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
+
+        AllureApi.AddAttachment("foo", "text/plain", [1, 2, 3]);
+
+        var attachment = this.Context.CurrentTest.attachments.Single();
+
+        Assert.That(attachment.name, Is.EqualTo("foo"));
+        Assert.That(attachment.type, Is.EqualTo("text/plain"));
+        Assert.That(attachment.source, Does.EndWith("-attachment"));
+
+        var (outputName, content) = this.writer.ByteAttachments.Single();
+        Assert.That(outputName, Is.EqualTo(attachment.source));
+        Assert.That(content, Is.EqualTo([1, 2, 3]));
+    }
+
+    [Test]
+    public void ShouldAddAttachmentContentWithExtension()
+    {
+        this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
+
+        AllureApi.AddAttachment("foo", "text/plain", [1, 2, 3], ".txt");
+
+        var attachment = this.Context.CurrentTest.attachments.Single();
+
+        Assert.That(attachment.name, Is.EqualTo("foo"));
+        Assert.That(attachment.type, Is.EqualTo("text/plain"));
+        Assert.That(attachment.source, Does.EndWith("-attachment.txt"));
+
+        var (outputName, content) = this.writer.ByteAttachments.Single();
+        Assert.That(outputName, Is.EqualTo(attachment.source));
+        Assert.That(content, Is.EqualTo([1, 2, 3]));
+    }
+
+    [Test]
     public void ScreenDiffTest()
     {
         this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
@@ -22,7 +134,7 @@ internal class AttachmentTests : AllureApiTestFixture
         var attachment = this.Context.CurrentTest.attachments.Single();
         var content = JsonConvert.DeserializeAnonymousType(
             Encoding.UTF8.GetString(
-                this.writer.attachments.Single().Content
+                this.writer.ByteAttachments.Values.Single()
             ),
             new { expected = "", actual = "", diff = "" }
         );
@@ -101,7 +213,7 @@ internal class AttachmentTests : AllureApiTestFixture
         var attachment = this.Context.CurrentTest.attachments.Single();
         var content = JsonConvert.DeserializeAnonymousType(
             Encoding.UTF8.GetString(
-                this.writer.attachments.Single().Content
+                this.writer.ByteAttachments.Values.Single()
             ),
             new { expected = "", actual = "", diff = "" }
         );

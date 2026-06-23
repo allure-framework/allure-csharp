@@ -16,11 +16,11 @@ internal class GlobalTests : AllureApiTestFixture
         AllureApi.AddGlobalAttachment("global", "text/plain", expectedContent, ".txt");
         var timestampAfter = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-        Assert.That(this.writer.attachments, Has.One.Items);
-        Assert.That(this.writer.globals, Has.One.Items);
+        Assert.That(this.writer.ByteAttachments, Has.One.Items);
+        Assert.That(this.writer.Globals, Has.One.Items);
 
-        var global = this.writer.globals[0];
-        var (actualSource, actualContent) = this.writer.attachments[0];
+        var global = this.writer.Globals[0];
+        var (actualSource, actualContent) = this.writer.ByteAttachments.Single();
 
         Assert.That(global.attachments, Has.One.Items);
         Assert.That(global.errors, Is.Empty);
@@ -41,25 +41,17 @@ internal class GlobalTests : AllureApiTestFixture
     [Test]
     public void GlobalAttachmentFromPathUsesFileNameAndMimeType()
     {
-        var (path, content) = DataGenerator.GetAttachment(".txt");
+        var path = Path.Combine("foo", "bar.txt");
 
-        try
-        {
-            var expectedFileName = Path.GetFileName(path);
+        AllureApi.AddGlobalAttachment(path);
 
-            AllureApi.AddGlobalAttachment(path);
-
-            var globalAttachment = this.writer.globals.Single().attachments.Single();
-
-            Assert.That(globalAttachment.name, Is.EqualTo(expectedFileName));
-            Assert.That(globalAttachment.type, Is.EqualTo("text/plain"));
-            Assert.That(globalAttachment.source, Does.EndWith(".txt"));
-            Assert.That(this.writer.attachments.Single().Content, Is.EqualTo(content));
-        }
-        finally
-        {
-            File.Delete(path);
-        }
+        var globalAttachment = this.writer.Globals.Single().attachments.Single();
+        Assert.That(globalAttachment.name, Is.EqualTo("bar.txt"));
+        Assert.That(globalAttachment.type, Is.EqualTo("text/plain"));
+        Assert.That(globalAttachment.source, Does.EndWith(".txt"));
+        var actualAbsolutePath = this.writer.FileAttachments.Values.Single();
+        var actualRelativePath = Path.GetRelativePath(Environment.CurrentDirectory, actualAbsolutePath);
+        Assert.That(actualRelativePath, Is.EqualTo(path));
     }
 
     [Test]
@@ -71,7 +63,7 @@ internal class GlobalTests : AllureApiTestFixture
         AllureApi.AddGlobalError(error);
         var timestampAfter = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-        var global = this.writer.globals.Single();
+        var global = this.writer.Globals.Single();
         Assert.That(global.attachments, Is.Empty);
 
         var globalError = global.errors.Single();
@@ -88,7 +80,7 @@ internal class GlobalTests : AllureApiTestFixture
     {
         AllureApi.AddGlobalError("boom");
 
-        var globalError = this.writer.globals.Single().errors.Single();
+        var globalError = this.writer.Globals.Single().errors.Single();
         Assert.That(globalError.message, Is.EqualTo("boom"));
         Assert.That(globalError.trace, Is.Null);
         Assert.That(globalError.timestamp, Is.GreaterThan(0));
@@ -108,7 +100,7 @@ internal class GlobalTests : AllureApiTestFixture
 
         AllureApi.AddGlobalError(details);
 
-        var globalError = this.writer.globals.Single().errors.Single();
+        var globalError = this.writer.Globals.Single().errors.Single();
         Assert.That(globalError.message, Is.EqualTo("boom"));
         Assert.That(globalError.trace, Is.EqualTo("stack"));
         Assert.That(globalError.known, Is.True);
@@ -122,7 +114,7 @@ internal class GlobalTests : AllureApiTestFixture
         AllureApi.AddGlobalError("one");
         AllureApi.AddGlobalError("two");
 
-        var globals = this.writer.globals;
+        var globals = this.writer.Globals;
 
         Assert.That(globals, Has.Count.EqualTo(2));
         Assert.That(globals.All(g => g.errors.Count == 1));
@@ -137,8 +129,8 @@ internal class GlobalTests : AllureApiTestFixture
         AllureApi.AddGlobalAttachment("global", "text/plain", [1], ".txt");
         AllureApi.AddGlobalError("boom");
 
-        Assert.That(this.writer.attachments, Has.One.Items);
-        Assert.That(this.writer.globals, Has.Count.EqualTo(2));
+        Assert.That(this.writer.ByteAttachments, Has.One.Items);
+        Assert.That(this.writer.Globals, Has.Count.EqualTo(2));
     }
 
     [Test]
@@ -149,6 +141,6 @@ internal class GlobalTests : AllureApiTestFixture
         AllureApi.AddGlobalAttachment("global", "text/plain", [1], ".txt");
 
         Assert.That(this.Context.CurrentTest.attachments, Is.Empty);
-        Assert.That(this.writer.globals, Has.One.Items);
+        Assert.That(this.writer.Globals, Has.One.Items);
     }
 }

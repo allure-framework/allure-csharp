@@ -18,22 +18,10 @@ namespace Allure.Net.Commons.Tests
             {
                 Assert.That(allureLifecycle, Is.InstanceOf<AllureLifecycle>());
                 Assert.That(allureLifecycle.JsonConfiguration, Is.Not.Null);
-                Assert.That(allureLifecycle.ResultsDirectory, Is.EqualTo(
-                    Path.Combine(Environment.CurrentDirectory, AllureConstants.DEFAULT_RESULTS_FOLDER)
-                ));
                 Assert.That(allureLifecycle.AllureConfiguration.Links, Is.Not.Null);
                 Assert.That(allureLifecycle.AllureConfiguration.UseLegacyIds, Is.False);
                 Assert.That(allureLifecycle.AllureConfiguration.IndentOutput, Is.False);
             });
-        }
-
-        [Test, Description("Should set results directory from config")]
-        public void ShouldConfigureResultsDirectoryFromJson()
-        {
-            var json = @"{""allure"":{""directory"": ""test""}}";
-            Assert.That(new AllureLifecycle(JObject.Parse(json)).ResultsDirectory, Is.EqualTo(
-                Path.Combine(Environment.CurrentDirectory, "test")
-            ));
         }
 
         [TestCase(@"{""allure"":{""links"":[ ""http://test//{}"" ] }}", ExpectedResult = 1)]

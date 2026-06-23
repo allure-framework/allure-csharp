@@ -34,14 +34,6 @@ namespace Allure.Net.Commons.Tests
             };
         }
 
-        internal static List<TestResult> GetTestResults(int capacity = 10)
-        {
-            var trs = new List<TestResult>(capacity);
-            Parallel.For(0, capacity, (i) => trs.Add(GetTestResult()));
-            return trs;
-        }
-
-
         internal static TestResultContainer GetTestResultContainer()
         {
             var trc = new TestResultContainer();

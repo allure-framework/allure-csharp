@@ -7,9 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
+using Allure.Net.Commons.Helpers;
 using Allure.Net.Commons.TestPlan;
-using Allure.Net.Commons.Writer;
+using Allure.Net.Commons.Sdk;
+using Allure.Net.Commons.Sdk.Writers;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel;
 
 #nullable enable
 
@@ -86,7 +89,7 @@ public class AllureLifecycle
 
     internal AllureLifecycle(JObject config) : this(
         config,
-        c => new FileSystemResultsWriter(c),
+        c => new FileSystemResultsWriter(c.Directory, c.IndentOutput),
         AllureTestPlan.FromEnvironment
     )
     {
@@ -118,7 +121,9 @@ public class AllureLifecycle
     /// <summary>
     /// The full path to the Allure results directory.
     /// </summary>
-    public string ResultsDirectory => writer.ToString();
+    [Obsolete("Use AllureConfiguration.Directory instead.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public string ResultsDirectory => this.AllureConfiguration.Directory;
 
     /// <summary>
     /// The current instance of the Allure lifecycle.
@@ -514,6 +519,8 @@ public class AllureLifecycle
             uuid = testResult.uuid;
         }
         this.UpdateContext(c => c.WithNoTestContext());
+
+        LinkHelper.UpdateLinks(testResult.links, this.AllureConfiguration.Links);
         this.writer.Write(testResult);
         return this;
     }

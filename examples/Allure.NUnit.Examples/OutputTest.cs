@@ -23,11 +23,10 @@ namespace Allure.NUnit.Examples
         [Order(2)]
         public void OutputLogShouldExist()
         {
-            var resultsDir = AllureLifecycle.Instance.ResultsDirectory;
+            var resultsDir = AllureLifecycle.Instance.AllureConfiguration.Directory;
             var attachmentFiles = Directory.EnumerateFiles(resultsDir, "*.txt");
-            
+
             Assert.That(attachmentFiles.Any(file => File.ReadAllText(file).Contains(text)));
         }
     }
 }
-

@@ -461,20 +461,23 @@ public static class AllureApi
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="path">The path to the attached file.</param>
     public static void AddAttachment(
         string name,
-        string type,
+        string? type,
         string path
     )
     {
         if (HasTestOrFixture)
         {
-            AddAttachmentInternal(
+            AddAttachmentFileInternal(
                 name: name ?? Path.GetFileName(path),
                 type: type,
-                content: File.ReadAllBytes(path),
+                path: path,
                 fileExtension: Path.GetExtension(path)
             );
         }
@@ -485,14 +488,17 @@ public static class AllureApi
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">
     /// The extension of the file that will be available for downloading.
     /// </param>
     public static void AddAttachment(
         string name,
-        string type,
+        string? type,
         byte[] content,
         string fileExtension = ""
     )
@@ -504,7 +510,8 @@ public static class AllureApi
     }
 
     /// <summary>
-    /// Adds an attachment to the current fixture, test or step.
+    /// Adds an attachment to the current fixture, test or step. Derives the media type
+    /// from the file extension.
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
@@ -518,10 +525,12 @@ public static class AllureApi
     {
         if (HasTestOrFixture)
         {
-            AddAttachmentInternal(
+            AddAttachmentFileInternal(
                 name: name ?? Path.GetFileName(path),
-                type: MimeTypesMap.GetMimeType(path),
-                content: File.ReadAllBytes(path),
+                type: Path.GetExtension(path) is { Length: >0 }
+                    ? MimeTypesMap.GetMimeType(path)
+                    : null,
+                path: path,
                 fileExtension: Path.GetExtension(path)
             );
         }
@@ -531,17 +540,20 @@ public static class AllureApi
     /// Adds a global attachment not tied to the current fixture, test, or step.
     /// </summary>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="path">The path to the attached file.</param>
     public static void AddGlobalAttachment(
         string name,
-        string type,
+        string? type,
         string path
     ) =>
-        AddGlobalAttachmentInternal(
+        AddGlobalAttachmentFileInternal(
             name: name ?? Path.GetFileName(path),
             type: type,
-            content: File.ReadAllBytes(path),
+            path: path,
             fileExtension: Path.GetExtension(path)
         );
 
@@ -549,20 +561,24 @@ public static class AllureApi
     /// Adds a global attachment not tied to the current fixture, test, or step.
     /// </summary>
     /// <param name="name">The name of the attachment.</param>
-    /// <param name="type">The MIME type of the attachment.</param>
+    /// <param name="type">
+    /// The media type of the attachment.
+    /// Set to <see langword="null"/> to detect the type at report generation time.
+    /// </param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">
     /// The extension of the file that will be available for downloading.
     /// </param>
     public static void AddGlobalAttachment(
         string name,
-        string type,
+        string? type,
         byte[] content,
         string fileExtension = ""
     ) => AddGlobalAttachmentInternal(name, type, content, fileExtension);
 
     /// <summary>
     /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// Derives the media type from the file extension.
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">
@@ -572,10 +588,10 @@ public static class AllureApi
         string path,
         string? name = null
     ) =>
-        AddGlobalAttachmentInternal(
+        AddGlobalAttachmentFileInternal(
             name: name ?? Path.GetFileName(path),
             type: MimeTypesMap.GetMimeType(path),
-            content: File.ReadAllBytes(path),
+            path: path,
             fileExtension: Path.GetExtension(path)
         );
 
@@ -882,7 +898,7 @@ public static class AllureApi
         string fileExtension
     )
     {
-        var source = CreateAttachmentSource(fileExtension);
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
         var attachment = new Attachment
         {
             name = name,
@@ -890,6 +906,26 @@ public static class AllureApi
             source = source
         };
         CurrentLifecycle.Writer.Write(source, content);
+        CurrentLifecycle.UpdateExecutableItem(
+            item => item.attachments.Add(attachment)
+        );
+    }
+
+    internal static void AddAttachmentFileInternal(
+        string name,
+        string? type,
+        string path,
+        string fileExtension
+    )
+    {
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        var attachment = new Attachment
+        {
+            name = name,
+            type = type,
+            source = source
+        };
+        CurrentLifecycle.Writer.Write(source, path);
         CurrentLifecycle.UpdateExecutableItem(
             item => item.attachments.Add(attachment)
         );
@@ -903,13 +939,13 @@ public static class AllureApi
     )
     {
         var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = CreateAttachmentSource(fileExtension);
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
         CurrentLifecycle.Writer.Write(source, content);
         CurrentLifecycle.Writer.Write(
             new Globals
             {
-                attachments = new()
-                {
+                attachments =
+                [
                     new GlobalAttachment
                     {
                         name = name,
@@ -917,7 +953,34 @@ public static class AllureApi
                         source = source,
                         timestamp = timestamp
                     }
-                }
+                ]
+            }
+        );
+    }
+
+    internal static void AddGlobalAttachmentFileInternal(
+        string name,
+        string? type,
+        string path,
+        string fileExtension
+    )
+    {
+        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        CurrentLifecycle.Writer.Write(source, path);
+        CurrentLifecycle.Writer.Write(
+            new Globals
+            {
+                attachments =
+                [
+                    new GlobalAttachment
+                    {
+                        name = name,
+                        type = type,
+                        source = source,
+                        timestamp = timestamp
+                    }
+                ]
             }
         );
     }
@@ -929,13 +992,6 @@ public static class AllureApi
                 errors = new() { error }
             }
         );
-
-    static string CreateAttachmentSource(string fileExtension)
-    {
-        var suffix = AllureConstants.ATTACHMENT_FILE_SUFFIX;
-        var uuid = IdFunctions.CreateUUID();
-        return $"{uuid}{suffix}{fileExtension}";
-    }
 
     static GlobalError CreateGlobalError(StatusDetails? statusDetails)
     {
