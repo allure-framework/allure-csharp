@@ -101,6 +101,7 @@ public class AllureDataConsumer :
         }
         catch (Exception e)
         {
+            // TODO: check if async operation (correlation service) can be cancelled.
             if (e is OperationCanceledException)
             {
                 throw;
@@ -183,35 +184,33 @@ public class AllureDataConsumer :
 
         var state = this.AllureState.GetOrCreateSessionState(correlationUid);
 
-        EnterTestScopeContext(state, testContextUid);
-
         if (stateProperty is InProgressTestNodeStateProperty)
         {
-            this.StartTest();
-            state.SetContext(testContextUid, this.Lifecycle.Context);
+            state.ForkNewTestContext(testContextUid, this.StartTest);
             return;
         }
 
-        state.EnterContextIfExists(testContextUid);
+        var runningTestContext = state.GetRunningTestContext(testContextUid);
 
-        if (!this.Lifecycle.Context.HasTest)
+        if (!runningTestContext.HasTest)
         {
             // Missed InProgressTestNodeStateProperty. Normally, this shouldn't happen.
-            // Establishing a new test context as a fallback.
-            this.StartTest();
+            // If it does though, we must pass the context through the state to apply pending updates.
+            // TODO: cover: single-message test results trigger test pending updates
+            runningTestContext = state.ForkContext(testContextUid, runningTestContext, this.StartTest);
         }
 
-        this.Lifecycle.UpdateTestCase((testResult) =>
-        {
-            this.ApplyProperties(testResult, node);
-            ApplyFallbacks(testResult, node);
-        });
-
-        this.Lifecycle
-            .StopTestCase()
-            .WriteTestCase();
-
-        state.RemoveTestContext(testContextUid);
+        state.ReleaseContext(
+            testContextUid,
+            () => this.Lifecycle
+                .UpdateTestCase((testResult) =>
+                {
+                    this.ApplyProperties(testResult, node);
+                    ApplyFallbacks(testResult, node);
+                })
+                .StopTestCase()
+                .WriteTestCase()
+        );
     }
 
     async Task ConsumeSessionFileArtifactMessage(SessionFileArtifact message) =>
@@ -256,21 +255,10 @@ public class AllureDataConsumer :
         this.AllureState.GetOrCreateSessionState(message.CorrelationUid)
             .AssociateTestsWithScope(message.ScopeUid, message.TestUids);
 
-    static void EnterTestScopeContext(SessionContextState state, TestContextUid testContextUid)
-    {
-        if (state.TryGetContext(new ScopeContextUid(testContextUid.Value), out var ctx)
-            || (state.TryGetContext(testContextUid, out ctx)
-                && !ctx.HasTest))
-        {
-            state.EnterContext(ctx);
-        }
-    }
-
-    TestResult StartTest()
+    void StartTest()
     {
         var testResult = ModelFunctions.CreateTestResult(this.Allure.Config);
         this.Lifecycle.StartTestCase(testResult);
-        return testResult;
     }
 
     void ApplyProperties(TestResult testResult, TestNode node)

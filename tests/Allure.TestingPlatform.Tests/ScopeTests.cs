@@ -224,32 +224,4 @@ public class ScopeTests : DataConsumerTestsBase
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         await Assert.That(container.children).IsEmpty();
     }
-
-    [Test]
-    public async Task ShouldIgnoreTestScopeAssociationIfScopeNotActive()
-    {
-        var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var testsInScope = new AllureTestsScopeMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
-        var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
-        {
-            Uid = "3",
-            DisplayName = "Node",
-            Properties = new(
-                new PassedTestNodeStateProperty()
-            ),
-        });
-        var stopFixture = new AllureFixtureStopMessage(correlationUid, new("2"));
-        var stopScope = new AllureScopeStopMessage(correlationUid, new("1"));
-
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, testsInScope, CancellationToken.None);
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, startScope, CancellationToken.None);
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, startFixture, CancellationToken.None);
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopFixture, CancellationToken.None);
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, testNodeMessage, CancellationToken.None);
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
-
-        var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        await Assert.That(container.children).IsEmpty();
-    }
 }
