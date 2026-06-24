@@ -5,7 +5,8 @@ using Allure.TestingPlatform.Sdk.Properties;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
-using System.Linq;
+
+using AllureTestResult = Allure.Net.Commons.TestResult;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -254,6 +255,30 @@ public class PendingUpdateTests : DataConsumerTestsBase
 
         await Assert.That(fixture.name).IsEqualTo("Scope fixture");
         await Assert.That(child).IsEqualTo(testResult.uuid);
+    }
+
+    [Test]
+    public async Task ShouldApplyPendingTestUpdateWhenTestResultIsCreatedFromSingleMessage()
+    {
+        var updateTest = new AllureTestUpdateMessage(this.correlationUid, new("test-1"))
+        {
+            Properties = [new AllureNameProperty<AllureTestResult>("Updated test name")],
+        };
+        var testNodeMessage = new TestNodeUpdateMessage(
+            this.sessionUid,
+            new()
+            {
+                Uid = "test-1",
+                DisplayName = "Initial test name",
+                Properties = new(new PassedTestNodeStateProperty()),
+            }
+        );
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, updateTest, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, testNodeMessage, CancellationToken.None);
+
+        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
+        await Assert.That(testResult.name).IsEqualTo("Updated test name");
     }
 
     [Test]

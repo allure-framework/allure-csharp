@@ -194,8 +194,8 @@ public class AllureDataConsumer :
         if (!runningTestContext.HasTest)
         {
             // Missed InProgressTestNodeStateProperty. Normally, this shouldn't happen.
-            // If it does though, we must pass the context through the state to apply pending updates.
-            // TODO: cover: single-message test results trigger test pending updates
+            // If it does though, we create a new test context and pass the context through the state
+            // to apply pending updates.
             runningTestContext = state.ForkContext(testContextUid, runningTestContext, this.StartTest);
         }
 
