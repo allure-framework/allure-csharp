@@ -101,7 +101,6 @@ public class AllureDataConsumer :
         }
         catch (Exception e)
         {
-            // TODO: check if async operation (correlation service) can be cancelled.
             if (e is OperationCanceledException)
             {
                 throw;
