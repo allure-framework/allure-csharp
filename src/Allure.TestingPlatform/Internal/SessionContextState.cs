@@ -30,19 +30,20 @@ internal class SessionContextState(AllureLifecycle lifecycle)
 
     public void SetContext(IAllureContextUid contextUid, AllureContext context)
     {
-        this.contexts[contextUid] = context;
-        this.ConsumePendingUpdates(contextUid);
+        this.contexts[contextUid] = this.ApplyPendingUpdates(contextUid, context);
     }
 
-    public void ConsumePendingUpdates(IAllureContextUid contextUid)
+    public AllureContext ApplyPendingUpdates(IAllureContextUid contextUid, AllureContext context)
     {
         if (TryRemove(this.pendingUpdates, contextUid, out var updates))
         {
             foreach (var update in updates)
             {
-                this.UpdateContext(contextUid, update);
+                context = lifecycle.RunInContext(context, update);
             }
         }
+
+        return context;
     }
 
     public void AddPendingUpdate(IAllureContextUid contextUid, Action update)
