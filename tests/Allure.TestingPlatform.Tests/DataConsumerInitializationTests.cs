@@ -13,12 +13,6 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldHaveLifecycle()
-    {
-        await Assert.That(this.consumer.Lifecycle).IsSameReferenceAs(this.lifecycle);
-    }
-
-    [Test]
     public async Task ShouldHaveConstantUid()
     {
         await Assert.That(this.consumer.Uid).IsEqualTo("dd4f3277-5786-4010-8908-e70f07656ebc");

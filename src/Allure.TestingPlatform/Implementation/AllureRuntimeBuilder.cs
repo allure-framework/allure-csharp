@@ -5,14 +5,15 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
+using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Logging;
 using Microsoft.Testing.Platform.Services;
 using Newtonsoft.Json.Linq;
 
-namespace Allure.TestingPlatform.Registration;
+namespace Allure.TestingPlatform.Implementation;
 
-public class AllureRuntimeBuilder : IAllureRegistrationContext
+public class AllureRuntimeBuilder : IAllureRuntimeBuilder
 {
     Func<IServiceProvider, AllureConfiguration> configurationFactory = static (serviceProvider) =>
     {

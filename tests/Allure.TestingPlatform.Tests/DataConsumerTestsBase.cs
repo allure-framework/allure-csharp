@@ -1,6 +1,7 @@
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk.Writers;
+using Allure.TestingPlatform.Implementation;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Tests.Stubs;
 
@@ -11,6 +12,8 @@ public abstract class DataConsumerTestsBase : DataConsumerTestsBase<SessionUidCo
 public abstract class DataConsumerTestsBase<TCorrelationService>
     where TCorrelationService : ICorrelationService, new()
 {
+    protected readonly CommandLineOptionsStub commandLineOptions;
+    protected readonly ServiceProviderStub serviceProvider;
     protected readonly AllureConfiguration config;
     protected readonly LoggerSpy logger;
     protected readonly TCorrelationService correlationService;
@@ -22,6 +25,7 @@ public abstract class DataConsumerTestsBase<TCorrelationService>
 
     public DataConsumerTestsBase()
     {
+        this.commandLineOptions = new();
         this.writer = new();
         this.lifecycle = new(_ => this.writer);
         this.correlationService = new TCorrelationService();
@@ -37,6 +41,8 @@ public abstract class DataConsumerTestsBase<TCorrelationService>
             lifecycle: this.lifecycle,
             typeFormatters: this.typeFormatters
         );
-        this.consumer = new(this.allure);
+        this.serviceProvider = new(this.commandLineOptions, new(this.allure));
+
+        this.consumer = new(this.serviceProvider);
     }
 }

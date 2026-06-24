@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
-using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Logging;
 
-namespace Allure.TestingPlatform;
+namespace Allure.TestingPlatform.Sdk;
 
 public interface IAllureRuntime
 {

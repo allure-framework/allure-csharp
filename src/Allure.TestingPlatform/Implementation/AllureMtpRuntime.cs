@@ -6,7 +6,7 @@ using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Logging;
 
-namespace Allure.TestingPlatform.Registration;
+namespace Allure.TestingPlatform.Implementation;
 
 public class AllureMtpRuntime(
     AllureConfiguration config,

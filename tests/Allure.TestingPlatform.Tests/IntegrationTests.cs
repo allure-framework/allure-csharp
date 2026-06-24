@@ -3,6 +3,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
+using Allure.TestingPlatform.Implementation;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
@@ -185,13 +186,7 @@ public class IntegrationTests
         await Assert.That(useLifecycleWriter).IsSameReferenceAs(writer);
         await Assert.That(useLifecycleTypeFormatters).IsSameReferenceAs(typeFormatters);
 
-        // Check if data consumer received the configured objects
-        await Assert.That(dataConsumer.Allure.Config).IsSameReferenceAs(config);
-        await Assert.That(dataConsumer.Allure.CorrelationService).IsSameReferenceAs(correlation);
-        await Assert.That(dataConsumer.Allure.IsEnabled).IsTrue();
-        await Assert.That(dataConsumer.Allure.Lifecycle).IsSameReferenceAs(lifecycle);
-        await Assert.That(dataConsumer.Allure.Writer).IsSameReferenceAs(writer);
-        await Assert.That(dataConsumer.Lifecycle).IsSameReferenceAs(lifecycle);
+        await Assert.That(dataConsumer.IsEnabledAsync()).IsTrue();
 
         // Check if the writer was actually used
         var testResult = await Assert.That(writer.TestResults).HasSingleItem();

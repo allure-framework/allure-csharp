@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ namespace Allure.TestingPlatform.Sdk;
 
 public class TestMetadataCorrelation : ICorrelationService
 {
-    const string METADATA_KEY = "Allure.TestingPlatform.CorrelationUid";
+    public const string METADATA_KEY = "Allure.TestingPlatform.CorrelationUid";
 
     public Task<CorrelationUid?> GetCorrelationAsync(
         IDataProducer dataProducer,
@@ -27,4 +28,6 @@ public class TestMetadataCorrelation : ICorrelationService
                     }
                 : null
         );
+
+    public static string CreateCorrelationUid() => Guid.NewGuid().ToString();
 }

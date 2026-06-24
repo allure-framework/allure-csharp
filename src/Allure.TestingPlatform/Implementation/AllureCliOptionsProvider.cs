@@ -5,7 +5,7 @@ using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.CommandLine;
 
-namespace Allure.TestingPlatform;
+namespace Allure.TestingPlatform.Implementation;
 
 public class AllureCliOptionsProvider() :
     AllureMtpExtensionBase(
