@@ -4,18 +4,20 @@ using Allure.Net.Commons.Sdk.Writers;
 using Allure.TestingPlatform.Implementation;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Tests.Stubs;
+using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Tests;
 
-public abstract class DataConsumerTestsBase : DataConsumerTestsBase<SessionUidCorrelation>;
+public abstract class DataConsumerTestsBase : DataConsumerTestsBase<SessionUidCorrelation, ThrowingLoggerStub>;
 
-public abstract class DataConsumerTestsBase<TCorrelationService>
+public abstract class DataConsumerTestsBase<TCorrelationService, TLoggerService>
     where TCorrelationService : ICorrelationService, new()
+    where TLoggerService : ILogger, new()
 {
     protected readonly CommandLineOptionsStub commandLineOptions;
     protected readonly ServiceProviderStub serviceProvider;
     protected readonly AllureConfiguration config;
-    protected readonly LoggerSpy logger;
+    protected readonly TLoggerService logger;
     protected readonly TCorrelationService correlationService;
     protected readonly AllureLifecycle lifecycle;
     protected readonly InMemoryResultsWriter writer;

@@ -6,11 +6,10 @@ using Allure.TestingPlatform.Sdk.Properties;
 
 using AllureTestResult = Allure.Net.Commons.TestResult;
 using Allure.Net.Commons;
-using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Tests;
 
-public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub>
+public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, ThrowingLoggerStub>
 {
     readonly TestNodeUpdateMessage session1Test1StopPassed = new(
         new("s1"),
@@ -487,14 +486,6 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub>
 
         var testResult1 = await Assert.That(this.writer.TestResults).HasSingleItem();
         await Assert.That(testResult1.name).IsEqualTo("test 1");
-        await Assert.That(this.logger.Calls).HasSingleItem();
-
-        var (level, state, _) = await Assert.That(this.logger.Calls).HasSingleItem();
-        await Assert.That(level).IsEqualTo(LogLevel.Error);
-        await Assert.That(state).IsTypeOf<string>()
-            .And.Contains(sharedCorrelationUid.Value)
-            .And.Contains("s1")
-            .And.Contains("s2");
     }
 
     sealed class UnknownDataMessage : IData

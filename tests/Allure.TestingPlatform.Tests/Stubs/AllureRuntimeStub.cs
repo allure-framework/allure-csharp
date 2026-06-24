@@ -9,7 +9,7 @@ namespace Allure.TestingPlatform.Tests.Stubs;
 
 public class AllureRuntimeStub(
     AllureConfiguration config,
-    LoggerSpy logger,
+    ILogger logger,
     bool isEnabled,
     ICorrelationService correlationService,
     InMemoryResultsWriter writer,
