@@ -6,6 +6,7 @@
         <PackageTags>$(PackageTags) mtp testingplatform microsofttestingplatform</PackageTags>
         <PackageIcon>Allure-Color.png</PackageIcon>
         <Nullable>enable</Nullable>
+        <AspectInjector_Enabled>false</AspectInjector_Enabled>
     </PropertyGroup>
 
     <ItemGroup>
