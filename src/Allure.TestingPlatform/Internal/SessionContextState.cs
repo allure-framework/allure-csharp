@@ -106,8 +106,10 @@ internal class SessionContextState(AllureLifecycle lifecycle)
                 // TODO: Cover with tests
                 this.AddPendingUpdate(parentContextUid, () =>
                 {
-                    init();
-                    this.SetContext(contextUid, lifecycle.Context);
+                    // Use RunInContext to create a copy of the context
+                    // instead of mutating the parent's one.
+                    var childContext = lifecycle.RunInContext(lifecycle.Context, init);
+                    this.SetContext(contextUid, childContext);
                 });
             }
         }
