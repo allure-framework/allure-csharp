@@ -198,6 +198,44 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     }
 
     [Test]
+    public async Task ShouldOverwriteStatusByDefault()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureStatusProperty<FixtureResult>(Status.failed),
+            new AllureStatusProperty<FixtureResult>(Status.passed)
+        );
+
+        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+    }
+
+    [Test]
+    public async Task ShouldNotOverwriteAlreadySetStatusIfOptedOut()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureStatusProperty<FixtureResult>(Status.failed),
+            new AllureStatusProperty<FixtureResult>(Status.passed)
+            {
+                OverwriteDefaultOnly = true
+            }
+        );
+
+        await Assert.That(testResult.status).IsEqualTo(Status.failed);
+    }
+
+    [Test]
+    public async Task ShouldNotOverwriteDefaultStatisEvenIfOptedOutFromOverwrite()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureStatusProperty<FixtureResult>(Status.passed)
+            {
+                OverwriteDefaultOnly = true
+            }
+        );
+
+        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+    }
+
+    [Test]
     public async Task ShouldSetStatusDetails()
     {
         var fixture = await this.ArrangeAndAct(

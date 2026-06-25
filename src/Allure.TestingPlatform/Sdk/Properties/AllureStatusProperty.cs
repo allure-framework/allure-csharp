@@ -7,11 +7,11 @@ public sealed class AllureStatusProperty<TObject>(Status status) : IAllureProper
 {
     public Status Value { get; } = status;
 
-    public bool OverwriteDefault { get; init; } = true;
+    public bool OverwriteDefaultOnly { get; init; } = false;
 
     public void Apply(IAllureRuntime _, TObject obj)
     {
-        if (!this.OverwriteDefault || obj.status is Status.none)
+        if (!this.OverwriteDefaultOnly || obj.status is Status.none)
         {
             obj.status = this.Value;
         }

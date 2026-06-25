@@ -203,6 +203,44 @@ public class TestPropertyTests : DataConsumerTestsBase
     }
 
     [Test]
+    public async Task ShouldOverwriteStatusByDefault()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureStatusProperty<AllureTestResult>(Status.failed),
+            new AllureStatusProperty<AllureTestResult>(Status.passed)
+        );
+
+        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+    }
+
+    [Test]
+    public async Task ShouldNotOverwriteAlreadySetStatusIfOptedOut()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureStatusProperty<AllureTestResult>(Status.failed),
+            new AllureStatusProperty<AllureTestResult>(Status.passed)
+            {
+                OverwriteDefaultOnly = true
+            }
+        );
+
+        await Assert.That(testResult.status).IsEqualTo(Status.failed);
+    }
+
+    [Test]
+    public async Task ShouldNotOverwriteDefaultStatisEvenIfOptedOutFromOverwrite()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureStatusProperty<AllureTestResult>(Status.passed)
+            {
+                OverwriteDefaultOnly = true
+            }
+        );
+
+        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+    }
+
+    [Test]
     public async Task ShouldSetStatusDetails()
     {
         var testResult = await this.ArrangeAndAct(
