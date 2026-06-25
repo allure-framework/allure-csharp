@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Net.Commons;
@@ -213,7 +212,11 @@ public class AllureDataConsumer :
     }
 
     async Task ConsumeSessionFileArtifactMessage(SessionFileArtifact message) =>
-        AllureApi.AddGlobalAttachment(message.DisplayName, null!, message.FileInfo.FullName);
+        ModelFunctions.AddGlobalAttachmentFile(
+            this.Allure.Writer,
+            message.DisplayName,
+            message.FileInfo
+        );
 
     async Task ConsumeCreateContextMessage(CreateContextMessage message)
     {
@@ -281,41 +284,46 @@ public class AllureDataConsumer :
                 ApplyTimingProperty(testResult, timing),
 
             FileArtifactProperty artifact =>
-                ApplyFileArtifactProperty(testResult, artifact),
+                this.ApplyFileArtifactProperty(testResult, artifact),
 
             StandardOutputProperty stdout =>
-                ApplyStdoutProperty(testResult, stdout),
+                this.ApplyStdoutProperty(testResult, stdout),
 
             StandardErrorProperty stderr =>
-                ApplyStderrProperty(testResult, stderr),
+                this.ApplyStderrProperty(testResult, stderr),
 
             _ => testResult,
         };
 
-    static TestResult ApplyFileArtifactProperty(TestResult testResult, FileArtifactProperty fileArtifact)
+    TestResult ApplyFileArtifactProperty(TestResult testResult, FileArtifactProperty fileArtifact)
     {
-        AllureApi.AddAttachment(fileArtifact.DisplayName, null!, fileArtifact.FileInfo.FullName);
-        return testResult;
-    }
-
-    static TestResult ApplyStdoutProperty(TestResult testResult, StandardOutputProperty stdout)
-    {
-        AllureApi.AddAttachment(
-            "Standard output",
-            "text/plain",
-            Encoding.UTF8.GetBytes(stdout.StandardOutput),
-            "txt"
+        ModelFunctions.AddFileAttachment(
+            this.Allure.Writer,
+            testResult,
+            fileArtifact.DisplayName,
+            fileArtifact.FileInfo
         );
         return testResult;
     }
 
-    static TestResult ApplyStderrProperty(TestResult testResult, StandardErrorProperty stderr)
+    TestResult ApplyStdoutProperty(TestResult testResult, StandardOutputProperty stdout)
     {
-        AllureApi.AddAttachment(
+        ModelFunctions.AddTxtAttachment(
+            this.Allure.Writer,
+            testResult,
+            "Standard output",
+            stdout.StandardOutput
+        );
+        return testResult;
+    }
+
+    TestResult ApplyStderrProperty(TestResult testResult, StandardErrorProperty stderr)
+    {
+        ModelFunctions.AddTxtAttachment(
+            this.Allure.Writer,
+            testResult,
             "Standard error",
-            "text/plain",
-            Encoding.UTF8.GetBytes(stderr.StandardError),
-            "txt"
+            stderr.StandardError
         );
         return testResult;
     }

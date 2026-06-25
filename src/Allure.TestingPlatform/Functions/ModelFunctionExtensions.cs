@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Functions;
+using Allure.Net.Commons.Sdk;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Functions;
@@ -137,6 +139,68 @@ static class ModelFunctionExtensions
             }
 
             ModelFunctions.EnsureSuites(testResult, assembly, @namespace, typeName);
+        }
+
+        public static void AddTxtAttachment(
+            IAllureResultsWriter writer,
+            TestResult testResult,
+            string name,
+            string content
+        )
+        {
+            var outputFileName = ModelFunctions.GetAttachmentSourceName(".txt");
+            var contentBytes = Encoding.UTF8.GetBytes(content);
+
+            testResult.attachments.Add(new()
+            {
+                name = name,
+                type = "text/plain",
+                source = outputFileName,
+            });
+            writer.Write(outputFileName, contentBytes);
+        }
+
+        public static void AddFileAttachment(
+            IAllureResultsWriter writer,
+            TestResult testResult,
+            string? name,
+            FileInfo file
+        )
+        {
+            var inputPath = file.FullName;
+            var outputFileName = ModelFunctions.GetAttachmentSourceName(file.Extension);
+
+            var attachment = new Attachment
+            {
+                name = name ?? file.Name,
+                source = outputFileName,
+            };
+
+            writer.Write(outputFileName, inputPath);
+            testResult.attachments.Add(attachment);
+        }
+
+        public static void AddGlobalAttachmentFile(IAllureResultsWriter writer, string? name, FileInfo file)
+        {
+            var inputPath = file.FullName;
+            var outputFileName = ModelFunctions.GetAttachmentSourceName(file.Extension);
+            var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+            writer.Write(outputFileName, inputPath);
+            writer.Write(
+                new Globals
+                {
+                    attachments =
+                    [
+                        new GlobalAttachment
+                        {
+                            name = name ?? file.Name,
+                            source = outputFileName,
+                            timestamp = timestamp
+                        }
+                    ]
+                }
+            );
         }
     }
 }

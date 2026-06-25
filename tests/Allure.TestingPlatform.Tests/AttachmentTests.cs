@@ -1,7 +1,6 @@
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
-using Allure.Net.Commons;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -10,7 +9,6 @@ public class AttachmentTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldAttachFileArtifacts()
     {
-        AllureApi.CurrentLifecycle = this.lifecycle;
         var path = Path.Combine(".", "foo", "bar");
         var testNode = new TestNode
         {
@@ -42,7 +40,6 @@ public class AttachmentTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldAttachStandardOutput()
     {
-        AllureApi.CurrentLifecycle = this.lifecycle;
         var testNode = new TestNode
         {
             DisplayName = "Foo",
@@ -60,7 +57,7 @@ public class AttachmentTests : DataConsumerTestsBase
         var attachment = await Assert.That(testResult.attachments).HasSingleItem();
         await Assert.That(attachment.name).IsEqualTo("Standard output");
         await Assert.That(attachment.type).IsEqualTo("text/plain");
-        await Assert.That(attachment.source).IsNotEmpty();
+        await Assert.That(attachment.source).EndsWith("-attachment.txt");
         await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.source);
         await Assert.That(this.writer.ByteAttachments[attachment.source]).IsEquivalentTo(
             "Lorem Ipsum"u8.ToArray(),
@@ -71,7 +68,6 @@ public class AttachmentTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldAttachStandardError()
     {
-        AllureApi.CurrentLifecycle = this.lifecycle;
         var testNode = new TestNode
         {
             DisplayName = "Foo",
@@ -89,7 +85,7 @@ public class AttachmentTests : DataConsumerTestsBase
         var attachment = await Assert.That(testResult.attachments).HasSingleItem();
         await Assert.That(attachment.name).IsEqualTo("Standard error");
         await Assert.That(attachment.type).IsEqualTo("text/plain");
-        await Assert.That(attachment.source).IsNotEmpty();
+        await Assert.That(attachment.source).EndsWith("-attachment.txt");
         await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.source);
         await Assert.That(this.writer.ByteAttachments[attachment.source]).IsEquivalentTo(
             "Lorem Ipsum"u8.ToArray(),
@@ -100,7 +96,6 @@ public class AttachmentTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldAttachSessionFileArtifact()
     {
-        AllureApi.CurrentLifecycle = this.lifecycle;
         var path = Path.Combine(".", "foo", "bar");
         var message = new SessionFileArtifact(new SessionUid("Bar"), new(path), "Foo");
 
