@@ -1,7 +1,7 @@
 # Allure adapter for Microsoft Testing Platform (MTP) frameworks
 
-[![Nuget release](https://img.shields.io/nuget/v/Allure.Mtp?style=flat)](https://www.nuget.org/packages/Allure.Mtp)
-[![Nuget downloads](https://img.shields.io/nuget/dt/Allure.Mtp?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.Mtp)
+[![Nuget release](https://img.shields.io/nuget/v/Allure.TestingPlatform?style=flat)](https://www.nuget.org/packages/Allure.TestingPlatform)
+[![Nuget downloads](https://img.shields.io/nuget/dt/Allure.TestingPlatform?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.TestingPlatform)
 
 > An Allure adapter for [Microsoft Testing Platform](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro) frameworks.
 
