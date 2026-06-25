@@ -3,6 +3,8 @@ using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
 using System.Text.RegularExpressions;
 using Allure.Net.Commons;
+using Allure.Net.Commons.Functions;
+using System.Collections;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -194,6 +196,59 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
             l => l.name == "host" && l.value == Environment.MachineName
         ).And.Contains(
             l => l.name == "language" && l.value == "C#"
+        );
+    }
+
+    [Test]
+    public async Task ShouldAddEnvironmentLabelsWhenCreatingTestResult()
+    {
+        Dictionary<string, string> env = new()
+        {
+            ["ALLURE_LABEL_envLabel"] = "envValue",
+        };
+
+        // Backed by async local; will be reset automatically when the test method exits
+        ModelFunctions.SetGetEnvironmentVariables(() => env);
+
+        var testNode = new TestNode
+        {
+            DisplayName = "Foo",
+            Uid = "1",
+            Properties = new(
+                new PassedTestNodeStateProperty()
+            )
+        };
+        var message = new TestNodeUpdateMessage(new SessionUid("Bar"), testNode);
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
+
+        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
+        await Assert.That(testResult.labels).Contains(
+            l => l.name == "envLabel" && l.value == "envValue"
+        );
+    }
+
+    [Test]
+    public async Task ShouldAddGlobalLabelsFromConfigurationWhenCreatingTestResult()
+    {
+        this.config.GlobalLabels["globalLabel"] = "globalValue";
+
+        var testNode = new TestNode
+        {
+            DisplayName = "Foo",
+            Uid = "1",
+            Properties = new(
+                new PassedTestNodeStateProperty()
+            )
+        };
+
+        var message = new TestNodeUpdateMessage(new SessionUid("Bar"), testNode);
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
+
+        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
+        await Assert.That(testResult.labels).Contains(
+            l => l.name == "globalLabel" && l.value == "globalValue"
         );
     }
 }

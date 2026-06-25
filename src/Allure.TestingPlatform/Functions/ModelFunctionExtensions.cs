@@ -21,8 +21,6 @@ static class ModelFunctionExtensions
             labels = [
                 Label.Language(),
                 Label.Host(),
-
-                // TODO: Cover with tests
                 ..ModelFunctions.EnumerateEnvironmentLabels(),
                 ..ModelFunctions.EnumerateGlobalLabels(config),
             ],
