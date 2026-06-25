@@ -24,6 +24,6 @@ public sealed class AllureAttachmentProperty<TObject>(string name, byte[] conten
             source = source
         };
         allure.Writer.Write(source, this.Content);
-        allure.Lifecycle.UpdateExecutableItem((item) => item.attachments.Add(attachment));
+        obj.attachments.Add(attachment);
     }
 }
