@@ -69,7 +69,7 @@ public class AllureRuntimeBuilder : IAllureRuntimeBuilder
         );
     };
 
-    Func<IServiceProvider, ILogger> loggerFactory = static (serviceProvider) =>
+    Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory = static (serviceProvider, _) =>
         serviceProvider
             .GetLoggerFactory()
             .CreateLogger("Allure.TestingPlatform");
@@ -93,7 +93,7 @@ public class AllureRuntimeBuilder : IAllureRuntimeBuilder
         );
 
     public IAllureRegistrationContext UseLogger(
-        Func<IServiceProvider, ILogger> loggerFactory
+        Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory
     )
     {
         this.loggerFactory = loggerFactory;
@@ -151,7 +151,7 @@ public class AllureRuntimeBuilder : IAllureRuntimeBuilder
     public IAllureRuntimeBuildResult Build(IServiceProvider serviceProvider)
     {
         var configuration = this.configurationFactory(serviceProvider);
-        var logger = loggerFactory(serviceProvider);
+        var logger = loggerFactory(serviceProvider, configuration);
         var settings = new AllureExtensionSettings(
             IsEnabled: AllureTestingPlatformCliOptions.IsAllureEnabled(
                 serviceProvider.GetCommandLineOptions()

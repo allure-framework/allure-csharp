@@ -4,6 +4,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Sdk;
+using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Registration;
 
@@ -11,6 +12,10 @@ public interface IAllureRegistrationContext
 {
     IAllureRegistrationContext UseConfiguration(
         Func<IServiceProvider, AllureConfiguration> configurationFactory
+    );
+
+    IAllureRegistrationContext UseLogger(
+        Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory
     );
 
     IAllureRegistrationContext SetIsEnabled(
