@@ -7,8 +7,6 @@ public interface IAllureContextUid
 
 public readonly record struct CorrelationUid(string Value);
 
-public readonly record struct ContainerContextUid(string Value) : IAllureContextUid;
-
 public readonly record struct TestContextUid(string Value) : IAllureContextUid;
 
 public readonly record struct ScopeContextUid(string Value) : IAllureContextUid;
