@@ -5,5 +5,5 @@ namespace Allure.TestingPlatform.Sdk;
 
 public interface IAllureRuntimeBuilder : IAllureRegistrationContext
 {
-    IAllureRuntime Build(IServiceProvider serviceProvider);
+    IAllureRuntimeBuildResult Build(IServiceProvider serviceProvider);
 }

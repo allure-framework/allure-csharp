@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Reflection;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
@@ -13,6 +14,7 @@ using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
+using TUnit.Assertions.Enums;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -94,7 +96,7 @@ public class IntegrationTests
         IServiceProvider useLifecycleServiceProvider = null;
         AllureConfiguration useLifecycleConfig = null;
         IAllureResultsWriter useLifecycleWriter = null;
-        Dictionary<Type, ITypeFormatter> useLifecycleTypeFormatters = null;
+        ImmutableDictionary<Type, ITypeFormatter> useLifecycleTypeFormatters = null;
 
         var builder = await TestApplication.CreateBuilderAsync([
             "--no-progress",
@@ -184,7 +186,10 @@ public class IntegrationTests
         await Assert.That(useTypeFormattersConfig).IsSameReferenceAs(config);
         await Assert.That(useLifecycleConfig).IsSameReferenceAs(config);
         await Assert.That(useLifecycleWriter).IsSameReferenceAs(writer);
-        await Assert.That(useLifecycleTypeFormatters).IsSameReferenceAs(typeFormatters);
+        await Assert.That(useLifecycleTypeFormatters).IsEquivalentTo(
+            typeFormatters,
+            CollectionOrdering.Matching
+        );
 
         await Assert.That(dataConsumer.IsEnabledAsync()).IsTrue();
 
@@ -220,6 +225,43 @@ public class IntegrationTests
             "off"
         ]);
         builder.AddAllure((ctx) => ctx.UseWriter((_, _) => new InMemoryResultsWriter()));
+
+        builder.RegisterTestFramework(
+            serviceProvider => new TestFrameworkCapabilities(),
+            (capabilities, serviceProvider) =>
+            {
+                capturedServiceProvider = serviceProvider;
+                return new TestFrameworkStub();
+            }
+        );
+
+        using var app = await builder.BuildAsync();
+        var code = await app.RunAsync();
+        var dataConsumer = capturedServiceProvider.GetService<AllureDataConsumer>();
+        var runtimeProvider = capturedServiceProvider.GetService<IAllureRuntimeProvider>();
+
+        await Assert.That(code).IsEqualTo(8); // test session run zero tests
+        await Assert.That(dataConsumer).IsNull(); // disabled extensions aren't registered
+        await Assert.That(runtimeProvider).IsNull();
+    }
+
+    [Test]
+    public async Task ShouldBeAbleToDisableDataConsumerThroughBuilder()
+    {
+        IServiceProvider capturedServiceProvider = null;
+        var builder = await TestApplication.CreateBuilderAsync([
+            "--no-progress",
+            "--no-ansi",
+            "--output",
+            "Normal",
+            "--show-stdout",
+            "None",
+            "--show-stderr",
+            "None"
+        ]);
+        builder.AddAllure((ctx) => ctx
+            .UseWriter((_, _) => new InMemoryResultsWriter())
+            .SetIsEnabled((_, _) => false));
 
         builder.RegisterTestFramework(
             serviceProvider => new TestFrameworkCapabilities(),

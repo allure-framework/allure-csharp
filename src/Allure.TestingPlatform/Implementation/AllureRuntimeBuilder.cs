@@ -72,12 +72,9 @@ public class AllureRuntimeBuilder : IAllureRuntimeBuilder
     Func<IServiceProvider, ILogger> loggerFactory = static (serviceProvider) =>
         serviceProvider
             .GetLoggerFactory()
-            .CreateLogger("Allure");
+            .CreateLogger("Allure.TestingPlatform");
 
-    Func<IServiceProvider, AllureConfiguration, bool> isEnabled = static (serviceProvider, _) =>
-        AllureCliOptionsProvider.IsAllureEnabled(
-            serviceProvider.GetCommandLineOptions()
-        );
+    Func<IServiceProvider, AllureConfiguration, bool> isEnabled = static (_, _) => true;
 
     Func<IServiceProvider, AllureConfiguration, ICorrelationService> correlationServiceFactory =
         static (_, _) => new SessionUidCorrelation();
@@ -85,11 +82,15 @@ public class AllureRuntimeBuilder : IAllureRuntimeBuilder
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory =
         static (_, cfg) => new FileSystemResultsWriter(cfg.Directory, cfg.IndentOutput);
 
-    Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory =
-        static (_, deps) => new AllureLifecycle(deps.Config, deps.Writer, deps.TypeFormatters);
-
     Func<IServiceProvider, AllureConfiguration, Dictionary<Type, ITypeFormatter>> typeFormattersFactory =
         static (_, cfg) => [];
+
+    Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory =
+        static (_, deps) => new AllureLifecycle(
+            deps.Config,
+            deps.Writer,
+            new Dictionary<Type, ITypeFormatter>(deps.TypeFormatters)
+        );
 
     public IAllureRegistrationContext UseLogger(
         Func<IServiceProvider, ILogger> loggerFactory
@@ -147,16 +148,24 @@ public class AllureRuntimeBuilder : IAllureRuntimeBuilder
         return this;
     }
 
-    public IAllureRuntime Build(IServiceProvider serviceProvider)
+    public IAllureRuntimeBuildResult Build(IServiceProvider serviceProvider)
     {
-        var config = this.configurationFactory(serviceProvider);
-        var logger = this.loggerFactory(serviceProvider);
-        var isEnabled = this.isEnabled(serviceProvider, config);
-        var correlationService = this.correlationServiceFactory(serviceProvider, config);
-        var writer = this.writerFactory(serviceProvider, config);
-        var typeFormatters = this.typeFormattersFactory(serviceProvider, config);
-        var lifecycle = this.lifecycleFactory(serviceProvider, new(config, writer, typeFormatters));
+        var configuration = this.configurationFactory(serviceProvider);
+        var logger = loggerFactory(serviceProvider);
+        var settings = new AllureExtensionSettings(
+            IsEnabled: AllureTestingPlatformCliOptions.IsAllureEnabled(
+                serviceProvider.GetCommandLineOptions()
+            ) && this.isEnabled(serviceProvider, configuration)
+        );
 
-        return new AllureMtpRuntime(config, logger, isEnabled, correlationService, writer, lifecycle, typeFormatters);
+        return new AllureRuntimeBuildResult(
+            configuration: configuration,
+            logger: logger,
+            settings: settings,
+            correlationServiceFactory: (cfg) => this.correlationServiceFactory(serviceProvider, cfg),
+            writerFactory: (cfg) => this.writerFactory(serviceProvider, cfg),
+            typeFormattersFactory: (cfg) => this.typeFormattersFactory(serviceProvider, cfg),
+            lifecycleFactory: (ctx) => this.lifecycleFactory(serviceProvider, ctx)
+        );
     }
 }

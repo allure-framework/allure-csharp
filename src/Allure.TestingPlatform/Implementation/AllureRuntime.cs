@@ -1,24 +1,24 @@
+using System;
 using System.Collections.Immutable;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
-using Allure.Net.Commons.Sdk.Writers;
 using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Logging;
 
-namespace Allure.TestingPlatform.Tests.Stubs;
+namespace Allure.TestingPlatform.Implementation;
 
-public class AllureRuntimeStub(
-    AllureConfiguration config,
+public class AllureRuntime(
+    AllureConfiguration configuration,
     ILogger logger,
     ICorrelationService correlationService,
-    InMemoryResultsWriter writer,
-    AllureLifecycle lifecycle,
-    ImmutableDictionary<Type, ITypeFormatter> typeFormatters
-)
-    : IAllureRuntime
+    IAllureResultsWriter writer,
+    ImmutableDictionary<Type, ITypeFormatter> typeFormatters,
+    AllureLifecycle lifecycle
+) :
+    IAllureRuntime
 {
-    public AllureConfiguration Config => config;
+    public AllureConfiguration Config => configuration;
 
     public ILogger Logger => logger;
 
@@ -26,7 +26,7 @@ public class AllureRuntimeStub(
 
     public IAllureResultsWriter Writer => writer;
 
-    public AllureLifecycle Lifecycle => lifecycle;
-
     public ImmutableDictionary<Type, ITypeFormatter> TypeFormatters => typeFormatters;
+
+    public AllureLifecycle Lifecycle => lifecycle;
 }

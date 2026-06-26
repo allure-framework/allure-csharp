@@ -14,36 +14,18 @@ using Microsoft.Testing.Platform.Extensions.TestHost;
 using Microsoft.Testing.Platform.Services;
 using System.Collections.Generic;
 using Microsoft.Testing.Platform.Logging;
-using Allure.Net.Commons.Configuration;
 
 namespace Allure.TestingPlatform.Implementation;
 
-public class AllureDataConsumer :
-    AllureMtpToggleableExtension,
-    IDataConsumer,
-    ITestSessionLifetimeHandler
+public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer, ITestSessionLifetimeHandler
 {
-    readonly IServiceProvider serviceProvider;
-
-    readonly Lazy<IAllureRuntime> allure;
-
     readonly Lazy<AllureDataConsumerState> allureState;
 
     readonly Lazy<SessionCorrelationState> correlationState;
 
-    IAllureRuntime Allure => this.allure.Value;
-
     AllureDataConsumerState AllureState => this.allureState.Value;
 
     SessionCorrelationState CorrelationState => this.correlationState.Value;
-
-    AllureLifecycle Lifecycle => this.Allure.Lifecycle;
-
-    ILogger Logger => this.Allure.Logger;
-
-    AllureConfiguration Config => this.Allure.Config;
-
-    List<string> FailExceptions => this.Config.FailExceptions;
 
     public Type[] DataTypesConsumed { get; } =
     [
@@ -63,16 +45,18 @@ public class AllureDataConsumer :
         typeof(AllureTestUpdateMessage),
     ];
 
-    public AllureDataConsumer(IServiceProvider serviceProvider) :
+    public AllureDataConsumer(
+        IServiceProvider serviceProvider,
+        IAllureExtensionSettings settings
+    ) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
             "Creates Allure results from Microsoft Testing Platform messages",
-            serviceProvider
+            serviceProvider,
+            settings
         )
     {
-        this.serviceProvider = serviceProvider;
-        this.allure = new(this.GetAllureRuntime);
         allureState = new(() => new(this.Allure.Lifecycle));
         correlationState = new(() => new(
             this.Allure.CorrelationService,
@@ -122,16 +106,6 @@ public class AllureDataConsumer :
         {
             await this.Logger.LogErrorAsync($"Session correlation error: {message}");
         }
-    }
-
-    IAllureRuntime GetAllureRuntime()
-    {
-        if (this.serviceProvider.GetService<IAllureRuntimeProvider>() is { Runtime: var result })
-        {
-            return result;
-        }
-
-        throw new InvalidOperationException("Allure is not initialized.");
     }
 
     async Task ConsumeBufferedMessages(CorrelationUid correlationUid, IEnumerable<IData> messages)
@@ -275,7 +249,7 @@ public class AllureDataConsumer :
         property switch
         {
             TestNodeStateProperty testNodeState =>
-                ApplyTestNodeStateProperty(this.FailExceptions, testResult, testNodeState),
+                ApplyTestNodeStateProperty(this.Config.FailExceptions, testResult, testNodeState),
 
             TestMethodIdentifierProperty identifier =>
                 ApplyTestMethodIdentifierProperty(testResult, identifier),

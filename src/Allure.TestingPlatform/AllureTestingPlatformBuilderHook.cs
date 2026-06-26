@@ -2,7 +2,7 @@ using Microsoft.Testing.Platform.Builder;
 
 namespace Allure.TestingPlatform;
 
-public static class AllureMtpBuilderHook
+public static class AllureTestingPlatformBuilderHook
 {
     public static void AddExtensions(ITestApplicationBuilder builder, string[] _)
     {

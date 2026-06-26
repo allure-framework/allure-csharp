@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk.Writers;
@@ -15,15 +16,17 @@ public abstract class DataConsumerTestsBase<TCorrelationService, TLoggerService>
     where TLoggerService : ILogger, new()
 {
     protected readonly CommandLineOptionsStub commandLineOptions;
-    protected readonly ServiceProviderStub serviceProvider;
     protected readonly AllureConfiguration config;
     protected readonly TLoggerService logger;
     protected readonly TCorrelationService correlationService;
-    protected readonly AllureLifecycle lifecycle;
     protected readonly InMemoryResultsWriter writer;
+    protected readonly AllureLifecycle lifecycle;
+    protected readonly ExtensionSettingsStub extensionSettings;
+    protected readonly ImmutableDictionary<Type, ITypeFormatter> typeFormatters;
     protected readonly AllureRuntimeStub allure;
+    protected readonly AllureRuntimeProviderStub runtimeProvider;
+    protected readonly ServiceProviderStub serviceProvider;
     protected readonly AllureDataConsumer consumer;
-    protected readonly Dictionary<Type, ITypeFormatter> typeFormatters;
 
     public DataConsumerTestsBase()
     {
@@ -34,8 +37,8 @@ public abstract class DataConsumerTestsBase<TCorrelationService, TLoggerService>
         this.config = this.lifecycle.AllureConfiguration;
         this.logger = new();
         this.typeFormatters = [];
+
         this.allure = new(
-            isEnabled: true,
             config: this.config,
             logger: this.logger,
             correlationService: this.correlationService,
@@ -43,8 +46,11 @@ public abstract class DataConsumerTestsBase<TCorrelationService, TLoggerService>
             lifecycle: this.lifecycle,
             typeFormatters: this.typeFormatters
         );
-        this.serviceProvider = new(this.commandLineOptions, new(this.allure));
 
-        this.consumer = new(this.serviceProvider);
+        this.extensionSettings = new();
+        this.runtimeProvider = new(this.allure);
+        this.serviceProvider = new(this.commandLineOptions, this.runtimeProvider);
+
+        this.consumer = new(this.serviceProvider, this.extensionSettings);
     }
 }
