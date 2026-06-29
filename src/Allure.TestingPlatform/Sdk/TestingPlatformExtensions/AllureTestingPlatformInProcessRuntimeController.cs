@@ -8,7 +8,7 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 public class AllureTestingPlatformInProcessRuntimeController(
     IAllureTestingPlatformRuntimeController runtimeController
 ) :
-    AllureTestingPlatformRuntimeResponsibleExtension(
+    AllureTestingPlatformRuntimeControllerExtension(
         "25aa78ea-da43-40ce-9fcf-356941b2f8cb",
         "Allure.TestingPlatform lifetime",
         "Ensures Allure.TestingPlatform runtime is initialized correctly, early, "

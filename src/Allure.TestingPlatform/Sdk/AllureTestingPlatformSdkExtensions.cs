@@ -23,12 +23,12 @@ public static class AllureTestingPlatformSdkExtensions
             var allureRegistration = new AllureTestingPlatformRegistration(registrationMode);
             configureAllure(allureRegistration);
             var frozenRegistration = allureRegistration.Prepare();
-            var registrationResults = frozenRegistration.RegistrationResults;
+            var allureRuntimeReferences = frozenRegistration.RuntimeReferences;
 
             var factory =
                 new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
                     new AllureDataConsumer(
-                        registrationResults.GetRuntimeReference(serviceProvider)
+                        allureRuntimeReferences.GetRuntimeReference(serviceProvider)
                     )
                 );
 
@@ -49,7 +49,7 @@ public static class AllureTestingPlatformSdkExtensions
             builder.TestHost.AddDataConsumer(factory);
             builder.TestHost.AddTestSessionLifetimeHandler(factory);
 
-            return frozenRegistration.RegistrationResults;
+            return frozenRegistration.RuntimeReferences;
         }
 
         public IAllureTestingPlatformRuntimeReferenceRegistry AddEmbeddedAllure(

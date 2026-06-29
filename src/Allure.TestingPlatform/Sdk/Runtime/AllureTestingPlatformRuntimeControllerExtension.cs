@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace Allure.TestingPlatform.Sdk.Runtime;
 
-public abstract class AllureTestingPlatformRuntimeResponsibleExtension(
+public abstract class AllureTestingPlatformRuntimeControllerExtension(
     string uid,
     string displayName,
     string description,

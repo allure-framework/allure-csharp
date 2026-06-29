@@ -3,7 +3,7 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
-public interface IAllureLifecycleMessage
+public interface IAllureModelOperationMessage
 {
     IAllureContextUid ContextUid { get; }
 

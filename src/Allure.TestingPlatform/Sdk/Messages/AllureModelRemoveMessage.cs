@@ -11,7 +11,7 @@ public abstract class AllureModelRemoveMessage(
     IAllureContextUid contextUid
 ) :
     AllureModelMessage(displayName, description, correlationUid),
-    IAllureLifecycleMessage
+    IAllureModelOperationMessage
 {
     public IAllureContextUid ContextUid { get; } = contextUid;
 

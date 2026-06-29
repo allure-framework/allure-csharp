@@ -9,7 +9,7 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 public class AllureTestingPlatformHostProcessWatchdog(
     IAllureTestingPlatformRuntimeController runtimeController
 ) :
-    AllureTestingPlatformRuntimeResponsibleExtension(
+    AllureTestingPlatformRuntimeControllerExtension(
         "939b0d5f-517d-4abb-968e-593bc4f67f0c",
         "Allure.TestingPlatform crash watcher",
         "Emits an Allure global error is the test host crashes.",

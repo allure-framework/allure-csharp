@@ -12,7 +12,7 @@ public abstract class AllureModelCreateMessage(
     IAllureContextUid? parentContextUid
 ) :
     AllureModelMessage(displayName, description, correlationUid),
-    IAllureLifecycleMessage
+    IAllureModelOperationMessage
 {
     public IAllureContextUid ContextUid { get; } = contextUid;
 
