@@ -3,22 +3,24 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureDescriptionHtmlProperty<TObject>(string descriptionHtml) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureDescriptionHtmlProperty<TModel>(string descriptionHtml) :
+    IAllureProperty<TModel>
+
+    where TModel : ExecutableItem
 {
     public string DescriptionHtml { get; } = descriptionHtml;
 
     public bool Append { get; init; } = false;
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
     {
-        if (this.Append && obj.descriptionHtml is { Length: > 0 })
+        if (this.Append && target.descriptionHtml is { Length: > 0 })
         {
-            obj.descriptionHtml += $"{this.DescriptionHtml}";
+            target.descriptionHtml += $"{this.DescriptionHtml}";
         }
         else
         {
-            obj.descriptionHtml = this.DescriptionHtml;
+            target.descriptionHtml = this.DescriptionHtml;
         }
     }
 }

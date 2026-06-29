@@ -4,16 +4,16 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
-public abstract class RemoveContextMessage(
+public abstract class AllureModelRemoveMessage(
     string displayName,
     string description,
     CorrelationUid correlationUid,
     IAllureContextUid contextUid
 ) :
-    DataWithAllureProperties(displayName, description, correlationUid),
+    AllureModelMessage(displayName, description, correlationUid),
     IAllureLifecycleMessage
 {
     public IAllureContextUid ContextUid { get; } = contextUid;
 
-    public abstract void Mutate(LiveAllureTestingPlatformRuntime allureState);
+    public abstract void ApplyTo(LiveAllureTestingPlatformRuntime allureState);
 }

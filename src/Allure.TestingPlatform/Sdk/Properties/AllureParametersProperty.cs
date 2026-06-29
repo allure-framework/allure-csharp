@@ -4,13 +4,15 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureParametersProperty<TObject>(IEnumerable<Parameter> parameters) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureParametersProperty<TModel>(IEnumerable<Parameter> parameters) :
+    IAllureProperty<TModel>
+
+    where TModel : ExecutableItem
 {
     public List<Parameter> Parameters { get; } = [..parameters];
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
     {
-        obj.parameters.AddRange(this.Parameters);
+        target.parameters.AddRange(this.Parameters);
     }
 }

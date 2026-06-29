@@ -215,9 +215,9 @@ public class PendingUpdateTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldApplyPendingTestsScopeAssociationWhenScopeBecomesAvailable()
+    public async Task ShouldApplyPendingScopeTestsAssociationWhenScopeBecomesAvailable()
     {
-        var testsInScope = new AllureTestsScopeMessage(
+        var testsInScope = new AllureScopeTestsMessage(
             this.correlationUid,
             new("scope-1"),
             [new("test-1")]
@@ -282,9 +282,9 @@ public class PendingUpdateTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldApplyPendingTestsScopeAssociationWhenChildScopeWaitsForParent()
+    public async Task ShouldApplyPendingScopeTestsAssociationWhenChildScopeWaitsForParent()
     {
-        var testsInChildScope = new AllureTestsScopeMessage(
+        var testsInChildScope = new AllureScopeTestsMessage(
             this.correlationUid,
             new("child-scope"),
             [new("test-1")]
@@ -355,7 +355,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldPreservePendingTestsScopeAssociationOrderWhenScopeBecomesAvailable()
+    public async Task ShouldPreservePendingScopeTestsAssociationOrderWhenScopeBecomesAvailable()
     {
         var test1Started = new TestNodeUpdateMessage(
             this.sessionUid,
@@ -375,12 +375,12 @@ public class PendingUpdateTests : DataConsumerTestsBase
                 Properties = new(new InProgressTestNodeStateProperty()),
             }
         );
-        var testsInScope1 = new AllureTestsScopeMessage(
+        var testsInScope1 = new AllureScopeTestsMessage(
             this.correlationUid,
             new("scope-1"),
             [new("test-1")]
         );
-        var testsInScope2 = new AllureTestsScopeMessage(
+        var testsInScope2 = new AllureScopeTestsMessage(
             this.correlationUid,
             new("scope-1"),
             [new("test-2")]
@@ -578,9 +578,9 @@ public class PendingUpdateTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldApplyPendingTestsScopeAssociationBeforeTestsStart()
+    public async Task ShouldApplyPendingScopeTestsAssociationBeforeTestsStart()
     {
-        var testsInScope = new AllureTestsScopeMessage(
+        var testsInScope = new AllureScopeTestsMessage(
             this.correlationUid,
             new("scope-1"),
             [new("test-1"), new("test-2")]
@@ -629,9 +629,9 @@ public class PendingUpdateTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldApplyPendingTestsScopeAssociationToRetries()
+    public async Task ShouldApplyPendingScopeTestsAssociationToRetries()
     {
-        var testsInScope = new AllureTestsScopeMessage(
+        var testsInScope = new AllureScopeTestsMessage(
             this.correlationUid,
             new("scope-1"),
             [new("test-1")]
@@ -682,12 +682,12 @@ public class PendingUpdateTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldNotKeepStaleScopeAssociationsAfterScopeFinished()
     {
-        var testsInScope1 = new AllureTestsScopeMessage(
+        var testsInScope1 = new AllureScopeTestsMessage(
             this.correlationUid,
             new("scope-1"),
             [new("test-1")]
         );
-        var testsInScope2 = new AllureTestsScopeMessage(
+        var testsInScope2 = new AllureScopeTestsMessage(
             this.correlationUid,
             new("scope-1"),
             [new("test-2")]

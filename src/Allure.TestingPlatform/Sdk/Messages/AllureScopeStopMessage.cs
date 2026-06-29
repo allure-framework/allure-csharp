@@ -8,7 +8,7 @@ public sealed class AllureScopeStopMessage(
     CorrelationUid correlationUid,
     ScopeContextUid scopeUid
 ) :
-    RemoveContextMessage(
+    AllureModelRemoveMessage(
         "Allure scope stop",
         "This message reports that an Allure test scope has stopped.",
         correlationUid,
@@ -17,7 +17,7 @@ public sealed class AllureScopeStopMessage(
 {
     public ScopeContextUid ScopeUid { get; } = scopeUid;
 
-    public override void Mutate(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
     {
         allureState.Lifecycle
             .StopTestContainer()

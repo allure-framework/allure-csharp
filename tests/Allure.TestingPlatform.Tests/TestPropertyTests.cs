@@ -167,7 +167,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureStopProperty<AllureTestResult>(101),
             new AllureDurationProperty<AllureTestResult>(100)
             {
-                RelativeTo = DurationBase.Stop
+                RelativeTo = AllureDurationAnchor.Stop
             }
         );
 
@@ -181,7 +181,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureStopProperty<AllureTestResult>(101),
             new AllureDurationProperty<AllureTestResult>(TimeSpan.FromMilliseconds(100))
             {
-                RelativeTo = DurationBase.Stop
+                RelativeTo = AllureDurationAnchor.Stop
             }
         );
 
@@ -220,7 +220,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureStatusProperty<AllureTestResult>(Status.failed),
             new AllureStatusProperty<AllureTestResult>(Status.passed)
             {
-                OverwriteDefaultOnly = true
+                OnlyIfUnset = true
             }
         );
 
@@ -233,7 +233,7 @@ public class TestPropertyTests : DataConsumerTestsBase
         var testResult = await this.ArrangeAndAct(
             new AllureStatusProperty<AllureTestResult>(Status.passed)
             {
-                OverwriteDefaultOnly = true
+                OnlyIfUnset = true
             }
         );
 
@@ -704,7 +704,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTestMethodProperty(method)
             {
                 Arguments = [1, 2, "foo", 3, 4, 5],
-                UpdateTargets = TestMethodUpdateTarget.All & (~TestMethodUpdateTarget.FullName),
+                UpdateTargets = AllureTestMethodUpdateTargets.All & (~AllureTestMethodUpdateTargets.FullName),
             }
         );
 
@@ -724,7 +724,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTestMethodProperty(method)
             {
                 Arguments = [1, 2, "foo", 3, 4, 5],
-                UpdateTargets = TestMethodUpdateTarget.All & (~TestMethodUpdateTarget.TitlePath),
+                UpdateTargets = AllureTestMethodUpdateTargets.All & (~AllureTestMethodUpdateTargets.TitlePath),
             }
         );
 
@@ -744,7 +744,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTestMethodProperty(method)
             {
                 Arguments = [1, 2, "foo", 3, 4, 5],
-                UpdateTargets = TestMethodUpdateTarget.All & (~TestMethodUpdateTarget.Labels),
+                UpdateTargets = AllureTestMethodUpdateTargets.All & (~AllureTestMethodUpdateTargets.Labels),
             }
         );
 
@@ -767,7 +767,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTestMethodProperty(method)
             {
                 Arguments = [1, 2, "foo", 3, 4, 5],
-                UpdateTargets = TestMethodUpdateTarget.All & (~TestMethodUpdateTarget.Parameters),
+                UpdateTargets = AllureTestMethodUpdateTargets.All & (~AllureTestMethodUpdateTargets.Parameters),
             }
         );
 
@@ -787,7 +787,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTestMethodProperty(method)
             {
                 Arguments = [1, 2, "foo", 3, 4, 5],
-                UpdateTargets = TestMethodUpdateTarget.All & (~TestMethodUpdateTarget.ApiAttributes),
+                UpdateTargets = AllureTestMethodUpdateTargets.All & (~AllureTestMethodUpdateTargets.ApiAttributes),
             }
         );
 

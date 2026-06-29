@@ -59,7 +59,7 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
             typeof(AllureFixtureUpdateMessage),
             typeof(AllureFixtureStopMessage),
 
-            typeof(AllureTestsScopeMessage),
+            typeof(AllureScopeTestsMessage),
 
             typeof(AllureTestUpdateMessage),
         ]);

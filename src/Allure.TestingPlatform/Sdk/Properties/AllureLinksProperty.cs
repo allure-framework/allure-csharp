@@ -8,8 +8,8 @@ public sealed class AllureLinksProperty(IEnumerable<Link> links) : IAllureProper
 {
     public List<Link> Links { get; } = [..links];
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
     {
-        obj.links.AddRange(this.Links);
+        target.links.AddRange(this.Links);
     }
 }

@@ -4,7 +4,7 @@ using Allure.Net.Commons;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 
-namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
+namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 public class AllureTestingPlatformHostProcessWatchdog(
     IAllureTestingPlatformRuntimeController runtimeController

@@ -5,12 +5,12 @@ using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
-public sealed class AllureTestsScopeMessage(
+public sealed class AllureScopeTestsMessage(
     CorrelationUid correlationUid,
     ScopeContextUid scopeUid,
     IEnumerable<TestContextUid> testUids
 ) :
-    DataWithCorrelationUid(
+    AllureCorrelatedMessage(
         "Allure scope tests detected",
         "This message reports that an Allure scope contains a set of tests.",
         correlationUid

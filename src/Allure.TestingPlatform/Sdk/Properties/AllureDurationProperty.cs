@@ -4,32 +4,27 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public enum DurationBase
-{
-    Start,
-    Stop,
-}
-
-public sealed class AllureDurationProperty<TObject>(long duration) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureDurationProperty<TModel>(long duration) : IAllureProperty<TModel>
+    where TModel : ExecutableItem
 {
     public long Duration { get; } = duration;
 
-    public AllureDurationProperty(TimeSpan duration) : this((long)Math.Round(duration.TotalMilliseconds))
+    public AllureDurationProperty(TimeSpan duration) :
+        this((long)Math.Round(duration.TotalMilliseconds))
     {
     }
 
-    public DurationBase RelativeTo { get; init; } = DurationBase.Start;
+    public AllureDurationAnchor RelativeTo { get; init; } = AllureDurationAnchor.Start;
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
     {
-        if (this.RelativeTo == DurationBase.Start)
+        if (this.RelativeTo == AllureDurationAnchor.Start)
         {
-            obj.stop = obj.start + this.Duration;
+            target.stop = target.start + this.Duration;
         }
         else
         {
-            obj.start = obj.stop - this.Duration;
+            target.start = target.stop - this.Duration;
         }
     }
 }

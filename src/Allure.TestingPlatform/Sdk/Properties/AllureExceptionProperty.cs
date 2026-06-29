@@ -5,14 +5,17 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureExceptionProperty<TObject>(Exception exception) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureExceptionProperty<TModel>(Exception exception) : IAllureProperty<TModel>
+    where TModel : ExecutableItem
 {
-    public Exception Value { get; } = exception;
+    public Exception Exception { get; } = exception;
 
-    public void Apply(LiveAllureTestingPlatformRuntime allure, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime allure, TModel target)
     {
-        obj.status = ModelFunctions.ResolveErrorStatus(allure.Configuration.FailExceptions, this.Value);
-        obj.statusDetails = ModelFunctions.ToStatusDetails(this.Value);
+        target.status = ModelFunctions.ResolveErrorStatus(
+            allure.Configuration.FailExceptions,
+            this.Exception
+        );
+        target.statusDetails = ModelFunctions.ToStatusDetails(this.Exception);
     }
 }

@@ -4,12 +4,13 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureTitlePathProperty(IEnumerable<string> titlePath) : IAllureProperty<TestResult>
+public sealed class AllureTitlePathProperty(IEnumerable<string> titlePath) :
+    IAllureProperty<TestResult>
 {
     public List<string> TitlePath { get; } = [..titlePath];
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
     {
-        obj.titlePath = [..this.TitlePath];
+        target.titlePath = [..this.TitlePath];
     }
 }

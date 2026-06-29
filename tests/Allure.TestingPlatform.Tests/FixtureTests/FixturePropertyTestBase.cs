@@ -162,7 +162,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureStopProperty<FixtureResult>(101),
             new AllureDurationProperty<FixtureResult>(100)
             {
-                RelativeTo = DurationBase.Stop
+                RelativeTo = AllureDurationAnchor.Stop
             }
         );
 
@@ -176,7 +176,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureStopProperty<FixtureResult>(101),
             new AllureDurationProperty<FixtureResult>(TimeSpan.FromMilliseconds(100))
             {
-                RelativeTo = DurationBase.Stop
+                RelativeTo = AllureDurationAnchor.Stop
             }
         );
 
@@ -215,7 +215,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureStatusProperty<FixtureResult>(Status.failed),
             new AllureStatusProperty<FixtureResult>(Status.passed)
             {
-                OverwriteDefaultOnly = true
+                OnlyIfUnset = true
             }
         );
 
@@ -228,7 +228,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
         var testResult = await this.ArrangeAndAct(
             new AllureStatusProperty<FixtureResult>(Status.passed)
             {
-                OverwriteDefaultOnly = true
+                OnlyIfUnset = true
             }
         );
 

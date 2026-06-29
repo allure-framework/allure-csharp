@@ -6,20 +6,15 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
-using Allure.TestingPlatform.Internal.Registration;
-using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
+using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Correlation;
-using Allure.TestingPlatform.Sdk.Registration;
-using Allure.TestingPlatform.Sdk.Runtime;
-using Microsoft.Testing.Platform.Builder;
-using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Logging;
 using Microsoft.Testing.Platform.Services;
 
-namespace Allure.TestingPlatform.Functions;
+namespace Allure.TestingPlatform.Sdk.Registration;
 
-public static class AllureRegistrationFunctions
+public static class AllureRegistrationDefaults
 {
     public static ILogger GetTestingPlatformLogger(
         IServiceProvider serviceProvider,
@@ -32,7 +27,7 @@ public static class AllureRegistrationFunctions
     public static AllureConfiguration ReadAllureConfiguration(IServiceProvider serviceProvider) =>
         ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(serviceProvider);
 
-    public static bool DoNotDisable(
+    public static bool AlwaysEnabled(
         IServiceProvider serviceProvider,
         AllureConfiguration configuration
     ) =>
@@ -82,44 +77,4 @@ public static class AllureRegistrationFunctions
                 (p) => p!.Value.TargetType,
                 (p) => p!.Value.Formatter
             );
-
-    internal static IAllureTestingPlatformRuntimeReferenceRegistry RegisterAllureTestingPlatform(
-        ITestApplicationBuilder builder,
-        Action<AllureTestingPlatformRegistration> configureAllure,
-        AllureTestingPlatformRegistrationMode registrationMode
-    )
-    {
-        builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
-
-        var allureRegistration = new AllureTestingPlatformRegistration(registrationMode);
-        configureAllure(allureRegistration);
-        var frozenRegistration = allureRegistration.Prepare();
-        var registrationResults = frozenRegistration.RegistrationResults;
-
-        var factory =
-            new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
-                new AllureDataConsumer(
-                    registrationResults.GetRuntimeReference(serviceProvider)
-                )
-            );
-
-        if (frozenRegistration.HostProcessWatchdogEnabled)
-        {
-            builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
-                new AllureTestingPlatformHostProcessWatchdog(
-                    frozenRegistration.CreateController(serviceProvider)
-                )
-            );
-        }
-
-        builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-            new AllureTestingPlatformInProcessRuntimeController(
-                frozenRegistration.CreateController(serviceProvider)
-            )
-        );
-        builder.TestHost.AddDataConsumer(factory);
-        builder.TestHost.AddTestSessionLifetimeHandler(factory);
-
-        return frozenRegistration.RegistrationResults;
-    }
 }

@@ -96,7 +96,7 @@ public class ScopeTests : DataConsumerTestsBase
     public async Task ShouldConsumeExplicitScopeAssociationOnSingleMessageTestStart()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var testsInScope = new AllureTestsScopeMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
+        var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
         var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
@@ -126,7 +126,7 @@ public class ScopeTests : DataConsumerTestsBase
     public async Task ShouldConsumeExplicitScopeAssociationOnDoubleMessageTestStart()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var testsInScope = new AllureTestsScopeMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
+        var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
         var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeInProgressMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
@@ -165,7 +165,7 @@ public class ScopeTests : DataConsumerTestsBase
     public async Task ShouldKeepTestScopeAssociationActiveAfterTestWritten()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var testsInScope = new AllureTestsScopeMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
+        var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
         var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
@@ -197,7 +197,7 @@ public class ScopeTests : DataConsumerTestsBase
     public async Task ShouldRemoveTestScopeAssociationAfterScopeStop()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var testsInScope = new AllureTestsScopeMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
+        var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
         var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
         {

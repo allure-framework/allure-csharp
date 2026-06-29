@@ -5,7 +5,7 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 
 public interface IAllureProperty : IProperty;
 
-public interface IAllureProperty<TObject> : IAllureProperty
+public interface IAllureProperty<TModel> : IAllureProperty
 {
-    public abstract void Apply(LiveAllureTestingPlatformRuntime allureState, TObject obj);
+    public abstract void Apply(LiveAllureTestingPlatformRuntime allureState, TModel target);
 }

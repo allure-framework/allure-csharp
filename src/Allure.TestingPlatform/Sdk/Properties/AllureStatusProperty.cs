@@ -3,18 +3,18 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureStatusProperty<TObject>(Status status) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureStatusProperty<TModel>(Status status) : IAllureProperty<TModel>
+    where TModel : ExecutableItem
 {
-    public Status Value { get; } = status;
+    public Status Status { get; } = status;
 
-    public bool OverwriteDefaultOnly { get; init; } = false;
+    public bool OnlyIfUnset { get; init; } = false;
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
     {
-        if (!this.OverwriteDefaultOnly || obj.status is Status.none)
+        if (!this.OnlyIfUnset || target.status is Status.none)
         {
-            obj.status = this.Value;
+            target.status = this.Status;
         }
     }
 }

@@ -4,19 +4,16 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
-public abstract class CreateContextMessage(
+public abstract class AllureModelUpdateMessage(
     string displayName,
     string description,
     CorrelationUid correlationUid,
-    IAllureContextUid contextUid,
-    IAllureContextUid? parentContextUid
+    IAllureContextUid contextUid
 ) :
-    DataWithAllureProperties(displayName, description, correlationUid),
+    AllureModelMessage(displayName, description, correlationUid),
     IAllureLifecycleMessage
 {
     public IAllureContextUid ContextUid { get; } = contextUid;
 
-    public IAllureContextUid? ParentContextUid { get; } = parentContextUid;
-
-    public abstract void Mutate(LiveAllureTestingPlatformRuntime allureState);
+    public abstract void ApplyTo(LiveAllureTestingPlatformRuntime allureState);
 }

@@ -5,7 +5,7 @@ using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.CommandLine;
 
-namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
+namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
 {

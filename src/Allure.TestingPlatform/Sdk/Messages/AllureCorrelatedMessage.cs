@@ -3,7 +3,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
-public abstract class DataWithCorrelationUid(
+public abstract class AllureCorrelatedMessage(
     string displayName,
     string description,
     CorrelationUid correlationUid

@@ -10,7 +10,7 @@ public abstract class AllureFixtureStartMessage(
     FixtureContextUid fixtureUid,
     ScopeContextUid scopeUid,
     string fixtureName)
-        : CreateContextMessage(
+        : AllureModelCreateMessage(
             "Allure fixture start",
             "This message reports that an Allure fixture has started.",
             correlationUid,
@@ -23,7 +23,7 @@ public abstract class AllureFixtureStartMessage(
 
     public string FixtureName { get; } = fixtureName;
 
-    public override void Mutate(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
     {
         var fixture = this.CreateFixture();
         this.StartFixture(allureState.Lifecycle, fixture);

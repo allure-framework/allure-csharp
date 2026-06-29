@@ -18,7 +18,7 @@ public class TestFrameworkStub(params Func<SessionUid, IData>[] messageFactories
         typeof(SessionFileArtifact),
 
         typeof(AllureScopeStartMessage),
-        typeof(AllureTestsScopeMessage),
+        typeof(AllureScopeTestsMessage),
         typeof(AllureScopeStopMessage),
 
         typeof(AllureBeforeFixtureStartMessage),

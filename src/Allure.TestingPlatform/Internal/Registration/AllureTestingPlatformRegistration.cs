@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
-using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Registration;
@@ -21,25 +20,25 @@ class AllureTestingPlatformRegistration(
     bool hostWatchdogEnabled = true;
 
     Func<IServiceProvider, AllureConfiguration> configurationFactory =
-        AllureRegistrationFunctions.ReadAllureConfiguration;
+        AllureRegistrationDefaults.ReadAllureConfiguration;
 
     Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory =
-        AllureRegistrationFunctions.GetTestingPlatformLogger;
+        AllureRegistrationDefaults.GetTestingPlatformLogger;
 
     Func<IServiceProvider, AllureConfiguration, bool> isEnabled =
-        AllureRegistrationFunctions.DoNotDisable;
+        AllureRegistrationDefaults.AlwaysEnabled;
 
     Func<IServiceProvider, AllureConfiguration, ICorrelationStrategy> correlationStrategyFactory =
-        AllureRegistrationFunctions.CorrelateBySessionUidOnly;
+        AllureRegistrationDefaults.CorrelateBySessionUidOnly;
 
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory =
-        AllureRegistrationFunctions.GetFileSystemResultsWriter;
+        AllureRegistrationDefaults.GetFileSystemResultsWriter;
 
     Func<IServiceProvider, AllureConfiguration, IReadOnlyDictionary<Type, ITypeFormatter>> typeFormattersFactory =
-        AllureRegistrationFunctions.NoTypeFormatters;
+        AllureRegistrationDefaults.NoTypeFormatters;
 
     Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory =
-        AllureRegistrationFunctions.CreateLifecycle;
+        AllureRegistrationDefaults.CreateLifecycle;
 
     public event Action<ConfiguredAllureTestingPlatformRuntime>? OnConfigured;
 

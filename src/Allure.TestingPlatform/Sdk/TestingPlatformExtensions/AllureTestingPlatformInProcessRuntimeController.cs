@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.TestHost;
 
-namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
+namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 public class AllureTestingPlatformInProcessRuntimeController(
     IAllureTestingPlatformRuntimeController runtimeController

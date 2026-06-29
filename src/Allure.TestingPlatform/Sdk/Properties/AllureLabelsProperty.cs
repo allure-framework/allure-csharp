@@ -8,8 +8,8 @@ public sealed class AllureLabelsProperty(IEnumerable<Label> labels) : IAllurePro
 {
     public List<Label> Labels { get; } = [..labels];
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
     {
-        obj.labels.AddRange(this.Labels);
+        target.labels.AddRange(this.Labels);
     }
 }

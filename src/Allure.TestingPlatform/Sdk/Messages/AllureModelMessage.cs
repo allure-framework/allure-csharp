@@ -6,12 +6,12 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
-public abstract class DataWithAllureProperties(
+public abstract class AllureModelMessage(
     string displayName,
     string description,
     CorrelationUid correlationUid
 ) :
-    DataWithCorrelationUid(displayName, description, correlationUid)
+    AllureCorrelatedMessage(displayName, description, correlationUid)
 {
     public List<IAllureProperty> Properties { get; init; } = [];
 

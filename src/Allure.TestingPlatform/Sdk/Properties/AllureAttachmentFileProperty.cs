@@ -4,8 +4,10 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureAttachmentFileProperty<TObject>(string name, string path) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureAttachmentFileProperty<TModel>(string name, string path) :
+    IAllureProperty<TModel>
+
+    where TModel : ExecutableItem
 {
     public string Name { get; } = name;
 
@@ -15,7 +17,7 @@ public sealed class AllureAttachmentFileProperty<TObject>(string name, string pa
 
     public string FileExtension { get; init; } = System.IO.Path.GetExtension(path);
 
-    public void Apply(LiveAllureTestingPlatformRuntime allureState, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime allureState, TModel target)
     {
         var source = ModelFunctions.GetAttachmentSourceName(this.FileExtension);
         var attachment = new Attachment
@@ -25,6 +27,6 @@ public sealed class AllureAttachmentFileProperty<TObject>(string name, string pa
             source = source
         };
         allureState.Writer.Write(source, this.Path);
-        obj.attachments.Add(attachment);
+        target.attachments.Add(attachment);
     }
 }

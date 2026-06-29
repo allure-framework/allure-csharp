@@ -8,7 +8,7 @@ public sealed class AllureFixtureUpdateMessage(
     CorrelationUid correlationUid,
     FixtureContextUid fixtureUid
 ) :
-    MutateModelMessage(
+    AllureModelUpdateMessage(
         "Allure fixture result update",
         "This message reports that some data needs to be associated with an Allure fixture result.",
         correlationUid,
@@ -17,7 +17,7 @@ public sealed class AllureFixtureUpdateMessage(
 {
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
-    public override void Mutate(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
     {
         allureState.Lifecycle.UpdateFixture((fixture) =>
         {

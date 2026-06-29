@@ -8,7 +8,7 @@ public sealed class AllureTestUpdateMessage(
     CorrelationUid correlationUid,
     TestContextUid testUid
 ) :
-    MutateModelMessage(
+    AllureModelUpdateMessage(
         "Allure test result update",
         "This message reports that some data needs to be associated with an Allure test result.",
         correlationUid,
@@ -17,7 +17,7 @@ public sealed class AllureTestUpdateMessage(
 {
     public TestContextUid TestUid { get; } = testUid;
 
-    public override void Mutate(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
     {
         allureState.Lifecycle.UpdateTestCase((test) =>
         {

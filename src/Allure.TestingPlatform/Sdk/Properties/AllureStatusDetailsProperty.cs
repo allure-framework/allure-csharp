@@ -3,13 +3,15 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureStatusDetailsProperty<TObject>(StatusDetails statusDetails) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
-{
-    public StatusDetails Value { get; } = statusDetails;
+public sealed class AllureStatusDetailsProperty<TModel>(StatusDetails statusDetails) :
+    IAllureProperty<TModel>
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    where TModel : ExecutableItem
+{
+    public StatusDetails StatusDetails { get; } = statusDetails;
+
+    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
     {
-        obj.statusDetails = this.Value;
+        target.statusDetails = this.StatusDetails;
     }
 }

@@ -231,8 +231,8 @@ public partial class IsolationTests : DataConsumerTestsBase
         var session2FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid2, new("3"), new("2"), "Foo");
         var session1FixtureStop = new AllureFixtureStopMessage(correlationUid1, new("3"));
         var session2FixtureStop = new AllureFixtureStopMessage(correlationUid2, new("3"));
-        var session1TestsInScope = new AllureTestsScopeMessage(correlationUid1, new("2"), [new("1")]);
-        var session2TestsInScope = new AllureTestsScopeMessage(correlationUid2, new("2"), [new("1")]);
+        var session1TestsInScope = new AllureScopeTestsMessage(correlationUid1, new("2"), [new("1")]);
+        var session2TestsInScope = new AllureScopeTestsMessage(correlationUid2, new("2"), [new("1")]);
         var session1TestStart = new TestNodeUpdateMessage(session1, testNodeInProgress);
         var session2TestStart = new TestNodeUpdateMessage(session2, testNodeInProgress);
         var session1TestStop = new TestNodeUpdateMessage(session1, testNodePassed);

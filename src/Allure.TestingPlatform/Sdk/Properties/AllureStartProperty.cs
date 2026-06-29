@@ -4,8 +4,8 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureStartProperty<TObject>(long start) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureStartProperty<TModel>(long start) : IAllureProperty<TModel>
+    where TModel : ExecutableItem
 {
     public long Start { get; } = start;
 
@@ -13,8 +13,8 @@ public sealed class AllureStartProperty<TObject>(long start) : IAllureProperty<T
     {
     }
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
     {
-        obj.start = this.Start;
+        target.start = this.Start;
     }
 }

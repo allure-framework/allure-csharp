@@ -2,9 +2,9 @@ using System.Collections.Immutable;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk.Writers;
-using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Logging;
 

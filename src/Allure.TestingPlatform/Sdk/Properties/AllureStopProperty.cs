@@ -4,8 +4,8 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureStopProperty<TObject>(long stop) : IAllureProperty<TObject>
-    where TObject : ExecutableItem
+public sealed class AllureStopProperty<TModel>(long stop) : IAllureProperty<TModel>
+    where TModel : ExecutableItem
 {
     public long Stop { get; } = stop;
 
@@ -13,8 +13,8 @@ public sealed class AllureStopProperty<TObject>(long stop) : IAllureProperty<TOb
     {
     }
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
     {
-        obj.stop = this.Stop;
+        target.stop = this.Stop;
     }
 }

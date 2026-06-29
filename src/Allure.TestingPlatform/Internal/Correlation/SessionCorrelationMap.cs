@@ -19,7 +19,7 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
 
     readonly Dictionary<SessionUid, Queue<(int, DataWithSessionUid)>> sessionUidBuffers = [];
 
-    readonly Dictionary<CorrelationUid, Queue<(int, DataWithCorrelationUid)>> correlationUidBuffers = [];
+    readonly Dictionary<CorrelationUid, Queue<(int, AllureCorrelatedMessage)>> correlationUidBuffers = [];
 
     int sequenceNumber = 0;
 
@@ -33,8 +33,8 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
             DataWithSessionUid dataWithSessionUid =>
                 await this.Correlate(dataProducer, dataWithSessionUid, cancellationToken),
 
-            DataWithCorrelationUid dataWithCorrelationUid =>
-                this.Correlate(dataWithCorrelationUid),
+            AllureCorrelatedMessage allureCorrelatedMessage =>
+                this.Correlate(allureCorrelatedMessage),
 
             _ => CorrelationResult.NotReady,
         };
@@ -107,7 +107,7 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
         return CorrelationResult.NotReady;
     }
 
-    CorrelationResult Correlate(DataWithCorrelationUid message)
+    CorrelationResult Correlate(AllureCorrelatedMessage message)
     {
         var correlationUid = message.CorrelationUid;
 
@@ -131,11 +131,11 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
             dataWithSessionUid
         );
 
-    void Enqueue(DataWithCorrelationUid dataWithCorrelationUid) =>
+    void Enqueue(AllureCorrelatedMessage allureCorrelatedMessage) =>
         this.Enqueue(
             this.correlationUidBuffers,
-            dataWithCorrelationUid.CorrelationUid,
-            dataWithCorrelationUid
+            allureCorrelatedMessage.CorrelationUid,
+            allureCorrelatedMessage
         );
 
     void Enqueue<TKey, TValue>(
@@ -159,7 +159,7 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
         SessionUid sessionUid,
         CorrelationUid correlationUid
     ) =>
-        CollectionAlgorithms.MergeSortedByItem1<DataWithSessionUid, DataWithCorrelationUid, IData>(
+        CollectionAlgorithms.MergeSortedByItem1<DataWithSessionUid, AllureCorrelatedMessage, IData>(
             CollectionAlgorithms.RemoveAndGet(this.sessionUidBuffers, sessionUid, []),
             CollectionAlgorithms.RemoveAndGet(this.correlationUidBuffers, correlationUid, [])
         );

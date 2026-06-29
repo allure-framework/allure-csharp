@@ -8,7 +8,7 @@ public sealed class AllureFixtureStopMessage(
     CorrelationUid correlationUid,
     FixtureContextUid fixtureUid
 ) :
-    RemoveContextMessage(
+    AllureModelRemoveMessage(
         "Allure fixture stop",
         "This message reports that an Allure fixture has stopped.",
         correlationUid,
@@ -17,7 +17,7 @@ public sealed class AllureFixtureStopMessage(
 {
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
-    public override void Mutate(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
     {
         allureState.Lifecycle.UpdateFixture((fixture) =>
         {

@@ -4,7 +4,6 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
-using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
@@ -16,6 +15,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
 using TUnit.Assertions.Enums;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 namespace Allure.TestingPlatform.Tests;
 

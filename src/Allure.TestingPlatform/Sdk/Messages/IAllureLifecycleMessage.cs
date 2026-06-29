@@ -7,5 +7,5 @@ public interface IAllureLifecycleMessage
 {
     IAllureContextUid ContextUid { get; }
 
-    void Mutate(LiveAllureTestingPlatformRuntime allureState);
+    void ApplyTo(LiveAllureTestingPlatformRuntime allureState);
 }

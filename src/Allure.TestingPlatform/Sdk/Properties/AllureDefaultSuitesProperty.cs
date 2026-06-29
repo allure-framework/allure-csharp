@@ -8,7 +8,12 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-public sealed class AllureDefaultSuitesProperty(string? parentSuite, string? suite, string? subSuite) : IAllureProperty<TestResult>
+public sealed class AllureDefaultSuitesProperty(
+    string? parentSuite,
+    string? suite,
+    string? subSuite
+) :
+    IAllureProperty<TestResult>
 {
     public string? ParentSuite { get; } = parentSuite;
     public string? Suite { get; } = suite;
@@ -21,9 +26,9 @@ public sealed class AllureDefaultSuitesProperty(string? parentSuite, string? sui
     {
     }
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
     {
-        ModelFunctions.EnsureSuites(obj, this.ParentSuite, this.Suite, this.SubSuite);
+        ModelFunctions.EnsureSuites(target, this.ParentSuite, this.Suite, this.SubSuite);
     }
 
     static string? ResolveSubSuite(Type testClass) =>

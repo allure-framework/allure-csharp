@@ -4,6 +4,8 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Registration;
+using Allure.TestingPlatform.Sdk;
+using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Builder;
 
@@ -14,7 +16,7 @@ public static class AllureTestingPlatformExtensions
     extension (ITestApplicationBuilder builder)
     {
         public void AddAllure(Action<IStandaloneAllureRegistrationContext> configureAllure) =>
-            AllureRegistrationFunctions.RegisterAllureTestingPlatform(
+            AllureTestingPlatformSdkExtensions.RegisterAllureTestingPlatform(
                 builder,
                 configureAllure,
                 AllureTestingPlatformRegistrationMode.Standalone
@@ -45,6 +47,6 @@ public static class AllureTestingPlatformExtensions
             registration.UseConfiguration((serviceProvider) => configuration);
 
         public IStandaloneAllureRegistrationContext UseTypeFormatters(params IEnumerable<ITypeFormatter> formatters) =>
-            registration.UseTypeFormatters(AllureRegistrationFunctions.ExplicitTypeFormatters(formatters));
+            registration.UseTypeFormatters(AllureRegistrationDefaults.ExplicitTypeFormatters(formatters));
     }
 }

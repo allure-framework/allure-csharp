@@ -8,19 +8,8 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
-[Flags]
-public enum TestMethodUpdateTarget
-{
-    FullName = 0x01 << 0,
-    TitlePath = 0x01 << 1,
-    Labels = 0x01 << 2,
-    Parameters = 0x01 << 3,
-    ApiAttributes = 0x01 << 4,
-
-    All = FullName | TitlePath | Labels | Parameters | ApiAttributes,
-}
-
-public sealed class AllureTestMethodProperty(MethodInfo testMethod) : IAllureProperty<TestResult>
+public sealed class AllureTestMethodProperty(MethodInfo testMethod) :
+    IAllureProperty<TestResult>
 {
     public MethodInfo TestMethod { get; } = testMethod;
 
@@ -28,25 +17,25 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) : IAllurePro
 
     public List<object?> Arguments { get; init; } = [];
 
-    public TestMethodUpdateTarget UpdateTargets { get; init; } = TestMethodUpdateTarget.All;
+    public AllureTestMethodUpdateTargets UpdateTargets { get; init; } = AllureTestMethodUpdateTargets.All;
 
-    public void Apply(LiveAllureTestingPlatformRuntime allureState, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime allureState, TestResult target)
     {
         if (this.ShouldSetFullName)
         {
-            obj.fullName = IdFunctions.CreateFullName(this.TestMethod);
+            target.fullName = IdFunctions.CreateFullName(this.TestMethod);
         }
 
         if (this.ShouldSetTitlePath)
         {
-            obj.titlePath = IdFunctions.CreateTitlePath(this.TestMethod);
+            target.titlePath = IdFunctions.CreateTitlePath(this.TestMethod);
         }
 
         if (this.ShouldAddLabels)
         {
-            obj.labels.Add(Label.TestClass(this.TestClass.Name));
-            obj.labels.Add(Label.TestMethod(this.TestMethod.Name));
-            obj.labels.Add(Label.Package(this.TestClass.FullName));
+            target.labels.Add(Label.TestClass(this.TestClass.Name));
+            target.labels.Add(Label.TestMethod(this.TestMethod.Name));
+            target.labels.Add(Label.Package(this.TestClass.FullName));
         }
 
         if (this.ShouldAddParameters)
@@ -55,25 +44,25 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) : IAllurePro
                 this.TestMethod.GetParameters(),
                 this.Arguments,
                 allureState.TypeFormatters);
-            obj.parameters.AddRange(parameters);
+            target.parameters.AddRange(parameters);
         }
 
         if (this.ShouldApplyApiAttributes)
         {
-            AllureApiAttribute.ApplyTypeAttributes(this.TestClass, obj);
-            AllureApiAttribute.ApplyMethodAttributes(this.TestMethod, obj);
+            AllureApiAttribute.ApplyTypeAttributes(this.TestClass, target);
+            AllureApiAttribute.ApplyMethodAttributes(this.TestMethod, target);
         }
     }
 
-    bool ShouldSetFullName => this.ShouldUpdateTarget(TestMethodUpdateTarget.FullName);
+    bool ShouldSetFullName => this.ShouldUpdateTarget(AllureTestMethodUpdateTargets.FullName);
 
-    bool ShouldAddParameters => this.ShouldUpdateTarget(TestMethodUpdateTarget.Parameters);
+    bool ShouldAddParameters => this.ShouldUpdateTarget(AllureTestMethodUpdateTargets.Parameters);
 
-    bool ShouldSetTitlePath => this.ShouldUpdateTarget(TestMethodUpdateTarget.TitlePath);
+    bool ShouldSetTitlePath => this.ShouldUpdateTarget(AllureTestMethodUpdateTargets.TitlePath);
 
-    bool ShouldAddLabels => this.ShouldUpdateTarget(TestMethodUpdateTarget.Labels);
+    bool ShouldAddLabels => this.ShouldUpdateTarget(AllureTestMethodUpdateTargets.Labels);
 
-    bool ShouldApplyApiAttributes => this.ShouldUpdateTarget(TestMethodUpdateTarget.ApiAttributes);
+    bool ShouldApplyApiAttributes => this.ShouldUpdateTarget(AllureTestMethodUpdateTargets.ApiAttributes);
 
-    bool ShouldUpdateTarget(TestMethodUpdateTarget target) => this.UpdateTargets.HasFlag(target);
+    bool ShouldUpdateTarget(AllureTestMethodUpdateTargets target) => this.UpdateTargets.HasFlag(target);
 }

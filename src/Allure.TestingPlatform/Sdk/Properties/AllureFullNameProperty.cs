@@ -7,8 +7,8 @@ public sealed class AllureFullNameProperty(string fullName) : IAllureProperty<Te
 {
     public string FullName { get; } = fullName;
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
     {
-        obj.fullName = this.FullName;
+        target.fullName = this.FullName;
     }
 }

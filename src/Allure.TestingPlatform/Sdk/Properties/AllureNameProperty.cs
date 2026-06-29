@@ -8,8 +8,8 @@ public sealed class AllureNameProperty<TObject>(string name) : IAllureProperty<T
 {
     public string Name { get; } = name;
 
-    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TObject target)
     {
-        obj.name = this.Name;
+        target.name = this.Name;
     }
 }
