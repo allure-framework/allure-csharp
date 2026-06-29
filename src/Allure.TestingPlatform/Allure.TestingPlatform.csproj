@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Description>Adds a basic support to a Microsoft Testing Platform framework. Reference a framework-specific package to get the most from Allure.</Description>
+        <Description>Adds basic support for Microsoft Testing Platform frameworks. Reference a framework-specific package to get the most from Allure.</Description>
         <PackageTags>$(PackageTags) mtp testingplatform microsofttestingplatform</PackageTags>
         <PackageIcon>Allure-Color.png</PackageIcon>
         <Nullable>enable</Nullable>

@@ -36,7 +36,7 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
     {
         if (commandOption.Name == "allure" && arguments[0] is not ("on" or "off"))
         {
-            return ValidationResult.InvalidTask("the value must be 'on' of 'off'");
+            return ValidationResult.InvalidTask("the value must be 'on' or 'off'");
         }
 
         return ValidationResult.ValidTask;

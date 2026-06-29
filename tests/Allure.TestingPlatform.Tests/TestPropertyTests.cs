@@ -228,7 +228,7 @@ public class TestPropertyTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldNotOverwriteDefaultStatisEvenIfOptedOutFromOverwrite()
+    public async Task ShouldNotOverwriteDefaultStatusEvenIfOptedOutFromOverwrite()
     {
         var testResult = await this.ArrangeAndAct(
             new AllureStatusProperty<AllureTestResult>(Status.passed)

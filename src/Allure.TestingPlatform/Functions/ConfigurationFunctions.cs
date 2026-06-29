@@ -38,7 +38,7 @@ public static class ConfigurationFunctions
                 AppDomain.CurrentDomain.BaseDirectory,
                 AllureConstants.CONFIG_FILENAME
             ) is { } defaultConfigPath && File.Exists(defaultConfigPath)
-                ? JObject.Parse(File.ReadAllText(configPath))
+                ? JObject.Parse(File.ReadAllText(defaultConfigPath))
                 : [];
 
         if (TestingPlatformFunctions.TryGetDefaultAllureResultsPath(serviceProvider, out var allureResultsDir))

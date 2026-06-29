@@ -223,7 +223,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldNotOverwriteDefaultStatisEvenIfOptedOutFromOverwrite()
+    public async Task ShouldNotOverwriteDefaultStatusEvenIfOptedOutFromOverwrite()
     {
         var testResult = await this.ArrangeAndAct(
             new AllureStatusProperty<FixtureResult>(Status.passed)
