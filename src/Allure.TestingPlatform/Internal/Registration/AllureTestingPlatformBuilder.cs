@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using Allure.TestingPlatform.Functions;
-using Allure.TestingPlatform.Sdk.Registration;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
 using Microsoft.Testing.Platform.Services;
 
