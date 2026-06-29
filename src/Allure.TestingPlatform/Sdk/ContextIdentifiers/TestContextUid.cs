@@ -1,3 +1,3 @@
-namespace Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
+namespace Allure.TestingPlatform.Sdk.ContextIdentifiers;
 
 public readonly record struct TestContextUid(string Value) : IAllureContextUid;

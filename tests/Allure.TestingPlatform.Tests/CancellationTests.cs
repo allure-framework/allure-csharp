@@ -1,4 +1,4 @@
-using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 

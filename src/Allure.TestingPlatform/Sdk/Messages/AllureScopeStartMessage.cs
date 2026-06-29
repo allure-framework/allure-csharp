@@ -1,7 +1,7 @@
 using Allure.Net.Commons.Functions;
+using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
-using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 

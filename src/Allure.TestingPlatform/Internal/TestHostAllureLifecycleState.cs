@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Internal;
 

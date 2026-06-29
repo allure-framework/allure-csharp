@@ -1,5 +1,5 @@
+using Allure.TestingPlatform.Sdk.ContextIdentifiers;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 

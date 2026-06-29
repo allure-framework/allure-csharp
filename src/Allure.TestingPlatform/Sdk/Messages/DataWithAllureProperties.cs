@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Properties;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 

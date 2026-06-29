@@ -2,7 +2,7 @@ using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.TestHost;
 using Microsoft.Testing.Platform.Extensions.Messages;
-using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Tests;
 

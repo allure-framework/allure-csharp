@@ -1,6 +1,6 @@
 using System;
 using Allure.Net.Commons.Configuration;
-using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 

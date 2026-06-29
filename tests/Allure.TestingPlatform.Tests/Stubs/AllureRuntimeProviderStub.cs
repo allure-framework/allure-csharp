@@ -1,12 +1,7 @@
-// using Allure.TestingPlatform.Sdk;
+using Allure.TestingPlatform.Sdk.Runtime;
 
-// namespace Allure.TestingPlatform.Tests.Stubs;
+namespace Allure.TestingPlatform.Tests.Stubs;
 
-// public class AllureRuntimeProviderStub(AllureRuntimeStub runtime) : IAllureRuntimeProvider
-// {
-//     public IAllureRuntime Runtime => runtime;
-
-//     public bool IsAllureEnabled { get; set; } = true;
-
-//     public bool IsAllureAlive { get; set; } = true;
-// }
+public record class AllureRuntimeProviderStub(
+    AllureTestingPlatformRuntime Value
+): IAllureTestingPlatformRuntimeProvider;

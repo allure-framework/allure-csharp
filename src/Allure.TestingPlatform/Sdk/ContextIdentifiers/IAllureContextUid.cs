@@ -1,4 +1,4 @@
-namespace Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
+namespace Allure.TestingPlatform.Sdk.ContextIdentifiers;
 
 public interface IAllureContextUid
 {

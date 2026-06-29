@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Allure.Net.Commons;
 using Allure.TestingPlatform.Functions;
-using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.ContextIdentifiers;
 
 namespace Allure.TestingPlatform.Internal;
 

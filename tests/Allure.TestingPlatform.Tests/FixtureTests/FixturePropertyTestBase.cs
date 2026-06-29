@@ -4,7 +4,7 @@ using Allure.Net.Commons;
 using Allure.TestingPlatform.Sdk.Properties;
 using Allure.Net.Commons.Attributes;
 using System.Reflection;
-using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Tests.FixtureTests;
 

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
-namespace Allure.TestingPlatform.Sdk.Runtime.Correlation;
+namespace Allure.TestingPlatform.Sdk.Correlation;
 
 public class TestMetadataCorrelation : ICorrelationSource
 {

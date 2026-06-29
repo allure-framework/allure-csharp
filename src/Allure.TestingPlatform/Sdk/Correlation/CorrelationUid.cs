@@ -1,3 +1,3 @@
-namespace Allure.TestingPlatform.Sdk.Runtime.Correlation;
+namespace Allure.TestingPlatform.Sdk.Correlation;
 
 public readonly record struct CorrelationUid(string Value);
