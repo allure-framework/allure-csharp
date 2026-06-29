@@ -3,7 +3,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Tests.Stubs;
 
-public class CorrelationServiceStub : ICorrelationSource
+public class CorrelationStrategyStub : ICorrelationStrategy
 {
     public Queue<string> NextValues { get; set; } = [];
 

@@ -10,7 +10,7 @@ using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Tests;
 
-public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, ThrowingLoggerStub>
+public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, ThrowingLoggerStub>
 {
     readonly TestNodeUpdateMessage session1Test1StopPassed = new(
         new("s1"),
@@ -59,7 +59,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
     [Test]
     public async Task ShouldEmitMessageWithCorrelationUid()
     {
-        this.correlationService.NextValues.Enqueue("c1");
+        this.correlationStrategy.NextValues.Enqueue("c1");
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test1StopPassed, CancellationToken.None);
 
@@ -69,7 +69,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
     [Test]
     public async Task ShouldEmitMessagesAfterCorrelationEstablished()
     {
-        this.correlationService.NextValues.Enqueue("c1");
+        this.correlationStrategy.NextValues.Enqueue("c1");
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test1StopPassed, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test2StopPassed, CancellationToken.None);
@@ -129,7 +129,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
 
         await Assert.That(this.writer.TestContainers).IsEmpty();
 
-        this.correlationService.NextValues.Enqueue(correlationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(correlationUid.Value);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test2StopPassed, CancellationToken.None);
 
         await Assert.That(this.writer.TestContainers).HasSingleItem();
@@ -159,8 +159,8 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
             }
         );
 
-        this.correlationService.NextValues.Enqueue("c1");
-        this.correlationService.NextValues.Enqueue("c2");
+        this.correlationStrategy.NextValues.Enqueue("c1");
+        this.correlationStrategy.NextValues.Enqueue("c2");
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test1StopPassed, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test2StopPassed, CancellationToken.None);
@@ -189,7 +189,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
 
         await Assert.That(this.writer.TestResults).IsEmpty();
 
-        this.correlationService.NextValues.Enqueue("c1");
+        this.correlationStrategy.NextValues.Enqueue("c1");
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session1Test3StopPassed, CancellationToken.None);
 
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(3);
@@ -219,7 +219,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
         var stopFixture = new AllureFixtureStopMessage(knownCorrelationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(knownCorrelationUid, new("scope-1"));
 
-        this.correlationService.NextValues.Enqueue(knownCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(knownCorrelationUid.Value);
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test1StopPassed, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2TestStopPassed, CancellationToken.None);
@@ -260,7 +260,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopFixture, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
-        this.correlationService.NextValues.Enqueue("c-other");
+        this.correlationStrategy.NextValues.Enqueue("c-other");
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2TestStopPassed, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
@@ -280,7 +280,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
 
         await this.consumer.OnTestSessionFinishingAsync(sessionContext);
 
-        this.correlationService.NextValues.Enqueue("c-new");
+        this.correlationStrategy.NextValues.Enqueue("c-new");
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test2StopPassed, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
@@ -313,7 +313,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
         var stopFixture = new AllureFixtureStopMessage(oldCorrelationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(oldCorrelationUid, new("scope-1"));
 
-        this.correlationService.NextValues.Enqueue(oldCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(oldCorrelationUid.Value);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session1Test1StopPassed, CancellationToken.None);
 
         await this.consumer.OnTestSessionFinishingAsync(finishedSessionContext);
@@ -353,7 +353,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
         var stopFixture = new AllureFixtureStopMessage(knownCorrelationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(knownCorrelationUid, new("scope-1"));
 
-        this.correlationService.NextValues.Enqueue(knownCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(knownCorrelationUid.Value);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session1Test1StopPassed, CancellationToken.None);
 
         await this.consumer.OnTestSessionFinishingAsync(unknownSessionContext);
@@ -408,7 +408,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
 
         await Assert.That(this.writer.TestResults).IsEmpty();
 
-        this.correlationService.NextValues.Enqueue(correlationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(correlationUid.Value);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, sessionTriggerDiscovered, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
@@ -444,7 +444,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
             }
         );
 
-        this.correlationService.NextValues.Enqueue(sharedCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(sharedCorrelationUid.Value);
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test1StopPassed, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test2Start, CancellationToken.None);
@@ -456,7 +456,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
         var testResult1 = await Assert.That(this.writer.TestResults).HasSingleItem();
         await Assert.That(testResult1.name).IsEqualTo("test 1");
 
-        this.correlationService.NextValues.Enqueue(sharedCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(sharedCorrelationUid.Value);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2Test2StopPassed, CancellationToken.None);
 
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(2);
@@ -479,8 +479,8 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationServiceStub, Th
                 }
         );
 
-        this.correlationService.NextValues.Enqueue(sharedCorrelationUid.Value);
-        this.correlationService.NextValues.Enqueue(sharedCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(sharedCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(sharedCorrelationUid.Value);
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test1StopPassed, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2Test2StopPassed, CancellationToken.None);

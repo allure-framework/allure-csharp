@@ -14,7 +14,9 @@ namespace Allure.TestingPlatform.Internal.Registration;
 
 class AllureTestingPlatformRegistration(
     AllureTestingPlatformRegistrationMode mode
-) : IEmbeddedAllureRegistrationContext, IAllureTestingPlatformSdkEvents
+) :
+    IEmbeddedAllureRegistrationContext,
+    IAllureTestingPlatformSdkEvents
 {
     bool hostWatchdogEnabled = true;
 
@@ -27,7 +29,7 @@ class AllureTestingPlatformRegistration(
     Func<IServiceProvider, AllureConfiguration, bool> isEnabled =
         AllureRegistrationFunctions.DoNotDisable;
 
-    Func<IServiceProvider, AllureConfiguration, ICorrelationSource> correlationServiceFactory =
+    Func<IServiceProvider, AllureConfiguration, ICorrelationStrategy> correlationStrategyFactory =
         AllureRegistrationFunctions.CorrelateBySessionUidOnly;
 
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory =
@@ -98,10 +100,10 @@ class AllureTestingPlatformRegistration(
     }
 
     public IEmbeddedAllureRegistrationContext UseCorrelation(
-        Func<IServiceProvider, AllureConfiguration, ICorrelationSource> correlationServiceFactory
+        Func<IServiceProvider, AllureConfiguration, ICorrelationStrategy> correlationStrategyFactory
     )
     {
-        this.correlationServiceFactory = correlationServiceFactory;
+        this.correlationStrategyFactory = correlationStrategyFactory;
         return this;
     }
 
@@ -117,11 +119,11 @@ class AllureTestingPlatformRegistration(
         new(
             new(
                 Mode: mode,
-                HostProcessWathdogEnabled: this.hostWatchdogEnabled,
+                HostProcessWatchdogEnabled: this.hostWatchdogEnabled,
                 LoggerFactory: this.loggerFactory,
                 ConfigurationFactory: this.configurationFactory,
                 IsSdkEnabled: this.isEnabled,
-                CorrelationServiceFactory: this.correlationServiceFactory,
+                CorrelationStrategyFactory: this.correlationStrategyFactory,
                 WriterFactory: this.writerFactory,
                 TypeFormattersFactory: this.typeFormattersFactory,
                 LifecycleFactory: this.lifecycleFactory,

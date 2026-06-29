@@ -38,11 +38,11 @@ public static class AllureRegistrationFunctions
     ) =>
         true;
 
-    public static ICorrelationSource CorrelateBySessionUidOnly(
+    public static ICorrelationStrategy CorrelateBySessionUidOnly(
         IServiceProvider serviceProvider,
         AllureConfiguration configuration
     ) =>
-        new SessionUidCorrelation();
+        new TestingPlatformSessionUidCorrelationStrategy();
 
     public static IAllureResultsWriter GetFileSystemResultsWriter(
         IServiceProvider serviceProvider,
@@ -103,7 +103,7 @@ public static class AllureRegistrationFunctions
                 )
             );
 
-        if (frozenRegistration.HostProcessWathdogEnabled)
+        if (frozenRegistration.HostProcessWatchdogEnabled)
         {
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
                 new AllureTestingPlatformHostProcessWatchdog(

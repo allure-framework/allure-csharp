@@ -12,11 +12,11 @@ namespace Allure.TestingPlatform.Internal.Registration;
 
 record class AllureTestingPlatformRegistrationInput(
     AllureTestingPlatformRegistrationMode Mode,
-    bool HostProcessWathdogEnabled,
+    bool HostProcessWatchdogEnabled,
     Func<IServiceProvider, AllureConfiguration, ILogger> LoggerFactory,
     Func<IServiceProvider, AllureConfiguration> ConfigurationFactory,
     Func<IServiceProvider, AllureConfiguration, bool> IsSdkEnabled,
-    Func<IServiceProvider, AllureConfiguration, ICorrelationSource> CorrelationServiceFactory,
+    Func<IServiceProvider, AllureConfiguration, ICorrelationStrategy> CorrelationStrategyFactory,
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> WriterFactory,
     Func<IServiceProvider, AllureConfiguration, IReadOnlyDictionary<Type, ITypeFormatter>> TypeFormattersFactory,
     Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> LifecycleFactory,

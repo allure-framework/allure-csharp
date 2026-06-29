@@ -53,7 +53,7 @@ public abstract class AllureTestingPlatformExtension(
 
     protected AllureLifecycle Lifecycle => this.ReadyRuntime.Lifecycle;
 
-    protected ICorrelationSource CorrelationSource => this.ReadyRuntime.CorrelationSource;
+    protected ICorrelationStrategy CorrelationStrategy => this.ReadyRuntime.CorrelationStrategy;
 
     protected ConfiguredAllureTestingPlatformRuntime ConfiguredRuntime =>
         runtimeProvider is { Value: ConfiguredAllureTestingPlatformRuntime configuredRuntime }

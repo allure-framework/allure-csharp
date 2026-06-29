@@ -4,7 +4,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Correlation;
 
-public class SessionUidCorrelation : ICorrelationSource
+public class TestingPlatformSessionUidCorrelationStrategy : ICorrelationStrategy
 {
     public Task<CorrelationUid?> GetCorrelationAsync(
         IDataProducer dataProducer,

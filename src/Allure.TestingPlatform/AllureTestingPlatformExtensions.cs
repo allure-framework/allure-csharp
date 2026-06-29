@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Builder;
 

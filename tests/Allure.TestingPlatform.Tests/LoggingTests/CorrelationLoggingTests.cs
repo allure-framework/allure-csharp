@@ -5,7 +5,7 @@ using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Tests.LoggingTests;
 
-public class CorrelationLoggingTests : DataConsumerTestsBase<CorrelationServiceStub, LoggerSpy>
+public class CorrelationLoggingTests : DataConsumerTestsBase<CorrelationStrategyStub, LoggerSpy>
 {
     [Test]
     public async Task ShouldLogDiscardedSession()
@@ -34,8 +34,8 @@ public class CorrelationLoggingTests : DataConsumerTestsBase<CorrelationServiceS
                 }
         );
 
-        this.correlationService.NextValues.Enqueue(sharedCorrelationUid.Value);
-        this.correlationService.NextValues.Enqueue(sharedCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(sharedCorrelationUid.Value);
+        this.correlationStrategy.NextValues.Enqueue(sharedCorrelationUid.Value);
 
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session1Test1StopPassed, CancellationToken.None);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2Test2StopPassed, CancellationToken.None);

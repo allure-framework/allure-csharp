@@ -27,9 +27,9 @@ public static class AllureTestingPlatformSdkExtensions
     extension (IEmbeddedAllureRegistrationContext context)
     {
         public IEmbeddedAllureRegistrationContext UseMtpSessionCorrelation() =>
-            context.UseCorrelation((_, _) => new SessionUidCorrelation());
+            context.UseCorrelation((_, _) => new TestingPlatformSessionUidCorrelationStrategy());
 
         public IEmbeddedAllureRegistrationContext UseTestNodeMetadataCorrelation() =>
-            context.UseCorrelation((_, _) => new TestMetadataCorrelation());
+            context.UseCorrelation((_, _) => new TestNodeMetadataCorrelationStrategy());
     }
 }

@@ -58,7 +58,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
     {
         this.allureLifecycleState = new(() => new(this.Lifecycle));
         correlationState = new(() => new(
-            this.CorrelationSource,
+            this.CorrelationStrategy,
             this.Logger
         ));
     }

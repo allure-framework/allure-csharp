@@ -72,7 +72,7 @@ public class IntegrationTests
         {
             Links = ["foo/{issue}/bar"],
         };
-        var correlation = new SessionUidCorrelation();
+        var correlation = new TestingPlatformSessionUidCorrelationStrategy();
         var writer = new InMemoryResultsWriter();
         Dictionary<Type, ITypeFormatter> typeFormatters = new()
         {
@@ -85,7 +85,7 @@ public class IntegrationTests
         IServiceProvider setIsEnabledServiceProvider = null;
         AllureConfiguration setIsEnabledConfiguration = null;
 
-        IServiceProvider useCorrelationServiceProvider = null;
+        IServiceProvider useCorrelationStrategyProvider = null;
         AllureConfiguration useCorrelationConfiguration = null;
 
         IServiceProvider useWriterServiceProvider = null;
@@ -127,7 +127,7 @@ public class IntegrationTests
             });
             ctx.UseCorrelation((sp, cfg) =>
             {
-                useCorrelationServiceProvider = sp;
+                useCorrelationStrategyProvider = sp;
                 useCorrelationConfiguration = cfg;
                 return correlation;
             });
@@ -174,7 +174,7 @@ public class IntegrationTests
                 .IsNotNull();
         await Assert.That(setIsEnabledServiceProvider.GetRequiredService<AllureDataConsumer>())
             .IsSameReferenceAs(dataConsumer);
-        await Assert.That(useCorrelationServiceProvider.GetRequiredService<AllureDataConsumer>())
+        await Assert.That(useCorrelationStrategyProvider.GetRequiredService<AllureDataConsumer>())
             .IsSameReferenceAs(dataConsumer);
         await Assert.That(useWriterServiceProvider.GetRequiredService<AllureDataConsumer>())
             .IsSameReferenceAs(dataConsumer);

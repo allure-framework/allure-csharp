@@ -6,9 +6,9 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Correlation;
 
-public class TestMetadataCorrelation : ICorrelationSource
+public class TestNodeMetadataCorrelationStrategy : ICorrelationStrategy
 {
-    public const string METADATA_KEY = "Allure.TestingPlatform.CorrelationUid";
+    public const string MetadataKey = "Allure.TestingPlatform.CorrelationUid";
 
     public Task<CorrelationUid?> GetCorrelationAsync(
         IDataProducer dataProducer,
@@ -20,7 +20,7 @@ public class TestMetadataCorrelation : ICorrelationSource
                 ? properties
                     .OfType<TestMetadataProperty>()
                     .FirstOrDefault(
-                        static (meta) => meta.Key == METADATA_KEY
+                        static (meta) => meta.Key == MetadataKey
                     )?.Value switch
                     {
                         null => null,

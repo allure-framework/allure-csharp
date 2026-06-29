@@ -11,7 +11,7 @@ using Microsoft.Testing.Platform.TestHost;
 
 namespace Allure.TestingPlatform.Internal.Correlation;
 
-class SessionCorrelationMap(ICorrelationSource correlationService, ILogger logger)
+class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger logger)
 {
     readonly Dictionary<SessionUid, CorrelationUid> correlatedSessions = [];
 
@@ -79,7 +79,7 @@ class SessionCorrelationMap(ICorrelationSource correlationService, ILogger logge
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (await correlationService.GetCorrelationAsync(dataProducer, message, cancellationToken) is CorrelationUid correlationUid)
+        if (await correlationStrategy.GetCorrelationAsync(dataProducer, message, cancellationToken) is CorrelationUid correlationUid)
         {
             if (this.activeCorrelations.TryGetValue(correlationUid, out var existingSession))
             {

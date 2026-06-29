@@ -4,10 +4,10 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Tests;
 
-public class CancellationTests : DataConsumerTestsBase<CancellationTests.CorrelationServiceSpy, ThrowingLoggerStub>
+public class CancellationTests : DataConsumerTestsBase<CancellationTests.CorrelationStrategySpy, ThrowingLoggerStub>
 {
     [Test]
-    public async Task ShouldPassCancellationTokenToCorrelationService()
+    public async Task ShouldPassCancellationTokenToCorrelationStrategy()
     {
         var message = new TestNodeUpdateMessage(
             new("session-1"),
@@ -26,8 +26,8 @@ public class CancellationTests : DataConsumerTestsBase<CancellationTests.Correla
             cancellationTokenSource.Token
         );
 
-        await Assert.That(this.correlationService.WasCalled).IsTrue();
-        await Assert.That(this.correlationService.LastCancellationToken).IsEqualTo(cancellationTokenSource.Token);
+        await Assert.That(this.correlationStrategy.WasCalled).IsTrue();
+        await Assert.That(this.correlationStrategy.LastCancellationToken).IsEqualTo(cancellationTokenSource.Token);
     }
 
     [Test]
@@ -52,7 +52,7 @@ public class CancellationTests : DataConsumerTestsBase<CancellationTests.Correla
         )).Throws<OperationCanceledException>();
     }
 
-    public class CorrelationServiceSpy : ICorrelationSource
+    public class CorrelationStrategySpy : ICorrelationStrategy
     {
         public bool WasCalled { get; private set; }
         public CancellationToken LastCancellationToken { get; private set; }

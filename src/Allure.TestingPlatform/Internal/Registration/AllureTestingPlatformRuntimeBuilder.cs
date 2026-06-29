@@ -98,7 +98,7 @@ class AllureTestingPlatformRuntimeBuilder(
             Mode: input.Mode,
             Logger: logger,
             Configuration: configuration,
-            CorrelationSource: input.CorrelationServiceFactory(serviceProvider, configuration),
+            CorrelationStrategy: input.CorrelationStrategyFactory(serviceProvider, configuration),
             Writer: writer,
             TypeFormatters: typeFormatters,
             Lifecycle: input.LifecycleFactory(

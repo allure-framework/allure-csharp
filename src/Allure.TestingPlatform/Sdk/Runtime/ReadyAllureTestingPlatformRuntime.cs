@@ -12,7 +12,7 @@ public sealed record class ReadyAllureTestingPlatformRuntime(
     AllureTestingPlatformRegistrationMode Mode,
     ILogger Logger,
     AllureConfiguration Configuration,
-    ICorrelationSource CorrelationSource,
+    ICorrelationStrategy CorrelationStrategy,
     IAllureResultsWriter Writer,
     ImmutableDictionary<Type, ITypeFormatter> TypeFormatters,
     AllureLifecycle Lifecycle

@@ -6,7 +6,7 @@ class AllureTestingPlatformPreparedRegistration(
     AllureTestingPlatformRegistrationInput input
 )
 {
-    public bool HostProcessWathdogEnabled => input.HostProcessWathdogEnabled;
+    public bool HostProcessWatchdogEnabled => input.HostProcessWatchdogEnabled;
 
     public AllureTestingPlatformRuntimeRegistry RegistrationResults { get; } = new();
 
