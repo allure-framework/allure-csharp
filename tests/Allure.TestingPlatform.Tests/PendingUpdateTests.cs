@@ -1,7 +1,7 @@
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;

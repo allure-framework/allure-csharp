@@ -1,8 +1,8 @@
-using Allure.TestingPlatform.Sdk;
+// using Allure.TestingPlatform.Sdk;
 
-namespace Allure.TestingPlatform.Tests.Stubs;
+// namespace Allure.TestingPlatform.Tests.Stubs;
 
-public class ExtensionSettingsStub : IAllureExtensionSettings
-{
-    public bool IsEnabled { get; set; } = true;
-}
+// public class ExtensionSettingsStub : IAllureExtensionSettings
+// {
+//     public bool IsEnabled { get; set; } = true;
+// }

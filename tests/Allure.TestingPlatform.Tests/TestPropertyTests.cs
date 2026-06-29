@@ -7,7 +7,7 @@ using Allure.Net.Commons.Attributes;
 using System.Reflection;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Allure.TestingPlatform.Tests.Comparers;
-using Allure.TestingPlatform.Sdk;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Tests;
 

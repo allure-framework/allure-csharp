@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Allure.Net.Commons;
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -8,7 +9,7 @@ public sealed class AllureParametersProperty<TObject>(IEnumerable<Parameter> par
 {
     public List<Parameter> Parameters { get; } = [..parameters];
 
-    public void Apply(IAllureRuntime _, TObject obj)
+    public void Apply(ReadyAllureTestingPlatform _, TObject obj)
     {
         obj.parameters.AddRange(this.Parameters);
     }

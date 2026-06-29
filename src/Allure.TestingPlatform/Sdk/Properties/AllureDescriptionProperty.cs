@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -9,7 +10,7 @@ public sealed class AllureDescriptionProperty<TObject>(string description) : IAl
 
     public bool Append { get; init; } = false;
 
-    public void Apply(IAllureRuntime _, TObject obj)
+    public void Apply(ReadyAllureTestingPlatform _, TObject obj)
     {
         if (this.Append && obj.description is { Length: > 0 })
         {

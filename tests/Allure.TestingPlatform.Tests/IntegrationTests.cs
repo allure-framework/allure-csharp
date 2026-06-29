@@ -4,10 +4,11 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.Net.Commons.Sdk.Writers;
-using Allure.TestingPlatform.Implementation;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
@@ -108,7 +109,7 @@ public class IntegrationTests
             "--show-stderr",
             "None",
         ]);
-        builder.AddAllure(ctx =>
+        builder.AddEmbeddedAllure(ctx =>
         {
             ctx.UseConfiguration((sp) =>
             {
@@ -121,7 +122,7 @@ public class IntegrationTests
                 setIsEnabledConfiguration = cfg;
                 return true;
             });
-            ctx.UseCorrelationService((sp, cfg) =>
+            ctx.UseCorrelation((sp, cfg) =>
             {
                 useCorrelationServiceProvider = sp;
                 useCorrelationConfiguration = cfg;
@@ -224,7 +225,7 @@ public class IntegrationTests
             "--allure",
             "off"
         ]);
-        builder.AddAllure((ctx) => ctx.UseWriter((_, _) => new InMemoryResultsWriter()));
+        builder.AddEmbeddedAllure((ctx) => ctx.UseWriter((_, _) => new InMemoryResultsWriter()));
 
         builder.RegisterTestFramework(
             serviceProvider => new TestFrameworkCapabilities(),
@@ -238,11 +239,11 @@ public class IntegrationTests
         using var app = await builder.BuildAsync();
         var code = await app.RunAsync();
         var dataConsumer = capturedServiceProvider.GetService<AllureDataConsumer>();
-        var runtimeProvider = capturedServiceProvider.GetService<IAllureRuntimeProvider>();
+        var applicationLifetime = capturedServiceProvider.GetService<AllureTestHostApplicationLifetime>();
 
         await Assert.That(code).IsEqualTo(8); // test session run zero tests
         await Assert.That(dataConsumer).IsNull(); // disabled extensions aren't registered
-        await Assert.That(runtimeProvider).IsNull();
+        await Assert.That(applicationLifetime).IsNull();
     }
 
     [Test]
@@ -259,7 +260,7 @@ public class IntegrationTests
             "--show-stderr",
             "None"
         ]);
-        builder.AddAllure((ctx) => ctx
+        builder.AddEmbeddedAllure((ctx) => ctx
             .UseWriter((_, _) => new InMemoryResultsWriter())
             .SetIsEnabled((_, _) => false));
 

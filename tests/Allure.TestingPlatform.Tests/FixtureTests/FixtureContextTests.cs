@@ -1,8 +1,7 @@
-
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Tests.FixtureTests;
 

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Allure.TestingPlatform.Sdk.Properties;
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
@@ -13,11 +15,11 @@ public abstract class DataWithAllureProperties(
 {
     public List<IAllureProperty> Properties { get; init; } = [];
 
-    public void ApplyProperties<T>(IAllureRuntime allure, T target)
+    public void ApplyProperties<T>(ReadyAllureTestingPlatform allureState, T target)
     {
         foreach (var property in this.Properties.OfType<IAllureProperty<T>>())
         {
-            property.Apply(allure, target);
+            property.Apply(allureState, target);
         }
     }
 }

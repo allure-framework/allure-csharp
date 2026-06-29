@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 

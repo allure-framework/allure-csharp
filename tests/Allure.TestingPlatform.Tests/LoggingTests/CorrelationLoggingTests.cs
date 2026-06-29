@@ -1,7 +1,7 @@
 using Allure.TestingPlatform.Tests.Stubs;
-using Allure.TestingPlatform.Sdk;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Logging;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Tests.LoggingTests;
 

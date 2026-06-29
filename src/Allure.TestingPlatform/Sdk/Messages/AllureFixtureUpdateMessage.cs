@@ -1,3 +1,7 @@
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+
 namespace Allure.TestingPlatform.Sdk.Messages;
 
 public sealed class AllureFixtureUpdateMessage(
@@ -13,11 +17,11 @@ public sealed class AllureFixtureUpdateMessage(
 {
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
-    public override void Mutate(IAllureRuntime allure)
+    public override void Mutate(ReadyAllureTestingPlatform allureState)
     {
-        allure.Lifecycle.UpdateFixture((fixture) =>
+        allureState.Lifecycle.UpdateFixture((fixture) =>
         {
-            this.ApplyProperties(allure, fixture);
+            this.ApplyProperties(allureState, fixture);
         });
     }
 }

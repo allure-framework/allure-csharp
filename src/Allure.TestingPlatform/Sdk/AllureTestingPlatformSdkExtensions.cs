@@ -1,48 +1,35 @@
 using System;
-using System.Collections.Immutable;
-using Allure.TestingPlatform.Internal;
-using Allure.TestingPlatform.Registration;
+using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Sdk.Registration;
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+using Microsoft.Testing.Platform.Builder;
 
 namespace Allure.TestingPlatform.Sdk;
 
 public static class AllureTestingPlatformSdkExtensions
 {
-    extension (IAllureRegistrationContext context)
+    extension (ITestApplicationBuilder builder)
     {
-        public IAllureRegistrationContext UseMtpSessionCorrelation() =>
-            context.UseCorrelationService((_, _) => new SessionUidCorrelation());
+        public IAllureTestingPlatformRegistrationResult AddEmbeddedAllure(
+            Action<IEmbeddedRegistrationContext> configureAllure
+        ) =>
+            AllureRegistrationFunctions.RegisterAllureTestingPlatform(
+                builder,
+                configureAllure,
+                AllureTestingPlatformRegistrationMode.Embedded
+            );
 
-        public IAllureRegistrationContext UseTestNodeMetadataCorrelation() =>
-            context.UseCorrelationService((_, _) => new TestMetadataCorrelation());
+        public IAllureTestingPlatformRegistrationResult AddEmbeddedAllure() =>
+            AddEmbeddedAllure(builder, static (_) => {});
     }
 
-    static ImmutableDictionary<IServiceProvider, IAllureExtensionSettings> settingsByServiceProvider =
-        ImmutableDictionary.CreateBuilder<IServiceProvider, IAllureExtensionSettings>(
-            ReferenceEqualityComparer<IServiceProvider>.Instance
-        ).ToImmutable();
-
-    extension (IServiceProvider serviceProvider)
+    extension (IEmbeddedRegistrationContext context)
     {
-        public IAllureExtensionSettings AllureExtensionSettings
-        {
-            get => settingsByServiceProvider.TryGetValue(serviceProvider, out var settings)
-                ? settings
-                : throw new InvalidOperationException(
-                    $"Internal Allure error: cannot get extension settings."
-                );
+        public IEmbeddedRegistrationContext UseMtpSessionCorrelation() =>
+            context.UseCorrelation((_, _) => new SessionUidCorrelation());
 
-            internal set
-            {
-                lock (settingsByServiceProvider)
-                {
-                    settingsByServiceProvider =
-                        settingsByServiceProvider.TryGetValue(serviceProvider, out var _) is false
-                            ? settingsByServiceProvider.Add(serviceProvider, value)
-                            : throw new InvalidOperationException(
-                                $"Internal Allure error: extension settings already defined."
-                            );
-                }
-            }
-        }
+        public IEmbeddedRegistrationContext UseTestNodeMetadataCorrelation() =>
+            context.UseCorrelation((_, _) => new TestMetadataCorrelation());
     }
 }

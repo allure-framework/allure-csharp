@@ -1,4 +1,4 @@
-using Allure.TestingPlatform.Sdk;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
@@ -52,7 +52,7 @@ public class CancellationTests : DataConsumerTestsBase<CancellationTests.Correla
         )).Throws<OperationCanceledException>();
     }
 
-    public class CorrelationServiceSpy : ICorrelationService
+    public class CorrelationServiceSpy : ICorrelationSource
     {
         public bool WasCalled { get; private set; }
         public CancellationToken LastCancellationToken { get; private set; }

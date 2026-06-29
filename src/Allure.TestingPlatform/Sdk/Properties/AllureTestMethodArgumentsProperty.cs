@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -12,7 +13,7 @@ public sealed class AllureTestMethodArgumentsProperty<TObject>(MethodInfo testMe
 
     public List<object> Arguments { get; } = [..arguments];
 
-    public void Apply(IAllureRuntime allure, TObject obj)
+    public void Apply(ReadyAllureTestingPlatform allure, TObject obj)
     {
         obj.parameters.AddRange(
             ModelFunctions.CreateParameters(

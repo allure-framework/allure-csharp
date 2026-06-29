@@ -1,4 +1,5 @@
 using Allure.Net.Commons;
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -6,7 +7,7 @@ public sealed class AllureFullNameProperty(string fullName) : IAllureProperty<Te
 {
     public string FullName { get; } = fullName;
 
-    public void Apply(IAllureRuntime _, TestResult obj)
+    public void Apply(ReadyAllureTestingPlatform _, TestResult obj)
     {
         obj.fullName = this.FullName;
     }

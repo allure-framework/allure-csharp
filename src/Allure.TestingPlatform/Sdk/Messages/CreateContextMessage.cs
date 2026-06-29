@@ -1,3 +1,7 @@
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
+
 namespace Allure.TestingPlatform.Sdk.Messages;
 
 public abstract class CreateContextMessage(
@@ -14,5 +18,5 @@ public abstract class CreateContextMessage(
 
     public IAllureContextUid? ParentContextUid { get; } = parentContextUid;
 
-    public abstract void Mutate(IAllureRuntime allure);
+    public abstract void Mutate(ReadyAllureTestingPlatform allureState);
 }

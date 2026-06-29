@@ -1,6 +1,11 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using Allure.Net.Commons;
+using Microsoft.Testing.Platform.CommandLine;
+using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform.Functions;
 
@@ -14,4 +19,28 @@ public static class TestingPlatformFunctions
             ?.Split('+')
             .First()
             ?? throw new InvalidOperationException("Couldn't read the package version");
+
+    public static bool TryGetDefaultAllureResultsPath(
+        IServiceProvider serviceProvider,
+        [NotNullWhen(true)] out string? allureResultsDir
+    )
+    {
+        if (serviceProvider.GetConfiguration()["platformOptions:resultDirectory"] is { } mtpResultsDir)
+        {
+            allureResultsDir = Path.Combine(mtpResultsDir, AllureConstants.DEFAULT_RESULTS_FOLDER);
+            return true;
+        }
+
+        allureResultsDir = null;
+        return false;
+    }
+
+    public static bool? GetAllureToggleValue(ICommandLineOptions options) =>
+        options.TryGetOptionArgumentList("allure", out var values)
+            ? values[0] == "on"
+            : null;
+
+    public static bool IsAllureEnabled(ICommandLineOptions options) =>
+        !options.TryGetOptionArgumentList("allure", out var values)
+            || values[0] == "on";
 }

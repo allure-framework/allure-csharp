@@ -1,11 +1,12 @@
 using Allure.TestingPlatform.Tests.Stubs;
-using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Messages;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
 
 using AllureTestResult = Allure.Net.Commons.TestResult;
 using Allure.Net.Commons;
+using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Tests;
 

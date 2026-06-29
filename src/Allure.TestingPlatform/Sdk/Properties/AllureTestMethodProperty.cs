@@ -4,6 +4,7 @@ using System.Reflection;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Sdk;
+using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -29,7 +30,7 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) : IAllurePro
 
     public TestMethodUpdateTarget UpdateTargets { get; init; } = TestMethodUpdateTarget.All;
 
-    public void Apply(IAllureRuntime allure, TestResult obj)
+    public void Apply(ReadyAllureTestingPlatform allureState, TestResult obj)
     {
         if (this.ShouldSetFullName)
         {
@@ -53,7 +54,7 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) : IAllurePro
             var parameters = ModelFunctions.CreateParameters(
                 this.TestMethod.GetParameters(),
                 this.Arguments,
-                allure.TypeFormatters);
+                allureState.TypeFormatters);
             obj.parameters.AddRange(parameters);
         }
 
