@@ -15,5 +15,5 @@ public abstract class AllureModelRemoveMessage(
 {
     public IAllureContextUid ContextUid { get; } = contextUid;
 
-    public abstract void ApplyTo(LiveAllureTestingPlatformRuntime allureState);
+    public abstract void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime);
 }

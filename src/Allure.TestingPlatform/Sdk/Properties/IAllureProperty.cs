@@ -7,5 +7,5 @@ public interface IAllureProperty : IProperty;
 
 public interface IAllureProperty<TModel> : IAllureProperty
 {
-    public abstract void Apply(LiveAllureTestingPlatformRuntime allureState, TModel target);
+    public abstract void Apply(LiveAllureTestingPlatformRuntime allureRuntime, TModel target);
 }

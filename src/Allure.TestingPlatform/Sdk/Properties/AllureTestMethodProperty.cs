@@ -19,7 +19,7 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) :
 
     public AllureTestMethodUpdateTargets UpdateTargets { get; init; } = AllureTestMethodUpdateTargets.All;
 
-    public void Apply(LiveAllureTestingPlatformRuntime allureState, TestResult target)
+    public void Apply(LiveAllureTestingPlatformRuntime allureRuntime, TestResult target)
     {
         if (this.ShouldSetFullName)
         {
@@ -43,7 +43,7 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) :
             var parameters = ModelFunctions.CreateParameters(
                 this.TestMethod.GetParameters(),
                 this.Arguments,
-                allureState.TypeFormatters);
+                allureRuntime.TypeFormatters);
             target.parameters.AddRange(parameters);
         }
 

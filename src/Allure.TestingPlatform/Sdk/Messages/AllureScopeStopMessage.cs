@@ -17,9 +17,9 @@ public sealed class AllureScopeStopMessage(
 {
     public ScopeContextUid ScopeUid { get; } = scopeUid;
 
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
-        allureState.Lifecycle
+        allureRuntime.Lifecycle
             .StopTestContainer()
             .WriteTestContainer();
     }

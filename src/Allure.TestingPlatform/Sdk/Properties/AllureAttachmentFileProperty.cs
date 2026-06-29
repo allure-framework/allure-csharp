@@ -17,7 +17,7 @@ public sealed class AllureAttachmentFileProperty<TModel>(string name, string pat
 
     public string FileExtension { get; init; } = System.IO.Path.GetExtension(path);
 
-    public void Apply(LiveAllureTestingPlatformRuntime allureState, TModel target)
+    public void Apply(LiveAllureTestingPlatformRuntime allureRuntime, TModel target)
     {
         var source = ModelFunctions.GetAttachmentSourceName(this.FileExtension);
         var attachment = new Attachment
@@ -26,7 +26,7 @@ public sealed class AllureAttachmentFileProperty<TModel>(string name, string pat
             type = this.ContentType,
             source = source
         };
-        allureState.Writer.Write(source, this.Path);
+        allureRuntime.Writer.Write(source, this.Path);
         target.attachments.Add(attachment);
     }
 }

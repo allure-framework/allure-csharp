@@ -15,11 +15,11 @@ public abstract class AllureModelMessage(
 {
     public List<IAllureProperty> Properties { get; init; } = [];
 
-    public void ApplyProperties<T>(LiveAllureTestingPlatformRuntime allureState, T target)
+    public void ApplyProperties<T>(LiveAllureTestingPlatformRuntime allureRuntime, T target)
     {
         foreach (var property in this.Properties.OfType<IAllureProperty<T>>())
         {
-            property.Apply(allureState, target);
+            property.Apply(allureRuntime, target);
         }
     }
 }

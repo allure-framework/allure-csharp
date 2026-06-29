@@ -23,11 +23,11 @@ public abstract class AllureFixtureStartMessage(
 
     public string FixtureName { get; } = fixtureName;
 
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
         var fixture = this.CreateFixture();
-        this.StartFixture(allureState.Lifecycle, fixture);
-        this.ApplyProperties(allureState, fixture);
+        this.StartFixture(allureRuntime.Lifecycle, fixture);
+        this.ApplyProperties(allureRuntime, fixture);
 
     }
 

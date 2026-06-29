@@ -17,12 +17,12 @@ public sealed class AllureFixtureStopMessage(
 {
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
-        allureState.Lifecycle.UpdateFixture((fixture) =>
+        allureRuntime.Lifecycle.UpdateFixture((fixture) =>
         {
-            this.ApplyProperties(allureState, fixture);
+            this.ApplyProperties(allureRuntime, fixture);
         });
-        allureState.Lifecycle.StopFixture();
+        allureRuntime.Lifecycle.StopFixture();
     }
 }

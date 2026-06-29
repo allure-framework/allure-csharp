@@ -17,11 +17,11 @@ public sealed class AllureTestUpdateMessage(
 {
     public TestContextUid TestUid { get; } = testUid;
 
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureState)
+    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
-        allureState.Lifecycle.UpdateTestCase((test) =>
+        allureRuntime.Lifecycle.UpdateTestCase((test) =>
         {
-            this.ApplyProperties(allureState, test);
+            this.ApplyProperties(allureRuntime, test);
         });
     }
 }
