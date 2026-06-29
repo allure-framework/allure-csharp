@@ -6,13 +6,15 @@ class AllureTestingPlatformPreparedRegistration(
     AllureTestingPlatformRegistrationInput input
 )
 {
-    public AllureTestingPlatformServiceMapper RegistrationResults { get; } = new();
+    public bool HostProcessWathdogEnabled => input.HostProcessWathdogEnabled;
 
-    public AllureTestingPlatformBuilder CreateBuilder(IServiceProvider serviceProvider) =>
+    public AllureTestingPlatformRuntimeRegistry RegistrationResults { get; } = new();
+
+    public AllureTestingPlatformRuntimeBuilder CreateBuilder(IServiceProvider serviceProvider) =>
         new(
             input: input,
             serviceProvider: serviceProvider,
-            allureStateProvider:
-                this.RegistrationResults.GetProvider(serviceProvider)
+            runtimeProvider:
+                this.RegistrationResults.GetRuntimeProvider(serviceProvider)
         );
 }

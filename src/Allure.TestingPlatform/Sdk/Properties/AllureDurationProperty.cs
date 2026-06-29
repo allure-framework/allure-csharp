@@ -1,6 +1,6 @@
 using System;
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -21,7 +21,7 @@ public sealed class AllureDurationProperty<TObject>(long duration) : IAllureProp
 
     public DurationBase RelativeTo { get; init; } = DurationBase.Start;
 
-    public void Apply(ReadyAllureTestingPlatform _, TObject obj)
+    public void Apply(ReadyAllureTestingPlatformRuntime _, TObject obj)
     {
         if (this.RelativeTo == DurationBase.Start)
         {

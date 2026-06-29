@@ -4,7 +4,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.Sdk;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -21,7 +21,7 @@ public sealed class AllureDefaultSuitesProperty(string? parentSuite, string? sui
     {
     }
 
-    public void Apply(ReadyAllureTestingPlatform _, TestResult obj)
+    public void Apply(ReadyAllureTestingPlatformRuntime _, TestResult obj)
     {
         ModelFunctions.EnsureSuites(obj, this.ParentSuite, this.Suite, this.SubSuite);
     }

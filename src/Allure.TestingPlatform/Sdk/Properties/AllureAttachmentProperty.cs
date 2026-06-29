@@ -1,6 +1,6 @@
 using Allure.Net.Commons;
 using Allure.Net.Commons.Functions;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -15,7 +15,7 @@ public sealed class AllureAttachmentProperty<TObject>(string name, byte[] conten
 
     public string FileExtension { get; init; } = "";
 
-    public void Apply(ReadyAllureTestingPlatform allureState, TObject obj)
+    public void Apply(ReadyAllureTestingPlatformRuntime allureState, TObject obj)
     {
         var source = ModelFunctions.GetAttachmentSourceName(this.FileExtension);
         var attachment = new Attachment

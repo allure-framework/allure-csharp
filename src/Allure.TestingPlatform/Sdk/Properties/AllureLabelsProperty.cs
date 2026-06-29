@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -8,7 +8,7 @@ public sealed class AllureLabelsProperty(IEnumerable<Label> labels) : IAllurePro
 {
     public List<Label> Labels { get; } = [..labels];
 
-    public void Apply(ReadyAllureTestingPlatform _, TestResult obj)
+    public void Apply(ReadyAllureTestingPlatformRuntime _, TestResult obj)
     {
         obj.labels.AddRange(this.Labels);
     }

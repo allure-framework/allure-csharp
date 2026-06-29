@@ -1,5 +1,5 @@
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
@@ -23,7 +23,7 @@ public abstract class AllureFixtureStartMessage(
 
     public string FixtureName { get; } = fixtureName;
 
-    public override void Mutate(ReadyAllureTestingPlatform allureState)
+    public override void Mutate(ReadyAllureTestingPlatformRuntime allureState)
     {
         var fixture = this.CreateFixture();
         this.StartFixture(allureState.Lifecycle, fixture);

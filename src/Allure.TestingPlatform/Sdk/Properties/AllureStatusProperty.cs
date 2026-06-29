@@ -1,5 +1,5 @@
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -10,7 +10,7 @@ public sealed class AllureStatusProperty<TObject>(Status status) : IAllureProper
 
     public bool OverwriteDefaultOnly { get; init; } = false;
 
-    public void Apply(ReadyAllureTestingPlatform _, TObject obj)
+    public void Apply(ReadyAllureTestingPlatformRuntime _, TObject obj)
     {
         if (!this.OverwriteDefaultOnly || obj.status is Status.none)
         {

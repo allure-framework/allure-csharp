@@ -4,13 +4,13 @@ using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 
-public interface IEmbeddedRegistrationContext : IStandaloneRegistrationContext
+public interface IEmbeddedAllureRegistrationContext : IStandaloneAllureRegistrationContext
 {
-    IEmbeddedRegistrationContext UseCorrelation(
+    IEmbeddedAllureRegistrationContext UseCorrelation(
         Func<IServiceProvider, AllureConfiguration, ICorrelationSource> correlationServiceFactory
     );
 
-    IEmbeddedRegistrationContext SetSdkEventHandlers(
+    IEmbeddedAllureRegistrationContext SetSdkEventHandlers(
         Action<IAllureTestingPlatformSdkEvents> sdkEventHandlersRegistration
     );
 }

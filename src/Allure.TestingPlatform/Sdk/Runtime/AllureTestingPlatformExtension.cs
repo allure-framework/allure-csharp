@@ -5,7 +5,6 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Functions;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Logging;
@@ -16,7 +15,7 @@ public abstract class AllureTestingPlatformExtension(
     string uid,
     string displayName,
     string description,
-    IAllureTestingPlatformServiceProvider allureTestingPlatformStateProvider
+    IAllureTestingPlatformRuntimeProvider runtimeProvider
 ) :
     IExtension
 {
@@ -29,11 +28,11 @@ public abstract class AllureTestingPlatformExtension(
     public string Description => description;
 
     public virtual Task<bool> IsEnabledAsync() =>
-        allureTestingPlatformStateProvider is
+        runtimeProvider is
         {
             Value:
             {
-                State: not AllureTestingPlatformState.NotInitialized,
+                State: not AllureTestingPlatformRuntimeState.NotInitialized,
                 IsEnabled: var isEnabled,
             },
         }
@@ -42,29 +41,29 @@ public abstract class AllureTestingPlatformExtension(
                 "Unexpected error: Allure.TestingPlatform is misconfigured."
             );
 
-    protected ILogger Logger => ConfiguredState.Logger;
+    protected ILogger Logger => ConfiguredRuntime.Logger;
 
-    protected AllureConfiguration Configuration => ConfiguredState.Configuration;
+    protected AllureConfiguration Configuration => ConfiguredRuntime.Configuration;
 
-    protected IAllureResultsWriter Writer => this.ReadyState.Writer;
+    protected IAllureResultsWriter Writer => this.ReadyRuntime.Writer;
 
     protected ImmutableDictionary<Type, ITypeFormatter> TypeFormatters =>
-        this.ReadyState.TypeFormatters;
+        this.ReadyRuntime.TypeFormatters;
 
-    protected AllureLifecycle Lifecycle => this.ReadyState.Lifecycle;
+    protected AllureLifecycle Lifecycle => this.ReadyRuntime.Lifecycle;
 
-    protected ICorrelationSource CorrelationSource => this.ReadyState.CorrelationSource;
+    protected ICorrelationSource CorrelationSource => this.ReadyRuntime.CorrelationSource;
 
-    protected ConfiguredAllureTestingPlatform ConfiguredState =>
-        allureTestingPlatformStateProvider is { Value: ConfiguredAllureTestingPlatform configuredState }
-            ? configuredState
+    protected ConfiguredAllureTestingPlatformRuntime ConfiguredRuntime =>
+        runtimeProvider is { Value: ConfiguredAllureTestingPlatformRuntime configuredRuntime }
+            ? configuredRuntime
             : throw new InvalidOperationException(
                 "Allure configuration is unavailable. Check if Allure.TestingPlatform is initialized correctly."
             );
 
-    protected ReadyAllureTestingPlatform ReadyState =>
-        allureTestingPlatformStateProvider is { Value: ReadyAllureTestingPlatform readyState }
-            ? readyState
+    protected ReadyAllureTestingPlatformRuntime ReadyRuntime =>
+        runtimeProvider is { Value: ReadyAllureTestingPlatformRuntime readyRuntime }
+            ? readyRuntime
             : throw new InvalidOperationException(
                 "Allure runtime is unavailable. Check if Allure.TestingPlatform is initialized correctly."
             );

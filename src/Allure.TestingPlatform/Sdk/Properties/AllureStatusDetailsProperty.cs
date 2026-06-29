@@ -1,5 +1,5 @@
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -8,7 +8,7 @@ public sealed class AllureStatusDetailsProperty<TObject>(StatusDetails statusDet
 {
     public StatusDetails Value { get; } = statusDetails;
 
-    public void Apply(ReadyAllureTestingPlatform _, TObject obj)
+    public void Apply(ReadyAllureTestingPlatformRuntime _, TObject obj)
     {
         obj.statusDetails = this.Value;
     }

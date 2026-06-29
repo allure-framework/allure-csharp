@@ -6,9 +6,9 @@ using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Microsoft.Testing.Platform.Logging;
 
-namespace Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+namespace Allure.TestingPlatform.Sdk.Runtime;
 
-public sealed record class ReadyAllureTestingPlatform(
+public sealed record class ReadyAllureTestingPlatformRuntime(
     AllureTestingPlatformRegistrationMode Mode,
     ILogger Logger,
     AllureConfiguration Configuration,
@@ -16,9 +16,9 @@ public sealed record class ReadyAllureTestingPlatform(
     IAllureResultsWriter Writer,
     ImmutableDictionary<Type, ITypeFormatter> TypeFormatters,
     AllureLifecycle Lifecycle
-) : ConfiguredAllureTestingPlatform(
+) : ConfiguredAllureTestingPlatformRuntime(
     Mode: Mode,
-    State: AllureTestingPlatformState.Ready,
+    State: AllureTestingPlatformRuntimeState.Ready,
     Logger: Logger,
     Configuration: Configuration,
     IsEnabled: true

@@ -1,5 +1,5 @@
 using Allure.Net.Commons.Functions;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
@@ -22,7 +22,7 @@ public sealed class AllureScopeStartMessage(
 
     public ScopeContextUid? ParentScopeUid { get; } = parentScopeUid;
 
-    public override void Mutate(ReadyAllureTestingPlatform allureState)
+    public override void Mutate(ReadyAllureTestingPlatformRuntime allureState)
     {
         allureState.Lifecycle.StartTestContainer(new() { uuid = IdFunctions.CreateUUID() });
     }

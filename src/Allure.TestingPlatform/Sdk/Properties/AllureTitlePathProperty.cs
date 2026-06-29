@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
@@ -8,7 +8,7 @@ public sealed class AllureTitlePathProperty(IEnumerable<string> titlePath) : IAl
 {
     public List<string> TitlePath { get; } = [..titlePath];
 
-    public void Apply(ReadyAllureTestingPlatform _, TestResult obj)
+    public void Apply(ReadyAllureTestingPlatformRuntime _, TestResult obj)
     {
         obj.titlePath = [..this.TitlePath];
     }

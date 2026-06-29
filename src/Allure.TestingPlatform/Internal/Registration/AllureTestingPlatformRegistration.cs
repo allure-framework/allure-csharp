@@ -6,7 +6,7 @@ using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Registration;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Microsoft.Testing.Platform.Logging;
 
@@ -14,8 +14,10 @@ namespace Allure.TestingPlatform.Internal.Registration;
 
 class AllureTestingPlatformRegistration(
     AllureTestingPlatformRegistrationMode mode
-) : IEmbeddedRegistrationContext, IAllureTestingPlatformSdkEvents
+) : IEmbeddedAllureRegistrationContext, IAllureTestingPlatformSdkEvents
 {
+    bool hostWatchdogEnabled = true;
+
     Func<IServiceProvider, AllureConfiguration> configurationFactory =
         AllureRegistrationFunctions.ReadAllureConfiguration;
 
@@ -37,11 +39,17 @@ class AllureTestingPlatformRegistration(
     Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory =
         AllureRegistrationFunctions.CreateLifecycle;
 
-    public event Action<ConfiguredAllureTestingPlatform>? OnConfigured;
+    public event Action<ConfiguredAllureTestingPlatformRuntime>? OnConfigured;
 
-    public event Action<ReadyAllureTestingPlatform>? OnReady;
+    public event Action<ReadyAllureTestingPlatformRuntime>? OnReady;
 
-    public IStandaloneRegistrationContext UseLogger(
+    public IStandaloneAllureRegistrationContext DisableHostProcessWatchdog()
+    {
+        this.hostWatchdogEnabled = false;
+        return this;
+    }
+
+    public IStandaloneAllureRegistrationContext UseLogger(
         Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory
     )
     {
@@ -49,7 +57,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IStandaloneRegistrationContext UseConfiguration(
+    public IStandaloneAllureRegistrationContext UseConfiguration(
         Func<IServiceProvider, AllureConfiguration> configurationFactory
     )
     {
@@ -57,7 +65,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IStandaloneRegistrationContext SetIsEnabled(
+    public IStandaloneAllureRegistrationContext SetIsEnabled(
         Func<IServiceProvider, AllureConfiguration, bool> isEnabled
     )
     {
@@ -65,7 +73,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IStandaloneRegistrationContext UseWriter(
+    public IStandaloneAllureRegistrationContext UseWriter(
         Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory
     )
     {
@@ -73,7 +81,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IStandaloneRegistrationContext UseTypeFormatters(
+    public IStandaloneAllureRegistrationContext UseTypeFormatters(
         Func<IServiceProvider, AllureConfiguration, IReadOnlyDictionary<Type, ITypeFormatter>> typeFormattersFactory
     )
     {
@@ -81,7 +89,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IStandaloneRegistrationContext UseLifecycle(
+    public IStandaloneAllureRegistrationContext UseLifecycle(
         Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory
     )
     {
@@ -89,7 +97,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IEmbeddedRegistrationContext UseCorrelation(
+    public IEmbeddedAllureRegistrationContext UseCorrelation(
         Func<IServiceProvider, AllureConfiguration, ICorrelationSource> correlationServiceFactory
     )
     {
@@ -97,7 +105,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IEmbeddedRegistrationContext SetSdkEventHandlers(
+    public IEmbeddedAllureRegistrationContext SetSdkEventHandlers(
         Action<IAllureTestingPlatformSdkEvents> sdkEventHandlersRegistration
     )
     {
@@ -105,11 +113,11 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public AllureTestingPlatformPreparedRegistration Prepare()
-    {
-        return new(
+    public AllureTestingPlatformPreparedRegistration Prepare() =>
+        new(
             new(
                 Mode: mode,
+                HostProcessWathdogEnabled: this.hostWatchdogEnabled,
                 LoggerFactory: this.loggerFactory,
                 ConfigurationFactory: this.configurationFactory,
                 IsSdkEnabled: this.isEnabled,
@@ -121,5 +129,4 @@ class AllureTestingPlatformRegistration(
                 OnReady: this.OnReady
             )
         );
-    }
 }

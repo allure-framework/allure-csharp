@@ -6,29 +6,31 @@ using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Registration;
 using Microsoft.Testing.Platform.Logging;
 
-public interface IStandaloneRegistrationContext
+public interface IStandaloneAllureRegistrationContext
 {
-    IStandaloneRegistrationContext UseConfiguration(
+    IStandaloneAllureRegistrationContext DisableHostProcessWatchdog();
+
+    IStandaloneAllureRegistrationContext UseConfiguration(
         Func<IServiceProvider, AllureConfiguration> configurationFactory
     );
 
-    IStandaloneRegistrationContext UseLogger(
+    IStandaloneAllureRegistrationContext UseLogger(
         Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory
     );
 
-    IStandaloneRegistrationContext SetIsEnabled(
+    IStandaloneAllureRegistrationContext SetIsEnabled(
         Func<IServiceProvider, AllureConfiguration, bool> isEnabled
     );
 
-    IStandaloneRegistrationContext UseWriter(
+    IStandaloneAllureRegistrationContext UseWriter(
         Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory
     );
 
-    IStandaloneRegistrationContext UseLifecycle(
+    IStandaloneAllureRegistrationContext UseLifecycle(
         Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory
     );
 
-    IStandaloneRegistrationContext UseTypeFormatters(
+    IStandaloneAllureRegistrationContext UseTypeFormatters(
         Func<IServiceProvider, AllureConfiguration, IReadOnlyDictionary<Type, ITypeFormatter>> typeFormattersFactory
     );
 }

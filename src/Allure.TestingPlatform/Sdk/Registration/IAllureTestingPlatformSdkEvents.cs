@@ -1,11 +1,11 @@
 using System;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 
 public interface IAllureTestingPlatformSdkEvents
 {
-    event Action<ConfiguredAllureTestingPlatform> OnConfigured;
+    event Action<ConfiguredAllureTestingPlatformRuntime> OnConfigured;
 
-    event Action<ReadyAllureTestingPlatform> OnReady;
+    event Action<ReadyAllureTestingPlatformRuntime> OnReady;
 }

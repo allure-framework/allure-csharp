@@ -21,11 +21,11 @@ namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
 public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer, ITestSessionLifetimeHandler
 {
-    readonly Lazy<ApplicationLifecycleState> allureRuntimeState;
+    readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
 
     readonly Lazy<SessionCorrelationMap> correlationState;
 
-    ApplicationLifecycleState AllureRuntimeState => this.allureRuntimeState.Value;
+    TestHostAllureLifecycleState AllureLifecycleState => this.allureLifecycleState.Value;
 
     SessionCorrelationMap CorrelationState => this.correlationState.Value;
 
@@ -47,7 +47,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         typeof(AllureTestUpdateMessage),
     ];
 
-    public AllureDataConsumer(IAllureTestingPlatformServiceProvider allureTestingPlatformStateProvider) :
+    public AllureDataConsumer(IAllureTestingPlatformRuntimeProvider allureTestingPlatformStateProvider) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
@@ -55,7 +55,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
             allureTestingPlatformStateProvider
         )
     {
-        this.allureRuntimeState = new(() => new(this.Lifecycle));
+        this.allureLifecycleState = new(() => new(this.Lifecycle));
         correlationState = new(() => new(
             this.CorrelationSource,
             this.Logger
@@ -69,7 +69,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
     {
         if (this.CorrelationState.RemoveSessionData(testSessionContext.SessionUid) is CorrelationUid correlationUid)
         {
-            this.AllureRuntimeState.RemoveSession(correlationUid);
+            this.AllureLifecycleState.RemoveSession(correlationUid);
         }
         return Task.CompletedTask;
     }
@@ -152,7 +152,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
             return;
         }
 
-        var state = this.AllureRuntimeState.GetOrCreateSessionState(correlationUid);
+        var state = this.AllureLifecycleState.GetOrCreateSessionState(correlationUid);
 
         if (stateProperty is InProgressTestNodeStateProperty)
         {
@@ -193,40 +193,40 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
     async Task ConsumeCreateContextMessage(CreateContextMessage message)
     {
         var parentContextUid = message.ParentContextUid;
-        this.AllureRuntimeState.GetOrCreateSessionState(message.CorrelationUid)
+        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .InheritContext(
                 message.ContextUid,
                 message.ParentContextUid,
-                () => message.Mutate(this.ReadyState)
+                () => message.Mutate(this.ReadyRuntime)
             );
     }
 
     async Task ConsumeMutateModelMessage(MutateModelMessage message)
     {
         var contextUid = message.ContextUid;
-        this.AllureRuntimeState.GetOrCreateSessionState(message.CorrelationUid)
+        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .UpdateContext(
                 message.ContextUid,
-                () => message.Mutate(this.ReadyState)
+                () => message.Mutate(this.ReadyRuntime)
             );
     }
 
     async Task ConsumeRemoveContextMessage(RemoveContextMessage message) =>
-        this.AllureRuntimeState.GetOrCreateSessionState(message.CorrelationUid)
+        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .ReleaseContext(
                 message.ContextUid,
-                () => message.Mutate(this.ReadyState)
+                () => message.Mutate(this.ReadyRuntime)
             );
 
     async Task ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
-        this.AllureRuntimeState.GetOrCreateSessionState(message.CorrelationUid)
+        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .ReleaseScopeContext(
                 message.ScopeUid,
-                () => message.Mutate(this.ReadyState)
+                () => message.Mutate(this.ReadyRuntime)
             );
 
     async Task ConsumeTestsInScopeMessage(AllureTestsScopeMessage message) =>
-        this.AllureRuntimeState.GetOrCreateSessionState(message.CorrelationUid)
+        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .AssociateTestsWithScope(message.ScopeUid, message.TestUids);
 
     void StartTest()

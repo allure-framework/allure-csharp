@@ -1,7 +1,7 @@
 using System;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Registration;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Microsoft.Testing.Platform.Builder;
 
@@ -11,8 +11,8 @@ public static class AllureTestingPlatformSdkExtensions
 {
     extension (ITestApplicationBuilder builder)
     {
-        public IAllureTestingPlatformRegistrationResult AddEmbeddedAllure(
-            Action<IEmbeddedRegistrationContext> configureAllure
+        public IAllureTestingPlatformRuntimeRegistry AddEmbeddedAllure(
+            Action<IEmbeddedAllureRegistrationContext> configureAllure
         ) =>
             AllureRegistrationFunctions.RegisterAllureTestingPlatform(
                 builder,
@@ -20,16 +20,16 @@ public static class AllureTestingPlatformSdkExtensions
                 AllureTestingPlatformRegistrationMode.Embedded
             );
 
-        public IAllureTestingPlatformRegistrationResult AddEmbeddedAllure() =>
+        public IAllureTestingPlatformRuntimeRegistry AddEmbeddedAllure() =>
             AddEmbeddedAllure(builder, static (_) => {});
     }
 
-    extension (IEmbeddedRegistrationContext context)
+    extension (IEmbeddedAllureRegistrationContext context)
     {
-        public IEmbeddedRegistrationContext UseMtpSessionCorrelation() =>
+        public IEmbeddedAllureRegistrationContext UseMtpSessionCorrelation() =>
             context.UseCorrelation((_, _) => new SessionUidCorrelation());
 
-        public IEmbeddedRegistrationContext UseTestNodeMetadataCorrelation() =>
+        public IEmbeddedAllureRegistrationContext UseTestNodeMetadataCorrelation() =>
             context.UseCorrelation((_, _) => new TestMetadataCorrelation());
     }
 }

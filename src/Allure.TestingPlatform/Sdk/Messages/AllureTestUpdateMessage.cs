@@ -1,4 +1,4 @@
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
@@ -17,7 +17,7 @@ public sealed class AllureTestUpdateMessage(
 {
     public TestContextUid TestUid { get; } = testUid;
 
-    public override void Mutate(ReadyAllureTestingPlatform allureState)
+    public override void Mutate(ReadyAllureTestingPlatformRuntime allureState)
     {
         allureState.Lifecycle.UpdateTestCase((test) =>
         {

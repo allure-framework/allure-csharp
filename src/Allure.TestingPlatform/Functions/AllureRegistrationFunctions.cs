@@ -10,7 +10,7 @@ using Allure.TestingPlatform.Internal.Registration;
 using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Registration;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Extensions;
@@ -83,7 +83,7 @@ public static class AllureRegistrationFunctions
                 (p) => p!.Value.Formatter
             );
 
-    internal static IAllureTestingPlatformRegistrationResult RegisterAllureTestingPlatform(
+    internal static IAllureTestingPlatformRuntimeRegistry RegisterAllureTestingPlatform(
         ITestApplicationBuilder builder,
         Action<AllureTestingPlatformRegistration> configureAllure,
         AllureTestingPlatformRegistrationMode registrationMode
@@ -99,12 +99,21 @@ public static class AllureRegistrationFunctions
         var factory =
             new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
                 new AllureDataConsumer(
-                    registrationResults.GetProvider(serviceProvider)
+                    registrationResults.GetRuntimeProvider(serviceProvider)
                 )
             );
 
+        if (frozenRegistration.HostProcessWathdogEnabled)
+        {
+            builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
+                new AllureTestingPlatformHostProcessWatchdog(
+                    frozenRegistration.CreateBuilder(serviceProvider)
+                )
+            );
+        }
+
         builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-            new AllureTestHostApplicationLifetime(
+            new AllureTestingPlatformInProcessOwner(
                 frozenRegistration.CreateBuilder(serviceProvider)
             )
         );

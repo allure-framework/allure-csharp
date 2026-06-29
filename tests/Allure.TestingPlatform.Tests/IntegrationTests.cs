@@ -111,6 +111,9 @@ public class IntegrationTests
         ]);
         builder.AddEmbeddedAllure(ctx =>
         {
+            // Can't use watchdog with a nested MTP application
+            ctx.DisableHostProcessWatchdog();
+
             ctx.UseConfiguration((sp) =>
             {
                 useConfigurationServiceProvider = sp;
@@ -225,7 +228,9 @@ public class IntegrationTests
             "--allure",
             "off"
         ]);
-        builder.AddEmbeddedAllure((ctx) => ctx.UseWriter((_, _) => new InMemoryResultsWriter()));
+        builder.AddEmbeddedAllure((ctx) => ctx
+            .DisableHostProcessWatchdog()
+            .UseWriter((_, _) => new InMemoryResultsWriter()));
 
         builder.RegisterTestFramework(
             serviceProvider => new TestFrameworkCapabilities(),
@@ -239,7 +244,7 @@ public class IntegrationTests
         using var app = await builder.BuildAsync();
         var code = await app.RunAsync();
         var dataConsumer = capturedServiceProvider.GetService<AllureDataConsumer>();
-        var applicationLifetime = capturedServiceProvider.GetService<AllureTestHostApplicationLifetime>();
+        var applicationLifetime = capturedServiceProvider.GetService<AllureTestingPlatformInProcessOwner>();
 
         await Assert.That(code).IsEqualTo(8); // test session run zero tests
         await Assert.That(dataConsumer).IsNull(); // disabled extensions aren't registered
@@ -261,6 +266,7 @@ public class IntegrationTests
             "None"
         ]);
         builder.AddEmbeddedAllure((ctx) => ctx
+            .DisableHostProcessWatchdog()
             .UseWriter((_, _) => new InMemoryResultsWriter())
             .SetIsEnabled((_, _) => false));
 

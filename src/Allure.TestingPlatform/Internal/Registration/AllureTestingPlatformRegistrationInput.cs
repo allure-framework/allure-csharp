@@ -4,7 +4,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Registration;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Microsoft.Testing.Platform.Logging;
 
@@ -12,6 +12,7 @@ namespace Allure.TestingPlatform.Internal.Registration;
 
 record class AllureTestingPlatformRegistrationInput(
     AllureTestingPlatformRegistrationMode Mode,
+    bool HostProcessWathdogEnabled,
     Func<IServiceProvider, AllureConfiguration, ILogger> LoggerFactory,
     Func<IServiceProvider, AllureConfiguration> ConfigurationFactory,
     Func<IServiceProvider, AllureConfiguration, bool> IsSdkEnabled,
@@ -19,6 +20,6 @@ record class AllureTestingPlatformRegistrationInput(
     Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> WriterFactory,
     Func<IServiceProvider, AllureConfiguration, IReadOnlyDictionary<Type, ITypeFormatter>> TypeFormattersFactory,
     Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> LifecycleFactory,
-    Action<ConfiguredAllureTestingPlatform>? OnConfigured,
-    Action<ReadyAllureTestingPlatform>? OnReady
+    Action<ConfiguredAllureTestingPlatformRuntime>? OnConfigured,
+    Action<ReadyAllureTestingPlatformRuntime>? OnReady
 );

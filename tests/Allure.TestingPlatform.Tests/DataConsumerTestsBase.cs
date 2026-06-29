@@ -3,7 +3,7 @@ using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk.Writers;
 using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Logging;
@@ -24,7 +24,7 @@ public abstract class DataConsumerTestsBase<TCorrelationService, TLoggerService>
     protected readonly AllureLifecycle lifecycle;
     protected readonly ImmutableDictionary<Type, ITypeFormatter> typeFormatters;
     protected readonly ServiceProviderStub serviceProvider;
-    protected readonly ReadyAllureTestingPlatform allureState;
+    protected readonly ReadyAllureTestingPlatformRuntime allureState;
     protected readonly AllureStateProviderStub stateProvider;
     protected readonly AllureDataConsumer consumer;
 

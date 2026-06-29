@@ -1,15 +1,15 @@
 using Allure.Net.Commons.Configuration;
 using Microsoft.Testing.Platform.Logging;
 
-namespace Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+namespace Allure.TestingPlatform.Sdk.Runtime;
 
-public record class ConfiguredAllureTestingPlatform(
+public record class ConfiguredAllureTestingPlatformRuntime(
     AllureTestingPlatformRegistrationMode Mode,
-    AllureTestingPlatformState State,
+    AllureTestingPlatformRuntimeState State,
     ILogger Logger,
     AllureConfiguration Configuration,
     bool IsEnabled
-) : AllureTestingPlatform(
+) : AllureTestingPlatformRuntime(
     State: State,
     IsEnabled: IsEnabled
 );

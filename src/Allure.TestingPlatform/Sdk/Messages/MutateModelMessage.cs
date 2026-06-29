@@ -1,4 +1,4 @@
-using Allure.TestingPlatform.Sdk.Runtime.AdapterState;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime.ContextIdentifiers;
 using Allure.TestingPlatform.Sdk.Runtime.Correlation;
 
@@ -15,5 +15,5 @@ public abstract class MutateModelMessage(
 {
     public IAllureContextUid ContextUid { get; } = contextUid;
 
-    public abstract void Mutate(ReadyAllureTestingPlatform allureState);
+    public abstract void Mutate(ReadyAllureTestingPlatformRuntime allureState);
 }
