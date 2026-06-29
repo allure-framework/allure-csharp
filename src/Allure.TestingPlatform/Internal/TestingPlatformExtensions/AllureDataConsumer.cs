@@ -13,7 +13,6 @@ using Microsoft.Testing.Platform.Services;
 using System.Collections.Generic;
 using Microsoft.Testing.Platform.Logging;
 using Allure.TestingPlatform.Internal.Correlation;
-using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.ContextIdentifiers;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk;

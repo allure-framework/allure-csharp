@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
+using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Registration;
-using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Internal.Registration;
 

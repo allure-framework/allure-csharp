@@ -1,3 +1,4 @@
+using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Internal.Registration;

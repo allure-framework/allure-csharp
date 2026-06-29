@@ -1,4 +1,6 @@
-namespace Allure.TestingPlatform.Sdk.Runtime;
+using Allure.TestingPlatform.Sdk.Runtime;
+
+namespace Allure.TestingPlatform.Sdk;
 
 public interface IAllureTestingPlatformRuntimeProvider
 {

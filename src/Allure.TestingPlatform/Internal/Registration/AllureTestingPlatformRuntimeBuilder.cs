@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Services;
 
