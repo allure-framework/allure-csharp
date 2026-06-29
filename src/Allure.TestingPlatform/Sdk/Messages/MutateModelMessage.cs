@@ -15,5 +15,5 @@ public abstract class MutateModelMessage(
 {
     public IAllureContextUid ContextUid { get; } = contextUid;
 
-    public abstract void Mutate(ReadyAllureTestingPlatformRuntime allureState);
+    public abstract void Mutate(LiveAllureTestingPlatformRuntime allureState);
 }

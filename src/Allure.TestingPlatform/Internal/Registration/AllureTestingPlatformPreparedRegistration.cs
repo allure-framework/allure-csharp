@@ -8,13 +8,13 @@ class AllureTestingPlatformPreparedRegistration(
 {
     public bool HostProcessWatchdogEnabled => input.HostProcessWatchdogEnabled;
 
-    public AllureTestingPlatformRuntimeRegistry RegistrationResults { get; } = new();
+    public AllureTestingPlatformRuntimeReferenceRegistry RegistrationResults { get; } = new();
 
-    public AllureTestingPlatformRuntimeBuilder CreateBuilder(IServiceProvider serviceProvider) =>
+    public AllureTestingPlatformRuntimeController CreateController(IServiceProvider serviceProvider) =>
         new(
             input: input,
             serviceProvider: serviceProvider,
-            runtimeProvider:
-                this.RegistrationResults.GetRuntimeProvider(serviceProvider)
+            runtimeReference:
+                this.RegistrationResults.GetRuntimeReference(serviceProvider)
         );
 }

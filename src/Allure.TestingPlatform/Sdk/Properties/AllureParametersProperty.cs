@@ -9,7 +9,7 @@ public sealed class AllureParametersProperty<TObject>(IEnumerable<Parameter> par
 {
     public List<Parameter> Parameters { get; } = [..parameters];
 
-    public void Apply(ReadyAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
     {
         obj.parameters.AddRange(this.Parameters);
     }

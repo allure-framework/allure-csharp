@@ -11,7 +11,7 @@ public static class AllureTestingPlatformSdkExtensions
 {
     extension (ITestApplicationBuilder builder)
     {
-        public IAllureTestingPlatformRuntimeRegistry AddEmbeddedAllure(
+        public IAllureTestingPlatformRuntimeReferenceRegistry AddEmbeddedAllure(
             Action<IEmbeddedAllureRegistrationContext> configureAllure
         ) =>
             AllureRegistrationFunctions.RegisterAllureTestingPlatform(
@@ -20,7 +20,7 @@ public static class AllureTestingPlatformSdkExtensions
                 AllureTestingPlatformRegistrationMode.Embedded
             );
 
-        public IAllureTestingPlatformRuntimeRegistry AddEmbeddedAllure() =>
+        public IAllureTestingPlatformRuntimeReferenceRegistry AddEmbeddedAllure() =>
             AddEmbeddedAllure(builder, static (_) => {});
     }
 

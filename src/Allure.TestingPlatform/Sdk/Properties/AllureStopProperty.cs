@@ -13,7 +13,7 @@ public sealed class AllureStopProperty<TObject>(long stop) : IAllureProperty<TOb
     {
     }
 
-    public void Apply(ReadyAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
     {
         obj.stop = this.Stop;
     }

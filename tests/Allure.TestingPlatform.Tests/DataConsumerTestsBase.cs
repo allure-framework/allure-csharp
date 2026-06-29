@@ -24,8 +24,8 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
     protected readonly AllureLifecycle lifecycle;
     protected readonly ImmutableDictionary<Type, ITypeFormatter> typeFormatters;
     protected readonly ServiceProviderStub serviceProvider;
-    protected readonly ReadyAllureTestingPlatformRuntime allureState;
-    protected readonly AllureRuntimeProviderStub stateProvider;
+    protected readonly LiveAllureTestingPlatformRuntime allureState;
+    protected readonly AllureRuntimeReferenceStub stateProvider;
     protected readonly AllureDataConsumer consumer;
 
     public DataConsumerTestsBase()
@@ -49,10 +49,6 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
         );
 
         this.stateProvider = new(this.allureState);
-
-        // this.extensionSettings = new();
-        // this.runtimeProvider = new(this.allure);
-        // this.serviceProvider = new(this.commandLineOptions, this.runtimeProvider);
 
         this.consumer = new(this.stateProvider);
     }

@@ -83,7 +83,7 @@ public static class AllureRegistrationFunctions
                 (p) => p!.Value.Formatter
             );
 
-    internal static IAllureTestingPlatformRuntimeRegistry RegisterAllureTestingPlatform(
+    internal static IAllureTestingPlatformRuntimeReferenceRegistry RegisterAllureTestingPlatform(
         ITestApplicationBuilder builder,
         Action<AllureTestingPlatformRegistration> configureAllure,
         AllureTestingPlatformRegistrationMode registrationMode
@@ -99,7 +99,7 @@ public static class AllureRegistrationFunctions
         var factory =
             new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
                 new AllureDataConsumer(
-                    registrationResults.GetRuntimeProvider(serviceProvider)
+                    registrationResults.GetRuntimeReference(serviceProvider)
                 )
             );
 
@@ -107,14 +107,14 @@ public static class AllureRegistrationFunctions
         {
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
                 new AllureTestingPlatformHostProcessWatchdog(
-                    frozenRegistration.CreateBuilder(serviceProvider)
+                    frozenRegistration.CreateController(serviceProvider)
                 )
             );
         }
 
         builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-            new AllureTestingPlatformInProcessOwner(
-                frozenRegistration.CreateBuilder(serviceProvider)
+            new AllureTestingPlatformInProcessRuntimeController(
+                frozenRegistration.CreateController(serviceProvider)
             )
         );
         builder.TestHost.AddDataConsumer(factory);

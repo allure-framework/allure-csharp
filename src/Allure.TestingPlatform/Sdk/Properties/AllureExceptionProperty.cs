@@ -10,7 +10,7 @@ public sealed class AllureExceptionProperty<TObject>(Exception exception) : IAll
 {
     public Exception Value { get; } = exception;
 
-    public void Apply(ReadyAllureTestingPlatformRuntime allure, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime allure, TObject obj)
     {
         obj.status = ModelFunctions.ResolveErrorStatus(allure.Configuration.FailExceptions, this.Value);
         obj.statusDetails = ModelFunctions.ToStatusDetails(this.Value);

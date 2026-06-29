@@ -9,7 +9,7 @@ public sealed record class DisabledAllureTestingPlatformRuntime(
     AllureConfiguration Configuration
 ) : ConfiguredAllureTestingPlatformRuntime(
     Mode: Mode,
-    State: AllureTestingPlatformRuntimeState.Disabled,
+    Phase: AllureTestingPlatformRuntimePhase.Disabled,
     Logger: Logger,
     Configuration: Configuration,
     IsEnabled: false

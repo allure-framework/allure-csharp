@@ -7,5 +7,5 @@ public interface IAllureTestingPlatformSdkEvents
 {
     event Action<ConfiguredAllureTestingPlatformRuntime> OnConfigured;
 
-    event Action<ReadyAllureTestingPlatformRuntime> OnReady;
+    event Action<LiveAllureTestingPlatformRuntime> OnLive;
 }

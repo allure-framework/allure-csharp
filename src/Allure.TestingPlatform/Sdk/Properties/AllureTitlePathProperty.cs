@@ -8,7 +8,7 @@ public sealed class AllureTitlePathProperty(IEnumerable<string> titlePath) : IAl
 {
     public List<string> TitlePath { get; } = [..titlePath];
 
-    public void Apply(ReadyAllureTestingPlatformRuntime _, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult obj)
     {
         obj.titlePath = [..this.TitlePath];
     }

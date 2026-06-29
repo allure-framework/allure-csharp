@@ -23,7 +23,7 @@ public abstract class AllureFixtureStartMessage(
 
     public string FixtureName { get; } = fixtureName;
 
-    public override void Mutate(ReadyAllureTestingPlatformRuntime allureState)
+    public override void Mutate(LiveAllureTestingPlatformRuntime allureState)
     {
         var fixture = this.CreateFixture();
         this.StartFixture(allureState.Lifecycle, fixture);

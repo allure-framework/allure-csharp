@@ -10,7 +10,7 @@ public sealed class AllureStatusProperty<TObject>(Status status) : IAllureProper
 
     public bool OverwriteDefaultOnly { get; init; } = false;
 
-    public void Apply(ReadyAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
     {
         if (!this.OverwriteDefaultOnly || obj.status is Status.none)
         {

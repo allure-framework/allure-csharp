@@ -7,18 +7,18 @@ using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform.Internal.Registration;
 
-class AllureTestingPlatformRuntimeBuilder(
+class AllureTestingPlatformRuntimeController(
     AllureTestingPlatformRegistrationInput input,
     IServiceProvider serviceProvider,
-    AllureTestingPlatformRuntimeProvider runtimeProvider
+    AllureTestingPlatformRuntimeReference runtimeReference
 ) :
-    IAllureTestingPlatformRuntimeOwner
+    IAllureTestingPlatformRuntimeController
 {
-    IAllureTestingPlatformRuntimeProvider IAllureTestingPlatformRuntimeOwner.RuntimeProvider => runtimeProvider;
+    IAllureTestingPlatformRuntimeReference IAllureTestingPlatformRuntimeController.RuntimeReference => runtimeReference;
 
-    public AllureTestingPlatformRuntime Configure()
+    public AllureTestingPlatformRuntimeState Configure()
     {
-        _ = runtimeProvider.Value switch
+        _ = runtimeReference.CurrentRuntime switch
         {
             SuppressedAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
@@ -26,7 +26,7 @@ class AllureTestingPlatformRuntimeBuilder(
                         + "Allure.TestingPlatform is suppressed via the CLI"
                 ),
 
-            { State: not AllureTestingPlatformRuntimeState.NotInitialized } =>
+            { Phase: not AllureTestingPlatformRuntimePhase.NotInitialized } =>
                 throw new InvalidOperationException(
                     "Cannot configure Allure.TestingPlatform: "
                         + "Allure.TestingPlatform is already configured"
@@ -39,63 +39,63 @@ class AllureTestingPlatformRuntimeBuilder(
         var allureToggle = TestingPlatformFunctions.GetAllureToggleValue(cliOptions);
         if (allureToggle == false)
         {
-            var suppressedState = new SuppressedAllureTestingPlatformRuntime(input.Mode);
-            runtimeProvider.Value = suppressedState;
-            return suppressedState;
+            var suppressedRuntime = new SuppressedAllureTestingPlatformRuntime(input.Mode);
+            runtimeReference.CurrentRuntime = suppressedRuntime;
+            return suppressedRuntime;
         }
 
         var configuration = input.ConfigurationFactory(serviceProvider);
         var logger = input.LoggerFactory(serviceProvider, configuration);
 
-        ConfiguredAllureTestingPlatformRuntime configuredState =
+        ConfiguredAllureTestingPlatformRuntime configuredRuntime =
             allureToggle is null && !input.IsSdkEnabled(serviceProvider, configuration)
                 ? new DisabledAllureTestingPlatformRuntime(input.Mode, logger, configuration)
                 : new EnabledAllureTestingPlatformRuntime(input.Mode, logger, configuration);
 
-        runtimeProvider.Value = configuredState;
-        input.OnConfigured?.Invoke(configuredState);
+        runtimeReference.CurrentRuntime = configuredRuntime;
+        input.OnConfigured?.Invoke(configuredRuntime);
 
-        return configuredState;
+        return configuredRuntime;
     }
 
-    public AllureTestingPlatformRuntime Build()
+    public AllureTestingPlatformRuntimeState Start()
     {
-        var configuredState = runtimeProvider.Value switch
+        var configuredRuntime = runtimeReference.CurrentRuntime switch
         {
             EnabledAllureTestingPlatformRuntime catp => catp,
 
             SuppressedAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
-                    "Cannot create Allure.TestingPlatform runtime: "
-                        + "Allure.TestingPlatform is suppressed via the CLI"
+                    "Cannot start Allure.TestingPlatform runtime: "
+                        + "the runtime is suppressed via the CLI"
                 ),
 
             DisabledAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
-                    "Cannot create Allure.TestingPlatform runtime: "
-                        + "Allure.TestingPlatform is disabled"
+                    "Cannot start Allure.TestingPlatform runtime: "
+                        + "the runtime is disabled"
                 ),
 
-            ReadyAllureTestingPlatformRuntime =>
+            LiveAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
-                    "Cannot create Allure.TestingPlatform runtime: "
-                        + "the runtime was already created"
+                    "Cannot start Allure.TestingPlatform runtime: "
+                        + "the runtime is already live"
                 ),
 
             _ => throw new InvalidOperationException(
-                "Cannot create Allure.TestingPlatform runtime: "
+                "Cannot start Allure.TestingPlatform runtime: "
                     + "Allure.TestingPlatform must be configured first"
             ),
         };
 
-        var configuration = configuredState.Configuration;
-        var logger = configuredState.Logger;
+        var configuration = configuredRuntime.Configuration;
+        var logger = configuredRuntime.Logger;
 
         var writer = input.WriterFactory(serviceProvider, configuration);
         var typeFormatters = input.TypeFormattersFactory(serviceProvider, configuration)
             .ToImmutableDictionary();
 
-        var readyState = new ReadyAllureTestingPlatformRuntime(
+        var liveRuntime = new LiveAllureTestingPlatformRuntime(
             Mode: input.Mode,
             Logger: logger,
             Configuration: configuration,
@@ -111,8 +111,8 @@ class AllureTestingPlatformRuntimeBuilder(
                 )
             )
         );
-        runtimeProvider.Value = readyState;
-        input.OnReady?.Invoke(readyState);
-        return readyState;
+        runtimeReference.CurrentRuntime = liveRuntime;
+        input.OnLive?.Invoke(liveRuntime);
+        return liveRuntime;
     }
 }

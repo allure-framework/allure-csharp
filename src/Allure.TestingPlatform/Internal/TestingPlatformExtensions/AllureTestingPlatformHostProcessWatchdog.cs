@@ -7,13 +7,13 @@ using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
 public class AllureTestingPlatformHostProcessWatchdog(
-    IAllureTestingPlatformRuntimeOwner runtimeOwner
+    IAllureTestingPlatformRuntimeController runtimeController
 ) :
-    AllureTestingPlatformRuntimeOwningExtension(
+    AllureTestingPlatformRuntimeResponsibleExtension(
         "939b0d5f-517d-4abb-968e-593bc4f67f0c",
         "Allure.TestingPlatform crash watcher",
         "Emits an Allure global error is the test host crashes.",
-        runtimeOwner
+        runtimeController
     ),
     ITestHostProcessLifetimeHandler
 {
@@ -26,7 +26,7 @@ public class AllureTestingPlatformHostProcessWatchdog(
     )
     {
         if (testHostProcessInformation is { HasExitedGracefully: false, ExitCode: var exitCode, PID: var pid }
-            && this.EnsureBuilt() is ReadyAllureTestingPlatformRuntime { Writer: var writer })
+            && this.EnsureRuntimeStarted() is LiveAllureTestingPlatformRuntime { Writer: var writer })
         {
             var message = $"Test host application process (PID={pid}) has crashed. Exit code: {exitCode}";
             writer.Write(new Globals { errors = [ new(){ message = message } ] });

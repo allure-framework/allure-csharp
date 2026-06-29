@@ -21,5 +21,5 @@ record class AllureTestingPlatformRegistrationInput(
     Func<IServiceProvider, AllureConfiguration, IReadOnlyDictionary<Type, ITypeFormatter>> TypeFormattersFactory,
     Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> LifecycleFactory,
     Action<ConfiguredAllureTestingPlatformRuntime>? OnConfigured,
-    Action<ReadyAllureTestingPlatformRuntime>? OnReady
+    Action<LiveAllureTestingPlatformRuntime>? OnLive
 );

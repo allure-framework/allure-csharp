@@ -244,7 +244,7 @@ public class IntegrationTests
         using var app = await builder.BuildAsync();
         var code = await app.RunAsync();
         var dataConsumer = capturedServiceProvider.GetService<AllureDataConsumer>();
-        var applicationLifetime = capturedServiceProvider.GetService<AllureTestingPlatformInProcessOwner>();
+        var applicationLifetime = capturedServiceProvider.GetService<AllureTestingPlatformInProcessRuntimeController>();
 
         await Assert.That(code).IsEqualTo(8); // test session run zero tests
         await Assert.That(dataConsumer).IsNull(); // disabled extensions aren't registered

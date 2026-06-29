@@ -43,7 +43,7 @@ class AllureTestingPlatformRegistration(
 
     public event Action<ConfiguredAllureTestingPlatformRuntime>? OnConfigured;
 
-    public event Action<ReadyAllureTestingPlatformRuntime>? OnReady;
+    public event Action<LiveAllureTestingPlatformRuntime>? OnLive;
 
     public IStandaloneAllureRegistrationContext DisableHostProcessWatchdog()
     {
@@ -128,7 +128,7 @@ class AllureTestingPlatformRegistration(
                 TypeFormattersFactory: this.typeFormattersFactory,
                 LifecycleFactory: this.lifecycleFactory,
                 OnConfigured: this.OnConfigured,
-                OnReady: this.OnReady
+                OnLive: this.OnLive
             )
         );
 }

@@ -8,7 +8,7 @@ using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Sdk.Runtime;
 
-public sealed record class ReadyAllureTestingPlatformRuntime(
+public sealed record class LiveAllureTestingPlatformRuntime(
     AllureTestingPlatformRegistrationMode Mode,
     ILogger Logger,
     AllureConfiguration Configuration,
@@ -18,7 +18,7 @@ public sealed record class ReadyAllureTestingPlatformRuntime(
     AllureLifecycle Lifecycle
 ) : ConfiguredAllureTestingPlatformRuntime(
     Mode: Mode,
-    State: AllureTestingPlatformRuntimeState.Ready,
+    Phase: AllureTestingPlatformRuntimePhase.Live,
     Logger: Logger,
     Configuration: Configuration,
     IsEnabled: true

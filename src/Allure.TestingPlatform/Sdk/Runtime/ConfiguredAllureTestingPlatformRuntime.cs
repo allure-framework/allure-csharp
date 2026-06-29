@@ -5,11 +5,11 @@ namespace Allure.TestingPlatform.Sdk.Runtime;
 
 public record class ConfiguredAllureTestingPlatformRuntime(
     AllureTestingPlatformRegistrationMode Mode,
-    AllureTestingPlatformRuntimeState State,
+    AllureTestingPlatformRuntimePhase Phase,
     ILogger Logger,
     AllureConfiguration Configuration,
     bool IsEnabled
-) : AllureTestingPlatformRuntime(
-    State: State,
+) : AllureTestingPlatformRuntimeState(
+    Phase: Phase,
     IsEnabled: IsEnabled
 );

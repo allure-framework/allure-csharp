@@ -5,21 +5,21 @@ using Microsoft.Testing.Platform.Extensions.TestHost;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
-public class AllureTestingPlatformInProcessOwner(
-    IAllureTestingPlatformRuntimeOwner runtimeOwner
+public class AllureTestingPlatformInProcessRuntimeController(
+    IAllureTestingPlatformRuntimeController runtimeController
 ) :
-    AllureTestingPlatformRuntimeOwningExtension(
+    AllureTestingPlatformRuntimeResponsibleExtension(
         "25aa78ea-da43-40ce-9fcf-356941b2f8cb",
         "Allure.TestingPlatform lifetime",
         "Ensures Allure.TestingPlatform runtime is initialized correctly, early, "
             + "and exactly once per test host application.",
-        runtimeOwner
+        runtimeController
     ),
     ITestHostApplicationLifetime
 {
     public Task BeforeRunAsync(CancellationToken cancellationToken)
     {
-        this.EnsureBuilt();
+        this.Controller.Start();
         return Task.CompletedTask;
     }
 

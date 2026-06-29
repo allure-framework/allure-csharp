@@ -47,12 +47,12 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         typeof(AllureTestUpdateMessage),
     ];
 
-    public AllureDataConsumer(IAllureTestingPlatformRuntimeProvider allureTestingPlatformStateProvider) :
+    public AllureDataConsumer(IAllureTestingPlatformRuntimeReference runtimeReference) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
             "Creates Allure results from Microsoft Testing Platform messages",
-            allureTestingPlatformStateProvider
+            runtimeReference
         )
     {
         this.allureLifecycleState = new(() => new(this.Lifecycle));
@@ -197,7 +197,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
             .InheritContext(
                 message.ContextUid,
                 message.ParentContextUid,
-                () => message.Mutate(this.ReadyRuntime)
+                () => message.Mutate(this.LiveRuntime)
             );
     }
 
@@ -207,7 +207,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .UpdateContext(
                 message.ContextUid,
-                () => message.Mutate(this.ReadyRuntime)
+                () => message.Mutate(this.LiveRuntime)
             );
     }
 
@@ -215,14 +215,14 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .ReleaseContext(
                 message.ContextUid,
-                () => message.Mutate(this.ReadyRuntime)
+                () => message.Mutate(this.LiveRuntime)
             );
 
     async Task ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .ReleaseScopeContext(
                 message.ScopeUid,
-                () => message.Mutate(this.ReadyRuntime)
+                () => message.Mutate(this.LiveRuntime)
             );
 
     async Task ConsumeTestsInScopeMessage(AllureTestsScopeMessage message) =>

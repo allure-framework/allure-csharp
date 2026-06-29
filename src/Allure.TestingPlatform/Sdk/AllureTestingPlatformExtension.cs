@@ -16,7 +16,7 @@ public abstract class AllureTestingPlatformExtension(
     string uid,
     string displayName,
     string description,
-    IAllureTestingPlatformRuntimeProvider runtimeProvider
+    IAllureTestingPlatformRuntimeReference runtimeReference
 ) :
     IExtension
 {
@@ -29,11 +29,11 @@ public abstract class AllureTestingPlatformExtension(
     public string Description => description;
 
     public virtual Task<bool> IsEnabledAsync() =>
-        runtimeProvider is
+        runtimeReference is
         {
-            Value:
+            CurrentRuntime:
             {
-                State: not AllureTestingPlatformRuntimeState.NotInitialized,
+                Phase: not AllureTestingPlatformRuntimePhase.NotInitialized,
                 IsEnabled: var isEnabled,
             },
         }
@@ -46,25 +46,25 @@ public abstract class AllureTestingPlatformExtension(
 
     protected AllureConfiguration Configuration => ConfiguredRuntime.Configuration;
 
-    protected IAllureResultsWriter Writer => this.ReadyRuntime.Writer;
+    protected IAllureResultsWriter Writer => this.LiveRuntime.Writer;
 
     protected ImmutableDictionary<Type, ITypeFormatter> TypeFormatters =>
-        this.ReadyRuntime.TypeFormatters;
+        this.LiveRuntime.TypeFormatters;
 
-    protected AllureLifecycle Lifecycle => this.ReadyRuntime.Lifecycle;
+    protected AllureLifecycle Lifecycle => this.LiveRuntime.Lifecycle;
 
-    protected ICorrelationStrategy CorrelationStrategy => this.ReadyRuntime.CorrelationStrategy;
+    protected ICorrelationStrategy CorrelationStrategy => this.LiveRuntime.CorrelationStrategy;
 
     protected ConfiguredAllureTestingPlatformRuntime ConfiguredRuntime =>
-        runtimeProvider is { Value: ConfiguredAllureTestingPlatformRuntime configuredRuntime }
+        runtimeReference is { CurrentRuntime: ConfiguredAllureTestingPlatformRuntime configuredRuntime }
             ? configuredRuntime
             : throw new InvalidOperationException(
                 "Allure configuration is unavailable. Check if Allure.TestingPlatform is initialized correctly."
             );
 
-    protected ReadyAllureTestingPlatformRuntime ReadyRuntime =>
-        runtimeProvider is { Value: ReadyAllureTestingPlatformRuntime readyRuntime }
-            ? readyRuntime
+    protected LiveAllureTestingPlatformRuntime LiveRuntime =>
+        runtimeReference is { CurrentRuntime: LiveAllureTestingPlatformRuntime liveRuntime }
+            ? liveRuntime
             : throw new InvalidOperationException(
                 "Allure runtime is unavailable. Check if Allure.TestingPlatform is initialized correctly."
             );

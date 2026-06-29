@@ -17,7 +17,7 @@ public sealed class AllureTestUpdateMessage(
 {
     public TestContextUid TestUid { get; } = testUid;
 
-    public override void Mutate(ReadyAllureTestingPlatformRuntime allureState)
+    public override void Mutate(LiveAllureTestingPlatformRuntime allureState)
     {
         allureState.Lifecycle.UpdateTestCase((test) =>
         {

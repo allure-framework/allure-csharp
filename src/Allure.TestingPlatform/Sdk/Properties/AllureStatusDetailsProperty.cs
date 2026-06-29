@@ -8,7 +8,7 @@ public sealed class AllureStatusDetailsProperty<TObject>(StatusDetails statusDet
 {
     public StatusDetails Value { get; } = statusDetails;
 
-    public void Apply(ReadyAllureTestingPlatformRuntime _, TObject obj)
+    public void Apply(LiveAllureTestingPlatformRuntime _, TObject obj)
     {
         obj.statusDetails = this.Value;
     }

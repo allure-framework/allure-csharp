@@ -15,7 +15,7 @@ public abstract class DataWithAllureProperties(
 {
     public List<IAllureProperty> Properties { get; init; } = [];
 
-    public void ApplyProperties<T>(ReadyAllureTestingPlatformRuntime allureState, T target)
+    public void ApplyProperties<T>(LiveAllureTestingPlatformRuntime allureState, T target)
     {
         foreach (var property in this.Properties.OfType<IAllureProperty<T>>())
         {

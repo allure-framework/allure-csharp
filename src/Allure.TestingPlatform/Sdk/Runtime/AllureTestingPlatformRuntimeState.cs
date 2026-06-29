@@ -1,10 +1,11 @@
 namespace Allure.TestingPlatform.Sdk.Runtime;
 
-public enum AllureTestingPlatformRuntimeState
+public record class AllureTestingPlatformRuntimeState(
+    AllureTestingPlatformRuntimePhase Phase,
+    bool IsEnabled
+)
 {
-    NotInitialized,
-    Suppressed,
-    Disabled,
-    Configured,
-    Ready,
+    public AllureTestingPlatformRuntimeState() : this(AllureTestingPlatformRuntimePhase.NotInitialized, false)
+    {
+    }
 }

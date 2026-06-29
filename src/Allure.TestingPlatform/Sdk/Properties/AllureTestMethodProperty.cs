@@ -30,7 +30,7 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) : IAllurePro
 
     public TestMethodUpdateTarget UpdateTargets { get; init; } = TestMethodUpdateTarget.All;
 
-    public void Apply(ReadyAllureTestingPlatformRuntime allureState, TestResult obj)
+    public void Apply(LiveAllureTestingPlatformRuntime allureState, TestResult obj)
     {
         if (this.ShouldSetFullName)
         {
