@@ -6,10 +6,11 @@ using Allure.Net.Commons.Configuration;
 using Allure.Net.Commons.Sdk;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Correlation;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Logging;
 
-namespace Allure.TestingPlatform.Sdk.Runtime;
+namespace Allure.TestingPlatform.Sdk;
 
 public abstract class AllureTestingPlatformExtension(
     string uid,

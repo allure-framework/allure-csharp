@@ -16,6 +16,7 @@ using Allure.TestingPlatform.Internal.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.ContextIdentifiers;
 using Allure.TestingPlatform.Sdk.Correlation;
+using Allure.TestingPlatform.Sdk;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 

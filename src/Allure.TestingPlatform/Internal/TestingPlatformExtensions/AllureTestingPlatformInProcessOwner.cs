@@ -8,7 +8,7 @@ namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 public class AllureTestingPlatformInProcessOwner(
     IAllureTestingPlatformRuntimeOwner runtimeOwner
 ) :
-    AllureTestingPlatformOwningExtension(
+    AllureTestingPlatformRuntimeOwningExtension(
         "25aa78ea-da43-40ce-9fcf-356941b2f8cb",
         "Allure.TestingPlatform lifetime",
         "Ensures Allure.TestingPlatform runtime is initialized correctly, early, "
