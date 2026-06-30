@@ -63,6 +63,32 @@ public class ConfigurationDiscoveryTests
     }
 
     [Test]
+    public async Task ShouldReadCustomConfigurationTypeFromExplicitFile()
+    {
+        using var temp = TempDirectory.Create();
+        var configPath = temp.WriteConfig(
+            """
+            {
+              "allure": {
+                "title": "Custom title",
+                "customValue": "Custom value"
+              }
+            }
+            """
+        );
+
+        var config = ConfigurationFunctions.ReadConfiguration<CustomAllureConfiguration>(
+            _ => null,
+            new ServiceProviderStub(),
+            configPath
+        );
+
+        var customConfig = await Assert.That(config).IsTypeOf<CustomAllureConfiguration>();
+        await Assert.That(customConfig.CustomValue).IsEqualTo("Custom value");
+        await Assert.That(customConfig.Title).IsEqualTo("Custom title");
+    }
+
+    [Test]
     public async Task ShouldReadPathFromEnvironmentVariableIfNotProvidedExplicitly()
     {
         string actualEnvVarName = null;
@@ -385,6 +411,11 @@ public class ConfigurationDiscoveryTests
 
             throw new NotImplementedException();
         }
+    }
+
+    sealed class CustomAllureConfiguration : AllureConfiguration
+    {
+        public string CustomValue { get; set; }
     }
 
     sealed class ConfigurationStub(params (string Key, string Value)[] values) : IConfiguration
