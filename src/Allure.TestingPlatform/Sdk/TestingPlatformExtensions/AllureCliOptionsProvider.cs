@@ -29,21 +29,44 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
             """,
             ArgumentArity.ExactlyOne,
             false
+        ),
+        new(
+            "allure-watchdog",
+            """
+            Determines if Allure Watchdog must be enabled. Allure Watchdog adds a global error
+            to the report if the test process crashes.
+                on: Allure Watchdog is enabled [default]
+                off: Allure Watchdog is disabled
+            """,
+            ArgumentArity.ExactlyOne,
+            false
         )
     ];
 
-    public Task<ValidationResult> ValidateOptionArgumentsAsync(CommandLineOption commandOption, string[] arguments)
-    {
-        if (commandOption.Name == "allure" && arguments[0] is not ("on" or "off"))
-        {
-            return ValidationResult.InvalidTask("the value must be 'on' or 'off'");
-        }
-
-        return ValidationResult.ValidTask;
-    }
+    public Task<ValidationResult> ValidateOptionArgumentsAsync(
+        CommandLineOption commandOption,
+        string[] arguments
+    ) =>
+        commandOption is { Name: "allure" or "allure-watchdog" } && arguments[0] is not ("on" or "off")
+            ? ValidationResult.InvalidTask("the value must be 'on' or 'off'")
+            : ValidationResult.ValidTask;
 
     public Task<ValidationResult> ValidateCommandLineOptionsAsync(ICommandLineOptions commandLineOptions)
     {
         return ValidationResult.ValidTask;
     }
+
+    public static bool? GetAllureToggleValue(ICommandLineOptions options) =>
+        options.TryGetOptionArgumentList("allure", out var values)
+            ? values[0] == "on"
+            : null;
+
+    public static bool IsAllureEnabled(ICommandLineOptions options) =>
+        !options.TryGetOptionArgumentList("allure", out var values)
+            || values[0] == "on";
+
+    public static bool? GetWatchdogToggleValue(ICommandLineOptions options) =>
+        options.TryGetOptionArgumentList("allure-watchdog", out var values)
+            ? values[0] == "on"
+            : null;
 }

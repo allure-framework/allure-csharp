@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Immutable;
-using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Runtime;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform.Internal.Registration;
@@ -36,7 +36,7 @@ class AllureTestingPlatformRuntimeController(
         };
 
         var cliOptions = serviceProvider.GetCommandLineOptions();
-        var allureToggle = TestingPlatformFunctions.GetAllureToggleValue(cliOptions);
+        var allureToggle = AllureCliOptionsProvider.GetAllureToggleValue(cliOptions);
         if (allureToggle == false)
         {
             var suppressedRuntime = new SuppressedAllureTestingPlatformRuntime(input.Mode);

@@ -6,6 +6,7 @@ using Microsoft.Testing.Platform.Builder;
 using Allure.TestingPlatform.Internal.Registration;
 using Microsoft.Testing.Platform.Extensions;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform.Sdk;
 
@@ -32,14 +33,14 @@ public static class AllureTestingPlatformSdkExtensions
                     )
                 );
 
-            if (frozenRegistration.HostProcessWatchdogEnabled)
-            {
-                builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
-                    new AllureTestingPlatformHostProcessWatchdog(
-                        frozenRegistration.CreateController(serviceProvider)
-                    )
-                );
-            }
+            builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
+                new AllureTestingPlatformHostProcessWatchdog(
+                    isEnabled: AllureCliOptionsProvider.GetWatchdogToggleValue(
+                        serviceProvider.GetCommandLineOptions()
+                    ) ?? frozenRegistration.HostProcessWatchdogEnabled,
+                    runtimeController: frozenRegistration.CreateController(serviceProvider)
+                )
+            );
 
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
                 new AllureTestingPlatformInProcessRuntimeController(

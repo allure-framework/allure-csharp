@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Allure.Net.Commons;
-using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform.Functions;
@@ -34,13 +33,4 @@ public static class TestingPlatformFunctions
         allureResultsDir = null;
         return false;
     }
-
-    public static bool? GetAllureToggleValue(ICommandLineOptions options) =>
-        options.TryGetOptionArgumentList("allure", out var values)
-            ? values[0] == "on"
-            : null;
-
-    public static bool IsAllureEnabled(ICommandLineOptions options) =>
-        !options.TryGetOptionArgumentList("allure", out var values)
-            || values[0] == "on";
 }

@@ -1,5 +1,4 @@
 using System.Xml.Linq;
-using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Extensions.CommandLine;
@@ -42,9 +41,9 @@ public class CliOptionsProviderTests
     [Test]
     public async Task ShouldExposeAllureToggleOption()
     {
-        var option = await Assert.That(this.provider.GetCommandLineOptions()).HasSingleItem();
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure");
 
-        await Assert.That(option.Name).IsEqualTo("allure");
         await Assert.That(option.Arity).IsEqualTo(ArgumentArity.ExactlyOne);
         await Assert.That(option.IsHidden).IsFalse();
         await Assert.That(option.Description)
@@ -53,11 +52,26 @@ public class CliOptionsProviderTests
     }
 
     [Test]
+    public async Task ShouldExposeAllureWatchdogToggleOption()
+    {
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure-watchdog");
+
+        await Assert.That(option.Arity).IsEqualTo(ArgumentArity.ExactlyOne);
+        await Assert.That(option.IsHidden).IsFalse();
+        await Assert.That(option.Description)
+            .Contains("on")
+            .And.Contains("off")
+            .And.Contains("crashes");
+    }
+
+    [Test]
     [Arguments("on")]
     [Arguments("off")]
     public async Task ShouldAcceptAllureToggleValues(string value)
     {
-        var option = await Assert.That(this.provider.GetCommandLineOptions()).HasSingleItem();
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure");
 
         var result = await this.provider.ValidateOptionArgumentsAsync(option, [value]);
 
@@ -72,7 +86,38 @@ public class CliOptionsProviderTests
     [Arguments("")]
     public async Task ShouldRejectInvalidAllureToggleValues(string value)
     {
-        var option = await Assert.That(this.provider.GetCommandLineOptions()).HasSingleItem();
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure");
+
+        var result = await this.provider.ValidateOptionArgumentsAsync(option, [value]);
+
+        await Assert.That(result.IsValid).IsFalse();
+        await Assert.That(result.ErrorMessage).IsEqualTo("the value must be 'on' or 'off'");
+    }
+
+    [Test]
+    [Arguments("on")]
+    [Arguments("off")]
+    public async Task ShouldAcceptAllureWatchdogToggleValues(string value)
+    {
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure-watchdog");
+
+        var result = await this.provider.ValidateOptionArgumentsAsync(option, [value]);
+
+        await Assert.That(result.IsValid).IsTrue();
+        await Assert.That(result.ErrorMessage).IsNull();
+    }
+
+    [Test]
+    [Arguments("true")]
+    [Arguments("false")]
+    [Arguments("enabled")]
+    [Arguments("")]
+    public async Task ShouldRejectInvalidAllureWatchdogToggleValues(string value)
+    {
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure-watchdog");
 
         var result = await this.provider.ValidateOptionArgumentsAsync(option, [value]);
 
@@ -110,12 +155,24 @@ public class CliOptionsProviderTests
     [Test]
     public async Task ShouldReadAllureToggleValue()
     {
-        await Assert.That(TestingPlatformFunctions.GetAllureToggleValue(new CommandLineOptionsStub())).IsNull();
-        await Assert.That(TestingPlatformFunctions.GetAllureToggleValue(
+        await Assert.That(AllureCliOptionsProvider.GetAllureToggleValue(new CommandLineOptionsStub())).IsNull();
+        await Assert.That(AllureCliOptionsProvider.GetAllureToggleValue(
             new CommandLineOptionsStub(("allure", ["on"]))
         )).IsTrue();
-        await Assert.That(TestingPlatformFunctions.GetAllureToggleValue(
+        await Assert.That(AllureCliOptionsProvider.GetAllureToggleValue(
             new CommandLineOptionsStub(("allure", ["off"]))
+        )).IsFalse();
+    }
+
+    [Test]
+    public async Task ShouldReadAllureWatchdogToggleValue()
+    {
+        await Assert.That(AllureCliOptionsProvider.GetWatchdogToggleValue(new CommandLineOptionsStub())).IsNull();
+        await Assert.That(AllureCliOptionsProvider.GetWatchdogToggleValue(
+            new CommandLineOptionsStub(("allure-watchdog", ["on"]))
+        )).IsTrue();
+        await Assert.That(AllureCliOptionsProvider.GetWatchdogToggleValue(
+            new CommandLineOptionsStub(("allure-watchdog", ["off"]))
         )).IsFalse();
     }
 
@@ -124,8 +181,9 @@ public class CliOptionsProviderTests
     {
         var options = new CommandLineOptionsStub(("other", ["off"]));
 
-        await Assert.That(TestingPlatformFunctions.GetAllureToggleValue(options)).IsNull();
-        await Assert.That(TestingPlatformFunctions.IsAllureEnabled(options)).IsTrue();
+        await Assert.That(AllureCliOptionsProvider.GetAllureToggleValue(options)).IsNull();
+        await Assert.That(AllureCliOptionsProvider.GetWatchdogToggleValue(options)).IsNull();
+        await Assert.That(AllureCliOptionsProvider.IsAllureEnabled(options)).IsTrue();
     }
 
     [Test]
@@ -138,7 +196,7 @@ public class CliOptionsProviderTests
             ? new CommandLineOptionsStub()
             : new CommandLineOptionsStub(("allure", [value]));
 
-        await Assert.That(TestingPlatformFunctions.IsAllureEnabled(options)).IsEqualTo(expected);
+        await Assert.That(AllureCliOptionsProvider.IsAllureEnabled(options)).IsEqualTo(expected);
     }
 
     class CommandLineOptionsStub(params (string Name, string[] Values)[] options) : ICommandLineOptions

@@ -7,6 +7,7 @@ using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 public class AllureTestingPlatformHostProcessWatchdog(
+    bool isEnabled,
     IAllureTestingPlatformRuntimeController runtimeController
 ) :
     AllureTestingPlatformRuntimeControllerExtension(
@@ -17,6 +18,15 @@ public class AllureTestingPlatformHostProcessWatchdog(
     ),
     ITestHostProcessLifetimeHandler
 {
+    public override Task<bool> IsEnabledAsync()
+    {
+        if (!isEnabled)
+        {
+            return Task.FromResult(false);
+        }
+
+        return base.IsEnabledAsync();
+    }
     public Task BeforeTestHostProcessStartAsync(CancellationToken cancellationToken) =>
         Task.CompletedTask;
 
