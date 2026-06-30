@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
-using Microsoft.Testing.Platform.Services;
 using Newtonsoft.Json.Linq;
 
 namespace Allure.TestingPlatform.Functions;
@@ -14,10 +13,21 @@ public static class ConfigurationFunctions
         string? configPath = null
     )
         where TConfiguration : AllureConfiguration, new()
-    {
-        configPath ??= Environment.GetEnvironmentVariable(
-            AllureConstants.ALLURE_CONFIG_ENV_VARIABLE
+     =>
+        ReadConfiguration<TConfiguration>(
+            Environment.GetEnvironmentVariable,
+            serviceProvider,
+            configPath
         );
+
+    public static AllureConfiguration ReadConfiguration<TConfiguration>(
+        Func<string, string?> getEnvironmentVariable,
+        IServiceProvider serviceProvider,
+        string? configPath = null
+    )
+        where TConfiguration : AllureConfiguration, new()
+    {
+        configPath ??= getEnvironmentVariable(AllureConstants.ALLURE_CONFIG_ENV_VARIABLE);
 
         if (configPath is not null && !File.Exists(configPath))
         {
@@ -25,12 +35,6 @@ public static class ConfigurationFunctions
                 $"The configuration ile '{configPath}' does not exist."
             );
         }
-
-        var mtpConfig = serviceProvider.GetConfiguration();
-        var mtpResultsDir = mtpConfig["platformOptions:resultDirectory"];
-        var defaultResultsDir = mtpResultsDir is not null
-            ? Path.Combine(mtpResultsDir, AllureConstants.DEFAULT_RESULTS_FOLDER)
-            : null;
 
         JObject configJson = File.Exists(configPath)
             ? JObject.Parse(File.ReadAllText(configPath))
@@ -41,15 +45,14 @@ public static class ConfigurationFunctions
                 ? JObject.Parse(File.ReadAllText(defaultConfigPath))
                 : [];
 
-        if (TestingPlatformFunctions.TryGetDefaultAllureResultsPath(serviceProvider, out var allureResultsDir))
-        {
-            configJson["allure"] ??= new JObject();
-            configJson["allure"]!["directory"] ??= defaultResultsDir;
-        }
-
         var allureSection = configJson["allure"] is { } allureObject
             ? allureObject
             : configJson;
+
+        if (TestingPlatformFunctions.TryGetDefaultAllureResultsPath(serviceProvider, out var allureResultsDir))
+        {
+            allureSection["directory"] ??= allureResultsDir;
+        }
 
         return allureSection?.ToObject<TConfiguration>()
             ?? new();
