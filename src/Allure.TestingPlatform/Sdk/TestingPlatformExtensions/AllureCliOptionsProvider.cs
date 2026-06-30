@@ -40,21 +40,36 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
             """,
             ArgumentArity.ExactlyOne,
             false
-        )
+        ),
+        new(
+            "allure-results-directory",
+            """
+            Specifies an output directory where Allure result files will be created.
+            """,
+            ArgumentArity.ExactlyOne,
+            false
+        ),
     ];
 
     public Task<ValidationResult> ValidateOptionArgumentsAsync(
         CommandLineOption commandOption,
         string[] arguments
     ) =>
-        commandOption is { Name: "allure" or "allure-watchdog" } && arguments[0] is not ("on" or "off")
-            ? ValidationResult.InvalidTask("the value must be 'on' or 'off'")
-            : ValidationResult.ValidTask;
+        commandOption.Name switch
+        {
+            "allure" or "allure-watchdog" when arguments[0] is not ("on" or "off") =>
+                ValidationResult.InvalidTask("the value must be 'on' or 'off'"),
 
-    public Task<ValidationResult> ValidateCommandLineOptionsAsync(ICommandLineOptions commandLineOptions)
-    {
-        return ValidationResult.ValidTask;
-    }
+            "allure-results-directory" when arguments[0] is null or { Length: 0 } =>
+                ValidationResult.InvalidTask("the value cannot be empty"),
+
+            _ => ValidationResult.ValidTask,
+        };
+
+    public Task<ValidationResult> ValidateCommandLineOptionsAsync(
+        ICommandLineOptions commandLineOptions
+    ) =>
+        ValidationResult.ValidTask;
 
     public static bool? GetAllureToggleValue(ICommandLineOptions options) =>
         options.TryGetOptionArgumentList("allure", out var values)
@@ -68,5 +83,10 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
     public static bool? GetWatchdogToggleValue(ICommandLineOptions options) =>
         options.TryGetOptionArgumentList("allure-watchdog", out var values)
             ? values[0] == "on"
+            : null;
+
+    public static string? GetResultsDirectoryValue(ICommandLineOptions options) =>
+        options.TryGetOptionArgumentList("allure-results-directory", out var values)
+            ? values[0]
             : null;
 }

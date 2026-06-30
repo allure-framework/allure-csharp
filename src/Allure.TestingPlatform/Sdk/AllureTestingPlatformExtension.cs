@@ -39,7 +39,7 @@ public abstract class AllureTestingPlatformExtension(
         }
             ? Task.FromResult(isEnabled)
             : throw new InvalidOperationException(
-                "Unexpected error: Allure.TestingPlatform is misconfigured."
+                "Unexpected error: Allure.TestingPlatform runtime is not configured."
             );
 
     protected ILogger Logger => ConfiguredRuntime.Logger;

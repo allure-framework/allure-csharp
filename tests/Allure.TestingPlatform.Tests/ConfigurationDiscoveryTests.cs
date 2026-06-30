@@ -1,5 +1,7 @@
 using Allure.Net.Commons.Configuration;
 using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Tests.Stubs;
+using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Configurations;
 
 namespace Allure.TestingPlatform.Tests;
@@ -222,6 +224,106 @@ public class ConfigurationDiscoveryTests
     }
 
     [Test]
+    public async Task ShouldPreferCliResultsDirectoryOverAllureObjectDirectory()
+    {
+        using var temp = TempDirectory.Create();
+        var configPath = temp.WriteConfig(
+            """
+            {
+              "allure": {
+                "directory": "configured-results"
+              }
+            }
+            """
+        );
+        var serviceProvider = new ServiceProviderStub();
+        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
+
+        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
+            _ => null,
+            serviceProvider,
+            configPath
+        );
+
+        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
+    }
+
+    [Test]
+    public async Task ShouldPreferCliResultsDirectoryOverRootObjectDirectory()
+    {
+        using var temp = TempDirectory.Create();
+        var configPath = temp.WriteConfig(
+            """
+            {
+              "directory": "root-results"
+            }
+            """
+        );
+        var serviceProvider = new ServiceProviderStub();
+        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
+
+        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
+            _ => null,
+            serviceProvider,
+            configPath
+        );
+
+        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
+    }
+
+    [Test]
+    public async Task ShouldPreferCliResultsDirectoryOverEnvironmentConfigurationDirectory()
+    {
+        using var temp = TempDirectory.Create();
+        var configPath = temp.WriteConfig(
+            """
+            {
+              "allure": {
+                "directory": "environment-results"
+              }
+            }
+            """
+        );
+        var serviceProvider = new ServiceProviderStub();
+        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
+
+        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
+            _ => configPath,
+            serviceProvider
+        );
+
+        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
+    }
+
+    [Test]
+    public async Task ShouldPreferCliResultsDirectoryOverMtpResultDirectory()
+    {
+        using var temp = TempDirectory.Create();
+        var configPath = temp.WriteConfig(
+            """
+            {
+              "allure": {
+                "title": "Configured title"
+              }
+            }
+            """
+        );
+        var mtpResults = Path.Combine(temp.Path, "mtp-results");
+        var serviceProvider = new ServiceProviderStub(
+            ("platformOptions:resultDirectory", mtpResults)
+        );
+        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
+
+        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
+            _ => null,
+            serviceProvider,
+            configPath
+        );
+
+        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
+    }
+
+    [Test]
     public async Task ShouldPutDefaultDirectoryInRootObjectIfAllureConfigDefinedAtRootLevel()
     {
         using var temp = TempDirectory.Create();
@@ -266,13 +368,19 @@ public class ConfigurationDiscoveryTests
 
     sealed class ServiceProviderStub(params (string Key, string Value)[] configuration) : IServiceProvider
     {
-        readonly IConfiguration configuration = new ConfigurationStub(configuration);
+        readonly ConfigurationStub configuration = new(configuration);
+
+        public CommandLineOptionsStub CommandLineOptions { get; } = new();
 
         public object GetService(Type serviceType)
         {
             if (serviceType == typeof(IConfiguration))
             {
                 return this.configuration;
+            }
+            else if (serviceType == typeof(ICommandLineOptions))
+            {
+                return this.CommandLineOptions;
             }
 
             throw new NotImplementedException();

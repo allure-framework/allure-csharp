@@ -66,6 +66,19 @@ public class CliOptionsProviderTests
     }
 
     [Test]
+    public async Task ShouldExposeAllureResultsDirectoryOption()
+    {
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure-results-directory");
+
+        await Assert.That(option.Arity).IsEqualTo(ArgumentArity.ExactlyOne);
+        await Assert.That(option.IsHidden).IsFalse();
+        await Assert.That(option.Description)
+            .Contains("output directory")
+            .And.Contains("Allure result files");
+    }
+
+    [Test]
     [Arguments("on")]
     [Arguments("off")]
     public async Task ShouldAcceptAllureToggleValues(string value)
@@ -126,6 +139,32 @@ public class CliOptionsProviderTests
     }
 
     [Test]
+    [Arguments("allure-results")]
+    [Arguments("./custom-results")]
+    public async Task ShouldAcceptAllureResultsDirectoryValue(string value)
+    {
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure-results-directory");
+
+        var result = await this.provider.ValidateOptionArgumentsAsync(option, [value]);
+
+        await Assert.That(result.IsValid).IsTrue();
+        await Assert.That(result.ErrorMessage).IsNull();
+    }
+
+    [Test]
+    public async Task ShouldRejectEmptyAllureResultsDirectoryValue()
+    {
+        var option = await Assert.That(this.provider.GetCommandLineOptions())
+            .HasSingleItem(o => o.Name == "allure-results-directory");
+
+        var result = await this.provider.ValidateOptionArgumentsAsync(option, [""]);
+
+        await Assert.That(result.IsValid).IsFalse();
+        await Assert.That(result.ErrorMessage).IsEqualTo("the value cannot be empty");
+    }
+
+    [Test]
     public async Task ShouldIgnoreValidationForOtherOptions()
     {
         CommandLineOption option = new(
@@ -177,12 +216,22 @@ public class CliOptionsProviderTests
     }
 
     [Test]
+    public async Task ShouldReadAllureResultsDirectoryValue()
+    {
+        await Assert.That(AllureCliOptionsProvider.GetResultsDirectoryValue(new CommandLineOptionsStub())).IsNull();
+        await Assert.That(AllureCliOptionsProvider.GetResultsDirectoryValue(
+            new CommandLineOptionsStub(("allure-results-directory", ["custom-results"]))
+        )).IsEqualTo("custom-results");
+    }
+
+    [Test]
     public async Task ShouldIgnoreNonAllureOptionsWhenReadingToggleValue()
     {
         var options = new CommandLineOptionsStub(("other", ["off"]));
 
         await Assert.That(AllureCliOptionsProvider.GetAllureToggleValue(options)).IsNull();
         await Assert.That(AllureCliOptionsProvider.GetWatchdogToggleValue(options)).IsNull();
+        await Assert.That(AllureCliOptionsProvider.GetResultsDirectoryValue(options)).IsNull();
         await Assert.That(AllureCliOptionsProvider.IsAllureEnabled(options)).IsTrue();
     }
 

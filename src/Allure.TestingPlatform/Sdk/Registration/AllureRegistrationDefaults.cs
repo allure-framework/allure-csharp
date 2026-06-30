@@ -68,9 +68,10 @@ public static class AllureRegistrationDefaults
     ) =>
         (_, _) => formatters
             .Select((formatter) =>
-                formatter.GetType() is { IsGenericType: true } type && type.GetGenericTypeDefinition() == typeof(TypeFormatter<>)
-                    ? (type.GetGenericArguments()[0], formatter)
-                    : ((Type TargetType, ITypeFormatter Formatter)?)null
+                formatter.GetType() is { IsGenericType: true } type
+                    && type.GetGenericTypeDefinition() == typeof(TypeFormatter<>)
+                        ? (type.GetGenericArguments()[0], formatter)
+                        : ((Type TargetType, ITypeFormatter Formatter)?)null
             )
             .Where((p) => p.HasValue)
             .ToImmutableDictionary(

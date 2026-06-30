@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Microsoft.Testing.Platform.Services;
 using Newtonsoft.Json.Linq;
 
 namespace Allure.TestingPlatform.Functions;
@@ -32,7 +34,7 @@ public static class ConfigurationFunctions
         if (configPath is not null && !File.Exists(configPath))
         {
             throw new FileNotFoundException(
-                $"The configuration ile '{configPath}' does not exist."
+                $"The configuration file '{configPath}' does not exist."
             );
         }
 
@@ -49,9 +51,15 @@ public static class ConfigurationFunctions
             ? allureObject
             : configJson;
 
-        if (TestingPlatformFunctions.TryGetDefaultAllureResultsPath(serviceProvider, out var allureResultsDir))
+        var cliOptions = serviceProvider.GetCommandLineOptions();
+        if (AllureCliOptionsProvider.GetResultsDirectoryValue(cliOptions) is { Length: >0 } cliProvidedDirectory)
         {
-            allureSection["directory"] ??= allureResultsDir;
+            allureSection["directory"] = cliProvidedDirectory;
+        }
+        else if (allureSection["directory"] is null
+            && TestingPlatformFunctions.TryGetDefaultAllureResultsPath(serviceProvider, out var allureResultsDir))
+        {
+            allureSection["directory"] = allureResultsDir;
         }
 
         return allureSection?.ToObject<TConfiguration>()

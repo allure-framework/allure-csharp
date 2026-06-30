@@ -4,18 +4,26 @@ namespace Allure.TestingPlatform.Tests.Stubs;
 
 public class CommandLineOptionsStub : ICommandLineOptions
 {
-    public bool? IsAllureEnabled { get; set; } = default;
+    readonly Dictionary<string, string[]> values = [];
 
-    public bool IsOptionSet(string optionName) => this.IsAllureEnabled.HasValue;
-
-    public bool TryGetOptionArgumentList(string optionName, out string[] arguments)
+    public bool IsAllureEnabled
     {
-        arguments = this.IsAllureEnabled switch
+        set
         {
-            null => [],
-            true => ["on"],
-            false => ["off"],
-        };
-        return this.IsAllureEnabled.HasValue;
+            this.values["allure"] = [value ? "on" : "off"];
+        }
     }
+
+    public string ResultsDirectory
+    {
+        set
+        {
+            this.values["allure-results-directory"] = [value];
+        }
+    }
+
+    public bool IsOptionSet(string optionName) => this.values.ContainsKey(optionName);
+
+    public bool TryGetOptionArgumentList(string optionName, out string[] arguments) =>
+        this.values.TryGetValue(optionName, out arguments);
 }
