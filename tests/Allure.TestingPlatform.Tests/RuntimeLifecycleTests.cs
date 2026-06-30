@@ -352,6 +352,42 @@ public class RuntimeLifecycleTests
     }
 
     [Test]
+    public async Task ShouldPreferCliOnToIsEnabledFalse()
+    {
+        var calls = new List<string>();
+        var args = DefaultArgs.Concat(["--allure", "on"]).ToArray();
+
+        IServiceProvider serviceProvider = null;
+        var builder = await TestApplication.CreateBuilderAsync(args);
+        var runtimeReferences = builder.AddEmbeddedAllure(ctx =>
+        {
+            ctx.DisableHostProcessWatchdog();
+
+            ctx.UseConfiguration(_ => new());
+            ctx.SetIsEnabled((_, _) => false);
+            ctx.UseWriter((_, _) => new InMemoryResultsWriter());
+        });
+
+        builder.RegisterTestFramework(
+            _ => new TestFrameworkCapabilities(),
+            (_, sp) =>
+            {
+                serviceProvider = sp;
+                return new TestFrameworkStub();
+            }
+        );
+
+        using var app = await builder.BuildAsync();
+        await app.RunAsync();
+
+        var runtimeReference = runtimeReferences.GetRuntimeReference(serviceProvider);
+        await Assert.That(runtimeReference.CurrentRuntime).IsTypeOf<LiveAllureTestingPlatformRuntime>();
+        await Assert.That(runtimeReference.CurrentRuntime.IsEnabled).IsTrue();
+        await Assert.That(runtimeReference.CurrentRuntime.Phase)
+            .IsEqualTo(AllureTestingPlatformRuntimePhase.Live);
+    }
+
+    [Test]
     public async Task ShouldThrowWhenLiveRuntimeIsStartedAgain()
     {
         IServiceProvider serviceProvider = null;
