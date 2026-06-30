@@ -122,14 +122,15 @@ public class ConsumeAsyncErrorHandlingTests
         LoggerSpy logger = new();
         sink ??= new();
         writer ??= sink;
-        AllureLifecycle lifecycle = new(_ => writer);
+        var config = new AllureConfiguration();
+        AllureLifecycle lifecycle = new(config, writer);
         LiveAllureTestingPlatformRuntime runtime = new(
             AllureTestingPlatformRegistrationMode.Standalone,
             logger,
-            new AllureConfiguration(),
+            config,
             correlationStrategy,
             writer,
-            ImmutableDictionary<Type, ITypeFormatter>.Empty,
+            [],
             lifecycle
         );
         return new(

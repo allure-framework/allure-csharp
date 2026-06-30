@@ -62,7 +62,8 @@ class AllureTestingPlatformRuntimeController(
     {
         var configuredRuntime = runtimeReference.CurrentRuntime switch
         {
-            EnabledAllureTestingPlatformRuntime catp => catp,
+            EnabledAllureTestingPlatformRuntime enabledAllureRuntime =>
+                enabledAllureRuntime,
 
             SuppressedAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(

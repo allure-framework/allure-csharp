@@ -65,8 +65,9 @@ public class RuntimeExtensionEnablementTests
     [Test]
     public async Task ShouldExposeLiveRuntimeServices()
     {
+        var config = new AllureConfiguration();
         var writer = new InMemoryResultsWriter();
-        AllureLifecycle lifecycle = new(_ => writer);
+        AllureLifecycle lifecycle = new(config, writer);
         TestingPlatformSessionUidCorrelationStrategy correlationStrategy = new();
         ImmutableDictionary<Type, ITypeFormatter> typeFormatters =
             new Dictionary<Type, ITypeFormatter>
@@ -201,16 +202,17 @@ public class RuntimeExtensionEnablementTests
         ImmutableDictionary<Type, ITypeFormatter> typeFormatters = null
     )
     {
+        var config = new AllureConfiguration();
         writer ??= new InMemoryResultsWriter();
 
         return new(
             AllureTestingPlatformRegistrationMode.Standalone,
             new LoggerSpy(),
-            new(),
+            config,
             correlationStrategy ?? new TestingPlatformSessionUidCorrelationStrategy(),
             writer,
             typeFormatters ?? ImmutableDictionary<Type, ITypeFormatter>.Empty,
-            lifecycle ?? new(_ => writer)
+            lifecycle ?? new(config, writer)
         );
     }
 

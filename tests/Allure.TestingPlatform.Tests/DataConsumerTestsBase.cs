@@ -31,12 +31,12 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
     public DataConsumerTestsBase()
     {
         this.commandLineOptions = new();
-        this.writer = new();
-        this.lifecycle = new(_ => this.writer);
-        this.correlationStrategy = new TCorrelationStrategy();
-        this.config = this.lifecycle.AllureConfiguration;
+        this.config = new();
         this.logger = new();
+        this.writer = new();
         this.typeFormatters = [];
+        this.correlationStrategy = new TCorrelationStrategy();
+        this.lifecycle = new(this.config, this.writer);
 
         this.allureRuntime = new(
             Mode: AllureTestingPlatformRegistrationMode.Standalone,
