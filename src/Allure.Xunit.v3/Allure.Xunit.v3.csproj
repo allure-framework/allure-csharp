@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <PackXunitV3GeneratorTargetFramework>netstandard2.0</PackXunitV3GeneratorTargetFramework>
+        <RootNamespace>Allure.Xunit</RootNamespace>
+        <Nullable>enable</Nullable>
+        <Authors>Qameta Software Inc</Authors>
+        <Description>Create beautiful reports from your xUnit.net v3 tests.</Description>
+        <PackageIcon>Allure-X-Color.png</PackageIcon>
+        <PackageTags>$(PackageTags) xunit xunit3 xunit.v3</PackageTags>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>
+            $(TargetsForTfmSpecificContentInPackage);PackXunitV3Generator
+        </TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="/" />
+        <None Include="..\..\img\Allure-X-Color.png" Pack="true" PackagePath="\" />
+        <None Include="package\**\*" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="package\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2" />
+        <PackageReference Include="xunit.v3.runner.common" Version="3.2.2" />
+        <PackageReference Include="xunit.v3.assert" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+        <ProjectReference Include="..\Allure.TestingPlatform\Allure.TestingPlatform.csproj" />
+        <ProjectReference
+            Include="..\Allure.Xunit.v3.Generator\Allure.Xunit.v3.Generator.csproj"
+            ReferenceOutputAssembly="false"
+            OutputItemType="AllureXunitV3Generator"
+            PrivateAssets="all"/>
+    </ItemGroup>
+
+    <Target Name="PackXunitV3Generator"
+        DependsOnTargets="ResolveProjectReferences"
+        Condition=" '$(TargetFramework)' == '$(PackXunitV3GeneratorTargetFramework)' ">
+
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="@(AllureXunitV3Generator)" PackagePath="analyzers\dotnet\cs\" />
+        </ItemGroup>
+    </Target>
+
+</Project>

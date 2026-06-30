@@ -51,3 +51,10 @@
     - any-glob-to-any-file:
       - "src/Allure.TestingPlatform/**"
       - "tests/Allure.TestingPlatform.Tests/**"
+
+"theme:xunit.v3":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/Allure.Xunit.v3/**"
+      - "src/Allure.Xunit.v3.Generator/**"
+      - "examples/Allure.Xunit.v3.Mtp.Examples/**"

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" TreatAsLocalProperty="WarnOnPackingNonPackableProject">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <RootNamespace>Allure.Xunit.Generator</RootNamespace>
+        <Nullable>enable</Nullable>
+        <Authors>Qameta Software Inc</Authors>
+        <Description>
+            A source generator that automatically enables Allure.Xunit.v3 for a
+            Microsoft Testing Platform C# project and adds support for Allure test
+            plan pre-filtering.
+        </Description>
+
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- These properties prevent NuGet from packing the source generator as a separate package.
+         Instead, it is packed as a part of Allure.Xunit.v3. -->
+        <IsPackable>false</IsPackable>
+        <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>
