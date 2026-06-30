@@ -51,7 +51,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
-            "Creates Allure results from Microsoft Testing Platform messages",
+            "Creates Allure results from Microsoft Testing Platform messages.",
             runtimeReference
         )
     {
@@ -87,7 +87,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
                 throw;
             }
 
-            await this.Logger.LogErrorAsync($"Error when processing {value}", e);
+            await this.Logger.LogErrorAsync($"Error while processing {value}", e);
         }
     }
 
@@ -164,8 +164,8 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
         if (!runningTestContext.HasTest)
         {
-            // Missed InProgressTestNodeStateProperty. Normally, this shouldn't happen.
-            // If it does though, we create a new test context and pass the context through the state
+            // InProgressTestNodeStateProperty is missing. Normally, this should not happen.
+            // If it does, create a new test context and pass the context through the state
             // to apply pending updates.
             runningTestContext = state.ForkContext(testContextUid, runningTestContext, this.StartTest);
         }

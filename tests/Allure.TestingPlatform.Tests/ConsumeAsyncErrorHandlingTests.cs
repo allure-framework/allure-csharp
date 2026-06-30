@@ -31,7 +31,7 @@ public class ConsumeAsyncErrorHandlingTests
         await Assert.That(log.Level).IsEqualTo(LogLevel.Error);
         await Assert.That(log.Exception).IsSameReferenceAs(exception);
         await Assert.That(log.State).IsTypeOf<string>()
-            .And.Contains("Error when processing");
+            .And.Contains("Error while processing");
         await Assert.That(fixture.Writer.TestResults).IsEmpty();
     }
 
@@ -77,7 +77,7 @@ public class ConsumeAsyncErrorHandlingTests
         await Assert.That(log.Level).IsEqualTo(LogLevel.Error);
         await Assert.That(log.Exception).IsSameReferenceAs(exception);
         await Assert.That(log.State).IsTypeOf<string>()
-            .And.Contains("Error when processing");
+            .And.Contains("Error while processing");
 
         var globals = await Assert.That(fixture.Writer.Globals).HasSingleItem();
         var attachment = await Assert.That(globals.attachments).HasSingleItem();

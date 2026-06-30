@@ -30,7 +30,7 @@ static class ModelFunctionExtensions
 
         public static void ApplyTimings(TestResult testResult, TimingProperty timing)
         {
-            // If present, TimingProperty is the ultimate source of truth about the timing.
+            // If present, TimingProperty is the source of truth for timing.
             testResult.start = timing.GlobalTiming.StartTime.ToUnixTimeMilliseconds();
             testResult.stop = timing.GlobalTiming.EndTime.ToUnixTimeMilliseconds();
         }

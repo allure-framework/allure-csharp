@@ -56,7 +56,7 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
         {
             logger.LogError(
                 $"[Allure.TestingPlatform]: {buffer.Count} uncorrelated messages were discarded "
-                    + "because the corresponding MTP session had been finished."
+                    + "because the corresponding MTP session has already finished."
             );
         }
 
@@ -73,7 +73,7 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
 
         if (this.correlatedSessions.TryGetValue(sessionUid, out var storedCorrelationUid))
         {
-            // Already has correlation. Pass the message through
+            // The session is already correlated. Pass the message through.
             return CorrelationResult.Success(storedCorrelationUid, [message]);
         }
 
@@ -90,18 +90,18 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
                         + "running Allure integration.");
             }
 
-            // New correlation to remember.
+            // Store the newly discovered correlation.
             this.correlatedSessions[sessionUid] = correlationUid;
             this.activeCorrelations[correlationUid] = sessionUid;
 
-            // dequeue both buffers and restore the order of buffered messages
+            // Dequeue both buffers and restore the original message order.
             return CorrelationResult.Success(
                 correlationUid,
                 [..this.Dequeue(sessionUid, correlationUid), message]
             );
         }
 
-        // Can't correlate yet. Buffer the message and yield nothing to process
+        // The session cannot be correlated yet. Buffer the message and yield nothing to process.
         Enqueue(message);
 
         return CorrelationResult.NotReady;
@@ -113,13 +113,13 @@ class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger lo
 
         if (this.activeCorrelations.ContainsKey(correlationUid) || !this.sessionUidBuffers.Any())
         {
-            // Correlation either exists or not needed so far.
+            // The correlation either exists or is not needed yet.
             return CorrelationResult.Success(correlationUid, [message]);
         }
 
-        // No correlation exists and there are uncorrelated sessions.
+        // No correlation exists, and there are uncorrelated sessions.
         // Buffer the message and wait until the correlation is established
-        // to prevent out of order delivery.
+        // to prevent out-of-order delivery.
         Enqueue(message);
         return CorrelationResult.NotReady;
     }

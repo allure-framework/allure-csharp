@@ -23,7 +23,7 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
         new(
             "allure",
             """
-            Determines if Allure must be enabled.
+            Determines whether Allure is enabled.
                 on: Allure is enabled [default]
                 off: Allure is disabled
             """,
@@ -33,10 +33,10 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
         new(
             "allure-watchdog",
             """
-            Determines if Allure Watchdog must be enabled. Allure Watchdog adds a global error
-            to the report if the test process crashes.
-                on: Allure Watchdog is enabled [default]
-                off: Allure Watchdog is disabled
+            Determines whether the Allure watchdog is enabled. The watchdog records a global
+            error in the report if the test process crashes.
+                on: The watchdog is enabled [default]
+                off: The watchdog is disabled
             """,
             ArgumentArity.ExactlyOne,
             false
@@ -44,7 +44,7 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
         new(
             "allure-results-directory",
             """
-            Specifies an output directory where Allure result files will be created.
+            Specifies the output directory where Allure result files will be written.
             """,
             ArgumentArity.ExactlyOne,
             false

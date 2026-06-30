@@ -26,7 +26,7 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
             .And.Member(
                 c => c.Description,
                 v => v.IsEqualTo(
-                    "Creates Allure results from Microsoft Testing Platform messages"));
+                    "Creates Allure results from Microsoft Testing Platform messages."));
     }
 
     [Test]

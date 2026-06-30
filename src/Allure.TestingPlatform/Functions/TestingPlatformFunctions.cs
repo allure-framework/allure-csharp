@@ -17,7 +17,7 @@ public static class TestingPlatformFunctions
             ?.InformationalVersion
             ?.Split('+')
             .First()
-            ?? throw new InvalidOperationException("Couldn't read the package version");
+            ?? throw new InvalidOperationException("Could not read the package version.");
 
     public static bool TryGetDefaultAllureResultsPath(
         IServiceProvider serviceProvider,

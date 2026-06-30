@@ -23,13 +23,13 @@ class AllureTestingPlatformRuntimeController(
             SuppressedAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
                     "Cannot configure Allure.TestingPlatform: "
-                        + "Allure.TestingPlatform is suppressed via the CLI"
+                        + "Allure.TestingPlatform is suppressed via the CLI."
                 ),
 
             { Phase: not AllureTestingPlatformRuntimePhase.NotInitialized } =>
                 throw new InvalidOperationException(
                     "Cannot configure Allure.TestingPlatform: "
-                        + "Allure.TestingPlatform is already configured"
+                        + "Allure.TestingPlatform is already configured."
                 ),
 
             var value => value,
