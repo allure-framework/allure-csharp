@@ -50,7 +50,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IStandaloneAllureRegistrationContext UseLogger(
+    public IEmbeddedAllureRegistrationContext UseLogger(
         Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory
     )
     {
@@ -90,7 +90,7 @@ class AllureTestingPlatformRegistration(
         return this;
     }
 
-    public IStandaloneAllureRegistrationContext UseLifecycle(
+    public IEmbeddedAllureRegistrationContext UseLifecycle(
         Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory
     )
     {

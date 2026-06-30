@@ -25,13 +25,6 @@ public interface IStandaloneAllureRegistrationContext
     );
 
     /// <summary>
-    /// Sets the factory used to create the Allure logger.
-    /// </summary>
-    IStandaloneAllureRegistrationContext UseLogger(
-        Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory
-    );
-
-    /// <summary>
     /// Sets the predicate used to decide whether Allure is enabled.
     /// </summary>
     IStandaloneAllureRegistrationContext SetIsEnabled(
@@ -43,13 +36,6 @@ public interface IStandaloneAllureRegistrationContext
     /// </summary>
     IStandaloneAllureRegistrationContext UseWriter(
         Func<IServiceProvider, AllureConfiguration, IAllureResultsWriter> writerFactory
-    );
-
-    /// <summary>
-    /// Sets the factory used to create the Allure lifecycle.
-    /// </summary>
-    IStandaloneAllureRegistrationContext UseLifecycle(
-        Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory
     );
 
     /// <summary>

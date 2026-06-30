@@ -1,7 +1,9 @@
 using System;
+using Allure.Net.Commons;
 using Allure.Net.Commons.Configuration;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Correlation;
+using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 
@@ -17,6 +19,20 @@ public interface IEmbeddedAllureRegistrationContext : IStandaloneAllureRegistrat
     /// </summary>
     IEmbeddedAllureRegistrationContext UseCorrelation(
         Func<IServiceProvider, AllureConfiguration, ICorrelationStrategy> correlationStrategyFactory
+    );
+
+    /// <summary>
+    /// Sets the factory used to create the Allure logger.
+    /// </summary>
+    IEmbeddedAllureRegistrationContext UseLogger(
+        Func<IServiceProvider, AllureConfiguration, ILogger> loggerFactory
+    );
+
+    /// <summary>
+    /// Sets the factory used to create the Allure lifecycle.
+    /// </summary>
+    IEmbeddedAllureRegistrationContext UseLifecycle(
+        Func<IServiceProvider, AllureLifecycleFactoryContext, AllureLifecycle> lifecycleFactory
     );
 
     /// <summary>
