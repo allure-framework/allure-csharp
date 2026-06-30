@@ -16,9 +16,8 @@ public static class TestingPlatformFunctions
     /// <summary>
     /// Gets the current Allure.TestingPlatform package version.
     /// </summary>
-    public static string CurrentPackageVersion { get; } =
-        Assembly
-            .GetExecutingAssembly()
+    public static string GetPackageVersion(Type anchorType) =>
+        anchorType.Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion
             ?.Split('+')

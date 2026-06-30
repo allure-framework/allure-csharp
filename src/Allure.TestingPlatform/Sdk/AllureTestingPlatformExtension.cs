@@ -15,25 +15,35 @@ namespace Allure.TestingPlatform.Sdk;
 /// <summary>
 /// Base class for Allure.TestingPlatform extensions.
 /// </summary>
-public abstract class AllureTestingPlatformExtension(
-    string uid,
-    string displayName,
-    string description,
-    IAllureTestingPlatformRuntimeReference runtimeReference
-) :
-    IExtension
+public abstract class AllureTestingPlatformExtension : IExtension
 {
-    /// <inheritdoc />
-    public string Uid => uid;
+    readonly IAllureTestingPlatformRuntimeReference runtimeReference;
 
     /// <inheritdoc />
-    public string Version { get; } = TestingPlatformFunctions.CurrentPackageVersion;
+    public string Uid { get; }
 
     /// <inheritdoc />
-    public string DisplayName => displayName;
+    public string Version { get; }
 
     /// <inheritdoc />
-    public string Description => description;
+    public string DisplayName { get; }
+
+    /// <inheritdoc />
+    public string Description { get; }
+
+    public AllureTestingPlatformExtension(
+        string uid,
+        string displayName,
+        string description,
+        IAllureTestingPlatformRuntimeReference runtimeReference
+    )
+    {
+        this.Uid = uid;
+        this.DisplayName = displayName;
+        this.Description = description;
+        this.Version = TestingPlatformFunctions.GetPackageVersion(this.GetType());
+        this.runtimeReference = runtimeReference;
+    }
 
     /// <inheritdoc />
     public virtual Task<bool> IsEnabledAsync() =>

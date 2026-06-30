@@ -10,19 +10,24 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 /// <summary>
 /// Provides Allure command-line options for Microsoft Testing Platform.
 /// </summary>
-public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
+public class AllureCliOptionsProvider : ICommandLineOptionsProvider
 {
     /// <inheritdoc />
     public string Uid => "07e2cc0c-5cc5-4d7e-aaf6-eb623676fb0b";
 
     /// <inheritdoc />
-    public string Version => TestingPlatformFunctions.CurrentPackageVersion;
+    public string Version { get; }
 
     /// <inheritdoc />
     public string DisplayName => "Allure.TestingPlatform options provider";
 
     /// <inheritdoc />
     public string Description => "Allows configuring Allure via the CLI.";
+
+    public AllureCliOptionsProvider()
+    {
+        this.Version = TestingPlatformFunctions.GetPackageVersion(this.GetType());
+    }
 
     /// <inheritdoc />
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);
