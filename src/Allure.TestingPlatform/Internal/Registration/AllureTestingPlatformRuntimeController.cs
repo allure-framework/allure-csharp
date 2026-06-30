@@ -67,24 +67,24 @@ class AllureTestingPlatformRuntimeController(
             SuppressedAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
                     "Cannot start Allure.TestingPlatform runtime: "
-                        + "the runtime is suppressed via the CLI"
+                        + "the runtime is suppressed via the CLI."
                 ),
 
             DisabledAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
                     "Cannot start Allure.TestingPlatform runtime: "
-                        + "the runtime is disabled"
+                        + "the runtime is disabled."
                 ),
 
             LiveAllureTestingPlatformRuntime =>
                 throw new InvalidOperationException(
                     "Cannot start Allure.TestingPlatform runtime: "
-                        + "the runtime is already live"
+                        + "the runtime is already live."
                 ),
 
             _ => throw new InvalidOperationException(
                 "Cannot start Allure.TestingPlatform runtime: "
-                    + "Allure.TestingPlatform must be configured first"
+                    + "Allure.TestingPlatform must be configured first."
             ),
         };
 
