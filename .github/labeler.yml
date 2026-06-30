@@ -23,12 +23,14 @@
     - any-glob-to-any-file:
       - "src/Allure.Xunit/**"
       - "examples/Allure.Xunit.Examples/**"
+      - "tests/Allure.Xunit.Tests/**"
 
 "theme:nunit":
   - changed-files:
     - any-glob-to-any-file:
       - "src/Allure.NUnit/**"
       - "examples/Allure.NUnit.Examples/**"
+      - "tests/Allure.NUnit.Tests/**"
 
 "theme:specflow":
   - changed-files:
@@ -43,3 +45,9 @@
       - "src/Allure.Reqnroll/**"
       - "tests/Allure.Reqnroll.Tests/**"
       - "tests/Allure.Reqnroll.Tests.Samples/**"
+
+"theme:mtp":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/Allure.TestingPlatform/**"
+      - "tests/Allure.TestingPlatform.Tests/**"

@@ -67,6 +67,10 @@ jobs:
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
+          dotnet run --project ./tests/Allure.TestingPlatform.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
           dotnet run --project ./tests/Allure.NUnit.Tests\
             --no-restore\
             --no-build\

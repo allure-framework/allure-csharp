@@ -1,0 +1,8 @@
+<Project>
+    <ItemGroup Condition=" '$(Allure_TestingPlatformEnableSelfRegistration)' == 'true' ">
+        <TestingPlatformBuilderHook Include="8ffa1264-cecb-419d-8a11-4f91f24ad5c5">
+            <DisplayName>Allure.TestingPlatform</DisplayName>
+            <TypeFullName>Allure.TestingPlatform.AllureTestingPlatformBuilderHook</TypeFullName>
+        </TestingPlatformBuilderHook>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,21 @@
+using System.ComponentModel;
+
+#pragma warning disable IDE0130
+
+namespace System.Runtime.CompilerServices;
+
+/// <summary>
+/// This class serves as an init-only setter modreq so a library that
+/// uses init-only setters can compile when targeting pre-.NET 5.0 TFMs
+/// (including .NET Standard). See
+/// <see href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/init#metadata-encoding">
+///   this article
+/// </see>
+/// and
+/// <see href="https://developercommunity.visualstudio.com/t/error-cs0518-predefined-type-systemruntimecompiler/1244809#TPIN-N1249582">
+///   this answer
+/// </see>
+/// for more details.
+/// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
+internal static class IsExternalInit { }

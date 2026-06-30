@@ -1,10 +1,8 @@
-using Allure.Testing;
-
 [assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 
 #if ALLURE_TEST_PARALLEL
 
-[assembly: ParallelLimiter<DotnetParallelLimit>]
+[assembly: ParallelLimiter<Allure.Testing.DotnetParallelLimit>]
 
 #else
 
