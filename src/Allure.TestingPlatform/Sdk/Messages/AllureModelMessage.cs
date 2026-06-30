@@ -6,6 +6,9 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
+/// <summary>
+/// Base class for messages that apply properties to an Allure model object.
+/// </summary>
 public abstract class AllureModelMessage(
     string displayName,
     string description,
@@ -13,8 +16,14 @@ public abstract class AllureModelMessage(
 ) :
     AllureCorrelatedMessage(displayName, description, correlationUid)
 {
+    /// <summary>
+    /// Gets the properties applied by the message.
+    /// </summary>
     public List<IAllureProperty> Properties { get; init; } = [];
 
+    /// <summary>
+    /// Applies all properties that support the specified model type.
+    /// </summary>
     public void ApplyProperties<T>(LiveAllureTestingPlatformRuntime allureRuntime, T target)
     {
         foreach (var property in this.Properties.OfType<IAllureProperty<T>>())

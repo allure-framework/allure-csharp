@@ -4,6 +4,9 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
+/// <summary>
+/// Reports updates for an active Allure fixture.
+/// </summary>
 public sealed class AllureFixtureUpdateMessage(
     CorrelationUid correlationUid,
     FixtureContextUid fixtureUid
@@ -15,8 +18,12 @@ public sealed class AllureFixtureUpdateMessage(
         fixtureUid
     )
 {
+    /// <summary>
+    /// Gets the fixture context identifier.
+    /// </summary>
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
+    /// <inheritdoc />
     public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
         allureRuntime.Lifecycle.UpdateFixture((fixture) =>

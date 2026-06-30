@@ -7,9 +7,14 @@ using Allure.TestingPlatform.Internal.Registration;
 using Microsoft.Testing.Platform.Extensions;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Microsoft.Testing.Platform.Services;
+using Allure.Net.Commons.Configuration;
+using Allure.TestingPlatform.Functions;
 
 namespace Allure.TestingPlatform.Sdk;
 
+/// <summary>
+/// Provides registration helpers for SDK integrations built on Allure.TestingPlatform.
+/// </summary>
 public static class AllureTestingPlatformSdkExtensions
 {
     extension (ITestApplicationBuilder builder)
@@ -53,6 +58,9 @@ public static class AllureTestingPlatformSdkExtensions
             return frozenRegistration.RuntimeReferences;
         }
 
+        /// <summary>
+        /// Adds Allure.TestingPlatform in embedded mode and configures it.
+        /// </summary>
         public IAllureTestingPlatformRuntimeReferenceRegistry AddEmbeddedAllure(
             Action<IEmbeddedAllureRegistrationContext> configureAllure
         ) =>
@@ -62,15 +70,46 @@ public static class AllureTestingPlatformSdkExtensions
                 AllureTestingPlatformRegistrationMode.Embedded
             );
 
+        /// <summary>
+        /// Adds Allure.TestingPlatform in embedded mode with default settings.
+        /// </summary>
         public IAllureTestingPlatformRuntimeReferenceRegistry AddEmbeddedAllure() =>
             AddEmbeddedAllure(builder, static (_) => {});
     }
 
     extension (IEmbeddedAllureRegistrationContext context)
     {
+        /// <summary>
+        /// Load configuration of a specific type from the specified JSON file.
+        /// </summary>
+        public IEmbeddedAllureRegistrationContext UseConfigurationFile<TConfiguration>(string file)
+            where TConfiguration : AllureConfiguration, new()
+        {
+            context.UseConfiguration((serviceProvider) =>
+                ConfigurationFunctions.ReadConfiguration<TConfiguration>(serviceProvider, file));
+            return context;
+        }
+
+        /// <summary>
+        /// Uses the specified configuration instance.
+        /// </summary>
+        public IEmbeddedAllureRegistrationContext UseConfiguration<TConfiguration>(TConfiguration configuration)
+            where TConfiguration : AllureConfiguration, new()
+        {
+            context.UseConfiguration((_) => configuration);
+            return context;
+        }
+
+        /// <summary>
+        /// Correlates SDK messages by Microsoft Testing Platform session UID.
+        /// </summary>
         public IEmbeddedAllureRegistrationContext UseMtpSessionCorrelation() =>
             context.UseCorrelation((_, _) => new TestingPlatformSessionUidCorrelationStrategy());
 
+        /// <summary>
+        /// Correlates SDK messages by <see cref="Microsoft.Testing.Platform.Extensions.Messages.TestMetadataProperty"/>
+        /// with key <see cref="TestNodeMetadataCorrelationStrategy.MetadataKey"/>.
+        /// </summary>
         public IEmbeddedAllureRegistrationContext UseTestNodeMetadataCorrelation() =>
             context.UseCorrelation((_, _) => new TestNodeMetadataCorrelationStrategy());
     }

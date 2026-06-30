@@ -8,6 +8,16 @@ using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Sdk.Runtime;
 
+/// <summary>
+/// Represents a started runtime with all dependencies needed to write Allure results.
+/// </summary>
+/// <param name="Mode">The registration mode.</param>
+/// <param name="Logger">The resolved logger.</param>
+/// <param name="Configuration">The resolved Allure configuration.</param>
+/// <param name="CorrelationStrategy">The resolved correlation strategy.</param>
+/// <param name="Writer">The resolved Allure results writer.</param>
+/// <param name="TypeFormatters">The resolved type formatters.</param>
+/// <param name="Lifecycle">The resolved Allure lifecycle.</param>
 public sealed record class LiveAllureTestingPlatformRuntime(
     AllureTestingPlatformRegistrationMode Mode,
     ILogger Logger,

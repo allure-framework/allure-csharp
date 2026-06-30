@@ -8,8 +8,15 @@ using Newtonsoft.Json.Linq;
 
 namespace Allure.TestingPlatform.Functions;
 
+/// <summary>
+/// Provides helpers for reading Allure configuration.
+/// </summary>
 public static class ConfigurationFunctions
 {
+    /// <summary>
+    /// Reads configuration from an explicit path, the ALLURE_CONFIG environment variable,
+    /// or the default configuration file.
+    /// </summary>
     public static AllureConfiguration ReadConfiguration<TConfiguration>(
         IServiceProvider serviceProvider,
         string? configPath = null
@@ -22,6 +29,9 @@ public static class ConfigurationFunctions
             configPath
         );
 
+    /// <summary>
+    /// Reads configuration using a custom environment variable provider.
+    /// </summary>
     public static AllureConfiguration ReadConfiguration<TConfiguration>(
         Func<string, string?> getEnvironmentVariable,
         IServiceProvider serviceProvider,

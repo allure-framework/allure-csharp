@@ -4,6 +4,9 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
+/// <summary>
+/// Reports that an Allure scope has stopped.
+/// </summary>
 public sealed class AllureScopeStopMessage(
     CorrelationUid correlationUid,
     ScopeContextUid scopeUid
@@ -15,8 +18,12 @@ public sealed class AllureScopeStopMessage(
         scopeUid
     )
 {
+    /// <summary>
+    /// Gets the scope context identifier.
+    /// </summary>
     public ScopeContextUid ScopeUid { get; } = scopeUid;
 
+    /// <inheritdoc />
     public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
         allureRuntime.Lifecycle

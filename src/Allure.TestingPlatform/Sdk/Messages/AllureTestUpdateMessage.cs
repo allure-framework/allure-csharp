@@ -4,6 +4,9 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
+/// <summary>
+/// Reports updates for an Allure test result.
+/// </summary>
 public sealed class AllureTestUpdateMessage(
     CorrelationUid correlationUid,
     TestContextUid testUid
@@ -15,8 +18,12 @@ public sealed class AllureTestUpdateMessage(
         testUid
     )
 {
+    /// <summary>
+    /// Gets the test context identifier.
+    /// </summary>
     public TestContextUid TestUid { get; } = testUid;
 
+    /// <inheritdoc />
     public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
         allureRuntime.Lifecycle.UpdateTestCase((test) =>

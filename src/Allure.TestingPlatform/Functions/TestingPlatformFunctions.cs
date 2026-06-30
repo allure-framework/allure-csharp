@@ -8,8 +8,14 @@ using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform.Functions;
 
+/// <summary>
+/// Provides helpers for Microsoft Testing Platform integration.
+/// </summary>
 public static class TestingPlatformFunctions
 {
+    /// <summary>
+    /// Gets the current Allure.TestingPlatform package version.
+    /// </summary>
     public static string CurrentPackageVersion { get; } =
         Assembly
             .GetExecutingAssembly()
@@ -19,6 +25,10 @@ public static class TestingPlatformFunctions
             .First()
             ?? throw new InvalidOperationException("Could not read the package version.");
 
+    /// <summary>
+    /// Tries to resolve the default Allure results directory from Microsoft Testing Platform
+    /// configuration.
+    /// </summary>
     public static bool TryGetDefaultAllureResultsPath(
         IServiceProvider serviceProvider,
         [NotNullWhen(true)] out string? allureResultsDir

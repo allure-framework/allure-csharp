@@ -8,17 +8,34 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
+/// <summary>
+/// Updates an Allure test result from a reflected test method.
+/// </summary>
 public sealed class AllureTestMethodProperty(MethodInfo testMethod) :
     IAllureProperty<TestResult>
 {
+    /// <summary>
+    /// Gets the reflected test method.
+    /// </summary>
     public MethodInfo TestMethod { get; } = testMethod;
 
+    /// <summary>
+    /// Gets or sets the reflected test class.
+    /// </summary>
     public Type TestClass { get; init; } = testMethod.DeclaringType;
 
+    /// <summary>
+    /// Gets or sets the test method argument values.
+    /// </summary>
     public List<object?> Arguments { get; init; } = [];
 
-    public AllureTestMethodUpdateTargets UpdateTargets { get; init; } = AllureTestMethodUpdateTargets.All;
+    /// <summary>
+    /// Gets or sets which test result fields are updated.
+    /// </summary>
+    public AllureTestMethodUpdateTargets UpdateTargets { get; init; } =
+        AllureTestMethodUpdateTargets.All;
 
+    /// <inheritdoc />
     public void Apply(LiveAllureTestingPlatformRuntime allureRuntime, TestResult target)
     {
         if (this.ShouldSetFullName)

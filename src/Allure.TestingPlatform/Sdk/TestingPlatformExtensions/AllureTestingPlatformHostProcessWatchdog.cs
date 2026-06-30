@@ -6,6 +6,10 @@ using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
+/// <summary>
+/// An implementation of <see cref="IAllureTestingPlatformRuntimeController"/>
+/// that writes a global Allure error when the test host process crashes.
+/// </summary>
 public class AllureTestingPlatformHostProcessWatchdog(
     bool isEnabled,
     IAllureTestingPlatformRuntimeController runtimeController
@@ -18,6 +22,7 @@ public class AllureTestingPlatformHostProcessWatchdog(
     ),
     ITestHostProcessLifetimeHandler
 {
+    /// <inheritdoc />
     public override Task<bool> IsEnabledAsync()
     {
         if (!isEnabled)
@@ -27,9 +32,12 @@ public class AllureTestingPlatformHostProcessWatchdog(
 
         return base.IsEnabledAsync();
     }
+
+    /// <inheritdoc />
     public Task BeforeTestHostProcessStartAsync(CancellationToken cancellationToken) =>
         Task.CompletedTask;
 
+    /// <inheritdoc />
     public Task OnTestHostProcessExitedAsync(
         ITestHostProcessInformation testHostProcessInformation,
         CancellationToken cancellationToken
@@ -44,6 +52,7 @@ public class AllureTestingPlatformHostProcessWatchdog(
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task OnTestHostProcessStartedAsync(
         ITestHostProcessInformation testHostProcessInformation,
         CancellationToken cancellationToken

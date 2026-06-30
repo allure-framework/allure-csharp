@@ -7,18 +7,27 @@ using Microsoft.Testing.Platform.Extensions.CommandLine;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
+/// <summary>
+/// Provides Allure command-line options for Microsoft Testing Platform.
+/// </summary>
 public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
 {
+    /// <inheritdoc />
     public string Uid => "07e2cc0c-5cc5-4d7e-aaf6-eb623676fb0b";
 
+    /// <inheritdoc />
     public string Version => TestingPlatformFunctions.CurrentPackageVersion;
 
+    /// <inheritdoc />
     public string DisplayName => "Allure.TestingPlatform options provider";
 
+    /// <inheritdoc />
     public string Description => "Allows configuring Allure via the CLI.";
 
+    /// <inheritdoc />
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);
 
+    /// <inheritdoc />
     public IReadOnlyCollection<CommandLineOption> GetCommandLineOptions() => [
         new(
             "allure",
@@ -51,6 +60,7 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
         ),
     ];
 
+    /// <inheritdoc />
     public Task<ValidationResult> ValidateOptionArgumentsAsync(
         CommandLineOption commandOption,
         string[] arguments
@@ -66,25 +76,38 @@ public class AllureCliOptionsProvider() : ICommandLineOptionsProvider
             _ => ValidationResult.ValidTask,
         };
 
+    /// <inheritdoc />
     public Task<ValidationResult> ValidateCommandLineOptionsAsync(
         ICommandLineOptions commandLineOptions
     ) =>
         ValidationResult.ValidTask;
 
+    /// <summary>
+    /// Gets the configured value of the <c>--allure</c> toggle.
+    /// </summary>
     public static bool? GetAllureToggleValue(ICommandLineOptions options) =>
         options.TryGetOptionArgumentList("allure", out var values)
             ? values[0] == "on"
             : null;
 
+    /// <summary>
+    /// Gets whether Allure is enabled by command-line options.
+    /// </summary>
     public static bool IsAllureEnabled(ICommandLineOptions options) =>
         !options.TryGetOptionArgumentList("allure", out var values)
             || values[0] == "on";
 
+    /// <summary>
+    /// Gets the configured value of the <c>--allure-watchdog</c> toggle.
+    /// </summary>
     public static bool? GetWatchdogToggleValue(ICommandLineOptions options) =>
         options.TryGetOptionArgumentList("allure-watchdog", out var values)
             ? values[0] == "on"
             : null;
 
+    /// <summary>
+    /// Gets the value of the <c>--allure-results-directory</c> option.
+    /// </summary>
     public static string? GetResultsDirectoryValue(ICommandLineOptions options) =>
         options.TryGetOptionArgumentList("allure-results-directory", out var values)
             ? values[0]

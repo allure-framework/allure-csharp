@@ -5,6 +5,9 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
+/// <summary>
+/// Reports that an Allure scope has started.
+/// </summary>
 public sealed class AllureScopeStartMessage(
     CorrelationUid correlationUid,
     ScopeContextUid scopeUid,
@@ -18,10 +21,17 @@ public sealed class AllureScopeStartMessage(
         parentScopeUid
     )
 {
+    /// <summary>
+    /// Gets the scope context identifier.
+    /// </summary>
     public ScopeContextUid ScopeUid { get; } = scopeUid;
 
+    /// <summary>
+    /// Gets the parent scope context identifier, if one exists.
+    /// </summary>
     public ScopeContextUid? ParentScopeUid { get; } = parentScopeUid;
 
+    /// <inheritdoc />
     public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
         allureRuntime.Lifecycle.StartTestContainer(new() { uuid = IdFunctions.CreateUUID() });

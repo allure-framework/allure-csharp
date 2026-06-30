@@ -5,6 +5,9 @@ using Microsoft.Testing.Platform.Extensions.TestHost;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
+/// <summary>
+/// Starts the Allure.TestingPlatform runtime inside the test host process.
+/// </summary>
 public class AllureTestingPlatformInProcessRuntimeController(
     IAllureTestingPlatformRuntimeController runtimeController
 ) :
@@ -17,12 +20,14 @@ public class AllureTestingPlatformInProcessRuntimeController(
     ),
     ITestHostApplicationLifetime
 {
+    /// <inheritdoc />
     public Task BeforeRunAsync(CancellationToken cancellationToken)
     {
         this.Controller.Start();
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task AfterRunAsync(int exitCode, CancellationToken cancellationToken) =>
         Task.CompletedTask;
 }

@@ -4,6 +4,9 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
+/// <summary>
+/// Reports that an Allure fixture has stopped.
+/// </summary>
 public sealed class AllureFixtureStopMessage(
     CorrelationUid correlationUid,
     FixtureContextUid fixtureUid
@@ -15,8 +18,12 @@ public sealed class AllureFixtureStopMessage(
         fixtureUid
     )
 {
+    /// <summary>
+    /// Gets the fixture context identifier.
+    /// </summary>
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
+    /// <inheritdoc />
     public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
         allureRuntime.Lifecycle.UpdateFixture((fixture) =>

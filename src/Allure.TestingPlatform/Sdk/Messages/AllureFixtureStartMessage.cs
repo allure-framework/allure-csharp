@@ -5,6 +5,9 @@ using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
 
+/// <summary>
+/// Base class for messages that start an Allure fixture.
+/// </summary>
 public abstract class AllureFixtureStartMessage(
     CorrelationUid correlationUid,
     FixtureContextUid fixtureUid,
@@ -17,12 +20,22 @@ public abstract class AllureFixtureStartMessage(
             fixtureUid,
             scopeUid)
 {
+    /// <summary>
+    /// Gets the scope that owns the fixture.
+    /// </summary>
     public ScopeContextUid ScopeUid { get; } = scopeUid;
 
+    /// <summary>
+    /// Gets the fixture context identifier.
+    /// </summary>
     public FixtureContextUid FixtureUid { get; } = fixtureUid;
 
+    /// <summary>
+    /// Gets the fixture name.
+    /// </summary>
     public string FixtureName { get; } = fixtureName;
 
+    /// <inheritdoc />
     public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
     {
         var fixture = this.CreateFixture();
@@ -31,7 +44,13 @@ public abstract class AllureFixtureStartMessage(
 
     }
 
+    /// <summary>
+    /// Starts the fixture in the Allure lifecycle.
+    /// </summary>
     protected abstract void StartFixture(AllureLifecycle lifecycle, FixtureResult fixtureResult);
 
+    /// <summary>
+    /// Creates the fixture result started by this message.
+    /// </summary>
     protected FixtureResult CreateFixture() => new() { name = this.FixtureName };
 }

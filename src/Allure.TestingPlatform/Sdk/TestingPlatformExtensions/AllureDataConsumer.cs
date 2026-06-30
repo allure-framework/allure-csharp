@@ -19,6 +19,9 @@ using Allure.TestingPlatform.Internal;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
+/// <summary>
+/// Consumes Microsoft Testing Platform messages and writes Allure results.
+/// </summary>
 public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer, ITestSessionLifetimeHandler
 {
     readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
@@ -29,6 +32,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
     SessionCorrelationMap CorrelationState => this.correlationState.Value;
 
+    /// <inheritdoc />
     public Type[] DataTypesConsumed { get; } =
     [
         typeof(TestNodeUpdateMessage),
@@ -47,6 +51,9 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         typeof(AllureTestUpdateMessage),
     ];
 
+    /// <summary>
+    /// Creates the Allure data consumer.
+    /// </summary>
     public AllureDataConsumer(IAllureTestingPlatformRuntimeReference runtimeReference) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
@@ -62,9 +69,11 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         ));
     }
 
+    /// <inheritdoc />
     public Task OnTestSessionStartingAsync(ITestSessionContext testSessionContext) =>
         Task.CompletedTask;
 
+    /// <inheritdoc />
     public Task OnTestSessionFinishingAsync(ITestSessionContext testSessionContext)
     {
         if (this.CorrelationState.RemoveSessionData(testSessionContext.SessionUid) is CorrelationUid correlationUid)
@@ -74,6 +83,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public async Task ConsumeAsync(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)
     {
         try
@@ -91,7 +101,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
         }
     }
 
-    public async Task ConsumeAsyncUnsafe(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)
+    async Task ConsumeAsyncUnsafe(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)
     {
         var correlationResult =
             await this.CorrelationState.Correlate(dataProducer, value, cancellationToken);

@@ -11,10 +11,16 @@ using Microsoft.Testing.Platform.Builder;
 
 namespace Allure.TestingPlatform;
 
+/// <summary>
+/// Provides registration helpers for the standalone Allure.TestingPlatform package.
+/// </summary>
 public static class AllureTestingPlatformExtensions
 {
     extension (ITestApplicationBuilder builder)
     {
+        /// <summary>
+        /// Adds Allure.TestingPlatform to the test application and configures it.
+        /// </summary>
         public void AddAllure(Action<IStandaloneAllureRegistrationContext> configureAllure) =>
             AllureTestingPlatformSdkExtensions.RegisterAllureTestingPlatform(
                 builder,
@@ -22,30 +28,31 @@ public static class AllureTestingPlatformExtensions
                 AllureTestingPlatformRegistrationMode.Standalone
             );
 
+        /// <summary>
+        /// Adds Allure.TestingPlatform to the test application with default settings.
+        /// </summary>
         public void AddAllure() =>
             AddAllure(builder, static (_) => {});
     }
 
     extension (IStandaloneAllureRegistrationContext registration)
     {
-        public IStandaloneAllureRegistrationContext UseConfigurationFile<TConfiguration>(string file)
-            where TConfiguration : AllureConfiguration, new() =>
-
-            registration.UseConfiguration((serviceProvider) =>
-            ConfigurationFunctions.ReadConfiguration<TConfiguration>(serviceProvider, file));
-
+        /// <summary>
+        /// Load configuration read from the specified JSON file.
+        /// </summary>
         public IStandaloneAllureRegistrationContext UseConfigurationFile(string file) =>
             registration.UseConfiguration((serviceProvider) =>
             ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(serviceProvider, file));
 
-        public IStandaloneAllureRegistrationContext UseConfiguration<TConfiguration>(TConfiguration configuration)
-            where TConfiguration : AllureConfiguration, new() =>
-
-            registration.UseConfiguration((_) => configuration);
-
+        /// <summary>
+        /// Use the specified Allure configuration instance.
+        /// </summary>
         public IStandaloneAllureRegistrationContext UseConfiguration(AllureConfiguration configuration) =>
             registration.UseConfiguration((serviceProvider) => configuration);
 
+        /// <summary>
+        /// Use the specified type formatters to serialize arguments into Allure parameter values.
+        /// </summary>
         public IStandaloneAllureRegistrationContext UseTypeFormatters(params IEnumerable<ITypeFormatter> formatters) =>
             registration.UseTypeFormatters(AllureRegistrationDefaults.ExplicitTypeFormatters(formatters));
     }
