@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', '..', 'src', 'Allure.TestingPlatform', 'package', 'build', 'Allure.TestingPlatform.props'))" />
-    <Import Project="$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', '..', 'src', 'Allure.Xunit.v3', 'package', 'build', 'Allure.Xunit.v3.props'))" />
+    <Import Project="$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', '..', 'src', 'Allure.Xunit.v3', 'package', 'buildTransitive', 'Allure.Xunit.v3.props'))" />
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
