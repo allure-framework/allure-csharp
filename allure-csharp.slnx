@@ -80,7 +80,7 @@
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
     <Project Path="src/Allure.Xunit.v3.Generator/Allure.Xunit.v3.Generator.csproj">
-      <BuildType Solution="Publish|*" Project="false" />
+      <BuildType Solution="Publish|*" Project="Release" />
     </Project>
   </Folder>
   <Folder Name="/tests/">

@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
-        <PackXunitV3GeneratorTargetFramework>netstandard2.0</PackXunitV3GeneratorTargetFramework>
         <RootNamespace>Allure.Xunit</RootNamespace>
         <Nullable>enable</Nullable>
         <Authors>Qameta Software Inc</Authors>
@@ -12,15 +11,24 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetsForTfmSpecificContentInPackage>
-            $(TargetsForTfmSpecificContentInPackage);PackXunitV3Generator
-        </TargetsForTfmSpecificContentInPackage>
+        <_GeneratorTargetFramework>netstandard2.0</_GeneratorTargetFramework>
+        <_GeneratorProjectName>Allure.Xunit.v3.Generator</_GeneratorProjectName>
+        <_GeneratorOutputPath>$(
+            [MSBuild]::NormalizePath(
+                '$(ArtifactsPath)',
+                'bin',
+                '$(_GeneratorProjectName)',
+                '$(Configuration.ToLower())_$(_GeneratorTargetFramework)',
+                '$(_GeneratorProjectName).dll'
+            )
+        )</_GeneratorOutputPath>
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="/" />
         <None Include="..\..\img\Allure-X-Color.png" Pack="true" PackagePath="\" />
         <None Include="package\**\*" Pack="true" PackagePath="\" />
+        <None Include="$(_GeneratorOutputPath)" Pack="true" PackagePath="analyzers\dotnet\cs\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,19 +45,10 @@
         <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
         <ProjectReference Include="..\Allure.TestingPlatform\Allure.TestingPlatform.csproj" />
         <ProjectReference
-            Include="..\Allure.Xunit.v3.Generator\Allure.Xunit.v3.Generator.csproj"
+            Include="..\$(_GeneratorProjectName)\$(_GeneratorProjectName).csproj"
             ReferenceOutputAssembly="false"
-            OutputItemType="AllureXunitV3Generator"
+            OutputItemType="None"
             PrivateAssets="all"/>
     </ItemGroup>
-
-    <Target Name="PackXunitV3Generator"
-        DependsOnTargets="ResolveProjectReferences"
-        Condition=" '$(TargetFramework)' == '$(PackXunitV3GeneratorTargetFramework)' ">
-
-        <ItemGroup>
-            <TfmSpecificPackageFile Include="@(AllureXunitV3Generator)" PackagePath="analyzers\dotnet\cs\" />
-        </ItemGroup>
-    </Target>
 
 </Project>
