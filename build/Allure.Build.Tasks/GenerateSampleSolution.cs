@@ -425,7 +425,7 @@ public class GenerateSampleSolution : Task
             .Select((r) => CollectDependencyImportFiles(
                 Path.GetFullPath(r.EvaluatedIncludeEscaped, this.ProjectDirectory)
             ))
-            .Aggregate((f, s) => f with
+            .Aggregate(new MsBuildImportFiles([], []), (f, s) => f with
             {
                 PropsFiles = [..f.PropsFiles, ..s.PropsFiles],
                 TargetsFiles = [..f.TargetsFiles, ..s.TargetsFiles],
