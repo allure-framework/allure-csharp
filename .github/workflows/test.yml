@@ -20,6 +20,10 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
+      ALLURE_ENDPOINT: ${{ secrets.ALLURE_ENDPOINT }}
+      ALLURE_PROJECT_ID: ${{ secrets.ALLURE_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,6 +33,10 @@ jobs:
           dotnet-version: |
             3.1.x
             10.0.x
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.x'
 
       - name: 'Restore packages'
         run: |
@@ -63,27 +71,37 @@ jobs:
 
       - name: 'Run tests'
         run: |
-          dotnet test ./tests/Allure.Net.Commons.Tests\
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" -- dotnet test ./tests/Allure.Net.Commons.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet run --project ./tests/Allure.TestingPlatform.Tests\
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" -- dotnet run --project ./tests/Allure.TestingPlatform.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet run --project ./tests/Allure.NUnit.Tests\
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" -- dotnet run --project ./tests/Allure.NUnit.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet run --project ./tests/Allure.Xunit.Tests\
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" -- dotnet run --project ./tests/Allure.Xunit.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet test ./tests/Allure.SpecFlow.Tests\
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" -- dotnet test ./tests/Allure.SpecFlow.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
-          dotnet test ./tests/Allure.Reqnroll.Tests\
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" -- dotnet test ./tests/Allure.Reqnroll.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      - name: Generate Allure report
+        run: npx -y allure@3 generate --config ./.allurerc.mjs --output=./out/allure-report
+
+      - name: Post Allure summary
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+        uses: allure-framework/allure-action@v0
+        with:
+          report-directory: ./out/allure-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
