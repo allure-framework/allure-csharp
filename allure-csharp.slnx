@@ -117,6 +117,9 @@
     <Project Path="tests/Allure.Xunit.Tests/Allure.Xunit.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
+    <Project Path="tests/Allure.Xunit.v3.Tests/Allure.Xunit.v3.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />

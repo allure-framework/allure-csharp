@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>Exe</OutputType>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- <AllureSample Update="Steps/Samples/StepAttributes.cs" Properties="AspectInjector_Enabled=true" />
+    <AllureSample Update="Steps/Samples/LegacyStepAttributes.cs" Properties="AspectInjector_Enabled=true" />
+    <AllureSample Update="Fixtures/Samples/FixtureAttributes.cs" Properties="AspectInjector_Enabled=true" />
+    <AllureSample Update="Fixtures/Samples/LegacyFixtureAttributes.cs" Properties="AspectInjector_Enabled=true" /> -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.35.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SamplePackageReference Include="Xunit.v3.mtp-v2" Version="3.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The source generator will be referenced separately when testing a non-packaged version of Allure.Xunit.v3.
+     The packaged version comes with the generator out-of-box. -->
+    <ProjectUnderTest
+        Include="../../src/Allure.Xunit.v3/Allure.Xunit.v3.csproj"
+        AnalyzerProjects="../../src/Allure.Xunit.v3.Generator/Allure.Xunit.v3.Generator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../build/Allure.Build.SourceGenerators/Allure.Build.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../Allure.Testing/Allure.Testing.csproj" />
+  </ItemGroup>
+
+</Project>
