@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Allure.Build.Tasks.Functions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.CodeAnalysis.CSharp;
@@ -78,7 +79,7 @@ public class ResolveRegistryEntries : Task
             return null;
         }
 
-        if (!Functions.IsValidNamespace(registryNamespace))
+        if (!Syntax.IsValidNamespace(registryNamespace))
         {
             Logging.LogResolveRegistryEntryInvalidNamespace(this.Log, item, registryNamespace);
             success = false;
@@ -142,7 +143,7 @@ public class ResolveRegistryEntries : Task
     {
         var sourcePath = sampleFiles.Length == 1
             ? sampleFiles[0].Path
-            : Functions.GetGreatestCommonPrefix(
+            : Files.GetGreatestCommonPrefix(
                 sampleFiles.Select(static file => file.Path));
 
         if (string.IsNullOrEmpty(sourcePath))

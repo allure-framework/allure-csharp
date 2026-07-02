@@ -1,4 +1,6 @@
 using System.IO;
+using Allure.Build.Tasks.Functions;
+using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Utilities;
 
 namespace Allure.Build.Tasks;
