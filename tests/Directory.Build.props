@@ -115,25 +115,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AllureSample Include="**/Samples/**/*" Exclude="**/.*" />
-
-        <!-- To add or overwrite metadata, prefix it with Sample_:
-
-         <AllureSample Include="foo.bar" Sample_CopyToOutputDirectory="Never" />
-         -->
-    </ItemGroup>
-
-    <ItemGroup>
-        <!-- Include .cs files as Compile items-->
-        <AllureSampleItemType Include=".cs" ItemType="Compile" />
-
-        <!-- Add a new in .csproj to create a project-specific association.
-         For example:
-
-         <AllureSampleItemType Include=".feature" ItemType="ReqnrollFeatureFiles" />
-
-         Unmatched sample files are included as <None Include="<path>" CopyToOutputDirectory="PreserveNewest" />
-         -->
+        <!-- We're only including .cs samples by default. Other files needs to be included on a
+         per-project basis.
+        Each AllureSample becomes an item in the generated sample project. The item includes
+         the original sample file. You can control the item type by applying ItemType="...".
+         Use Properties="..." to provide extra MSBuild properties to the generated project.
+         Use ItemMetadata="..." to provide metadata to the item created for this sample. -->
+        <AllureSample Include="**/Samples/**/*.cs" Exclude="**/.*" ItemType="Compile" />
     </ItemGroup>
 
 </Project>

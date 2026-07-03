@@ -12,9 +12,6 @@ namespace Allure.Build.Tasks;
 public class GenerateSampleSolution : Task
 {
     [Required]
-    public ITaskItem[] SampleItemTypes { get; set; }
-
-    [Required]
     public ITaskItem[] SampleSources { get; set; }
 
     [Required]
@@ -46,10 +43,16 @@ public class GenerateSampleSolution : Task
 
     public string PackageCacheDirectory { get; set; }
 
+    IEnumerable<ITaskItem2> SampleSources2 => this.SampleSources.Cast<ITaskItem2>();
+
+    IEnumerable<ITaskItem2> SamplePackageReferences2 =>
+        this.SamplePackageReferences.Cast<ITaskItem2>();
+
     IEnumerable<string> CommonPackageNames =>
-        from x in this.SamplePackageReferences
+        from x in this.SamplePackageReferences2
         where x.GetMetadata("Optional").ToLower() is "" or not "true"
-        select x.ItemSpec;
+        // Keep escaping as we will write it as the Include attribute value.
+        select x.EvaluatedIncludeEscaped;
 
     IEnumerable<string> AnalyzerPathsRelativeToSolutionDir =>
         this.SampleProjectReferences
@@ -62,18 +65,6 @@ public class GenerateSampleSolution : Task
                     this.SampleSolutionDir
                 ))
             );
-
-
-    public ImmutableDictionary<string, string> SampleItemTypeMap =>
-        this.SampleItemTypes.ToImmutableDictionary(
-            static (m) => m.ItemSpec,
-            static (m) => m.GetMetadata("ItemType") is { Length: >0 } itemType
-                ? itemType
-                : "None",
-            StringComparer.OrdinalIgnoreCase,
-            StringComparer.Ordinal
-        );
-
 
     static internal TaskLoggingHelper log;
 
@@ -133,8 +124,13 @@ public class GenerateSampleSolution : Task
     GeneratedFileSource PrepareDirectoryPackagesProps() =>
         Files.DirectoryPackagesProps(
             this.SampleSolutionDir,
-            this.SamplePackageReferences.Select(
-                static (item) => (item.ItemSpec, item.GetMetadata("Version"))
+            this.SamplePackageReferences2.Select(
+                static (item) => (
+                    // Keep escape as we're writing these values to Directory.Package.props
+                    // and the project file as is.
+                    name: item.EvaluatedIncludeEscaped,
+                    varsion: item.GetMetadataValueEscaped("Version")
+                )
             )
         );
 
@@ -151,7 +147,6 @@ public class GenerateSampleSolution : Task
             this.SampleSolutionDir,
             this.ProjectDirectory,
             this.RootNamespace,
-            this.SampleItemTypeMap,
             this.SampleSources
         );
 

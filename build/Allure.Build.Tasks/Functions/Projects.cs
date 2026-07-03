@@ -17,7 +17,6 @@ public static class Projects
         string sampleSolutionDir,
         string testProjectDirectory,
         string testProjectRootNamespace,
-        ImmutableDictionary<string, string> itemTypeMap,
         IEnumerable<ITaskItem> sampleSources
     ) =>
         [
@@ -26,7 +25,6 @@ public static class Projects
                     log,
                     testProjectDirectory,
                     testProjectRootNamespace,
-                    itemTypeMap,
                     sampleItem
                 ))
                 .Where(static (sample) => sample.WellDefined)
@@ -54,7 +52,13 @@ public static class Projects
         );
         var projectName = GetSampleMetadata(log, sample, "ProjectName");
         var properties = GetSampleSpecificProperties(sample);
-        var itemType = itemTypeMap.GetValueOrDefault(Path.GetExtension(path), "None");
+
+        var rawItemType = sample.GetMetadata("ItemType");
+        var itemTypeDefined = rawItemType is { Length: > 0 };
+        var resolvedItemType = itemTypeDefined ? rawItemType : "None";
+
+        ImmutableArray<(string key, string value)> itemMetadata =
+            ExtractSampleItemMetadata(sample);
 
         var wellDefined
             = path.Length > 0
@@ -68,20 +72,30 @@ public static class Projects
             RegistryNamespace: registryNamespace,
             ProjectName: projectName,
             MsbuildProperties: properties,
-            ItemType: itemType,
+            ItemType: resolvedItemType,
             ItemMetadata: [
-                ..itemType is not "None"
-                    || sample.MetadataNames.OfType<string>().Contains("Sample_CopyToOutputDirectory")
-                        ? (IEnumerable<(string, string)>)[]
-                        : [("CopyToOutputDirectory", "PreserveNewest")],
-                ..sample.MetadataNames
-                    .OfType<string>()
-                    .Where(static (n) => n.StartsWith("Sample_"))
-                    .Select((n) => (key: n, value: sample.GetMetadata(n)))
+                ..!itemTypeDefined && !itemMetadata.Any(static (kv) => kv.key == "CopyToOutputDirectory")
+                    ? [("CopyToOutputDirectory", "PreserveNewest")]
+                    : (IEnumerable<(string, string)>)[],
+                ..itemMetadata,
             ],
             WellDefined: wellDefined
         );
     }
+
+    static ImmutableArray<(string key, string value)> ExtractSampleItemMetadata(ITaskItem2 sample) => [
+        ..
+        from singleMetadata in GetSplittedItemMetadata(sample)
+        let kvArray = singleMetadata.Split('=', 2)
+        where kvArray is [{ Length: >0 }, ..]
+        group kvArray is [_, var value] ? value : "" by kvArray[0] into valueGroup
+        select (valueGroup.Key, string.Join(";", valueGroup)),
+    ];
+
+    static string[] GetSplittedItemMetadata(ITaskItem2 sample) =>
+        sample
+            .GetMetadata("ItemMetadata")
+            .Split(';', StringSplitOptions.RemoveEmptyEntries);
 
     static GeneratedFileSource GenerateProject(
         TaskLoggingHelper log,
