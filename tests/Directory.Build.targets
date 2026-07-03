@@ -163,7 +163,7 @@
 
         <Exec
             Condition=" '$(Allure_TestTargetVersion)' != '' "
-            Command="dotnet msbuild -getProperty:PackageId '%(ProjectUnderTest.Identity)'"
+            Command="dotnet msbuild -getProperty:PackageId &quot;%(ProjectUnderTest.Identity)&quot;"
             ConsoleToMsBuild="true"
             StandardOutputImportance="low">
 
