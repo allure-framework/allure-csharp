@@ -213,7 +213,7 @@ public class AllureSampleRunner
     ) => new(
         "dotnet",
         [
-            "test",
+            ..ResolveTestingPlatformSpecificArguments(sample.TestingPlatform),
             sample.ProjectFilePath,
             "--framework",
             sample.TargetFramework,
@@ -230,6 +230,16 @@ public class AllureSampleRunner
         StandardOutputEncoding = encoding,
         UseShellExecute = false,
     };
+
+    static IEnumerable<string> ResolveTestingPlatformSpecificArguments(TestingPlatform testingPlatform) =>
+        testingPlatform switch
+        {
+            TestingPlatform.VsTest => ["test"],
+            TestingPlatform.MicrosoftTestingPlatform => ["run", "--project"],
+            var value => throw new InvalidOperationException(
+                $"Unknown testing platform '{value}'"
+            ),
+        };
 
     static void ApplyExtraEnvironmentVariables(
         IEnumerable<KeyValuePair<string, string>> envVars,
