@@ -178,6 +178,18 @@ public class AllureSampleRegistryGenerator : IIncrementalGenerator
                 /// </remarks>
                 public static {{ Constants.REGISTRY_ENTRY_CLASSNAME_FULL }} {{ sampleName }} { get; }
                     = new(
+                        TestingPlatform: {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_TESTING_PLATFORM }} switch
+                        {
+                            null or "" or {{ SymbolDisplay.FormatLiteral(Constants.TESTING_PLATFORM_VSTEST, true) }} =>
+                                {{ Constants.TESTING_PLATFORM_VSTEST_FULL }},
+
+                            {{ SymbolDisplay.FormatLiteral(Constants.TESTING_PLATFORM_MTP, true) }} =>
+                                {{ Constants.TESTING_PLATFORM_MTP_FULL }},
+
+                            var value => throw new {{ Constants.ARGUMENT_EXCEPTION_CLASSNAME_FULL }}(
+                                $"The testing platform value '{value}' is not supported."
+                            ),
+                        },
                         RegistryId: "{{ registryNamespace }}",
                         SampleId: "{{ sampleName }}",
                         ProjectFilePath: {{ SymbolDisplay.FormatLiteral(projectFilePath, true) }},
