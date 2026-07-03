@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
 using Allure.Build.Tasks.Functions;
@@ -152,7 +153,9 @@ public class GenerateSampleSolution : Task
 
     GeneratedFileSource PrepareSolutionFile(IEnumerable<GeneratedFileSource> csprojFiles) =>
         Files.Solution(
-            this.SampleSolutionPath,
-            csprojFiles.Select(static (f) => f.Destination.FullName)
+            solutionFilePath: this.SampleSolutionPath,
+            sampleSolutionRelativeProjectPath: csprojFiles.Select((f) =>
+                Path.GetRelativePath(this.SampleSolutionDir, f.Destination.FullName)
+            )
         );
 }

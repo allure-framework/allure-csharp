@@ -24,13 +24,10 @@ public static class Files
 
     public static GeneratedFileSource Solution(
         string solutionFilePath,
-        IEnumerable<string> projects
+        IEnumerable<string> sampleSolutionRelativeProjectPath
     ) =>
         GeneratedFileSource.FromXmlDocument(
-            document: XmlDefinitions.Solution(
-                sampleSolutionRelativeProjectPath: projects
-                    .Select((p) => Path.GetRelativePath(solutionFilePath, p))
-            ),
+            document: XmlDefinitions.Solution(sampleSolutionRelativeProjectPath),
             destinationPath: solutionFilePath,
             omitDeclaration: true
         );
