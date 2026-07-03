@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
 using Allure.Build.Tasks.Functions;
-using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -44,24 +44,19 @@ public class GenerateSampleSolution : Task
 
     public string PackageCacheDirectory { get; set; }
 
-    IEnumerable<ITaskItem2> SampleSources2 =>
-        this.SampleSources.Cast<ITaskItem2>();
+    IEnumerable<ITaskItem2> SampleSources2 => this.SampleSources.Cast<ITaskItem2>();
 
     IEnumerable<ITaskItem2> SamplePackageReferences2 =>
         this.SamplePackageReferences.Cast<ITaskItem2>();
 
-    IEnumerable<ITaskItem2> SampleProjectReferences2 =>
-        this.SampleProjectReferences.Cast<ITaskItem2>();
-
-    IEnumerable<ITaskItem2> CommonPackageReferences =>
-        this.SamplePackageReferences2.Where(static (spec) =>
-        {
-            var optional = spec.GetMetadataValueEscaped("Optional");
-            return string.IsNullOrEmpty(optional) || optional.ToLower() is not "true";
-        });
+    IEnumerable<string> CommonPackageNames =>
+        from x in this.SamplePackageReferences2
+        where x.GetMetadata("Optional").ToLower() is "" or not "true"
+        // Keep escaping as we will write it as the Include attribute value.
+        select x.EvaluatedIncludeEscaped;
 
     IEnumerable<string> AnalyzerPathsRelativeToSolutionDir =>
-        this.SampleProjectReferences2
+        this.SampleProjectReferences
             .SelectMany((item) => item
                 .GetMetadata("AnalyzerProjects")
                 .Split(';', StringSplitOptions.RemoveEmptyEntries)
@@ -84,8 +79,8 @@ public class GenerateSampleSolution : Task
         var directoryBuildTargets = this.PrepareDirectoryBuildTargets(imports);
         var directoryPackagesProps = this.PrepareDirectoryPackagesProps();
         var nugetConfig = this.PrepareNugetConfig();
-        var (csprojRelativePaths, projectFiles) = this.PrepareProjects();
-        var slnx = this.PrepareSolutionFile(csprojRelativePaths);
+        var projectFiles = this.PrepareProjects();
+        var slnx = this.PrepareSolutionFile(projectFiles);
 
         FileProcessor.CommitSampleFiles(this.Log, this.SampleSolutionDir, [
             slnx,
@@ -106,7 +101,7 @@ public class GenerateSampleSolution : Task
             this.Log,
             this.SampleSolutionDir,
             this.ProjectDirectory,
-            this.SampleProjectReferences2
+            this.SampleProjectReferences
         );
 
     GeneratedFileSource PrepareDirectorySolutionTargets() =>
@@ -117,7 +112,7 @@ public class GenerateSampleSolution : Task
             solutionDir: this.SampleSolutionDir,
             targetFrameworks: this.SampleTargetFrameworks,
             imports.PropsFiles,
-            packages: this.CommonPackageReferences.Select(static (item) => item.ItemSpec),
+            packages: this.CommonPackageNames,
             projects: this.SampleProjectReferences.Select((item) =>
                 Files.RebasePath(item.ItemSpec, this.ProjectDirectory, this.SampleSolutionDir)
             ),
@@ -131,7 +126,12 @@ public class GenerateSampleSolution : Task
         Files.DirectoryPackagesProps(
             this.SampleSolutionDir,
             this.SamplePackageReferences2.Select(
-                static (item) => (item.ItemSpec, item.GetMetadata("Version"))
+                static (item) => (
+                    // Keep escape as we're writing these values to Directory.Package.props
+                    // and the project file as is.
+                    name: item.EvaluatedIncludeEscaped,
+                    varsion: item.GetMetadataValueEscaped("Version")
+                )
             )
         );
 
@@ -142,7 +142,7 @@ public class GenerateSampleSolution : Task
             this.SampleSolutionDir
         );
 
-    (ImmutableArray<string> paths, ImmutableArray<FileSource> sources) PrepareProjects() =>
+    ImmutableArray<GeneratedFileSource> PrepareProjects() =>
         Projects.GenerateProjects(
             this.Log,
             this.SampleSolutionDir,
@@ -151,6 +151,11 @@ public class GenerateSampleSolution : Task
             this.SampleSources2
         );
 
-    GeneratedFileSource PrepareSolutionFile(IEnumerable<string> projectPaths) =>
-        Files.Solution(this.SampleSolutionPath, projectPaths);
+    GeneratedFileSource PrepareSolutionFile(IEnumerable<GeneratedFileSource> csprojFiles) =>
+        Files.Solution(
+            solutionFilePath: this.SampleSolutionPath,
+            sampleSolutionRelativeProjectPath: csprojFiles.Select((f) =>
+                Path.GetRelativePath(this.SampleSolutionDir, f.Destination.FullName)
+            )
+        );
 }

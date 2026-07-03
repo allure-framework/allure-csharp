@@ -15,14 +15,14 @@ public static partial class Imports
         TaskLoggingHelper log,
         string sampleSolutionDir,
         string testProjectDirectory,
-        IEnumerable<ITaskItem2> projectReferences
+        IEnumerable<ITaskItem> projectReferences
     ) =>
         projectReferences
             .Select((r) => CollectDependencyImportFiles(
                 buildEngine,
                 log,
                 sampleSolutionDir,
-                Path.GetFullPath(r.EvaluatedIncludeEscaped, testProjectDirectory)
+                Path.GetFullPath(r.ItemSpec, testProjectDirectory)
             ))
             .Aggregate(new MsBuildImportFiles([], []), (f, s) => f with
             {
@@ -74,7 +74,7 @@ public static partial class Imports
                                         select Path.Combine(dir, $"{projectName2}.targets"))
                                             .ToImmutableArray()
             from projectTargetOutput in outputs[projectIndex].Values
-            from ITaskItem2 packageFile in projectTargetOutput
+            from packageFile in projectTargetOutput
             let packagePaths = Files.GetOsMatchingPath(packageFile.GetMetadata("PackagePath"))
                     .Split(';')
                     .Select(static (p) => p.TrimStart(Path.DirectorySeparatorChar))

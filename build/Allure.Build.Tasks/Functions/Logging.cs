@@ -12,34 +12,34 @@ public static class Logging
 {
     public static void LogResolveRegistryEntryNoMetadata(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string metadataKey
     ) =>
         log.LogError(
             "Invalid sample file '{0}': no {1} defined.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             metadataKey
         );
 
     public static void LogResolveRegistryEntryInvalidNamespace(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string registryNamespace
     ) =>
         log.LogError(
             "Invalid sample file '{0}': invalid RegistryNamespace '{1}'. The value must be a valid namespace.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             registryNamespace
         );
 
     public static void LogResolveRegistryEntryInvalidSampleName(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string sampleName
     ) =>
         log.LogError(
             "Invalid sample file '{0}': invalid SampleName '{1}'. The value must be a valid C# identifier.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             sampleName
         );
 
@@ -100,20 +100,6 @@ public static class Logging
     public static void LogStaleDeletion(TaskLoggingHelper log, string path)
         => log.LogMessage($"Deleted a stale file '{path}'.");
 
-    public static void LogFileOutsideProjectWarning(
-        TaskLoggingHelper log,
-        string sampleProjectDir,
-        string path,
-        string relativeSampleFilePath
-    )
-        => log.LogWarning(
-            "Ignoring '{0}': the file's calculated destination '{1}' is outside of the "
-                + "sample project directory '{2}'",
-            path,
-            relativeSampleFilePath,
-            sampleProjectDir
-        );
-
     public static void LogMissingCommonPrefixWarning(
         TaskLoggingHelper log,
         IEnumerable<AllureSample> projectSamples,
@@ -128,20 +114,20 @@ public static class Logging
             )
         );
 
-    public static void LogNoPath(TaskLoggingHelper log, ITaskItem2 item) =>
-        log.LogWarning("Ignoring '{0}': bad path.", item.EvaluatedIncludeEscaped);
+    public static void LogNoPath(TaskLoggingHelper log, ITaskItem item) =>
+        log.LogWarning("Ignoring '{0}': bad path.", item.ItemSpec);
 
-    public static void LogFileNotExist(TaskLoggingHelper log, ITaskItem2 item) =>
-        log.LogWarning("Ignoring '{0}': the file does not exist.", item.EvaluatedIncludeEscaped);
+    public static void LogFileNotExist(TaskLoggingHelper log, ITaskItem item) =>
+        log.LogWarning("Ignoring '{0}': the file does not exist.", item.ItemSpec);
 
     public static void LogNoMetadata(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string metadataKey
     ) =>
         log.LogWarning(
             "Ignoring '{0}': no {1} defined on the item.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             metadataKey
         );
 
@@ -163,14 +149,16 @@ public static class Logging
                     </ItemGroup>
 
                   """,
-            sample.EvaluatedIncludeEscaped,
+            sample.ItemSpec,
             sampleName,
+            // Keep escapint to display a value that is ready for copy and paste
+            // to the test project file.
             Path.GetRelativePath(projectDirectory, sample.EvaluatedIncludeEscaped)
         );
 
     public static void LogInvalidRegistryNamespaceWarning(
         TaskLoggingHelper log,
-        ITaskItem2 sample,
+        ITaskItem sample,
         string registryNamespace,
         string projectDirectory,
         string rootNamespace
@@ -187,9 +175,9 @@ public static class Logging
                     </ItemGroup>
 
                   """,
-            sample.EvaluatedIncludeEscaped,
+            sample.ItemSpec,
             registryNamespace,
-            Path.GetRelativePath(projectDirectory, sample.EvaluatedIncludeEscaped),
+            Path.GetRelativePath(projectDirectory, sample.ItemSpec),
             rootNamespace
         );
 

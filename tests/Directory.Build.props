@@ -115,7 +115,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AllureSample Include="**/Samples/**/*" Exclude="**/.*" />
+        <!-- We're only including .cs samples by default. Other files needs to be included on a
+         per-project basis.
+        Each AllureSample becomes an item in the generated sample project. The item includes
+         the original sample file. You can control the item type by applying ItemType="...".
+         Use Properties="..." to provide extra MSBuild properties to the generated project.
+         Use ItemMetadata="..." to provide metadata to the item created for this sample. -->
+        <AllureSample Include="**/Samples/**/*.cs" Exclude="**/.*" ItemType="Compile" />
     </ItemGroup>
 
 </Project>

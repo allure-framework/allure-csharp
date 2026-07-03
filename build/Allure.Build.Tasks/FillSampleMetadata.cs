@@ -60,7 +60,7 @@ public class FillSampleMetadata : Task
 
     void EnsureSampleMetadata(ITaskItem2 sample)
     {
-        var fragments = this.GetSampleFqNameFragmants(sample.EvaluatedIncludeEscaped);
+        var fragments = this.GetSampleFqNameFragments(sample.ItemSpec);
 
         if (fragments.Length == 0)
         {
@@ -89,7 +89,7 @@ public class FillSampleMetadata : Task
 
         if (IsMetadataMissing(sample, "ProjectFilePath"))
         {
-            var projectName = sample.GetMetadataValueEscaped("ProjectName");
+            var projectName = sample.GetMetadata("ProjectName");
             var path = Path.Combine(
                 this.SampleSolutionDirectory,
                 projectName,
@@ -104,7 +104,7 @@ public class FillSampleMetadata : Task
                 this.RootDirectory,
                 Path.Combine(
                     this.SampleSolutionDirectory,
-                    sample.GetMetadataValueEscaped("ProjectName")
+                    sample.GetMetadata("ProjectName")
                 )
             );
             sample.SetMetadataValueLiteral("ProjectRelativePath", path);
@@ -119,7 +119,7 @@ public class FillSampleMetadata : Task
         {
             var path = Path.Combine(
                 this.BinDirectory,
-                sample.GetMetadataValueEscaped("ProjectName")
+                sample.GetMetadata("ProjectName")
             );
             sample.SetMetadataValueLiteral("ProjectBinPath", path);
         }
@@ -128,14 +128,14 @@ public class FillSampleMetadata : Task
         {
             var path = Path.Combine(
                 this.ObjDirectory,
-                sample.GetMetadataValueEscaped("ProjectName")
+                sample.GetMetadata("ProjectName")
             );
             sample.SetMetadataValueLiteral("ProjectObjPath", path);
         }
     }
 
-    static bool IsMetadataMissing(ITaskItem2 item, string key) =>
-        string.IsNullOrEmpty(item.GetMetadataValueEscaped(key));
+    static bool IsMetadataMissing(ITaskItem item, string key) =>
+        string.IsNullOrEmpty(item.GetMetadata(key));
 
     void SetResultsDirectory(ITaskItem2 item)
     {
@@ -143,14 +143,14 @@ public class FillSampleMetadata : Task
         var targetFramework = this.TargetFramework.ToLowerInvariant();
         var defaultResultsDirectory = Path.Join(
             this.BinDirectory,
-            item.GetMetadataValueEscaped("ProjectName"),
+            item.GetMetadata("ProjectName"),
             $"{configuration}_{targetFramework}",
             "allure-results"
         );
         item.SetMetadataValueLiteral("ResultsDirectory", defaultResultsDirectory);
     }
 
-    ImmutableArray<string> GetSampleFqNameFragmants(string samplePath)
+    ImmutableArray<string> GetSampleFqNameFragments(string samplePath)
     {
         var fragments = this.GetPathFragments(samplePath).Reverse().ToList();
 

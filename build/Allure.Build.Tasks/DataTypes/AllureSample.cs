@@ -8,5 +8,7 @@ public record class AllureSample(
     string RegistryNamespace,
     string ProjectName,
     ImmutableArray<(string key, string value)> MsbuildProperties,
+    string ItemType,
+    ImmutableArray<(string key, string value)> ItemMetadata,
     bool WellDefined
 );
