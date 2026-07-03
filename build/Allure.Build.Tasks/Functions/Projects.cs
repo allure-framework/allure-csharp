@@ -34,6 +34,15 @@ public static class Projects
                 .Where(static (csproj) => csproj is not null)
         ];
 
+    public static string ResolveOutputType(string testingPlatform) => testingPlatform switch
+    {
+        null or "" or "VsTest" => "Library",
+        "MicrosoftTestingPlatform" => "Exe",
+        var value => throw new ArgumentException(
+            $"The testing platform '{value}' is not supported"
+        ),
+    };
+
     static AllureSample ToAllureSample(
         TaskLoggingHelper log,
         string testProjectDirectory,

@@ -201,6 +201,7 @@
             SampleProjectReferences="@(SampleProjectReference)"
             ProjectDirectory="$(MSBuildProjectDirectory)"
             RootNamespace="$(RootNamespace)"
+            TestingPlatform="$(Allure_TestingPlatform)"
             SampleSolutionDir="$(Allure_SampleSolutionDir)"
             SampleSolutionName="$(Allure_SampleSolutionName)"
             SampleSolutionPath="$(_Allure_SampleSolutionPath)"

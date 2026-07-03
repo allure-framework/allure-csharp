@@ -28,6 +28,9 @@ public class GenerateSampleSolution : Task
     public string RootNamespace { get; set; }
 
     [Required]
+    public string TestingPlatform { get; set; }
+
+    [Required]
     public string SampleSolutionDir { get; set; }
 
     [Required]
@@ -111,6 +114,7 @@ public class GenerateSampleSolution : Task
         Files.DirectoryBuildProps(
             solutionDir: this.SampleSolutionDir,
             targetFrameworks: this.SampleTargetFrameworks,
+            outputType: Projects.ResolveOutputType(this.TestingPlatform),
             imports.PropsFiles,
             packages: this.CommonPackageNames,
             projects: this.SampleProjectReferences.Select((item) =>
