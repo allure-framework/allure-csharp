@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Allure.Testing;
+namespace Allure.Testing.Execution;
 
 /// <summary>
 /// Contains data that affects the execution of the sample project.

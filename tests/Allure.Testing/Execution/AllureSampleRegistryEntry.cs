@@ -1,4 +1,4 @@
-namespace Allure.Testing;
+namespace Allure.Testing.Execution;
 
 /// <summary>
 /// Contains the data required to run a specific sample project and access its output.

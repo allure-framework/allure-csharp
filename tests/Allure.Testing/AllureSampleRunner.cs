@@ -10,6 +10,7 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Testing.Assertions.Model;
+using Allure.Testing.Execution;
 using Allure.Testing.Internal;
 using TUnit.Assertions.Core;
 using TUnit.Assertions.Exceptions;

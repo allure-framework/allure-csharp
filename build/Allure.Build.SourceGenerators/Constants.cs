@@ -3,11 +3,12 @@ namespace Allure.Build.SourceGenerators;
 internal static class Constants
 {
     public const string NAMESPACE_NAME = "Allure.Testing";
+    public const string EXECUTION_NAMESPACE_NAME = $"{NAMESPACE_NAME}.Execution";
     public const string MSBUILD_PROPS_FILENAME = "AllureBuildProperties.g.cs";
     public const string MSBUILD_PROPS_CLASSNAME = "AllureBuildProperties";
     public const string MSBUILD_PROPS_CLASSNAME_FULL = $"global::{NAMESPACE_NAME}.{MSBUILD_PROPS_CLASSNAME}";
     public const string REGISTRY_ENTRY_CLASSNAME = "AllureSampleRegistryEntry";
-    public const string REGISTRY_ENTRY_CLASSNAME_FULL = $"global::{NAMESPACE_NAME}.{REGISTRY_ENTRY_CLASSNAME}";
+    public const string REGISTRY_ENTRY_CLASSNAME_FULL = $"global::{EXECUTION_NAMESPACE_NAME}.{REGISTRY_ENTRY_CLASSNAME}";
     public const string REGISTRY_CLASSNAME = "AllureSampleRegistry";
     public const string REGISTRY_FILENAME = "AllureSampleRegistry.g.cs";
     public const string SAMPLE_NAME_METADATA_NAME = "build_metadata.AdditionalFiles.Allure_SampleName";

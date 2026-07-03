@@ -1,4 +1,5 @@
 using Allure.Testing;
+using Allure.Testing.Execution;
 
 namespace Allure.Xunit.Tests.AllureIds;
 
