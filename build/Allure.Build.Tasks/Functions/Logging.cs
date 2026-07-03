@@ -12,34 +12,34 @@ public static class Logging
 {
     public static void LogResolveRegistryEntryNoMetadata(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string metadataKey
     ) =>
         log.LogError(
             "Invalid sample file '{0}': no {1} defined.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             metadataKey
         );
 
     public static void LogResolveRegistryEntryInvalidNamespace(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string registryNamespace
     ) =>
         log.LogError(
             "Invalid sample file '{0}': invalid RegistryNamespace '{1}'. The value must be a valid namespace.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             registryNamespace
         );
 
     public static void LogResolveRegistryEntryInvalidSampleName(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string sampleName
     ) =>
         log.LogError(
             "Invalid sample file '{0}': invalid SampleName '{1}'. The value must be a valid C# identifier.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             sampleName
         );
 
@@ -114,26 +114,26 @@ public static class Logging
             )
         );
 
-    public static void LogNoPath(TaskLoggingHelper log, ITaskItem2 item) =>
-        log.LogWarning("Ignoring '{0}': bad path.", item.EvaluatedIncludeEscaped);
+    public static void LogNoPath(TaskLoggingHelper log, ITaskItem item) =>
+        log.LogWarning("Ignoring '{0}': bad path.", item.ItemSpec);
 
-    public static void LogFileNotExist(TaskLoggingHelper log, ITaskItem2 item) =>
-        log.LogWarning("Ignoring '{0}': the file does not exist.", item.EvaluatedIncludeEscaped);
+    public static void LogFileNotExist(TaskLoggingHelper log, ITaskItem item) =>
+        log.LogWarning("Ignoring '{0}': the file does not exist.", item.ItemSpec);
 
     public static void LogNoMetadata(
         TaskLoggingHelper log,
-        ITaskItem2 item,
+        ITaskItem item,
         string metadataKey
     ) =>
         log.LogWarning(
             "Ignoring '{0}': no {1} defined on the item.",
-            item.EvaluatedIncludeEscaped,
+            item.ItemSpec,
             metadataKey
         );
 
     public static void LogInvalidSampleNameWarning(
         TaskLoggingHelper log,
-        ITaskItem2 sample,
+        ITaskItem sample,
         string sampleName,
         string projectDirectory
     )
@@ -149,14 +149,14 @@ public static class Logging
                     </ItemGroup>
 
                   """,
-            sample.EvaluatedIncludeEscaped,
+            sample.ItemSpec,
             sampleName,
-            Path.GetRelativePath(projectDirectory, sample.EvaluatedIncludeEscaped)
+            Path.GetRelativePath(projectDirectory, sample.ItemSpec)
         );
 
     public static void LogInvalidRegistryNamespaceWarning(
         TaskLoggingHelper log,
-        ITaskItem2 sample,
+        ITaskItem sample,
         string registryNamespace,
         string projectDirectory,
         string rootNamespace
@@ -173,9 +173,9 @@ public static class Logging
                     </ItemGroup>
 
                   """,
-            sample.EvaluatedIncludeEscaped,
+            sample.ItemSpec,
             registryNamespace,
-            Path.GetRelativePath(projectDirectory, sample.EvaluatedIncludeEscaped),
+            Path.GetRelativePath(projectDirectory, sample.ItemSpec),
             rootNamespace
         );
 

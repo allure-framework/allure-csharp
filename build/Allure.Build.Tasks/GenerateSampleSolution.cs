@@ -46,24 +46,13 @@ public class GenerateSampleSolution : Task
 
     public string PackageCacheDirectory { get; set; }
 
-    IEnumerable<ITaskItem2> SampleSources2 =>
-        this.SampleSources.Cast<ITaskItem2>();
-
-    IEnumerable<ITaskItem2> SamplePackageReferences2 =>
-        this.SamplePackageReferences.Cast<ITaskItem2>();
-
-    IEnumerable<ITaskItem2> SampleProjectReferences2 =>
-        this.SampleProjectReferences.Cast<ITaskItem2>();
-
-    IEnumerable<ITaskItem2> CommonPackageReferences =>
-        this.SamplePackageReferences2.Where(static (spec) =>
-        {
-            var optional = spec.GetMetadataValueEscaped("Optional");
-            return string.IsNullOrEmpty(optional) || optional.ToLower() is not "true";
-        });
+    IEnumerable<string> CommonPackageNames =>
+        from x in this.SamplePackageReferences
+        where x.GetMetadata("Optional").ToLower() is "" or not "true"
+        select x.ItemSpec;
 
     IEnumerable<string> AnalyzerPathsRelativeToSolutionDir =>
-        this.SampleProjectReferences2
+        this.SampleProjectReferences
             .SelectMany((item) => item
                 .GetMetadata("AnalyzerProjects")
                 .Split(';', StringSplitOptions.RemoveEmptyEntries)
@@ -120,7 +109,7 @@ public class GenerateSampleSolution : Task
             this.Log,
             this.SampleSolutionDir,
             this.ProjectDirectory,
-            this.SampleProjectReferences2
+            this.SampleProjectReferences
         );
 
     GeneratedFileSource PrepareDirectorySolutionTargets() =>
@@ -131,7 +120,7 @@ public class GenerateSampleSolution : Task
             solutionDir: this.SampleSolutionDir,
             targetFrameworks: this.SampleTargetFrameworks,
             imports.PropsFiles,
-            packages: this.CommonPackageReferences.Select(static (item) => item.ItemSpec),
+            packages: this.CommonPackageNames,
             projects: this.SampleProjectReferences.Select((item) =>
                 Files.RebasePath(item.ItemSpec, this.ProjectDirectory, this.SampleSolutionDir)
             ),
@@ -144,7 +133,7 @@ public class GenerateSampleSolution : Task
     GeneratedFileSource PrepareDirectoryPackagesProps() =>
         Files.DirectoryPackagesProps(
             this.SampleSolutionDir,
-            this.SamplePackageReferences2.Select(
+            this.SamplePackageReferences.Select(
                 static (item) => (item.ItemSpec, item.GetMetadata("Version"))
             )
         );
@@ -163,7 +152,7 @@ public class GenerateSampleSolution : Task
             this.ProjectDirectory,
             this.RootNamespace,
             this.SampleItemTypeMap,
-            this.SampleSources2
+            this.SampleSources
         );
 
     GeneratedFileSource PrepareSolutionFile(IEnumerable<GeneratedFileSource> csprojFiles) =>

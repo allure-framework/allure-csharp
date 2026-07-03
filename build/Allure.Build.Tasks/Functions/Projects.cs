@@ -18,7 +18,7 @@ public static class Projects
         string testProjectDirectory,
         string testProjectRootNamespace,
         ImmutableDictionary<string, string> itemTypeMap,
-        IEnumerable<ITaskItem2> sampleSources
+        IEnumerable<ITaskItem> sampleSources
     ) =>
         [
             ..sampleSources
@@ -41,7 +41,7 @@ public static class Projects
         string testProjectDirectory,
         string testProjectRootNamespace,
         ImmutableDictionary<string, string> itemTypeMap,
-        ITaskItem2 sample
+        ITaskItem sample
     )
     {
         var path = GetSamplePath(log, testProjectDirectory, sample);
@@ -109,7 +109,7 @@ public static class Projects
     static string GetSamplePath(
         TaskLoggingHelper log,
         string basePath,
-        ITaskItem2 sample
+        ITaskItem sample
     )
     {
         var path = sample.ItemSpec;
@@ -132,7 +132,7 @@ public static class Projects
     static string GetSampleName(
         TaskLoggingHelper log,
         string testProjectDirectory,
-        ITaskItem2 sample
+        ITaskItem sample
     )
     {
         var sampleName = GetSampleMetadata(log, sample, "SampleName");
@@ -153,7 +153,7 @@ public static class Projects
         TaskLoggingHelper log,
         string testProjectDirectory,
         string testProjectRootNamespace,
-        ITaskItem2 sample
+        ITaskItem sample
     )
     {
         var registryNamespace = GetSampleMetadata(log, sample, "RegistryNamespace");
@@ -171,9 +171,9 @@ public static class Projects
         return registryNamespace;
     }
 
-    static string GetSampleMetadata(TaskLoggingHelper log, ITaskItem2 sample, string metadataKey)
+    static string GetSampleMetadata(TaskLoggingHelper log, ITaskItem sample, string metadataKey)
     {
-        var value = sample.GetMetadataValueEscaped(metadataKey);
+        var value = sample.GetMetadata(metadataKey);
         if (string.IsNullOrEmpty(value))
         {
             Logging.LogNoMetadata(log, sample, metadataKey);
@@ -184,11 +184,11 @@ public static class Projects
     }
 
     static ImmutableArray<(string key, string value)> GetSampleSpecificProperties(
-        ITaskItem2 sample
+        ITaskItem sample
     )
         => [
             .. sample
-                .GetMetadataValueEscaped("Properties")
+                .GetMetadata("Properties")
                 .Split(';', StringSplitOptions.RemoveEmptyEntries)
                 .Select(static (p) => p.Split('=', StringSplitOptions.RemoveEmptyEntries))
                 .Where(static (p) => p.Length == 2)

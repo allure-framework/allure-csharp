@@ -38,16 +38,13 @@ public class ResolveRegistryEntries : Task
     [Output]
     public ITaskItem[] Entries { get; set; }
 
-    IEnumerable<ITaskItem2> SampleFiles2 =>
-        this.SampleFiles.Cast<ITaskItem2>();
-
     bool success = false;
 
     public override bool Execute()
     {
         this.success = true;
 
-        var registryDescriptors = this.SampleFiles2
+        var registryDescriptors = this.SampleFiles
             .Select(this.CreateSampleFile)
             .Where(static file => file is not null)
             .GroupBy(
@@ -69,9 +66,9 @@ public class ResolveRegistryEntries : Task
         return this.success;
     }
 
-    SampleFile CreateSampleFile(ITaskItem2 item)
+    SampleFile CreateSampleFile(ITaskItem item)
     {
-        var registryNamespace = item.GetMetadataValueEscaped("RegistryNamespace");
+        var registryNamespace = item.GetMetadata("RegistryNamespace");
         if (string.IsNullOrEmpty(registryNamespace))
         {
             Logging.LogResolveRegistryEntryNoMetadata(this.Log, item, "RegistryNamespace");
@@ -86,7 +83,7 @@ public class ResolveRegistryEntries : Task
             return null;
         }
 
-        var sampleName = item.GetMetadataValueEscaped("SampleName");
+        var sampleName = item.GetMetadata("SampleName");
         if (string.IsNullOrEmpty(sampleName))
         {
             Logging.LogResolveRegistryEntryNoMetadata(this.Log, item, "SampleName");
@@ -101,7 +98,7 @@ public class ResolveRegistryEntries : Task
             return null;
         }
 
-        var projectRelativePath = item.GetMetadataValueEscaped("ProjectRelativePath");
+        var projectRelativePath = item.GetMetadata("ProjectRelativePath");
         if (string.IsNullOrEmpty(projectRelativePath))
         {
             Logging.LogResolveRegistryEntryNoMetadata(this.Log, item, "ProjectRelativePath");
@@ -109,7 +106,7 @@ public class ResolveRegistryEntries : Task
             return null;
         }
 
-        var projectFilePath = item.GetMetadataValueEscaped("ProjectFilePath");
+        var projectFilePath = item.GetMetadata("ProjectFilePath");
         if (string.IsNullOrEmpty(projectFilePath))
         {
             Logging.LogResolveRegistryEntryNoMetadata(this.Log, item, "ProjectFilePath");
@@ -117,7 +114,7 @@ public class ResolveRegistryEntries : Task
             return null;
         }
 
-        var resultsDirectory = item.GetMetadataValueEscaped("ResultsDirectory");
+        var resultsDirectory = item.GetMetadata("ResultsDirectory");
         if (string.IsNullOrEmpty(resultsDirectory))
         {
             Logging.LogResolveRegistryEntryNoMetadata(this.Log, item, "ResultsDirectory");
@@ -126,7 +123,7 @@ public class ResolveRegistryEntries : Task
         }
 
         return new(
-            Path: item.EvaluatedIncludeEscaped,
+            Path: item.ItemSpec,
             RegistryNamespace: registryNamespace,
             SampleName: sampleName,
             ProjectRelativePath: projectRelativePath,
