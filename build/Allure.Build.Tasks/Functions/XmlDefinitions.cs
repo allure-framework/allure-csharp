@@ -48,13 +48,19 @@ public static class XmlDefinitions
     );
 
     public static XDocument Project(
-        IEnumerable<(string key, string value)> properties
+        IEnumerable<(string key, string value)> properties,
+        IEnumerable<string> compile
     ) => new(
         new XElement(
             "Project",
             (object[])[
                 new XAttribute("Sdk", "Microsoft.NET.Sdk"),
                 ..MapNotEmpty(properties, static (props) => MsBuild.GetPropertyGroup(props)),
+                ..MapNotEmpty(compile, static (paths) => MsBuild.GetItemGroup(
+                    paths,
+                    "Compile",
+                    static (p) => [("Include", p)])
+                )
             ]
         )
     );

@@ -80,13 +80,14 @@ public static class Files
         );
 
     public static GeneratedFileSource Project(
-        string solutionDir,
+        string projectDir,
         string projectName,
-        IEnumerable<(string key, string value)> properties
+        IEnumerable<(string key, string value)> properties,
+        IEnumerable<string> compile
     ) =>
         GeneratedFileSource.FromXmlDocument(
-            document: XmlDefinitions.Project(properties),
-            destinationPath: Path.Combine(solutionDir, projectName, $"{projectName}.csproj"),
+            document: XmlDefinitions.Project(properties, compile),
+            destinationPath: Path.Combine(projectDir, $"{projectName}.csproj"),
             omitDeclaration: true
         );
 

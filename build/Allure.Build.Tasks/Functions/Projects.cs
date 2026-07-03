@@ -192,10 +192,30 @@ public static class Projects
         string greatestCommonPrefix
     )
     {
+        var sampleProjectDir = Path.Combine(sampleSolutionDir, sampleProjectName);
+
+        var sampleSources = PrepareSampleSources(
+            log: log,
+            samples: samples,
+            greatestCommonPrefix: greatestCommonPrefix,
+            sampleProjectDir: sampleProjectDir
+        )
+            .GroupBy(static (s) => s.Destination.Extension)
+            .ToImmutableDictionary(
+                static (g) => g.Key,
+                static (g) => g.ToImmutableArray(),
+                StringComparer.OrdinalIgnoreCase
+            );
+
+        var compile = sampleSources
+                .GetValueOrDefault(".cs", [])
+                .Select((cs) => Path.GetRelativePath(sampleProjectDir, cs.Source.FullName));
+
         var csproj = Files.Project(
-            sampleSolutionDir,
-            sampleProjectName,
-            properties: GetSampleProjectProperties(samples)
+            projectDir: sampleProjectDir,
+            projectName: sampleProjectName,
+            properties: GetSampleProjectProperties(samples),
+            compile: compile
         );
 
         var csprojRelativePath = Path.GetRelativePath(
@@ -203,14 +223,11 @@ public static class Projects
             csproj.Destination.FullName
         );
 
-        var sampleSources = PrepareSampleSources(
-            log,
-            samples,
-            greatestCommonPrefix,
-            csproj.Destination.Directory.FullName
-        );
+        var restProjectSampleSources = sampleSources
+            .Where(static (kv) => !StringComparer.OrdinalIgnoreCase.Equals(kv.Key, ".cs"))
+            .SelectMany(static (kv) => kv.Value);
 
-        return (csprojRelativePath, [csproj, ..sampleSources]);
+        return (csprojRelativePath, [csproj, ..restProjectSampleSources]);
     }
 
     static IEnumerable<MappedFileSource> PrepareSampleSources(
