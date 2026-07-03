@@ -133,7 +133,7 @@ public static class Logging
 
     public static void LogInvalidSampleNameWarning(
         TaskLoggingHelper log,
-        ITaskItem sample,
+        ITaskItem2 sample,
         string sampleName,
         string projectDirectory
     )
@@ -151,7 +151,9 @@ public static class Logging
                   """,
             sample.ItemSpec,
             sampleName,
-            Path.GetRelativePath(projectDirectory, sample.ItemSpec)
+            // Keep escapint to display a value that is ready for copy and paste
+            // to the test project file.
+            Path.GetRelativePath(projectDirectory, sample.EvaluatedIncludeEscaped)
         );
 
     public static void LogInvalidRegistryNamespaceWarning(

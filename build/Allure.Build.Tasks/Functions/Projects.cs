@@ -17,7 +17,7 @@ public static class Projects
         string sampleSolutionDir,
         string testProjectDirectory,
         string testProjectRootNamespace,
-        IEnumerable<ITaskItem> sampleSources
+        IEnumerable<ITaskItem2> sampleSources
     ) =>
         [
             ..sampleSources
@@ -38,8 +38,7 @@ public static class Projects
         TaskLoggingHelper log,
         string testProjectDirectory,
         string testProjectRootNamespace,
-        ImmutableDictionary<string, string> itemTypeMap,
-        ITaskItem sample
+        ITaskItem2 sample
     )
     {
         var path = GetSamplePath(log, testProjectDirectory, sample);
@@ -53,7 +52,8 @@ public static class Projects
         var projectName = GetSampleMetadata(log, sample, "ProjectName");
         var properties = GetSampleSpecificProperties(sample);
 
-        var rawItemType = sample.GetMetadata("ItemType");
+        // Keep escaping as it becomes an XML element name
+        var rawItemType = sample.GetMetadataValueEscaped("ItemType");
         var itemTypeDefined = rawItemType is { Length: > 0 };
         var resolvedItemType = itemTypeDefined ? rawItemType : "None";
 
@@ -94,7 +94,8 @@ public static class Projects
 
     static string[] GetSplittedItemMetadata(ITaskItem2 sample) =>
         sample
-            .GetMetadata("ItemMetadata")
+            // Keep escaping to allow using special characters in item attribute names and values
+            .GetMetadataValueEscaped("ItemMetadata")
             .Split(';', StringSplitOptions.RemoveEmptyEntries);
 
     static GeneratedFileSource GenerateProject(
@@ -146,7 +147,7 @@ public static class Projects
     static string GetSampleName(
         TaskLoggingHelper log,
         string testProjectDirectory,
-        ITaskItem sample
+        ITaskItem2 sample
     )
     {
         var sampleName = GetSampleMetadata(log, sample, "SampleName");
@@ -198,11 +199,12 @@ public static class Projects
     }
 
     static ImmutableArray<(string key, string value)> GetSampleSpecificProperties(
-        ITaskItem sample
+        ITaskItem2 sample
     )
         => [
             .. sample
-                .GetMetadata("Properties")
+                // Keep escaping as we're writing these values in the project file directly.
+                .GetMetadataValueEscaped("Properties")
                 .Split(';', StringSplitOptions.RemoveEmptyEntries)
                 .Select(static (p) => p.Split('=', StringSplitOptions.RemoveEmptyEntries))
                 .Where(static (p) => p.Length == 2)

@@ -147,7 +147,7 @@ public class GenerateSampleSolution : Task
             this.SampleSolutionDir,
             this.ProjectDirectory,
             this.RootNamespace,
-            this.SampleSources
+            this.SampleSources2
         );
 
     GeneratedFileSource PrepareSolutionFile(IEnumerable<GeneratedFileSource> csprojFiles) =>
