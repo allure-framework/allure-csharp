@@ -65,6 +65,11 @@
         </PropertyGroup>
     </Target>
 
+    <!-- TODO: document-->
+    <Target Name="Allure_GetPackageFiles"
+        DependsOnTargets="_GetPackageFiles"
+        Returns="@(_PackageFiles)" />
+
     <Target Name="Allure_GenerateTestSamples" />
     <Target Name="Allure_BuildTestSamples" />
     <Target Name="Allure_RunTestSamples" />

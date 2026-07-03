@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Allure.Build.Tasks;
 
@@ -66,8 +69,10 @@ public class GenerateSampleSolution : Task
 
     public override bool Execute()
     {
+        var imports = this.GetImportsOfReferencedProjects();
         var directorySolutionTargets = GenerateDirectorySolutionTargets();
-        var directoryBuildProps = this.GenerateDirectoryBuildProps();
+        var directoryBuildProps = this.GenerateDirectoryBuildProps(imports.PropsFiles);
+        var directoryBuildTargets = this.GenerateDirectoryBuildTargets(imports.TargetsFiles);
         var directoryPackagesProps = this.GenerateDirectoryPackagesProps();
         var nugetConfig = this.GenerateNugetConfig();
         var projects = this.GenerateProjects();
@@ -76,6 +81,7 @@ public class GenerateSampleSolution : Task
             slnx,
             directorySolutionTargets,
             directoryBuildProps,
+            directoryBuildTargets,
             directoryPackagesProps,
             nugetConfig,
             ..projects.SelectMany(static (pair) => pair.Item2),
@@ -401,24 +407,6 @@ public class GenerateSampleSolution : Task
         );
     }
 
-    XDocument CreateDirectoryPackagesPropsXml() => new(
-        new XElement(
-            "Project",
-            new XElement(
-                "PropertyGroup",
-                new XElement("ManagePackageVersionsCentrally", "true")
-            ),
-            new XElement(
-                "ItemGroup",
-                this.SamplePackageReferences2.Select(static (spec) => new XElement(
-                    "PackageVersion",
-                    new XAttribute("Include", spec.EvaluatedIncludeEscaped),
-                    new XAttribute("Version", spec.GetMetadataValueEscaped("Version")))
-                )
-            )
-        )
-    );
-
     IEnumerable<XElement> CreateProjectReferencesXml()
     {
         if (this.CommonPackageReferences.Any())
@@ -430,6 +418,91 @@ public class GenerateSampleSolution : Task
         {
             yield return this.CreateCommonProjectReferencesXml();
         }
+    }
+
+    MsBuildImportFiles GetImportsOfReferencedProjects() =>
+        this.SampleProjectReferences2
+            .Select((r) => CollectDependencyImportFiles(
+                Path.GetFullPath(r.EvaluatedIncludeEscaped, this.ProjectDirectory)
+            ))
+            .Aggregate(new MsBuildImportFiles([], []), (f, s) => f with
+            {
+                PropsFiles = [..f.PropsFiles, ..s.PropsFiles],
+                TargetsFiles = [..f.TargetsFiles, ..s.TargetsFiles],
+            });
+
+    MsBuildImportFiles CollectDependencyImportFiles(string projectFullPath)
+    {
+        var graph = new Microsoft.Build.Graph.ProjectGraph(projectFullPath);
+        var projects = graph.ProjectNodesTopologicallySorted
+            .Select(static (n) => n.ProjectInstance)
+            .ToImmutableArray();
+        var arr = projects
+            .Select(static (n) => n.FullPath)
+            .ToArray();
+
+        var buildResults = this.BuildEngine9.BuildProjectFilesInParallel(
+            projectFileNames: arr,
+            targetNames: ["Allure_GetPackageFiles"],
+            globalProperties: [.. Enumerable.Repeat<System.Collections.IDictionary>(null, arr.Length)],
+            removeGlobalProperties: null,
+            toolsVersion: [.. Enumerable.Repeat<string>(null, arr.Length)],
+            returnTargetOutputs: true
+        );
+
+        if (buildResults is not { Result: true, TargetOutputsPerProject: var outputs })
+        {
+            this.Log.LogWarning($"Could not resolve the set of MSBuild extension files for {projectFullPath}");
+            return new([], []);
+        }
+
+        var packageFiles =
+            (from projectIndex in Enumerable.Range(0, arr.Length)
+            let project = projects[projectIndex]
+            let projectName2 = project.GetPropertyValue("ProjectName")
+            let buildDirectories = projectIndex == 0
+                ? new[] { "build", "buildTransitive" }
+                : new[] { "buildTransitive" }
+            let expectedPropsFiles =    (from dir in buildDirectories
+                                        select Path.Combine(dir, $"{projectName2}.props"))
+                                            .ToImmutableArray()
+            let expectedTargetsFiles =  (from dir in buildDirectories
+                                        select Path.Combine(dir, $"{projectName2}.targets"))
+                                            .ToImmutableArray()
+            from projectTargetOutput in outputs[projectIndex].Values
+            from ITaskItem2 packageFile in projectTargetOutput
+            let packagePaths = Functions.NormalizePath(packageFile.GetMetadata("PackagePath"))
+                    .Split(';')
+                    .Select(static (p) => p.TrimStart(Path.DirectorySeparatorChar))
+                    .Select((p) => p.Length == 0 || p.EndsWith(Path.DirectorySeparatorChar)
+                        ? (p
+                            + Functions.NormalizePath(packageFile.GetMetadata("RecursiveDir"))
+                            + packageFile.GetMetadata("Filename")
+                            + packageFile.GetMetadata("Extension"))
+                        : p)
+                    .ToImmutableHashSet()
+            let isProps = packagePaths.Intersect(expectedPropsFiles) is { Count: >0 }
+            let isTargets = packagePaths.Intersect(expectedTargetsFiles) is { Count: >0 }
+            where isProps || isTargets
+            select (
+                isProps: isProps,
+                path: Functions.ResolveToNewBase(
+                    packageFile.ItemSpec,
+                    project.Directory,
+                    this.SampleSolutionDir
+                )
+            )).ToImmutableArray();
+
+        return new (
+            PropsFiles: packageFiles
+                .Where(static (f) => f.isProps)
+                .Select(static (f) => f.path)
+                .Distinct(fsComparer),
+            TargetsFiles: packageFiles
+                .Where(static (f) => !f.isProps)
+                .Select(static (f) => f.path)
+                .Distinct(fsComparer)
+        );
     }
 
     XElement CreateCommonPackageReferencesXml() => new(
@@ -451,37 +524,44 @@ public class GenerateSampleSolution : Task
         ))
     );
 
-    string ResolveDependencyProjectPath(ITaskItem2 dependencyProject)
-    {
-        var dependnecyProjectPath = Path.GetRelativePath(
-            this.SampleSolutionDir,
-            dependencyProject.EvaluatedIncludeEscaped
+    string ResolveDependencyProjectPath(ITaskItem2 dependencyProject) =>
+        GetMsBuildRelativePathEvaluation(
+            dependencyProject.EvaluatedIncludeEscaped,
+            this.ProjectDirectory,
+            this.SampleSolutionDir
         );
-        return $"$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '{dependnecyProjectPath}'))";
-    }
 
-    XDocument CreateDirectoryBuildPropsXml() => new(
-        new XElement(
-            "Project",
-            [
-                CreateParentDirectoryBuildPropsImport(),
-                this.CreateCommonProjectProperties(),
-                CreateCommonProjectCompileItems(),
-                CreateAllureResultsCleanItems(),
-                ..CreateProjectReferencesXml(),
-            ]
-        )
-    );
+    static string GetMsBuildRelativePathEvaluation(string relativePath) =>
+        $"$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '{relativePath}'))";
 
-    static XElement CreateParentDirectoryBuildPropsImport() => new(
+    static string GetMsBuildRelativePathEvaluation(string fullPath, string newBasePath) =>
+        GetMsBuildRelativePathEvaluation(
+            Path.GetRelativePath(newBasePath, fullPath)
+        );
+
+    static string GetMsBuildRelativePathEvaluation(string maybeRelativePath, string basePath, string newBasePath) =>
+        GetMsBuildRelativePathEvaluation(Path.GetFullPath(maybeRelativePath, basePath), newBasePath);
+
+    static IEnumerable<XElement> CreateImportElements(IEnumerable<string> imports) =>
+        imports.Select(CreateImportElement);
+
+    static XElement CreateImportElement(string import) => new(
         "Import",
         new XAttribute(
             "Project",
-            "$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+            GetMsBuildRelativePathEvaluation(import)
+        )
+    );
+
+    static XElement CreateParentImport(string import) => new(
+        "Import",
+        new XAttribute(
+            "Project",
+            $"$([MSBuild]::GetPathOfFileAbove('{import}', '$(MSBuildThisFileDirectory)../'))"
         ),
         new XAttribute(
             "Condition",
-            "'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+            $"'' != $([MSBuild]::GetPathOfFileAbove('{import}', '$(MSBuildThisFileDirectory)../'))"
         )
     );
 
@@ -545,28 +625,57 @@ public class GenerateSampleSolution : Task
         return GeneratedFileSource.FromXmlDocument(nugetConfigXml, nugetConfigPath);
     }
 
-    GeneratedFileSource GenerateDirectoryPackagesProps()
-    {
-        var directoryPackagesPropsPath
-            = Path.Combine(this.SampleSolutionDir, "Directory.Packages.props");
-        var directoryPackagesPropsXml = CreateDirectoryPackagesPropsXml();
-
-        return GeneratedFileSource.FromXmlDocument(
-            directoryPackagesPropsXml,
-            directoryPackagesPropsPath,
-            omitDeclaration: true
+    GeneratedFileSource GenerateDirectoryPackagesProps() =>
+        this.GenerateMsbuildExtensionFile(
+            "Directory.Packages.props",
+            [
+                new XElement(
+                    "PropertyGroup",
+                    new XElement("ManagePackageVersionsCentrally", "true")
+                ),
+                new XElement(
+                    "ItemGroup",
+                    this.SamplePackageReferences2.Select(static (spec) => new XElement(
+                        "PackageVersion",
+                        new XAttribute("Include", spec.EvaluatedIncludeEscaped),
+                        new XAttribute("Version", spec.GetMetadataValueEscaped("Version")))
+                    )
+                )
+            ]
         );
-    }
 
-    GeneratedFileSource GenerateDirectoryBuildProps()
+    GeneratedFileSource GenerateDirectoryBuildProps(IEnumerable<string> imports) =>
+        this.GenerateMsbuildExtensionFile(
+            "Directory.Build.props",
+            [
+                CreateParentImport("Directory.Build.props"),
+                ..CreateImportElements(imports),
+                this.CreateCommonProjectProperties(),
+                CreateCommonProjectCompileItems(),
+                CreateAllureResultsCleanItems(),
+                ..CreateProjectReferencesXml(),
+            ]
+        );
+
+    GeneratedFileSource GenerateDirectoryBuildTargets(IEnumerable<string> imports) =>
+        this.GenerateMsbuildExtensionFile(
+            "Directory.Build.targets",
+            [
+                CreateParentImport("Directory.Build.targets"),
+                ..CreateImportElements(imports),
+            ]
+        );
+
+    GeneratedFileSource GenerateMsbuildExtensionFile(string relativePath, params IEnumerable<XElement> projectChildren)
     {
-        var directoryBuildPropsPath
-            = Path.Combine(this.SampleSolutionDir, "Directory.Build.props");
-        var directoryBuildPropsXml = this.CreateDirectoryBuildPropsXml();
+        var outputPath = Path.Combine(this.SampleSolutionDir, relativePath);
+        XDocument content = new(
+            new XElement("Project", projectChildren)
+        );
 
         return GeneratedFileSource.FromXmlDocument(
-            directoryBuildPropsXml,
-            directoryBuildPropsPath,
+            content,
+            outputPath,
             omitDeclaration: true
         );
     }
@@ -597,4 +706,6 @@ public class GenerateSampleSolution : Task
                 )
             )
         );
+
+    record MsBuildImportFiles(IEnumerable<string> PropsFiles, IEnumerable<string> TargetsFiles);
 }

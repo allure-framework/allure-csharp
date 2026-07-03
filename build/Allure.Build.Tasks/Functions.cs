@@ -35,4 +35,25 @@ public static class Functions
             path.StartsWith(prefix)
                 && path.Length > prefix.Length
                 && path[prefix.Length] == Path.DirectorySeparatorChar);
+
+    public static string NormalizePath(string path)
+    {
+        if (Path.DirectorySeparatorChar != '/')
+        {
+            path = path.Replace('/', Path.DirectorySeparatorChar);
+        }
+
+        if (Path.DirectorySeparatorChar != '\\')
+        {
+            path = path.Replace('\\', Path.DirectorySeparatorChar);
+        }
+
+        return path;
+    }
+
+    public static string GetNormalizedFullPath(string path, string basePath) =>
+        Path.GetFullPath(NormalizePath(path), basePath);
+
+    public static string ResolveToNewBase(string path, string basePath, string newBasePath) =>
+        Path.GetRelativePath(newBasePath, GetNormalizedFullPath(path, basePath));
 }
