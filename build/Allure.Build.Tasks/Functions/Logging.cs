@@ -100,20 +100,6 @@ public static class Logging
     public static void LogStaleDeletion(TaskLoggingHelper log, string path)
         => log.LogMessage($"Deleted a stale file '{path}'.");
 
-    public static void LogFileOutsideProjectWarning(
-        TaskLoggingHelper log,
-        string sampleProjectDir,
-        string path,
-        string relativeSampleFilePath
-    )
-        => log.LogWarning(
-            "Ignoring '{0}': the file's calculated destination '{1}' is outside of the "
-                + "sample project directory '{2}'",
-            path,
-            relativeSampleFilePath,
-            sampleProjectDir
-        );
-
     public static void LogMissingCommonPrefixWarning(
         TaskLoggingHelper log,
         IEnumerable<AllureSample> projectSamples,

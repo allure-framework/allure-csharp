@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Allure.Build.Tasks.DataTypes;
 
 namespace Allure.Build.Tasks.Functions;
 
@@ -26,11 +27,13 @@ public static class Files
         IEnumerable<string> projects
     ) =>
         GeneratedFileSource.FromXmlDocument(
-            document: XmlDefinitions.Solution(projects),
+            document: XmlDefinitions.Solution(
+                sampleSolutionRelativeProjectPath: projects
+                    .Select((p) => Path.GetRelativePath(solutionFilePath, p))
+            ),
             destinationPath: solutionFilePath,
             omitDeclaration: true
         );
-
 
     public static GeneratedFileSource DirectorySolutionTargets(
         string solutionDir
@@ -83,10 +86,20 @@ public static class Files
         string projectDir,
         string projectName,
         IEnumerable<(string key, string value)> properties,
-        IEnumerable<string> compile
+        IEnumerable<AllureSample> files
     ) =>
         GeneratedFileSource.FromXmlDocument(
-            document: XmlDefinitions.Project(properties, compile),
+            document: XmlDefinitions.Project(
+                projectProperties: properties,
+                groupedProjectItems: files.GroupBy(
+                    static (file) => file.ItemType,
+                    (file) => (
+                        path: Path.GetRelativePath(projectDir, file.Path),
+                        metadata: file.ItemMetadata
+                    ),
+                    static (itemType, items) => (itemType, items)
+                )
+            ),
             destinationPath: Path.Combine(projectDir, $"{projectName}.csproj"),
             omitDeclaration: true
         );

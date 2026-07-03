@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
 using Allure.Build.Tasks.Functions;
-using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -12,6 +11,9 @@ namespace Allure.Build.Tasks;
 
 public class GenerateSampleSolution : Task
 {
+    [Required]
+    public ITaskItem[] SampleItemTypes { get; set; }
+
     [Required]
     public ITaskItem[] SampleSources { get; set; }
 
@@ -72,6 +74,18 @@ public class GenerateSampleSolution : Task
                 ))
             );
 
+
+    public ImmutableDictionary<string, string> SampleItemTypeMap =>
+        this.SampleItemTypes.ToImmutableDictionary(
+            static (m) => m.ItemSpec,
+            static (m) => m.GetMetadata("ItemType") is { Length: >0 } itemType
+                ? itemType
+                : "None",
+            StringComparer.OrdinalIgnoreCase,
+            StringComparer.Ordinal
+        );
+
+
     static internal TaskLoggingHelper log;
 
     public override bool Execute()
@@ -84,8 +98,8 @@ public class GenerateSampleSolution : Task
         var directoryBuildTargets = this.PrepareDirectoryBuildTargets(imports);
         var directoryPackagesProps = this.PrepareDirectoryPackagesProps();
         var nugetConfig = this.PrepareNugetConfig();
-        var (csprojRelativePaths, projectFiles) = this.PrepareProjects();
-        var slnx = this.PrepareSolutionFile(csprojRelativePaths);
+        var projectFiles = this.PrepareProjects();
+        var slnx = this.PrepareSolutionFile(projectFiles);
 
         FileProcessor.CommitSampleFiles(this.Log, this.SampleSolutionDir, [
             slnx,
@@ -142,15 +156,19 @@ public class GenerateSampleSolution : Task
             this.SampleSolutionDir
         );
 
-    (ImmutableArray<string> paths, ImmutableArray<FileSource> sources) PrepareProjects() =>
+    ImmutableArray<GeneratedFileSource> PrepareProjects() =>
         Projects.GenerateProjects(
             this.Log,
             this.SampleSolutionDir,
             this.ProjectDirectory,
             this.RootNamespace,
+            this.SampleItemTypeMap,
             this.SampleSources2
         );
 
-    GeneratedFileSource PrepareSolutionFile(IEnumerable<string> projectPaths) =>
-        Files.Solution(this.SampleSolutionPath, projectPaths);
+    GeneratedFileSource PrepareSolutionFile(IEnumerable<GeneratedFileSource> csprojFiles) =>
+        Files.Solution(
+            this.SampleSolutionPath,
+            csprojFiles.Select(static (f) => f.Destination.FullName)
+        );
 }

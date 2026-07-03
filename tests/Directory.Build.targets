@@ -196,6 +196,7 @@
         <MakeDir Directories="$(Allure_LocalNugetRepository)" />
 
         <Allure.Build.Tasks.GenerateSampleSolution
+            SampleItemTypes="@(AllureSampleItemType)"
             SampleSources="@(_Allure_ResolvedSample)"
             SamplePackageReferences="@(SamplePackageReference)"
             SampleProjectReferences="@(SampleProjectReference)"

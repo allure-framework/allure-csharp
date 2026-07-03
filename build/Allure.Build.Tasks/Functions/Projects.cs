@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
-using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,42 +12,39 @@ namespace Allure.Build.Tasks.Functions;
 
 public static class Projects
 {
-    public static (ImmutableArray<string> paths, ImmutableArray<FileSource> sources) GenerateProjects(
+    public static ImmutableArray<GeneratedFileSource> GenerateProjects(
         TaskLoggingHelper log,
         string sampleSolutionDir,
         string testProjectDirectory,
         string testProjectRootNamespace,
+        ImmutableDictionary<string, string> itemTypeMap,
         IEnumerable<ITaskItem2> sampleSources
-    )
-    {
-        var x = sampleSources
-            .Select((sampleItem) => ToAllureSample(
-                log,
-                testProjectDirectory,
-                testProjectRootNamespace,
-                sampleItem
-            ))
-            .Where(static (sample) => sample.WellDefined)
-            .GroupBy(
-                static (sample) => sample.ProjectName)
-            .Select((group) => GenerateProject(log, sampleSolutionDir, group.Key, [..group]))
-            .Where(static (pair) => pair.path is not null)
-            .ToImmutableArray();
-
-        return (
-            [..x.Select(static (p) => p.path)],
-            [..x.SelectMany(static (p) => p.files)]
-        );
-    }
+    ) =>
+        [
+            ..sampleSources
+                .Select((sampleItem) => ToAllureSample(
+                    log,
+                    testProjectDirectory,
+                    testProjectRootNamespace,
+                    itemTypeMap,
+                    sampleItem
+                ))
+                .Where(static (sample) => sample.WellDefined)
+                .GroupBy(
+                    static (sample) => sample.ProjectName)
+                .Select((group) => GenerateProject(log, sampleSolutionDir, group.Key, [..group]))
+                .Where(static (csproj) => csproj is not null)
+        ];
 
     static AllureSample ToAllureSample(
         TaskLoggingHelper log,
         string testProjectDirectory,
         string testProjectRootNamespace,
+        ImmutableDictionary<string, string> itemTypeMap,
         ITaskItem2 sample
     )
     {
-        var path = GetSamplePath(log, sample);
+        var path = GetSamplePath(log, testProjectDirectory, sample);
         var sampleName = GetSampleName(log, testProjectDirectory, sample);
         var registryNamespace = GetRegistryNamespace(
             log,
@@ -58,17 +54,36 @@ public static class Projects
         );
         var projectName = GetSampleMetadata(log, sample, "ProjectName");
         var properties = GetSampleSpecificProperties(sample);
+        var itemType = itemTypeMap.GetValueOrDefault(Path.GetExtension(path), "None");
 
-        var wellDefines
+        var wellDefined
             = path.Length > 0
                 && sampleName.Length > 0
                 && registryNamespace.Length > 0
                 && projectName.Length > 0;
 
-        return new (path, sampleName, registryNamespace, projectName, properties, wellDefines);
+        return new(
+            Path: path,
+            SampleName: sampleName,
+            RegistryNamespace: registryNamespace,
+            ProjectName: projectName,
+            MsbuildProperties: properties,
+            ItemType: itemType,
+            ItemMetadata: [
+                ..itemType is not "None"
+                    || sample.MetadataNames.OfType<string>().Contains("Sample_CopyToOutputDirectory")
+                        ? (IEnumerable<(string, string)>)[]
+                        : [("CopyToOutputDirectory", "PreserveNewest")],
+                ..sample.MetadataNames
+                    .OfType<string>()
+                    .Where(static (n) => n.StartsWith("Sample_"))
+                    .Select((n) => (key: n, value: sample.GetMetadata(n)))
+            ],
+            WellDefined: wellDefined
+        );
     }
 
-    static (string path, ImmutableArray<FileSource> files) GenerateProject(
+    static GeneratedFileSource GenerateProject(
         TaskLoggingHelper log,
         string sampleSolutionDir,
         string sampleProjectName,
@@ -79,30 +94,33 @@ public static class Projects
         if (greatestCommonPrefix is "")
         {
             Logging.LogMissingCommonPrefixWarning(log, samples, sampleProjectName);
-            return (null, []);
+            return null;
         }
 
         Logging.LogGreatestCommonPrefixMessage(log, sampleProjectName, greatestCommonPrefix);
 
         return CreateProjectFileSources(
-            log,
             sampleSolutionDir,
             sampleProjectName,
-            samples,
-            greatestCommonPrefix
+            samples
         );
     }
 
-    static string GetSamplePath(TaskLoggingHelper log, ITaskItem2 sample)
+    static string GetSamplePath(
+        TaskLoggingHelper log,
+        string basePath,
+        ITaskItem2 sample
+    )
     {
-        var path = sample.EvaluatedIncludeEscaped;
+        var path = sample.ItemSpec;
         if (string.IsNullOrEmpty(path))
         {
             Logging.LogNoPath(log, sample);
             return "";
         }
 
-        if (!Path.Exists(path))
+        var fullPath = Path.GetFullPath(path, basePath);
+        if (!Path.Exists(fullPath))
         {
             Logging.LogFileNotExist(log, sample);
             return "";
@@ -184,89 +202,17 @@ public static class Projects
     static string GetGreatestCommonPrefix(IEnumerable<AllureSample> samples) =>
         Files.GetGreatestCommonPrefix(samples.Select(static sample => sample.Path));
 
-    static (string, ImmutableArray<FileSource>) CreateProjectFileSources(
-        TaskLoggingHelper log,
+    static GeneratedFileSource CreateProjectFileSources(
         string sampleSolutionDir,
         string sampleProjectName,
-        ImmutableArray<AllureSample> samples,
-        string greatestCommonPrefix
-    )
-    {
-        var sampleProjectDir = Path.Combine(sampleSolutionDir, sampleProjectName);
-
-        var sampleSources = PrepareSampleSources(
-            log: log,
-            samples: samples,
-            greatestCommonPrefix: greatestCommonPrefix,
-            sampleProjectDir: sampleProjectDir
-        )
-            .GroupBy(static (s) => s.Destination.Extension)
-            .ToImmutableDictionary(
-                static (g) => g.Key,
-                static (g) => g.ToImmutableArray(),
-                StringComparer.OrdinalIgnoreCase
-            );
-
-        var compile = sampleSources
-                .GetValueOrDefault(".cs", [])
-                .Select((cs) => Path.GetRelativePath(sampleProjectDir, cs.Source.FullName));
-
-        var csproj = Files.Project(
-            projectDir: sampleProjectDir,
+        ImmutableArray<AllureSample> samples
+    ) =>
+        Files.Project(
+            projectDir: Path.Combine(sampleSolutionDir, sampleProjectName),
             projectName: sampleProjectName,
             properties: GetSampleProjectProperties(samples),
-            compile: compile
+            files: samples
         );
-
-        var csprojRelativePath = Path.GetRelativePath(
-            sampleSolutionDir,
-            csproj.Destination.FullName
-        );
-
-        var restProjectSampleSources = sampleSources
-            .Where(static (kv) => !StringComparer.OrdinalIgnoreCase.Equals(kv.Key, ".cs"))
-            .SelectMany(static (kv) => kv.Value);
-
-        return (csprojRelativePath, [csproj, ..restProjectSampleSources]);
-    }
-
-    static IEnumerable<MappedFileSource> PrepareSampleSources(
-        TaskLoggingHelper log,
-        IEnumerable<AllureSample> samples,
-        string greatestCommonPrefix,
-        string sampleProjectDir
-    ) =>
-        samples
-            .Select((sample) =>
-                PrepareSampleSource(log, sampleProjectDir, greatestCommonPrefix, sample))
-            .Where(static (sample) => sample is not null);
-
-
-    static MappedFileSource PrepareSampleSource(
-        TaskLoggingHelper log,
-        string sampleProjectDir,
-        string greatestCommonPrefix,
-        AllureSample sample
-    )
-    {
-        var absolutePath = sample.Path;
-        var relativeSampleFilePath = Path.GetRelativePath(greatestCommonPrefix, absolutePath);
-        if (relativeSampleFilePath.StartsWith($"..{Path.DirectorySeparatorChar}"))
-        {
-            Logging.LogFileOutsideProjectWarning(
-                log,
-                sampleProjectDir,
-                absolutePath,
-                relativeSampleFilePath
-            );
-            return null;
-        }
-        else
-        {
-            var destination = Path.Combine(sampleProjectDir, relativeSampleFilePath);
-            return new (absolutePath, destination);
-        }
-    }
 
     static IEnumerable<(string key, string value)> GetSampleProjectProperties(
         IEnumerable<AllureSample> sampleSources

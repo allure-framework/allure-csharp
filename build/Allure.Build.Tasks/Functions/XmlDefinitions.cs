@@ -8,6 +8,9 @@ using Microsoft.CodeAnalysis;
 
 namespace Allure.Build.Tasks.Functions;
 
+using ProjectFileData =
+    (string itemType, IEnumerable<(string path, ImmutableArray<(string key, string value)> metadata)> items);
+
 public static class XmlDefinitions
 {
     public static XDocument DirectorySolutionTarget { get; }
@@ -37,10 +40,10 @@ public static class XmlDefinitions
             )
         );
 
-    public static XDocument Solution(IEnumerable<string> projectFileRelativePaths) => new(
+    public static XDocument Solution(IEnumerable<string> sampleSolutionRelativeProjectPath) => new(
         new XElement(
             "Solution",
-            projectFileRelativePaths.Select(static (file) => new XElement(
+            sampleSolutionRelativeProjectPath.Select(static (file) => new XElement(
                 "Project",
                 new XAttribute("Path", file)
             ))
@@ -48,19 +51,21 @@ public static class XmlDefinitions
     );
 
     public static XDocument Project(
-        IEnumerable<(string key, string value)> properties,
-        IEnumerable<string> compile
+        IEnumerable<(string key, string value)> projectProperties,
+        IEnumerable<ProjectFileData> groupedProjectItems
     ) => new(
         new XElement(
             "Project",
             (object[])[
                 new XAttribute("Sdk", "Microsoft.NET.Sdk"),
-                ..MapNotEmpty(properties, static (props) => MsBuild.GetPropertyGroup(props)),
-                ..MapNotEmpty(compile, static (paths) => MsBuild.GetItemGroup(
-                    paths,
-                    "Compile",
-                    static (p) => [("Include", p)])
-                )
+                ..Collections.MapNotEmpty(projectProperties, static (props) => MsBuild.GetPropertyGroup(props)),
+                ..groupedProjectItems
+                    .Select(static (group) => MsBuild.GetItemGroup(
+                        group.items,
+                        group.itemType,
+                        static (f) => [("Include", f.path), ..f.metadata]
+                    )
+                ),
             ]
         )
     );
@@ -71,7 +76,7 @@ public static class XmlDefinitions
             new XElement(
                 "configuration",
                 (object[])[
-                    ..MapNotEmpty(packageCacheLocation, static (path) => new XElement(
+                    ..Collections.MapNotEmpty(packageCacheLocation, static (path) => new XElement(
                         "config",
                         new XElement(
                             "add",
@@ -120,17 +125,17 @@ public static class XmlDefinitions
                 MsBuild.GetItemGroup("Clean", [
                     ("Include", Path.Combine("$(TargetDir)allure-results", "**", "*"))
                 ]),
-                ..MapNotEmpty(packages, static (packages) => MsBuild.GetItemGroup(
+                ..Collections.MapNotEmpty(packages, static (packages) => MsBuild.GetItemGroup(
                     packages,
                     "PackageReference",
                     static (p) => [("Include", p)]
                 )),
-                ..MapNotEmpty(projects, static (projects) => MsBuild.GetItemGroup(
+                ..Collections.MapNotEmpty(projects, static (projects) => MsBuild.GetItemGroup(
                     projects,
                     "ProjectReference",
                     static (p) => [("Include", MsBuild.NormalizeToThisFileDirectory(p))]
                 )),
-                ..MapNotEmpty(analyzerProjects, static (projects) => MsBuild.GetItemGroup(
+                ..Collections.MapNotEmpty(analyzerProjects, static (projects) => MsBuild.GetItemGroup(
                     projects,
                     "ProjectReference",
                     static (p) => [
@@ -168,15 +173,4 @@ public static class XmlDefinitions
             ]
         )
     );
-
-    public static IEnumerable<R> MapNotEmpty<T, R>(IEnumerable<T> sequence, Func<IEnumerable<T>, R> map) =>
-        sequence.ToImmutableArray() is { IsEmpty: false } array
-            ? [map(array)]
-            : [];
-
-    public static IEnumerable<R> MapNotEmpty<R>(string value, Func<string, R> map) =>
-        string.IsNullOrEmpty(value)
-            ? []
-            : [map(value)];
-
 }
