@@ -9,15 +9,23 @@
                 '..',
             )
         )</_Allure_RepoRoot>
-        <_Allure_BuildTaskPath>$(
+        <_Allure_BuildTaskProjectName>Allure.Build.Tasks</_Allure_BuildTaskProjectName>
+        <_Allure_BuildTaskProjectDir>$(
+            [MSBuild]::NormalizeDirectory(
+                '$(_Allure_RepoRoot)',
+                'build',
+                '$(_Allure_BuildTaskProjectName)'
+            )
+        )</_Allure_BuildTaskProjectDir>
+        <_Allure_BuildTaskAssemblyPath>$(
             [MSBuild]::NormalizePath(
                 '$(ArtifactsPath)',
                 'bin',
-                'Allure.Build.Tasks',
+                '$(_Allure_BuildTaskProjectName)',
                 'release',
-                'Allure.Build.Tasks.dll'
+                '$(_Allure_BuildTaskProjectName).dll'
             )
-        )</_Allure_BuildTaskPath>
+        )</_Allure_BuildTaskAssemblyPath>
         <_Allure_BinDirectory>$(
             [MSBuild]::NormalizePath(
                 '$(ArtifactsPath)',
@@ -34,15 +42,15 @@
 
     <UsingTask
         TaskName="Allure.Build.Tasks.GenerateSampleSolution"
-        AssemblyFile="$(_Allure_BuildTaskPath)"/>
+        AssemblyFile="$(_Allure_BuildTaskAssemblyPath)"/>
 
     <UsingTask
         TaskName="Allure.Build.Tasks.FillSampleMetadata"
-        AssemblyFile="$(_Allure_BuildTaskPath)"/>
+        AssemblyFile="$(_Allure_BuildTaskAssemblyPath)"/>
 
     <UsingTask
         TaskName="Allure.Build.Tasks.ResolveRegistryEntries"
-        AssemblyFile="$(_Allure_BuildTaskPath)"/>
+        AssemblyFile="$(_Allure_BuildTaskAssemblyPath)"/>
 
     <PropertyGroup>
 
@@ -64,15 +72,28 @@
         <DefineConstants>$(DefineConstants);ALLURE_TEST_PRERUN_FLOW</DefineConstants>
     </PropertyGroup>
 
-    <Target Name="_Allure_CompileBuildTasks">
+    <ItemGroup>
+        <_Allure_CompileBuildTasksInput Include="$(_Allure_BuildTaskProjectDir)**/*" />
+        <_Allure_CompileBuildTasksInput Include="$([MSBuild]::NormalizePath(
+            '$(_Allure_RepoRoot)',
+            'Directory.Build.props'
+        ))" />
+        <_Allure_CompileBuildTasksInput Include="$([MSBuild]::NormalizePath(
+            '$(_Allure_RepoRoot)',
+            'Directory.Build.targets'
+        ))" />
+    </ItemGroup>
+
+    <Target
+        Name="_Allure_CompileBuildTasks"
+        Inputs="@(_Allure_CompileBuildTasksInput)"
+        Outputs="$(_Allure_BuildTaskAssemblyPath)">
 
         <PropertyGroup>
             <_Allure_BuildTasksProject>$(
                 [MSBuild]::NormalizePath(
-                    '$(_Allure_RepoRoot)',
-                    'build',
-                    'Allure.Build.Tasks',
-                    'Allure.Build.Tasks.csproj'
+                    '$(_Allure_BuildTaskProjectDir)',
+                    '$(_Allure_BuildTaskProjectName).csproj'
                 )
             )</_Allure_BuildTasksProject>
         </PropertyGroup>
