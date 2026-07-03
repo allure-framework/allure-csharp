@@ -148,7 +148,7 @@ public class AllureSampleRunner
         // Make sure the process tree is stopped if an exception occurs.
         using var processGuard = Guard.WrapProcess(process);
 
-        var stdStreamsTask = SetProcessStreamCollection(process, ct);
+        var stdStreamsTask = CollectProcessOutput(process, ct);
 
         await WaitForExit(process, input.Timeout, ct);
 
@@ -321,13 +321,17 @@ public class AllureSampleRunner
         return Guard.WrapDirectory(resultsDir, own: useTempDir);
     }
 
-    static async Task<(string, string)> SetProcessStreamCollection(
+    static async Task<(string, string)> CollectProcessOutput(
         Process process,
         CancellationToken ct
-    ) => (
-        await CollectProcessStream(process.StandardOutput, ct),
-        await CollectProcessStream(process.StandardError, ct)
-    );
+    )
+    {
+        var streams = await Task.WhenAll(
+            CollectProcessStream(process.StandardOutput, ct),
+            CollectProcessStream(process.StandardError, ct)
+        );
+        return (streams[0], streams[1]);
+    }
 
     static async Task WaitForExit(Process process, TimeSpan timeout, CancellationToken ct)
     {
