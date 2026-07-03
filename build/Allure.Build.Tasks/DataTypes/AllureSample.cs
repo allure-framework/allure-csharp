@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace Allure.Build.Tasks;
+namespace Allure.Build.Tasks.DataTypes;
 
 public record class AllureSample(
     string Path,

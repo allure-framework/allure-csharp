@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Allure.Build.Tasks.DataTypes;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace Allure.Build.Tasks;
+namespace Allure.Build.Tasks.Functions;
 
 public static class Logging
 {
@@ -115,7 +116,7 @@ public static class Logging
 
     public static void LogMissingCommonPrefixWarning(
         TaskLoggingHelper log,
-        IGrouping<string, AllureSample> sampleGroup,
+        IEnumerable<AllureSample> projectSamples,
         string projectSuffix
     )
         => log.LogWarning(
@@ -123,7 +124,7 @@ public static class Logging
             projectSuffix,
             string.Join(
                 ", ",
-                sampleGroup.Select(static (sample) => $"'{sample.Path}'")
+                projectSamples.Select(static (sample) => $"'{sample.Path}'")
             )
         );
 

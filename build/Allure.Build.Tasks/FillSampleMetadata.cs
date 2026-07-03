@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using Allure.Build.Tasks.Functions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 

@@ -1,7 +1,7 @@
 using System.IO;
 using Microsoft.Build.Utilities;
 
-namespace Allure.Build.Tasks;
+namespace Allure.Build.Tasks.Sources;
 
 public abstract class FileSource(string destinationPath)
 {
