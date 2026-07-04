@@ -40,6 +40,25 @@
         )</_Allure_ObjDirectory>
     </PropertyGroup>
 
+    <!-- Normalize casing-->
+    <Choose>
+        <When Condition=" '$(Allure_TestingPlatform)' == 'VsTest' ">
+            <PropertyGroup>
+                <Allure_TestingPlatform>VsTest</Allure_TestingPlatform>
+            </PropertyGroup>
+        </When>
+        <When Condition=" '$(Allure_TestingPlatform)' == 'MicrosoftTestingPlatform' ">
+            <PropertyGroup>
+                <Allure_TestingPlatform>VsTest</Allure_TestingPlatform>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <_Allure_Error>Unknown testing platform '$(Allure_TestingPlatform)'. Please, set the 'Allure_TestingPlatform' property to 'VsTest' or 'MicrosoftTestingPlatform'</_Allure_Error>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
     <UsingTask
         TaskName="Allure.Build.Tasks.GenerateSampleSolution"
         AssemblyFile="$(_Allure_BuildTaskAssemblyPath)"/>
@@ -83,6 +102,10 @@
             'Directory.Build.targets'
         ))" />
     </ItemGroup>
+
+    <Target Name="Allure_FailIfError" Condition=" '$(_Allure_Error)' != '' ">
+        <Error Text="$(_Allure_Error)" />
+    </Target>
 
     <Target
         Name="_Allure_CompileBuildTasks"
@@ -146,7 +169,7 @@
     <Target Name="_Allure_InjectSamplesToSourceGenerator"
             BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun"
             Condition=" '@(AllureSample)' != '' "
-            DependsOnTargets="_Allure_ResolveSampleRegistryEntries">
+            DependsOnTargets="Allure_FailIfError;_Allure_ResolveSampleRegistryEntries">
 
         <!-- At this point, all AllureSample items must already be defined,
          the required properties resolved (see FillSampleMetadata) and the corresponding
@@ -172,7 +195,8 @@
      See https://github.com/dotnet/msbuild/pull/3978. -->
     <Target Name="_Allure_ResolveTestTarget"
             BeforeTargets="ResolveAssemblyReferences"
-            Condition=" '@(AllureSample)' != '' ">
+            Condition=" '@(AllureSample)' != '' "
+            DependsOnTargets="Allure_FailIfError">
 
         <PropertyGroup Condition=" '$(Allure_TestTargetVersion)' == 'SNAPSHOT' ">
             <Allure_TestTargetVersion>$(Version)</Allure_TestTargetVersion>
@@ -212,7 +236,7 @@
     <Target Name="Allure_GenerateTestSamples"
             AfterTargets="CopyFilesToOutputDirectory"
             Condition=" '@(AllureSample)' != '' "
-            DependsOnTargets="_Allure_CompileBuildTasks;_Allure_ResolveTestTarget;_Allure_ResolveTestSamples">
+            DependsOnTargets="Allure_FailIfError;_Allure_CompileBuildTasks;_Allure_ResolveTestTarget;_Allure_ResolveTestSamples">
 
         <MakeDir Directories="$(Allure_LocalNugetRepository)" />
 
@@ -242,7 +266,8 @@
     </Target>
 
     <Target Name="Allure_BuildTestSamples"
-            Condition=" '@(AllureSample)' != '' ">
+            Condition=" '@(AllureSample)' != '' "
+            DependsOnTargets="Allure_FailIfError">
 
         <MSBuild
             Projects="$(_Allure_SampleSolutionPath)"
@@ -255,7 +280,7 @@
 
     <Target Name="Allure_RunTestSamples"
             Condition=" '@(AllureSample)' != '' "
-            DependsOnTargets="_Allure_ResolveTestSamples">
+            DependsOnTargets="Allure_FailIfError;_Allure_ResolveTestSamples">
 
         <Error Text="The sample solution $(_Allure_SampleSolutionPath) doesn't exist. Build $(MSBuildProjectName) to generate it"
             Condition=" !Exists('$(_Allure_SampleSolutionPath)') " />
