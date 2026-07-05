@@ -152,7 +152,7 @@ public static class Logging
                   """,
             sample.ItemSpec,
             sampleName,
-            // Keep escapint to display a value that is ready for copy and paste
+            // Keep escaping to display a value that is ready for copy and paste
             // to the test project file.
             Path.GetRelativePath(projectDirectory, sample.EvaluatedIncludeEscaped)
         );

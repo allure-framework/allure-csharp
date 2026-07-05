@@ -144,7 +144,7 @@ public class GenerateSampleSolution : Task
                     // Keep escape as we're writing these values to Directory.Package.props
                     // and the project file as is.
                     name: item.EvaluatedIncludeEscaped,
-                    varsion: item.GetMetadataValueEscaped("Version")
+                    version: item.GetMetadataValueEscaped("Version")
                 )
             )
         );

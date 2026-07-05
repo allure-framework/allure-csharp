@@ -120,7 +120,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- We're only including .cs samples by default. Other files needs to be included on a
+        <!-- We're only including .cs samples by default. Other files need to be included on a
          per-project basis.
         Each AllureSample becomes an item in the generated sample project. The item includes
          the original sample file. You can control the item type by applying ItemType="...".

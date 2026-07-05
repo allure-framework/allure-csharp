@@ -30,7 +30,7 @@ internal class Guard<T>(T value, Action<T> dispose, bool own = true) : IDisposab
             if (!this.Own)
             {
                 throw new InvalidOperationException(
-                    "Can't transfer: the guard don't own the resourse"
+                    "Can't transfer: the guard doesn't own the resourse"
                 );
             }
 
