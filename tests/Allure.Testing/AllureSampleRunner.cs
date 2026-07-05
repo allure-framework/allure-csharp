@@ -210,26 +210,31 @@ public class AllureSampleRunner
     static ProcessStartInfo CreateProcessStartInfo(
         AllureSampleRegistryEntry sample,
         IEnumerable<string> args
-    ) => new(
-        "dotnet",
-        [
-            ..ResolveTestingPlatformSpecificArguments(sample.TestingPlatform),
-            sample.ProjectFilePath,
-            "--framework",
-            sample.TargetFramework,
-            "--configuration",
-            sample.BuildConfiguration,
-            ..args,
-        ]
     )
     {
-        CreateNoWindow = true,
-        RedirectStandardError = true,
-        RedirectStandardOutput = true,
-        StandardErrorEncoding = encoding,
-        StandardOutputEncoding = encoding,
-        UseShellExecute = false,
-    };
+        ProcessStartInfo psi = new(
+            "dotnet",
+            [
+                ..ResolveTestingPlatformSpecificArguments(sample.TestingPlatform),
+                sample.ProjectFilePath,
+                "--framework",
+                sample.TargetFramework,
+                "--configuration",
+                sample.BuildConfiguration,
+                ..args,
+            ]
+        )
+        {
+            CreateNoWindow = true,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            StandardErrorEncoding = encoding,
+            StandardOutputEncoding = encoding,
+            UseShellExecute = false,
+        };
+        psi.Environment.Add("DOTNET_CLI_TELEMETRY_OPTOUT", "1");
+        return psi;
+    }
 
     static IEnumerable<string> ResolveTestingPlatformSpecificArguments(TestingPlatform testingPlatform) =>
         testingPlatform switch
