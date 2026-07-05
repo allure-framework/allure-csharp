@@ -40,16 +40,18 @@
         )</_Allure_ObjDirectory>
     </PropertyGroup>
 
-    <!-- Normalize casing-->
+    <!-- Normalize casing, set the test MSBuild target -->
     <Choose>
         <When Condition=" '$(Allure_TestingPlatform)' == 'VsTest' ">
             <PropertyGroup>
                 <Allure_TestingPlatform>VsTest</Allure_TestingPlatform>
+                <_Allure_TestSampleTarget>VSTest</_Allure_TestSampleTarget>
             </PropertyGroup>
         </When>
         <When Condition=" '$(Allure_TestingPlatform)' == 'MicrosoftTestingPlatform' ">
             <PropertyGroup>
                 <Allure_TestingPlatform>MicrosoftTestingPlatform</Allure_TestingPlatform>
+                <_Allure_TestSampleTarget>Run</_Allure_TestSampleTarget>
             </PropertyGroup>
         </When>
         <Otherwise>
@@ -301,7 +303,7 @@
             Targets="Allure_RunTestSamples"
             BuildInParallel="$(BuildInParallel)"
             Properties="
-                Allure_TestSampleTarget=VSTest;
+                Allure_TestSampleTarget=$(_Allure_TestSampleTarget);
                 Configuration=$(Allure_SampleConfiguration);
                 Allure_BuildInParallel=$(BuildInParallel);
             "
