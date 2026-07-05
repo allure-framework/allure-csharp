@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
 using Allure.Build.Tasks.Functions;
+using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -85,7 +86,7 @@ public class GenerateSampleSolution : Task
         var projectFiles = this.PrepareProjects();
         var slnx = this.PrepareSolutionFile(projectFiles);
 
-        FileProcessor.CommitSampleFiles(this.Log, this.SampleSolutionDir, [
+        IEnumerable<FileSource> sampleSolutionFiles = [
             slnx,
             directorySolutionTargets,
             directoryBuildProps,
@@ -93,7 +94,16 @@ public class GenerateSampleSolution : Task
             directoryPackagesProps,
             nugetConfig,
             ..projectFiles,
-        ]);
+        ];
+
+        if (this.TestingPlatform is "MicrosoftTestingPlatform")
+        {
+            sampleSolutionFiles = sampleSolutionFiles.Prepend(
+                Files.GlobalsJson(this.SampleSolutionDir)
+            );
+        }
+
+        FileProcessor.CommitSampleFiles(this.Log, this.SampleSolutionDir, sampleSolutionFiles);
 
         return true;
     }

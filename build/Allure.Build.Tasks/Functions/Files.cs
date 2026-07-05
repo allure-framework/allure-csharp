@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
+using Allure.Build.Tasks.Sources;
 
 namespace Allure.Build.Tasks.Functions;
 
@@ -20,6 +21,12 @@ public static class Files
         GeneratedFileSource.FromXmlDocument(
             document: XmlDefinitions.NugetConfig(localRepository, cacheLocation),
             destinationPath: Path.Combine(solutionDir, "nuget.config")
+        );
+
+    public static GeneratedFileSource GlobalsJson(string solutionDir) =>
+        GeneratedFileSource.FromJsonSourceObject(
+            sourceValue: new { test = new { runner = "Microsoft.Testing.Platform" } },
+            destinationPath: Path.Combine(solutionDir, "globals.json")
         );
 
     public static GeneratedFileSource Solution(

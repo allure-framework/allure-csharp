@@ -1,11 +1,11 @@
 using System.IO;
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using Allure.Build.Tasks.Functions;
-using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Utilities;
 
-namespace Allure.Build.Tasks;
+namespace Allure.Build.Tasks.Sources;
 
 public class GeneratedFileSource(byte[] content, string destinationPath): FileSource(destinationPath)
 {
@@ -72,5 +72,24 @@ public class GeneratedFileSource(byte[] content, string destinationPath): FileSo
         writer.Flush();
         stream.Position = 0;
         return new(stream.ToArray(), destinationPath);
+    }
+
+    public static GeneratedFileSource FromJsonSourceObject<T>(T sourceValue, string destinationPath) =>
+        FromJsonSourceObject(sourceValue, new()
+        {
+            WriteIndented = true,
+            IndentSize = 2,
+            IndentCharacter = ' ',
+        }, destinationPath);
+
+    public static GeneratedFileSource FromJsonSourceObject<T>(
+        T sourceValue,
+        JsonSerializerOptions options,
+        string destinationPath
+    )
+    {
+        using MemoryStream stream = new();
+        JsonSerializer.Serialize(stream, sourceValue, options);
+        return new (stream.ToArray(), destinationPath);
     }
 }
