@@ -49,7 +49,7 @@
         </When>
         <When Condition=" '$(Allure_TestingPlatform)' == 'MicrosoftTestingPlatform' ">
             <PropertyGroup>
-                <Allure_TestingPlatform>VsTest</Allure_TestingPlatform>
+                <Allure_TestingPlatform>MicrosoftTestingPlatform</Allure_TestingPlatform>
             </PropertyGroup>
         </When>
         <Otherwise>
