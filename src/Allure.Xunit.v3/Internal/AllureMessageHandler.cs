@@ -48,6 +48,35 @@ sealed class AllureMessageHandler(
         }
     }
 
+    internal void HandleBeforeTest(MethodInfo testMethod, ITest test, object?[]? arguments)
+    {
+        if (CommunicationFunctions.TryConvertToTestUpdateWithMethod(
+            testMethod,
+            test,
+            arguments,
+            out var allureTestUpdate
+        ))
+        {
+            this.PublishSync(allureTestUpdate);
+        }
+
+        TestPlanFunctions.ApplyRuntimeGuard(testMethod);
+    }
+
+    protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+    {
+        base.HandleTestFailed(args);
+
+        if (CommunicationFunctions.TryConvertToTestUpdateWithFailedStatus(
+            args.Message,
+            this.MetadataCache,
+            out var allureTestUpdate
+        ))
+        {
+            this.PublishSync(allureTestUpdate);
+        }
+    }
+
     protected override void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
     {
         base.HandleTestCaseFinished(args);
@@ -55,24 +84,11 @@ sealed class AllureMessageHandler(
         if (CommunicationFunctions.TryConvertToAllureScopeStopMessage(
             args.Message,
             this.MetadataCache,
-            out var allureScopeStop))
+            out var allureScopeStop
+        ))
         {
             this.PublishSync(allureScopeStop);
         }
-    }
-
-    internal void HandleBeforeTest(MethodInfo testMethod, ITest test, object?[]? arguments)
-    {
-        if (CommunicationFunctions.TryConvertToTestUpdateWithMethod(
-            testMethod,
-            test,
-            arguments,
-            out var allureTestUpdate))
-        {
-            this.PublishSync(allureTestUpdate);
-        }
-
-        TestPlanFunctions.ApplyRuntimeGuard(testMethod);
     }
 
     void PublishSync(AllureCorrelatedMessage message) =>

@@ -69,24 +69,4 @@ class OutcomeTests
                 )
             );
     }
-
-    // [Test]
-    // public async Task CheckTheoryCreatesAResultForEachDataRow(CancellationToken token)
-    // {
-    //     var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.MultiRowTheory, token);
-
-    //     await Assert.That(results.TestResults).Count().IsEqualTo(3);
-
-    //     var testCaseIds = results.TestResults
-    //         .Select(result => result.Json.GetProperty("testCaseId").GetString())
-    //         .Distinct()
-    //         .ToArray();
-    //     await Assert.That(testCaseIds).Count().IsEqualTo(1);
-
-    //     var historyIds = results.TestResults
-    //         .Select(result => result.Json.GetProperty("historyId").GetString())
-    //         .Distinct()
-    //         .ToArray();
-    //     await Assert.That(historyIds).Count().IsEqualTo(3);
-    // }
 }
