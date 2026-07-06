@@ -1,50 +1,68 @@
 using Allure.Testing;
+using Allure.Testing.Assertions.Model;
 
 namespace Allure.Xunit.v3.Tests.Names;
 
 class NameTests
 {
-    [Test]
-    public async Task CheckAllureNameOnTestMethodRenamesTest(CancellationToken token)
-    {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.NameAttributeOnMethod, token);
+    static readonly AsyncLocal<AllureResults> results = new();
 
-        await Assert.That(results).HasSingleTestResult().With.Name("Lorem Ipsum");
+    [Before(Class)]
+    public static async Task BeforeAll(ClassHookContext context, CancellationToken token)
+    {
+        var output = await AllureSampleRunner.RunAsync(AllureSampleRegistry.RenamedTestsAndClasses, token);
+
+        await Assert.That(output.TestResults).Count().IsEqualTo(5);
+
+        results.Value = output;
+        context.AddAsyncLocalValues();
     }
 
     [Test]
-    public async Task CheckAllureNameOnTestClassAffectsSubSuiteOnly(CancellationToken token)
+    public async Task ShouldRenameFactResultViaAllureName()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.NameAttributeOnClass, token);
-
-        await Assert.That(results).HasSingleTestResult()
-            .With.Name("Allure.Xunit.v3.Tests.Samples.Names.NameAttributeOnClass.TestClass.TestMethod")
-            .With.SingleLabel("subSuite").That.HasValue("Lorem Ipsum");
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Lorem Ipsum on FactMethodRenamedInAllure"
+        ).With.FullName(
+            "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses:"
+                + "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses."
+                + "TestClass.FactMethodRenamedInAllure()"
+        );
     }
 
     [Test]
-    public async Task CheckXunitDisplayNameOnFactRenamesTest(CancellationToken token)
+    public async Task ShouldRenameTheoryResultViaAllureName()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.XunitDisplayNameOnFact, token);
-
-        await Assert.That(results).HasSingleTestResult().With.Name("Lorem Ipsum");
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Lorem Ipsum on TheoryMethodRenamedInAllure"
+        ).With.FullName(
+            "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses:"
+                + "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses."
+                + "TestClass.TheoryMethodRenamedInAllure(System.String)"
+        );
     }
 
     [Test]
-    public async Task CheckXunitDisplayNameOnTheoryRenamesTest(CancellationToken token)
+    public async Task ShouldRenameFactResultViaXunitDisplayName()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.XunitDisplayNameOnTheory, token);
-
-        await Assert.That(results).HasSingleTestResult().With.Name("Lorem Ipsum(value: \"foo\")");
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Lorem Ipsum on FactMethodRenamedInXunit"
+        ).With.FullName(
+            "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses:"
+                + "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses."
+                + "TestClass.FactMethodRenamedInXunit()"
+        );
     }
 
     [Test]
-    public async Task CheckTheoryUsesMethodNameByDefault(CancellationToken token)
+    public async Task ShouldRenameTheoryResultViaXunitDisplayName()
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.SingleTheory, token);
-
-        await Assert.That(results).HasSingleTestResult().With.Name(
-            "Allure.Xunit.v3.Tests.Samples.Names.SingleTheory.TestClass.TestMethod(value: \"foo\")"
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Lorem Ipsum on TheoryMethodRenamedInXunit(value: \"foo\")"
+        ).With.FullName(
+            "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses:"
+                + "Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses."
+                + "TestClass.TheoryMethodRenamedInXunit(System.String)"
         );
     }
 }
