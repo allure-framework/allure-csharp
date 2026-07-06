@@ -1,7 +1,7 @@
 using Xunit;
 using Allure.Net.Commons.Attributes;
 
-namespace Allure.Xunit.v3.Tests.BddLabels.Samples.BddHierarchyAttributes
+namespace Allure.Xunit.v3.Tests.Samples.BddLabels.BddHierarchyAttributes
 {
     [AllureBddHierarchy("Foo", "Bar", "Baz")]
     public class IInterface { }

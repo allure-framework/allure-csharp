@@ -22,7 +22,7 @@ class LabelAttributeTests
     public async Task CheckCustomLabelOnTestMethodWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.CustomLabels.Samples.LabelAttributes.OnTestMethod.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.CustomLabels.LabelAttributes.OnTestMethod.TestMethod"
         ).That.HasSingleLabel("foo").With.Value("bar");
     }
 
@@ -30,7 +30,7 @@ class LabelAttributeTests
     public async Task CheckCustomLabelOnTestClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.CustomLabels.Samples.LabelAttributes.OnTestClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.CustomLabels.LabelAttributes.OnTestClass.TestMethod"
         ).That.HasSingleLabel("foo").With.Value("bar");
     }
 
@@ -38,7 +38,7 @@ class LabelAttributeTests
     public async Task CheckCustomLabelOnBaseClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.CustomLabels.Samples.LabelAttributes.OnBaseClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.CustomLabels.LabelAttributes.OnBaseClass.TestMethod"
         ).That.HasSingleLabel("foo").With.Value("bar");
     }
 
@@ -46,7 +46,7 @@ class LabelAttributeTests
     public async Task CheckCustomLabelOnInterfaceWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.CustomLabels.Samples.LabelAttributes.OnInterface.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.CustomLabels.LabelAttributes.OnInterface.TestMethod"
         ).That.HasSingleLabel("foo").With.Value("bar");
     }
 }

@@ -1,7 +1,7 @@
 using Xunit;
 using Allure.Net.Commons.Attributes;
 
-namespace Allure.Xunit.v3.Tests.FeatureLabels.Samples.FeatureAttributes
+namespace Allure.Xunit.v3.Tests.Samples.FeatureLabels.FeatureAttributes
 {
     public class OnTestMethod
     {

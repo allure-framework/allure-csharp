@@ -22,7 +22,7 @@ class BddLabelTests
     public async Task CheckBddHierarchyOnTestMethodWorks()
     {
         var testResult = await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.BddLabels.Samples.BddHierarchyAttributes.OnTestMethod.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.BddHierarchyAttributes.OnTestMethod.TestMethod"
         );
         await Assert.That(testResult).HasSingleLabel("epic").With.Value("Foo");
         await Assert.That(testResult).HasSingleLabel("feature").With.Value("Bar");
@@ -33,7 +33,7 @@ class BddLabelTests
     public async Task CheckBddHierarchyOnTestClassWorks()
     {
         var testResult = await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.BddLabels.Samples.BddHierarchyAttributes.OnTestClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.BddHierarchyAttributes.OnTestClass.TestMethod"
         );
         await Assert.That(testResult).HasSingleLabel("epic").With.Value("Foo");
         await Assert.That(testResult).HasSingleLabel("feature").With.Value("Bar");
@@ -44,7 +44,7 @@ class BddLabelTests
     public async Task CheckBddHierarchyOnBaseClassWorks()
     {
         var testResult = await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.BddLabels.Samples.BddHierarchyAttributes.OnBaseClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.BddHierarchyAttributes.OnBaseClass.TestMethod"
         );
         await Assert.That(testResult).HasSingleLabel("epic").With.Value("Foo");
         await Assert.That(testResult).HasSingleLabel("feature").With.Value("Bar");
@@ -55,7 +55,7 @@ class BddLabelTests
     public async Task CheckBddHierarchyOnInterfaceWorks()
     {
         var testResult = await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.BddLabels.Samples.BddHierarchyAttributes.OnInterface.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.BddHierarchyAttributes.OnInterface.TestMethod"
         );
         await Assert.That(testResult).HasSingleLabel("epic").With.Value("Foo");
         await Assert.That(testResult).HasSingleLabel("feature").With.Value("Bar");

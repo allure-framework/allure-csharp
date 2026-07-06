@@ -1,7 +1,7 @@
 using Allure.Net.Commons.Attributes;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.AllureIds.Samples.AllureIdAttributeOnMethod
+namespace Allure.Xunit.v3.Tests.Samples.AllureIds.AllureIdAttributeOnMethod
 {
     public class TestsClass
     {
