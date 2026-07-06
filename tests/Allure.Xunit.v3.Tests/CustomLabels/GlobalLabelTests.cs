@@ -39,12 +39,10 @@ class GlobalLabelTests
         await Assert.That(results).HasTestResults([
             (tr) => tr.HasName("Allure.Xunit.v3.Tests.Samples.CustomLabels.GlobalLabels.TestClass.TestMethod1")
                 .And.HasLabel((l) => l.HasName("foo").And.HasValue("bar"))
-                .And.HasLabel((l) => l.HasName("baz").And.HasValue("qux"))
-                ,
+                .And.HasLabel((l) => l.HasName("baz").And.HasValue("qux")),
             (tr) => tr.HasName("Allure.Xunit.v3.Tests.Samples.CustomLabels.GlobalLabels.TestClass.TestMethod2")
                 .And.HasLabel((l) => l.HasName("foo").And.HasValue("bar"))
-                .And.HasLabel((l) => l.HasName("baz").And.HasValue("qux"))
-                ,
+                .And.HasLabel((l) => l.HasName("baz").And.HasValue("qux")),
         ]);
     }
 }
