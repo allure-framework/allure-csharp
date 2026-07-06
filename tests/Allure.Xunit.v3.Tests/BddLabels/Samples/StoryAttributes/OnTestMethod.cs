@@ -1,7 +1,7 @@
 using Xunit;
 using Allure.Net.Commons.Attributes;
 
-namespace Allure.Xunit.Tests.Samples.StoryAttributes
+namespace Allure.Xunit.v3.Tests.StoryLabels.Samples.StoryAttributes
 {
     public class OnTestMethod
     {

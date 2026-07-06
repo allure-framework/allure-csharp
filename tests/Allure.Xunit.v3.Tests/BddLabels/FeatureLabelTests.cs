@@ -22,7 +22,7 @@ class FeatureLabelTests
     public async Task CheckFeatureOnTestMethodWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.FeatureAttributes.OnTestMethod.TestMethod"
+            "Allure.Xunit.v3.Tests.FeatureLabels.Samples.FeatureAttributes.OnTestMethod.TestMethod"
         ).With.SingleLabel("feature").That.HasValue("Foo");
     }
 
@@ -30,7 +30,7 @@ class FeatureLabelTests
     public async Task CheckFeatureOnTestClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.FeatureAttributes.OnTestClass.TestMethod"
+            "Allure.Xunit.v3.Tests.FeatureLabels.Samples.FeatureAttributes.OnTestClass.TestMethod"
         ).With.SingleLabel("feature").That.HasValue("Foo");
     }
 
@@ -38,7 +38,7 @@ class FeatureLabelTests
     public async Task CheckFeatureOnBaseClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.FeatureAttributes.OnBaseClass.TestMethod"
+            "Allure.Xunit.v3.Tests.FeatureLabels.Samples.FeatureAttributes.OnBaseClass.TestMethod"
         ).With.SingleLabel("feature").That.HasValue("Foo");
     }
 
@@ -46,7 +46,7 @@ class FeatureLabelTests
     public async Task CheckFeatureOnInterfaceWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.FeatureAttributes.OnInterface.TestMethod"
+            "Allure.Xunit.v3.Tests.FeatureLabels.Samples.FeatureAttributes.OnInterface.TestMethod"
         ).With.SingleLabel("feature").That.HasValue("Foo");
     }
 }

@@ -22,7 +22,7 @@ class EpicLabelTests
     public async Task CheckEpicOnTestMethodWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.EpicAttributes.OnTestMethod.TestMethod"
+            "Allure.Xunit.v3.Tests.EpicLabels.Samples.EpicAttributes.OnTestMethod.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 
@@ -30,7 +30,7 @@ class EpicLabelTests
     public async Task CheckEpicOnTestClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.EpicAttributes.OnTestClass.TestMethod"
+            "Allure.Xunit.v3.Tests.EpicLabels.Samples.EpicAttributes.OnTestClass.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 
@@ -38,7 +38,7 @@ class EpicLabelTests
     public async Task CheckEpicOnBaseClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.EpicAttributes.OnBaseClass.TestMethod"
+            "Allure.Xunit.v3.Tests.EpicLabels.Samples.EpicAttributes.OnBaseClass.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 
@@ -46,7 +46,7 @@ class EpicLabelTests
     public async Task CheckEpicOnInterfaceWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.EpicAttributes.OnInterface.TestMethod"
+            "Allure.Xunit.v3.Tests.EpicLabels.Samples.EpicAttributes.OnInterface.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 }

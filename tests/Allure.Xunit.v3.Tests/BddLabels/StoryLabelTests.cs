@@ -22,7 +22,7 @@ class StoryLabelTests
     public async Task CheckStoryOnTestMethodWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.StoryAttributes.OnTestMethod.TestMethod"
+            "Allure.Xunit.v3.Tests.StoryLabels.Samples.StoryAttributes.OnTestMethod.TestMethod"
         ).With.SingleLabel("story").That.HasValue("Foo");
     }
 
@@ -30,7 +30,7 @@ class StoryLabelTests
     public async Task CheckStoryOnTestClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.StoryAttributes.OnTestClass.TestMethod"
+            "Allure.Xunit.v3.Tests.StoryLabels.Samples.StoryAttributes.OnTestClass.TestMethod"
         ).With.SingleLabel("story").That.HasValue("Foo");
     }
 
@@ -38,7 +38,7 @@ class StoryLabelTests
     public async Task CheckStoryOnBaseClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.StoryAttributes.OnBaseClass.TestMethod"
+            "Allure.Xunit.v3.Tests.StoryLabels.Samples.StoryAttributes.OnBaseClass.TestMethod"
         ).With.SingleLabel("story").That.HasValue("Foo");
     }
 
@@ -46,7 +46,7 @@ class StoryLabelTests
     public async Task CheckStoryOnInterfaceWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.Tests.Samples.StoryAttributes.OnInterface.TestMethod"
+            "Allure.Xunit.v3.Tests.StoryLabels.Samples.StoryAttributes.OnInterface.TestMethod"
         ).With.SingleLabel("story").That.HasValue("Foo");
     }
 }

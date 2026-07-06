@@ -1,7 +1,7 @@
 using Xunit;
 using Allure.Net.Commons.Attributes;
 
-namespace Allure.Xunit.Tests.Samples.EpicAttributes
+namespace Allure.Xunit.v3.Tests.EpicLabels.Samples.EpicAttributes
 {
     public class OnTestMethod
     {
