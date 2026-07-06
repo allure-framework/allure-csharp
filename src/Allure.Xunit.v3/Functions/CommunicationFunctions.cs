@@ -79,6 +79,7 @@ static class CommunicationFunctions
                 Properties = [
                     new AllureTestMethodProperty(testMethod) { Arguments = [.. arguments ?? []] },
                     new AllureDefaultSuitesProperty(testMethod.DeclaringType),
+                    new AllureLabelsProperty([Label.Thread()]),
                 ]
             };
             return true;
