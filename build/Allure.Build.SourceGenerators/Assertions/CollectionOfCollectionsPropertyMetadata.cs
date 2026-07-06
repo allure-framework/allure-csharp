@@ -1,6 +1,6 @@
 namespace Allure.Build.SourceGenerators.Assertions;
 
-public record class CollectionOfCollectionsPropertyMetadata(
+sealed record class CollectionOfCollectionsPropertyMetadata(
     string InterfaceName,
     string InterfaceFullName,
     string Name,

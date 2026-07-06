@@ -12,7 +12,7 @@ namespace Allure.Build.SourceGenerators;
 using AllureBuildPropertiesData = ImmutableArray<(string, string)>;
 
 [Generator]
-public class AllureMsbuildPropsGenerator : IIncrementalGenerator
+public sealed class AllureMsbuildPropsGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

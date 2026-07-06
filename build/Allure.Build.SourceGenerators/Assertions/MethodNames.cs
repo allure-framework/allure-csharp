@@ -1,6 +1,6 @@
 namespace Allure.Build.SourceGenerators.Assertions;
 
-public record class MethodNames(
+sealed record class MethodNames(
     string NoProperty,
     string PropertyExistsAnyValue,
     string PropertyEquatable,

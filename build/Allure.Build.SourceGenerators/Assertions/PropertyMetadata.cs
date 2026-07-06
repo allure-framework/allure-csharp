@@ -1,6 +1,6 @@
 namespace Allure.Build.SourceGenerators.Assertions;
 
-public record class PropertyMetadata(
+record class PropertyMetadata(
     string InterfaceName,
     string InterfaceFullName,
     string Name,

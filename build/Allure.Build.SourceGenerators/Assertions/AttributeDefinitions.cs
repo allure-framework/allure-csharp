@@ -1,6 +1,6 @@
 namespace Allure.Build.SourceGenerators.Assertions;
 
-public static class AttributeDefinitions
+static class AttributeDefinitions
 {
     public const string GenerateAllureAssertionsAttribute =
         """
