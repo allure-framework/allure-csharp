@@ -33,7 +33,7 @@ public class JsonPropertyComparerAssertion<TObject, TProperty, TValue>(
                         comparer.Equals(value, expectedValue)
                             ? await Task.FromResult(AssertionResult.Passed)
                             : await Task.FromResult(
-                                AssertionResult.Failed($"received {FormatFunctions.FormatAsStringLiteral(value)}")),
+                                AssertionResult.Failed($"received {propertyName} {FormatFunctions.FormatAsStringLiteral(value)}")),
 
                     { Message: var message } =>
                         await Task.FromResult(AssertionResult.Failed(message)),
