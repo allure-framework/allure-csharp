@@ -1,5 +1,6 @@
 using Allure.Testing;
 using Allure.Testing.Assertions.Model;
+using Allure.Testing.Execution;
 
 namespace Allure.NUnit.Tests.Parameters;
 

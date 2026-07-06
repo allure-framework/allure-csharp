@@ -1,6 +1,6 @@
 namespace Allure.Build.SourceGenerators.Assertions;
 
-public static class Types
+static class Types
 {
     public const string CallerArgumentExpression =
         $"global::System.Runtime.CompilerServices.CallerArgumentExpression";

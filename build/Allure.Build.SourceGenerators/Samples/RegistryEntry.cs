@@ -1,6 +1,6 @@
-namespace Allure.Build.SourceGenerators;
+namespace Allure.Build.SourceGenerators.Samples;
 
-public record class SampleRegistryEntry(
+sealed record class RegistryEntry(
     string RegistryNamespace,
     string SampleName,
     string SourcePath,

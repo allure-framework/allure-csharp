@@ -1,4 +1,4 @@
-namespace Allure.Testing;
+namespace Allure.Testing.Execution;
 
 /// <summary>
 /// Contains the data required to run a specific sample project and access its output.
@@ -7,6 +7,9 @@ namespace Allure.Testing;
 /// Instances are typically created and populated by the testing infrastructure. Use the
 /// auto-generated <c>AllureSampleRegistry</c> class to access them.
 /// </remarks>
+/// <param name="TestingPlatform">
+/// Defines which testing platform, VSTest or MTP, the runner should use to execute the samples.
+/// </param>
 /// <param name="RegistryId">
 /// The ID of the registry that contains the sample, typically its namespace.
 /// This value is only used for diagnostics.
@@ -32,6 +35,7 @@ namespace Allure.Testing;
 /// These results are typically prepared by <c>dotnet msbuild -t:Allure_RunTestSamples</c>.
 /// </param>
 public record struct AllureSampleRegistryEntry(
+    TestingPlatform TestingPlatform,
     string RegistryId,
     string SampleId,
     string ProjectFilePath,

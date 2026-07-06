@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
+using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.CodeAnalysis.CSharp;
@@ -33,6 +34,15 @@ public static class Projects
                 .Select((group) => GenerateProject(log, sampleSolutionDir, group.Key, [..group]))
                 .Where(static (csproj) => csproj is not null)
         ];
+
+    public static string ResolveOutputType(string testingPlatform) => testingPlatform switch
+    {
+        null or "" or "VsTest" => "Library",
+        "MicrosoftTestingPlatform" => "Exe",
+        var value => throw new ArgumentException(
+            $"The testing platform '{value}' is not supported"
+        ),
+    };
 
     static AllureSample ToAllureSample(
         TaskLoggingHelper log,

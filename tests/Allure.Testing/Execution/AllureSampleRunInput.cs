@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Allure.Testing;
+namespace Allure.Testing.Execution;
 
 /// <summary>
 /// Contains data that affects the execution of the sample project.
@@ -15,9 +15,14 @@ public record class AllureSampleRunInput
     public object? AllureConfiguration { get; init; } = null;
 
     /// <summary>
-    /// The path to a directory used to write results Allure results to and read them from.
+    /// The path to a directory used to write Allure results to and read them from.
     /// An absolute path is recommended.
     /// </summary>
+    /// <remarks>
+    /// When this value is set, the directory is caller-owned: the runner does not
+    /// create, clear, or delete it. Existing files may be included in the returned
+    /// results.
+    /// </remarks>
     public string? AllureResultsDirectory { get; init; } = null;
 
     /// <summary>

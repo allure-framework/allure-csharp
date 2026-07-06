@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
 using Allure.Build.Tasks.Functions;
+using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -26,6 +27,9 @@ public class GenerateSampleSolution : Task
 
     [Required]
     public string RootNamespace { get; set; }
+
+    [Required]
+    public string TestingPlatform { get; set; }
 
     [Required]
     public string SampleSolutionDir { get; set; }
@@ -82,7 +86,7 @@ public class GenerateSampleSolution : Task
         var projectFiles = this.PrepareProjects();
         var slnx = this.PrepareSolutionFile(projectFiles);
 
-        FileProcessor.CommitSampleFiles(this.Log, this.SampleSolutionDir, [
+        IEnumerable<FileSource> sampleSolutionFiles = [
             slnx,
             directorySolutionTargets,
             directoryBuildProps,
@@ -90,7 +94,16 @@ public class GenerateSampleSolution : Task
             directoryPackagesProps,
             nugetConfig,
             ..projectFiles,
-        ]);
+        ];
+
+        if (this.TestingPlatform is "MicrosoftTestingPlatform")
+        {
+            sampleSolutionFiles = sampleSolutionFiles.Prepend(
+                Files.GlobalJson(this.SampleSolutionDir)
+            );
+        }
+
+        FileProcessor.CommitSampleFiles(this.Log, this.SampleSolutionDir, sampleSolutionFiles);
 
         return true;
     }
@@ -111,6 +124,7 @@ public class GenerateSampleSolution : Task
         Files.DirectoryBuildProps(
             solutionDir: this.SampleSolutionDir,
             targetFrameworks: this.SampleTargetFrameworks,
+            outputType: Projects.ResolveOutputType(this.TestingPlatform),
             imports.PropsFiles,
             packages: this.CommonPackageNames,
             projects: this.SampleProjectReferences.Select((item) =>
@@ -130,7 +144,7 @@ public class GenerateSampleSolution : Task
                     // Keep escape as we're writing these values to Directory.Package.props
                     // and the project file as is.
                     name: item.EvaluatedIncludeEscaped,
-                    varsion: item.GetMetadataValueEscaped("Version")
+                    version: item.GetMetadataValueEscaped("Version")
                 )
             )
         );

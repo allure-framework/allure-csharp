@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Allure.Build.SourceGenerators.Assertions;
 
-public record class AttributeProperties(
+sealed record class AttributeProperties(
     string PropertyName,
     string MethodName,
     string JsonName,

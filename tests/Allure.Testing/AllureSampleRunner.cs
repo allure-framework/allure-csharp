@@ -10,6 +10,7 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Testing.Assertions.Model;
+using Allure.Testing.Execution;
 using Allure.Testing.Internal;
 using TUnit.Assertions.Core;
 using TUnit.Assertions.Exceptions;
@@ -147,7 +148,7 @@ public class AllureSampleRunner
         // Make sure the process tree is stopped if an exception occurs.
         using var processGuard = Guard.WrapProcess(process);
 
-        var stdStreamsTask = SetProcessStreamCollection(process, ct);
+        var stdStreamsTask = CollectProcessOutput(process, ct);
 
         await WaitForExit(process, input.Timeout, ct);
 
@@ -209,26 +210,41 @@ public class AllureSampleRunner
     static ProcessStartInfo CreateProcessStartInfo(
         AllureSampleRegistryEntry sample,
         IEnumerable<string> args
-    ) => new(
-        "dotnet",
-        [
-            "test",
-            sample.ProjectFilePath,
-            "--framework",
-            sample.TargetFramework,
-            "--configuration",
-            sample.BuildConfiguration,
-            ..args,
-        ]
     )
     {
-        CreateNoWindow = true,
-        RedirectStandardError = true,
-        RedirectStandardOutput = true,
-        StandardErrorEncoding = encoding,
-        StandardOutputEncoding = encoding,
-        UseShellExecute = false,
-    };
+        ProcessStartInfo psi = new(
+            "dotnet",
+            [
+                ..ResolveTestingPlatformSpecificArguments(sample.TestingPlatform),
+                sample.ProjectFilePath,
+                "--framework",
+                sample.TargetFramework,
+                "--configuration",
+                sample.BuildConfiguration,
+                ..args,
+            ]
+        )
+        {
+            CreateNoWindow = true,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            StandardErrorEncoding = encoding,
+            StandardOutputEncoding = encoding,
+            UseShellExecute = false,
+        };
+        psi.Environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
+        return psi;
+    }
+
+    static IEnumerable<string> ResolveTestingPlatformSpecificArguments(TestingPlatform testingPlatform) =>
+        testingPlatform switch
+        {
+            TestingPlatform.VsTest => ["test"],
+            TestingPlatform.MicrosoftTestingPlatform => ["run", "--project"],
+            var value => throw new InvalidOperationException(
+                $"Unknown testing platform '{value}'"
+            ),
+        };
 
     static void ApplyExtraEnvironmentVariables(
         IEnumerable<KeyValuePair<string, string>> envVars,
@@ -310,13 +326,17 @@ public class AllureSampleRunner
         return Guard.WrapDirectory(resultsDir, own: useTempDir);
     }
 
-    static async Task<(string, string)> SetProcessStreamCollection(
+    static async Task<(string, string)> CollectProcessOutput(
         Process process,
         CancellationToken ct
-    ) => (
-        await CollectProcessStream(process.StandardOutput, ct),
-        await CollectProcessStream(process.StandardError, ct)
-    );
+    )
+    {
+        var streams = await Task.WhenAll(
+            CollectProcessStream(process.StandardOutput, ct),
+            CollectProcessStream(process.StandardError, ct)
+        );
+        return (streams[0], streams[1]);
+    }
 
     static async Task WaitForExit(Process process, TimeSpan timeout, CancellationToken ct)
     {

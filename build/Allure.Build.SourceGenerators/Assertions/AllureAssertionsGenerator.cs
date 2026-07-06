@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Allure.Build.SourceGenerators.Assertions;
 
 [Generator]
-public class AllureAssertionsGenerator : IIncrementalGenerator
+public sealed class AllureAssertionsGenerator : IIncrementalGenerator
 {
     static readonly SymbolDisplayFormat FullyQualifiedNoTypeParameters = new(
         globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,

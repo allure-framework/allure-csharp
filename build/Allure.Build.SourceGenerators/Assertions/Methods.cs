@@ -1,6 +1,6 @@
 namespace Allure.Build.SourceGenerators.Assertions;
 
-public static class Methods
+static class Methods
 {
     public static string NoProperty(string methodName, PropertyMetadata property) =>
         $$"""

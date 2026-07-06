@@ -105,6 +105,7 @@ public static class XmlDefinitions
     public static XDocument DirectoryBuildProps(
         IEnumerable<string> imports,
         string targetFrameworks,
+        string outputType,
         IEnumerable<string> packages,
         IEnumerable<string> projects,
         IEnumerable<string> analyzerProjects
@@ -116,7 +117,7 @@ public static class XmlDefinitions
                 ..imports.Select(MsBuild.GetImport),
                 MsBuild.GetPropertyGroup([
                     ("TargetFrameworks", targetFrameworks),
-                    ("OutputType", "Library"),
+                    ("OutputType", outputType),
                     ("EnableDefaultItems", "false"),
                     ("IsTestProject", "true"),
                     ("AspectInjector_Enabled", "false")

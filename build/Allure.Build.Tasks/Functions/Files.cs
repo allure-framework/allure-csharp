@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
+using Allure.Build.Tasks.Sources;
 
 namespace Allure.Build.Tasks.Functions;
 
@@ -20,6 +21,12 @@ public static class Files
         GeneratedFileSource.FromXmlDocument(
             document: XmlDefinitions.NugetConfig(localRepository, cacheLocation),
             destinationPath: Path.Combine(solutionDir, "nuget.config")
+        );
+
+    public static GeneratedFileSource GlobalJson(string solutionDir) =>
+        GeneratedFileSource.FromJsonSourceObject(
+            sourceValue: new { test = new { runner = "Microsoft.Testing.Platform" } },
+            destinationPath: Path.Combine(solutionDir, "global.json")
         );
 
     public static GeneratedFileSource Solution(
@@ -52,6 +59,7 @@ public static class Files
     public static GeneratedFileSource DirectoryBuildProps(
         string solutionDir,
         string targetFrameworks,
+        string outputType,
         IEnumerable<string> imports,
         IEnumerable<string> packages,
         IEnumerable<string> projects,
@@ -59,11 +67,12 @@ public static class Files
     ) =>
         GeneratedFileSource.FromXmlDocument(
             document: XmlDefinitions.DirectoryBuildProps(
-                imports,
-                targetFrameworks,
-                packages,
-                projects,
-                analyzerProjects
+                imports: imports,
+                targetFrameworks: targetFrameworks,
+                outputType: outputType,
+                packages: packages,
+                projects: projects,
+                analyzerProjects: analyzerProjects
             ),
             destinationPath: Path.Combine(solutionDir, "Directory.Build.props"),
             omitDeclaration: true

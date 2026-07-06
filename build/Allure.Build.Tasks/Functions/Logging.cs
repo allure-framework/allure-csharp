@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Allure.Build.Tasks.DataTypes;
+using Allure.Build.Tasks.Sources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -151,7 +152,7 @@ public static class Logging
                   """,
             sample.ItemSpec,
             sampleName,
-            // Keep escapint to display a value that is ready for copy and paste
+            // Keep escaping to display a value that is ready for copy and paste
             // to the test project file.
             Path.GetRelativePath(projectDirectory, sample.EvaluatedIncludeEscaped)
         );
