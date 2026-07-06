@@ -166,7 +166,7 @@ public class AllureSampleRunner
         Console.WriteLine(
             "Running {0} {1}",
             psi.FileName,
-            string.Join(" ", psi.Arguments.Select(a => $"'{a}'"))
+            string.Join(" ", psi.ArgumentList.Select(a => $"'{a}'"))
         );
 
         Console.WriteLine("  Working directory: {0}", psi.WorkingDirectory);
