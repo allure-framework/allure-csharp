@@ -17,8 +17,8 @@ public static partial class AllureAssertionExtensions
     extension (IAssertionSource<AllureResults> source)
     {
         /// <summary>
-        /// Checks if the exact number of test results were written to the output and each result satisfies the corresponding
-        /// constraints.
+        /// Checks if the exact number of test results were written to the output and
+        /// there is a perfect match between the test results and the provided constraints.
         /// </summary>
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
@@ -35,7 +35,7 @@ public static partial class AllureAssertionExtensions
 
             var assertion = source.Member(
                 s => s.TestResults,
-                tr => new CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                tr => new CollectionItemConstraintsPerfectMatchAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
                     tr.Context,
                     constraints,
                     "test result"));
@@ -353,8 +353,8 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the exact number of containers were written to the output and each container satisfies
-        /// the corresponding constraints.
+        /// Checks if the exact number of containers were written to the output and
+        /// there is a perfect match between the containers and the provided constraints.
         /// </summary>
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
@@ -371,7 +371,7 @@ public static partial class AllureAssertionExtensions
 
             var assertion = source.Member(
                 s => s.Containers,
-                ca => new CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                ca => new CollectionItemConstraintsPerfectMatchAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
                     ca.Context,
                     constraints,
                     "container"));
