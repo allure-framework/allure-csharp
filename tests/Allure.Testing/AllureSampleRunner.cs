@@ -232,7 +232,7 @@ public class AllureSampleRunner
             StandardOutputEncoding = encoding,
             UseShellExecute = false,
         };
-        psi.Environment.Add("DOTNET_CLI_TELEMETRY_OPTOUT", "1");
+        psi.Environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
         return psi;
     }
 
