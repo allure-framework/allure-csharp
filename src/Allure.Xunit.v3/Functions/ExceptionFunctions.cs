@@ -7,12 +7,12 @@ namespace Allure.Xunit.Functions;
 
 static class ExceptionFunctions
 {
-    public static bool IsConfiguredAssertionFailure(ITestFailed testFailed)
-    {
-        var failExceptions =
-            AllureTestingPlatformServices.AllureRuntime.Configuration.FailExceptions;
-        return testFailed.ExceptionTypes.Any(
-            (e) => failExceptions.Contains(e, StringComparer.OrdinalIgnoreCase)
-        );
-    }
+    public static bool IsConfiguredAssertionFailure(ITestFailed testFailed) =>
+        AllureTestingPlatformServices.AllureRuntime is
+        {
+            Configuration.FailExceptions: { Count: >0 } failExceptions
+        }
+            && testFailed.ExceptionTypes.Any(
+                (e) => failExceptions.Contains(e, StringComparer.OrdinalIgnoreCase)
+            );
 }
