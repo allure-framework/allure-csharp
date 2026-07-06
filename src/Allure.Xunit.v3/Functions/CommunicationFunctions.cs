@@ -61,16 +61,14 @@ static class CommunicationFunctions
 
     public static bool TryConvertToTestUpdateWithMethod(
         MethodInfo testMethod,
-        string testCaseUniqueID,
+        ITest test,
         object?[]? arguments,
-        MessageMetadataCache metadataCache,
         [NotNullWhen(true)] out AllureTestUpdateMessage? allureTestUpdate
     )
     {
-        if (metadataCache.TryGetTestCaseMetadata(testCaseUniqueID) is { Traits: { } traits }
-            && TryGetCorrelationUid(traits, out var correlationUid))
+        if (TryGetCorrelationUid(test.Traits, out var correlationUid))
         {
-            allureTestUpdate = new AllureTestUpdateMessage(correlationUid.Value, new(testCaseUniqueID))
+            allureTestUpdate = new AllureTestUpdateMessage(correlationUid.Value, new(test.TestCase.UniqueID))
             {
                 Properties = [
                     new AllureTestMethodProperty(testMethod) { Arguments = [.. arguments ?? []] },

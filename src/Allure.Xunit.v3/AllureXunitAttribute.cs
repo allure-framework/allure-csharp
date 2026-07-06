@@ -22,7 +22,7 @@ public class AllureXunitAttribute() :
     public void Before(MethodInfo methodUnderTest, IXunitTest test) =>
         AllureRunnerReporter.CurrentMessageHandler?.HandleBeforeTest(
             methodUnderTest,
-            test.TestCase.UniqueID,
+            test,
             test.TestMethodArguments
         );
 

@@ -61,13 +61,12 @@ sealed class AllureMessageHandler(
         }
     }
 
-    internal void HandleBeforeTest(MethodInfo testMethod, string testCaseUniqueID, object?[]? arguments)
+    internal void HandleBeforeTest(MethodInfo testMethod, ITest test, object?[]? arguments)
     {
         if (CommunicationFunctions.TryConvertToTestUpdateWithMethod(
             testMethod,
-            testCaseUniqueID,
+            test,
             arguments,
-            this.MetadataCache,
             out var allureTestUpdate))
         {
             this.PublishSync(allureTestUpdate);
