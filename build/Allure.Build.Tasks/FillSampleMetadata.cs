@@ -21,6 +21,9 @@ public class FillSampleMetadata : Task
     public string ProjectDirectory { get; set; }
 
     [Required]
+    public string TestingPlatform { get; set; }
+
+    [Required]
     public string SampleSolutionDirectory { get; set; }
 
     [Required]
@@ -145,6 +148,9 @@ public class FillSampleMetadata : Task
             this.BinDirectory,
             item.GetMetadata("ProjectName"),
             $"{configuration}_{targetFramework}",
+            this.TestingPlatform is "MicrosoftTestingPlatform"
+                ? "TestResults"
+                : "",
             "allure-results"
         );
         item.SetMetadataValueLiteral("ResultsDirectory", defaultResultsDirectory);

@@ -140,6 +140,7 @@
             Samples="@(AllureSample)"
             RootDirectory="$(_Allure_RepoRoot)"
             ProjectDirectory="$(MSBuildProjectDirectory)"
+            TestingPlatform="$(Allure_TestingPlatform)"
             SampleSolutionDirectory="$(Allure_SampleSolutionDir)"
             SampleSolutionName="$(Allure_SampleSolutionName)"
             RootNamespace="$(RootNamespace)"
