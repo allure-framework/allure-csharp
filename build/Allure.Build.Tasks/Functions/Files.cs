@@ -23,10 +23,10 @@ public static class Files
             destinationPath: Path.Combine(solutionDir, "nuget.config")
         );
 
-    public static GeneratedFileSource GlobalsJson(string solutionDir) =>
+    public static GeneratedFileSource GlobalJson(string solutionDir) =>
         GeneratedFileSource.FromJsonSourceObject(
             sourceValue: new { test = new { runner = "Microsoft.Testing.Platform" } },
-            destinationPath: Path.Combine(solutionDir, "globals.json")
+            destinationPath: Path.Combine(solutionDir, "global.json")
         );
 
     public static GeneratedFileSource Solution(

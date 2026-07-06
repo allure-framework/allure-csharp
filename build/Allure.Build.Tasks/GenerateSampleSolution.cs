@@ -99,7 +99,7 @@ public class GenerateSampleSolution : Task
         if (this.TestingPlatform is "MicrosoftTestingPlatform")
         {
             sampleSolutionFiles = sampleSolutionFiles.Prepend(
-                Files.GlobalsJson(this.SampleSolutionDir)
+                Files.GlobalJson(this.SampleSolutionDir)
             );
         }
 
