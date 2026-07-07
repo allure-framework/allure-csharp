@@ -155,7 +155,7 @@ public static class TestPlanFunctions
     )
     {
         int cropAt = methodSignature.IndexOf('(');
-        int typeParametersStart = methodSignature.IndexOf('<');
+        int typeParametersStart = methodSignature.IndexOf('[');
         if (cropAt == -1 || typeParametersStart != -1 && typeParametersStart < cropAt)
         {
             cropAt = typeParametersStart;
