@@ -379,22 +379,36 @@ public class AllureSampleRunner
 
         var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
         var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
+        var globals = await ReadJsonObjectResults2<AllureGlobals>(resultFiles, "-globals.json", ct);
 
-        return (testResults, containers) switch
+        return (testResults, containers, globals) switch
         {
-            ({IsPassed: true, Value: var trs}, {IsPassed: true, Value: var conts}) => new(
+            ({IsPassed: true, Value: var trs}, {IsPassed: true, Value: var conts}, { IsPassed: true, Value: var globs }) => new(
                 TestResults: trs,
                 Containers: conts,
-                Attachments: await ReadAttachments(resultFiles, ct)
+                Attachments: await ReadAttachments(resultFiles, ct),
+                Globals: globs
             ),
 
-            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}) =>
+            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, { IsPassed: false, Message: var err3 }) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}{Environment.NewLine}{err3}"),
+
+            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, _) =>
                 throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
 
-            ({IsPassed: false, Message: var error}, _) =>
+            ({IsPassed: false, Message: var err1}, _, {IsPassed: false, Message: var err2}) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            (_, {IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            ({IsPassed: false, Message: var error}, _, _) =>
                 throw new AssertionException(error),
 
-            (_, {IsPassed: false, Message: var error}) =>
+            (_, {IsPassed: false, Message: var error}, _) =>
+                throw new AssertionException(error),
+
+            (_, _, {IsPassed: false, Message: var error}) =>
                 throw new AssertionException(error),
         };
     }
