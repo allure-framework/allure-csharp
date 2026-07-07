@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <Allure_TestingPlatformEnableSelfRegistration>false</Allure_TestingPlatformEnableSelfRegistration>
+        <Allure_WarnIfMtpDisabled>true</Allure_WarnIfMtpDisabled>
     </PropertyGroup>
 
     <ItemGroup>

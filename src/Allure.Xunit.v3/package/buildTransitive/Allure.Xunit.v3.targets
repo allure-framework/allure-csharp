@@ -13,6 +13,24 @@
     </ItemGroup>
 
     <Target
+        Name="Allure_ShowMtpDisabledWarning"
+        BeforeTargets="CoreCompile"
+        Condition="
+            '$(UseMicrosoftTestingPlatformRunner)' != 'true'
+                And
+            '$(Allure_WarnIfMtpDisabled)' == 'true'
+                And
+            '$(IsCrossTargetingBuild)' != 'true'
+                And
+            '$(DesignTimeBuild)' != 'true' ">
+
+        <Warning
+            Code="ALLURE001"
+            Text="Allure.Xunit.v3 requires xUnit.net v3 to run with Microsoft Testing Platform. Set the UseMicrosoftTestingPlatformRunner MSBuild property to true, or set Allure_WarnIfMtpDisabled to false to suppress this warning."/>
+
+    </Target>
+
+    <Target
         Name="Allure_SetStartupObject"
         BeforeTargets="CoreCompile"
         Condition="
