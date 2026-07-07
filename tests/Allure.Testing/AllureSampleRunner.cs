@@ -94,6 +94,79 @@ public class AllureSampleRunner
         return allureResults;
     }
 
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    public static async Task<AllureResults> ReadAllureResults(string resultsDirectory) =>
+        await ReadAllureResults(new DirectoryInfo(resultsDirectory), CancellationToken.None);
+
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    /// <param name="ct">A cancellation token.</param>
+    public static async Task<AllureResults> ReadAllureResults(
+        string resultsDirectory,
+        CancellationToken ct
+    ) =>
+        await ReadAllureResults(new DirectoryInfo(resultsDirectory), ct);
+
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    public static async Task<AllureResults> ReadAllureResults(DirectoryInfo resultsDirectory) =>
+        await ReadAllureResults(resultsDirectory, CancellationToken.None);
+
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    /// <param name="ct">A cancellation token.</param>
+    public static async Task<AllureResults> ReadAllureResults(
+        DirectoryInfo resultsDirectory,
+        CancellationToken ct
+    )
+    {
+        var resultFiles = resultsDirectory.GetFiles();
+
+        var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
+        var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
+        var globals = await ReadJsonObjectResults2<AllureGlobals>(resultFiles, "-globals.json", ct);
+
+        return (testResults, containers, globals) switch
+        {
+            ({IsPassed: true, Value: var trs}, {IsPassed: true, Value: var conts}, { IsPassed: true, Value: var globs }) => new(
+                TestResults: trs,
+                Containers: conts,
+                Attachments: await ReadAttachments(resultFiles, ct),
+                Globals: globs
+            ),
+
+            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, { IsPassed: false, Message: var err3 }) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}{Environment.NewLine}{err3}"),
+
+            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, _) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            ({IsPassed: false, Message: var err1}, _, {IsPassed: false, Message: var err2}) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            (_, {IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            ({IsPassed: false, Message: var error}, _, _) =>
+                throw new AssertionException(error),
+
+            (_, {IsPassed: false, Message: var error}, _) =>
+                throw new AssertionException(error),
+
+            (_, _, {IsPassed: false, Message: var error}) =>
+                throw new AssertionException(error),
+        };
+    }
+
     static async Task<Guard<DirectoryInfo>> EnsureSampleResults(
         AllureSampleRegistryEntry sample,
         AllureSampleRunInput input,
@@ -369,49 +442,6 @@ public class AllureSampleRunner
             () => reader.ReadToEndAsync(ct).Result,
             TaskCreationOptions.LongRunning
         );
-
-    static async Task<AllureResults> ReadAllureResults(
-        DirectoryInfo resultsDirectory,
-        CancellationToken ct
-    )
-    {
-        var resultFiles = resultsDirectory.GetFiles();
-
-        var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
-        var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
-        var globals = await ReadJsonObjectResults2<AllureGlobals>(resultFiles, "-globals.json", ct);
-
-        return (testResults, containers, globals) switch
-        {
-            ({IsPassed: true, Value: var trs}, {IsPassed: true, Value: var conts}, { IsPassed: true, Value: var globs }) => new(
-                TestResults: trs,
-                Containers: conts,
-                Attachments: await ReadAttachments(resultFiles, ct),
-                Globals: globs
-            ),
-
-            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, { IsPassed: false, Message: var err3 }) =>
-                throw new AssertionException($"{err1}{Environment.NewLine}{err2}{Environment.NewLine}{err3}"),
-
-            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, _) =>
-                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
-
-            ({IsPassed: false, Message: var err1}, _, {IsPassed: false, Message: var err2}) =>
-                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
-
-            (_, {IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}) =>
-                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
-
-            ({IsPassed: false, Message: var error}, _, _) =>
-                throw new AssertionException(error),
-
-            (_, {IsPassed: false, Message: var error}, _) =>
-                throw new AssertionException(error),
-
-            (_, _, {IsPassed: false, Message: var error}) =>
-                throw new AssertionException(error),
-        };
-    }
 
     static async Task<AssertionResult<ImmutableArray<T>>> ReadJsonObjectResults2<T>(
         IEnumerable<FileInfo> allOutputFiles,
