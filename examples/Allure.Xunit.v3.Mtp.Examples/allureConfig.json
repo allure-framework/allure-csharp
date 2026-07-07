@@ -1,7 +1,0 @@
-{
-  "allure": {
-    "failExceptions": [
-      "System.Exception"
-    ]
-  }
-}

@@ -40,9 +40,6 @@
     <Project Path="examples/Allure.Xunit.Examples/Allure.Xunit.Examples.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
-    <Project Path="examples/Allure.Xunit.v3.Mtp.Examples/Allure.Xunit.v3.Mtp.Examples.csproj">
-      <Build Solution="Publish|*" Project="false" />
-    </Project>
   </Folder>
   <Folder Name="/img/">
     <File Path="img/Allure-Color.png" />
