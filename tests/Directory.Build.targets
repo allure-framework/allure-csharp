@@ -247,6 +247,7 @@
             SampleSources="@(_Allure_ResolvedSample)"
             SamplePackageReferences="@(SamplePackageReference)"
             SampleProjectReferences="@(SampleProjectReference)"
+            SampleProperties="@(SampleProperty)"
             ProjectDirectory="$(MSBuildProjectDirectory)"
             RootNamespace="$(RootNamespace)"
             TestingPlatform="$(Allure_TestingPlatform)"
