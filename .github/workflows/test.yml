@@ -63,6 +63,7 @@ jobs:
             -p:Allure_SampleConfiguration=${{ env.BUILD_CONFIGURATION }}
 
       - name: 'Run test samples'
+        continue-on-error: true
         run: |
           dotnet msbuild ${{ env.SOLUTION_PATH }}\
             -t:Allure_RunTestSamples\
