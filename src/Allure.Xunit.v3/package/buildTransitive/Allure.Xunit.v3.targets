@@ -1,5 +1,17 @@
 <Project>
 
+    <PropertyGroup Condition=" '$(UseMicrosoftTestingPlatformRunner)' == 'true' ">
+        <Allure_GenerateXunitEntryPoint Condition=" '$(Allure_GenerateXunitEntryPoint)' == '' ">true</Allure_GenerateXunitEntryPoint>
+        <Allure_ApplyXunitAttribute Condition=" '$(Allure_ApplyXunitAttribute)' == '' ">true</Allure_ApplyXunitAttribute>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(UseMicrosoftTestingPlatformRunner)' == 'true' ">
+        <TestingPlatformBuilderHook Include="955bb133-5c11-493a-9d10-5c66e17b11e5">
+            <DisplayName>Allure.Xunit.v3</DisplayName>
+            <TypeFullName>Allure.Xunit.AllureXunitBuilderHook</TypeFullName>
+        </TestingPlatformBuilderHook>
+    </ItemGroup>
+
     <Target
         Name="Allure_SetStartupObject"
         BeforeTargets="CoreCompile"
