@@ -172,7 +172,7 @@ public class AllureSampleRunner
         AllureSampleRunInput input,
         CancellationToken ct
     ) =>
-        sample.IsPreRunFlow
+        sample.IsPreRunFlow && input.IsPreRunCompatible
             ? EnsureExistingAllureResultsDirectory(sample)
             : await ProduceSampleResults(sample, input, ct);
 
