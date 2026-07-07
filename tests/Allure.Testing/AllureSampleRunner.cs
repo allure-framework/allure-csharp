@@ -231,7 +231,9 @@ public class AllureSampleRunner
 
         LogStdStreams(stdout, stderr);
 
-        return resultsDirGuard.Transfer();
+        return resultsDirGuard.Own
+            ? resultsDirGuard.Transfer()
+            : resultsDirGuard.Value;
     }
 
     static void LogProcessStart(ProcessStartInfo psi, AllureSampleRunInput input)
