@@ -94,6 +94,10 @@ jobs:
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-xunit-v3" -- dotnet run --project ./tests/Allure.Xunit.v3.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
           npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-specflow" -- dotnet test ./tests/Allure.SpecFlow.Tests\
             --no-restore\
             --no-build\
