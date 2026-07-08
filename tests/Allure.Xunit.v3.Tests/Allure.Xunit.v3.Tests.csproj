@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <SampleProperty Include="UseMicrosoftTestingPlatformRunner" Value="true" />
+    <SampleProperty Include="EmitCompilerGeneratedFiles" Value="true" />
   </ItemGroup>
 
   <ItemGroup>
