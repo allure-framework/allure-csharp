@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Allure.Net.Commons.Attributes;
@@ -24,16 +25,16 @@ public static class TestPlanFunctions
     /// A mapping from Allure ID to test method names.
     /// </param>
     /// <returns>
-    /// A sequence of xunit.v3.mtp-v2 arguments in form
+    /// A sequence of xUnit.net arguments in form
     /// <c>--filter-method method1 --filter-method method2 ...</c>.
     /// </returns>
-    public static string[] GetArgsWithPreExecutionFilters(
+    public static string[] AddXunitPreExecutionFilter(
         string[] args,
-        IReadOnlyDictionary<int, IReadOnlyList<string>> allureIdRegistry
+        ImmutableDictionary<int, ImmutableArray<string>> allureIdRegistry
     ) =>
         [
             ..args,
-            ..GetPreExecutionFilters(allureIdRegistry, TestPlan, Assembly.GetEntryAssembly()),
+            ..GetXunitPreExecutionFilter(allureIdRegistry, TestPlan, Assembly.GetEntryAssembly()),
         ];
 
     /// <summary>
@@ -45,15 +46,15 @@ public static class TestPlanFunctions
     /// </param>
     /// <param name="testPlan">
     /// An instance of the test plan. Use <see cref="AllureTestPlan.FromEnvironment"/> to read
-    /// the global one or <see cref="TestPlanFunctions.TestPlan"/> to get the cached version.
+    /// the global one or <see cref="TestPlan"/> to get the cached version.
     /// </param>
     /// <param name="testAssembly">A test assembly. In MTP flow, it's the entry assembly.</param>
     /// <returns>
     /// A sequence of xunit.v3.mtp-v2 arguments in form
     /// <c>--filter-method method1 --filter-method method2 ...</c>.
     /// </returns>
-    public static IEnumerable<string> GetPreExecutionFilters(
-        IReadOnlyDictionary<int, IReadOnlyList<string>> allureIdRegistry,
+    public static IEnumerable<string> GetXunitPreExecutionFilter(
+        ImmutableDictionary<int, ImmutableArray<string>> allureIdRegistry,
         AllureTestPlan testPlan,
         Assembly testAssembly
     )

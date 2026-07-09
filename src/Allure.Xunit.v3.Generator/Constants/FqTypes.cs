@@ -16,17 +16,22 @@ static class FqTypes
 
     public const string TestPlanFunctions = "global::Allure.Xunit.Functions.TestPlanFunctions";
 
-    public const string IReadOnlyList_String = "global::System.Collections.Generic.IReadOnlyList<string>";
+    public const string ImmutableArray = $"global::System.Collections.Immutable.ImmutableArray";
 
-    public const string List_String = "global::System.Collections.Generic.List<string>";
+    public const string ImmutableArray_String = $"{ImmutableArray}<string>";
 
-    public const string IReadOnlyDictionary_Int_StringList = $"global::System.Collections.Generic.IReadOnlyDictionary<int, {IReadOnlyList_String}>";
+    public const string ImmutableDictionary = $"global::System.Collections.Immutable.ImmutableDictionary";
 
-    public const string Dictionary_Int_StringList = $"global::System.Collections.Generic.Dictionary<int, {IReadOnlyList_String}>";
+    public const string ImmutableDictionary_Int_ImmutableArray_String = $"{ImmutableDictionary}<int, {ImmutableArray_String}>";
+
+    public const string ImmutableDictionaryBuilder_Int_ImmutableArray_String = $"{ImmutableDictionary_Int_ImmutableArray_String}.Builder";
 
     public static string Action(string argumentType) =>
         $"global::System.Action<{argumentType}>";
 
     public static string Action(string argument1Type, string argument2Type) =>
         $"global::System.Action<{argument1Type}, {argument2Type}>";
+
+    public static string AllureIdAttribute = "global::Allure.Net.Commons.Attributes.AllureIdAttribute";
+
 }

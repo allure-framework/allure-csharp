@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup Condition=" '$(UseMicrosoftTestingPlatformRunner)' == 'true' ">
-        <Allure_GenerateXunitEntryPoint Condition=" '$(Allure_GenerateXunitEntryPoint)' == '' ">true</Allure_GenerateXunitEntryPoint>
+        <Allure_GenerateXunitEntryPoint Condition=" '$(Allure_GenerateXunitEntryPoint)' == '' ">$(GenerateSelfRegisteredExtensions)</Allure_GenerateXunitEntryPoint>
         <Allure_ApplyXunitAttribute Condition=" '$(Allure_ApplyXunitAttribute)' == '' ">true</Allure_ApplyXunitAttribute>
         <Allure_XunitEnableSelfRegistration Condition=" '$(Allure_XunitEnableSelfRegistration)' == '' ">true</Allure_XunitEnableSelfRegistration>
     </PropertyGroup>

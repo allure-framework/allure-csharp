@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -18,62 +17,46 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var allureXunitOptions = SetupGeneratorOptionsStream(context);
+        var options = SetupGeneratorOptionsStream(context);
         var hasTestHook = SetupHasAllureXunitAttributeStream(context);
-        var selfRegistrations = SetupAddSelfRegisteredExtensionsStream(context);
-        var allureIdMethods = SetupAllureIdMethodsStream(context);
+        var selfRegistration = SetupSelfRegistrationStream(context);
+        var allureIdMethods = SetupAllureIdMethodStream(context);
 
-        var generationInput = allureXunitOptions
-            .Combine(hasTestHook)
-            .Combine(selfRegistrations)
-            .Combine(allureIdMethods);
-
-        context.RegisterSourceOutput(generationInput, GenerateAllureXunitSources);
+        context.RegisterPostInitializationOutput(GenerateAllureXunitRunner);
+        context.RegisterSourceOutput(options.Combine(hasTestHook), GenerateAllureXunitAssemblyAttribute);
+        context.RegisterSourceOutput(options.Combine(selfRegistration), GenerateAllureXunitEntryPoint);
+        context.RegisterSourceOutput(allureIdMethods, GenerateAllureXunitTestPlan);
     }
 
-    static IncrementalValueProvider<AllureXunitGeneratorOptions> SetupGeneratorOptionsStream(
+    static IncrementalValueProvider<string> SetupSelfRegistrationStream(
         IncrementalGeneratorInitializationContext context
     ) =>
-        context
-            .AnalyzerConfigOptionsProvider
-            .Select(ReadGeneratorProperties);
+        context.AnalyzerConfigOptionsProvider
+            .Select(ResolveSelfRegisteredExtensionsTypeName)
+            .Combine(context.CompilationProvider)
+            .Select(VerifySelfRegistration);
 
-    static IncrementalValueProvider<bool> SetupHasAllureXunitAttributeStream(
-        IncrementalGeneratorInitializationContext context
+    static string ResolveSelfRegisteredExtensionsTypeName(
+        AnalyzerConfigOptionsProvider optionsProvider,
+        CancellationToken token
     ) =>
-        context
-            .CompilationProvider
-            .Select(HasAllureXunitAttribute);
+        optionsProvider.GlobalOptions
+            .TryGetValue(Options.RootNamespace, out var rootNamespace)
+                && !string.IsNullOrEmpty(rootNamespace)
+                    ? $"{rootNamespace}.SelfRegisteredExtensions"
+                    : "SelfRegisteredExtensions";
 
-    static IncrementalValueProvider<ImmutableArray<string>> SetupAddSelfRegisteredExtensionsStream(
+    static IncrementalValueProvider<ImmutableArray<(int, string)>> SetupAllureIdMethodStream(
         IncrementalGeneratorInitializationContext context
     ) =>
-        context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: IsSelfRegisteredExtensionsCandidate,
-            transform: ToSelfRegistrationMethodExpression
-        )
-        .Where(static (expression) => expression is not null)
-        .Collect()!;
-
-    static IncrementalValueProvider<ImmutableArray<(int, ImmutableArray<string>)>> SetupAllureIdMethodsStream(
-        IncrementalGeneratorInitializationContext context
-    ) =>
-        context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: IsMethodWithAttributes,
-            transform: ToAllureIdMethodKeyValuePair
-        )
-        .Where(static (kv) => kv is not null)
-        .Select(static (kv, _) => kv!.Value)
-        .Collect()
-        .Select(
-            static (arr, _) =>
-                arr.GroupBy(
-                    static (pair) => pair.Item1,
-                    static (pair) => pair.Item2,
-                    static (k, v) => (k, v.ToImmutableArray())
-                )
-                .ToImmutableArray()
-        );
+        context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: IsMethodWithAttributes,
+                transform: ToAllureIdMethodKeyValuePair
+            )
+            .Where(static (kv) => kv is not null)
+            .Select(static (kv, _) => kv!.Value)
+            .Collect();
 
     static bool IsMethodWithAttributes(SyntaxNode node, CancellationToken _) =>
         node is MethodDeclarationSyntax methodDeclaration
@@ -131,6 +114,72 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         return null;
     }
 
+    static string VerifySelfRegistration(
+        (string selfRegistrationTypeName, Compilation compilation) input,
+        CancellationToken token
+    )
+    {
+        var (selfRegistrationTypeName, compilation) = input;
+
+        var builderType = compilation.GetTypeByMetadataName(
+            "Microsoft.Testing.Platform.Builder.ITestApplicationBuilder"
+        );
+        if (builderType is null)
+        {
+            return "";
+        }
+
+        var selfRegisteredExtensionsType =
+            compilation.GetTypeByMetadataName(selfRegistrationTypeName);
+
+        if (selfRegisteredExtensionsType is null)
+        {
+            return "";
+        }
+
+        foreach (var member in selfRegisteredExtensionsType.GetMembers(MethodNames.AddSelfRegisteredExtensions))
+        {
+            if (ToRegistrationMethod(builderType, member) is { } method)
+            {
+                return GetMethodGroupExpression(method);
+            }
+        }
+
+        return "";
+    }
+
+    static IMethodSymbol? ToRegistrationMethod(INamedTypeSymbol builderType, ISymbol? member) =>
+        member is IMethodSymbol
+        {
+            IsStatic: true,
+            IsExtensionMethod: true,
+            ReturnsVoid: true,
+            DeclaredAccessibility: Accessibility.Public,
+            Parameters: { Length: 2 } parameters,
+        } method
+            && SymbolEqualityComparer.Default.Equals(parameters[0].Type, builderType)
+            && parameters[1].Type is IArrayTypeSymbol
+            {
+                ElementType.SpecialType: SpecialType.System_String,
+            }
+                ? method
+                : null;
+
+
+    static IncrementalValueProvider<AllureXunitGeneratorOptions> SetupGeneratorOptionsStream(
+        IncrementalGeneratorInitializationContext context
+    ) =>
+        context
+            .AnalyzerConfigOptionsProvider
+            .Select(ReadGeneratorProperties);
+
+    static IncrementalValueProvider<bool> SetupHasAllureXunitAttributeStream(
+        IncrementalGeneratorInitializationContext context
+    ) =>
+        context
+            .CompilationProvider
+            .Select(HasAllureXunitAttribute);
+
     static AllureXunitGeneratorOptions ReadGeneratorProperties(
         AnalyzerConfigOptionsProvider provider,
         CancellationToken _
@@ -138,86 +187,15 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
     {
         var opts = provider.GlobalOptions;
         return new AllureXunitGeneratorOptions(
-            GenerateEntryPoint: ReadBooleanProperty(opts, "build_property.Allure_GenerateXunitEntryPoint"),
-            ApplyAttribute: ReadBooleanProperty(opts, "build_property.Allure_ApplyXunitAttribute")
+            GenerateEntryPoint: ReadBooleanProperty(opts, Options.GenerateEntryPoint),
+            ApplyAttribute: ReadBooleanProperty(opts, Options.ApplyAttribute)
         );
 
     }
 
     static bool ReadBooleanProperty(AnalyzerConfigOptions opts, string key) =>
         !opts.TryGetValue(key, out var generateEntryPoint)
-            || generateEntryPoint.Equals("true", System.StringComparison.InvariantCultureIgnoreCase);
-
-    static bool IsSelfRegisteredExtensionsCandidate(SyntaxNode node, CancellationToken _)
-    {
-        if (node is not ClassDeclarationSyntax cds || cds.Identifier.ValueText != "SelfRegisteredExtensions")
-        {
-            return false;
-        }
-
-        foreach (var member in cds.Members)
-        {
-            if (IsAddSelfRegisteredExtensionsDeclaration(member))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    static string? ToSelfRegistrationMethodExpression(GeneratorSyntaxContext ctx, CancellationToken token)
-    {
-        var semanticModel = ctx.SemanticModel;
-        var classDeclarationSyntax = (ClassDeclarationSyntax)ctx.Node;
-
-        var expectedReceiverType = semanticModel.Compilation.GetTypeByMetadataName(Types.ITestApplicationBuilder);
-        if (expectedReceiverType is null)
-        {
-            return null;
-        }
-
-        foreach (var member in classDeclarationSyntax.Members)
-        {
-            if (!IsAddSelfRegisteredExtensionsDeclaration(member))
-            {
-                continue;
-            }
-
-            var methodDeclaration = (MethodDeclarationSyntax)member;
-
-            var method = semanticModel.GetDeclaredSymbol(methodDeclaration, token);
-            if (!IsAddSelfRegisteredExtensions(method))
-            {
-                continue;
-            }
-
-            var receiverParameter = method.Parameters[0];
-            if (!SymbolEqualityComparer.Default.Equals(receiverParameter.Type, expectedReceiverType))
-            {
-                continue;
-            }
-
-            return GetMethodGroupExpression(method);
-        }
-
-        return null;
-    }
-
-    static bool IsAddSelfRegisteredExtensionsDeclaration(MemberDeclarationSyntax memberDeclaration) =>
-        memberDeclaration is MethodDeclarationSyntax
-        {
-            Identifier.ValueText: "AddSelfRegisteredExtensions",
-        };
-
-    static bool IsAddSelfRegisteredExtensions([NotNullWhen(true)] IMethodSymbol? method) =>
-        method is IMethodSymbol
-        {
-            IsStatic: true,
-            IsExtensionMethod: true,
-            Parameters.Length: 2,
-            TypeParameters.Length: 0,
-        };
+            || generateEntryPoint.Equals("true", StringComparison.InvariantCultureIgnoreCase);
 
     static string GetMethodGroupExpression(IMethodSymbol method) =>
         $"{method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}";
@@ -243,64 +221,177 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         return false;
     }
 
-    static void GenerateAllureXunitSources(SourceProductionContext ctx, (((AllureXunitGeneratorOptions, bool), ImmutableArray<string>), ImmutableArray<(int, ImmutableArray<string>)>) input)
+    static void GenerateAllureXunitRunner(
+        IncrementalGeneratorPostInitializationContext ctx
+    )
     {
-        var (((options, hasAllureXunit), selfRegistrations), allureIdMethods) = input;
-        if (options.ApplyAttribute && !hasAllureXunit)
-        {
-            GenerateAllureXunitAssemblyAttribute(ctx);
-        }
-
-        if (options.GenerateEntryPoint)
-        {
-            GenerateAllureIdRegistry(ctx, allureIdMethods);
-            GenerateEntryPoint(ctx, selfRegistrations);
-        }
-
+        ctx.AddSource("AllureXunitRunner.g.cs", AllureXunitRunnerSource);
     }
 
-    static void GenerateAllureXunitAssemblyAttribute(SourceProductionContext ctx)
+    static void GenerateAllureXunitAssemblyAttribute(
+        SourceProductionContext ctx,
+        (AllureXunitGeneratorOptions, bool) input
+    )
     {
+        var (options, hasAllureXunit) = input;
+        if (!options.ApplyAttribute || hasAllureXunit)
+        {
+            return;
+        }
+
         ctx.AddSource(
             "AllureXunitAssemblyAttributes.g.cs",
-            $"[assembly:{FqTypes.AllureXunitAttribute}]"
+            $$"""
+            {{Preamble}}
+
+            [assembly:{{FqTypes.AllureXunitAttribute}}]
+            """
         );
     }
 
-    static void GenerateEntryPoint(SourceProductionContext ctx, ImmutableArray<string> selfRegistrations)
+    static void GenerateAllureXunitEntryPoint(
+        SourceProductionContext ctx,
+        (AllureXunitGeneratorOptions, string) input
+    )
     {
-        if (selfRegistrations.Length != 1)
-            return;
+        var (options, selfRegistrationMethod) = input;
 
-        ctx.AddSource(
-            "AllureXunitEntryPoint.g.cs",
-            GetEntryPointSource(selfRegistrations)
-        );
-    }
-
-    static void GenerateAllureIdRegistry(SourceProductionContext ctx, ImmutableArray<(int, ImmutableArray<string>)> entries)
-    {
-        ctx.AddSource("AllureIdTestMethodRegistry.g.cs", GetAllureIdRegistrySource(entries));
-    }
-
-    static string GetEntryPointSource(ImmutableArray<string> selfRegistrations)
-    {
-        Lazy<string> errorMessage = new(() => selfRegistrations switch
+        if (!options.GenerateEntryPoint)
         {
-            { IsEmpty: true } =>
-                "Couldn't find the SelfRegisteredExtensions class.",
+            return;
+        }
 
-            _ =>
-                $"Multiple self-registration classes found: [{
-                    string.Join(", ", selfRegistrations)
-                }]. Couldn't pick one. You may define a new entry point with the "
-                    + "'StartupObject' MSBuild property and call "
-                    + "'Allure.Xunit.AllureXunitEntryPoint.RunAsync' from it.",
-        });
+        ctx.AddSource("AllureXunitEntryPoint.g.cs", GetEntryPointSource(selfRegistrationMethod));
+    }
 
-        var (registrationResolved, registration) = selfRegistrations is { Length: >0 }
-            ? (true, selfRegistrations[0])
-            : (false, "");
+    static void GenerateAllureXunitTestPlan(
+        SourceProductionContext ctx,
+        ImmutableArray<(int, string)> allureIdMethods
+    )
+    {
+        ctx.AddSource("AllureXunitTestPlan.g.cs", GetAllureXunitTestPlanSource(allureIdMethods));
+    }
+
+    static string GetAllureXunitTestPlanSource(ImmutableArray<(int, string)> allureIdMethods)
+    {
+        var sb = new StringBuilder(
+            $$"""
+            {{Preamble}}
+            namespace Allure.Xunit
+            {
+                [{{FqTypes.ExcludeFromCodeCoverage}}]
+                internal static class AllureXunitTestPlan
+                {
+                    /// <summary>
+                    /// Returns a new array that includes the original arguments plus
+                    /// <c>--filter-method</c> xUnit arguments for each test method
+                    /// selected by the current test plan.
+                    /// </summary>
+                    /// <param name="originalArguments">
+                    /// An array of the original command line arguments.
+                    /// </param>
+                    public static string[] {{MethodNames.AddXunitPreExecutionFilters}}(string[] originalArguments)
+                    {
+                        return {{FqTypes.TestPlanFunctions}}.{{MethodNames.AddXunitPreExecutionFilters}}(originalArguments, {{Singletons.EmptyAllureIdRegistry}});
+                    }
+
+            """
+        );
+
+        AddAllureIdRegistry(sb, allureIdMethods);
+
+        sb.AppendLine(
+            """
+                }
+            }
+            """
+        );
+
+        return sb.ToString();
+    }
+
+    static void AddAllureIdRegistry(StringBuilder sb, ImmutableArray<(int, string)> entries)
+    {
+        sb.AppendLine(
+            $$"""
+
+                    /// <summary>
+                    /// Gets a mapping from Allure ID values to the fully qualified names of methods annotated
+                    /// with <see cref="{{FqTypes.AllureIdAttribute}}"/> using those IDs.
+                    /// </summary>
+                    /// <remarks>
+                    /// Method names include the namespace, containing type name, and method name.
+                    /// </remarks>
+                    internal static {{FqTypes.ImmutableDictionary_Int_ImmutableArray_String}} AllureIdRegistry { get; }
+
+                    static AllureXunitTestPlan()
+                    {
+                        {{FqTypes.ImmutableDictionaryBuilder_Int_ImmutableArray_String}} builder = {{FqMethods.ImmutableDictionary_CreateBuilder_Int_String}}();
+            """
+        );
+
+        foreach (var (allureId, methodName) in entries)
+        {
+            sb.AppendLine(
+                $$"""
+                            AddAllureIdMethodEntry(builder, {{allureId}}, {{SymbolDisplay.FormatLiteral(methodName, quote: true)}});
+                """
+            );
+        }
+
+        sb.AppendLine(
+            $$"""
+                    }
+
+                    static void AddAllureIdMethodEntry({{FqTypes.ImmutableDictionaryBuilder_Int_ImmutableArray_String}} builder, int allureId, string methodName)
+                    {
+                        {{FqTypes.ImmutableArray_String}} value;
+                        builder[allureId] = builder.TryGetValue(allureId, out value)
+                            ? value.Add(methodName)
+                            : {{FqMethods.ImmutableArray_Create}}(methodName);
+                    }
+            """
+        );
+    }
+
+    static string AllureXunitRunnerSource =>
+        $$"""
+        {{Preamble}}
+        namespace Allure.Xunit
+        {
+            /// <summary>
+            /// Defines a function to run xUnit with Allure from an arbitraty entry point.
+            /// </summary
+            [{{FqTypes.ExcludeFromCodeCoverage}}]
+            internal static class AllureXunitRunner
+            {
+                /// <summary>
+                /// Applies the test plan pre-execution filter and calls xUnit's
+                /// <see cref="{{FqTypes.TestPlatformTestFramework}}.RunAsync" /> with an
+                /// explicit extension registration function.
+                /// </summary>
+                /// <param name="extensionRegistration">
+                /// A function that registers MTP extensions. The function must call
+                /// <see cref="{{SeeCrefs.AddAllureXunit}}" /> in order to enable Allure.
+                /// </param>
+                /// <param name="args">Command line arguments</param>
+                public static async {{FqTypes.Task_Int}} RunAsync(
+                    {{FqTypes.Action(FqTypes.ITestApplicationBuilder, "string[]")}} extensionRegistration,
+                    string[] args
+                )
+                {
+                    return await {{FqTypes.TestPlatformTestFramework}}.RunAsync(
+                        {{FqMethods.AddXunitPreExecutionFilters}}(args),
+                        extensionRegistration
+                    );
+                }
+            }
+        }
+        """;
+
+    static string GetEntryPointSource(string addSelfRegisteredExtensions)
+    {
+        var selfRegistrationExists = addSelfRegisteredExtensions is { Length: >0 };
 
         var sb = new StringBuilder(
             $$"""
@@ -309,15 +400,15 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             namespace Allure.Xunit
             {
                 /// <summary>
-                /// Defines the default entry point to xUnit.net v3 with Allure enabled. Also, provides
-                /// helper functions to define your own entry point.
+                /// Defines the functions for running xUnit.net v3 with Allure and other self-registered
+                /// MTP extensions enabled.
                 /// </summary
                 [{{FqTypes.ExcludeFromCodeCoverage}}]
                 internal class AllureXunitEntryPoint
                 {
                     /// <summary>
-                    /// The default entry point applies the test plan pre-execution filter and calls
-                    /// xUnit's <see cref="{{FqTypes.TestPlatformTestFramework}}.RunAsync" />
+                    /// Applies the test plan pre-execution filter and calls xUnit's
+                    /// <see cref="{{FqTypes.TestPlatformTestFramework}}.RunAsync" />
                     /// with the self-registered MTP extensions.
                     /// </summary>
                     /// <remarks>
@@ -331,18 +422,18 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <param name="args">Command line arguments</param>
                     public static async {{FqTypes.Task_Int}} Main(string[] args)
                     {
-                        if ({{Methods.Enumerable_Any}}(args, arg => arg == "-automated" || arg == "@@"))
-                            return await {{Methods.ConsoleRunner_Run}}(args);
+                        if ({{FqMethods.Enumerable_Any}}(args, arg => arg == "-automated" || arg == "@@"))
+                            return await {{FqMethods.ConsoleRunner_Run}}(args);
                         else
 
             """
         );
 
-        if (registrationResolved)
+        if (selfRegistrationExists)
         {
             sb.AppendLine(
                 $$"""
-                                return await RunAsync({{registration}}, args);
+                                return await {{FqMethods.AllureXunitRunner_RunAsync}}({{addSelfRegisteredExtensions}}, args);
                 """
             );
         }
@@ -351,7 +442,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             sb.AppendLine(
                 $$"""
                             {
-                                {{Methods.Error_WriteLine}}("{{errorMessage.Value}}");
+                                {{FqMethods.Error_WriteLine}}("{{Messages.SelfRegistrationNotFound}}");
                                 return 1;
                             }
                 """
@@ -384,14 +475,14 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             """
         );
 
-        if (registrationResolved)
+        if (selfRegistrationExists)
         {
             sb.AppendLine(
                 $$"""
-                            return await RunAsync((builder, args) =>
+                            return await {{FqMethods.AllureXunitRunner_RunAsync}}((builder, args) =>
                             {
-                                {{registration}}(builder, args);
-                                {{Methods.AddAllureXunit}}(builder, allureRegistration);
+                                {{addSelfRegisteredExtensions}}(builder, args);
+                                {{FqMethods.AddAllureXunit}}(builder, allureRegistration);
                             }, args);
                 """
             );
@@ -400,7 +491,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         {
             sb.AppendLine(
                 $$"""
-                            {{Methods.Error_WriteLine}}("{{errorMessage.Value}}");
+                            {{FqMethods.Error_WriteLine}}("{{Messages.SelfRegistrationNotFound}}");
                             return 1;
                 """
             );
@@ -409,105 +500,20 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         sb.AppendLine(
             $$"""
                     }
-
-                    /// <summary>
-                    /// Applies the test plan pre-execution filter and calls xUnit's
-                    /// <see cref="{{FqTypes.TestPlatformTestFramework}}.RunAsync" /> with the
-                    /// provided MTP extension registration function.
-                    /// </summary>
-                    /// <param name="extensionRegistration">
-                    /// A function that registers MTP extensions, including Allure
-                    /// (see <see cref="{{SeeCrefs.AddAllureXunit}}" />).
-                    /// </param>
-                    /// <param name="args">Command line arguments</param>
-                    public static async {{FqTypes.Task_Int}} RunAsync(
-                        {{FqTypes.Action(FqTypes.ITestApplicationBuilder, "string[]")}} extensionRegistration,
-                        string[] args
-                    )
-                    {
-                        return await {{FqTypes.TestPlatformTestFramework}}.RunAsync(
-                            {{FqTypes.TestPlanFunctions}}.GetArgsWithPreExecutionFilters(
-                                args,
-                                {{Singletons.AllureIdRegistry}}
-                            ),
-                            extensionRegistration
-                        );
-                    }
-
-                    /// <summary>
-                    /// Returns a new array that includes the original arguments plus
-                    /// <c>--filter-method</c> xUnit arguments for each test method
-                    /// selected by the current test plan.
-                    /// </summary>
-                    /// <remarks>
-                    /// Use this function to enhance the CLI arguments before passing them to
-                    /// <see cref="{{FqTypes.TestPlatformTestFramework}}.RunAsync" /> from
-                    /// your own entry point if none of the above functions suit your needs.
-                    /// </remarks>
-                    /// <param name="originalArguments">
-                    /// An array of the original command line arguments.
-                    /// </param>
-                    public static string[] AddPreExecutionFilter(string[] originalArguments) =>
-                        {{FqTypes.TestPlanFunctions}}.GetArgsWithPreExecutionFilters(
-                            originalArguments,
-                            {{Singletons.AllureIdRegistry}}
-                        );
                 }
             }
             """
         );
 
-        return sb.ToString();
-    }
-
-    static string GetAllureIdRegistrySource(ImmutableArray<(int, ImmutableArray<string>)> entries)
-    {
-        var sb = new StringBuilder(
-            $$"""
-            namespace Allure.Xunit
-            {
-                [{{FqTypes.ExcludeFromCodeCoverage}}]
-                internal static class AllureIdRegistry
-                {
-                    internal static {{FqTypes.IReadOnlyDictionary_Int_StringList}} Registry =
-                        new {{FqTypes.Dictionary_Int_StringList}}
-                        {
-
-            """
-        );
-
-        foreach (var (allureId, methods) in entries)
-        {
-            sb.Append("                { ");
-            sb.Append(allureId);
-            sb.Append($", new {FqTypes.List_String} {{ ");
-            sb.Append(
-                SymbolDisplay.FormatLiteral(methods[0], quote: true)
-            );
-            foreach (var method in methods.Skip(1))
-            {
-                var methodLiteral = SymbolDisplay.FormatLiteral(method, quote: true);
-                sb.Append(", ");
-                sb.Append(methodLiteral);
-            }
-            sb.AppendLine(" } },");
-        }
-
-        sb.AppendLine(
-            """
-                        };
-                }
-            }
-            """
-        );
         return sb.ToString();
     }
 
     static string Preamble =>
         $$"""
-        // <auto-generated/>
-        // This file was generated by {{typeof(AllureXunitGenerator).AssemblyQualifiedName}}.
-        // Do not edit this file manually; changes may be overwritten.
+        // <auto-generated>
+        //   This file was generated by {{typeof(AllureXunitGenerator).AssemblyQualifiedName}}.
+        //   Do not edit this file manually; changes may be overwritten.
+        // </auto-generated>
         """;
 
     static readonly SymbolDisplayFormat FullyQualifiedNoTypeParameters = new(
@@ -515,5 +521,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces
     );
 
-    record struct AllureXunitGeneratorOptions(bool GenerateEntryPoint, bool ApplyAttribute);
+    readonly record struct AllureXunitGeneratorOptions(
+        bool GenerateEntryPoint,
+        bool ApplyAttribute
+    );
 }
