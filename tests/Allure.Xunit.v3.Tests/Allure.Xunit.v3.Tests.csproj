@@ -26,6 +26,7 @@
     <AllureSample Update="Generator/Samples/SelfRegistrationDisabled.cs" Properties="Allure_XunitEnableSelfRegistration=false" />
     <AllureSample Update="Generator/Samples/CustomRunnerReporter.cs" Properties="Allure_XunitEnableSelfRegistration=false" />
     <AllureSample Update="Generator/Samples/CustomStartupObject.cs" Properties="Allure_XunitEnableSelfRegistration=false;StartupObject=Allure.Xunit.v3.Tests.Samples.Generator.CustomStartupObject.Program" />
+    <AllureSample Update="Generator/Samples/RunnerHelper.cs" Properties="StartupObject=Allure.Xunit.v3.Tests.Samples.Generator.RunnerHelper.Program" />
   </ItemGroup>
 
   <ItemGroup>

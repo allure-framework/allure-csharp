@@ -67,4 +67,17 @@ class GeneratorTests
             .With.SingleLabel("startup-object")
             .That.HasValue("custom");
     }
+
+    [Test]
+    public async Task ShouldSupportCustomEntryPointCallingRunner(CancellationToken token)
+    {
+        var results = await AllureSampleRunner.RunAsync(
+            AllureSampleRegistry.RunnerHelper,
+            token
+        );
+
+        await Assert.That(results).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.Generator.RunnerHelper.TestClass.TestMethod"
+        );
+    }
 }
