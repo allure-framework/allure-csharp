@@ -8,6 +8,9 @@ using Allure.Xunit.Internal;
 
 namespace Allure.Xunit;
 
+/// <summary>
+/// Enables Allure.Xunit.v3 for an xUnit.net v3 test assembly.
+/// </summary>
 [AttributeUsage(AttributeTargets.Assembly)]
 public class AllureXunitAttribute() :
     Attribute,
@@ -15,10 +18,13 @@ public class AllureXunitAttribute() :
     IRegisterRunnerReporterAttribute,
     ITraitAttribute
 {
+    /// <inheritdoc />
     public Type RunnerReporterType => typeof(AllureRunnerReporter);
 
+    /// <inheritdoc />
     public void After(MethodInfo methodUnderTest, IXunitTest test) { }
 
+    /// <inheritdoc />
     public void Before(MethodInfo methodUnderTest, IXunitTest test) =>
         AllureRunnerReporter.CurrentMessageHandler?.HandleBeforeTest(
             methodUnderTest,
@@ -26,6 +32,7 @@ public class AllureXunitAttribute() :
             test.TestMethodArguments
         );
 
+    /// <inheritdoc />
     public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits() =>
         AllureXunitMtpServices.IsAllureAlive
             ? [new(TestNodeMetadataCorrelationStrategy.MetadataKey, TestNodeMetadataCorrelationStrategy.CreateCorrelationUid())]

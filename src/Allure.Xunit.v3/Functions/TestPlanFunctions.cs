@@ -9,10 +9,16 @@ using Allure.Net.Commons.TestPlan;
 
 namespace Allure.Xunit.Functions;
 
+/// <summary>
+/// Provides helpers used to apply Allure test plans to xUnit.net v3 test runs.
+/// </summary>
 public static class TestPlanFunctions
 {
     static readonly Lazy<AllureTestPlan> testPlanLazy = new(AllureTestPlan.FromEnvironment);
 
+    /// <summary>
+    /// Gets the global Allure test plan loaded from the current process environment.
+    /// </summary>
     public static AllureTestPlan TestPlan => testPlanLazy.Value;
 
     /// <summary>
@@ -100,10 +106,14 @@ public static class TestPlanFunctions
     }
 
     /// <summary>
-    /// Returns <see langword="true"/> if the test defined by the provided method is selected
-    /// by the global test plan. Otherwise, returns <see langword="false"/>.
+    /// Checks if the test defined by the provided method is selected
+    /// by the global test plan.
     /// </summary>
     /// <param name="testMethod">A test method to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the method is selected by the current test plan;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool IsSelected(MethodInfo testMethod) =>
         TestPlan.IsSelected(
             fullName: IdFunctions.CreateFullName(testMethod),

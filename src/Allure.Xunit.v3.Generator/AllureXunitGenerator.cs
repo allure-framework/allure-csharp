@@ -12,9 +12,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Allure.Xunit.Generator;
 
 
+/// <summary>
+/// Generates Allure.Xunit.v3 assembly setup, entry point helpers, and test plan
+/// pre-filtering support for xUnit.net v3 projects that run with Microsoft Testing Platform.
+/// </summary>
 [Generator]
 public sealed class AllureXunitGenerator : IIncrementalGenerator
 {
+    /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var options = SetupGeneratorOptionsStream(context);
@@ -375,7 +380,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                 /// A function that registers MTP extensions. The function must call
                 /// <see cref="{{SeeCrefs.AddAllureXunit}}" /> in order to enable Allure.
                 /// </param>
-                /// <param name="args">Command line arguments</param>
+                /// <param name="args">The command-line arguments passed to the test application.</param>
+                /// <returns>The xUnit.net process exit code.</returns>
                 public static async {{FqTypes.Task_Int}} RunAsync(
                     {{FqTypes.Action(FqTypes.ITestApplicationBuilder, "string[]")}} extensionRegistration,
                     string[] args
@@ -420,7 +426,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// Otherwise, if Allure self-registration is enabled, it will be registered
                     /// with the default settings.
                     /// </remarks>
-                    /// <param name="args">Command line arguments</param>
+                    /// <param name="args">The command-line arguments passed to the test application.</param>
+                    /// <returns>The xUnit.net process exit code.</returns>
                     public static async {{FqTypes.Task_Int}} Main(string[] args)
                     {
                         if ({{FqMethods.Enumerable_Any}}(args, arg => arg == "-automated" || arg == "@@"))
@@ -467,7 +474,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <param name="allureRegistration">
                     /// A function that sets up Allure.Xunit.v3.
                     /// </param>
-                    /// <param name="args">Command line arguments</param>
+                    /// <param name="args">The command-line arguments passed to the test application.</param>
+                    /// <returns>The xUnit.net process exit code.</returns>
                     public static async {{FqTypes.Task_Int}} RunAsync(
                         {{FqTypes.Action(FqTypes.IStandaloneAllureRegistrationContext)}} allureRegistration,
                         string[] args
