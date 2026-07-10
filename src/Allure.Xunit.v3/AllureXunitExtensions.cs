@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk;
 using Allure.Xunit.Internal;
@@ -15,7 +16,10 @@ public static class AllureXunitExtensions
             var allureRuntimeReferences = builder.AddEmbeddedAllure((ctx) =>
             {
                 allureRegistration(ctx);
-                ctx.UseTestNodeMetadataCorrelation();
+                if (IsAllureXunitAttributeApplied)
+                {
+                    ctx.UseTestNodeMetadataCorrelation();
+                }
             });
 
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
@@ -28,4 +32,7 @@ public static class AllureXunitExtensions
 
         public void AddAllureXunit() => AddAllureXunit(builder, static (_) => { });
     }
+
+    static bool IsAllureXunitAttributeApplied =>
+        Assembly.GetEntryAssembly().GetCustomAttribute<AllureXunitAttribute>() is not null;
 }

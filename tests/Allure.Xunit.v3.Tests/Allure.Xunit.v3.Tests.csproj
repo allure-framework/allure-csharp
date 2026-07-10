@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AllureSample Update="Generator/Samples/ApplyAttributeDisabled.cs" Properties="Allure_ApplyXunitAttribute=false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <SampleProperty Include="UseMicrosoftTestingPlatformRunner" Value="true" />
     <SampleProperty Include="EmitCompilerGeneratedFiles" Value="true" />
   </ItemGroup>
