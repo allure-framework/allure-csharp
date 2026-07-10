@@ -129,7 +129,9 @@ public class AllureSampleRunner
         CancellationToken ct
     )
     {
-        var resultFiles = resultsDirectory.GetFiles();
+        var resultFiles = resultsDirectory.Exists
+            ? resultsDirectory.GetFiles()
+            : [];
 
         var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
         var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
@@ -173,25 +175,8 @@ public class AllureSampleRunner
         CancellationToken ct
     ) =>
         sample.IsPreRunFlow && input.IsPreRunCompatible
-            ? EnsureExistingAllureResultsDirectory(sample)
+            ? new DirectoryInfo(sample.DefaultResultsPath)
             : await ProduceSampleResults(sample, input, ct);
-
-    static DirectoryInfo EnsureExistingAllureResultsDirectory(AllureSampleRegistryEntry sample)
-    {
-        var path = sample.DefaultResultsPath;
-        var dInfo = new DirectoryInfo(path);
-        if (!dInfo.Exists || !dInfo.EnumerateFiles().Any())
-        {
-            throw new FileNotFoundException(
-                $"Can't read Allure results of '{sample.RegistryId}.{sample.SampleId}'. "
-                    + $"Please, make sure the sample's been run and the results are "
-                    + $"available at '{path}'. Run "
-                    + "'dotnet msbuild -t:Allure_RunTestSamples' to execute all the samples of "
-                    + "the solution/project."
-            );
-        }
-        return dInfo;
-    }
 
     static async Task<Guard<DirectoryInfo>> ProduceSampleResults(
         AllureSampleRegistryEntry sample,
