@@ -73,10 +73,7 @@ class TestPlanTests
             token
         );
 
-        await Assert.That(results).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.TestPlans.RuntimeGuard.TestClass.TestMethod"
-        )
-            .With.Status(AllureStatus.Skipped);
+        await Assert.That(results.TestResults).IsEmpty();
     }
 
     [Test]

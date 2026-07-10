@@ -6,7 +6,6 @@ using System.Reflection;
 using Allure.Net.Commons.Attributes;
 using Allure.Net.Commons.Functions;
 using Allure.Net.Commons.TestPlan;
-using Xunit;
 
 namespace Allure.Xunit.Functions;
 
@@ -101,18 +100,14 @@ public static class TestPlanFunctions
     }
 
     /// <summary>
-    /// Skips the current test at runtime if the global test plan doesn't include it.
-    /// This is a fallback test plan enforcement mechanism that prevents excluded tests from running
-    /// if the pre-execution filtering doesn't work.
+    /// Returns <see langword="true"/> if the test defined by the provided method is selected
+    /// by the global test plan. Otherwise, returns <see langword="false"/>.
     /// </summary>
-    /// <param name="testMethod">A test method that represents the current test.</param>
-    public static void ApplyRuntimeGuard(MethodInfo testMethod) =>
-        Assert.SkipUnless(
-            TestPlan.IsSelected(
-                fullName: IdFunctions.CreateFullName(testMethod),
-                allureId: testMethod.GetCustomAttribute<AllureIdAttribute>()?.Value
-            ),
-            AllureTestPlan.SkipReason
+    /// <param name="testMethod">A test method to check.</param>
+    public static bool IsSelected(MethodInfo testMethod) =>
+        TestPlan.IsSelected(
+            fullName: IdFunctions.CreateFullName(testMethod),
+            allureId: testMethod.GetCustomAttribute<AllureIdAttribute>()?.Value
         );
 
     static bool TryMatchByFullName(

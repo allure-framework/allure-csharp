@@ -1,14 +1,15 @@
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
+using Allure.Net.Commons.TestPlan;
+using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Messages;
+using Allure.Xunit.Functions;
 using Microsoft.Testing.Platform.Extensions.Messages;
+using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using System.Reflection;
-using Allure.Xunit.Functions;
-
 using IMtpMessageBus = Microsoft.Testing.Platform.Messages.IMessageBus;
-using Allure.TestingPlatform.Functions;
 
 namespace Allure.Xunit.Internal;
 
@@ -50,6 +51,8 @@ sealed class AllureMessageHandler(
 
     internal void HandleBeforeTest(MethodInfo testMethod, ITest test, object?[]? arguments)
     {
+        this.ApplyRuntimeGuard(testMethod, test);
+
         if (XunitMessageMapping.TryConvertToTestUpdateWithMethod(
             testMethod,
             test,
@@ -59,8 +62,6 @@ sealed class AllureMessageHandler(
         {
             this.PublishSync(allureTestUpdate);
         }
-
-        TestPlanFunctions.ApplyRuntimeGuard(testMethod);
     }
 
     protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
@@ -89,6 +90,22 @@ sealed class AllureMessageHandler(
         {
             this.PublishSync(allureScopeStop);
         }
+    }
+
+    void ApplyRuntimeGuard(MethodInfo testMethod, ITest test)
+    {
+        var isSelected = TestPlanFunctions.IsSelected(testMethod);
+        if (isSelected)
+        {
+            return;
+        }
+
+        if (XunitMessageMapping.TryConvertToCancellation(test, out var cancellation))
+        {
+            this.PublishSync(cancellation);
+        }
+
+        Assert.Skip(AllureTestPlan.SkipReason);
     }
 
     void PublishSync(AllureCorrelatedMessage message) =>

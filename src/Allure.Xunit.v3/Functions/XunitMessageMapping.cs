@@ -89,6 +89,24 @@ static class XunitMessageMapping
         return false;
     }
 
+    public static bool TryConvertToCancellation(
+        ITest test,
+        [NotNullWhen(true)] out AllureTestUpdateMessage? cancellation
+    )
+    {
+        if (TryGetCorrelationUid(test.Traits, out var correlationUid))
+        {
+            cancellation = new AllureTestUpdateMessage(correlationUid.Value, new(test.TestCase.UniqueID))
+            {
+                Properties = [new AllureCancelProperty()],
+            };
+            return true;
+        }
+
+        cancellation = null;
+        return false;
+    }
+
     public static bool TryConvertToTestUpdateWithFailedStatus(
         ITestFailed testFailed,
         MessageMetadataCache metadataCache,
