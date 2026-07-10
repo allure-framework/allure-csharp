@@ -43,8 +43,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         optionsProvider.GlobalOptions
             .TryGetValue(Options.RootNamespace, out var rootNamespace)
                 && !string.IsNullOrEmpty(rootNamespace)
-                    ? $"{rootNamespace}.SelfRegisteredExtensions"
-                    : "SelfRegisteredExtensions";
+                    ? $"{rootNamespace}.{TypeNames.SelfRegisteredExtensions}"
+                    : TypeNames.SelfRegisteredExtensions;
 
     static IncrementalValueProvider<ImmutableArray<(int, string)>> SetupAllureIdMethodStream(
         IncrementalGeneratorInitializationContext context
@@ -292,7 +292,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// </param>
                     public static string[] {{MethodNames.AddXunitPreExecutionFilters}}(string[] originalArguments)
                     {
-                        return {{FqTypes.TestPlanFunctions}}.{{MethodNames.AddXunitPreExecutionFilters}}(originalArguments, {{Singletons.EmptyAllureIdRegistry}});
+                        return {{FqTypes.TestPlanFunctions}}.{{MethodNames.AddXunitPreExecutionFilters}}(originalArguments, AllureIdRegistry);
                     }
 
             """
@@ -341,6 +341,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
 
         sb.AppendLine(
             $$"""
+                        AllureIdRegistry = builder.ToImmutable();
                     }
 
                     static void AddAllureIdMethodEntry({{FqTypes.ImmutableDictionaryBuilder_Int_ImmutableArray_String}} builder, int allureId, string methodName)
