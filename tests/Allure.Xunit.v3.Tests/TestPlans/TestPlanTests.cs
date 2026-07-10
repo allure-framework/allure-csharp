@@ -1,5 +1,6 @@
 using Allure.Testing;
 using Allure.Testing.Assertions.Model;
+using Allure.Testing.Execution;
 
 namespace Allure.Xunit.v3.Tests.TestPlans;
 
@@ -41,6 +42,26 @@ class TestPlanTests
         )
             .With.SingleLabel("ALLURE_ID")
             .That.HasValue("3001");
+    }
+
+    [Test]
+    public async Task AllureIdPreFilterShouldAvoidConstructingUnselectedTests(CancellationToken token)
+    {
+        var results = await RunWithTestPlan(
+            """{"tests":[{"id":"3002"}]}""",
+            AllureSampleRegistry.AllureIdPreFilter,
+            token
+        );
+
+        await Assert.That(results).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.TestPlans.AllureIdPreFilter.SelectedMarkerClass.TestMethod"
+        )
+            .With.SingleLabel("ALLURE_ID")
+            .That.HasValue("3002");
+
+        await Assert.That(results).HasSingleGlobals()
+            .With.SingleError()
+            .That.HasMessage("selected Allure ID test was constructed");
     }
 
     [Test]
@@ -92,7 +113,17 @@ class TestPlanTests
             .With.FullName(fullName);
     }
 
-    static async Task<AllureResults> RunWithTestPlan(string testPlanJson, CancellationToken token)
+    static async Task<AllureResults> RunWithTestPlan(
+        string testPlanJson,
+        CancellationToken token
+    ) =>
+        await RunWithTestPlan(testPlanJson, AllureSampleRegistry.TestPlan, token);
+
+    static async Task<AllureResults> RunWithTestPlan(
+        string testPlanJson,
+        AllureSampleRegistryEntry sample,
+        CancellationToken token
+    )
     {
         var testPlanPath = Path.Combine(
             Path.GetTempPath(),
@@ -102,7 +133,7 @@ class TestPlanTests
         await File.WriteAllTextAsync(testPlanPath, testPlanJson, token);
         try
         {
-            return await AllureSampleRunner.RunAsync(AllureSampleRegistry.TestPlan, new()
+            return await AllureSampleRunner.RunAsync(sample, new()
             {
                 EnvironmentVariables = { ["ALLURE_TESTPLAN_PATH"] = testPlanPath },
             }, token);
