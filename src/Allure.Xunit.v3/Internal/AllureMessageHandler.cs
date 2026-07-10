@@ -32,7 +32,7 @@ sealed class AllureMessageHandler(
         "Allure.Xunit.v3 runner message handler";
 
     public string Description { get; } =
-        "A message handler that translates Xunit runner reporter messages for Allure.";
+        "A message handler that translates xUnit runner reporter messages for Allure.";
 
     public string Version { get; } = TestingPlatformFunctions.GetPackageVersion(typeof(AllureMessageHandler));
 
