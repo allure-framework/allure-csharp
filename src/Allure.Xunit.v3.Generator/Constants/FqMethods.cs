@@ -14,7 +14,7 @@ static class FqMethods
 
     public const string ImmutableDictionary_CreateBuilder_Int_String = $"global::System.Collections.Immutable.ImmutableDictionary.CreateBuilder<int, {FqTypes.ImmutableArray_String}>";
 
-    public const string AddXunitPreExecutionFilters = $"global::Allure.Xunit.AllureXunitTestPlan.{MethodNames.AddXunitPreExecutionFilters}";
+    public const string AddXunitPreExecutionFilterArguments = $"global::Allure.Xunit.AllureXunitTestPlan.{MethodNames.AddXunitPreExecutionFilterArguments}";
 
     public const string AllureXunitRunner_RunAsync = $"global::Allure.Xunit.AllureXunitRunner.RunAsync";
 }

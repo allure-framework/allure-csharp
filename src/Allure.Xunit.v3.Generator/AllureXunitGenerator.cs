@@ -290,9 +290,9 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <param name="originalArguments">
                     /// An array of the original command line arguments.
                     /// </param>
-                    public static string[] {{MethodNames.AddXunitPreExecutionFilters}}(string[] originalArguments)
+                    public static string[] {{MethodNames.AddXunitPreExecutionFilterArguments}}(string[] originalArguments)
                     {
-                        return {{FqTypes.TestPlanFunctions}}.{{MethodNames.AddXunitPreExecutionFilters}}(originalArguments, AllureIdRegistry);
+                        return {{FqTypes.TestPlanFunctions}}.{{MethodNames.AddXunitPreExecutionFilterArguments}}(originalArguments, AllureIdRegistry);
                     }
 
             """
@@ -382,7 +382,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                 )
                 {
                     return await {{FqTypes.TestPlatformTestFramework}}.RunAsync(
-                        {{FqMethods.AddXunitPreExecutionFilters}}(args),
+                        {{FqMethods.AddXunitPreExecutionFilterArguments}}(args),
                         extensionRegistration
                     );
                 }

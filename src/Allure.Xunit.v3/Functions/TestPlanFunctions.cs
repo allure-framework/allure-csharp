@@ -28,7 +28,7 @@ public static class TestPlanFunctions
     /// A sequence of xUnit.net arguments in form
     /// <c>--filter-method method1 --filter-method method2 ...</c>.
     /// </returns>
-    public static string[] AddXunitPreExecutionFilter(
+    public static string[] AddXunitPreExecutionFilterArguments(
         string[] args,
         ImmutableDictionary<int, ImmutableArray<string>> allureIdRegistry
     ) =>
