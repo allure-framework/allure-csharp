@@ -65,6 +65,42 @@ class TestPlanTests
     }
 
     [Test]
+    public async Task AllureIdRegistryShouldHandleDuplicateIds(CancellationToken token)
+    {
+        var results = await RunWithTestPlan(
+            """{"tests":[{"id":"3004"}]}""",
+            AllureSampleRegistry.DuplicateAllureIds,
+            token
+        );
+
+        await Assert.That(results.TestResults).Count().IsEqualTo(2);
+        await Assert.That(results).HasTestResults([
+            tr => tr
+                .HasName("Allure.Xunit.v3.Tests.Samples.TestPlans.DuplicateAllureIds.TestClass.FirstSelectedTest"),
+            tr => tr
+                .HasName("Allure.Xunit.v3.Tests.Samples.TestPlans.DuplicateAllureIds.TestClass.SecondSelectedTest"),
+        ]);
+    }
+
+    [Test]
+    public async Task AllureIdRegistryShouldFilterTheories(CancellationToken token)
+    {
+        var results = await RunWithTestPlan(
+            """{"tests":[{"id":"3005"}]}""",
+            AllureSampleRegistry.AllureIdTheory,
+            token
+        );
+
+        await Assert.That(results.TestResults).Count().IsEqualTo(2);
+        await Assert.That(results).HasTestResults([
+            tr => tr
+                .HasName("Allure.Xunit.v3.Tests.Samples.TestPlans.AllureIdTheory.TestClass.SelectedTheory(value: \"foo\")"),
+            tr => tr
+                .HasName("Allure.Xunit.v3.Tests.Samples.TestPlans.AllureIdTheory.TestClass.SelectedTheory(value: \"bar\")"),
+        ]);
+    }
+
+    [Test]
     public async Task RuntimeGuardShouldSkipUnselectedTestWhenPreFilteringIsDisabled(CancellationToken token)
     {
         var results = await RunWithTestPlan(
