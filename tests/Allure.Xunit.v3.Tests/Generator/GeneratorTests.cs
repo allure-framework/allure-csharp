@@ -54,4 +54,17 @@ class GeneratorTests
             .That.HasMessage("custom reporter works");
         await Assert.That(results.TestResults).Count().IsEqualTo(0);
     }
+
+    [Test]
+    public async Task CustomEntryPointWithCustomAllureConfiguration(CancellationToken token)
+    {
+        var results = await AllureSampleRunner.RunAsync(
+            AllureSampleRegistry.CustomStartupObject,
+            token
+        );
+
+        await Assert.That(results).HasSingleTestResult()
+            .With.SingleLabel("startup-object")
+            .That.HasValue("custom");
+    }
 }
