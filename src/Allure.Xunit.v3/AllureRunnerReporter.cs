@@ -11,8 +11,6 @@ namespace Allure.Xunit;
 /// </summary>
 public class AllureRunnerReporter : IRunnerReporter
 {
-    readonly IRunnerReporter? xunitSelectedReporter;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="AllureRunnerReporter"/> class.
     /// </summary>
@@ -48,12 +46,7 @@ public class AllureRunnerReporter : IRunnerReporter
 
         CurrentMessageHandler = allureHandler;
 
-        return this.xunitSelectedReporter is null or AllureRunnerReporter
-            ?  allureHandler
-            : new CompositeMessageHandler(
-                await this.xunitSelectedReporter.CreateMessageHandler(logger, diagnosticMessageSink),
-                allureHandler
-            );
+        return allureHandler;
     }
 
     internal static AllureMessageHandler? CurrentMessageHandler { get; private set; }
