@@ -10,15 +10,12 @@ sealed class CompositeMessageHandler(params IEnumerable<IRunnerReporterMessageHa
 {
     public bool OnMessage(IMessageSinkMessage message)
     {
+        bool result = true;
         foreach (var handler in handlers)
         {
-            if (!handler.OnMessage(message))
-            {
-                return false;
-            }
+            result &= handler.OnMessage(message);
         }
-
-        return true;
+        return result;
     }
 
     public async ValueTask DisposeAsync()
