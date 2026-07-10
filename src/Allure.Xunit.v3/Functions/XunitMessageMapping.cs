@@ -13,7 +13,7 @@ using AllureTestResult = Allure.Net.Commons.TestResult;
 
 namespace Allure.Xunit.Functions;
 
-static class CommunicationFunctions
+static class XunitMessageMapping
 {
     public static bool TryGetCorrelationUid(
         IReadOnlyDictionary<string, IReadOnlyCollection<string>> xunitTraits,

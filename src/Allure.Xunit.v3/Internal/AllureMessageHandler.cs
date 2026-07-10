@@ -42,7 +42,7 @@ sealed class AllureMessageHandler(
     {
         base.HandleTestCaseStarting(args);
 
-        if (CommunicationFunctions.TryConvertToAllureScopeStartMessage(args.Message, out var allureScopeStart))
+        if (XunitMessageMapping.TryConvertToAllureScopeStartMessage(args.Message, out var allureScopeStart))
         {
             this.PublishSync(allureScopeStart);
         }
@@ -50,7 +50,7 @@ sealed class AllureMessageHandler(
 
     internal void HandleBeforeTest(MethodInfo testMethod, ITest test, object?[]? arguments)
     {
-        if (CommunicationFunctions.TryConvertToTestUpdateWithMethod(
+        if (XunitMessageMapping.TryConvertToTestUpdateWithMethod(
             testMethod,
             test,
             arguments,
@@ -67,7 +67,7 @@ sealed class AllureMessageHandler(
     {
         base.HandleTestFailed(args);
 
-        if (CommunicationFunctions.TryConvertToTestUpdateWithFailedStatus(
+        if (XunitMessageMapping.TryConvertToTestUpdateWithFailedStatus(
             args.Message,
             this.MetadataCache,
             out var allureTestUpdate
@@ -81,7 +81,7 @@ sealed class AllureMessageHandler(
     {
         base.HandleTestCaseFinished(args);
 
-        if (CommunicationFunctions.TryConvertToAllureScopeStopMessage(
+        if (XunitMessageMapping.TryConvertToAllureScopeStopMessage(
             args.Message,
             this.MetadataCache,
             out var allureScopeStop
