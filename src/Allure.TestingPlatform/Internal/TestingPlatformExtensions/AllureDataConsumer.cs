@@ -234,13 +234,24 @@ sealed class AllureDataConsumer :
             testContextUid,
             (runtime) =>
             {
+                bool isCancelled = false;
                 runtime.ModelApi.UpdateTestResult((testResult) =>
                 {
                     this.ApplyProperties(testResult, node);
+                    if (ModelFunctions.IsCancelled(testResult))
+                    {
+                        isCancelled = true;
+                        return;
+                    }
                     ApplyFallbacks(testResult, node);
                 });
-                var testResult = this.LifecycleApi.StopTest();
-                runtime.ResultsDestination.WriteTestResult(testResult);
+
+                var testResult = runtime.LifecycleApi.StopTest();
+
+                if (!isCancelled)
+                {
+                    runtime.ResultsDestination.WriteTestResult(testResult);
+                }
             }
         );
     }
