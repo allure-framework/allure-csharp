@@ -19,6 +19,7 @@ using System.Collections.Immutable;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Internal.Registration;
+using Allure.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
@@ -230,30 +231,7 @@ sealed class AllureDataConsumer :
             runningTestContext = state.ForkState(testContextUid, runningTestContext, () => this.StartTest(node.DisplayName));
         }
 
-        state.ReleaseState(
-            testContextUid,
-            (runtime) =>
-            {
-                bool isCancelled = false;
-                runtime.ModelApi.UpdateTestResult((testResult) =>
-                {
-                    this.ApplyProperties(testResult, node);
-                    if (ModelFunctions.IsCancelled(testResult))
-                    {
-                        isCancelled = true;
-                        return;
-                    }
-                    ApplyFallbacks(testResult, node);
-                });
-
-                var testResult = runtime.LifecycleApi.StopTest();
-
-                if (!isCancelled)
-                {
-                    runtime.ResultsDestination.WriteTestResult(testResult);
-                }
-            }
-        );
+        state.ReleaseState(testContextUid, (runtime) => this.FinalizeTestResult(runtime, node));
     }
 
     async Task ConsumeSessionFileArtifactMessage(SessionFileArtifact message) =>
@@ -398,5 +376,27 @@ sealed class AllureDataConsumer :
     {
         testResult.ApplyIdentityAsFallback(identifierProperty);
         return testResult;
+    }
+
+    void FinalizeTestResult(IAllureRuntimeBase runtime, TestNode node)
+    {
+        bool isCancelled = false;
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+        {
+            this.ApplyProperties(testResult, node);
+            if (ModelFunctions.IsCancelled(testResult))
+            {
+                isCancelled = true;
+                return;
+            }
+            ApplyFallbacks(testResult, node);
+        });
+
+        var testResult = runtime.LifecycleApi.StopTest();
+
+        if (!isCancelled)
+        {
+            runtime.ResultsDestination.WriteTestResult(testResult);
+        }
     }
 }
