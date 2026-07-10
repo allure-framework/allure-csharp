@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AllureSample Update="TestPlans/Samples/RuntimeGuard.cs" Properties="Allure_GenerateXunitEntryPoint=false" />
     <AllureSample Update="Generator/Samples/ApplyAttributeDisabled.cs" Properties="Allure_ApplyXunitAttribute=false" />
     <AllureSample Update="Generator/Samples/SelfRegistrationDisabled.cs" Properties="Allure_XunitEnableSelfRegistration=false" />
     <AllureSample Update="Generator/Samples/CustomRunnerReporter.cs" Properties="Allure_XunitEnableSelfRegistration=false" />

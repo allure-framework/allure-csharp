@@ -65,6 +65,21 @@ class TestPlanTests
     }
 
     [Test]
+    public async Task RuntimeGuardShouldSkipUnselectedTestWhenPreFilteringIsDisabled(CancellationToken token)
+    {
+        var results = await RunWithTestPlan(
+            """{"tests":[{"id":"404"}]}""",
+            AllureSampleRegistry.RuntimeGuard,
+            token
+        );
+
+        await Assert.That(results).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.TestPlans.RuntimeGuard.TestClass.TestMethod"
+        )
+            .With.Status(AllureStatus.Skipped);
+    }
+
+    [Test]
     public async Task UnmatchedTestPlanShouldProduceNoResults(CancellationToken token)
     {
         var results = await RunWithTestPlan(
