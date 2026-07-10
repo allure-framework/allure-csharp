@@ -19,4 +19,15 @@ class GeneratorTests
         await Assert.That(testResult).HasNoLabel("tag")
             .And.HasParametersMatching([]);
     }
+
+    [Test]
+    public async Task ManualAssemblyAttributeShouldSuppressGeneratedDuplicateAndReportResults(CancellationToken token)
+    {
+        var results = await AllureSampleRunner.RunAsync(
+            AllureSampleRegistry.ManualAssemblyAttribute,
+            token
+        );
+
+        await Assert.That(results.TestResults).Count().IsEqualTo(2);
+    }
 }
