@@ -17,7 +17,7 @@ public static class TestPlanFunctions
     public static AllureTestPlan TestPlan => testPlanLazy.Value;
 
     /// <summary>
-    /// Returns an array consisting of the original CLI argumetns plus filter arguments that,
+    /// Returns an array consisting of the original CLI arguments plus filter arguments that,
     /// when passed to xUnit.net v3, enforces the global test plan for the entry point assembly.
     /// </summary>
     /// <param name="args">An array of command line arguments to the application.</param>

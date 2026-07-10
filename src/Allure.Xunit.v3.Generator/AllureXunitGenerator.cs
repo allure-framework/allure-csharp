@@ -361,8 +361,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         namespace Allure.Xunit
         {
             /// <summary>
-            /// Defines a function to run xUnit with Allure from an arbitraty entry point.
-            /// </summary
+            /// Defines a function to run xUnit with Allure from an arbitrary entry point.
+            /// </summary>
             [{{FqTypes.ExcludeFromCodeCoverage}}]
             internal static class AllureXunitRunner
             {
@@ -403,7 +403,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                 /// <summary>
                 /// Defines the functions for running xUnit.net v3 with Allure and other self-registered
                 /// MTP extensions enabled.
-                /// </summary
+                /// </summary>
                 [{{FqTypes.ExcludeFromCodeCoverage}}]
                 internal class AllureXunitEntryPoint
                 {

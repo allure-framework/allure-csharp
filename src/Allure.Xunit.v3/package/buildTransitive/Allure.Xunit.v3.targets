@@ -44,7 +44,7 @@
         ">
 
         <!-- We don't suppress XunitGenerateEntryPoint, which means at least two entry points
-         will exist in the project. Without explicit StartupObject, the compilator may fail or choose
+         will exist in the project. Without explicit StartupObject, the compiler may fail or choose
          an incorrect entry point. -->
 
         <PropertyGroup>
