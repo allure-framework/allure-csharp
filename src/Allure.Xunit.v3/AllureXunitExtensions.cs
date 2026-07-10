@@ -19,7 +19,7 @@ public static class AllureXunitExtensions
             });
 
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-                new AllureTestingPlatformServices(
+                new AllureXunitMtpServices(
                     serviceProvider,
                     allureRuntimeReferences.GetRuntimeReference(serviceProvider)
                 )

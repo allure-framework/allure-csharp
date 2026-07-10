@@ -8,7 +8,7 @@ namespace Allure.Xunit.Functions;
 static class ExceptionFunctions
 {
     public static bool IsConfiguredAssertionFailure(ITestFailed testFailed) =>
-        AllureTestingPlatformServices.AllureRuntime is
+        AllureXunitMtpServices.AllureRuntime is
         {
             Configuration.FailExceptions: { Count: >0 } failExceptions
         }

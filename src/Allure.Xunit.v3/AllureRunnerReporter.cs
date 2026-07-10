@@ -14,7 +14,7 @@ public class AllureRunnerReporter : IRunnerReporter
     public AllureRunnerReporter(IRunnerReporter xunitSelectedReporter) =>
         this.xunitSelectedReporter = xunitSelectedReporter;
 
-    public bool CanBeEnvironmentallyEnabled => AllureTestingPlatformServices.IsAllureAlive;
+    public bool CanBeEnvironmentallyEnabled => AllureXunitMtpServices.IsAllureAlive;
 
     public string Description => "Allure runner reporter for xUnit.net v3";
 
@@ -29,12 +29,12 @@ public class AllureRunnerReporter : IRunnerReporter
         IMessageSink? diagnosticMessageSink
     )
     {
-        if (!AllureTestingPlatformServices.IsAllureAlive)
+        if (!AllureXunitMtpServices.IsAllureAlive)
         {
             return new DefaultRunnerReporterMessageHandler(logger);
         }
 
-        var allureHandler = new AllureMessageHandler(logger, AllureTestingPlatformServices.MessageBus);
+        var allureHandler = new AllureMessageHandler(logger, AllureXunitMtpServices.MessageBus);
 
         CurrentMessageHandler = allureHandler;
 

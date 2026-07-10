@@ -27,7 +27,7 @@ public class AllureXunitAttribute() :
         );
 
     public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits() =>
-        AllureTestingPlatformServices.IsAllureAlive
+        AllureXunitMtpServices.IsAllureAlive
             ? [new(TestNodeMetadataCorrelationStrategy.MetadataKey, TestNodeMetadataCorrelationStrategy.CreateCorrelationUid())]
             : [];
 }

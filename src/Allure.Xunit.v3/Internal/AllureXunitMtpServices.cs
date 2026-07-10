@@ -9,13 +9,13 @@ using Microsoft.Testing.Platform.Services;
 
 namespace Allure.Xunit.Internal;
 
-class AllureTestingPlatformServices(
+class AllureXunitMtpServices(
     IServiceProvider serviceProvider,
     IAllureTestingPlatformRuntimeReference runtimeReference
 ) :
     AllureTestingPlatformExtension(
         "725e7e6e-74de-4e77-b0bf-eaebfe19914e",
-        "Allure MTP service",
+        "MTP services exposed to Allure.Xunit.v3",
         "The extension represents a static access point for "
             + "Allure.TestingPlatform and Microsoft Testing Platform "
             + "services required by Allure.Xunit.v3",
