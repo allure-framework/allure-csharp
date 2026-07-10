@@ -25,20 +25,20 @@ public static class TestPlanFunctions
     /// Returns an array consisting of the original CLI arguments plus filter arguments that,
     /// when passed to xUnit.net v3, enforces the global test plan for the entry point assembly.
     /// </summary>
-    /// <param name="args">An array of command line arguments to the application.</param>
+    /// <param name="originalArguments">An array of command-line arguments passed to the test application.</param>
     /// <param name="allureIdRegistry">
     /// A mapping from Allure ID to test method names.
     /// </param>
     /// <returns>
-    /// A sequence of xUnit.net arguments in form
-    /// <c>--filter-method method1 --filter-method method2 ...</c>.
+    /// A new array that contains <paramref name="originalArguments"/> followed by
+    /// the xUnit.net pre-execution filter arguments for the current Allure test plan.
     /// </returns>
     public static string[] AddXunitPreExecutionFilterArguments(
-        string[] args,
+        string[] originalArguments,
         ImmutableDictionary<int, ImmutableArray<string>> allureIdRegistry
     ) =>
         [
-            ..args,
+            ..originalArguments,
             ..GetXunitPreExecutionFilter(allureIdRegistry, TestPlan, Assembly.GetEntryAssembly()),
         ];
 
@@ -50,12 +50,14 @@ public static class TestPlanFunctions
     /// A mapping from Allure ID to test method names.
     /// </param>
     /// <param name="testPlan">
-    /// An instance of the test plan. Use <see cref="AllureTestPlan.FromEnvironment"/> to read
-    /// the global one or <see cref="TestPlan"/> to get the cached version.
+    /// The test plan to enforce. Use <see cref="AllureTestPlan.FromEnvironment"/> to read
+    /// the global test plan, or use <see cref="TestPlan"/> to get the cached instance.
     /// </param>
-    /// <param name="testAssembly">A test assembly. In MTP flow, it's the entry assembly.</param>
+    /// <param name="testAssembly">
+    /// The test assembly. In the Microsoft Testing Platform flow, this is the entry assembly.
+    /// </param>
     /// <returns>
-    /// A sequence of xunit.v3.mtp-v2 arguments in form
+    /// A sequence of xunit.v3.mtp-v2 arguments in the form
     /// <c>--filter-method method1 --filter-method method2 ...</c>.
     /// </returns>
     public static IEnumerable<string> GetXunitPreExecutionFilter(

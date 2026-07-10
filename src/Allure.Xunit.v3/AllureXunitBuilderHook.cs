@@ -5,7 +5,7 @@ using Microsoft.Testing.Platform.Builder;
 namespace Allure.Xunit;
 
 /// <summary>
-/// Provides the Microsoft Testing Platform builder hook to enable self-registration of Allure.Xunit.v3.
+/// Provides the Microsoft Testing Platform builder hook used by Allure.Xunit.v3 self-registration.
 /// </summary>
 public static class AllureXunitBuilderHook
 {

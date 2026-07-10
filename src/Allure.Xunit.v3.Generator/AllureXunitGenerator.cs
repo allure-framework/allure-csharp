@@ -293,8 +293,12 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// selected by the current test plan.
                     /// </summary>
                     /// <param name="originalArguments">
-                    /// An array of the original command line arguments.
+                    /// The original command-line arguments passed to the test application.
                     /// </param>
+                    /// <returns>
+                    /// A new array that contains <paramref name="originalArguments"/> followed by
+                    /// the xUnit.net pre-execution filter arguments for the current Allure test plan.
+                    /// </returns>
                     public static string[] {{MethodNames.AddXunitPreExecutionFilterArguments}}(string[] originalArguments)
                     {
                         return {{FqTypes.TestPlanFunctions}}.{{MethodNames.AddXunitPreExecutionFilterArguments}}(originalArguments, AllureIdRegistry);
@@ -366,7 +370,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         namespace Allure.Xunit
         {
             /// <summary>
-            /// Defines a function to run xUnit with Allure from an arbitrary entry point.
+            /// Defines a helper for running xUnit.net v3 with Allure from a custom entry point.
             /// </summary>
             [{{FqTypes.ExcludeFromCodeCoverage}}]
             internal static class AllureXunitRunner
@@ -377,7 +381,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                 /// explicit extension registration function.
                 /// </summary>
                 /// <param name="extensionRegistration">
-                /// A function that registers MTP extensions. The function must call
+                /// A function that registers Microsoft Testing Platform extensions. The function must call
                 /// <see cref="{{SeeCrefs.AddAllureXunit}}" /> in order to enable Allure.
                 /// </param>
                 /// <param name="args">The command-line arguments passed to the test application.</param>
@@ -408,7 +412,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             {
                 /// <summary>
                 /// Defines the functions for running xUnit.net v3 with Allure and other self-registered
-                /// MTP extensions enabled.
+                /// Microsoft Testing Platform extensions enabled.
                 /// </summary>
                 [{{FqTypes.ExcludeFromCodeCoverage}}]
                 internal class AllureXunitEntryPoint
@@ -416,12 +420,13 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <summary>
                     /// Applies the test plan pre-execution filter and calls xUnit's
                     /// <see cref="{{FqTypes.TestPlatformTestFramework}}.RunAsync" />
-                    /// with the self-registered MTP extensions.
+                    /// with the self-registered Microsoft Testing Platform extensions.
                     /// </summary>
                     /// <remarks>
-                    /// If <c>-automated</c> or <c>@@</c> argument is provided, delegates to
+                    /// If the arguments include <c>-automated</c> or <c>@@</c>, delegates to
                     /// <see cref="{{SeeCrefs.ConsoleRunner_Run}}" />,
-                    /// which does not register MTP extensions. Allure never runs in such a case.
+                    /// which does not register Microsoft Testing Platform extensions.
+                    /// Allure does not run in that case.
                     /// <br/>
                     /// Otherwise, if Allure self-registration is enabled, it will be registered
                     /// with the default settings.
@@ -464,15 +469,15 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <summary>
                     /// Applies the test plan pre-execution filter and calls xUnit's
                     /// <see cref="{{FqTypes.TestPlatformTestFramework}}.RunAsync" /> with the
-                    /// self-registered MTP extensions and Allure enabled. Uses a custom registration function
-                    /// to set Allure up.
+                    /// self-registered Microsoft Testing Platform extensions, then enables Allure
+                    /// with a custom registration function.
                     /// </summary>
                     /// <remarks>
-                    /// If you're calling this function, make sure Allure.Xunit.v3 self-registration is disabled
+                    /// If you call this function, make sure Allure.Xunit.v3 self-registration is disabled
                     /// (the 'Allure_XunitEnableSelfRegistration' MSBuild property is set to 'false').
                     /// </remarks>
                     /// <param name="allureRegistration">
-                    /// A function that sets up Allure.Xunit.v3.
+                    /// A function that configures Allure.Xunit.v3.
                     /// </param>
                     /// <param name="args">The command-line arguments passed to the test application.</param>
                     /// <returns>The xUnit.net process exit code.</returns>
