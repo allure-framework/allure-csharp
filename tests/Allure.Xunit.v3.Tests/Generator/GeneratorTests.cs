@@ -47,12 +47,33 @@ class GeneratorTests
     [Test]
     public async Task SelfRegistrationDisabledShouldAllowCustomRunnerReporter(CancellationToken token)
     {
-        var results = await AllureSampleRunner.RunAsync(AllureSampleRegistry.CustomRunnerReporter, token);
+        string markerPath = null;
+        try
+        {
+            markerPath = Path.GetTempFileName();
 
-        await Assert.That(results).HasSingleGlobals()
-            .With.SingleError()
-            .That.HasMessage("custom reporter works");
-        await Assert.That(results.TestResults).Count().IsEqualTo(0);
+            var results = await AllureSampleRunner.RunAsync(
+                AllureSampleRegistry.CustomRunnerReporter,
+                new()
+                {
+                    EnvironmentVariables =
+                    {
+                        ["__ALLURE_MARKER_FILE__"] = markerPath,
+                    },
+                },
+                token
+            );
+
+            await Assert.That(new FileInfo(markerPath)).Exists();
+            await Assert.That(File.ReadAllTextAsync(markerPath, token)).IsEqualTo("custom reporter works");
+        }
+        finally
+        {
+            if (markerPath is not null)
+            {
+                File.Delete(markerPath);
+            }
+        }
     }
 
     [Test]

@@ -1,5 +1,5 @@
 using System;
-using Allure.Net.Commons;
+using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Runner.Common;
@@ -24,10 +24,14 @@ namespace Allure.Xunit.v3.Tests.Samples.Generator.CustomRunnerReporter
 
         public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
             IRunnerLogger logger,
-            IMessageSink? diagnosticMessageSink
+            IMessageSink diagnosticMessageSink
         )
         {
-            AllureApi.AddGlobalError("custom reporter works");
+            var markerPath = Environment.GetEnvironmentVariable("__ALLURE_MARKER_FILE__");
+            if (!string.IsNullOrEmpty(markerPath) && File.Exists(markerPath))
+            {
+                File.WriteAllText(markerPath, "custom reporter works");
+            }
 
             return new(new DefaultRunnerReporterMessageHandler(logger));
         }
