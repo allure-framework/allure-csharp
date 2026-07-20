@@ -1,5 +1,6 @@
 using System;
 using Allure.Aspects;
+using Allure.Runtime;
 using AspectInjector.Broker;
 
 namespace Allure;

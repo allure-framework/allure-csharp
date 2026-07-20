@@ -25,7 +25,7 @@ public class AllureAttachmentFileAspect
         var attr = metadata.GetCustomAttribute<AllureAttachmentFileAttribute>();
         var isGlobal = attr?.Global == true;
 
-        if (!isGlobal && !AllureFrontend.IsAvailable)
+        if (ShouldSkip(isGlobal))
         {
             return;
         }
@@ -60,6 +60,10 @@ public class AllureAttachmentFileAspect
             );
         }
     }
+
+    static bool ShouldSkip(bool isGlobal) =>
+        !isGlobal && !AllureFrontend.IsAvailableInCurrentScope
+            || isGlobal && !AllureFrontend.IsAvailableInGlobalScope;
 
     static FileInfo? ResolveFile(object? value) => value switch
     {

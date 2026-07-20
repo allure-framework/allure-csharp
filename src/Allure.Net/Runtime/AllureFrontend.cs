@@ -31,14 +31,26 @@ public static class AllureFrontend
                 $"The in-process test API is not supported by '{Client.Name}'."
             );
 
-    public static bool IsAvailable
+    public static bool IsAvailableInCurrentScope
     {
         get
         {
             lock (monitor)
             {
                 frozen = true;
-                return client.IsAvailable;
+                return client.IsAvailableInCurrentScope;
+            }
+        }
+    }
+
+    public static bool IsAvailableInGlobalScope
+    {
+        get
+        {
+            lock (monitor)
+            {
+                frozen = true;
+                return client.IsAvailableInGlobalScope;
             }
         }
     }

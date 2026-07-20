@@ -20,7 +20,7 @@ abstract class AllureOperationRouter
         object?[] arguments
     )
     {
-        if (!AllureFrontend.IsAvailable)
+        if (!AllureFrontend.IsAvailableInCurrentScope)
         {
             return body(arguments);
         }
@@ -126,7 +126,7 @@ abstract class AllureOperationRouter
             }
 
             var syncDispatcherType =
-                typeof(AsyncDispatcher<>).MakeGenericType(returnType);
+                typeof(SyncDispatcher<>).MakeGenericType(returnType);
             return (IDispatcher)Activator.CreateInstance(syncDispatcherType);
         }
 

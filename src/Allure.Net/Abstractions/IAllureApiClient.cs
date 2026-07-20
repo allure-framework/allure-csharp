@@ -4,7 +4,9 @@ public interface IAllureApiClient
 {
     string Name { get; }
 
-    bool IsAvailable { get; }
+    bool IsAvailableInCurrentScope { get; }
+
+    bool IsAvailableInGlobalScope { get; }
 
     AllureApiOperations Operations { get; }
 

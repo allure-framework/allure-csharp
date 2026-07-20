@@ -8,7 +8,9 @@ class RoutingAllureApiClient : IAllureApiClient
 {
     public string Name => "Routing in-process Allure API client";
 
-    public bool IsAvailable => AllureBackend.IsAvailableInCurrentScope;
+    public bool IsAvailableInCurrentScope => AllureBackend.IsAvailableInCurrentScope;
+
+    public bool IsAvailableInGlobalScope => AllureBackend.IsAvailableInGlobalScope;
 
     public AllureApiOperations Operations { get; } = new(
         RoutingAllureOperations.Instance,

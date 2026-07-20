@@ -31,10 +31,10 @@ public static class AllureBackend
         GetRuntime(static (r) => r.MatchesGlobalScope);
 
     public static bool IsAvailableInCurrentScope =>
-        MatchRuntime(static (r) => r.MatchesCurrentScope) is MatchSuccess;
+        CheckAvailability(static (r) => r.MatchesCurrentScope);
 
     public static bool IsAvailableInGlobalScope =>
-        MatchRuntime(static (r) => r.MatchesGlobalScope) is MatchSuccess;
+        CheckAvailability(static (r) => r.MatchesGlobalScope);
 
     public static IDisposable Install(IAllureRuntimeRoute route)
     {
@@ -65,21 +65,37 @@ public static class AllureBackend
         });
     }
 
+    static bool CheckAvailability(Func<IAllureRuntimeRoute, bool> predicate) =>
+        MatchRuntime(predicate) switch
+        {
+            MatchSuccess => true,
+
+            MultipleMatches { Ids: var ids } =>
+                throw CreateMultipleMatchesException(ids),
+
+            _ => false,
+        };
+
     static IAllureRuntime? GetRuntime(Func<IAllureRuntimeRoute, bool> predicate) =>
         MatchRuntime(predicate) switch
         {
             MatchSuccess { Runtime: var runtime } => runtime,
 
             MultipleMatches { Ids: var ids } =>
-                throw new InvalidOperationException(
-                    $"Unable to route an API call to an Allure runtime: "
-                        + $"more than one runtime matched the requested Allure scope: "
-                        + $"{string.Join(", ", ids)}. "
-                        + "Configure the runtime suppression rules and try again."
-                ),
+                throw CreateMultipleMatchesException(ids),
 
             _ => null,
         };
+
+    static InvalidOperationException CreateMultipleMatchesException(
+        IEnumerable<string> ids
+    ) =>
+        new (
+            $"Unable to route an API call to an Allure runtime: "
+                + $"more than one runtime matched the requested Allure scope: "
+                + $"{string.Join(", ", ids)}. "
+                + "Configure the runtime suppression rules and try again."
+        );
 
     static RuntimeMatchResult MatchRuntime(Func<IAllureRuntimeRoute, bool> predicate)
     {

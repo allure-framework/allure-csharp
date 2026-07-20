@@ -26,7 +26,7 @@ public class AllureAttachmentAspect
         var attr = metadata.GetCustomAttribute<AllureAttachmentAttribute>();
         var isGlobal = attr?.Global == true;
 
-        if (!isGlobal && !AllureFrontend.IsAvailable)
+        if (ShouldSkip(isGlobal))
         {
             return;
         }
@@ -57,6 +57,10 @@ public class AllureAttachmentAspect
             );
         }
     }
+
+    static bool ShouldSkip(bool isGlobal) =>
+        !isGlobal && !AllureFrontend.IsAvailableInCurrentScope
+            || isGlobal && !AllureFrontend.IsAvailableInGlobalScope;
 
     static string ResolveAttachmentName(
         AllureAttachmentAttribute? attr,
