@@ -16,7 +16,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="newName">The new name of the test.</param>
     public static Task SetTestNameAsync(string newName) =>
-        AllureFrontend.Runtime.TestApi.Async.SetTestName(newName, default);
+        AllureFrontend.Client.TestApi.Async.SetTestNameAsync(newName, default);
 
     /// <summary>
     /// Sets the name of the current test.
@@ -25,14 +25,14 @@ public static partial class AllureApi
     /// <param name="newName">The new name of the test.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task SetTestNameAsync(string newName, CancellationToken cancellationToken) =>
-        AllureFrontend.Runtime.TestApi.Async.SetTestName(newName, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.SetTestNameAsync(newName, cancellationToken);
 
     /// <summary>
     /// Sets the name of the current fixture.
     /// </summary>
     /// <param name="newName">The new name of the fixture.</param>
     public static Task SetFixtureNameAsync(string newName) =>
-        AllureFrontend.Runtime.TestApi.Async.SetFixtureName(newName, default);
+        AllureFrontend.Client.TestApi.Async.SetFixtureNameAsync(newName, default);
 
     /// <summary>
     /// Sets the name of the current fixture.
@@ -40,7 +40,7 @@ public static partial class AllureApi
     /// <param name="newName">The new name of the fixture.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task SetFixtureNameAsync(string newName, CancellationToken cancellationToken) =>
-        AllureFrontend.Runtime.TestApi.Async.SetFixtureName(newName, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.SetFixtureNameAsync(newName, cancellationToken);
 
     /// <summary>
     /// Sets the name of the current step, fixture, or test.
@@ -53,7 +53,7 @@ public static partial class AllureApi
     /// Otherwise, does nothing.
     /// </remarks>
     public static Task SetNameAsync(string newName) =>
-        AllureFrontend.Runtime.TestApi.Async.SetName(newName, default);
+        AllureFrontend.Client.TestApi.Async.SetNameAsync(newName, default);
 
     /// <summary>
     /// Sets the name of the current step, fixture, or test.
@@ -67,7 +67,7 @@ public static partial class AllureApi
     /// Otherwise, does nothing.
     /// </remarks>
     public static Task SetNameAsync(string newName, CancellationToken cancellationToken) =>
-        AllureFrontend.Runtime.TestApi.Async.SetName(newName, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.SetNameAsync(newName, cancellationToken);
 
     /// <summary>
     /// Sets the description of the current test.
@@ -75,7 +75,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="description">The description of the test.</param>
     public static Task SetDescriptionAsync(string description) =>
-        AllureFrontend.Runtime.TestApi.Async.SetDescription(description, default);
+        AllureFrontend.Client.TestApi.Async.SetDescriptionAsync(description, default);
 
     /// <summary>
     /// Sets the description of the current test.
@@ -84,7 +84,7 @@ public static partial class AllureApi
     /// <param name="description">The description of the test.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task SetDescriptionAsync(string description, CancellationToken cancellationToken) =>
-        AllureFrontend.Runtime.TestApi.Async.SetDescription(description, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.SetDescriptionAsync(description, cancellationToken);
 
     /// <summary>
     /// Sets the description of the current test. Allows HTML to be used.
@@ -94,7 +94,7 @@ public static partial class AllureApi
     /// The description in the HTML format.
     /// </param>
     public static Task SetDescriptionHtmlAsync(string descriptionHtml) =>
-        AllureFrontend.Runtime.TestApi.Async.SetDescriptionHtml(descriptionHtml, default);
+        AllureFrontend.Client.TestApi.Async.SetDescriptionHtmlAsync(descriptionHtml, default);
 
 
     /// <summary>
@@ -106,5 +106,5 @@ public static partial class AllureApi
     /// </param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task SetDescriptionHtmlAsync(string descriptionHtml, CancellationToken cancellationToken) =>
-        AllureFrontend.Runtime.TestApi.Async.SetDescriptionHtml(descriptionHtml, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.SetDescriptionHtmlAsync(descriptionHtml, cancellationToken);
 }

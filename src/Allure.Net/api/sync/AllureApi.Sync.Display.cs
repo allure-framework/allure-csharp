@@ -14,14 +14,14 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="newName">The new name of the test.</param>
     public static void SetTestName(string newName) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetTestName(newName);
+        AllureFrontend.Client.TestApi.Sync.SetTestName(newName);
 
     /// <summary>
     /// Sets the name of the current fixture.
     /// </summary>
     /// <param name="newName">The new name of the fixture.</param>
     public static void SetFixtureName(string newName) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetFixtureName(newName);
+        AllureFrontend.Client.TestApi.Sync.SetFixtureName(newName);
 
     /// <summary>
     /// Sets the name of the current step, fixture, or test.
@@ -34,7 +34,7 @@ public static partial class AllureApi
     /// Otherwise, does nothing.
     /// </remarks>
     public static void SetName(string newName) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetName(newName);
+        AllureFrontend.Client.TestApi.Sync.SetName(newName);
 
     /// <summary>
     /// Sets the description of the current test.
@@ -42,7 +42,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="description">The description of the test.</param>
     public static void SetDescription(string description) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetDescription(description);
+        AllureFrontend.Client.TestApi.Sync.SetDescription(description);
 
     /// <summary>
     /// Sets the description of the current test. Allows HTML to be used.
@@ -52,5 +52,5 @@ public static partial class AllureApi
     /// The description in the HTML format.
     /// </param>
     public static void SetDescriptionHtml(string descriptionHtml) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetDescriptionHtml(descriptionHtml);
+        AllureFrontend.Client.TestApi.Sync.SetDescriptionHtml(descriptionHtml);
 }

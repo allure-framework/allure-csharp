@@ -105,7 +105,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="link">A link to add.</param>
     public static Task AddLinkAsync(Link link) =>
-        AllureFrontend.Runtime.TestApi.Async.AddLink(link, default);
+        AllureFrontend.Client.TestApi.Async.AddLinkAsync(link, default);
 
     /// <summary>
     /// Adds a new link to the current test.
@@ -114,7 +114,7 @@ public static partial class AllureApi
     /// <param name="link">A link to add.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddLinkAsync(Link link, CancellationToken cancellationToken) =>
-        AllureFrontend.Runtime.TestApi.Async.AddLink(link, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.AddLinkAsync(link, cancellationToken);
 
     /// <summary>
     /// Adds new links to the current test.
@@ -122,7 +122,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="links">The link instances to add.</param>
     public static Task AddLinksAsync(params IEnumerable<Link> links) =>
-        AllureFrontend.Runtime.TestApi.Async.AddLinks(links, default);
+        AllureFrontend.Client.TestApi.Async.AddLinksAsync(links, default);
 
     /// <summary>
     /// Adds new links to the current test.
@@ -134,7 +134,7 @@ public static partial class AllureApi
         IEnumerable<Link> links,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Runtime.TestApi.Async.AddLinks(links, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.AddLinksAsync(links, cancellationToken);
 
     /// <summary>
     /// Adds a new issue link to the current test.

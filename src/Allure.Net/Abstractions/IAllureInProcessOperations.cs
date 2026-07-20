@@ -4,7 +4,7 @@ using Allure.Model;
 
 namespace Allure.Abstractions;
 
-public interface IAllureInProcessTestApi : IAllureTestApi<IAllureInProcessStepContext, IAllureInProcessFixtureContext>
+public interface IAllureInProcessOperations : IAllureOperations<IAllureInProcessStepContext, IAllureInProcessFixtureContext>
 {
     void UpdateTestResult(Action<TestResult> update);
 

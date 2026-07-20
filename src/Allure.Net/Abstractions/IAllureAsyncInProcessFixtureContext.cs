@@ -5,7 +5,7 @@ using Allure.Model;
 namespace Allure.Abstractions;
 
 
-public interface IAllureInProcessFixtureContextAsync : IAllureFixtureContextAsync
+public interface IAllureAsyncInProcessFixtureContext : IAllureAsyncFixtureContext
 {
     void UpdateFixtureResult(Action<FixtureResult> update);
 

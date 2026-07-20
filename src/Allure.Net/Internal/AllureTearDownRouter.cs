@@ -14,14 +14,14 @@ class AllureTearDownRouter : AllureOperationRouter
         IEnumerable<Parameter> parameters,
         Action body
     ) =>
-        AllureFrontend.Runtime.TestApi.Sync.TearDown(name, parameters, body);
+        AllureFrontend.Client.TestApi.Sync.TearDown(name, parameters, body);
 
     protected override T Run<T>(
         string name,
         IEnumerable<Parameter> parameters,
         Func<T> body
     ) =>
-        AllureFrontend.Runtime.TestApi.Sync.TearDown(name, parameters, body);
+        AllureFrontend.Client.TestApi.Sync.TearDown(name, parameters, body);
 
     protected override Task RunAsync(
         string name,
@@ -29,7 +29,7 @@ class AllureTearDownRouter : AllureOperationRouter
         Func<Task> body,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Runtime.TestApi.Async.TearDown(name, parameters, body, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.TearDownAsync(name, parameters, body, cancellationToken);
 
     protected override Task<T> RunAsync<T>(
         string name,
@@ -37,7 +37,7 @@ class AllureTearDownRouter : AllureOperationRouter
         Func<Task<T>> body,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Runtime.TestApi.Async.TearDown(name, parameters, body, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.TearDownAsync(name, parameters, body, cancellationToken);
 
     public static AllureSetUpRouter Instance { get; } = new();
 }

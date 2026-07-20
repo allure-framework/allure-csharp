@@ -4,15 +4,15 @@ using Allure.Runtime;
 
 namespace Allure.Internal;
 
-class SynchronizedInProcessTestRuntime : IAllureTestRuntimeFrontend
+class RoutingAllureApiClient : IAllureApiClient
 {
-    public string Name => "Synchronized in-process Allure test runtime";
+    public string Name => "Routing in-process Allure API client";
 
     public bool IsAllureAvailable => AllureBackend.IsAvailable;
 
-    public AllureFrontendTestApi TestApi { get; } = new(
-        SynchronizedInProcessTestApi.Instance,
-        SynchronizedInProcessTestApiAsync.Instance
+    public AllureApiOperations TestApi { get; } = new(
+        RoutingAllureOperations.Instance,
+        RoutingAllureAsyncOperations.Instance
     );
 
     public IAllureParameterSerializer ParameterSerializer =>
@@ -21,5 +21,5 @@ class SynchronizedInProcessTestRuntime : IAllureTestRuntimeFrontend
                 "No active Allure runtime was found."
             );
 
-    public static SynchronizedInProcessTestRuntime Instance { get; } = new();
+    public static RoutingAllureApiClient Instance { get; } = new();
 }

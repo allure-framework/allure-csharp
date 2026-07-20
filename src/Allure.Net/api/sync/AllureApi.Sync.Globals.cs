@@ -18,7 +18,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     public static void AddGlobalAttachment(string path) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalFileAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalFileAttachment(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -31,7 +31,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
     public static void AddGlobalAttachment(string path, string name) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalFileAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -52,7 +52,7 @@ public static partial class AllureApi
         string name,
         string mediaType
     ) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalFileAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -73,7 +73,7 @@ public static partial class AllureApi
         string mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalFileAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -87,7 +87,7 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     public static void AddGlobalAttachment(string name, Stream content)
     {
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalAttachment(
             name: name,
             content: content,
             mediaType: null,
@@ -106,7 +106,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: null,
@@ -126,7 +126,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalAttachment(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -147,7 +147,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -169,7 +169,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalAttachment(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -192,7 +192,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalAttachment(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -205,7 +205,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="error">The error to persist.</param>
     public static void AddGlobalError(Exception error) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalError(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalError(
             error.ToAllureGlobalError()
         );
 
@@ -214,7 +214,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="message">The error message to persist.</param>
     public static void AddGlobalError(string message) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalError(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalError(
             new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -227,7 +227,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="statusDetails">The error details to persist.</param>
     public static void AddGlobalError(StatusDetails statusDetails) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddGlobalError(
+        AllureFrontend.Client.TestApi.Sync.AddGlobalError(
             new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),

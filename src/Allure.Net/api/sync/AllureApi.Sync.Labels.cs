@@ -20,7 +20,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="labels">The labels to add.</param>
     public static void AddLabels(params IEnumerable<Label> labels) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddLabels(labels);
+        AllureFrontend.Client.TestApi.Sync.AddLabels(labels);
 
     /// <summary>
     /// Adds a new label to the current test result.
@@ -29,7 +29,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the label to add.</param>
     /// <param name="value">The value of the label to add.</param>
     public static void AddLabel(string name, string value) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddLabel(
+        AllureFrontend.Client.TestApi.Sync.AddLabel(
             new() { Name = name, Value = value }
         );
 
@@ -39,7 +39,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="label">The new label of the test.</param>
     public static void AddLabel(Label label) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddLabel(label);
+        AllureFrontend.Client.TestApi.Sync.AddLabel(label);
 
     /// <summary>
     /// Sets the current test's severity.
@@ -47,7 +47,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="severity">The new severity level of the test.</param>
     public static void SetSeverity(Severity severity) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetLabel(
+        AllureFrontend.Client.TestApi.Sync.SetLabel(
             LabelName.Severity,
             severity.ToLabelValue()
         );
@@ -58,7 +58,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="owner">The new owner of the test.</param>
     public static void SetOwner(string owner) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetLabel(
+        AllureFrontend.Client.TestApi.Sync.SetLabel(
             LabelName.Owner,
             owner
         );
@@ -69,7 +69,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="allureId">The new ID of the test case.</param>
     public static void SetAllureId(int allureId) =>
-        AllureFrontend.Runtime.TestApi.Sync.SetLabel(
+        AllureFrontend.Client.TestApi.Sync.SetLabel(
             LabelName.AllureId,
             Convert.ToString(allureId, CultureInfo.InvariantCulture)
         );
@@ -80,7 +80,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="tags">The new tags.</param>
     public static void AddTags(params string[] tags) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddLabels(
+        AllureFrontend.Client.TestApi.Sync.AddLabels(
             tags.Select(Label.Tag)
         );
 

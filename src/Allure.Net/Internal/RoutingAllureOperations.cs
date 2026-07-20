@@ -8,7 +8,7 @@ using Allure.Runtime;
 
 namespace Allure.Internal;
 
-class SynchronizedInProcessTestApi : IAllureInProcessTestApi
+class RoutingAllureOperations : IAllureInProcessOperations
 {
     public void AddAttachment(string name, Stream content, string? mediaType, string fileExtension) =>
         AllureBackend.CurrentBackend?.TestApi.Sync.AddAttachment(name, content, mediaType, fileExtension);
@@ -64,11 +64,27 @@ class SynchronizedInProcessTestApi : IAllureInProcessTestApi
     public void SetTestName(string newName) =>
         AllureBackend.CurrentBackend?.TestApi.Sync.SetTestName(newName);
 
-    public void SetUp(string name, IEnumerable<Parameter> parameters, Action body) =>
-        AllureBackend.CurrentBackend?.TestApi.Sync.SetUp(name, parameters, body);
+    public void SetUp(string name, IEnumerable<Parameter> parameters, Action body)
+    {
+        if (AllureBackend.CurrentBackend is { } backend)
+        {
+            backend.TestApi.Sync.SetUp(name, parameters, body);
+            return;
+        }
 
-    public void SetUp(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessFixtureContext> body) =>
-        AllureBackend.CurrentBackend?.TestApi.Sync.SetUp(name, parameters, body);
+        body();
+    }
+
+    public void SetUp(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessFixtureContext> body)
+    {
+        if (AllureBackend.CurrentBackend is { } backend)
+        {
+            backend.TestApi.Sync.SetUp(name, parameters, body);
+            return;
+        }
+
+        body(NullOperationContext.Instance);
+    }
 
     public TResult SetUp<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body) =>
         AllureBackend.CurrentBackend is { } backend
@@ -83,11 +99,27 @@ class SynchronizedInProcessTestApi : IAllureInProcessTestApi
     public void Step(string name, IEnumerable<Parameter> parameters, Status status, StatusDetails? statusDetails) =>
         AllureBackend.CurrentBackend?.TestApi.Sync.Step(name, parameters, status, statusDetails);
 
-    public void Step(string name, IEnumerable<Parameter> parameters, Action body) =>
-        AllureBackend.CurrentBackend?.TestApi.Sync.Step(name, parameters, body);
+    public void Step(string name, IEnumerable<Parameter> parameters, Action body)
+    {
+        if (AllureBackend.CurrentBackend is { } backend)
+        {
+            backend.TestApi.Sync.Step(name, parameters, body);
+            return;
+        }
 
-    public void Step(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessStepContext> body) =>
-        AllureBackend.CurrentBackend?.TestApi.Sync.Step(name, parameters, body);
+        body();
+    }
+
+    public void Step(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessStepContext> body)
+    {
+        if (AllureBackend.CurrentBackend is { } backend)
+        {
+            backend.TestApi.Sync.Step(name, parameters, body);
+            return;
+        }
+
+        body(NullOperationContext.Instance);
+    }
 
     public TResult Step<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body) =>
         AllureBackend.CurrentBackend is { } backend
@@ -99,11 +131,27 @@ class SynchronizedInProcessTestApi : IAllureInProcessTestApi
             ? backend.TestApi.Sync.Step(name, parameters, body)
             : body(NullOperationContext.Instance);
 
-    public void TearDown(string name, IEnumerable<Parameter> parameters, Action body) =>
-        AllureBackend.CurrentBackend?.TestApi.Sync.TearDown(name, parameters, body);
+    public void TearDown(string name, IEnumerable<Parameter> parameters, Action body)
+    {
+        if (AllureBackend.CurrentBackend is { } backend)
+        {
+            backend.TestApi.Sync.TearDown(name, parameters, body);
+            return;
+        }
 
-    public void TearDown(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessFixtureContext> body) =>
-        AllureBackend.CurrentBackend?.TestApi.Sync.TearDown(name, parameters, body);
+        body();
+    }
+
+    public void TearDown(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessFixtureContext> body)
+    {
+        if (AllureBackend.CurrentBackend is { } backend)
+        {
+            backend.TestApi.Sync.TearDown(name, parameters, body);
+            return;
+        }
+
+        body(NullOperationContext.Instance);
+    }
 
     public TResult TearDown<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body) =>
         AllureBackend.CurrentBackend is { } backend
@@ -157,5 +205,5 @@ class SynchronizedInProcessTestApi : IAllureInProcessTestApi
     public void UpdateTestResult(Action<TestResult> update) =>
         AllureBackend.CurrentBackend?.TestApi.Sync.UpdateTestResult(update);
 
-    public static SynchronizedInProcessTestApi Instance { get; } = new();
+    public static RoutingAllureOperations Instance { get; } = new();
 }

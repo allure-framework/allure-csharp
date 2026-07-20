@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Allure.Abstractions;
@@ -9,57 +10,43 @@ public static class AllureBackend
 {
     readonly static object monitor = new();
 
-    static readonly ImmutableArray<IAllureBackendDispatcher>.Builder dispatchersBuilder =
-        ImmutableArray.CreateBuilder<IAllureBackendDispatcher>();
+    readonly static List<IAllureRuntimeRoute> dispatchers = [];
 
-    static ImmutableArray<IAllureBackendDispatcher>? dispatchers;
-
-    static ImmutableArray<IAllureBackendDispatcher> Dispatchers
+    static ImmutableArray<IAllureRuntimeRoute> Dispatchers
     {
         get
         {
-            lock(monitor)
+            lock (monitor)
             {
-                frozen = true;
-                return dispatchers ??= dispatchersBuilder.ToImmutable();
+                return [.. dispatchers];
             }
         }
     }
 
-    static bool frozen = false;
-
-    internal static IAllureTestRuntimeBackend? CurrentBackend
+    internal static IAllureRuntime? CurrentBackend => MatchBackend() switch
     {
-        get
-        {
-            var currentDispatchers =
-                Dispatchers.Where(static (d) => d.IsCurrent && d.Backend.IsAllureAvailable)
-                .ToImmutableArray();
+        MatchSuccess { Backend: var backend } => backend,
 
-            if (currentDispatchers.Length > 1)
-            {
-                var runtimeNames = string.Join(
-                    ", ",
-                    currentDispatchers.Select(static (d) => d.Name)
-                );
+        MultipleMatches { Ids: var ids } =>
+            throw new InvalidOperationException(
+                $"Unable to route an API call to an Allure runtime: "
+                    + $"more than one runtime was selected in the current scope: "
+                    + $"{string.Join(", ", ids)}. "
+                    + "Configure the runtime suppression rules and try again."
+            ),
 
-                throw new InvalidOperationException(
-                    $"Unable to route an API call to an Allure runtime: "
-                        + $"more than one runtime is defined in the current scope: {runtimeNames}. "
-                        + "These runtimes are most probably incompatible with each other."
-                );
-            }
+        BackendDisabled { Backend: var backend } =>
+            throw new InvalidOperationException(
+                $"Unable to route an API call to an Allure runtime: "
+                    + $"the selected runtime '{backend.Name}' is disabled."
+            ),
 
-            return currentDispatchers.IsEmpty
-                ? null
-                : currentDispatchers[0].Backend;
-        }
-    }
+        _ => null,
+    };
 
-    public static bool IsAvailable =>
-        Dispatchers.Any(static (d) => d.IsCurrent && d.Backend.IsAllureAvailable);
+    public static bool IsAvailable => MatchBackend() is MatchSuccess;
 
-    public static void Install(IAllureBackendDispatcher backendDispatcher)
+    public static void Install(IAllureRuntimeRoute backendDispatcher)
     {
         if (backendDispatcher is null)
         {
@@ -68,14 +55,67 @@ public static class AllureBackend
 
         lock (monitor)
         {
-            if (frozen)
+            dispatchers.Add(backendDispatcher);
+        }
+    }
+
+    public static void Remove(IAllureRuntimeRoute backendDispatcher)
+    {
+        if (backendDispatcher is null)
+        {
+            throw new ArgumentNullException(nameof(backendDispatcher));
+        }
+
+        lock (monitor)
+        {
+            dispatchers.Remove(backendDispatcher);
+        }
+    }
+
+    static IBackendMatchResult MatchBackend()
+    {
+        var currentDispatchers =
+                Dispatchers.Where(static (d) => d.IsCurrent)
+                .ToImmutableArray();
+
+            if (currentDispatchers.Length > 1)
             {
-                throw new InvalidOperationException(
-                    "Backend preparation failed: the current runtime is already in use."
+                currentDispatchers = [.. currentDispatchers.Where(
+                    (candidate) => currentDispatchers.All(
+                        (other) => ReferenceEquals(other, candidate)
+                            || candidate.SupressRuntimes.Contains(other.Id)
+                    )
+                )];
+            }
+
+            if (currentDispatchers.Length > 1)
+            {
+                return new MultipleMatches(
+                    [.. currentDispatchers.Select(static (d) => d.Id)]
                 );
             }
 
-            dispatchersBuilder.Add(backendDispatcher);
-        }
+            if (currentDispatchers.Length == 0)
+            {
+                return new NoMatch();
+            }
+
+            var runtime = currentDispatchers[0].Backend;
+            if (!runtime.IsAllureAvailable)
+            {
+                return new BackendDisabled(runtime);
+            }
+
+            return new MatchSuccess(runtime);
     }
+
+    interface IBackendMatchResult;
+
+    sealed record class MatchSuccess(IAllureRuntime Backend) : IBackendMatchResult;
+
+    sealed record class BackendDisabled(IAllureRuntime Backend) : IBackendMatchResult;
+
+    sealed record class NoMatch() : IBackendMatchResult;
+
+    sealed record class MultipleMatches(ImmutableArray<string> Ids) : IBackendMatchResult;
 }

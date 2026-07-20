@@ -88,7 +88,7 @@ public static class InternalAllureExtensions
 
                     if (parameterToArgumentMap.TryGetValue(name, out var value))
                     {
-                        var newText = AllureFrontend.Runtime.ParameterSerializer.Serialize(value);
+                        var newText = AllureFrontend.Client.ParameterSerializer.Serialize(value);
                         argTextCache[name] = newText;
                         return newText;
                     }
@@ -154,7 +154,7 @@ public static class InternalAllureExtensions
                 .Select(static (t) => new Parameter
                 {
                     Name = t.data.Name ?? t.parameter.Name,
-                    Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(t.argument),
+                    Value = AllureFrontend.Client.ParameterSerializer.Serialize(t.argument),
                     Mode = t.data.Mode,
                     Excluded = t.data.Excluded,
                 }),

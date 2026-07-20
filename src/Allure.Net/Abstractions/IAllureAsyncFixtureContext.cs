@@ -7,14 +7,14 @@ namespace Allure.Abstractions;
 /// <summary>
 /// Provides an async API tied to a specific fixture.
 /// </summary>
-public interface IAllureFixtureContextAsync
+public interface IAllureAsyncFixtureContext
 {
     /// <summary>
     /// Sets the name of the fixture associated with this context.
     /// </summary>
     /// <param name="newName">The new name of the step.</param>
     /// <param name="cancellationToken">A canellation token</param>
-    Task SetName(string newName, CancellationToken cancellationToken);
+    Task SetNameAsync(string newName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Adds a parameter with the specified text value to the fixture.
@@ -24,5 +24,5 @@ public interface IAllureFixtureContextAsync
     /// <remarks>
     /// The value is used as-is.
     /// </remarks>
-    Task AddParameter(Parameter parameter, CancellationToken cancellationToken);
+    Task AddParameterAsync(Parameter parameter, CancellationToken cancellationToken);
 }

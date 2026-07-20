@@ -5,7 +5,7 @@ using Allure.Model;
 
 namespace Allure.Abstractions;
 
-public interface IAllureTestApi<out TStepContext, out TFixtureContext>
+public interface IAllureOperations<out TStepContext, out TFixtureContext>
     where TStepContext : IAllureStepContext
     where TFixtureContext : IAllureFixtureContext
 {

@@ -39,7 +39,7 @@ public static class AllureExtensions
             AddParameter(
                 stepContext,
                 name,
-                AllureFrontend.Runtime.ParameterSerializer.Serialize(value)
+                AllureFrontend.Client.ParameterSerializer.Serialize(value)
             );
 
         /// <summary>
@@ -57,36 +57,36 @@ public static class AllureExtensions
             AddParameter(
                 stepContext,
                 name,
-                AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+                AllureFrontend.Client.ParameterSerializer.Serialize(value),
                 mode
             );
     }
 
-    extension (IAllureStepContextAsync stepContext)
+    extension (IAllureAsyncStepContext stepContext)
     {
         /// <summary>
         /// Sets the name of the step associated with this context.
         /// </summary>
         /// <param name="newName">The new name of the step.</param>
         public Task SetName(string newName) =>
-            stepContext.SetName(newName, default);
+            stepContext.SetNameAsync(newName, default);
 
         /// <summary>
         /// Adds a fully constructed parameter to the step.
         /// </summary>
         /// <param name="parameter">A parameter to add.</param>
         public Task AddParameter(Parameter parameter) =>
-            stepContext.AddParameter(parameter, default);
+            stepContext.AddParameterAsync(parameter, default);
 
         public Task AddParameter(string name, string value) =>
-            stepContext.AddParameter(new()
+            stepContext.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
             }, default);
 
         public Task AddParameter(string name, string value, CancellationToken cancellationToken) =>
-            stepContext.AddParameter(new()
+            stepContext.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
@@ -97,7 +97,7 @@ public static class AllureExtensions
             string value,
             ParameterMode mode
         ) =>
-            stepContext.AddParameter(new()
+            stepContext.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
@@ -110,7 +110,7 @@ public static class AllureExtensions
             ParameterMode mode,
             CancellationToken cancellationToken
         ) =>
-            stepContext.AddParameter(new()
+            stepContext.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
@@ -134,7 +134,7 @@ public static class AllureExtensions
             AddParameter(
                 stepContext,
                 name,
-                AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+                AllureFrontend.Client.ParameterSerializer.Serialize(value),
                 CancellationToken.None
             );
 
@@ -157,7 +157,7 @@ public static class AllureExtensions
             AddParameter(
                 stepContext,
                 name,
-                AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+                AllureFrontend.Client.ParameterSerializer.Serialize(value),
                 cancellationToken
             );
 
@@ -180,7 +180,7 @@ public static class AllureExtensions
             AddParameter(
                 stepContext,
                 name,
-                AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+                AllureFrontend.Client.ParameterSerializer.Serialize(value),
                 mode,
                 default
             );
@@ -205,7 +205,7 @@ public static class AllureExtensions
             AddParameter(
                 stepContext,
                 name,
-                AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+                AllureFrontend.Client.ParameterSerializer.Serialize(value),
                 mode,
                 cancellationToken
             );

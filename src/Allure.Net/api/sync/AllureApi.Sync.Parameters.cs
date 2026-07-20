@@ -21,7 +21,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
         });
 
     /// <summary>
@@ -37,7 +37,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
         });
 
@@ -57,7 +57,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Excluded = excluded,
         });
 
@@ -83,7 +83,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
             Excluded = excluded,
         });
@@ -100,7 +100,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
         });
 
     /// <summary>
@@ -116,7 +116,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
         });
 
@@ -136,7 +136,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Excluded = excluded,
         });
 
@@ -162,7 +162,7 @@ public static partial class AllureApi
         AddTestParameter(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
             Excluded = excluded,
         });
@@ -177,5 +177,5 @@ public static partial class AllureApi
     /// A new parameter instance.
     /// </param>
     public static void AddTestParameter(Parameter parameter) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddTestParameter(parameter);
+        AllureFrontend.Client.TestApi.Sync.AddTestParameter(parameter);
 }

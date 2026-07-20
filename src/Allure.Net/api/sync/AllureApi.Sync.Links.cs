@@ -52,7 +52,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="link">A link to add.</param>
     public static void AddLink(Link link) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddLink(link);
+        AllureFrontend.Client.TestApi.Sync.AddLink(link);
 
     /// <summary>
     /// Adds new links to the current test.
@@ -60,7 +60,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="links">The link instances to add.</param>
     public static void AddLinks(params IEnumerable<Link> links) =>
-        AllureFrontend.Runtime.TestApi.Sync.AddLinks(links);
+        AllureFrontend.Client.TestApi.Sync.AddLinks(links);
 
     /// <summary>
     /// Adds a new issue link to the current test.

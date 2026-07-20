@@ -1,12 +1,12 @@
 namespace Allure.Abstractions;
 
-public interface IAllureTestRuntimeFrontend
+public interface IAllureRuntime
 {
     string Name { get; }
 
     bool IsAllureAvailable { get; }
 
-    AllureFrontendTestApi TestApi { get; }
+    AllureRuntimeOperations TestApi { get; }
 
     IAllureParameterSerializer ParameterSerializer { get; }
 }

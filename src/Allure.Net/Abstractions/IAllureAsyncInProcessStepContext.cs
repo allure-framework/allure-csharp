@@ -5,7 +5,7 @@ using Allure.Model;
 namespace Allure.Abstractions;
 
 
-public interface IAllureInProcessStepContextAsync : IAllureStepContextAsync
+public interface IAllureAsyncInProcessStepContext : IAllureAsyncStepContext
 {
     void UpdateStepResult(Action<StepResult> update);
 

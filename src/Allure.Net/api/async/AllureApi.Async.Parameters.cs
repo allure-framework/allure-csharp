@@ -23,7 +23,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
         });
 
     /// <summary>
@@ -43,7 +43,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
         }, cancellationToken);
 
     /// <summary>
@@ -63,7 +63,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
         });
 
@@ -86,7 +86,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
         }, cancellationToken);
 
@@ -110,7 +110,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Excluded = excluded,
         });
 
@@ -136,7 +136,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Excluded = excluded,
         }, cancellationToken);
 
@@ -162,7 +162,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
             Excluded = excluded,
         });
@@ -191,7 +191,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
             Excluded = excluded,
         }, cancellationToken);
@@ -208,7 +208,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
         });
 
     /// <summary>
@@ -228,7 +228,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
         }, cancellationToken);
 
     /// <summary>
@@ -248,7 +248,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
         });
 
@@ -271,7 +271,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
         }, cancellationToken);
 
@@ -295,7 +295,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Excluded = excluded,
         });
 
@@ -321,7 +321,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Excluded = excluded,
         }, cancellationToken);
 
@@ -347,7 +347,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
             Excluded = excluded,
         });
@@ -376,7 +376,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Runtime.ParameterSerializer.Serialize(value),
+            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
             Mode = mode,
             Excluded = excluded,
         }, cancellationToken);
@@ -391,7 +391,7 @@ public static partial class AllureApi
     /// A new parameter instance.
     /// </param>
     public static Task AddTestParameterAsync(Parameter parameter) =>
-        AllureFrontend.Runtime.TestApi.Async.AddTestParameter(parameter, default);
+        AllureFrontend.Client.TestApi.Async.AddTestParameterAsync(parameter, default);
 
 
     /// <summary>
@@ -408,5 +408,5 @@ public static partial class AllureApi
         Parameter parameter,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Runtime.TestApi.Async.AddTestParameter(parameter, cancellationToken);
+        AllureFrontend.Client.TestApi.Async.AddTestParameterAsync(parameter, cancellationToken);
 }

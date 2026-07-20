@@ -8,27 +8,27 @@ public static class AllureFrontend
 {
     readonly static object monitor = new();
 
-    static bool prepared = false;
+    static bool provided = false;
     static bool frozen = false;
 
-    private static IAllureTestRuntimeFrontend runtime = SynchronizedInProcessTestRuntime.Instance;
+    private static IAllureApiClient client = RoutingAllureApiClient.Instance;
 
-    internal static IAllureTestRuntimeFrontend Runtime
+    internal static IAllureApiClient Client
     {
         get
         {
             lock (monitor)
             {
                 frozen = true;
-                return runtime;
+                return client;
             }
         }
     }
 
-    internal static IAllureInProcessTestApi InProcessApi =>
-        Runtime.TestApi.Sync as IAllureInProcessTestApi
+    internal static IAllureInProcessOperations InProcessApi =>
+        Client.TestApi.Sync as IAllureInProcessOperations
             ?? throw new InvalidOperationException(
-                $"The in-process test API is not supported by '{Runtime.Name}'."
+                $"The in-process test API is not supported by '{Client.Name}'."
             );
 
     public static bool IsAvailable
@@ -37,12 +37,13 @@ public static class AllureFrontend
         {
             lock (monitor)
             {
-                return prepared && runtime.IsAllureAvailable;
+                frozen = true;
+                return client.IsAllureAvailable;
             }
         }
     }
 
-    public static void PrepareRuntime(IAllureTestRuntimeFrontend runtime)
+    public static void PrepareRuntime(IAllureApiClient runtime)
     {
         if (runtime is null)
         {
@@ -58,15 +59,15 @@ public static class AllureFrontend
                 );
             }
 
-            if (prepared)
+            if (provided)
             {
                 throw new InvalidOperationException(
                     "Frontend preparation failed: a runtime has already been prepared."
                 );
             }
 
-            AllureFrontend.runtime = runtime;
-            prepared = true;
+            AllureFrontend.client = runtime;
+            provided = true;
         }
     }
 }

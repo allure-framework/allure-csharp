@@ -17,7 +17,7 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the step.</param>
     public static void Step(string name) =>
-        AllureFrontend.Runtime.TestApi.Sync.Step(name, [], Status.Passed, null);
+        AllureFrontend.Client.TestApi.Sync.Step(name, [], Status.Passed, null);
 
     /// <summary>
     /// Adds an empty step to the current fixture, test or step.
@@ -26,7 +26,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the step.</param>
     /// <param name="status">A status of the step.</param>
     public static void Step(string name, Status status) =>
-        AllureFrontend.Runtime.TestApi.Sync.Step(name, [], status, null);
+        AllureFrontend.Client.TestApi.Sync.Step(name, [], status, null);
 
     /// <summary>
     /// Adds an empty step to the current fixture, test or step.
@@ -35,7 +35,7 @@ public static partial class AllureApi
     /// <param name="status">A status of the step.</param>
     /// <param name="statusDetails">A status details of the step.</param>
     public static void Step(string name, Status status, StatusDetails statusDetails) =>
-        AllureFrontend.Runtime.TestApi.Sync.Step(name, [], status, statusDetails);
+        AllureFrontend.Client.TestApi.Sync.Step(name, [], status, statusDetails);
 
     /// <summary>
     /// Executes the action and reports the result as a new step of the current
@@ -44,7 +44,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the step.</param>
     /// <param name="body">The code to run.</param>
     public static void Step(string name, Action body) =>
-        AllureFrontend.Runtime.TestApi.Sync.Step(name, [], body);
+        AllureFrontend.Client.TestApi.Sync.Step(name, [], body);
 
     /// <summary>
     /// Executes the action and reports the result as a new step of the current
@@ -53,7 +53,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the step.</param>
     /// <param name="body">The code to run.</param>
     public static void Step(string name, Action<IAllureStepContext> body) =>
-        AllureFrontend.Runtime.TestApi.Sync.Step(name, [], body);
+        AllureFrontend.Client.TestApi.Sync.Step(name, [], body);
 
     /// <summary>
     /// Executes the function and reports the result as a new step of the
@@ -63,7 +63,7 @@ public static partial class AllureApi
     /// <param name="body">The function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static TResult StepAsync<TResult>(string name, Func<TResult> body) =>
-        AllureFrontend.Runtime.TestApi.Sync.Step(name, [], body);
+        AllureFrontend.Client.TestApi.Sync.Step(name, [], body);
 
     /// <summary>
     /// Executes the function and reports the result as a new step of the
@@ -76,5 +76,5 @@ public static partial class AllureApi
         string name,
         Func<IAllureStepContext, TResult> body
     ) =>
-        AllureFrontend.Runtime.TestApi.Sync.Step(name, [], body);
+        AllureFrontend.Client.TestApi.Sync.Step(name, [], body);
 }

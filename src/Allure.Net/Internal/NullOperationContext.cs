@@ -9,13 +9,13 @@ namespace Allure.Internal;
 
 class NullOperationContext :
     IAllureStepContext,
-    IAllureStepContextAsync,
+    IAllureAsyncStepContext,
     IAllureFixtureContext,
-    IAllureFixtureContextAsync,
+    IAllureAsyncFixtureContext,
     IAllureInProcessStepContext,
-    IAllureInProcessStepContextAsync,
+    IAllureAsyncInProcessStepContext,
     IAllureInProcessFixtureContext,
-    IAllureInProcessFixtureContextAsync
+    IAllureAsyncInProcessFixtureContext
 {
     public void AddParameter(Parameter parameter)
     {
@@ -25,10 +25,10 @@ class NullOperationContext :
     {
     }
 
-    public Task SetName(string newName, CancellationToken cancellationToken) =>
+    public Task SetNameAsync(string newName, CancellationToken cancellationToken) =>
         Task.CompletedTask;
 
-    public Task AddParameter(Parameter parameter, CancellationToken cancellationToken) =>
+    public Task AddParameterAsync(Parameter parameter, CancellationToken cancellationToken) =>
         Task.CompletedTask;
 
     public void UpdateStepResult(Action<StepResult> update)
