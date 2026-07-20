@@ -1,0 +1,691 @@
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Allure.Runtime;
+using CommunityToolkit.HighPerformance;
+
+namespace Allure;
+
+/// <summary>
+/// A facade that provides the API for test authors to enhance the Allure
+/// report.
+/// </summary>
+public static partial class AllureApi
+{
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    public static Task AddFileAttachmentAsync(string path) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: Path.GetFileName(path),
+            path: path,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddFileAttachmentAsync(string path, CancellationToken cancellationToken) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: Path.GetFileName(path),
+            path: path,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">A display name of the attachment.</param>
+    public static Task AddFileAttachmentAsync(string path, string name) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: name ?? Path.GetFileName(path),
+            path: path,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">A display name of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddFileAttachmentAsync(
+        string path,
+        string name,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: name ?? Path.GetFileName(path),
+            path: path,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">A display name of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    public static Task AddFileAttachmentAsync(string path, string name, string mediaType) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: name ?? Path.GetFileName(path),
+            path: path,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">A display name of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddFileAttachmentAsync(
+        string path,
+        string name,
+        string mediaType,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: name ?? Path.GetFileName(path),
+            path: path,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">A display name of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    public static Task AddFileAttachmentAsync(
+        string path,
+        string name,
+        string? mediaType,
+        string fileExtension
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: name ?? Path.GetFileName(path),
+            path: path,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="path">The path to the attached file.</param>
+    /// <param name="name">A display name of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddFileAttachmentAsync(
+        string path,
+        string name,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileAttachment(
+            name: name ?? Path.GetFileName(path),
+            path: path,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    public static Task AddAttachmentAsync(string name, Stream content) =>
+        AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: content,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        Stream content,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: content,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    public static Task AddAttachmentAsync(string name, ReadOnlyMemory<byte> content)
+    {
+        using var stream = content.AsStream();
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: default
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        ReadOnlyMemory<byte> content,
+        CancellationToken cancellationToken
+    )
+    {
+        using var stream = content.AsStream();
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    public static Task AddAttachmentAsync(string name, string content)
+    {
+        using var stream = ToStream(content);
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: default
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        string content,
+        CancellationToken cancellationToken
+    )
+    {
+        using var stream = ToStream(content);
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: null,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        Stream content,
+        string mediaType
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: content,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        Stream content,
+        string mediaType,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: content,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        ReadOnlyMemory<byte> content,
+        string mediaType
+    )
+    {
+        using var stream = content.AsStream();
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: default
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        ReadOnlyMemory<byte> content,
+        string mediaType,
+        CancellationToken cancellationToken
+    )
+    {
+        using var stream = content.AsStream();
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        string content,
+        string mediaType
+    )
+    {
+        using var stream = ToStream(content);
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: default
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        string content,
+        string mediaType,
+        CancellationToken cancellationToken
+    )
+    {
+        using var stream = ToStream(content);
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: "",
+            cancellationToken: cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        Stream content,
+        string? mediaType,
+        string fileExtension
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: content,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        Stream content,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: content,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        ReadOnlyMemory<byte> content,
+        string? mediaType,
+        string fileExtension
+    )
+    {
+        using var stream = content.AsStream();
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: default
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        ReadOnlyMemory<byte> content,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
+    {
+        using var stream = content.AsStream();
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        string content,
+        string? mediaType,
+        string fileExtension
+    )
+    {
+        using var stream = ToStream(content);
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: default
+        );
+    }
+
+    /// <summary>
+    /// Adds an attachment to the current fixture, test or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">A media type of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddAttachmentAsync(
+        string name,
+        string content,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
+    {
+        using var stream = ToStream(content);
+        return AllureFrontend.Runtime.TestApi.Async.AddAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: fileExtension,
+            cancellationToken: cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Attaches screen diff images to the current fixture, test, or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="expectedScreenPath">A path to the actual screen.</param>
+    /// <param name="actuaScreenPath">A path to the expected screen.</param>
+    /// <param name="screenDiffPath">A path to the screen diff.</param>
+    public static Task AddFileScreenDiffAsync(
+        string expectedScreenPath,
+        string actuaScreenPath,
+        string screenDiffPath
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileScreenDiff(
+            expectedPath: expectedScreenPath,
+            actualPath: actuaScreenPath,
+            diffPath: screenDiffPath,
+            cancellationToken: default
+        );
+
+    /// <summary>
+    /// Attaches screen diff images to the current fixture, test, or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="expectedScreenPath">A path to the actual screen.</param>
+    /// <param name="actuaScreenPath">A path to the expected screen.</param>
+    /// <param name="screenDiffPath">A path to the screen diff.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddFileScreenDiffAsync(
+        string expectedScreenPath,
+        string actuaScreenPath,
+        string screenDiffPath,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddFileScreenDiff(
+            expectedPath: expectedScreenPath,
+            actualPath: actuaScreenPath,
+            diffPath: screenDiffPath,
+            cancellationToken: cancellationToken
+        );
+
+    /// <summary>
+    /// Attaches screen diff images to the current fixture, test, or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="expected">An actual screen bytes.</param>
+    /// <param name="actual">An expected screen bytes.</param>
+    /// <param name="diff">A screen diff bytes.</param>
+    public static Task AddScreenDiffAsync(
+        Stream expected,
+        Stream actual,
+        Stream diff
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddScreenDiff(expected, actual, diff, default);
+
+    /// <summary>
+    /// Attaches screen diff images to the current fixture, test, or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="expected">An actual screen bytes.</param>
+    /// <param name="actual">An expected screen bytes.</param>
+    /// <param name="diff">A screen diff bytes.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddScreenDiffAsync(
+        Stream expected,
+        Stream actual,
+        Stream diff,
+        CancellationToken cancellationToken
+    ) =>
+        AllureFrontend.Runtime.TestApi.Async.AddScreenDiff(expected, actual, diff, cancellationToken);
+
+    /// <summary>
+    /// Attaches screen diff images to the current fixture, test, or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="expected">An actual screen bytes.</param>
+    /// <param name="actual">An expected screen bytes.</param>
+    /// <param name="diff">A screen diff bytes.</param>
+    public static Task AddScreenDiffAsync(
+        ReadOnlyMemory<byte> expected,
+        ReadOnlyMemory<byte> actual,
+        ReadOnlyMemory<byte> diff
+    )
+    {
+        using var expectedStream = expected.AsStream();
+        using var actualStream = actual.AsStream();
+        using var diffStream = diff.AsStream();
+
+        return AllureFrontend.Runtime.TestApi.Async.AddScreenDiff(
+            expected: expectedStream,
+            actual: actualStream,
+            diff: diffStream,
+            cancellationToken: default
+        );
+    }
+
+
+    /// <summary>
+    /// Attaches screen diff images to the current fixture, test, or step.
+    /// </summary>
+    /// <remarks>If no test or fixture is running, does nothing.</remarks>
+    /// <param name="expected">An actual screen bytes.</param>
+    /// <param name="actual">An expected screen bytes.</param>
+    /// <param name="diff">A screen diff bytes.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddScreenDiffAsync(
+        ReadOnlyMemory<byte> expected,
+        ReadOnlyMemory<byte> actual,
+        ReadOnlyMemory<byte> diff,
+        CancellationToken cancellationToken
+    )
+    {
+        using var expectedStream = expected.AsStream();
+        using var actualStream = actual.AsStream();
+        using var diffStream = diff.AsStream();
+
+        return AllureFrontend.Runtime.TestApi.Async.AddScreenDiff(
+            expected: expectedStream,
+            actual: actualStream,
+            diff: diffStream,
+            cancellationToken: cancellationToken
+        );
+    }
+}

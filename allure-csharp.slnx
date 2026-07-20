@@ -49,6 +49,9 @@
     <File Path="img/Allure-X-Color.png" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Allure.Net/Allure.Net.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.Net.Commons/Allure.Net.Commons.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>

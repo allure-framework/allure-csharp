@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <RootNamespace>Allure</RootNamespace>
+        <Description>Provides the Allure API for test authors.</Description>
+        <PackageIcon>Allure-Color.png</PackageIcon>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AspectInjector" Version="2.8.1" />
+        <PackageReference Include="System.Collections.Immutable" Version="10.0.10" />
+        <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../img/Allure-Color.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>
