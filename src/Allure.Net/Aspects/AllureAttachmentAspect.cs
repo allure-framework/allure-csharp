@@ -59,8 +59,9 @@ public class AllureAttachmentAspect
     }
 
     static bool ShouldSkip(bool isGlobal) =>
-        !isGlobal && !AllureFrontend.IsAvailableInCurrentScope
-            || isGlobal && !AllureFrontend.IsAvailableInGlobalScope;
+        isGlobal
+            ? !AllureFrontend.IsAvailableInGlobalScope
+            : !AllureFrontend.IsAvailableInCurrentScope;
 
     static string ResolveAttachmentName(
         AllureAttachmentAttribute? attr,

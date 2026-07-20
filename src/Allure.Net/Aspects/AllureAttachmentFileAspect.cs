@@ -62,8 +62,9 @@ public class AllureAttachmentFileAspect
     }
 
     static bool ShouldSkip(bool isGlobal) =>
-        !isGlobal && !AllureFrontend.IsAvailableInCurrentScope
-            || isGlobal && !AllureFrontend.IsAvailableInGlobalScope;
+        isGlobal
+            ? !AllureFrontend.IsAvailableInGlobalScope
+            : !AllureFrontend.IsAvailableInCurrentScope;
 
     static FileInfo? ResolveFile(object? value) => value switch
     {
