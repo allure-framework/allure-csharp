@@ -14,14 +14,14 @@ class AllureStepRouter : AllureOperationRouter
         IEnumerable<Parameter> parameters,
         Action body
     ) =>
-        AllureFrontend.Client.TestApi.Sync.Step(name, parameters, body);
+        AllureFrontend.Client.Operations.Sync.Step(name, parameters, body);
 
     protected override T Run<T>(
         string name,
         IEnumerable<Parameter> parameters,
         Func<T> body
     ) =>
-        AllureFrontend.Client.TestApi.Sync.Step(name, parameters, body);
+        AllureFrontend.Client.Operations.Sync.Step(name, parameters, body);
 
     protected override Task RunAsync(
         string name,
@@ -29,7 +29,7 @@ class AllureStepRouter : AllureOperationRouter
         Func<Task> body,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.StepAsync(name, parameters, body, cancellationToken);
+        AllureFrontend.Client.Operations.Async.StepAsync(name, parameters, body, cancellationToken);
 
     protected override Task<T> RunAsync<T>(
         string name,
@@ -37,7 +37,7 @@ class AllureStepRouter : AllureOperationRouter
         Func<Task<T>> body,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.StepAsync(name, parameters, body, cancellationToken);
+        AllureFrontend.Client.Operations.Async.StepAsync(name, parameters, body, cancellationToken);
 
     public static AllureStepRouter Instance { get; } = new();
 }

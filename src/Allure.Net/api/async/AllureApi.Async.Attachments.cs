@@ -19,7 +19,7 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     public static Task AddFileAttachmentAsync(string path) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -34,7 +34,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddFileAttachmentAsync(string path, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -49,7 +49,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     public static Task AddFileAttachmentAsync(string path, string name) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -69,7 +69,7 @@ public static partial class AllureApi
         string name,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -85,7 +85,7 @@ public static partial class AllureApi
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
     public static Task AddFileAttachmentAsync(string path, string name, string mediaType) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -107,7 +107,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -129,7 +129,7 @@ public static partial class AllureApi
         string? mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -153,7 +153,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -168,7 +168,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     public static Task AddAttachmentAsync(string name, Stream content) =>
-        AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -188,7 +188,7 @@ public static partial class AllureApi
         Stream content,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -205,7 +205,7 @@ public static partial class AllureApi
     public static Task AddAttachmentAsync(string name, ReadOnlyMemory<byte> content)
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -228,7 +228,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -246,7 +246,7 @@ public static partial class AllureApi
     public static Task AddAttachmentAsync(string name, string content)
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -269,7 +269,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -290,7 +290,7 @@ public static partial class AllureApi
         Stream content,
         string mediaType
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -312,7 +312,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -334,7 +334,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -359,7 +359,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -382,7 +382,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -407,7 +407,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -430,7 +430,7 @@ public static partial class AllureApi
         string? mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -454,7 +454,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -478,7 +478,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -505,7 +505,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -530,7 +530,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -557,7 +557,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -578,7 +578,7 @@ public static partial class AllureApi
         string actuaScreenPath,
         string screenDiffPath
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddFileScreenDiffAsync(
+        AllureFrontend.Client.Operations.Async.AddFileScreenDiffAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,
@@ -599,7 +599,7 @@ public static partial class AllureApi
         string screenDiffPath,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddFileScreenDiffAsync(
+        AllureFrontend.Client.Operations.Async.AddFileScreenDiffAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,
@@ -618,7 +618,7 @@ public static partial class AllureApi
         Stream actual,
         Stream diff
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddScreenDiffAsync(expected, actual, diff, default);
+        AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(expected, actual, diff, default);
 
     /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
@@ -634,7 +634,7 @@ public static partial class AllureApi
         Stream diff,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddScreenDiffAsync(expected, actual, diff, cancellationToken);
+        AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(expected, actual, diff, cancellationToken);
 
     /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
@@ -653,7 +653,7 @@ public static partial class AllureApi
         using var actualStream = actual.AsStream();
         using var diffStream = diff.AsStream();
 
-        return AllureFrontend.Client.TestApi.Async.AddScreenDiffAsync(
+        return AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(
             expected: expectedStream,
             actual: actualStream,
             diff: diffStream,
@@ -681,7 +681,7 @@ public static partial class AllureApi
         using var actualStream = actual.AsStream();
         using var diffStream = diff.AsStream();
 
-        return AllureFrontend.Client.TestApi.Async.AddScreenDiffAsync(
+        return AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(
             expected: expectedStream,
             actual: actualStream,
             diff: diffStream,

@@ -6,7 +6,7 @@ public interface IAllureRuntime
 
     bool IsAllureAvailable { get; }
 
-    AllureRuntimeOperations TestApi { get; }
+    AllureRuntimeOperations Operations { get; }
 
     IAllureParameterSerializer ParameterSerializer { get; }
 }

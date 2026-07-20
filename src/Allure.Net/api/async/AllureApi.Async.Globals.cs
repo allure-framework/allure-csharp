@@ -21,7 +21,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     public static Task AddGlobalFileAttachmentAsync(string path) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -38,7 +38,7 @@ public static partial class AllureApi
         string path,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -52,7 +52,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
     public static Task AddGlobalFileAttachmentAsync(string path, string name) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -71,7 +71,7 @@ public static partial class AllureApi
         string name,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -93,7 +93,7 @@ public static partial class AllureApi
         string name,
         string mediaType
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -117,7 +117,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -139,7 +139,7 @@ public static partial class AllureApi
         string mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -163,7 +163,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalFileAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -177,7 +177,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     public static Task AddGlobalAttachmentAsync(string name, Stream content) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -196,7 +196,7 @@ public static partial class AllureApi
         Stream content,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -215,7 +215,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -237,7 +237,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -257,7 +257,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -279,7 +279,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
@@ -299,7 +299,7 @@ public static partial class AllureApi
         Stream content,
         string mediaType
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -320,7 +320,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -341,7 +341,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -365,7 +365,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -387,7 +387,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -411,7 +411,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -433,7 +433,7 @@ public static partial class AllureApi
         string mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -456,7 +456,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -479,7 +479,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -505,7 +505,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -529,7 +529,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -555,7 +555,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.TestApi.Async.AddGlobalAttachmentAsync(
+        return AllureFrontend.Client.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -569,7 +569,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="error">The error to persist.</param>
     public static Task AddGlobalErrorAsync(Exception error) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalErrorAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalErrorAsync(
             error.ToAllureGlobalError(),
             cancellationToken: default
         );
@@ -580,7 +580,7 @@ public static partial class AllureApi
     /// <param name="error">The error to persist.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddGlobalErrorAsync(Exception error, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalErrorAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalErrorAsync(
             error.ToAllureGlobalError(),
             cancellationToken: cancellationToken
         );
@@ -590,7 +590,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="message">The error message to persist.</param>
     public static Task AddGlobalErrorAsync(string message) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalErrorAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -605,7 +605,7 @@ public static partial class AllureApi
     /// <param name="message">The error message to persist.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddGlobalErrorAsync(string message, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalErrorAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -619,7 +619,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="statusDetails">The error details to persist.</param>
     public static Task AddGlobalErrorAsync(StatusDetails statusDetails) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalErrorAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -642,7 +642,7 @@ public static partial class AllureApi
         StatusDetails statusDetails,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddGlobalErrorAsync(
+        AllureFrontend.Client.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),

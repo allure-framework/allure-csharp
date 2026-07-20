@@ -391,7 +391,7 @@ public static partial class AllureApi
     /// A new parameter instance.
     /// </param>
     public static Task AddTestParameterAsync(Parameter parameter) =>
-        AllureFrontend.Client.TestApi.Async.AddTestParameterAsync(parameter, default);
+        AllureFrontend.Client.Operations.Async.AddTestParameterAsync(parameter, default);
 
 
     /// <summary>
@@ -408,5 +408,5 @@ public static partial class AllureApi
         Parameter parameter,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddTestParameterAsync(parameter, cancellationToken);
+        AllureFrontend.Client.Operations.Async.AddTestParameterAsync(parameter, cancellationToken);
 }

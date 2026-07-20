@@ -26,7 +26,7 @@ public static class AllureFrontend
     }
 
     internal static IAllureInProcessOperations InProcessApi =>
-        Client.TestApi.Sync as IAllureInProcessOperations
+        Client.Operations.Sync as IAllureInProcessOperations
             ?? throw new InvalidOperationException(
                 $"The in-process test API is not supported by '{Client.Name}'."
             );
@@ -43,11 +43,11 @@ public static class AllureFrontend
         }
     }
 
-    public static void PrepareRuntime(IAllureApiClient runtime)
+    public static void PrepareClient(IAllureApiClient client)
     {
-        if (runtime is null)
+        if (client is null)
         {
-            throw new ArgumentNullException(nameof(runtime));
+            throw new ArgumentNullException(nameof(client));
         }
 
         lock (monitor)
@@ -55,18 +55,18 @@ public static class AllureFrontend
             if (frozen)
             {
                 throw new InvalidOperationException(
-                    "Frontend preparation failed: the current runtime is already in use."
+                    "Allure API client preparation failed: the current client is already in use."
                 );
             }
 
             if (provided)
             {
                 throw new InvalidOperationException(
-                    "Frontend preparation failed: a runtime has already been prepared."
+                    "Allure API client preparation failed: a client has already been prepared."
                 );
             }
 
-            AllureFrontend.client = runtime;
+            AllureFrontend.client = client;
             provided = true;
         }
     }

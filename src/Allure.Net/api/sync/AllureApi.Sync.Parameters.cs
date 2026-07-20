@@ -177,5 +177,5 @@ public static partial class AllureApi
     /// A new parameter instance.
     /// </param>
     public static void AddTestParameter(Parameter parameter) =>
-        AllureFrontend.Client.TestApi.Sync.AddTestParameter(parameter);
+        AllureFrontend.Client.Operations.Sync.AddTestParameter(parameter);
 }

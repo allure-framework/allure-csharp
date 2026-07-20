@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Allure.Abstractions;
+using Allure.Internal;
 
 namespace Allure.Runtime;
 
@@ -10,112 +11,137 @@ public static class AllureBackend
 {
     readonly static object monitor = new();
 
-    readonly static List<IAllureRuntimeRoute> dispatchers = [];
+    readonly static List<IAllureRuntimeRoute> routes = [];
 
-    static ImmutableArray<IAllureRuntimeRoute> Dispatchers
+    static ImmutableArray<IAllureRuntimeRoute> Routes
     {
         get
         {
             lock (monitor)
             {
-                return [.. dispatchers];
+                return [.. routes];
             }
         }
     }
 
-    internal static IAllureRuntime? CurrentBackend => MatchBackend() switch
+    internal static IAllureRuntime? RuntimeForCurrentScope =>
+        GetRuntime(static (r) => r.MatchCurrentScope);
+
+    internal static IAllureRuntime? RuntimeForGlobalScope =>
+        GetRuntime(static (r) => r.MatchGlobalScope);
+
+    public static bool IsAvailableInCurrentScope =>
+        MatchRuntime(static (r) => r.MatchCurrentScope) is MatchSuccess;
+
+    public static bool IsAvailableInGlobalScope =>
+        MatchRuntime(static (r) => r.MatchGlobalScope) is MatchSuccess;
+
+    public static IDisposable Install(IAllureRuntimeRoute route)
     {
-        MatchSuccess { Backend: var backend } => backend,
-
-        MultipleMatches { Ids: var ids } =>
-            throw new InvalidOperationException(
-                $"Unable to route an API call to an Allure runtime: "
-                    + $"more than one runtime was selected in the current scope: "
-                    + $"{string.Join(", ", ids)}. "
-                    + "Configure the runtime suppression rules and try again."
-            ),
-
-        BackendDisabled { Backend: var backend } =>
-            throw new InvalidOperationException(
-                $"Unable to route an API call to an Allure runtime: "
-                    + $"the selected runtime '{backend.Name}' is disabled."
-            ),
-
-        _ => null,
-    };
-
-    public static bool IsAvailable => MatchBackend() is MatchSuccess;
-
-    public static void Install(IAllureRuntimeRoute backendDispatcher)
-    {
-        if (backendDispatcher is null)
+        if (route is null)
         {
-            throw new ArgumentNullException(nameof(backendDispatcher));
+            throw new ArgumentNullException(nameof(route));
         }
 
         lock (monitor)
         {
-            dispatchers.Add(backendDispatcher);
-        }
-    }
-
-    public static void Remove(IAllureRuntimeRoute backendDispatcher)
-    {
-        if (backendDispatcher is null)
-        {
-            throw new ArgumentNullException(nameof(backendDispatcher));
-        }
-
-        lock (monitor)
-        {
-            dispatchers.Remove(backendDispatcher);
-        }
-    }
-
-    static IBackendMatchResult MatchBackend()
-    {
-        var currentDispatchers =
-                Dispatchers.Where(static (d) => d.IsCurrent)
-                .ToImmutableArray();
-
-            if (currentDispatchers.Length > 1)
+            if (routes.Any((r) => ReferenceEquals(r, route)))
             {
-                currentDispatchers = [.. currentDispatchers.Where(
-                    (candidate) => currentDispatchers.All(
-                        (other) => ReferenceEquals(other, candidate)
-                            || candidate.SupressRuntimes.Contains(other.Id)
-                    )
-                )];
-            }
-
-            if (currentDispatchers.Length > 1)
-            {
-                return new MultipleMatches(
-                    [.. currentDispatchers.Select(static (d) => d.Id)]
+                throw new InvalidOperationException(
+                    $"Cannot install an Allure runtime route {route.Id}: "
+                        + "this route is already installed"
                 );
             }
 
-            if (currentDispatchers.Length == 0)
-            {
-                return new NoMatch();
-            }
+            routes.Add(route);
+        }
 
-            var runtime = currentDispatchers[0].Backend;
-            if (!runtime.IsAllureAvailable)
+        return new RuntimeRegistrationHandle(() =>
+        {
+            lock (monitor)
             {
-                return new BackendDisabled(runtime);
+                routes.Remove(route);
             }
-
-            return new MatchSuccess(runtime);
+        });
     }
 
-    interface IBackendMatchResult;
+    static IAllureRuntime? GetRuntime(Func<IAllureRuntimeRoute, bool> predicate) =>
+        MatchRuntime(predicate) switch
+        {
+            MatchSuccess { Runtime: var runtime } => runtime,
 
-    sealed record class MatchSuccess(IAllureRuntime Backend) : IBackendMatchResult;
+            MultipleMatches { Ids: var ids } =>
+                throw new InvalidOperationException(
+                    $"Unable to route an API call to an Allure runtime: "
+                        + $"more than one runtime was selected in the current scope: "
+                        + $"{string.Join(", ", ids)}. "
+                        + "Configure the runtime suppression rules and try again."
+                ),
 
-    sealed record class BackendDisabled(IAllureRuntime Backend) : IBackendMatchResult;
+            _ => null,
+        };
 
-    sealed record class NoMatch() : IBackendMatchResult;
+    static RuntimeMatchResult MatchRuntime(Func<IAllureRuntimeRoute, bool> predicate)
+    {
+        var candidates =
+                Routes.Where(predicate)
+                .ToImmutableArray();
 
-    sealed record class MultipleMatches(ImmutableArray<string> Ids) : IBackendMatchResult;
+        if (candidates.Length == 0)
+        {
+            return RuntimeMatchResult.NoMatch;
+        }
+
+        if (candidates.Length == 1)
+        {
+            return EvaluateAvailability(candidates[0].Runtime);
+        }
+
+        var winners = FindDominatingRoutes(candidates);
+
+        if (winners.Length != 1)
+        {
+            return RuntimeMatchResult.Multiple(winners);
+        }
+
+        return EvaluateAvailability(winners[0].Runtime);
+
+        static RuntimeMatchResult EvaluateAvailability(IAllureRuntime runtime) =>
+            runtime.IsAllureAvailable
+                ? RuntimeMatchResult.Success(runtime)
+                :RuntimeMatchResult.Disabled(runtime);
+
+        static ImmutableArray<IAllureRuntimeRoute> FindDominatingRoutes(
+            IEnumerable<IAllureRuntimeRoute> matches
+        ) => [
+            .. matches.Where(
+                (candidate) => matches.All(
+                    (other) => ReferenceEquals(other, candidate)
+                        || candidate.SuppressedRouteIds.Contains(other.Id)
+                )
+            )
+        ];
+    }
+
+    record class RuntimeMatchResult
+    {
+        public static MatchSuccess Success(IAllureRuntime runtime) => new(runtime);
+
+        public static RuntimeDisabled Disabled(IAllureRuntime runtime) => new(runtime);
+
+        public static MultipleMatches Multiple(IEnumerable<IAllureRuntimeRoute> matches) => new(
+            [..matches.Select(static (d) => d.Id)]
+        );
+
+        public static NoMatch NoMatch { get; } = new();
+
+    }
+
+    sealed record class MatchSuccess(IAllureRuntime Runtime) : RuntimeMatchResult;
+
+    sealed record class RuntimeDisabled(IAllureRuntime Runtime) : RuntimeMatchResult;
+
+    sealed record class NoMatch() : RuntimeMatchResult;
+
+    sealed record class MultipleMatches(ImmutableArray<string> Ids) : RuntimeMatchResult;
 }

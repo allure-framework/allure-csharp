@@ -43,7 +43,7 @@ public class AllureAttachmentFileAspect
 
         if (isGlobal)
         {
-            AllureFrontend.Client.TestApi.Sync.AddGlobalFileAttachment(
+            AllureFrontend.Client.Operations.Sync.AddGlobalFileAttachment(
                 name: attachmentName,
                 path: path,
                 mediaType: contentType,
@@ -52,7 +52,7 @@ public class AllureAttachmentFileAspect
         }
         else
         {
-            AllureFrontend.Client.TestApi.Sync.AddFileAttachment(
+            AllureFrontend.Client.Operations.Sync.AddFileAttachment(
                 name: attachmentName,
                 path: path,
                 mediaType: contentType,

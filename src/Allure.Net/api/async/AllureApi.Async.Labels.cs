@@ -22,7 +22,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="labels">The labels to add.</param>
     public static Task AddLabelsAsync(params IEnumerable<Label> labels) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelsAsync(labels, default);
+        AllureFrontend.Client.Operations.Async.AddLabelsAsync(labels, default);
 
     /// <summary>
     /// Adds new labels to the test's list of labels.
@@ -34,7 +34,7 @@ public static partial class AllureApi
         IEnumerable<Label> labels,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelsAsync(labels, cancellationToken);
+        AllureFrontend.Client.Operations.Async.AddLabelsAsync(labels, cancellationToken);
 
     /// <summary>
     /// Adds a new label to the current test result.
@@ -43,7 +43,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the label to add.</param>
     /// <param name="value">The value of the label to add.</param>
     public static Task AddLabelAsync(string name, string value) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelAsync(
+        AllureFrontend.Client.Operations.Async.AddLabelAsync(
             new() { Name = name, Value = value },
             default
         );
@@ -60,7 +60,7 @@ public static partial class AllureApi
         string value,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelAsync(
+        AllureFrontend.Client.Operations.Async.AddLabelAsync(
             new() { Name = name, Value = value },
             cancellationToken
         );
@@ -71,7 +71,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="label">The new label of the test.</param>
     public static Task AddLabelAsync(Label label) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelAsync(label, default);
+        AllureFrontend.Client.Operations.Async.AddLabelAsync(label, default);
 
     /// <summary>
     /// Adds a label to the current test result.
@@ -80,7 +80,7 @@ public static partial class AllureApi
     /// <param name="label">The new label of the test.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddLabelAsync(Label label, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelAsync(label, cancellationToken);
+        AllureFrontend.Client.Operations.Async.AddLabelAsync(label, cancellationToken);
 
     /// <summary>
     /// Sets the current test's severity.
@@ -88,7 +88,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="severity">The new severity level of the test.</param>
     public static Task SetSeverityAsync(Severity severity) =>
-        AllureFrontend.Client.TestApi.Async.SetLabelAsync(
+        AllureFrontend.Client.Operations.Async.SetLabelAsync(
             LabelName.Severity,
             severity.ToLabelValue(),
             default
@@ -104,7 +104,7 @@ public static partial class AllureApi
         Severity severity,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.SetLabelAsync(
+        AllureFrontend.Client.Operations.Async.SetLabelAsync(
             LabelName.Severity,
             severity.ToLabelValue(),
             cancellationToken
@@ -116,7 +116,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="owner">The new owner of the test.</param>
     public static Task SetOwnerAsync(string owner) =>
-        AllureFrontend.Client.TestApi.Async.SetLabelAsync(
+        AllureFrontend.Client.Operations.Async.SetLabelAsync(
             LabelName.Owner,
             owner,
             default
@@ -129,7 +129,7 @@ public static partial class AllureApi
     /// <param name="owner">The new owner of the test.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task SetOwnerAsync(string owner, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.TestApi.Async.SetLabelAsync(
+        AllureFrontend.Client.Operations.Async.SetLabelAsync(
             LabelName.Owner,
             owner,
             cancellationToken
@@ -141,7 +141,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="allureId">The new ID of the test case.</param>
     public static Task SetAllureIdAsync(int allureId) =>
-        AllureFrontend.Client.TestApi.Async.SetLabelAsync(
+        AllureFrontend.Client.Operations.Async.SetLabelAsync(
             LabelName.AllureId,
             Convert.ToString(allureId, CultureInfo.InvariantCulture),
             default
@@ -154,7 +154,7 @@ public static partial class AllureApi
     /// <param name="allureId">The new ID of the test case.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task SetAllureIdAsync(int allureId, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.TestApi.Async.SetLabelAsync(
+        AllureFrontend.Client.Operations.Async.SetLabelAsync(
             LabelName.AllureId,
             Convert.ToString(allureId, CultureInfo.InvariantCulture),
             cancellationToken
@@ -166,7 +166,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="tags">The new tags.</param>
     public static Task AddTagsAsync(params IEnumerable<string> tags) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelsAsync(
+        AllureFrontend.Client.Operations.Async.AddLabelsAsync(
             tags.Select(Label.Tag),
             default
         );
@@ -181,7 +181,7 @@ public static partial class AllureApi
         IEnumerable<string> tags,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.TestApi.Async.AddLabelsAsync(
+        AllureFrontend.Client.Operations.Async.AddLabelsAsync(
             tags.Select(Label.Tag),
             cancellationToken
         );
