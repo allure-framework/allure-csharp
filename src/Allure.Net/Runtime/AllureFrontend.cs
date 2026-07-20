@@ -38,7 +38,7 @@ public static class AllureFrontend
             lock (monitor)
             {
                 frozen = true;
-                return client.IsAllureAvailable;
+                return client.IsAvailable;
             }
         }
     }

@@ -6,9 +6,9 @@ public interface IAllureRuntimeRoute
 {
     string Id { get; }
 
-    bool MatchCurrentScope { get; }
+    bool MatchesCurrentScope { get; }
 
-    bool MatchGlobalScope { get; }
+    bool MatchesGlobalScope { get; }
 
     ImmutableHashSet<string> SuppressedRouteIds { get; }
 

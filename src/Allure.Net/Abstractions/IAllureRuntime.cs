@@ -4,7 +4,7 @@ public interface IAllureRuntime
 {
     string Name { get; }
 
-    bool IsAllureAvailable { get; }
+    bool IsAvailable { get; }
 
     AllureRuntimeOperations Operations { get; }
 

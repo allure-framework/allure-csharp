@@ -25,16 +25,16 @@ public static class AllureBackend
     }
 
     internal static IAllureRuntime? RuntimeForCurrentScope =>
-        GetRuntime(static (r) => r.MatchCurrentScope);
+        GetRuntime(static (r) => r.MatchesCurrentScope);
 
     internal static IAllureRuntime? RuntimeForGlobalScope =>
-        GetRuntime(static (r) => r.MatchGlobalScope);
+        GetRuntime(static (r) => r.MatchesGlobalScope);
 
     public static bool IsAvailableInCurrentScope =>
-        MatchRuntime(static (r) => r.MatchCurrentScope) is MatchSuccess;
+        MatchRuntime(static (r) => r.MatchesCurrentScope) is MatchSuccess;
 
     public static bool IsAvailableInGlobalScope =>
-        MatchRuntime(static (r) => r.MatchGlobalScope) is MatchSuccess;
+        MatchRuntime(static (r) => r.MatchesGlobalScope) is MatchSuccess;
 
     public static IDisposable Install(IAllureRuntimeRoute route)
     {
@@ -73,7 +73,7 @@ public static class AllureBackend
             MultipleMatches { Ids: var ids } =>
                 throw new InvalidOperationException(
                     $"Unable to route an API call to an Allure runtime: "
-                        + $"more than one runtime was selected in the current scope: "
+                        + $"more than one runtime matched the requested Allure scope: "
                         + $"{string.Join(", ", ids)}. "
                         + "Configure the runtime suppression rules and try again."
                 ),
@@ -101,13 +101,13 @@ public static class AllureBackend
 
         if (winners.Length != 1)
         {
-            return RuntimeMatchResult.Multiple(winners);
+            return RuntimeMatchResult.Multiple(candidates);
         }
 
         return EvaluateAvailability(winners[0].Runtime);
 
         static RuntimeMatchResult EvaluateAvailability(IAllureRuntime runtime) =>
-            runtime.IsAllureAvailable
+            runtime.IsAvailable
                 ? RuntimeMatchResult.Success(runtime)
                 :RuntimeMatchResult.Disabled(runtime);
 
@@ -130,7 +130,7 @@ public static class AllureBackend
         public static RuntimeDisabled Disabled(IAllureRuntime runtime) => new(runtime);
 
         public static MultipleMatches Multiple(IEnumerable<IAllureRuntimeRoute> matches) => new(
-            [..matches.Select(static (d) => d.Id)]
+            [..matches.Select(static (d) => $"{d.Runtime.Name} ({d.Id})")]
         );
 
         public static NoMatch NoMatch { get; } = new();

@@ -4,7 +4,7 @@ public interface IAllureApiClient
 {
     string Name { get; }
 
-    bool IsAllureAvailable { get; }
+    bool IsAvailable { get; }
 
     AllureApiOperations Operations { get; }
 
