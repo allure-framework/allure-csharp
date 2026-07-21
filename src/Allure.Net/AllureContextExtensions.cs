@@ -67,31 +67,31 @@ public static class AllureContextExtensions
         /// Sets the name of the step associated with this context.
         /// </summary>
         /// <param name="newName">The new name of the step.</param>
-        public Task SetName(string newName) =>
+        public Task SetNameAsync(string newName) =>
             context.SetNameAsync(newName, default);
 
         /// <summary>
         /// Adds a fully constructed parameter to the step.
         /// </summary>
         /// <param name="parameter">A parameter to add.</param>
-        public Task AddParameter(Parameter parameter) =>
+        public Task AddParameterAsync(Parameter parameter) =>
             context.AddParameterAsync(parameter, default);
 
-        public Task AddParameter(string name, string value) =>
+        public Task AddParameterAsync(string name, string value) =>
             context.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
             }, default);
 
-        public Task AddParameter(string name, string value, CancellationToken cancellationToken) =>
+        public Task AddParameterAsync(string name, string value, CancellationToken cancellationToken) =>
             context.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
             }, cancellationToken);
 
-        public void AddParameter(
+        public Task AddParameterAsync(
             string name,
             string value,
             ParameterMode mode
@@ -103,7 +103,7 @@ public static class AllureContextExtensions
                 Mode = mode,
             }, default);
 
-        public void AddParameter(
+        public Task AddParameterAsync(
             string name,
             string value,
             ParameterMode mode,
@@ -126,11 +126,11 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object? value
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),
@@ -148,12 +148,12 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object? value,
             CancellationToken cancellationToken
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),
@@ -171,12 +171,12 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object value,
             ParameterMode mode
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),
@@ -196,13 +196,13 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object? value,
             ParameterMode mode,
             CancellationToken cancellationToken
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),
@@ -271,31 +271,31 @@ public static class AllureContextExtensions
         /// Sets the name of the fixture associated with this context.
         /// </summary>
         /// <param name="newName">The new name of the step.</param>
-        public Task SetName(string newName) =>
+        public Task SetNameAsync(string newName) =>
             context.SetNameAsync(newName, default);
 
         /// <summary>
         /// Adds a fully constructed parameter to the step.
         /// </summary>
         /// <param name="parameter">A parameter to add.</param>
-        public Task AddParameter(Parameter parameter) =>
+        public Task AddParameterAsync(Parameter parameter) =>
             context.AddParameterAsync(parameter, default);
 
-        public Task AddParameter(string name, string value) =>
+        public Task AddParameterAsync(string name, string value) =>
             context.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
             }, default);
 
-        public Task AddParameter(string name, string value, CancellationToken cancellationToken) =>
+        public Task AddParameterAsync(string name, string value, CancellationToken cancellationToken) =>
             context.AddParameterAsync(new()
             {
                 Name = name,
                 Value = value,
             }, cancellationToken);
 
-        public void AddParameter(
+        public Task AddParameterAsync(
             string name,
             string value,
             ParameterMode mode
@@ -307,7 +307,7 @@ public static class AllureContextExtensions
                 Mode = mode,
             }, default);
 
-        public void AddParameter(
+        public Task AddParameterAsync(
             string name,
             string value,
             ParameterMode mode,
@@ -330,11 +330,11 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object? value
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),
@@ -352,12 +352,12 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object? value,
             CancellationToken cancellationToken
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),
@@ -375,12 +375,12 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object value,
             ParameterMode mode
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),
@@ -400,13 +400,13 @@ public static class AllureContextExtensions
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
         /// </remarks>
-        public void AddParameterFromObject(
+        public Task AddParameterFromObjectAsync(
             string name,
             object? value,
             ParameterMode mode,
             CancellationToken cancellationToken
         ) =>
-            AddParameter(
+            AddParameterAsync(
                 context,
                 name,
                 context.ParameterSerializer.Serialize(value),

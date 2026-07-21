@@ -44,8 +44,17 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="name">The name of the step.</param>
     /// <param name="body">The code to run.</param>
-    public static void Step(string name, Action body) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.Step(name, [], body);
+    public static void Step(string name, Action body)
+    {
+        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        {
+            api.Step(name, [], body);
+        }
+        else
+        {
+            body();
+        }
+    }
 
     /// <summary>
     /// Executes the action and reports the result as a new step of the current
@@ -53,8 +62,17 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="name">The name of the step.</param>
     /// <param name="body">The code to run.</param>
-    public static void Step(string name, Action<IAllureStepContext> body) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.Step(name, [], body);
+    public static void Step(string name, Action<IAllureStepContext> body)
+    {
+        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        {
+            api.Step(name, [], body);
+        }
+        else
+        {
+            body(NullOperationContext.Instance);
+        }
+    }
 
     /// <summary>
     /// Executes the function and reports the result as a new step of the

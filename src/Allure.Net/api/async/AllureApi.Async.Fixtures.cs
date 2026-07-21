@@ -9,19 +9,19 @@ namespace Allure;
 
 public static partial class AllureApi
 {
-    public static Task SetUp(string name, Func<Task> body) =>
+    public static Task SetUpAsync(string name, Func<Task> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, default)
             ?? body();
 
-    public static Task SetUp(string name, Func<Task> body, CancellationToken cancellationToken) =>
+    public static Task SetUpAsync(string name, Func<Task> body, CancellationToken cancellationToken) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, cancellationToken)
             ?? body();
 
-    public static Task SetUp(string name, Func<IAllureAsyncFixtureContext, Task> body) =>
+    public static Task SetUpAsync(string name, Func<IAllureAsyncFixtureContext, Task> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, default)
             ?? body(NullOperationContext.Instance);
 
-    public static Task SetUp(
+    public static Task SetUpAsync(
         string name,
         Func<IAllureAsyncFixtureContext, Task> body,
         CancellationToken cancellationToken
@@ -29,7 +29,7 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, cancellationToken)
             ?? body(NullOperationContext.Instance);
 
-    public static Task SetUp(
+    public static Task SetUpAsync(
         string name,
         Func<IAllureAsyncFixtureContext, CancellationToken, Task> body,
         CancellationToken cancellationToken
@@ -37,19 +37,19 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, cancellationToken)
             ?? body(NullOperationContext.Instance, cancellationToken);
 
-    public static Task<TResult> SetUp<TResult>(string name, Func<Task<TResult>> body) =>
+    public static Task<TResult> SetUpAsync<TResult>(string name, Func<Task<TResult>> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, default)
             ?? body();
 
-    public static Task<TResult> SetUp<TResult>(string name, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
+    public static Task<TResult> SetUpAsync<TResult>(string name, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, cancellationToken)
             ?? body();
 
-    public static Task<TResult> SetUp<TResult>(string name, Func<IAllureAsyncFixtureContext, Task<TResult>> body) =>
+    public static Task<TResult> SetUpAsync<TResult>(string name, Func<IAllureAsyncFixtureContext, Task<TResult>> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, default)
             ?? body(NullOperationContext.Instance);
 
-    public static Task<TResult> SetUp<TResult>(
+    public static Task<TResult> SetUpAsync<TResult>(
         string name,
         Func<IAllureAsyncFixtureContext, Task<TResult>> body,
         CancellationToken cancellationToken
@@ -57,7 +57,7 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, cancellationToken)
             ?? body(NullOperationContext.Instance);
 
-    public static Task<TResult> SetUp<TResult>(
+    public static Task<TResult> SetUpAsync<TResult>(
         string name,
         Func<IAllureAsyncFixtureContext, CancellationToken, Task<TResult>> body,
         CancellationToken cancellationToken
@@ -65,11 +65,11 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, [], body, cancellationToken)
             ?? body(NullOperationContext.Instance, cancellationToken);
 
-    public static Task TearDown(string name, Func<Task> body) =>
+    public static Task TearDownAsync(string name, Func<Task> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, default)
             ?? body();
 
-    public static Task TearDown(
+    public static Task TearDownAsync(
         string name,
         Func<Task> body,
         CancellationToken cancellationToken
@@ -77,11 +77,11 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, cancellationToken)
             ?? body();
 
-    public static Task TearDown(string name, Func<IAllureAsyncFixtureContext, Task> body) =>
+    public static Task TearDownAsync(string name, Func<IAllureAsyncFixtureContext, Task> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, default)
             ?? body(NullOperationContext.Instance);
 
-    public static Task TearDown(
+    public static Task TearDownAsync(
         string name,
         Func<IAllureAsyncFixtureContext, Task> body,
         CancellationToken cancellationToken
@@ -89,19 +89,19 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, cancellationToken)
             ?? body(NullOperationContext.Instance);
 
-    public static Task TearDown(
+    public static Task TearDownAsync(
         string name,
         Func<IAllureAsyncFixtureContext, CancellationToken, Task> body,
         CancellationToken cancellationToken
     ) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, cancellationToken)
-            ?? body(NullOperationContext.Instance, default);
+            ?? body(NullOperationContext.Instance, cancellationToken);
 
-    public static Task<TResult> TearDown<TResult>(string name, Func<Task<TResult>> body) =>
+    public static Task<TResult> TearDownAsync<TResult>(string name, Func<Task<TResult>> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, default)
             ?? body();
 
-    public static Task<TResult> TearDown<TResult>(
+    public static Task<TResult> TearDownAsync<TResult>(
         string name,
         Func<Task<TResult>> body,
         CancellationToken cancellationToken
@@ -109,11 +109,11 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, cancellationToken)
             ?? body();
 
-    public static Task<TResult> TearDown<TResult>(string name, Func<IAllureAsyncFixtureContext, Task<TResult>> body) =>
+    public static Task<TResult> TearDownAsync<TResult>(string name, Func<IAllureAsyncFixtureContext, Task<TResult>> body) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, default)
             ?? body(NullOperationContext.Instance);
 
-    public static Task<TResult> TearDown<TResult>(
+    public static Task<TResult> TearDownAsync<TResult>(
         string name,
         Func<IAllureAsyncFixtureContext, Task<TResult>> body,
         CancellationToken cancellationToken
@@ -121,11 +121,11 @@ public static partial class AllureApi
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, cancellationToken)
             ?? body(NullOperationContext.Instance);
 
-    public static Task<TResult> TearDown<TResult>(
+    public static Task<TResult> TearDownAsync<TResult>(
         string name,
         Func<IAllureAsyncFixtureContext, CancellationToken, Task<TResult>> body,
         CancellationToken cancellationToken
     ) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, [], body, cancellationToken)
-            ?? body(NullOperationContext.Instance, default);
+            ?? body(NullOperationContext.Instance, cancellationToken);
 }

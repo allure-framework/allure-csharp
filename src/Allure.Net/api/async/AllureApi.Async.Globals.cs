@@ -208,19 +208,26 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         ReadOnlyMemory<byte> content
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: default
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -229,20 +236,27 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         ReadOnlyMemory<byte> content,
         CancellationToken cancellationToken
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: cancellationToken
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -250,19 +264,26 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         string content
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: default
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -271,20 +292,27 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         string content,
         CancellationToken cancellationToken
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: cancellationToken
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -333,20 +361,27 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="mediaType">The media type of the attachment.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         ReadOnlyMemory<byte> content,
         string mediaType
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: default
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -356,21 +391,28 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     /// <param name="mediaType">The media type of the attachment.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         ReadOnlyMemory<byte> content,
         string mediaType,
         CancellationToken cancellationToken
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: cancellationToken
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -379,20 +421,27 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="mediaType">The media type of the attachment.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         string content,
         string mediaType
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: default
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -402,21 +451,28 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     /// <param name="mediaType">The media type of the attachment.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         string content,
         string mediaType,
         CancellationToken cancellationToken
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: cancellationToken
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -470,21 +526,28 @@ public static partial class AllureApi
     /// <param name="mediaType">The media type of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         ReadOnlyMemory<byte> content,
         string mediaType,
         string fileExtension
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: default
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -495,7 +558,7 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         ReadOnlyMemory<byte> content,
         string mediaType,
@@ -503,14 +566,21 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: cancellationToken
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -520,21 +590,28 @@ public static partial class AllureApi
     /// <param name="mediaType">The media type of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         string content,
         string mediaType,
         string fileExtension
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: default
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>
@@ -545,7 +622,7 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalAttachmentAsync(
+    public static async Task AddGlobalAttachmentAsync(
         string name,
         string content,
         string mediaType,
@@ -553,14 +630,21 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        return AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+
+        await endpoint.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: cancellationToken
-        ) ?? Task.CompletedTask;
+        );
     }
 
     /// <summary>

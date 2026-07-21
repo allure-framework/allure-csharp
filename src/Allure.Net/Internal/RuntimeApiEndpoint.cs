@@ -2,7 +2,7 @@ using Allure.Abstractions;
 
 namespace Allure.Internal;
 
-public class RuntimeApiEndpoint(
+class RuntimeApiEndpoint(
     IAllureRuntime runtime
 ) : IAllureApiEndpoint
 {

@@ -13,7 +13,7 @@ class RoutingAllureApiClient : IAllureApiClient
             : null;
 
     public IAllureApiEndpoint? ResolveGlobalScope() =>
-        AllureBackend.ResolveCurrentScope() is { } runtime
+        AllureBackend.ResolveGlobalScope() is { } runtime
             ? new RuntimeApiEndpoint(runtime)
             : null;
 
