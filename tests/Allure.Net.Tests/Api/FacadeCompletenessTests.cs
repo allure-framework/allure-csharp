@@ -90,6 +90,33 @@ public class FacadeCompletenessTests
         }
     }
 
+    [Test]
+    public async Task EveryAllureApiMethodIsSafeWithoutAnEndpoint()
+    {
+        using var scope = FacadeTestEnvironment.Use();
+
+        foreach (var definition in PublicMethods(typeof(AllureApi)))
+        {
+            var method = PublicMethodArguments.Close(definition);
+
+            try
+            {
+                var result = method.Invoke(null, PublicMethodArguments.Create(method));
+                if (result is Task task)
+                {
+                    await task;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidOperationException(
+                    $"{method} must be safe when its scope cannot be resolved.",
+                    exception
+                );
+            }
+        }
+    }
+
     static IEnumerable<MethodInfo> PublicMethods(Type facade) =>
         facade.GetMethods(BindingFlags.Public | BindingFlags.Static)
             .Where(method => !method.IsSpecialName)

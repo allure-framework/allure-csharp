@@ -54,6 +54,23 @@ public class MetadataDiscoveryTests
             );
     }
 
+    [Test]
+    public async Task AllMetadataEnumerationUsesTheSameOrderingAsApplication()
+    {
+        var method = typeof(DerivedFixture).GetMethod(nameof(DerivedFixture.Run))!;
+        var result = CreateResult();
+
+        AllureApiAttribute.ApplyAttributes(
+            AllureApiAttribute.GetAllAttributes(method),
+            result
+        );
+
+        await Assert.That(result.Description)
+            .IsEqualTo(
+                "interface\n\nbase\n\nderived\n\nbase method\n\nderived method"
+            );
+    }
+
     static ModelTestResult CreateResult() => new() { Uuid = "test-id", Name = "original" };
 
     [AllureDescription("interface", Append = true)]

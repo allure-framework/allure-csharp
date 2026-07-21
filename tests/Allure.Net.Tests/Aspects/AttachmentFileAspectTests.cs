@@ -89,6 +89,18 @@ public class AttachmentFileAspectTests
         )).Throws<InvalidOperationException>();
     }
 
+    [Test]
+    public async Task MissingEndpointSkipsFileValidation()
+    {
+        using var scope = FacadeTestEnvironment.Use();
+
+        new AllureAttachmentFileAspect().AttachReturnValue(
+            nameof(DefaultFile), Method(nameof(DefaultFile)), [], typeof(int), 42
+        );
+
+        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(1);
+    }
+
     static MethodInfo Method(string name) =>
         typeof(AttachmentFileAspectTests).GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!;
 

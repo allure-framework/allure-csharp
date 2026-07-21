@@ -126,6 +126,12 @@ public class MissingEndpointBodyTests
             context.SetName("ignored");
             context.AddParameter(new Parameter { Name = "parameter", Value = "value" });
             context.AddParameterFromObject("object", 42);
+            var inProcess = (IAllureInProcessStepContext)context;
+            inProcess.UpdateStepResult(_ => throw new InvalidOperationException("must not run"));
+            if (inProcess.TryReadStepResult(_ => "value", out _))
+            {
+                throw new InvalidOperationException("A null context must not expose a result.");
+            }
             syncSerialized = context.ParameterSerializer.Serialize(42);
         });
         await AllureApi.StepAsync("async", async context =>

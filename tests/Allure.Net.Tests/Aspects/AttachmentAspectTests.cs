@@ -131,6 +131,28 @@ public class AttachmentAspectTests
         await Assert.That(scope.CurrentResolutionCount).IsEqualTo(1);
     }
 
+    [Test]
+    public async Task UnreadableStreamIsRejected()
+    {
+        using var scope = FacadeTestEnvironment.Use(current: new TestApiEndpoint());
+        using var stream = new StreamWithCapabilities(canRead: false, canSeek: true);
+
+        await Assert.That(() => new AllureAttachmentAspect().AttachReturnValue(
+            nameof(DefaultTextAttachment), Method(nameof(DefaultTextAttachment)), [], typeof(Stream), stream
+        )).Throws<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task NonSeekableStreamIsRejected()
+    {
+        using var scope = FacadeTestEnvironment.Use(current: new TestApiEndpoint());
+        using var stream = new StreamWithCapabilities(canRead: true, canSeek: false);
+
+        await Assert.That(() => new AllureAttachmentAspect().AttachReturnValue(
+            nameof(DefaultTextAttachment), Method(nameof(DefaultTextAttachment)), [], typeof(Stream), stream
+        )).Throws<InvalidOperationException>();
+    }
+
     static byte[] Read(Stream stream)
     {
         using var copy = new MemoryStream();
@@ -154,4 +176,11 @@ public class AttachmentAspectTests
 
     [AllureAttachment(Global = true)]
     static byte[] GlobalAttachment() => [1, 2];
+
+    sealed class StreamWithCapabilities(bool canRead, bool canSeek) : MemoryStream
+    {
+        public override bool CanRead => canRead;
+
+        public override bool CanSeek => canSeek;
+    }
 }

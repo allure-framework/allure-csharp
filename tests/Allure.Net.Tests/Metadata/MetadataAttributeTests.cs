@@ -153,6 +153,34 @@ public class MetadataAttributeTests
     }
 
     [Test]
+    public async Task HierarchyConstructorsPopulateTheirDeclaredLevels()
+    {
+        var result = CreateResult();
+
+        new AllureBddHierarchyAttribute("epic", "feature", "story").Apply(result);
+        new AllureBddHierarchyAttribute("other epic", "other feature").Apply(result);
+        new AllureSuiteHierarchyAttribute("parent", "suite", "sub-suite").Apply(result);
+        new AllureSuiteHierarchyAttribute("other parent", "other suite").Apply(result);
+
+        await Assert.That(result.Labels.Select(label => (label.Name, label.Value)))
+            .IsEquivalentTo(
+                new[]
+                {
+                    (LabelName.Epic, "epic"),
+                    (LabelName.Feature, "feature"),
+                    (LabelName.Story, "story"),
+                    (LabelName.Epic, "other epic"),
+                    (LabelName.Feature, "other feature"),
+                    (LabelName.ParentSuite, "parent"),
+                    (LabelName.Suite, "suite"),
+                    (LabelName.SubSuite, "sub-suite"),
+                    (LabelName.ParentSuite, "other parent"),
+                    (LabelName.Suite, "other suite"),
+                }
+            );
+    }
+
+    [Test]
     public async Task NameAttributeUpdatesAValidNameAndIgnoresNull()
     {
         var result = CreateResult();

@@ -149,6 +149,47 @@ public class OperationAspectTests
         await Assert.That(operations.Sync.SingleCall.Method.Name).IsEqualTo("TearDown");
     }
 
+    [Test]
+    public async Task FixtureAspectsRouteSyncAndAsyncResultShapes()
+    {
+        var operations = new ExecutingOperations();
+        using var scope = FacadeTestEnvironment.Use(current: operations.Endpoint());
+        var setUp = new AllureSetUpAspect();
+        var tearDown = new AllureTearDownAspect();
+
+        var setUpResult = setUp.Around(
+            nameof(BeforeResult), [], _ => 17, Method(nameof(BeforeResult)), typeof(int)
+        );
+        var setUpTask = (Task)setUp.Around(
+            nameof(BeforeAsync), [], _ => Task.CompletedTask, Method(nameof(BeforeAsync)), typeof(Task)
+        )!;
+        var setUpResultTask = (Task<int>)setUp.Around(
+            nameof(BeforeAsyncResult), [], _ => Task.FromResult(18),
+            Method(nameof(BeforeAsyncResult)), typeof(Task<int>)
+        )!;
+        var tearDownResult = tearDown.Around(
+            nameof(AfterResult), [], _ => 19, Method(nameof(AfterResult)), typeof(int)
+        );
+        var tearDownTask = (Task)tearDown.Around(
+            nameof(AfterAsync), [], _ => Task.CompletedTask, Method(nameof(AfterAsync)), typeof(Task)
+        )!;
+        var tearDownResultTask = (Task<int>)tearDown.Around(
+            nameof(AfterAsyncResult), [], _ => Task.FromResult(20),
+            Method(nameof(AfterAsyncResult)), typeof(Task<int>)
+        )!;
+
+        await setUpTask;
+        await tearDownTask;
+        await Assert.That(setUpResult).IsEqualTo(17);
+        await Assert.That(await setUpResultTask).IsEqualTo(18);
+        await Assert.That(tearDownResult).IsEqualTo(19);
+        await Assert.That(await tearDownResultTask).IsEqualTo(20);
+        await Assert.That(operations.Sync.Calls.Select(call => call.Method.Name))
+            .IsEquivalentTo(["SetUp", "TearDown"]);
+        await Assert.That(operations.Async.Calls.Select(call => call.Method.Name))
+            .IsEquivalentTo(["SetUpAsync", "SetUpAsync", "TearDownAsync", "TearDownAsync"]);
+    }
+
     static MethodInfo Method(string name) =>
         typeof(OperationAspectTests).GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!;
 
@@ -176,6 +217,24 @@ public class OperationAspectTests
 
     [AllureAfter]
     static void After() { }
+
+    [AllureBefore]
+    static int BeforeResult() => 17;
+
+    [AllureBefore]
+    static Task BeforeAsync() => Task.CompletedTask;
+
+    [AllureBefore]
+    static Task<int> BeforeAsyncResult() => Task.FromResult(18);
+
+    [AllureAfter]
+    static int AfterResult() => 19;
+
+    [AllureAfter]
+    static Task AfterAsync() => Task.CompletedTask;
+
+    [AllureAfter]
+    static Task<int> AfterAsyncResult() => Task.FromResult(20);
 
     sealed class CountingParameterSerializer : Allure.Abstractions.IAllureParameterSerializer
     {
