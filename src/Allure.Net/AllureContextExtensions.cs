@@ -5,7 +5,7 @@ using Allure.Model;
 
 namespace Allure;
 
-public static class AllureExtensions
+public static class AllureContextExtensions
 {
     extension (IAllureStepContext context)
     {
