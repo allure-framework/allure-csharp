@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,8 @@ abstract class AllureOperationRouter
         }
 
         var parameters = method.ConstructAllureParameters(endpoint, arguments);
-        var name = method.ConstructAllureName<AllureOperationAttribute>(endpoint, parameters)
+        var values = parameters.Select(static (p) => p.Value);
+        var name = method.ConstructAllureName<AllureOperationAttribute>(values)
             ?? (method.IsConstructor && methodName is ".ctor" or ".cctor"
                 ? $"{method.DeclaringType.Name}{methodName}"
                 : methodName);

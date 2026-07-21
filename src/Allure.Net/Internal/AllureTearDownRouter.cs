@@ -43,5 +43,5 @@ class AllureTearDownRouter : AllureOperationRouter
     ) =>
         endpoint.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken);
 
-    public static AllureSetUpRouter Instance { get; } = new();
+    public static AllureTearDownRouter Instance { get; } = new();
 }

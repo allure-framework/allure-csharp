@@ -7,6 +7,12 @@ static class InterfaceStub
     public static T Create<T>() where T : class =>
         DispatchProxy.Create<T, DefaultDispatchProxy>();
 
+    public static object Create(Type interfaceType) =>
+        typeof(InterfaceStub)
+            .GetMethod(nameof(Create), Type.EmptyTypes)!
+            .MakeGenericMethod(interfaceType)
+            .Invoke(null, null)!;
+
     class DefaultDispatchProxy : DispatchProxy
     {
         protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)

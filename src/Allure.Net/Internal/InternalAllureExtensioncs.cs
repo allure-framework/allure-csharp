@@ -50,25 +50,25 @@ public static class InternalAllureExtensions
 
     extension (MethodBase method)
     {
-        internal string? GetAllureNameFormat<T>()
-            where T : Attribute, IAllureNameSource
+        internal string? GetAllureNameFormat<TAttribute>()
+            where TAttribute : Attribute, IAllureNameSource
         =>
-            method.GetCustomAttribute<T>()?.Name;
+            method.GetCustomAttribute<TAttribute>()?.Name;
 
-        internal string? ConstructAllureName<T>(
+        internal string? ConstructAllureName<TAttribute>(
             IAllureApiEndpoint endpoint,
-            params IEnumerable<object?> arguments
+            IEnumerable<object?> arguments
         )
-            where T : Attribute, IAllureNameSource
+            where TAttribute : Attribute, IAllureNameSource
         =>
-            GetAllureNameFormat<T>(method) is { } nameFormat
+            GetAllureNameFormat<TAttribute>(method) is { } nameFormat
                 ? ConstructAllureName(method, endpoint, nameFormat, arguments)
                 : null;
 
         internal string ConstructAllureName(
             IAllureApiEndpoint endpoint,
             string nameFormat,
-            params IEnumerable<object?> arguments
+            IEnumerable<object?> arguments
         )
         {
             if (string.IsNullOrWhiteSpace(nameFormat))
@@ -104,14 +104,14 @@ public static class InternalAllureExtensions
             );
         }
 
-        internal string? ConstructAllureName<T>(params IEnumerable<string> serializedArguments)
-            where T : Attribute, IAllureNameSource
+        internal string? ConstructAllureName<TAttribute>(IEnumerable<string> serializedArguments)
+            where TAttribute : Attribute, IAllureNameSource
         =>
-            GetAllureNameFormat<T>(method) is { } nameFormat
+            GetAllureNameFormat<TAttribute>(method) is { } nameFormat
                 ? ConstructAllureName(method, nameFormat, serializedArguments)
                 : null;
 
-        internal string ConstructAllureName(string nameFormat, params IEnumerable<string> serializedArguments)
+        internal string ConstructAllureName(string nameFormat, IEnumerable<string> serializedArguments)
         {
             if (string.IsNullOrWhiteSpace(nameFormat))
             {
@@ -157,13 +157,13 @@ public static class InternalAllureExtensions
                     parameter: p,
                     argument: a,
                     data: p.GetCustomAttribute<AllureParameterAttribute>()))
-                .Where(static (t) => !t.data.Ignore)
+                .Where(static (t) => t.data?.Ignore != false)
                 .Select((t) => new Parameter
                 {
-                    Name = t.data.Name ?? t.parameter.Name,
+                    Name = t.data?.Name ?? t.parameter.Name,
                     Value = endpoint.ParameterSerializer.Serialize(t.argument),
-                    Mode = t.data.Mode,
-                    Excluded = t.data.Excluded,
+                    Mode = t.data?.Mode,
+                    Excluded = t.data?.Excluded ?? false,
                 }),
         ];
     }
