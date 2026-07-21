@@ -91,7 +91,7 @@ public static class AllureInProcessApi
         AllureFrontend.InProcessApi.TryReadStepResult(read, out result);
 
 
-    public static TResult TryReadStepResult<TResult>(
+    public static TResult ReadStepResult<TResult>(
         Func<StepResult, TResult> read
     ) =>
         TryReadStepResult(read, out var result)
