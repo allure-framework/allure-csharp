@@ -1,7 +1,9 @@
+using System;
+using System.Globalization;
+using Allure.Internal;
+
 namespace Allure.Model;
 
-using System;
-using Allure.Internal;
 using SeverityLevel = Severity;
 using SystemThread = System.Threading.Thread;
 
@@ -15,7 +17,7 @@ public sealed class Label
         new() { Name = name, Value = value };
 
     public static Label AllureId(int allureId) =>
-        Create(LabelName.AllureId, allureId.ToString());
+        Create(LabelName.AllureId, allureId.ToString(CultureInfo.InvariantCulture));
 
     public static Label Suite(string suite) =>
         Create(LabelName.Suite, suite);

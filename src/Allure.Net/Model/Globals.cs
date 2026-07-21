@@ -6,5 +6,5 @@ public sealed class Globals
 {
     public List<GlobalAttachment> Attachments { get; init; } = [];
 
-    public List<GlobalAttachment> Errors { get; init; } = [];
+    public List<GlobalError> Errors { get; init; } = [];
 }
