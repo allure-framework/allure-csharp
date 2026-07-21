@@ -174,7 +174,7 @@ public class MetadataAttributeTests
             .IsEquivalentTo(
                 [
                     (LabelName.Owner, "team"),
-                    ("component", "metadata"),
+                    (LabelName.Tag, "component"),
                 ]
             );
     }
@@ -182,6 +182,6 @@ public class MetadataAttributeTests
     static ModelTestResult CreateResult() => new() { Uuid = "test-id", Name = "test" };
 
     [AllureOwner("team")]
-    [AllureLabel("component", "metadata")]
+    [AllureTag("component")]
     sealed class ProductMetadataAttribute : AllureMetaAttribute;
 }
