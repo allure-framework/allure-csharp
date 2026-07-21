@@ -1,4 +1,5 @@
 using System;
+using Allure.Internal;
 using Allure.Model;
 
 namespace Allure;
@@ -8,4 +9,4 @@ namespace Allure;
 /// </summary>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = false, Inherited = true)]
 public class AllureSeverityAttribute(Severity severity)
-    : AllureLabelAttribute(LabelName.Severity, severity.ToString());
+    : AllureLabelAttribute(LabelName.Severity, severity.ToLabelValue());
