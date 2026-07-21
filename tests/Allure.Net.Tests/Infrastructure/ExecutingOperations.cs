@@ -32,7 +32,13 @@ sealed class ExecutingOperations
 
         var body = (Delegate)arguments[2]!;
         var bodyArguments = body.Method.GetParameters()
-            .Select(parameter => InterfaceStub.Create(parameter.ParameterType))
+            .Select(parameter => parameter.ParameterType == typeof(CancellationToken)
+                ? arguments[^1]
+                : parameter.ParameterType.IsInterface
+                    ? InterfaceStub.Create(parameter.ParameterType)
+                    : parameter.ParameterType.IsValueType
+                        ? Activator.CreateInstance(parameter.ParameterType)
+                        : null)
             .ToArray();
         return body.DynamicInvoke(bodyArguments);
     }
