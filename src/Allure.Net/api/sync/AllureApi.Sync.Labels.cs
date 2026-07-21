@@ -79,7 +79,7 @@ public static partial class AllureApi
     /// </summary>
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="tags">The new tags.</param>
-    public static void AddTags(params string[] tags) =>
+    public static void AddTags(params IEnumerable<string> tags) =>
         AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddLabels(
             tags.Select(Label.Tag)
         );
