@@ -57,7 +57,7 @@ public class OperationAspectTests
         await Assert.That(result).IsEqualTo(7);
         await Assert.That(parameter.Name).IsEqualTo("value");
         await Assert.That(parameter.Value).IsEqualTo("argument:42");
-        await Assert.That(parameter.Mode).IsEqualTo(ParameterMode.Default);
+        await Assert.That(parameter.Mode).IsNull();
         await Assert.That(parameter.Excluded).IsFalse();
     }
 
