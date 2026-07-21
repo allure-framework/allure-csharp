@@ -62,6 +62,30 @@ public class OperationAspectTests
     }
 
     [Test]
+    public async Task ArgumentsAreSerializedLazilyAndOnlyOnce()
+    {
+        var operations = new ExecutingOperations();
+        var serializer = new CountingParameterSerializer();
+        using var scope = FacadeTestEnvironment.Use(
+            current: operations.Endpoint(serializer)
+        );
+
+        _ = new AllureStepAspect().Around(
+            nameof(LazySerializationStep),
+            ["included", "used", "unused"],
+            _ => null!,
+            Method(nameof(LazySerializationStep)),
+            typeof(void)
+        );
+
+        await Assert.That(serializer.Values)
+            .IsEquivalentTo(new object?[] { "included", "used" });
+        await Assert.That(serializer.InvocationCount).IsEqualTo(2);
+        await Assert.That(operations.Sync.SingleCall.Arguments[0])
+            .IsEqualTo("included included used");
+    }
+
+    [Test]
     public async Task AsyncStepUsesAsyncOperationsAndPreservesResult()
     {
         var operations = new ExecutingOperations();
@@ -137,6 +161,13 @@ public class OperationAspectTests
     [AllureStep]
     static int DefaultParameterStep(int value) => value;
 
+    [AllureStep("{included} {included} {ignoredUsed}")]
+    static void LazySerializationStep(
+        string included,
+        [AllureParameter(Ignore = true)] string ignoredUsed,
+        [AllureParameter(Ignore = true)] string ignoredUnused
+    ) { }
+
     [AllureStep]
     static Task<int> AsyncStep() => Task.FromResult(11);
 
@@ -145,4 +176,19 @@ public class OperationAspectTests
 
     [AllureAfter]
     static void After() { }
+
+    sealed class CountingParameterSerializer : Allure.Abstractions.IAllureParameterSerializer
+    {
+        readonly List<object?> values = [];
+
+        public int InvocationCount => this.values.Count;
+
+        public IReadOnlyList<object?> Values => this.values;
+
+        public string Serialize(object? value)
+        {
+            this.values.Add(value);
+            return value?.ToString() ?? "null";
+        }
+    }
 }

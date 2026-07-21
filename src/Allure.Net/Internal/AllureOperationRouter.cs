@@ -27,9 +27,9 @@ abstract class AllureOperationRouter
             return body(arguments);
         }
 
-        var preparedMthodParameters = method.PrepareParametersForSerialization(endpoint, arguments);
-        var parameters = ConstructAllureParameters(preparedMthodParameters);
-        var name = method.ConstructAllureName<AllureOperationAttribute>(preparedMthodParameters)
+        var preparedMethodParameters = method.PrepareParametersForSerialization(endpoint, arguments);
+        var parameters = ConstructAllureParameters(preparedMethodParameters);
+        var name = method.ConstructAllureName<AllureOperationAttribute>(preparedMethodParameters)
             ?? (method.IsConstructor && methodName is ".ctor" or ".cctor"
                 ? $"{method.DeclaringType.Name}{methodName}"
                 : methodName);
