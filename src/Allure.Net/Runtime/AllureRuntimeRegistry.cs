@@ -24,10 +24,10 @@ public sealed class AllureRuntimeRegistry
         }
     }
 
-    internal IAllureRuntime? ResolveCurrentScope() =>
+    public IAllureRuntime? ResolveCurrentScope() =>
         this.GetRuntime(static (r) => r.MatchesCurrentScope);
 
-    internal IAllureRuntime? ResolveGlobalScope() =>
+    public IAllureRuntime? ResolveGlobalScope() =>
         this.GetRuntime(static (r) => r.MatchesGlobalScope);
 
     public IDisposable Install(IAllureRuntimeRoute route)

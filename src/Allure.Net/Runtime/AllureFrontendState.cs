@@ -11,7 +11,7 @@ public sealed class AllureFrontendState(IAllureApiClient defaultClient)
     bool provided = false;
     bool frozen = false;
 
-    internal IAllureApiClient Client
+    public IAllureApiClient Client
     {
         get
         {
@@ -23,8 +23,8 @@ public sealed class AllureFrontendState(IAllureApiClient defaultClient)
         }
     }
 
-    internal IAllureInProcessOperations InProcessApi =>
-        this.client.ResolveCurrentScope()?.Operations.Sync as IAllureInProcessOperations
+    public IAllureInProcessOperations InProcessApi =>
+        this.Client.ResolveCurrentScope()?.Operations.Sync as IAllureInProcessOperations
             ?? throw new InvalidOperationException(
                 $"The in-process test API is not supported by '{Client.Name}'."
             );
