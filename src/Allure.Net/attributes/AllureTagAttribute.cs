@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Allure.Abstractions;
@@ -11,7 +10,7 @@ namespace Allure;
 /// Applies tags.
 /// </summary>
 [AttributeUsage(ALLURE_METADATA_TARGETS, AllowMultiple = true, Inherited = true)]
-public class AllureTagAttribute(string tag, params IEnumerable<string> moreTags)
+public class AllureTagAttribute(string tag, params string[] moreTags)
     : AllureApiAttribute
 {
     /// <summary>
