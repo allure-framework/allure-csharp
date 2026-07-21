@@ -213,7 +213,7 @@ public static partial class AllureApi
         ReadOnlyMemory<byte> content
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -242,7 +242,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -269,7 +269,7 @@ public static partial class AllureApi
         string content
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -298,7 +298,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -367,7 +367,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -398,7 +398,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -427,7 +427,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -458,7 +458,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -533,7 +533,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -566,7 +566,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -597,7 +597,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -630,7 +630,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
