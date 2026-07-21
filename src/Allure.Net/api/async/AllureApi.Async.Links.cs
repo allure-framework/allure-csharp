@@ -105,7 +105,8 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="link">A link to add.</param>
     public static Task AddLinkAsync(Link link) =>
-        AllureFrontend.Client.Operations.Async.AddLinkAsync(link, default);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinkAsync(link, default)
+            ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds a new link to the current test.
@@ -114,7 +115,8 @@ public static partial class AllureApi
     /// <param name="link">A link to add.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddLinkAsync(Link link, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.Operations.Async.AddLinkAsync(link, cancellationToken);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinkAsync(link, cancellationToken)
+            ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds new links to the current test.
@@ -122,7 +124,8 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="links">The link instances to add.</param>
     public static Task AddLinksAsync(params IEnumerable<Link> links) =>
-        AllureFrontend.Client.Operations.Async.AddLinksAsync(links, default);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinksAsync(links, default)
+            ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds new links to the current test.
@@ -134,7 +137,8 @@ public static partial class AllureApi
         IEnumerable<Link> links,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddLinksAsync(links, cancellationToken);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinksAsync(links, cancellationToken)
+            ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds a new issue link to the current test.

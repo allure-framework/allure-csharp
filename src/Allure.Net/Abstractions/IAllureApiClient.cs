@@ -8,7 +8,7 @@ public interface IAllureApiClient
 
     bool IsAvailableInGlobalScope { get; }
 
-    AllureApiOperations Operations { get; }
+    IAllureApiEndpoint? ResolveCurrentScope();
 
-    IAllureParameterSerializer ParameterSerializer { get; }
+    IAllureApiEndpoint? ResolveGlobalScope();
 }

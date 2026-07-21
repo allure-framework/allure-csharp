@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Allure.Abstractions;
 using Allure.Internal;
 using Allure.Runtime;
 using AspectInjector.Broker;
@@ -31,7 +32,13 @@ public class AllureAttachmentAspect
             return;
         }
 
-        var attachmentName = ResolveAttachmentName(attr, name, metadata, arguments);
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
+        var attachmentName = ResolveAttachmentName(endpoint, attr, name, metadata, arguments);
         var contentType = ResolveContentType(attr, returnType);
         var extension = ResolveExtension(attr, contentType);
         byte[] content = ResolveContent(attr, returnValue);
@@ -40,7 +47,7 @@ public class AllureAttachmentAspect
 
         if (isGlobal)
         {
-            AllureFrontend.Client.Operations.Sync.AddGlobalAttachment(
+            endpoint.Operations.Sync.AddGlobalAttachment(
                 name: attachmentName,
                 content: contentStream,
                 mediaType: contentType,
@@ -49,7 +56,7 @@ public class AllureAttachmentAspect
         }
         else
         {
-            AllureFrontend.Client.Operations.Sync.AddAttachment(
+            endpoint.Operations.Sync.AddAttachment(
                 name: attachmentName,
                 content: contentStream,
                 mediaType: contentType,
@@ -64,13 +71,14 @@ public class AllureAttachmentAspect
             : !AllureFrontend.IsAvailableInCurrentScope;
 
     static string ResolveAttachmentName(
+        IAllureApiEndpoint endpoint,
         AllureAttachmentAttribute? attr,
         string methodName,
         MethodBase methodInfo,
         object[] arguments
     ) =>
         attr is { Name: { Length: >0 } name }
-            ? methodInfo.ConstructAllureName(name, arguments)
+            ? methodInfo.ConstructAllureName(endpoint, name, arguments)
             : methodName;
 
     static string? ResolveContentType(AllureAttachmentAttribute? attr, Type valueType)

@@ -1,20 +1,41 @@
 using System;
 using Allure.Runtime;
 using Allure.Abstractions;
+using Allure.Internal;
 
 namespace Allure;
 
 public static partial class AllureApi
 {
     public static void SetUp(string name, Action body) =>
-        AllureFrontend.Client.Operations.Sync.SetUp(name, [], body);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.SetUp(name, [], body);
 
     public static void SetUp(string name, Action<IAllureFixtureContext> body) =>
-        AllureFrontend.Client.Operations.Sync.SetUp(name, [], body);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.SetUp(name, [], body);
+
+    public static TResult SetUp<TResult>(string name, Func<TResult> body) =>
+        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+            ? api.SetUp(name, [], body)
+            : body();
+
+    public static TResult SetUp<TResult>(string name, Func<IAllureFixtureContext, TResult> body) =>
+        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+            ? api.SetUp(name, [], body)
+            : body(NullOperationContext.Instance);
 
     public static void TearDown(string name, Action body) =>
-        AllureFrontend.Client.Operations.Sync.TearDown(name, [], body);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.TearDown(name, [], body);
 
     public static void TearDown(string name, Action<IAllureFixtureContext> body) =>
-        AllureFrontend.Client.Operations.Sync.TearDown(name, [], body);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.TearDown(name, [], body);
+
+    public static TResult TearDown<TResult>(string name, Func<TResult> body) =>
+        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+            ? api.TearDown(name, [], body)
+            : body();
+
+    public static TResult TearDown<TResult>(string name, Func<IAllureFixtureContext, TResult> body) =>
+        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+            ? api.TearDown(name, [], body)
+            : body(NullOperationContext.Instance);
 }

@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Allure.Abstractions;
 using Allure.Model;
 using Allure.Runtime;
 
@@ -20,11 +21,14 @@ public static partial class AllureApi
     /// The value of the new parameter.
     /// </param>
     public static Task AddTestParameterFromObjectAsync(string name, object? value) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-        });
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            null,
+            false,
+            default
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test from a CLR object.
@@ -40,11 +44,14 @@ public static partial class AllureApi
         object? value,
         CancellationToken cancellationToken
     ) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-        }, cancellationToken);
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            null,
+            false,
+            cancellationToken
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test from a CLR object.
@@ -60,12 +67,14 @@ public static partial class AllureApi
         object? value,
         ParameterMode mode
     ) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-            Mode = mode,
-        });
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            mode,
+            false,
+            default
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test from a CLR object.
@@ -83,12 +92,14 @@ public static partial class AllureApi
         ParameterMode mode,
         CancellationToken cancellationToken
     ) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-            Mode = mode,
-        }, cancellationToken);
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            mode,
+            false,
+            cancellationToken
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test from a CLR object.
@@ -107,12 +118,14 @@ public static partial class AllureApi
         object? value,
         bool excluded
     ) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-            Excluded = excluded,
-        });
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            null,
+            excluded,
+            default
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test from a CLR object.
@@ -133,12 +146,14 @@ public static partial class AllureApi
         bool excluded,
         CancellationToken cancellationToken
     ) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-            Excluded = excluded,
-        }, cancellationToken);
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            null,
+            excluded,
+            cancellationToken
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test from a CLR object.
@@ -159,13 +174,14 @@ public static partial class AllureApi
         ParameterMode mode,
         bool excluded
     ) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-            Mode = mode,
-            Excluded = excluded,
-        });
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            mode,
+            excluded,
+            default
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test from a CLR object.
@@ -188,13 +204,14 @@ public static partial class AllureApi
         bool excluded,
         CancellationToken cancellationToken
     ) =>
-        AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
-            Mode = mode,
-            Excluded = excluded,
-        }, cancellationToken);
+        AddTestParameterFromObjectAsync(
+            AllureFrontend.Client.ResolveCurrentScope(),
+            name,
+            value,
+            mode,
+            excluded,
+            cancellationToken
+        );
 
     /// <summary>
     /// Adds a new parameter to the current test.
@@ -208,7 +225,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
         });
 
     /// <summary>
@@ -228,7 +245,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
         }, cancellationToken);
 
     /// <summary>
@@ -248,7 +265,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
             Mode = mode,
         });
 
@@ -271,7 +288,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
             Mode = mode,
         }, cancellationToken);
 
@@ -295,7 +312,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
             Excluded = excluded,
         });
 
@@ -321,7 +338,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
             Excluded = excluded,
         }, cancellationToken);
 
@@ -347,7 +364,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
             Mode = mode,
             Excluded = excluded,
         });
@@ -376,7 +393,7 @@ public static partial class AllureApi
         AddTestParameterAsync(new()
         {
             Name = name,
-            Value = AllureFrontend.Client.ParameterSerializer.Serialize(value),
+            Value = value,
             Mode = mode,
             Excluded = excluded,
         }, cancellationToken);
@@ -391,8 +408,8 @@ public static partial class AllureApi
     /// A new parameter instance.
     /// </param>
     public static Task AddTestParameterAsync(Parameter parameter) =>
-        AllureFrontend.Client.Operations.Async.AddTestParameterAsync(parameter, default);
-
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddTestParameterAsync(parameter, default)
+            ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds a new parameter to the current test. Use this overload if you
@@ -408,5 +425,29 @@ public static partial class AllureApi
         Parameter parameter,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddTestParameterAsync(parameter, cancellationToken);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddTestParameterAsync(parameter, cancellationToken)
+            ?? Task.CompletedTask;
+
+    static Task AddTestParameterFromObjectAsync(
+        IAllureApiEndpoint? endpoint,
+        string name,
+        object? value,
+        ParameterMode? mode,
+        bool excluded,
+        CancellationToken cancellationToken
+    )
+    {
+        if (endpoint is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return endpoint.Operations.Async.AddTestParameterAsync(new()
+        {
+            Name = name,
+            Value = endpoint.ParameterSerializer.Serialize(value),
+            Mode = mode,
+            Excluded = excluded,
+        }, cancellationToken);
+    }
 }

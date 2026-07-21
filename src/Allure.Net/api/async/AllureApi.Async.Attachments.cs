@@ -19,13 +19,13 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     public static Task AddFileAttachmentAsync(string path) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -34,13 +34,13 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddFileAttachmentAsync(string path, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -49,13 +49,13 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     public static Task AddFileAttachmentAsync(string path, string name) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -69,13 +69,13 @@ public static partial class AllureApi
         string name,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -85,13 +85,13 @@ public static partial class AllureApi
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
     public static Task AddFileAttachmentAsync(string path, string name, string mediaType) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -107,13 +107,13 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -129,13 +129,13 @@ public static partial class AllureApi
         string? mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -153,13 +153,13 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddFileAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -168,13 +168,13 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     public static Task AddAttachmentAsync(string name, Stream content) =>
-        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -188,13 +188,13 @@ public static partial class AllureApi
         Stream content,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -205,13 +205,13 @@ public static partial class AllureApi
     public static Task AddAttachmentAsync(string name, ReadOnlyMemory<byte> content)
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -228,13 +228,13 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -246,13 +246,13 @@ public static partial class AllureApi
     public static Task AddAttachmentAsync(string name, string content)
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -269,13 +269,13 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: null,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -290,13 +290,13 @@ public static partial class AllureApi
         Stream content,
         string mediaType
     ) =>
-        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -312,13 +312,13 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -334,13 +334,13 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -359,13 +359,13 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -382,13 +382,13 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -407,13 +407,13 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: "",
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -430,13 +430,13 @@ public static partial class AllureApi
         string? mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -454,13 +454,13 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Adds an attachment to the current fixture, test or step.
@@ -478,13 +478,13 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -505,13 +505,13 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -530,13 +530,13 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -557,13 +557,13 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        return AllureFrontend.Client.Operations.Async.AddAttachmentAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: stream,
             mediaType: mediaType,
             fileExtension: fileExtension,
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
     }
 
     /// <summary>
@@ -578,12 +578,12 @@ public static partial class AllureApi
         string actuaScreenPath,
         string screenDiffPath
     ) =>
-        AllureFrontend.Client.Operations.Async.AddFileScreenDiffAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
@@ -599,12 +599,12 @@ public static partial class AllureApi
         string screenDiffPath,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddFileScreenDiffAsync(
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
@@ -618,7 +618,12 @@ public static partial class AllureApi
         Stream actual,
         Stream diff
     ) =>
-        AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(expected, actual, diff, default);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
+            expected,
+            actual,
+            diff,
+            default
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
@@ -634,7 +639,12 @@ public static partial class AllureApi
         Stream diff,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(expected, actual, diff, cancellationToken);
+        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
+            expected,
+            actual,
+            diff,
+            cancellationToken
+        ) ?? Task.CompletedTask;
 
     /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
@@ -653,12 +663,12 @@ public static partial class AllureApi
         using var actualStream = actual.AsStream();
         using var diffStream = diff.AsStream();
 
-        return AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
             expected: expectedStream,
             actual: actualStream,
             diff: diffStream,
             cancellationToken: default
-        );
+        ) ?? Task.CompletedTask;
     }
 
 
@@ -681,11 +691,11 @@ public static partial class AllureApi
         using var actualStream = actual.AsStream();
         using var diffStream = diff.AsStream();
 
-        return AllureFrontend.Client.Operations.Async.AddScreenDiffAsync(
+        return AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
             expected: expectedStream,
             actual: actualStream,
             diff: diffStream,
             cancellationToken: cancellationToken
-        );
+        ) ?? Task.CompletedTask;
     }
 }

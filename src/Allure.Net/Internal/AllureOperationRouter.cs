@@ -20,37 +20,49 @@ abstract class AllureOperationRouter
         object?[] arguments
     )
     {
-        if (!AllureFrontend.IsAvailableInCurrentScope)
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
         {
             return body(arguments);
         }
 
-        var parameters = method.ConstructAllureParameters(arguments);
-        var name = method.ConstructAllureName<AllureOperationAttribute>(parameters)
+        var parameters = method.ConstructAllureParameters(endpoint, arguments);
+        var name = method.ConstructAllureName<AllureOperationAttribute>(endpoint, parameters)
             ?? (method.IsConstructor && methodName is ".ctor" or ".cctor"
                 ? $"{method.DeclaringType.Name}{methodName}"
                 : methodName);
 
         if (returnType == typeof(void))
         {
-            this.Run(name, parameters, () => { body(arguments); });
+            this.Run(endpoint, name, parameters, () => { body(arguments); });
             return null;
         }
 
         if (returnType == typeof(Task))
         {
-            return this.RunAsync(name, parameters, () => (Task)body(arguments)!, default);
+            return this.RunAsync(endpoint, name, parameters, () => (Task)body(arguments)!, default);
         }
 
         var dispatcher = DispatcherCache.Get(returnType);
-        return dispatcher.Invoke(this, name, parameters, body, arguments);
+        return dispatcher.Invoke(this, endpoint, name, parameters, body, arguments);
     }
 
-    protected abstract void Run(string name, IEnumerable<Parameter> parameters, Action body);
+    protected abstract void Run(
+        IAllureApiEndpoint endpoint,
+        string name,
+        IEnumerable<Parameter> parameters,
+        Action body
+    );
 
-    protected abstract T Run<T>(string name, IEnumerable<Parameter> parameters, Func<T> body);
+    protected abstract T Run<T>(
+        IAllureApiEndpoint endpoint,
+        string name,
+        IEnumerable<Parameter> parameters,
+        Func<T> body
+    );
 
     protected abstract Task RunAsync(
+        IAllureApiEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<Task> body,
@@ -58,6 +70,7 @@ abstract class AllureOperationRouter
     );
 
     protected abstract Task<T> RunAsync<T>(
+        IAllureApiEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<Task<T>> body,
@@ -68,6 +81,7 @@ abstract class AllureOperationRouter
     {
         object Invoke(
             AllureOperationRouter router,
+            IAllureApiEndpoint endpoint,
             string name,
             IEnumerable<Parameter> parameters,
             Func<object?[], object?> body,
@@ -79,12 +93,14 @@ abstract class AllureOperationRouter
     {
         public object Invoke(
             AllureOperationRouter router,
+            IAllureApiEndpoint endpoint,
             string name,
             IEnumerable<Parameter> parameters,
             Func<object?[], object?> body,
             object?[] arguments
         ) =>
             router.RunAsync(
+                endpoint,
                 name,
                 parameters,
                 () => (Task<TResult>)body(arguments)!,
@@ -96,12 +112,14 @@ abstract class AllureOperationRouter
     {
         public object Invoke(
             AllureOperationRouter router,
+            IAllureApiEndpoint endpoint,
             string name,
             IEnumerable<Parameter> parameters,
             Func<object?[], object?> body,
             object?[] arguments
         ) =>
             router.Run(
+                endpoint,
                 name,
                 parameters,
                 () => (TResult)body(arguments)!

@@ -1,4 +1,3 @@
-using System;
 using Allure.Abstractions;
 using Allure.Runtime;
 
@@ -12,16 +11,15 @@ class RoutingAllureApiClient : IAllureApiClient
 
     public bool IsAvailableInGlobalScope => AllureBackend.IsAvailableInGlobalScope;
 
-    public AllureApiOperations Operations { get; } = new(
-        RoutingAllureOperations.Instance,
-        RoutingAllureAsyncOperations.Instance
-    );
+    public IAllureApiEndpoint? ResolveCurrentScope() =>
+        AllureBackend.RuntimeForCurrentScope is { } runtime
+            ? new RuntimeApiEndpoint(runtime)
+            : null;
 
-    public IAllureParameterSerializer ParameterSerializer =>
-        AllureBackend.RuntimeForCurrentScope?.ParameterSerializer
-            ?? throw new InvalidOperationException(
-                "No active Allure runtime was found."
-            );
+    public IAllureApiEndpoint? ResolveGlobalScope() =>
+        AllureBackend.RuntimeForGlobalScope is { } runtime
+            ? new RuntimeApiEndpoint(runtime)
+            : null;
 
     public static RoutingAllureApiClient Instance { get; } = new();
 }

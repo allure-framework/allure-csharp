@@ -52,4 +52,6 @@ class NullOperationContext :
     }
 
     public static NullOperationContext Instance { get; } = new();
+
+    public IAllureParameterSerializer ParameterSerializer { get; } = new ToStringParameterSerializer();
 }

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Allure.Abstractions;
 using Allure.Internal;
 using Allure.Runtime;
 using AspectInjector.Broker;
@@ -36,14 +37,26 @@ public class AllureAttachmentFileAspect
             return;
         }
 
-        var attachmentName = ResolveAttachmentName(attachmentFile, attr, metadata, arguments);
+        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
+        var attachmentName = ResolveAttachmentName(
+            endpoint,
+            attachmentFile,
+            attr,
+            metadata,
+            arguments
+        );
         var contentType = attr?.ContentType;
         var extension = ResolveExtension(attachmentFile, contentType);
         var path = attachmentFile.FullName;
 
         if (isGlobal)
         {
-            AllureFrontend.Client.Operations.Sync.AddGlobalFileAttachment(
+            endpoint.Operations.Sync.AddGlobalFileAttachment(
                 name: attachmentName,
                 path: path,
                 mediaType: contentType,
@@ -52,7 +65,7 @@ public class AllureAttachmentFileAspect
         }
         else
         {
-            AllureFrontend.Client.Operations.Sync.AddFileAttachment(
+            endpoint.Operations.Sync.AddFileAttachment(
                 name: attachmentName,
                 path: path,
                 mediaType: contentType,
@@ -77,13 +90,14 @@ public class AllureAttachmentFileAspect
     };
 
     static string ResolveAttachmentName(
+        IAllureApiEndpoint endpoint,
         FileInfo attachmentFile,
         AllureAttachmentFileAttribute? attr,
         MethodBase methodInfo,
         object[] arguments
     ) =>
         attr is { Name: { Length: >0 } name }
-            ? methodInfo.ConstructAllureName(name, arguments)
+            ? methodInfo.ConstructAllureName(endpoint, name, arguments)
             : attachmentFile.Name;
 
     static string ResolveExtension(FileInfo attachmentFile, string? contentType)

@@ -26,7 +26,7 @@ public static class AllureFrontend
     }
 
     internal static IAllureInProcessOperations InProcessApi =>
-        Client.Operations.Sync as IAllureInProcessOperations
+        Client.ResolveCurrentScope()?.Operations.Sync as IAllureInProcessOperations
             ?? throw new InvalidOperationException(
                 $"The in-process test API is not supported by '{Client.Name}'."
             );

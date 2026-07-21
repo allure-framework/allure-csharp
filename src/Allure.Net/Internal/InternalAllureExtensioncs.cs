@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Allure.Abstractions;
 using Allure.Model;
-using Allure.Runtime;
 
 namespace Allure.Internal;
 
@@ -56,14 +55,21 @@ public static class InternalAllureExtensions
         =>
             method.GetCustomAttribute<T>()?.Name;
 
-        internal string? ConstructAllureName<T>(params IEnumerable<object?> arguments)
+        internal string? ConstructAllureName<T>(
+            IAllureApiEndpoint endpoint,
+            params IEnumerable<object?> arguments
+        )
             where T : Attribute, IAllureNameSource
         =>
             GetAllureNameFormat<T>(method) is { } nameFormat
-                ? ConstructAllureName(method, nameFormat, arguments)
+                ? ConstructAllureName(method, endpoint, nameFormat, arguments)
                 : null;
 
-        internal string ConstructAllureName(string nameFormat, params IEnumerable<object?> arguments)
+        internal string ConstructAllureName(
+            IAllureApiEndpoint endpoint,
+            string nameFormat,
+            params IEnumerable<object?> arguments
+        )
         {
             if (string.IsNullOrWhiteSpace(nameFormat))
             {
@@ -88,7 +94,7 @@ public static class InternalAllureExtensions
 
                     if (parameterToArgumentMap.TryGetValue(name, out var value))
                     {
-                        var newText = AllureFrontend.Client.ParameterSerializer.Serialize(value);
+                        var newText = endpoint.ParameterSerializer.Serialize(value);
                         argTextCache[name] = newText;
                         return newText;
                     }
@@ -142,6 +148,7 @@ public static class InternalAllureExtensions
             );
 
         internal List<Parameter> ConstructAllureParameters(
+            IAllureApiEndpoint endpoint,
             params IEnumerable<object?> arguments
         ) => [
             .. method
@@ -151,10 +158,10 @@ public static class InternalAllureExtensions
                     argument: a,
                     data: p.GetCustomAttribute<AllureParameterAttribute>()))
                 .Where(static (t) => !t.data.Ignore)
-                .Select(static (t) => new Parameter
+                .Select((t) => new Parameter
                 {
                     Name = t.data.Name ?? t.parameter.Name,
-                    Value = AllureFrontend.Client.ParameterSerializer.Serialize(t.argument),
+                    Value = endpoint.ParameterSerializer.Serialize(t.argument),
                     Mode = t.data.Mode,
                     Excluded = t.data.Excluded,
                 }),

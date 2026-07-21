@@ -5,7 +5,7 @@ namespace Allure.Abstractions;
 /// <summary>
 /// Provides an API tied to a specific step.
 /// </summary>
-public interface IAllureStepContext
+public interface IAllureStepContext : IAllureOperationContext
 {
     /// <summary>
     /// Sets the name of the step associated with this context.

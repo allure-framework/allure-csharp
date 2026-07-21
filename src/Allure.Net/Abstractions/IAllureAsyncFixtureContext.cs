@@ -7,7 +7,7 @@ namespace Allure.Abstractions;
 /// <summary>
 /// Provides an async API tied to a specific fixture.
 /// </summary>
-public interface IAllureAsyncFixtureContext
+public interface IAllureAsyncFixtureContext : IAllureOperationContext
 {
     /// <summary>
     /// Sets the name of the fixture associated with this context.
