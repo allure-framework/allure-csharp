@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Allure.Abstractions;
@@ -65,6 +66,16 @@ public static class InternalAllureExtensions
                 ? ConstructAllureName(method, endpoint, nameFormat, arguments)
                 : null;
 
+        internal ImmutableArray<(ParameterInfo, Lazy<string>)> PrepareParametersForSerialization(
+            IAllureApiEndpoint endpoint,
+            IEnumerable<object?> arguments
+        ) =>
+            [.. method.GetParameters()
+                .Zip(
+                    arguments,
+                    (p, a) => (p, new Lazy<string>(
+                        () => endpoint.ParameterSerializer.Serialize(a))))];
+
         internal string ConstructAllureName(
             IAllureApiEndpoint endpoint,
             string nameFormat,
@@ -104,68 +115,45 @@ public static class InternalAllureExtensions
             );
         }
 
-        internal string? ConstructAllureName<TAttribute>(IEnumerable<string> serializedArguments)
+        internal string? ConstructAllureName<TAttribute>(
+            IEnumerable<(ParameterInfo parameter, Lazy<string> argument)> preparedParameters
+        )
             where TAttribute : Attribute, IAllureNameSource
         =>
             GetAllureNameFormat<TAttribute>(method) is { } nameFormat
-                ? ConstructAllureName(method, nameFormat, serializedArguments)
+                ? ConstructAllureName(method, nameFormat, preparedParameters)
                 : null;
 
-        internal string ConstructAllureName(string nameFormat, IEnumerable<string> serializedArguments)
+        internal string ConstructAllureName(
+            string nameFormat,
+            IEnumerable<(ParameterInfo parameter, Lazy<string> argument)> preparedParameters
+        )
         {
             if (string.IsNullOrWhiteSpace(nameFormat))
             {
                 return method.Name;
             }
 
-            var parameterToValueMap = method.GetParameters()
-                .Zip(serializedArguments, static (p, a) => new KeyValuePair<string, string>(p.Name, a))
-                .ToImmutableDictionary();
+            var parameterToValueMap = preparedParameters
+                .ToImmutableDictionary(
+                    keySelector: static (t) => t.parameter.Name,
+                    elementSelector: static (t) => t.argument
+                );
 
             return placeholderPattern.Replace(
                 nameFormat,
                 (match) =>
                 {
                     var name = match.Groups[1].Value;
-                    if (parameterToValueMap.TryGetValue(name, out var value))
+                    if (parameterToValueMap.TryGetValue(name, out var lazy))
                     {
-                        return value;
+                        return lazy.Value;
                     }
 
                     return match.Value;
                 }
             );
         }
-
-        internal string ConstructAllureName(
-            string nameFormat,
-            params IEnumerable<Parameter> allureParameters
-        ) =>
-            ConstructAllureName(
-                method,
-                nameFormat,
-                allureParameters.Select(static (p) => p.Value)
-            );
-
-        internal List<Parameter> ConstructAllureParameters(
-            IAllureApiEndpoint endpoint,
-            params IEnumerable<object?> arguments
-        ) => [
-            .. method
-                .GetParameters()
-                .Zip(arguments, static (p, a) => (
-                    parameter: p,
-                    argument: a,
-                    data: p.GetCustomAttribute<AllureParameterAttribute>()))
-                .Where(static (t) => t.data?.Ignore != false)
-                .Select((t) => new Parameter
-                {
-                    Name = t.data?.Name ?? t.parameter.Name,
-                    Value = endpoint.ParameterSerializer.Serialize(t.argument),
-                    Mode = t.data?.Mode,
-                    Excluded = t.data?.Excluded ?? false,
-                }),
-        ];
     }
 
     static readonly Regex placeholderPattern = new(@"\{([^}]+)\}", RegexOptions.Compiled);

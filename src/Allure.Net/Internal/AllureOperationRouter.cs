@@ -27,9 +27,9 @@ abstract class AllureOperationRouter
             return body(arguments);
         }
 
-        var parameters = method.ConstructAllureParameters(endpoint, arguments);
-        var values = parameters.Select(static (p) => p.Value);
-        var name = method.ConstructAllureName<AllureOperationAttribute>(values)
+        var preparedMthodParameters = method.PrepareParametersForSerialization(endpoint, arguments);
+        var parameters = ConstructAllureParameters(preparedMthodParameters);
+        var name = method.ConstructAllureName<AllureOperationAttribute>(preparedMthodParameters)
             ?? (method.IsConstructor && methodName is ".ctor" or ".cctor"
                 ? $"{method.DeclaringType.Name}{methodName}"
                 : methodName);
@@ -48,6 +48,24 @@ abstract class AllureOperationRouter
         var dispatcher = DispatcherCache.Get(returnType);
         return dispatcher.Invoke(this, endpoint, name, parameters, body, arguments);
     }
+
+    List<Parameter> ConstructAllureParameters(
+        IEnumerable<(ParameterInfo parameter, Lazy<string> argument)> preparedMethodParameters
+    ) => [
+        .. preparedMethodParameters
+            .Select(static (t) => (
+                t.parameter,
+                t.argument,
+                data: t.parameter.GetCustomAttribute<AllureParameterAttribute>()))
+            .Where(static (t) => t.data?.Ignore != true)
+            .Select((t) => new Parameter
+            {
+                Name = t.data?.Name ?? t.parameter.Name,
+                Value = t.argument.Value,
+                Mode = t.data?.Mode,
+                Excluded = t.data?.Excluded ?? false,
+            }),
+    ];
 
     protected abstract void Run(
         IAllureApiEndpoint endpoint,
