@@ -12,159 +12,159 @@ namespace Allure.Internal;
 class RoutingAllureAsyncOperations : IAllureAsyncInProcessOperations
 {
     public Task AddAttachmentAsync(string name, Stream content, string? mediaType, string fileExtension, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddAttachmentAsync(name, content, mediaType, fileExtension, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(name, content, mediaType, fileExtension, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddFileAttachmentAsync(string name, string path, string? mediaType, string fileExtension, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddFileAttachmentAsync(name, path, mediaType, fileExtension, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(name, path, mediaType, fileExtension, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddFileScreenDiffAsync(string expectedPath, string actualPath, string diffPath, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddFileScreenDiffAsync(expectedPath, actualPath, diffPath, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(expectedPath, actualPath, diffPath, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddGlobalAttachmentAsync(string name, Stream content, string? mediaType, string fileExtension, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForGlobalScope?.Operations.Async.AddGlobalAttachmentAsync(name, content, mediaType, fileExtension, cancellationToken)
+        AllureBackend.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(name, content, mediaType, fileExtension, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddGlobalErrorAsync(GlobalError error, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForGlobalScope?.Operations.Async.AddGlobalErrorAsync(error, cancellationToken)
+        AllureBackend.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(error, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddGlobalFileAttachmentAsync(string name, string path, string? mediaType, string fileExtension, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForGlobalScope?.Operations.Async.AddGlobalFileAttachmentAsync(name, path, mediaType, fileExtension, cancellationToken)
+        AllureBackend.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(name, path, mediaType, fileExtension, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddLabelAsync(Label label, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddLabelAsync(label, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddLabelAsync(label, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddLabelsAsync(IEnumerable<Label> labels, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddLabelsAsync(labels, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddLabelsAsync(labels, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddLinkAsync(Link link, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddLinkAsync(link, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddLinkAsync(link, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddLinksAsync(IEnumerable<Link> links, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddLinksAsync(links, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddLinksAsync(links, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddScreenDiffAsync(Stream expected, Stream actual, Stream diff, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddScreenDiffAsync(expected, actual, diff, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(expected, actual, diff, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task AddTestParameterAsync(Parameter parameter, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.AddTestParameterAsync(parameter, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.AddTestParameterAsync(parameter, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task SetDescriptionAsync(string description, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetDescriptionAsync(description, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetDescriptionAsync(description, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task SetDescriptionHtmlAsync(string descriptionHtml, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetDescriptionHtmlAsync(descriptionHtml, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetDescriptionHtmlAsync(descriptionHtml, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task SetFixtureNameAsync(string newName, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetFixtureNameAsync(newName, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetFixtureNameAsync(newName, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task SetLabelAsync(string name, string value, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetLabelAsync(name, value, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetLabelAsync(name, value, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task SetNameAsync(string newName, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetNameAsync(newName, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetNameAsync(newName, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task SetTestNameAsync(string newName, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetTestNameAsync(newName, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetTestNameAsync(newName, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task SetUpAsync(string name, IEnumerable<Parameter> parameters, Func<Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
             ?? body();
 
     public Task SetUpAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
             ?? body(NullOperationContext.Instance);
 
     public Task SetUpAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
             ?? body(NullOperationContext.Instance, cancellationToken);
 
     public Task<TResult> SetUpAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
             : body();
 
     public Task<TResult> SetUpAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
             : body(NullOperationContext.Instance);
 
     public Task<TResult> SetUpAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.SetUpAsync(name, parameters, body, cancellationToken)
             : body(NullOperationContext.Instance, cancellationToken);
 
     public Task StepAsync(string name, IEnumerable<Parameter> parameters, Status status, StatusDetails? statusDetails, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.StepAsync(name, parameters, status, statusDetails, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.StepAsync(name, parameters, status, statusDetails, cancellationToken)
             ?? Task.CompletedTask;
 
     public Task StepAsync(string name, IEnumerable<Parameter> parameters, Func<Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
             ?? body();
 
     public Task StepAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessStepContext, Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
             ?? body(NullOperationContext.Instance);
 
     public Task StepAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessStepContext, CancellationToken, Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
             ?? body(NullOperationContext.Instance, cancellationToken);
 
     public Task<TResult> StepAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
             : body();
 
     public Task<TResult> StepAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessStepContext, Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
             : body(NullOperationContext.Instance);
 
     public Task<TResult> StepAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessStepContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.StepAsync(name, parameters, body, cancellationToken)
             : body(NullOperationContext.Instance, cancellationToken);
 
     public Task TearDownAsync(string name, IEnumerable<Parameter> parameters, Func<Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
             ?? body();
 
     public Task TearDownAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
             ?? body(NullOperationContext.Instance);
 
     public Task TearDownAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope?.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
+        AllureBackend.ResolveCurrentScope()?.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
             ?? body(NullOperationContext.Instance, cancellationToken);
 
     public Task<TResult> TearDownAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
             : body();
 
     public Task<TResult> TearDownAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
             : body(NullOperationContext.Instance);
 
     public Task<TResult> TearDownAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken) =>
-        AllureBackend.RuntimeForCurrentScope is { } backend
+        AllureBackend.ResolveCurrentScope() is { } backend
             ? backend.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken)
             : body(NullOperationContext.Instance, cancellationToken);
 

@@ -24,17 +24,11 @@ public static class AllureBackend
         }
     }
 
-    internal static IAllureRuntime? RuntimeForCurrentScope =>
+    internal static IAllureRuntime? ResolveCurrentScope() =>
         GetRuntime(static (r) => r.MatchesCurrentScope);
 
-    internal static IAllureRuntime? RuntimeForGlobalScope =>
+    internal static IAllureRuntime? ResolveGlobalScope() =>
         GetRuntime(static (r) => r.MatchesGlobalScope);
-
-    public static bool IsAvailableInCurrentScope =>
-        CheckAvailability(static (r) => r.MatchesCurrentScope);
-
-    public static bool IsAvailableInGlobalScope =>
-        CheckAvailability(static (r) => r.MatchesGlobalScope);
 
     public static IDisposable Install(IAllureRuntimeRoute route)
     {
@@ -64,17 +58,6 @@ public static class AllureBackend
             }
         });
     }
-
-    static bool CheckAvailability(Func<IAllureRuntimeRoute, bool> predicate) =>
-        MatchRuntime(predicate) switch
-        {
-            MatchSuccess => true,
-
-            MultipleMatches { Ids: var ids } =>
-                throw CreateMultipleMatchesException(ids),
-
-            _ => false,
-        };
 
     static IAllureRuntime? GetRuntime(Func<IAllureRuntimeRoute, bool> predicate) =>
         MatchRuntime(predicate) switch

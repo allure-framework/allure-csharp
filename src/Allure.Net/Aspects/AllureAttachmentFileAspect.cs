@@ -26,19 +26,17 @@ public class AllureAttachmentFileAspect
         var attr = metadata.GetCustomAttribute<AllureAttachmentFileAttribute>();
         var isGlobal = attr?.Global == true;
 
-        if (ShouldSkip(isGlobal))
+        var endpoint = isGlobal
+            ? AllureFrontend.Client.ResolveGlobalScope()
+            : AllureFrontend.Client.ResolveCurrentScope();
+
+        if (endpoint is null)
         {
             return;
         }
 
         var attachmentFile = ResolveFile(returnValue);
         if (attachmentFile is null)
-        {
-            return;
-        }
-
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
-        if (endpoint is null)
         {
             return;
         }
@@ -73,11 +71,6 @@ public class AllureAttachmentFileAspect
             );
         }
     }
-
-    static bool ShouldSkip(bool isGlobal) =>
-        isGlobal
-            ? !AllureFrontend.IsAvailableInGlobalScope
-            : !AllureFrontend.IsAvailableInCurrentScope;
 
     static FileInfo? ResolveFile(object? value) => value switch
     {

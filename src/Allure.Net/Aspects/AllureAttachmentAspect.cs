@@ -27,12 +27,10 @@ public class AllureAttachmentAspect
         var attr = metadata.GetCustomAttribute<AllureAttachmentAttribute>();
         var isGlobal = attr?.Global == true;
 
-        if (ShouldSkip(isGlobal))
-        {
-            return;
-        }
+        var endpoint = isGlobal
+            ? AllureFrontend.Client.ResolveGlobalScope()
+            : AllureFrontend.Client.ResolveCurrentScope();
 
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -64,11 +62,6 @@ public class AllureAttachmentAspect
             );
         }
     }
-
-    static bool ShouldSkip(bool isGlobal) =>
-        isGlobal
-            ? !AllureFrontend.IsAvailableInGlobalScope
-            : !AllureFrontend.IsAvailableInCurrentScope;
 
     static string ResolveAttachmentName(
         IAllureApiEndpoint endpoint,
