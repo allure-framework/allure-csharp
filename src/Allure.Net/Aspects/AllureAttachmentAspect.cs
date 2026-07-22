@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Allure.Abstractions;
 using Allure.Internal;
 using Allure.Runtime;
@@ -28,6 +29,10 @@ public class AllureAttachmentAspect
         [Argument(Source.ReturnValue)] object? returnValue
     )
     {
+        if (returnType == typeof(Task<string>))
+        {
+            Console.WriteLine(((Task<string>)returnValue!).IsCompleted);
+        }
         var attr = metadata.GetCustomAttribute<AllureAttachmentAttribute>();
         var isGlobal = attr?.Global == true;
 
@@ -109,7 +114,7 @@ public class AllureAttachmentAspect
         Stream stream => StreamGuard.NotOwn(stream),
         _ => throw new InvalidOperationException(
             $"Can't create an Allure attachment from {value.GetType().FullName}. "
-                + "A string, byte[], or stream was expected."
+                + "A string, a byte array, a stream, or a read-only memory was expected."
         ),
     };
 
