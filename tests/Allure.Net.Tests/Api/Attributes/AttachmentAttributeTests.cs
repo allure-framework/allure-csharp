@@ -509,6 +509,35 @@ public class AttachmentAttributeTests : ApiOperationTestsBase
         await Assert.That(result).IsEqualTo("Attachment body");
     }
 
+    [Test]
+    public async Task ShouldSerializeArgumentsNoMoreThanOnce()
+    {
+        ToStringCounter counter = new();
+        using var endpoint = InstallEndpoint(InstallationScope.Current);
+
+        MultipleInterpolationsOfSameParameter(counter);
+
+        await Assert.That(endpoint.SyncApi.AddAttachment(
+            "serialized:1 serialized:1",
+            Any(),
+            Any(),
+            Any()
+        )).WasCalled(Times.Once);
+        await Assert.That(counter.Value).IsEqualTo(1);
+        endpoint.SyncApi.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task ShouldNotSerializeArgumentsIfNoEndpoint()
+    {
+        ToStringCounter counter = new();
+        using var _ = InstallNoEndpoint();
+
+        MultipleInterpolationsOfSameParameter(counter);
+
+        await Assert.That(counter.Value).IsZero();
+    }
+
     private static CapturedContent CaptureRegular(EndpointMocks<
         IAllureOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
         IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
@@ -651,10 +680,26 @@ public class AttachmentAttributeTests : ApiOperationTestsBase
         return await Task.FromException<string>(new AttachmentMethodException());
     }
 
+    [AllureAttachment("{counter} {counter}")]
+    static byte[] MultipleInterpolationsOfSameParameter(ToStringCounter counter)
+    {
+        return [];
+    }
+
     private sealed class DispatchException : Exception;
     private sealed class AttachmentMethodException : Exception;
     private sealed class CallCounter
     {
         public int Value { get; set; }
+    }
+
+    sealed class ToStringCounter
+    {
+        public int Value { get; set; }
+        public override string? ToString()
+        {
+            this.Value++;
+            return this.Value.ToString();
+        }
     }
 }
