@@ -42,15 +42,13 @@ public class AllureAttachmentAspect
         var attachmentName = ResolveAttachmentName(endpoint, attr, name, metadata, arguments);
         var contentType = ResolveContentType(attr, returnType);
         var extension = ResolveExtension(attr, contentType);
-        byte[] content = ResolveContent(attr, returnValue);
-
-        using var contentStream = new MemoryStream(content);
+        using var contentGuard = ResolveContent(attr, returnValue);
 
         if (isGlobal)
         {
             endpoint.Operations.Sync.AddGlobalAttachment(
                 name: attachmentName,
-                content: contentStream,
+                content: contentGuard.Stream,
                 mediaType: contentType,
                 fileExtension: extension
             );
@@ -59,7 +57,7 @@ public class AllureAttachmentAspect
         {
             endpoint.Operations.Sync.AddAttachment(
                 name: attachmentName,
-                content: contentStream,
+                content: contentGuard.Stream,
                 mediaType: contentType,
                 fileExtension: extension
             );
@@ -96,39 +94,44 @@ public class AllureAttachmentAspect
             : $".{extension}";
     }
 
-    static byte[] ResolveContent(AllureAttachmentAttribute? attr, object? value) => value switch
+    static StreamGuard ResolveContent(AllureAttachmentAttribute? attr, object? value) => value switch
     {
-        null => [],
-        byte[] byteArray => byteArray,
-        string text => Encoding.GetEncoding(attr?.Encoding ?? "UTF-8").GetBytes(text),
-        Stream stream => ConsumeStream(stream),
+        null => StreamGuard.Own(new MemoryStream()),
+        byte[] byteArray => StreamGuard.Own(new MemoryStream(byteArray, writable: false)),
+        string text => StreamGuard.Own(
+            new MemoryStream(
+                Encoding.GetEncoding(attr?.Encoding ?? "UTF-8").GetBytes(text),
+                writable: false
+            )
+        ),
+        Stream stream => StreamGuard.NotOwn(stream),
         _ => throw new InvalidOperationException(
             $"Can't create an Allure attachment from {value.GetType().FullName}. "
                 + "A string, byte[], or stream was expected."
-        )
+        ),
     };
 
-    static byte[] ConsumeStream(Stream stream)
+    sealed class StreamGuard(Stream stream, bool own) : IDisposable
     {
-        if (!stream.CanRead)
+        readonly long position = stream.CanSeek ? stream.Position : -1;
+
+        public Stream Stream => stream;
+
+
+        public void Dispose()
         {
-            throw new InvalidOperationException(
-                $"Can't create an Allure attachment from {stream.GetType().FullName}: "
-                        + "this stream does not support the read operation."
-            );
+            if (own)
+            {
+                stream.Dispose();
+            }
+            else if (this.Stream.CanSeek && this.position >= 0)
+            {
+                this.Stream.Position = 0;
+            }
         }
 
-        if (!stream.CanSeek)
-        {
-            throw new InvalidOperationException(
-                $"Can't create an Allure attachment from {stream.GetType().FullName}: "
-                        + "this stream does not support the seek operation."
-            );
-        }
+        public static StreamGuard Own(Stream stream) => new(stream, true);
 
-        using var memoryStream = new MemoryStream();
-        stream.CopyTo(memoryStream);
-        stream.Position = 0;
-        return memoryStream.ToArray();
+        public static StreamGuard NotOwn(Stream stream) => new(stream, false);
     }
 }

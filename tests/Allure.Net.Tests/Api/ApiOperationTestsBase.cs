@@ -1,18 +1,18 @@
 using Allure.Abstractions;
 using Allure.Net.Tests.Infrastructure;
 
-namespace Allure.Net.Tests.Api.Operations;
+namespace Allure.Net.Tests.Api;
 
 public class ApiOperationTestsBase
 {
-    protected enum InstallationScope
+    public enum InstallationScope
     {
         Current,
         Global,
         CurrentAndGlobal
     }
 
-    protected static EndpointMocks<
+    public static EndpointMocks<
         IAllureOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
         IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
     > InstallEndpoint(
@@ -50,10 +50,10 @@ public class ApiOperationTestsBase
         );
     }
 
-    protected static IDisposable InstallNoEndpoint() =>
+    public static IDisposable InstallNoEndpoint() =>
         FacadeTestEnvironment.Use();
 
-    protected static EndpointMocks<IAllureInProcessOperationsMock, IAllureAsyncInProcessOperationsMock> InstallInProcessEndpoint(
+    public static EndpointMocks<IAllureInProcessOperationsMock, IAllureAsyncInProcessOperationsMock> InstallInProcessEndpoint(
         InstallationScope scope = InstallationScope.CurrentAndGlobal,
         IAllureParameterSerializer? serializer = null
     )
@@ -90,7 +90,7 @@ public class ApiOperationTestsBase
         );
     }
 
-    protected sealed class EndpointMocks<TSyncApi, TAsyncApi>(
+    public sealed class EndpointMocks<TSyncApi, TAsyncApi>(
         TSyncApi sync,
         TAsyncApi @async,
         IDisposable registration
@@ -106,7 +106,7 @@ public class ApiOperationTestsBase
         }
     }
 
-    protected static class EndpointMocks
+    public static class EndpointMocks
     {
         public static EndpointMocks<TSyncApi, TAsyncApi> Create<TSyncApi, TAsyncApi>(
             TSyncApi sync,
@@ -116,7 +116,7 @@ public class ApiOperationTestsBase
             new(sync, @async, registration);
     };
 
-    protected class AllureApiOperations(
+    public class AllureApiOperations(
         IAllureOperations<IAllureStepContext, IAllureFixtureContext> sync,
         IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> @async
     ) : IAllureApiOperations
@@ -126,7 +126,7 @@ public class ApiOperationTestsBase
         public IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> Async => @async;
     }
 
-    protected class AllureInProcessApiOperations(
+    public class AllureInProcessApiOperations(
         IAllureInProcessOperations sync,
         IAllureAsyncInProcessOperations @async
     ) : IAllureInProcessApiOperations, IAllureApiOperations
