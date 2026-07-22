@@ -128,7 +128,7 @@ public class AllureAttachmentAspect
             }
             else if (this.Stream.CanSeek && this.position >= 0)
             {
-                this.Stream.Position = 0;
+                this.Stream.Position = this.position;
             }
         }
 
