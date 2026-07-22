@@ -16,7 +16,8 @@ public class ApiOperationTestsBase
         IAllureOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
         IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
     > InstallEndpoint(
-        InstallationScope scope = InstallationScope.CurrentAndGlobal
+        InstallationScope scope = InstallationScope.CurrentAndGlobal,
+        IAllureParameterSerializer? serializer = null
     )
     {
         var sync = IAllureOperations<IAllureStepContext, IAllureFixtureContext>.Mock();
@@ -29,12 +30,18 @@ public class ApiOperationTestsBase
             : null;
         currentEndpoint?.Operations.Returns(operations);
         currentEndpoint?.IsAvailable.Returns(true);
+        currentEndpoint?.ParameterSerializer.Returns(
+            serializer ?? new TestParameterSerializer()
+        );
 
         var globalEndpoint = scope is InstallationScope.Global or InstallationScope.CurrentAndGlobal
             ? IAllureRuntimeEndpoint.Mock()
             : null;
         globalEndpoint?.Operations.Returns(operations);
         globalEndpoint?.IsAvailable.Returns(true);
+        globalEndpoint?.ParameterSerializer.Returns(
+            serializer ?? new TestParameterSerializer()
+        );
 
         return EndpointMocks.Create(
             sync,
@@ -47,7 +54,8 @@ public class ApiOperationTestsBase
         FacadeTestEnvironment.Use();
 
     protected static EndpointMocks<IAllureInProcessOperationsMock, IAllureAsyncInProcessOperationsMock> InstallInProcessEndpoint(
-        InstallationScope scope = InstallationScope.CurrentAndGlobal
+        InstallationScope scope = InstallationScope.CurrentAndGlobal,
+        IAllureParameterSerializer? serializer = null
     )
     {
         var sync = IAllureInProcessOperations.Mock();
@@ -61,6 +69,9 @@ public class ApiOperationTestsBase
         currentEndpoint?.Operations.Returns(operations);
         currentEndpoint?.InProcessOperations.Returns(operations);
         currentEndpoint?.IsAvailable.Returns(true);
+        currentEndpoint?.ParameterSerializer.Returns(
+            serializer ?? new TestParameterSerializer()
+        );
 
         var globalEndpoint = scope is InstallationScope.Global or InstallationScope.CurrentAndGlobal
             ? IAllureInProcessRuntimeEndpoint.Mock()
@@ -68,6 +79,9 @@ public class ApiOperationTestsBase
         globalEndpoint?.Operations.Returns(operations);
         globalEndpoint?.InProcessOperations.Returns(operations);
         globalEndpoint?.IsAvailable.Returns(true);
+        globalEndpoint?.ParameterSerializer.Returns(
+            serializer ?? new TestParameterSerializer()
+        );
 
         return EndpointMocks.Create(
             sync,
