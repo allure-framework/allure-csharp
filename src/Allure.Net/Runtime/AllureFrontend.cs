@@ -12,8 +12,11 @@ public static class AllureFrontend
 
     internal static IAllureApiClient Client => state.Client;
 
-    internal static IAllureInProcessOperations InProcessApi =>
+    internal static IAllureInProcessOperations? InProcessApi =>
         state.InProcessApi;
+
+    internal static IAllureAsyncInProcessOperations? AsyncInProcessApi =>
+        state.AsyncInProcessApi;
 
     /// <summary>
     /// Configures the API client before the frontend is first accessed.

@@ -2,10 +2,6 @@ using Allure.Runtime;
 
 namespace Allure;
 
-/// <summary>
-/// A facade that provides the API for test authors to enhance the Allure
-/// report.
-/// </summary>
 public static partial class AllureApi
 {
     /// <summary>

@@ -30,13 +30,26 @@ public sealed class AllureFrontendState(IAllureApiClient defaultClient)
     }
 
     /// <summary>
-    /// Gets the in-process operations for the current scope.
+    /// Gets the sync in-process operations for the current scope.
     /// </summary>
-    public IAllureInProcessOperations InProcessApi =>
-        this.Client.ResolveCurrentScope()?.Operations.Sync as IAllureInProcessOperations
-            ?? throw new InvalidOperationException(
-                $"The in-process test API is not supported by '{Client.Name}'."
-            );
+    public IAllureInProcessOperations? InProcessApi =>
+        this.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+            ? (api as IAllureInProcessOperations
+                ?? throw new InvalidOperationException(
+                    $"The in-process test API is not supported by '{Client.Name}'."
+                ))
+            : null;
+
+    /// <summary>
+    /// Gets the async in-process operations for the current scope.
+    /// </summary>
+    public IAllureAsyncInProcessOperations? AsyncInProcessApi =>
+        this.Client.ResolveCurrentScope() is { Operations.Async: var api }
+            ? (api as IAllureAsyncInProcessOperations
+                ?? throw new InvalidOperationException(
+                    $"The in-process test API is not supported by '{Client.Name}'."
+                ))
+            : null;
 
     /// <summary>
     /// Configures the client before this frontend state is first accessed.
