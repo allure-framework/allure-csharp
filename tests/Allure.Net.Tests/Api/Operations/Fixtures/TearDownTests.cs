@@ -69,7 +69,7 @@ public class TearDownTests : ApiOperationTestsBase
     {
         Func<int> body = () => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.TearDown(Any(), _ => true, Any<Func<int>>()).Returns(42);
+        endpoint.SyncApi.TearDown(Any(), Any(), Any<Func<int>>()).Returns(42);
 
         var actual = AllureApi.TearDown("Fixture name", body);
 
@@ -105,7 +105,7 @@ public class TearDownTests : ApiOperationTestsBase
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.SyncApi.TearDown(
             Any(),
-            _ => true,
+            Any(),
             Any<Func<IAllureFixtureContext, int>>()
         ).Returns(42);
 
@@ -333,7 +333,7 @@ public class TearDownTests : ApiOperationTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
-            Any(), _ => true, Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.TearDownAsync("Fixture name", body);
@@ -371,7 +371,7 @@ public class TearDownTests : ApiOperationTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
-            Any(), _ => true, Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.TearDownAsync("Fixture name", body, cancellation.Token);
@@ -409,7 +409,7 @@ public class TearDownTests : ApiOperationTestsBase
         Func<IAllureAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
-            Any(), _ => true, Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.TearDownAsync("Fixture name", body);
@@ -448,7 +448,7 @@ public class TearDownTests : ApiOperationTestsBase
         Func<IAllureAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
-            Any(), _ => true, Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.TearDownAsync("Fixture name", body, cancellation.Token);
@@ -489,7 +489,7 @@ public class TearDownTests : ApiOperationTestsBase
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
             Any(),
-            _ => true,
+            Any(),
             Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(),
             Any()
         ).ReturnsAsync(Task.FromResult(42));

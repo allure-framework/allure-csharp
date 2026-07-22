@@ -146,7 +146,7 @@ public class StepTests : ApiOperationTestsBase
     {
         Func<int> body = () => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.Step(Any(), _ => true, Any<Func<int>>()).Returns(42);
+        endpoint.SyncApi.Step(Any(), Any(), Any<Func<int>>()).Returns(42);
 
         var actual = AllureApi.Step("Step name", body);
 
@@ -182,7 +182,7 @@ public class StepTests : ApiOperationTestsBase
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.SyncApi.Step(
             Any(),
-            _ => true,
+            Any(),
             Any<Func<IAllureStepContext, int>>()
         ).Returns(42);
 
@@ -577,7 +577,7 @@ public class StepTests : ApiOperationTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), _ => true, Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body);
@@ -615,7 +615,7 @@ public class StepTests : ApiOperationTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), _ => true, Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body, cancellation.Token);
@@ -653,7 +653,7 @@ public class StepTests : ApiOperationTestsBase
         Func<IAllureAsyncStepContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), _ => true, Any<Func<IAllureAsyncStepContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body);
@@ -692,7 +692,7 @@ public class StepTests : ApiOperationTestsBase
         Func<IAllureAsyncStepContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), _ => true, Any<Func<IAllureAsyncStepContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body, cancellation.Token);
@@ -733,7 +733,7 @@ public class StepTests : ApiOperationTestsBase
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
             Any(),
-            _ => true,
+            Any(),
             Any<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(),
             Any()
         ).ReturnsAsync(Task.FromResult(42));

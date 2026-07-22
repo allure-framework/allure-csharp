@@ -69,7 +69,7 @@ public class SetUpTests : ApiOperationTestsBase
     {
         Func<int> body = () => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.SetUp(Any(), _ => true, Any<Func<int>>()).Returns(42);
+        endpoint.SyncApi.SetUp(Any(), Any(), Any<Func<int>>()).Returns(42);
 
         var actual = AllureApi.SetUp("Fixture name", body);
 
@@ -105,7 +105,7 @@ public class SetUpTests : ApiOperationTestsBase
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.SyncApi.SetUp(
             Any(),
-            _ => true,
+            Any(),
             Any<Func<IAllureFixtureContext, int>>()
         ).Returns(42);
 
@@ -333,7 +333,7 @@ public class SetUpTests : ApiOperationTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.SetUpAsync<int>(
-            Any(), _ => true, Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body);
@@ -370,14 +370,14 @@ public class SetUpTests : ApiOperationTestsBase
         using var cancellation = new CancellationTokenSource();
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync<int>(
-            Any(), _ => true, Any<Func<Task<int>>>(), Any()
+        endpoint.AsyncApi.SetUpAsync(
+            Any(), Any(), Any<Func<Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body, cancellation.Token);
 
         await Assert.That(actual).IsEqualTo(42);
-        await Assert.That(endpoint.AsyncApi.SetUpAsync<int>(
+        await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
             Is(body),
@@ -408,14 +408,14 @@ public class SetUpTests : ApiOperationTestsBase
     {
         Func<IAllureAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync<int>(
-            Any(), _ => true, Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
+        endpoint.AsyncApi.SetUpAsync(
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body);
 
         await Assert.That(actual).IsEqualTo(42);
-        await Assert.That(endpoint.AsyncApi.SetUpAsync<int>(
+        await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
             Is(body),
@@ -447,14 +447,14 @@ public class SetUpTests : ApiOperationTestsBase
         using var cancellation = new CancellationTokenSource();
         Func<IAllureAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync<int>(
-            Any(), _ => true, Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
+        endpoint.AsyncApi.SetUpAsync(
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body, cancellation.Token);
 
         await Assert.That(actual).IsEqualTo(42);
-        await Assert.That(endpoint.AsyncApi.SetUpAsync<int>(
+        await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
             Is(body),
@@ -487,9 +487,9 @@ public class SetUpTests : ApiOperationTestsBase
         using var cancellation = new CancellationTokenSource();
         Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>> body = (_, _) => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync<int>(
+        endpoint.AsyncApi.SetUpAsync(
             Any(),
-            _ => true,
+            Any(),
             Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(),
             Any()
         ).ReturnsAsync(Task.FromResult(42));
