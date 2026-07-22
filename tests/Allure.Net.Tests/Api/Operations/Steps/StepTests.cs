@@ -228,6 +228,7 @@ public class StepTests : ApiOperationTestsBase
             IsNull<StatusDetails?>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
+        endpoint.AsyncApi.VerifyNoOtherCalls();
     }
 
     [Test]
@@ -244,6 +245,7 @@ public class StepTests : ApiOperationTestsBase
             IsNull<StatusDetails?>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
+        endpoint.AsyncApi.VerifyNoOtherCalls();
     }
 
     [Test]
@@ -277,6 +279,7 @@ public class StepTests : ApiOperationTestsBase
             IsNull<StatusDetails?>(),
             cancellation.Token
         )).WasCalled(Times.Once);
+        endpoint.AsyncApi.VerifyNoOtherCalls();
     }
 
     [Test]
@@ -303,6 +306,7 @@ public class StepTests : ApiOperationTestsBase
             IsNull<StatusDetails?>(),
             cancellation.Token
         )).WasCalled(Times.Once);
+        endpoint.AsyncApi.VerifyNoOtherCalls();
     }
 
     [Test]
@@ -329,6 +333,7 @@ public class StepTests : ApiOperationTestsBase
             details,
             CancellationToken.None
         )).WasCalled(Times.Once);
+        endpoint.AsyncApi.VerifyNoOtherCalls();
     }
 
     [Test]
@@ -359,6 +364,7 @@ public class StepTests : ApiOperationTestsBase
             details,
             cancellation.Token
         )).WasCalled(Times.Once);
+        endpoint.AsyncApi.VerifyNoOtherCalls();
     }
 
     [Test]
