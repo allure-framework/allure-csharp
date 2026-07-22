@@ -23,6 +23,29 @@ public class AddLinksTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddLinksDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLinks([]);
+    }
+
+    [Test]
+    public async Task AddLinksAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinksAsync([]);
+    }
+
+    [Test]
+    public async Task AddLinksAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinksAsync([], CancellationToken.None);
+    }
+    [Test]
     public async Task AddLinksSupportsVarArgs()
     {
         Link first = new()
@@ -138,4 +161,3 @@ public class AddLinksTests : ApiOperationTestsBase
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 }
-

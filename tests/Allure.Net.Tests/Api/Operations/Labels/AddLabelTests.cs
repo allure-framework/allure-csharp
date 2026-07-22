@@ -19,6 +19,60 @@ public class AddLabelTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddLabelModelDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLabel(new() { Name = "label-name", Value = "label-value" });
+    }
+
+    [Test]
+    public async Task AddLabelModelAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLabelAsync(new() { Name = "label-name", Value = "label-value" });
+    }
+
+    [Test]
+    public async Task AddLabelModelAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLabelAsync(
+            new() { Name = "label-name", Value = "label-value" },
+            CancellationToken.None
+        );
+    }
+
+    [Test]
+    public void AddLabelByNameAndValueDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLabel("label-name", "label-value");
+    }
+
+    [Test]
+    public async Task AddLabelByNameAndValueAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLabelAsync("label-name", "label-value");
+    }
+
+    [Test]
+    public async Task AddLabelByNameAndValueAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLabelAsync(
+            "label-name",
+            "label-value",
+            CancellationToken.None
+        );
+    }
+    [Test]
     public async Task AddLabelByNameValueRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

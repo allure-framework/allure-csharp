@@ -21,6 +21,30 @@ public class AddEpicTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddEpicDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddEpic("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddEpicAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddEpicAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddEpicAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddEpicAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task AddEpicAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

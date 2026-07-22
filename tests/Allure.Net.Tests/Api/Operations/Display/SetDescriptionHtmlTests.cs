@@ -17,6 +17,30 @@ public class SetDescriptionHtmlTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void SetDescriptionHtmlDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.SetDescriptionHtml("No endpoint value");
+    }
+
+    [Test]
+    public async Task SetDescriptionHtmlAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetDescriptionHtmlAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task SetDescriptionHtmlAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetDescriptionHtmlAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task SetDescriptionHtmlAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

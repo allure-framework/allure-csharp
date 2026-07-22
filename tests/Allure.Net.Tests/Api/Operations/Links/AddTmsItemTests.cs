@@ -23,6 +23,66 @@ public class AddTmsItemTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddTmsItemByUrlDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddTmsItem("https://tracker.example.test/no-endpoint");
+    }
+
+    [Test]
+    public async Task AddTmsItemByUrlAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddTmsItemAsync("https://tracker.example.test/no-endpoint");
+    }
+
+    [Test]
+    public async Task AddTmsItemByUrlAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddTmsItemAsync(
+            "https://tracker.example.test/no-endpoint",
+            cancellationToken: default
+        );
+    }
+
+    [Test]
+    public void AddTmsItemByUrlAndNameDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddTmsItem(
+            "https://tracker.example.test/no-endpoint",
+            "Test case without endpoint"
+        );
+    }
+
+    [Test]
+    public async Task AddTmsItemByUrlAndNameAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddTmsItemAsync(
+            "https://tracker.example.test/no-endpoint",
+            "Test case without endpoint"
+        );
+    }
+
+    [Test]
+    public async Task AddTmsItemByUrlAndNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddTmsItemAsync(
+            "https://tracker.example.test/no-endpoint",
+            "Test case without endpoint",
+            CancellationToken.None
+        );
+    }
+    [Test]
     public async Task AddTmsItemByUrlAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

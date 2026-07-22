@@ -17,6 +17,30 @@ public class SetFixtureNameTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void SetFixtureNameDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.SetFixtureName("No endpoint value");
+    }
+
+    [Test]
+    public async Task SetFixtureNameAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetFixtureNameAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task SetFixtureNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetFixtureNameAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task SetFixtureNameAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

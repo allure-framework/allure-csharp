@@ -18,6 +18,30 @@ public class SetSeverityTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void SetSeverityDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.SetSeverity(Severity.Normal);
+    }
+
+    [Test]
+    public async Task SetSeverityAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetSeverityAsync(Severity.Normal);
+    }
+
+    [Test]
+    public async Task SetSeverityAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetSeverityAsync(Severity.Normal, CancellationToken.None);
+    }
+
+    [Test]
     public async Task SetSeverityAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

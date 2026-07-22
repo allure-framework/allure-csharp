@@ -17,6 +17,30 @@ public class SetAllureIdTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void SetAllureIdDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.SetAllureId(67890);
+    }
+
+    [Test]
+    public async Task SetAllureIdAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetAllureIdAsync(67890);
+    }
+
+    [Test]
+    public async Task SetAllureIdAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetAllureIdAsync(67890, CancellationToken.None);
+    }
+
+    [Test]
     public async Task SetAllureIdAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

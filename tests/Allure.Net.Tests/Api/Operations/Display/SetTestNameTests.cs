@@ -17,6 +17,30 @@ public class SetTestNameTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void SetTestNameDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.SetTestName("No endpoint value");
+    }
+
+    [Test]
+    public async Task SetTestNameAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetTestNameAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task SetTestNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetTestNameAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task SetTestNameAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

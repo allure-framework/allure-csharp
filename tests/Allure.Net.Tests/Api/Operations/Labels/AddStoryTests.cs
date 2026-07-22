@@ -21,6 +21,30 @@ public class AddStoryTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddStoryDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddStory("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddStoryAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddStoryAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddStoryAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddStoryAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task AddStoryAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

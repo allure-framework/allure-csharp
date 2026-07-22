@@ -22,6 +22,29 @@ public class AddTagsTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddTagsDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddTags([]);
+    }
+
+    [Test]
+    public async Task AddTagsAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddTagsAsync([]);
+    }
+
+    [Test]
+    public async Task AddTagsAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddTagsAsync([], CancellationToken.None);
+    }
+    [Test]
     public async Task AddTagsSupportsVarArgs()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

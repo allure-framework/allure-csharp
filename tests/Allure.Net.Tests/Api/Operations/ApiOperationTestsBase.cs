@@ -43,6 +43,9 @@ public class ApiOperationTestsBase
         );
     }
 
+    protected static IDisposable InstallNoEndpoint() =>
+        FacadeTestEnvironment.Use();
+
     protected static EndpointMocks<IAllureInProcessOperationsMock, IAllureAsyncInProcessOperationsMock> InstallInProcessEndpoint(
         InstallationScope scope = InstallationScope.CurrentAndGlobal
     )

@@ -21,6 +21,30 @@ public class AddSubSuiteTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddSubSuiteDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddSubSuite("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddSubSuiteAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddSubSuiteAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddSubSuiteAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddSubSuiteAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task AddSubSuiteAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

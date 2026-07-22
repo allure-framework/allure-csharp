@@ -19,6 +19,29 @@ public class AddLabelsTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddLabelsDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLabels([]);
+    }
+
+    [Test]
+    public async Task AddLabelsAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLabelsAsync([]);
+    }
+
+    [Test]
+    public async Task AddLabelsAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLabelsAsync([], CancellationToken.None);
+    }
+    [Test]
     public async Task AddLabelsSupportVarArgs()
     {
         var label1 = new Label(){ Name = "foo", Value = "bar" };

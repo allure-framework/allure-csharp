@@ -21,6 +21,30 @@ public class AddFeatureTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddFeatureDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddFeature("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddFeatureAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddFeatureAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddFeatureAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddFeatureAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task AddFeatureAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

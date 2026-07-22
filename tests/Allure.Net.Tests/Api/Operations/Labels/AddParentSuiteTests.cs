@@ -21,6 +21,30 @@ public class AddParentSuiteTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddParentSuiteDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddParentSuite("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddParentSuiteAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddParentSuiteAsync("No endpoint value");
+    }
+
+    [Test]
+    public async Task AddParentSuiteAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddParentSuiteAsync("No endpoint value", CancellationToken.None);
+    }
+
+    [Test]
     public async Task AddParentSuiteAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

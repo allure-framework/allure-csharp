@@ -23,6 +23,66 @@ public class AddIssueTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddIssueByUrlDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddIssue("https://tracker.example.test/no-endpoint");
+    }
+
+    [Test]
+    public async Task AddIssueByUrlAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddIssueAsync("https://tracker.example.test/no-endpoint");
+    }
+
+    [Test]
+    public async Task AddIssueByUrlAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddIssueAsync(
+            "https://tracker.example.test/no-endpoint",
+            cancellationToken: default
+        );
+    }
+
+    [Test]
+    public void AddIssueByUrlAndNameDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddIssue(
+            "https://tracker.example.test/no-endpoint",
+            "Issue without endpoint"
+        );
+    }
+
+    [Test]
+    public async Task AddIssueByUrlAndNameAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddIssueAsync(
+            "https://tracker.example.test/no-endpoint",
+            "Issue without endpoint"
+        );
+    }
+
+    [Test]
+    public async Task AddIssueByUrlAndNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddIssueAsync(
+            "https://tracker.example.test/no-endpoint",
+            "Issue without endpoint",
+            CancellationToken.None
+        );
+    }
+    [Test]
     public async Task AddIssueByUrlAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

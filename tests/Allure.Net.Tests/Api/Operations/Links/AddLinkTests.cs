@@ -23,6 +23,142 @@ public class AddLinkTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void AddLinkByUrlDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLink("https://example.test/no-endpoint");
+    }
+
+    [Test]
+    public async Task AddLinkByUrlAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync("https://example.test/no-endpoint");
+    }
+
+    [Test]
+    public async Task AddLinkByUrlAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync(
+            "https://example.test/no-endpoint",
+            cancellationToken: default
+        );
+    }
+
+    [Test]
+    public void AddLinkByUrlAndNameDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLink("https://example.test/no-endpoint", "Unavailable endpoint");
+    }
+
+    [Test]
+    public async Task AddLinkByUrlAndNameAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync(
+            "https://example.test/no-endpoint",
+            "Unavailable endpoint"
+        );
+    }
+
+    [Test]
+    public async Task AddLinkByUrlAndNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync(
+            "https://example.test/no-endpoint",
+            "Unavailable endpoint",
+            cancellationToken: default
+        );
+    }
+
+    [Test]
+    public void AddLinkByUrlNameAndTypeDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLink(
+            "https://example.test/no-endpoint",
+            "Unavailable endpoint",
+            "reference"
+        );
+    }
+
+    [Test]
+    public async Task AddLinkByUrlNameAndTypeAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync(
+            "https://example.test/no-endpoint",
+            "Unavailable endpoint",
+            "reference"
+        );
+    }
+
+    [Test]
+    public async Task AddLinkByUrlNameAndTypeAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync(
+            "https://example.test/no-endpoint",
+            "Unavailable endpoint",
+            "reference",
+            CancellationToken.None
+        );
+    }
+
+    [Test]
+    public void AddLinkModelDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddLink(new Link
+        {
+            Url = "https://example.test/no-endpoint",
+            Name = "Unavailable endpoint",
+            Type = "reference"
+        });
+    }
+
+    [Test]
+    public async Task AddLinkModelAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync(new Link
+        {
+            Url = "https://example.test/no-endpoint",
+            Name = "Unavailable endpoint",
+            Type = "reference"
+        });
+    }
+
+    [Test]
+    public async Task AddLinkModelAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.AddLinkAsync(
+            new Link
+            {
+                Url = "https://example.test/no-endpoint",
+                Name = "Unavailable endpoint",
+                Type = "reference"
+            },
+            CancellationToken.None
+        );
+    }
+    [Test]
     public async Task AddLinkByUrlAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);

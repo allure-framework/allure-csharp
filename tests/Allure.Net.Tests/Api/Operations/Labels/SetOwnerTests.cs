@@ -17,6 +17,30 @@ public class SetOwnerTests : ApiOperationTestsBase
     }
 
     [Test]
+    public void SetOwnerDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.SetOwner("No endpoint owner");
+    }
+
+    [Test]
+    public async Task SetOwnerAsyncDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetOwnerAsync("No endpoint owner");
+    }
+
+    [Test]
+    public async Task SetOwnerAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    {
+        using var _ = InstallNoEndpoint();
+
+        await AllureApi.SetOwnerAsync("No endpoint owner", CancellationToken.None);
+    }
+
+    [Test]
     public async Task SetOwnerAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
