@@ -16,7 +16,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     public static Task AddGlobalFileAttachmentAsync(string path) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -33,7 +33,7 @@ public static partial class AllureApi
         string path,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -47,7 +47,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
     public static Task AddGlobalFileAttachmentAsync(string path, string name) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -66,7 +66,7 @@ public static partial class AllureApi
         string name,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -88,7 +88,7 @@ public static partial class AllureApi
         string name,
         string mediaType
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -112,7 +112,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -134,7 +134,7 @@ public static partial class AllureApi
         string mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -158,7 +158,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -172,7 +172,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     public static Task AddGlobalAttachmentAsync(string name, Stream content) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -191,7 +191,7 @@ public static partial class AllureApi
         Stream content,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -209,7 +209,7 @@ public static partial class AllureApi
         ReadOnlyMemory<byte> content
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -238,7 +238,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -265,7 +265,7 @@ public static partial class AllureApi
         string content
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -294,7 +294,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -322,7 +322,7 @@ public static partial class AllureApi
         Stream content,
         string mediaType
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -343,7 +343,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -363,7 +363,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -394,7 +394,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -423,7 +423,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -454,7 +454,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -484,7 +484,7 @@ public static partial class AllureApi
         string mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -507,7 +507,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -529,7 +529,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -562,7 +562,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -593,7 +593,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -626,7 +626,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveGlobalScope();
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
         if (endpoint is null)
         {
             return;
@@ -648,7 +648,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="error">The error to persist.</param>
     public static Task AddGlobalErrorAsync(Exception error) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error.ToAllureGlobalError(),
             cancellationToken: default
         ) ?? Task.CompletedTask;
@@ -659,7 +659,7 @@ public static partial class AllureApi
     /// <param name="error">The error to persist.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddGlobalErrorAsync(Exception error, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error.ToAllureGlobalError(),
             cancellationToken: cancellationToken
         ) ?? Task.CompletedTask;
@@ -669,7 +669,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="message">The error message to persist.</param>
     public static Task AddGlobalErrorAsync(string message) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -684,7 +684,7 @@ public static partial class AllureApi
     /// <param name="message">The error message to persist.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddGlobalErrorAsync(string message, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -698,7 +698,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="statusDetails">The error details to persist.</param>
     public static Task AddGlobalErrorAsync(StatusDetails statusDetails) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -721,7 +721,7 @@ public static partial class AllureApi
         StatusDetails statusDetails,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),

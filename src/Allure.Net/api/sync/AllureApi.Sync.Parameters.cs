@@ -1,4 +1,3 @@
-using Allure.Abstractions;
 using Allure.Model;
 using Allure.Runtime;
 
@@ -16,7 +15,7 @@ public static partial class AllureApi
     /// </param>
     public static void AddTestParameterFromObject(string name, object? value) =>
         AddTestParameterFromObject(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             null,
@@ -34,7 +33,7 @@ public static partial class AllureApi
     /// <param name="mode">The display mode of the new parameter.</param>
     public static void AddTestParameterFromObject(string name, object? value, ParameterMode mode) =>
         AddTestParameterFromObject(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             mode,
@@ -55,7 +54,7 @@ public static partial class AllureApi
     /// </param>
     public static void AddTestParameterFromObject(string name, object? value, bool excluded) =>
         AddTestParameterFromObject(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             null,
@@ -82,7 +81,7 @@ public static partial class AllureApi
         bool excluded
     ) =>
         AddTestParameterFromObject(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             mode,
@@ -178,27 +177,5 @@ public static partial class AllureApi
     /// A new parameter instance.
     /// </param>
     public static void AddTestParameter(Parameter parameter) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddTestParameter(parameter);
-
-    static void AddTestParameterFromObject(
-        IAllureApiEndpoint? endpoint,
-        string name,
-        object? value,
-        ParameterMode? mode,
-        bool excluded
-    )
-    {
-        if (endpoint is null)
-        {
-            return;
-        }
-
-        endpoint.Operations.Sync.AddTestParameter(new()
-        {
-            Name = name,
-            Value = endpoint.ParameterSerializer.Serialize(value),
-            Mode = mode,
-            Excluded = excluded,
-        });
-    }
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddTestParameter(parameter);
 }

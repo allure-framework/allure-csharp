@@ -10,7 +10,7 @@ namespace Allure.Internal;
 class AllureStepRouter : AllureOperationRouter
 {
     protected override void Run(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Action body
@@ -18,7 +18,7 @@ class AllureStepRouter : AllureOperationRouter
         endpoint.Operations.Sync.Step(name, parameters, body);
 
     protected override T Run<T>(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<T> body
@@ -26,7 +26,7 @@ class AllureStepRouter : AllureOperationRouter
         endpoint.Operations.Sync.Step(name, parameters, body);
 
     protected override Task RunAsync(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<Task> body,
@@ -35,7 +35,7 @@ class AllureStepRouter : AllureOperationRouter
         endpoint.Operations.Async.StepAsync(name, parameters, body, cancellationToken);
 
     protected override Task<T> RunAsync<T>(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<Task<T>> body,

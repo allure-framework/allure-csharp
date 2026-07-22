@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Allure.Model;
-using Allure.Runtime;
 
 namespace Allure;
 
@@ -13,7 +12,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static void UpdateTestResult(Action<TestResult> update)
     {
-        AllureFrontend.InProcessApi?.UpdateTestResult(update);
+        ResolveOperations()?.Sync.UpdateTestResult(update);
     }
 
     /// <summary>
@@ -24,7 +23,7 @@ public static partial class AllureInProcessApi
         [MaybeNullWhen(false)] out TResult result
     )
     {
-        if (AllureFrontend.InProcessApi is { } api)
+        if (ResolveOperations() is { Sync: var api })
         {
             return api.TryReadTestResult(read, out result);
         }
@@ -73,7 +72,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static void UpdateFixtureResult(Action<FixtureResult> update)
     {
-        AllureFrontend.InProcessApi?.UpdateFixtureResult(update);
+        ResolveOperations()?.Sync.UpdateFixtureResult(update);
     }
 
     /// <summary>
@@ -84,7 +83,7 @@ public static partial class AllureInProcessApi
         [MaybeNullWhen(false)] out TResult result
     )
     {
-        if (AllureFrontend.InProcessApi is { } api)
+        if (ResolveOperations() is { Sync: var api })
         {
             return api.TryReadFixtureResult(read, out result);
         }
@@ -133,7 +132,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static void UpdateStepResult(Action<StepResult> update)
     {
-        AllureFrontend.InProcessApi?.UpdateStepResult(update);
+        ResolveOperations()?.Sync.UpdateStepResult(update);
     }
 
     /// <summary>
@@ -144,7 +143,7 @@ public static partial class AllureInProcessApi
         [MaybeNullWhen(false)] out TResult result
     )
     {
-        if (AllureFrontend.InProcessApi is { } api)
+        if (ResolveOperations() is { Sync: var api })
         {
             return api.TryReadStepResult(read, out result);
         }

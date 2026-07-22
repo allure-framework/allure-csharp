@@ -13,7 +13,7 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     public static void AddFileAttachment(string path) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -27,7 +27,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     public static void AddFileAttachment(string path, string name) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -42,7 +42,7 @@ public static partial class AllureApi
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
     public static void AddFileAttachment(string path, string name, string mediaType) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -63,7 +63,7 @@ public static partial class AllureApi
         string? mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -78,7 +78,7 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     public static void AddAttachment(string name, Stream content)
     {
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: content,
             mediaType: null,
@@ -95,7 +95,7 @@ public static partial class AllureApi
     public static void AddAttachment(string name, ReadOnlyMemory<byte> content)
     {
         using var stream = content.AsStream();
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: null,
@@ -112,7 +112,7 @@ public static partial class AllureApi
     public static void AddAttachment(string name, string content)
     {
         using var stream = ToStream(content);
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: null,
@@ -133,7 +133,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -155,7 +155,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -177,7 +177,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -200,7 +200,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -224,7 +224,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -248,7 +248,7 @@ public static partial class AllureApi
     )
     {
         using var stream = ToStream(content);
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -268,7 +268,7 @@ public static partial class AllureApi
         string actuaScreenPath,
         string screenDiffPath
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddFileScreenDiff(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileScreenDiff(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath
@@ -287,7 +287,7 @@ public static partial class AllureApi
         Stream diff
     )
     {
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddScreenDiff(expected, actual, diff);
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddScreenDiff(expected, actual, diff);
     }
 
     /// <summary>
@@ -307,7 +307,7 @@ public static partial class AllureApi
         using var actualStream = actual.AsStream();
         using var diffStream = diff.AsStream();
 
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.AddScreenDiff(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddScreenDiff(
             expectedStream,
             actualStream,
             diffStream

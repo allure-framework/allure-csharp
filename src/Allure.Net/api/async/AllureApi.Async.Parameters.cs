@@ -18,7 +18,7 @@ public static partial class AllureApi
     /// </param>
     public static Task AddTestParameterFromObjectAsync(string name, object? value) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             null,
@@ -41,7 +41,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             null,
@@ -64,7 +64,7 @@ public static partial class AllureApi
         ParameterMode mode
     ) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             mode,
@@ -89,7 +89,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             mode,
@@ -115,7 +115,7 @@ public static partial class AllureApi
         bool excluded
     ) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             null,
@@ -143,7 +143,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             null,
@@ -171,7 +171,7 @@ public static partial class AllureApi
         bool excluded
     ) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             mode,
@@ -201,7 +201,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AddTestParameterFromObjectAsync(
-            AllureFrontend.Client.ResolveCurrentScope(),
+            AllureRuntimeRouter.ResolveCurrentScope(),
             name,
             value,
             mode,
@@ -404,7 +404,7 @@ public static partial class AllureApi
     /// A new parameter instance.
     /// </param>
     public static Task AddTestParameterAsync(Parameter parameter) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddTestParameterAsync(parameter, default)
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddTestParameterAsync(parameter, default)
             ?? Task.CompletedTask;
 
     /// <summary>
@@ -421,29 +421,6 @@ public static partial class AllureApi
         Parameter parameter,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddTestParameterAsync(parameter, cancellationToken)
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddTestParameterAsync(parameter, cancellationToken)
             ?? Task.CompletedTask;
-
-    static Task AddTestParameterFromObjectAsync(
-        IAllureApiEndpoint? endpoint,
-        string name,
-        object? value,
-        ParameterMode? mode,
-        bool excluded,
-        CancellationToken cancellationToken
-    )
-    {
-        if (endpoint is null)
-        {
-            return Task.CompletedTask;
-        }
-
-        return endpoint.Operations.Async.AddTestParameterAsync(new()
-        {
-            Name = name,
-            Value = endpoint.ParameterSerializer.Serialize(value),
-            Mode = mode,
-            Excluded = excluded,
-        }, cancellationToken);
-    }
 }

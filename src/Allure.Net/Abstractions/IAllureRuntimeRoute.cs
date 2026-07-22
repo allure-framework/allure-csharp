@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace Allure.Abstractions;
 
 /// <summary>
-/// Defines how API calls are matched and routed to an Allure runtime.
+/// Defines how API calls are matched and routed to an Allure runtime endpoint.
 /// </summary>
 public interface IAllureRuntimeRoute
 {
@@ -28,7 +28,7 @@ public interface IAllureRuntimeRoute
     ImmutableHashSet<string> SuppressedRouteIds { get; }
 
     /// <summary>
-    /// Gets the runtime served by this route.
+    /// Gets the runtime endpoint served by this route.
     /// </summary>
-    IAllureRuntime Runtime { get; }
+    IAllureRuntimeEndpoint Endpoint { get; }
 }

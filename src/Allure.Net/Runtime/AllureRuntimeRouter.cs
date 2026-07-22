@@ -6,14 +6,14 @@ namespace Allure.Runtime;
 /// <summary>
 /// Provides process-wide registration of Allure runtime routes.
 /// </summary>
-public static class AllureBackend
+public static class AllureRuntimeRouter
 {
     readonly static AllureRuntimeRegistry registry = new();
 
-    internal static IAllureRuntime? ResolveCurrentScope() =>
+    internal static IAllureRuntimeEndpoint? ResolveCurrentScope() =>
         registry.ResolveCurrentScope();
 
-    internal static IAllureRuntime? ResolveGlobalScope() =>
+    internal static IAllureRuntimeEndpoint? ResolveGlobalScope() =>
         registry.ResolveGlobalScope();
 
     /// <summary>

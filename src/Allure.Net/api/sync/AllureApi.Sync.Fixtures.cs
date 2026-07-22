@@ -12,7 +12,7 @@ public static partial class AllureApi
     /// </summary>
     public static void SetUp(string name, Action body)
     {
-        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
             api.SetUp(name, [], body);
         }
@@ -27,7 +27,7 @@ public static partial class AllureApi
     /// </summary>
     public static void SetUp(string name, Action<IAllureFixtureContext> body)
     {
-        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
             api.SetUp(name, [], body);
         }
@@ -41,7 +41,7 @@ public static partial class AllureApi
     /// Runs a function as a setup fixture and returns its result.
     /// </summary>
     public static TResult SetUp<TResult>(string name, Func<TResult> body) =>
-        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+        AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api }
             ? api.SetUp(name, [], body)
             : body();
 
@@ -49,7 +49,7 @@ public static partial class AllureApi
     /// Runs a context-aware function as a setup fixture and returns its result.
     /// </summary>
     public static TResult SetUp<TResult>(string name, Func<IAllureFixtureContext, TResult> body) =>
-        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+        AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api }
             ? api.SetUp(name, [], body)
             : body(NullOperationContext.Instance);
 
@@ -58,7 +58,7 @@ public static partial class AllureApi
     /// </summary>
     public static void TearDown(string name, Action body)
     {
-        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
             api.TearDown(name, [], body);
         }
@@ -73,7 +73,7 @@ public static partial class AllureApi
     /// </summary>
     public static void TearDown(string name, Action<IAllureFixtureContext> body)
     {
-        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
             api.TearDown(name, [], body);
         }
@@ -87,7 +87,7 @@ public static partial class AllureApi
     /// Runs a function as a teardown fixture and returns its result.
     /// </summary>
     public static TResult TearDown<TResult>(string name, Func<TResult> body) =>
-        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+        AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api }
             ? api.TearDown(name, [], body)
             : body();
 
@@ -95,7 +95,7 @@ public static partial class AllureApi
     /// Runs a context-aware function as a teardown fixture and returns its result.
     /// </summary>
     public static TResult TearDown<TResult>(string name, Func<IAllureFixtureContext, TResult> body) =>
-        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api }
+        AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api }
             ? api.TearDown(name, [], body)
             : body(NullOperationContext.Instance);
 }

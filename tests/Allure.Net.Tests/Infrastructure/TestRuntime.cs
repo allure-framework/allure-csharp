@@ -8,7 +8,7 @@ sealed class TestRuntime(
     IAllureInProcessOperations? sync = null,
     IAllureAsyncInProcessOperations? @async = null,
     IAllureParameterSerializer? serializer = null
-) : IAllureRuntime
+) : IAllureRuntimeEndpoint
 {
     public string Name { get; } = name;
 

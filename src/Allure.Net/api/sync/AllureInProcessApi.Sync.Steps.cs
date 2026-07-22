@@ -1,5 +1,4 @@
 using System;
-using Allure.Runtime;
 using Allure.Abstractions;
 using Allure.Internal;
 
@@ -15,7 +14,7 @@ public static partial class AllureInProcessApi
     /// <param name="body">The code to run.</param>
     public static void Step(string name, Action<IAllureInProcessStepContext> body)
     {
-        if (AllureFrontend.InProcessApi is { } api)
+        if (ResolveOperations() is { Sync: var api })
         {
             api.Step(name, [], body);
         }
@@ -36,7 +35,7 @@ public static partial class AllureInProcessApi
         string name,
         Func<IAllureInProcessStepContext, TResult> body
     ) =>
-        AllureFrontend.InProcessApi is { } api
+        ResolveOperations() is { Sync: var api }
             ? api.Step(name, [], body)
             : body(NullOperationContext.Instance);
 }

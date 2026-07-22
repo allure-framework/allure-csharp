@@ -15,7 +15,7 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     public static Task AddFileAttachmentAsync(string path) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -30,7 +30,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddFileAttachmentAsync(string path, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -45,7 +45,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     public static Task AddFileAttachmentAsync(string path, string name) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -65,7 +65,7 @@ public static partial class AllureApi
         string name,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -81,7 +81,7 @@ public static partial class AllureApi
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
     public static Task AddFileAttachmentAsync(string path, string name, string mediaType) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -103,7 +103,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -125,7 +125,7 @@ public static partial class AllureApi
         string? mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -149,7 +149,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -164,7 +164,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the attachment.</param>
     /// <param name="content">The content of the attachment.</param>
     public static Task AddAttachmentAsync(string name, Stream content) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -184,7 +184,7 @@ public static partial class AllureApi
         Stream content,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: null,
@@ -200,7 +200,7 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     public static async Task AddAttachmentAsync(string name, ReadOnlyMemory<byte> content)
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -230,7 +230,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -255,7 +255,7 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     public static async Task AddAttachmentAsync(string name, string content)
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -285,7 +285,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -314,7 +314,7 @@ public static partial class AllureApi
         Stream content,
         string mediaType
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -336,7 +336,7 @@ public static partial class AllureApi
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -357,7 +357,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -389,7 +389,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -419,7 +419,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -451,7 +451,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -482,7 +482,7 @@ public static partial class AllureApi
         string? mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -506,7 +506,7 @@ public static partial class AllureApi
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentAsync(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -529,7 +529,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -563,7 +563,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -595,7 +595,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -629,7 +629,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -658,7 +658,7 @@ public static partial class AllureApi
         string actuaScreenPath,
         string screenDiffPath
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,
@@ -679,7 +679,7 @@ public static partial class AllureApi
         string screenDiffPath,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,
@@ -698,7 +698,7 @@ public static partial class AllureApi
         Stream actual,
         Stream diff
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
             expected,
             actual,
             diff,
@@ -719,7 +719,7 @@ public static partial class AllureApi
         Stream diff,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddScreenDiffAsync(
             expected,
             actual,
             diff,
@@ -739,7 +739,7 @@ public static partial class AllureApi
         ReadOnlyMemory<byte> diff
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;
@@ -773,7 +773,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return;

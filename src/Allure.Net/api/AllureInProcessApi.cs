@@ -1,3 +1,7 @@
+using System;
+using Allure.Abstractions;
+using Allure.Runtime;
+
 namespace Allure;
 
 /// <summary>
@@ -8,4 +12,20 @@ namespace Allure;
 /// </remarks>
 public static partial class AllureInProcessApi
 {
+    static IAllureInProcessApiOperations? ResolveOperations()
+    {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+
+        if (endpoint is null)
+        {
+            return null;
+        }
+
+        return endpoint is IAllureInProcessRuntimeEndpoint inProcessEndpoint
+            ? inProcessEndpoint.InProcessOperations
+            : throw new InvalidOperationException(
+                $"The current Allure runtime endpoint '{endpoint?.Name ?? "<none>"}' "
+                    + "does not support in-process model access."
+            );
+    }
 }

@@ -56,7 +56,7 @@ static class InternalAllureExtensions
             method.GetCustomAttribute<TAttribute>()?.Name;
 
         internal string? ConstructAllureName<TAttribute>(
-            IAllureApiEndpoint endpoint,
+            IAllureRuntimeEndpoint endpoint,
             IEnumerable<object?> arguments
         )
             where TAttribute : Attribute, IAllureNameSource
@@ -66,7 +66,7 @@ static class InternalAllureExtensions
                 : null;
 
         internal ImmutableArray<(ParameterInfo, Lazy<string>)> PrepareParametersForSerialization(
-            IAllureApiEndpoint endpoint,
+            IAllureRuntimeEndpoint endpoint,
             IEnumerable<object?> arguments
         ) =>
             [.. method.GetParameters()
@@ -76,7 +76,7 @@ static class InternalAllureExtensions
                         () => endpoint.ParameterSerializer.Serialize(a))))];
 
         internal string ConstructAllureName(
-            IAllureApiEndpoint endpoint,
+            IAllureRuntimeEndpoint endpoint,
             string nameFormat,
             IEnumerable<object?> arguments
         )

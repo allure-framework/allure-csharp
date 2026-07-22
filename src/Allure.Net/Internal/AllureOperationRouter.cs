@@ -21,7 +21,7 @@ abstract class AllureOperationRouter
         object?[] arguments
     )
     {
-        var endpoint = AllureFrontend.Client.ResolveCurrentScope();
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
         if (endpoint is null)
         {
             return body(arguments);
@@ -68,21 +68,21 @@ abstract class AllureOperationRouter
     ];
 
     protected abstract void Run(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Action body
     );
 
     protected abstract T Run<T>(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<T> body
     );
 
     protected abstract Task RunAsync(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<Task> body,
@@ -90,7 +90,7 @@ abstract class AllureOperationRouter
     );
 
     protected abstract Task<T> RunAsync<T>(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         string name,
         IEnumerable<Parameter> parameters,
         Func<Task<T>> body,
@@ -101,7 +101,7 @@ abstract class AllureOperationRouter
     {
         object Invoke(
             AllureOperationRouter router,
-            IAllureApiEndpoint endpoint,
+            IAllureRuntimeEndpoint endpoint,
             string name,
             IEnumerable<Parameter> parameters,
             Func<object?[], object?> body,
@@ -113,7 +113,7 @@ abstract class AllureOperationRouter
     {
         public object Invoke(
             AllureOperationRouter router,
-            IAllureApiEndpoint endpoint,
+            IAllureRuntimeEndpoint endpoint,
             string name,
             IEnumerable<Parameter> parameters,
             Func<object?[], object?> body,
@@ -132,7 +132,7 @@ abstract class AllureOperationRouter
     {
         public object Invoke(
             AllureOperationRouter router,
-            IAllureApiEndpoint endpoint,
+            IAllureRuntimeEndpoint endpoint,
             string name,
             IEnumerable<Parameter> parameters,
             Func<object?[], object?> body,

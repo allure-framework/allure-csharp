@@ -28,16 +28,16 @@ public sealed class AllureRuntimeRegistry
     }
 
     /// <summary>
-    /// Resolves the runtime matching the current test or fixture scope.
+    /// Resolves the runtime endpoint matching the current test or fixture scope.
     /// </summary>
-    public IAllureRuntime? ResolveCurrentScope() =>
-        this.GetRuntime(static (r) => r.MatchesCurrentScope);
+    public IAllureRuntimeEndpoint? ResolveCurrentScope() =>
+        this.GetEndpoint(static (r) => r.MatchesCurrentScope);
 
     /// <summary>
-    /// Resolves a runtime capable of accepting global result data.
+    /// Resolves an runtime endpoint capable of accepting global result data.
     /// </summary>
-    public IAllureRuntime? ResolveGlobalScope() =>
-        this.GetRuntime(static (r) => r.MatchesGlobalScope);
+    public IAllureRuntimeEndpoint? ResolveGlobalScope() =>
+        this.GetEndpoint(static (r) => r.MatchesGlobalScope);
 
     /// <summary>
     /// Installs a runtime route.
@@ -72,7 +72,7 @@ public sealed class AllureRuntimeRegistry
         });
     }
 
-    IAllureRuntime? GetRuntime(Func<IAllureRuntimeRoute, bool> predicate) =>
+    IAllureRuntimeEndpoint? GetEndpoint(Func<IAllureRuntimeRoute, bool> predicate) =>
         this.MatchRuntime(predicate) switch
         {
             MatchSuccess { Runtime: var runtime } => runtime,
@@ -88,9 +88,9 @@ public sealed class AllureRuntimeRegistry
     ) =>
         new (
             $"Unable to route an API call to an Allure runtime: "
-                + $"more than one runtime matched the requested Allure scope: "
+                + $"more than one routes matched the requested Allure scope: "
                 + $"{string.Join(", ", ids)}. "
-                + "Configure the runtime suppression rules and try again."
+                + "Configure the route suppression rules and try again."
         );
 
     RuntimeMatchResult MatchRuntime(Func<IAllureRuntimeRoute, bool> predicate)
@@ -106,7 +106,7 @@ public sealed class AllureRuntimeRegistry
 
         if (candidates.Length == 1)
         {
-            return EvaluateAvailability(candidates[0].Runtime);
+            return EvaluateAvailability(candidates[0].Endpoint);
         }
 
         var winners = FindDominatingRoutes(candidates);
@@ -116,9 +116,9 @@ public sealed class AllureRuntimeRegistry
             return RuntimeMatchResult.Multiple(candidates);
         }
 
-        return EvaluateAvailability(winners[0].Runtime);
+        return EvaluateAvailability(winners[0].Endpoint);
 
-        static RuntimeMatchResult EvaluateAvailability(IAllureRuntime runtime) =>
+        static RuntimeMatchResult EvaluateAvailability(IAllureRuntimeEndpoint runtime) =>
             runtime.IsAvailable
                 ? RuntimeMatchResult.Success(runtime)
                 : RuntimeMatchResult.Disabled(runtime);
@@ -137,21 +137,21 @@ public sealed class AllureRuntimeRegistry
 
     record class RuntimeMatchResult
     {
-        public static MatchSuccess Success(IAllureRuntime runtime) => new(runtime);
+        public static MatchSuccess Success(IAllureRuntimeEndpoint runtime) => new(runtime);
 
-        public static RuntimeDisabled Disabled(IAllureRuntime runtime) => new(runtime);
+        public static RuntimeDisabled Disabled(IAllureRuntimeEndpoint runtime) => new(runtime);
 
         public static MultipleMatches Multiple(IEnumerable<IAllureRuntimeRoute> matches) => new(
-            [..matches.Select(static (d) => $"{d.Runtime.Name} ({d.Id})")]
+            [..matches.Select(static (d) => $"{d.Endpoint.Name} ({d.Id})")]
         );
 
         public static NoMatch NoMatch { get; } = new();
 
     }
 
-    sealed record class MatchSuccess(IAllureRuntime Runtime) : RuntimeMatchResult;
+    sealed record class MatchSuccess(IAllureRuntimeEndpoint Runtime) : RuntimeMatchResult;
 
-    sealed record class RuntimeDisabled(IAllureRuntime Runtime) : RuntimeMatchResult;
+    sealed record class RuntimeDisabled(IAllureRuntimeEndpoint Runtime) : RuntimeMatchResult;
 
     sealed record class NoMatch() : RuntimeMatchResult;
 

@@ -14,7 +14,7 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="name">The name of the step.</param>
     public static void Step(string name) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.Step(name, [], Status.Passed, null);
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.Step(name, [], Status.Passed, null);
 
     /// <summary>
     /// Adds an empty step to the current fixture, test or step.
@@ -23,7 +23,7 @@ public static partial class AllureApi
     /// <param name="name">The name of the step.</param>
     /// <param name="status">A status of the step.</param>
     public static void Step(string name, Status status) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.Step(name, [], status, null);
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.Step(name, [], status, null);
 
     /// <summary>
     /// Adds an empty step to the current fixture, test or step.
@@ -32,7 +32,7 @@ public static partial class AllureApi
     /// <param name="status">A status of the step.</param>
     /// <param name="statusDetails">A status details of the step.</param>
     public static void Step(string name, Status status, StatusDetails statusDetails) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Sync.Step(name, [], status, statusDetails);
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.Step(name, [], status, statusDetails);
 
     /// <summary>
     /// Executes the action and reports the result as a new step of the current
@@ -42,7 +42,7 @@ public static partial class AllureApi
     /// <param name="body">The code to run.</param>
     public static void Step(string name, Action body)
     {
-        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
             api.Step(name, [], body);
         }
@@ -60,7 +60,7 @@ public static partial class AllureApi
     /// <param name="body">The code to run.</param>
     public static void Step(string name, Action<IAllureStepContext> body)
     {
-        if (AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api })
+        if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
             api.Step(name, [], body);
         }
@@ -78,7 +78,7 @@ public static partial class AllureApi
     /// <param name="body">The function to run.</param>
     /// <returns>The original value returned by the function.</returns>
     public static TResult Step<TResult>(string name, Func<TResult> body) =>
-        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api}
+        AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api}
             ? api.Step(name, [], body)
             : body();
 
@@ -93,7 +93,7 @@ public static partial class AllureApi
         string name,
         Func<IAllureStepContext, TResult> body
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope() is { Operations.Sync: var api}
+        AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api}
             ? api.Step(name, [], body)
             : body(NullOperationContext.Instance);
 }

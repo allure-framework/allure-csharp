@@ -1,5 +1,4 @@
 using System;
-using Allure.Runtime;
 using Allure.Abstractions;
 using System.Threading.Tasks;
 using System.Threading;
@@ -16,7 +15,7 @@ public static partial class AllureInProcessApi
     /// <param name="name">The name of the step.</param>
     /// <param name="body">The code to run.</param>
     public static Task StepAsync(string name, Func<IAllureAsyncInProcessStepContext, Task> body) =>
-        AllureFrontend.AsyncInProcessApi is { } api
+        ResolveOperations() is { Async: var api }
             ? api.StepAsync(name, [], body, default)
             : body(NullOperationContext.Instance);
 
@@ -28,7 +27,7 @@ public static partial class AllureInProcessApi
     /// <param name="body">The code to run.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task StepAsync(string name, Func<IAllureAsyncInProcessStepContext, Task> body, CancellationToken cancellationToken) =>
-        AllureFrontend.AsyncInProcessApi is { } api
+        ResolveOperations() is { Async: var api }
             ? api.StepAsync(name, [], body, cancellationToken)
             : body(NullOperationContext.Instance);
 
@@ -40,7 +39,7 @@ public static partial class AllureInProcessApi
     /// <param name="body">The code to run.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task StepAsync(string name, Func<IAllureAsyncInProcessStepContext, CancellationToken, Task> body, CancellationToken cancellationToken) =>
-        AllureFrontend.AsyncInProcessApi is { } api
+        ResolveOperations() is { Async: var api }
             ? api.StepAsync(name, [], body, cancellationToken)
             : body(NullOperationContext.Instance, cancellationToken);
 
@@ -55,7 +54,7 @@ public static partial class AllureInProcessApi
         string name,
         Func<IAllureAsyncInProcessStepContext, Task<TResult>> body
     ) =>
-        AllureFrontend.AsyncInProcessApi is { } api
+        ResolveOperations() is { Async: var api }
             ? api.StepAsync(name, [], body, default)
             : body(NullOperationContext.Instance);
 
@@ -73,7 +72,7 @@ public static partial class AllureInProcessApi
         Func<IAllureAsyncInProcessStepContext, Task<TResult>> body,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.AsyncInProcessApi is { } api
+        ResolveOperations() is { Async: var api }
             ? api.StepAsync(name, [], body, cancellationToken)
             : body(NullOperationContext.Instance);
 
@@ -90,7 +89,7 @@ public static partial class AllureInProcessApi
         Func<IAllureAsyncInProcessStepContext, CancellationToken, Task<TResult>> body,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.AsyncInProcessApi is { } api
+        ResolveOperations() is { Async: var api }
             ? api.StepAsync(name, [], body, cancellationToken)
             : body(NullOperationContext.Instance, cancellationToken);
 }

@@ -31,8 +31,8 @@ public class AllureAttachmentAspect
         var isGlobal = attr?.Global == true;
 
         var endpoint = isGlobal
-            ? AllureFrontend.Client.ResolveGlobalScope()
-            : AllureFrontend.Client.ResolveCurrentScope();
+            ? AllureRuntimeRouter.ResolveGlobalScope()
+            : AllureRuntimeRouter.ResolveCurrentScope();
 
         if (endpoint is null)
         {
@@ -67,7 +67,7 @@ public class AllureAttachmentAspect
     }
 
     static string ResolveAttachmentName(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         AllureAttachmentAttribute? attr,
         string methodName,
         MethodBase methodInfo,

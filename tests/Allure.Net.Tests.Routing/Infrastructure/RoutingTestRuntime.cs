@@ -9,7 +9,7 @@ sealed class RoutingTestRuntime(
     IAllureAsyncInProcessOperations @async,
     IAllureParameterSerializer serializer,
     bool available = true
-) : IAllureRuntime
+) : IAllureRuntimeEndpoint
 {
     public string Name { get; } = name;
 
@@ -22,7 +22,7 @@ sealed class RoutingTestRuntime(
 
 sealed class RoutingTestRoute(
     string id,
-    IAllureRuntime runtime,
+    IAllureRuntimeEndpoint runtime,
     Func<bool>? current = null,
     Func<bool>? global = null,
     IEnumerable<string>? suppressedIds = null
@@ -37,7 +37,7 @@ sealed class RoutingTestRoute(
     public ImmutableHashSet<string> SuppressedRouteIds { get; } =
         suppressedIds?.ToImmutableHashSet() ?? [];
 
-    public IAllureRuntime Runtime { get; } = runtime;
+    public IAllureRuntimeEndpoint Runtime { get; } = runtime;
 }
 
 sealed class CountingSerializer(string prefix) : IAllureParameterSerializer

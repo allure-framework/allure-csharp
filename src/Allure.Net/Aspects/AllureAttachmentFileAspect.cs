@@ -30,8 +30,8 @@ public class AllureAttachmentFileAspect
         var isGlobal = attr?.Global == true;
 
         var endpoint = isGlobal
-            ? AllureFrontend.Client.ResolveGlobalScope()
-            : AllureFrontend.Client.ResolveCurrentScope();
+            ? AllureRuntimeRouter.ResolveGlobalScope()
+            : AllureRuntimeRouter.ResolveCurrentScope();
 
         if (endpoint is null)
         {
@@ -86,7 +86,7 @@ public class AllureAttachmentFileAspect
     };
 
     static string ResolveAttachmentName(
-        IAllureApiEndpoint endpoint,
+        IAllureRuntimeEndpoint endpoint,
         FileInfo attachmentFile,
         AllureAttachmentFileAttribute? attr,
         MethodBase methodInfo,

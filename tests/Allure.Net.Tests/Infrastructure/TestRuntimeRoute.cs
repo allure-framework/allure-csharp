@@ -5,7 +5,7 @@ namespace Allure.Net.Tests.Infrastructure;
 
 sealed class TestRuntimeRoute(
     string id,
-    IAllureRuntime runtime,
+    IAllureRuntimeEndpoint runtime,
     Func<bool>? matchesCurrentScope = null,
     Func<bool>? matchesGlobalScope = null,
     IEnumerable<string>? suppressedRouteIds = null
@@ -20,5 +20,5 @@ sealed class TestRuntimeRoute(
     public ImmutableHashSet<string> SuppressedRouteIds { get; } =
         suppressedRouteIds?.ToImmutableHashSet() ?? [];
 
-    public IAllureRuntime Runtime { get; } = runtime;
+    public IAllureRuntimeEndpoint Runtime { get; } = runtime;
 }

@@ -101,7 +101,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="link">A link to add.</param>
     public static Task AddLinkAsync(Link link) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinkAsync(link, default)
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddLinkAsync(link, default)
             ?? Task.CompletedTask;
 
     /// <summary>
@@ -111,7 +111,7 @@ public static partial class AllureApi
     /// <param name="link">A link to add.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task AddLinkAsync(Link link, CancellationToken cancellationToken) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinkAsync(link, cancellationToken)
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddLinkAsync(link, cancellationToken)
             ?? Task.CompletedTask;
 
     /// <summary>
@@ -120,7 +120,7 @@ public static partial class AllureApi
     /// <remarks>If no test is running, does nothing.</remarks>
     /// <param name="links">The link instances to add.</param>
     public static Task AddLinksAsync(params IEnumerable<Link> links) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinksAsync(links, default)
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddLinksAsync(links, default)
             ?? Task.CompletedTask;
 
     /// <summary>
@@ -133,7 +133,7 @@ public static partial class AllureApi
         IEnumerable<Link> links,
         CancellationToken cancellationToken
     ) =>
-        AllureFrontend.Client.ResolveCurrentScope()?.Operations.Async.AddLinksAsync(links, cancellationToken)
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddLinksAsync(links, cancellationToken)
             ?? Task.CompletedTask;
 
     /// <summary>

@@ -14,7 +14,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     public static void AddGlobalFileAttachment(string path) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -27,7 +27,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
     public static void AddGlobalFileAttachment(string path, string name) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -48,7 +48,7 @@ public static partial class AllureApi
         string name,
         string mediaType
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -69,7 +69,7 @@ public static partial class AllureApi
         string mediaType,
         string fileExtension
     ) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -83,7 +83,7 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     public static void AddGlobalAttachment(string name, Stream content)
     {
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: content,
             mediaType: null,
@@ -102,7 +102,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: null,
@@ -122,7 +122,7 @@ public static partial class AllureApi
         string mediaType
     )
     {
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -143,7 +143,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -165,7 +165,7 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -188,7 +188,7 @@ public static partial class AllureApi
     )
     {
         using var stream = content.AsStream();
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -201,7 +201,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="error">The error to persist.</param>
     public static void AddGlobalError(Exception error) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
             error.ToAllureGlobalError()
         );
 
@@ -210,7 +210,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="message">The error message to persist.</param>
     public static void AddGlobalError(string message) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
             new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -223,7 +223,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="statusDetails">The error details to persist.</param>
     public static void AddGlobalError(StatusDetails statusDetails) =>
-        AllureFrontend.Client.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
             new()
             {
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),

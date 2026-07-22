@@ -1,9 +1,9 @@
 namespace Allure.Abstractions;
 
 /// <summary>
-/// Represents an in-process Allure runtime registered as a backend.
+/// Represents an endpoint to an Allure runtime.
 /// </summary>
-public interface IAllureRuntime
+public interface IAllureRuntimeEndpoint
 {
     /// <summary>
     /// Gets the runtime name.
@@ -16,9 +16,9 @@ public interface IAllureRuntime
     bool IsAvailable { get; }
 
     /// <summary>
-    /// Gets the runtime's in-process operations.
+    /// Gets the runtime-specific implementation of the API operations.
     /// </summary>
-    AllureRuntimeOperations Operations { get; }
+    IAllureApiOperations Operations { get; }
 
     /// <summary>
     /// Gets the serializer used for CLR parameter values.
