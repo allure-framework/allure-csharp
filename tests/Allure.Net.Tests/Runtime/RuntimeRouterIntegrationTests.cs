@@ -1,16 +1,16 @@
 using Allure.Abstractions;
 using Allure.Model;
-using Allure.Net.Tests.Routing.Infrastructure;
+using Allure.Net.Tests.Infrastructure;
 using Allure.Runtime;
 
-namespace Allure.Net.Tests.Routing;
+namespace Allure.Net.Tests.Runtime;
 
-public class DefaultRoutingTests
+public class RuntimeRouterIntegrationTests
 {
     static readonly AsyncLocal<string?> activeScope = new();
 
     [Test]
-    public async Task SyncFacadeCallReachesCurrentRuntime()
+    public async Task SyncFacadeCallReachesCurrentEndpoint()
     {
         var fixture = new RuntimeFixture("current");
         using var scope = ActivateScope();
@@ -23,7 +23,7 @@ public class DefaultRoutingTests
     }
 
     [Test]
-    public async Task AsyncFacadeCallReachesCurrentRuntime()
+    public async Task AsyncFacadeCallReachesCurrentEndpoint()
     {
         var fixture = new RuntimeFixture("current");
         using var scope = ActivateScope();
@@ -38,7 +38,7 @@ public class DefaultRoutingTests
     }
 
     [Test]
-    public async Task CurrentAndGlobalCallsCanReachDifferentRuntimes()
+    public async Task CurrentAndGlobalCallsCanReachDifferentEndpoints()
     {
         var current = new RuntimeFixture("current");
         var global = new RuntimeFixture("global");
@@ -54,7 +54,7 @@ public class DefaultRoutingTests
     }
 
     [Test]
-    public async Task ObjectParameterUsesSerializerFromResolvedRuntime()
+    public async Task ObjectParameterUsesSerializerFromResolvedEndpoint()
     {
         var fixture = new RuntimeFixture("runtime");
         using var scope = ActivateScope();
@@ -68,7 +68,7 @@ public class DefaultRoutingTests
     }
 
     [Test]
-    public async Task InProcessFacadeUsesResolvedRuntimeOperations()
+    public async Task InProcessFacadeUsesResolvedEndpointOperations()
     {
         var fixture = new RuntimeFixture("runtime");
         fixture.Sync.Handler = (method, arguments) =>
@@ -93,22 +93,18 @@ public class DefaultRoutingTests
     }
 
     [Test]
-    public async Task MissingRouteUsesPublicNoOpAndUnsupportedContracts()
+    public async Task MissingRouteUsesPublicNoOpContracts()
     {
         using var scope = ActivateScope();
 
         AllureApi.SetName("ignored");
         await AllureApi.SetNameAsync("ignored");
 
-        await Assert.That(() => AllureInProcessApi.UpdateTestResult(_ => { }))
-            .Throws<InvalidOperationException>()
-            .WithMessage(
-                "The in-process test API is not supported by 'Routing in-process Allure API client'."
-            );
+        AllureInProcessApi.UpdateTestResult(_ => { });
     }
 
     [Test]
-    public async Task DisabledRuntimeBehavesAsUnavailable()
+    public async Task DisabledEndpointBehavesAsUnavailable()
     {
         var fixture = new RuntimeFixture("disabled", available: false);
         using var scope = ActivateScope();
@@ -130,11 +126,11 @@ public class DefaultRoutingTests
 
         await Assert.That(() => AllureApi.SetName("ambiguous"))
             .Throws<InvalidOperationException>()
-            .WithMessageContaining("more than one runtime matched");
+            .WithMessageContaining("Unable to route an API call");
     }
 
     [Test]
-    public async Task SuppressionSelectsDominatingRuntimeThroughFacade()
+    public async Task SuppressionSelectsDominatingEndpointThroughFacade()
     {
         var winner = new RuntimeFixture("winner");
         var loser = new RuntimeFixture("loser");
@@ -168,7 +164,7 @@ public class DefaultRoutingTests
     }
 
     [Test]
-    public async Task ParallelLogicalScopesRemainIsolatedThroughDefaultRouter()
+    public async Task ParallelLogicalScopesRemainIsolatedThroughRouter()
     {
         var tasks = Enumerable.Range(0, 16).Select(index => Task.Run(async () =>
         {
@@ -198,7 +194,7 @@ public class DefaultRoutingTests
     )
     {
         var scope = activeScope.Value;
-        return AllureBackend.Install(new RoutingTestRoute(
+        return AllureRuntimeRouter.Install(new RoutingTestRoute(
             id ?? RouteId(fixture.Runtime.Name),
             fixture.Runtime,
             current: () => current && activeScope.Value == scope,
@@ -220,8 +216,8 @@ public class DefaultRoutingTests
     {
         public RuntimeFixture(string name, bool available = true)
         {
-            this.Sync = RecordingProxy<IAllureInProcessOperations>.Create();
-            this.Async = RecordingProxy<IAllureAsyncInProcessOperations>.Create();
+            this.Sync = RecordingInterface<IAllureInProcessOperations>.Create();
+            this.Async = RecordingInterface<IAllureAsyncInProcessOperations>.Create();
             this.Serializer = new CountingSerializer(name);
             this.Runtime = new RoutingTestRuntime(
                 name,
@@ -232,9 +228,9 @@ public class DefaultRoutingTests
             );
         }
 
-        public RecordingProxy<IAllureInProcessOperations> Sync { get; }
+        public RecordingInterface<IAllureInProcessOperations> Sync { get; }
 
-        public RecordingProxy<IAllureAsyncInProcessOperations> Async { get; }
+        public RecordingInterface<IAllureAsyncInProcessOperations> Async { get; }
 
         public CountingSerializer Serializer { get; }
 

@@ -20,5 +20,5 @@ sealed class TestRuntimeRoute(
     public ImmutableHashSet<string> SuppressedRouteIds { get; } =
         suppressedRouteIds?.ToImmutableHashSet() ?? [];
 
-    public IAllureRuntimeEndpoint Runtime { get; } = runtime;
+    public IAllureRuntimeEndpoint Endpoint { get; } = runtime;
 }

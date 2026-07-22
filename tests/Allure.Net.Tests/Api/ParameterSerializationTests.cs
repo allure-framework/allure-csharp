@@ -75,7 +75,6 @@ public class ParameterSerializationTests
         AllureApi.AddTestParameterFromObject("argument", new object());
         await AllureApi.AddTestParameterFromObjectAsync("argument", new object());
 
-        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(2);
     }
 
     sealed class ThrowingSerializer : IAllureParameterSerializer

@@ -43,7 +43,6 @@ public class FacadeForwardingTests
         AllureApi.SetName("ignored");
         await AllureApi.SetNameAsync("ignored");
 
-        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(2);
     }
 
     [Test]

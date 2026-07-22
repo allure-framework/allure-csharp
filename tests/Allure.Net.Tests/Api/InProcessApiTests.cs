@@ -95,12 +95,25 @@ public class InProcessApiTests
     }
 
     [Test]
-    public async Task MissingOrRemoteEndpointReportsInProcessApiAsUnsupported()
+    public async Task MissingEndpointMakesInProcessUpdateANoOp()
     {
-        using var scope = FacadeTestEnvironment.Use(current: new TestApiEndpoint());
+        using var scope = FacadeTestEnvironment.Use();
+
+        AllureInProcessApi.UpdateStepResult(_ => { });
+
+        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task RemoteEndpointReportsInProcessApiAsUnsupported()
+    {
+        using var scope = FacadeTestEnvironment.Use(current: new TestRuntime("remote endpoint"));
 
         await Assert.That(() => AllureInProcessApi.UpdateStepResult(_ => { }))
             .Throws<InvalidOperationException>()
-            .WithMessage("The in-process test API is not supported by 'facade test client'.");
+            .WithMessage(
+                "The current Allure runtime endpoint 'remote endpoint' "
+                    + "does not support in-process model access."
+            );
     }
 }

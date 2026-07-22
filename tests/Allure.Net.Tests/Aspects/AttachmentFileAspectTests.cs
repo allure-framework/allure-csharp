@@ -98,7 +98,7 @@ public class AttachmentFileAspectTests
             nameof(DefaultFile), Method(nameof(DefaultFile)), [], typeof(int), 42
         );
 
-        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(1);
+        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(0);
     }
 
     static MethodInfo Method(string name) =>

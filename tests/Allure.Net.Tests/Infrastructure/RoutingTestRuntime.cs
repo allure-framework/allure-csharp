@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Allure.Abstractions;
-
-namespace Allure.Net.Tests.Routing.Infrastructure;
+namespace Allure.Net.Tests.Infrastructure;
 
 sealed class RoutingTestRuntime(
     string name,
@@ -9,13 +8,16 @@ sealed class RoutingTestRuntime(
     IAllureAsyncInProcessOperations @async,
     IAllureParameterSerializer serializer,
     bool available = true
-) : IAllureRuntimeEndpoint
+) : IAllureInProcessRuntimeEndpoint
 {
     public string Name { get; } = name;
 
     public bool IsAvailable { get; set; } = available;
 
-    public AllureRuntimeOperations Operations { get; } = new(sync, @async);
+    public IAllureApiOperations Operations { get; } = new TestApiOperations(sync, @async);
+
+    public IAllureInProcessApiOperations InProcessOperations { get; } =
+        new TestInProcessApiOperations(sync, @async);
 
     public IAllureParameterSerializer ParameterSerializer { get; } = serializer;
 }
@@ -37,7 +39,7 @@ sealed class RoutingTestRoute(
     public ImmutableHashSet<string> SuppressedRouteIds { get; } =
         suppressedIds?.ToImmutableHashSet() ?? [];
 
-    public IAllureRuntimeEndpoint Runtime { get; } = runtime;
+    public IAllureRuntimeEndpoint Endpoint { get; } = runtime;
 }
 
 sealed class CountingSerializer(string prefix) : IAllureParameterSerializer

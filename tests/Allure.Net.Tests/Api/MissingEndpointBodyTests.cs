@@ -70,7 +70,6 @@ public class MissingEndpointBodyTests
         await Assert.That(syncContext).IsNotNull();
         await Assert.That(asyncContext).IsNotNull();
         await Assert.That(observedToken).IsEqualTo(cancellation.Token);
-        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(10);
     }
 
     [Test]
@@ -111,7 +110,6 @@ public class MissingEndpointBodyTests
         }
 
         await Assert.That(executions).IsEqualTo(20);
-        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(20);
     }
 
     [Test]
@@ -159,6 +157,66 @@ public class MissingEndpointBodyTests
             "async",
             () => Task.FromException(new BodyException("async failure"))
         )).Throws<BodyException>().WithMessage("async failure");
+    }
+
+    [Test]
+    public async Task InProcessBodiesExecuteWithNullContextsWhenEndpointIsMissing()
+    {
+        using var scope = FacadeTestEnvironment.Use();
+        using var cancellation = new CancellationTokenSource();
+        IAllureInProcessStepContext? stepContext = null;
+        IAllureAsyncInProcessStepContext? asyncStepContext = null;
+        IAllureInProcessFixtureContext? fixtureContext = null;
+        IAllureAsyncInProcessFixtureContext? asyncFixtureContext = null;
+        CancellationToken observedToken = default;
+        var actionExecutions = 0;
+
+        AllureInProcessApi.Step("step action", _ => actionExecutions++);
+        AllureInProcessApi.SetUp("set-up action", _ => actionExecutions++);
+        AllureInProcessApi.TearDown("tear-down action", _ => actionExecutions++);
+
+        var stepResult = AllureInProcessApi.Step("step", context =>
+        {
+            stepContext = context;
+            return 17;
+        });
+        var asyncStepResult = await AllureInProcessApi.StepAsync(
+            "async step",
+            (context, token) =>
+            {
+                asyncStepContext = context;
+                observedToken = token;
+                return Task.FromResult(18);
+            },
+            cancellation.Token
+        );
+        var setUpResult = AllureInProcessApi.SetUp("set-up", context =>
+        {
+            fixtureContext = context;
+            return 19;
+        });
+        var tearDownResult = await AllureInProcessApi.TearDownAsync(
+            "tear-down",
+            context =>
+            {
+                asyncFixtureContext = context;
+                return Task.FromResult(20);
+            }
+        );
+
+        await Assert.That(stepResult).IsEqualTo(17);
+        await Assert.That(asyncStepResult).IsEqualTo(18);
+        await Assert.That(setUpResult).IsEqualTo(19);
+        await Assert.That(tearDownResult).IsEqualTo(20);
+        await Assert.That(stepContext).IsNotNull();
+        await Assert.That(asyncStepContext).IsNotNull();
+        await Assert.That(fixtureContext).IsNotNull();
+        await Assert.That(asyncFixtureContext).IsNotNull();
+        await Assert.That(observedToken).IsEqualTo(cancellation.Token);
+        await Assert.That(actionExecutions).IsEqualTo(3);
+        await Assert.That(AllureInProcessApi.TryReadTestResult(_ => 1, out _)).IsFalse();
+        await Assert.That(AllureInProcessApi.TryReadFixtureResult(_ => 1, out _)).IsFalse();
+        await Assert.That(AllureInProcessApi.TryReadStepResult(_ => 1, out _)).IsFalse();
     }
 
     abstract class FixtureInvoker

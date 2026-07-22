@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+using System.Collections.Immutable;
 using Allure.Abstractions;
 using Allure.Runtime;
 
@@ -8,58 +8,98 @@ static class FacadeTestEnvironment
 {
     static readonly AsyncLocal<Scope?> currentScope = new();
 
-    [ModuleInitializer]
-    internal static void Initialize() =>
-        AllureFrontend.PrepareClient(new ScopedApiClient());
-
     public static Scope Use(
-        IAllureApiEndpoint? current = null,
-        IAllureApiEndpoint? global = null
+        IAllureRuntimeEndpoint? current = null,
+        IAllureRuntimeEndpoint? global = null
     )
     {
-        var scope = new Scope(current, global);
+        var scope = new Scope(currentScope.Value, current, global);
         currentScope.Value = scope;
+        scope.Install();
         return scope;
     }
 
     public sealed class Scope(
-        IAllureApiEndpoint? currentEndpoint,
-        IAllureApiEndpoint? globalEndpoint
+        Scope? previous,
+        IAllureRuntimeEndpoint? currentEndpoint,
+        IAllureRuntimeEndpoint? globalEndpoint
     ) : IDisposable
     {
-        public IAllureApiEndpoint? CurrentEndpoint { get; } = currentEndpoint;
+        readonly List<IDisposable> registrations = [];
 
-        public IAllureApiEndpoint? GlobalEndpoint { get; } = globalEndpoint;
+        public IAllureRuntimeEndpoint? CurrentEndpoint { get; } = currentEndpoint;
+
+        public IAllureRuntimeEndpoint? GlobalEndpoint { get; } = globalEndpoint;
 
         public int CurrentResolutionCount { get; set; }
 
         public int GlobalResolutionCount { get; set; }
 
-        public void Dispose() => currentScope.Value = null;
+        internal void Install()
+        {
+            if (this.CurrentEndpoint is not null)
+            {
+                this.registrations.Add(AllureRuntimeRouter.Install(
+                    new ScopedRoute(this, this.CurrentEndpoint, current: true)
+                ));
+            }
+            if (this.GlobalEndpoint is not null)
+            {
+                this.registrations.Add(AllureRuntimeRouter.Install(
+                    new ScopedRoute(this, this.GlobalEndpoint, current: false)
+                ));
+            }
+        }
+
+        public void Dispose()
+        {
+            for (var index = this.registrations.Count - 1; index >= 0; index--)
+            {
+                this.registrations[index].Dispose();
+            }
+            if (ReferenceEquals(currentScope.Value, this))
+            {
+                currentScope.Value = previous;
+            }
+        }
     }
 
-    sealed class ScopedApiClient : IAllureApiClient
+    sealed class ScopedRoute(
+        Scope scope,
+        IAllureRuntimeEndpoint endpoint,
+        bool current
+    ) : IAllureRuntimeRoute
     {
-        public string Name => "facade test client";
+        public string Id { get; } = $"test-{Guid.NewGuid():N}";
 
-        public IAllureApiEndpoint? ResolveCurrentScope()
+        public bool MatchesCurrentScope
         {
-            var scope = currentScope.Value;
-            if (scope is not null)
+            get
             {
-                scope.CurrentResolutionCount++;
+                var matches = current && ReferenceEquals(currentScope.Value, scope);
+                if (matches)
+                {
+                    scope.CurrentResolutionCount++;
+                }
+                return matches;
             }
-            return scope?.CurrentEndpoint;
         }
 
-        public IAllureApiEndpoint? ResolveGlobalScope()
+        public bool MatchesGlobalScope
         {
-            var scope = currentScope.Value;
-            if (scope is not null)
+            get
             {
-                scope.GlobalResolutionCount++;
+                var matches = !current && ReferenceEquals(currentScope.Value, scope);
+                if (matches)
+                {
+                    scope.GlobalResolutionCount++;
+                }
+                return matches;
             }
-            return scope?.GlobalEndpoint;
         }
+
+        public ImmutableHashSet<string> SuppressedRouteIds { get; } = [];
+
+        public IAllureRuntimeEndpoint Endpoint { get; } = endpoint;
     }
 }

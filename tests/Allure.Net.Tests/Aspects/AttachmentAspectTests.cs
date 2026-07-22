@@ -128,7 +128,7 @@ public class AttachmentAspectTests
             nameof(DefaultTextAttachment), Method(nameof(DefaultTextAttachment)), [], typeof(int), 42
         );
 
-        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(1);
+        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(0);
     }
 
     [Test]

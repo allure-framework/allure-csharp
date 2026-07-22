@@ -33,7 +33,8 @@ public class OverloadConsistencyTests
     }
 
     static MethodInfo[] PublicMethods() =>
-        typeof(AllureApi).GetMethods(BindingFlags.Public | BindingFlags.Static)
+        new[] { typeof(AllureApi), typeof(AllureInProcessApi) }
+            .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static))
             .Where(method => !method.IsSpecialName)
             .ToArray();
 
@@ -42,6 +43,7 @@ public class OverloadConsistencyTests
         var parameters = method.GetParameters();
         var candidateParameters = candidate.GetParameters();
         return candidate.Name == method.Name
+            && candidate.DeclaringType == method.DeclaringType
             && candidate.GetGenericArguments().Length == method.GetGenericArguments().Length
             && candidateParameters.Length == parameters.Length + 1
             && ParametersMatch(parameters, candidateParameters[..^1])
@@ -53,6 +55,7 @@ public class OverloadConsistencyTests
         var parameters = method.GetParameters();
         var candidateParameters = candidate.GetParameters();
         return candidate.Name == $"{method.Name}Async"
+            && candidate.DeclaringType == method.DeclaringType
             && candidate.GetGenericArguments().Length == method.GetGenericArguments().Length
             && (
                 ParametersMatch(parameters, candidateParameters)

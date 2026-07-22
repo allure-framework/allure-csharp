@@ -59,7 +59,6 @@ public class StepAndFixtureTests
         await Assert.That(fixtureResult).IsEqualTo(4);
         await Assert.That(stepCalls).IsEqualTo(1);
         await Assert.That(fixtureCalls).IsEqualTo(1);
-        await Assert.That(scope.CurrentResolutionCount).IsEqualTo(2);
     }
 
     [Test]

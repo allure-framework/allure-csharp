@@ -78,9 +78,6 @@
     <Project Path="tests/Allure.Net.Tests/Allure.Net.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
-    <Project Path="tests/Allure.Net.Tests.Routing/Allure.Net.Tests.Routing.csproj">
-      <Build Solution="Publish|*" Project="false" />
-    </Project>
     <Project Path="tests/Allure.NUnit.Tests/Allure.NUnit.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>

@@ -56,8 +56,9 @@ public class FacadeCompletenessTests
     [Test]
     public async Task EveryInProcessApiMethodDispatchesExactlyOneOperation()
     {
-        var operations = RecordingInterface<IAllureInProcessOperations>.Create();
-        operations.Handler = (method, arguments) =>
+        var sync = RecordingInterface<IAllureInProcessOperations>.Create();
+        var async = RecordingInterface<IAllureAsyncInProcessOperations>.Create();
+        sync.Handler = (method, arguments) =>
         {
             if (method.Name.StartsWith("TryRead", StringComparison.Ordinal))
             {
@@ -67,24 +68,28 @@ public class FacadeCompletenessTests
             return null;
         };
         using var scope = FacadeTestEnvironment.Use(
-            current: new TestApiEndpoint(sync: operations.Instance)
+            current: new TestApiEndpoint(sync.Instance, async.Instance)
         );
 
         foreach (var definition in PublicMethods(typeof(AllureInProcessApi)))
         {
             var method = PublicMethodArguments.Close(definition);
-            var before = operations.Calls.Count;
+            var before = sync.Calls.Count + async.Calls.Count;
 
             try
             {
-                _ = method.Invoke(null, PublicMethodArguments.Create(method));
+                var result = method.Invoke(null, PublicMethodArguments.Create(method));
+                if (result is Task task)
+                {
+                    await task;
+                }
             }
             catch (Exception exception)
             {
                 throw new InvalidOperationException($"Failed to invoke {method}.", exception);
             }
 
-            await Assert.That(operations.Calls.Count - before)
+            await Assert.That(sync.Calls.Count + async.Calls.Count - before)
                 .IsEqualTo(1)
                 .Because($"{method} must dispatch exactly one runtime operation");
         }
