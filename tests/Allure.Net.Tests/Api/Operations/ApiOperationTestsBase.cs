@@ -1,0 +1,125 @@
+using Allure.Abstractions;
+using Allure.Net.Tests.Infrastructure;
+
+namespace Allure.Net.Tests.Api.Operations;
+
+public class ApiOperationTestsBase
+{
+    protected enum InstallationScope
+    {
+        Current,
+        Global,
+        CurrentAndGlobal
+    }
+
+    protected static EndpointMocks<
+        IAllureOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
+        IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
+    > InstallEndpoint(
+        InstallationScope scope = InstallationScope.CurrentAndGlobal
+    )
+    {
+        var sync = IAllureOperations<IAllureStepContext, IAllureFixtureContext>.Mock();
+        var @async = IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>.Mock();
+
+        var operations = new AllureApiOperations(sync, @async);
+
+        var currentEndpoint = scope is InstallationScope.Current or InstallationScope.CurrentAndGlobal
+            ? IAllureRuntimeEndpoint.Mock()
+            : null;
+        currentEndpoint?.Operations.Returns(operations);
+        currentEndpoint?.IsAvailable.Returns(true);
+
+        var globalEndpoint = scope is InstallationScope.Global or InstallationScope.CurrentAndGlobal
+            ? IAllureRuntimeEndpoint.Mock()
+            : null;
+        globalEndpoint?.Operations.Returns(operations);
+        globalEndpoint?.IsAvailable.Returns(true);
+
+        return EndpointMocks.Create(
+            sync,
+            @async,
+            FacadeTestEnvironment.Use(current: currentEndpoint, global: globalEndpoint)
+        );
+    }
+
+    protected static EndpointMocks<IAllureInProcessOperationsMock, IAllureAsyncInProcessOperationsMock> InstallInProcessEndpoint(
+        InstallationScope scope = InstallationScope.CurrentAndGlobal
+    )
+    {
+        var sync = IAllureInProcessOperations.Mock();
+        var @async = IAllureAsyncInProcessOperations.Mock();
+
+        var operations = new AllureInProcessApiOperations(sync, @async);
+
+        var currentEndpoint = scope is InstallationScope.Current or InstallationScope.CurrentAndGlobal
+            ? IAllureInProcessRuntimeEndpoint.Mock()
+            : null;
+        currentEndpoint?.Operations.Returns(operations);
+        currentEndpoint?.InProcessOperations.Returns(operations);
+        currentEndpoint?.IsAvailable.Returns(true);
+
+        var globalEndpoint = scope is InstallationScope.Global or InstallationScope.CurrentAndGlobal
+            ? IAllureInProcessRuntimeEndpoint.Mock()
+            : null;
+        globalEndpoint?.Operations.Returns(operations);
+        globalEndpoint?.InProcessOperations.Returns(operations);
+        globalEndpoint?.IsAvailable.Returns(true);
+
+        return EndpointMocks.Create(
+            sync,
+            @async,
+            FacadeTestEnvironment.Use(current: currentEndpoint, global: globalEndpoint)
+        );
+    }
+
+    protected sealed class EndpointMocks<TSyncApi, TAsyncApi>(
+        TSyncApi sync,
+        TAsyncApi @async,
+        IDisposable registration
+    ) : IDisposable
+    {
+        public TSyncApi SyncApi { get; } = sync;
+
+        public TAsyncApi AsyncApi { get; } = @async;
+
+        public void Dispose()
+        {
+            registration.Dispose();
+        }
+    }
+
+    protected static class EndpointMocks
+    {
+        public static EndpointMocks<TSyncApi, TAsyncApi> Create<TSyncApi, TAsyncApi>(
+            TSyncApi sync,
+            TAsyncApi @async,
+            IDisposable registration
+        ) =>
+            new(sync, @async, registration);
+    };
+
+    protected class AllureApiOperations(
+        IAllureOperations<IAllureStepContext, IAllureFixtureContext> sync,
+        IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> @async
+    ) : IAllureApiOperations
+    {
+        public IAllureOperations<IAllureStepContext, IAllureFixtureContext> Sync => sync;
+
+        public IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> Async => @async;
+    }
+
+    protected class AllureInProcessApiOperations(
+        IAllureInProcessOperations sync,
+        IAllureAsyncInProcessOperations @async
+    ) : IAllureInProcessApiOperations, IAllureApiOperations
+    {
+        public IAllureInProcessOperations Sync => sync;
+
+        public IAllureAsyncInProcessOperations Async => @async;
+
+        IAllureOperations<IAllureStepContext, IAllureFixtureContext> IAllureApiOperations.Sync => Sync;
+
+        IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> IAllureApiOperations.Async => Async;
+    }
+}
