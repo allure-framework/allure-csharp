@@ -13,11 +13,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         AllureApi.AddLink("https://example.test/reference/42");
 
-        await Assert.That(endpoint.SyncApi.AddLink((link) =>
-            link.Url is "https://example.test/reference/42"
-                && link.Name is null
-                && link.Type is null
-        )).WasCalled(Times.Once);
+        await Assert.That(endpoint.SyncApi.AddLink((link) => link is
+        {
+            Url: "https://example.test/reference/42",
+            Name: null,
+            Type: null,
+        })).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
 
@@ -30,9 +31,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://example.test/reference/42"
-                    && link.Name is null
-                    && link.Type is null,
+                (link) => link is
+                {
+                    Url: "https://example.test/reference/42",
+                    Name: null,
+                    Type: null,
+                },
                 CancellationToken.None
             )
         ).WasCalled(Times.Once);
@@ -61,9 +65,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://example.test/reference/42"
-                    && link.Name is null
-                    && link.Type is null,
+                (link) => link is
+                {
+                    Url: "https://example.test/reference/42",
+                    Name: null,
+                    Type: null,
+                },
                 cts.Token
             )
         ).WasCalled(Times.Once);
@@ -92,11 +99,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         AllureApi.AddLink("https://example.test/reference/42", "Reference page");
 
-        await Assert.That(endpoint.SyncApi.AddLink((link) =>
-            link.Url is "https://example.test/reference/42"
-                && link.Name is "Reference page"
-                && link.Type is null
-        )).WasCalled(Times.Once);
+        await Assert.That(endpoint.SyncApi.AddLink((link) => link is
+        {
+            Url: "https://example.test/reference/42",
+            Name: "Reference page",
+            Type: null,
+        })).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
 
@@ -109,9 +117,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://example.test/reference/42"
-                    && link.Name is "Reference page"
-                    && link.Type is null,
+                (link) => link is
+                {
+                    Url: "https://example.test/reference/42",
+                    Name: "Reference page",
+                    Type: null,
+                },
                 CancellationToken.None
             )
         ).WasCalled(Times.Once);
@@ -140,9 +151,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://example.test/reference/42"
-                    && link.Name is "Reference page"
-                    && link.Type is null,
+                (link) => link is
+                {
+                    Url: "https://example.test/reference/42",
+                    Name: "Reference page",
+                    Type: null,
+                },
                 cts.Token
             )
         ).WasCalled(Times.Once);
@@ -172,11 +186,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         AllureApi.AddLink("https://example.test/reference/42", "Reference page", "documentation");
 
-        await Assert.That(endpoint.SyncApi.AddLink((link) =>
-            link.Url is "https://example.test/reference/42"
-                && link.Name is "Reference page"
-                && link.Type is "documentation"
-        )).WasCalled(Times.Once);
+        await Assert.That(endpoint.SyncApi.AddLink((link) => link is
+        {
+            Url: "https://example.test/reference/42",
+            Name: "Reference page",
+            Type: "documentation",
+        })).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
 
@@ -189,9 +204,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://example.test/reference/42"
-                    && link.Name is "Reference page"
-                    && link.Type is "documentation",
+                (link) => link is
+                {
+                    Url: "https://example.test/reference/42",
+                    Name: "Reference page",
+                    Type: "documentation",
+                },
                 CancellationToken.None
             )
         ).WasCalled(Times.Once);
@@ -220,9 +238,12 @@ public class AddLinkTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://example.test/reference/42"
-                    && link.Name is "Reference page"
-                    && link.Type is "documentation",
+                (link) => link is
+                {
+                    Url: "https://example.test/reference/42",
+                    Name: "Reference page",
+                    Type: "documentation",
+                },
                 cts.Token
             )
         ).WasCalled(Times.Once);

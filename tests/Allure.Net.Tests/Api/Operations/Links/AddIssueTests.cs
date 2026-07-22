@@ -13,11 +13,12 @@ public class AddIssueTests : ApiOperationTestsBase
 
         AllureApi.AddIssue("https://tracker.example.test/issue/42");
 
-        await Assert.That(endpoint.SyncApi.AddLink((link) =>
-            link.Url is "https://tracker.example.test/issue/42"
-                && link.Name is null
-                && link.Type is LinkType.Issue
-        )).WasCalled(Times.Once);
+        await Assert.That(endpoint.SyncApi.AddLink((link) => link is
+        {
+            Url: "https://tracker.example.test/issue/42",
+            Name: null,
+            Type: LinkType.Issue,
+        })).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
 
@@ -30,9 +31,12 @@ public class AddIssueTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://tracker.example.test/issue/42"
-                    && link.Name is null
-                    && link.Type is LinkType.Issue,
+                (link) => link is
+                {
+                    Url: "https://tracker.example.test/issue/42",
+                    Name: null,
+                    Type: LinkType.Issue,
+                },
                 CancellationToken.None
             )
         ).WasCalled(Times.Once);
@@ -61,9 +65,12 @@ public class AddIssueTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://tracker.example.test/issue/42"
-                    && link.Name is null
-                    && link.Type is LinkType.Issue,
+                (link) => link is
+                {
+                    Url: "https://tracker.example.test/issue/42",
+                    Name: null,
+                    Type: LinkType.Issue,
+                },
                 cts.Token
             )
         ).WasCalled(Times.Once);
@@ -92,11 +99,12 @@ public class AddIssueTests : ApiOperationTestsBase
 
         AllureApi.AddIssue("https://tracker.example.test/issue/42", "Issue 42");
 
-        await Assert.That(endpoint.SyncApi.AddLink((link) =>
-            link.Url is "https://tracker.example.test/issue/42"
-                && link.Name is "Issue 42"
-                && link.Type is LinkType.Issue
-            )).WasCalled(Times.Once);
+        await Assert.That(endpoint.SyncApi.AddLink((link) => link is
+        {
+            Url: "https://tracker.example.test/issue/42",
+            Name: "Issue 42",
+            Type: LinkType.Issue,
+        })).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
 
@@ -109,9 +117,12 @@ public class AddIssueTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://tracker.example.test/issue/42"
-                    && link.Name is "Issue 42"
-                    && link.Type is LinkType.Issue,
+                (link) => link is
+                {
+                    Url: "https://tracker.example.test/issue/42",
+                    Name: "Issue 42",
+                    Type: LinkType.Issue,
+                },
                 CancellationToken.None
             )
         ).WasCalled(Times.Once);
@@ -140,9 +151,12 @@ public class AddIssueTests : ApiOperationTestsBase
 
         await Assert.That(
             endpoint.AsyncApi.AddLinkAsync(
-                (link) => link.Url is "https://tracker.example.test/issue/42"
-                    && link.Name is "Issue 42"
-                    && link.Type is LinkType.Issue,
+                (link) => link is
+                {
+                    Url: "https://tracker.example.test/issue/42",
+                    Name: "Issue 42",
+                    Type: LinkType.Issue,
+                },
                 cts.Token
             )
         ).WasCalled(Times.Once);
