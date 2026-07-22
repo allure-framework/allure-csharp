@@ -634,15 +634,22 @@ public class AttachmentAttributeTests : ApiOperationTestsBase
     }
 
     [AllureAttachment]
-    private static async Task<string> AsyncStringAttachment() => "Async body";
+    private static async Task<string> AsyncStringAttachment()
+    {
+        return await Task.FromResult("Async body");
+    }
 
     [AllureAttachment]
-    private static async ValueTask<ReadOnlyMemory<byte>> AsyncMemoryAttachment() =>
-        new byte[] { 4, 5 };
+    private static async ValueTask<ReadOnlyMemory<byte>> AsyncMemoryAttachment()
+    {
+        return await ValueTask.FromResult<ReadOnlyMemory<byte>>(new byte[] { 4, 5 });
+    }
 
     [AllureAttachment]
-    private static async Task<string> FaultedAttachment() =>
-        await Task.FromException<string>(new AttachmentMethodException());
+    private static async Task<string> FaultedAttachment()
+    {
+        return await Task.FromException<string>(new AttachmentMethodException());
+    }
 
     private sealed class DispatchException : Exception;
     private sealed class AttachmentMethodException : Exception;
