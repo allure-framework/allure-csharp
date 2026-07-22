@@ -22,7 +22,7 @@ public sealed class AllureTearDownAttribute : AllureOperationAttribute
     /// Wraps each call of the method in a named tear down fixture.
     /// </summary>
     /// <param name="name">
-    /// A name of the fixture. Use the <c>{paramName}</c> placeholders to interpolate the
+    /// The name of the fixture. Use <c>{paramName}</c> placeholders to interpolate the
     /// arguments.
     /// </param>
     public AllureTearDownAttribute(string name) : base(name) { }

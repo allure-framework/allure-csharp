@@ -20,12 +20,12 @@ public class AllureLinkAttribute(string url) : AllureApiAttribute
     public string Url { get; init; } = url;
 
     /// <summary>
-    /// A display text of the link.
+    /// The display text of the link.
     /// </summary>
     public string? Title { get; init; }
 
     /// <summary>
-    /// A type of the link. Use this property to select the correct link template from the
+    /// The type of the link. Use this property to select the correct link template from the
     /// configuration.
     /// </summary>
     public string? Type { get; init; }

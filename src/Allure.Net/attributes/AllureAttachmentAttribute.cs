@@ -15,7 +15,7 @@ namespace Allure;
 public class AllureAttachmentAttribute : Attribute
 {
     /// <summary>
-    /// A name of the attachment to display in the report. The <c>{paramName}</c> placeholders can
+    /// The name of the attachment to display in the report. <c>{paramName}</c> placeholders can
     /// be used to interpolate the method's arguments into the name.
     /// </summary>
     public string? Name { get; }

@@ -9,7 +9,7 @@ using Allure.Model;
 
 namespace Allure.Internal;
 
-public static class InternalAllureExtensions
+static class InternalAllureExtensions
 {
     extension (Severity severity)
     {

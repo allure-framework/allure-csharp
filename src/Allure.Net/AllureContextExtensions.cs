@@ -5,10 +5,16 @@ using Allure.Model;
 
 namespace Allure;
 
+/// <summary>
+/// Provides convenience operations for step and fixture contexts.
+/// </summary>
 public static class AllureContextExtensions
 {
     extension (IAllureStepContext context)
     {
+        /// <summary>
+        /// Adds a parameter to the current step.
+        /// </summary>
         public void AddParameter(string name, string value) =>
             context.AddParameter(new()
             {
@@ -16,6 +22,9 @@ public static class AllureContextExtensions
                 Value = value,
             });
 
+        /// <summary>
+        /// Adds a parameter with the specified display mode to the current step.
+        /// </summary>
         public void AddParameter(string name, string value, ParameterMode mode) =>
             context.AddParameter(new()
             {
@@ -45,9 +54,9 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
-        /// <param name="mode">A display mode of the parameter.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="mode">The parameter display mode.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
@@ -77,6 +86,9 @@ public static class AllureContextExtensions
         public Task AddParameterAsync(Parameter parameter) =>
             context.AddParameterAsync(parameter, default);
 
+        /// <summary>
+        /// Asynchronously adds a parameter to the current step.
+        /// </summary>
         public Task AddParameterAsync(string name, string value) =>
             context.AddParameterAsync(new()
             {
@@ -84,6 +96,9 @@ public static class AllureContextExtensions
                 Value = value,
             }, default);
 
+        /// <summary>
+        /// Asynchronously adds a parameter to the current step.
+        /// </summary>
         public Task AddParameterAsync(string name, string value, CancellationToken cancellationToken) =>
             context.AddParameterAsync(new()
             {
@@ -91,6 +106,9 @@ public static class AllureContextExtensions
                 Value = value,
             }, cancellationToken);
 
+        /// <summary>
+        /// Asynchronously adds a parameter with the specified display mode to the current step.
+        /// </summary>
         public Task AddParameterAsync(
             string name,
             string value,
@@ -103,6 +121,9 @@ public static class AllureContextExtensions
                 Mode = mode,
             }, default);
 
+        /// <summary>
+        /// Asynchronously adds a parameter with the specified display mode to the current step.
+        /// </summary>
         public Task AddParameterAsync(
             string name,
             string value,
@@ -120,8 +141,8 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
@@ -141,8 +162,8 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
@@ -164,9 +185,9 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
-        /// <param name="mode">A display mode of the parameter.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="mode">The parameter display mode.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
@@ -188,9 +209,9 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
-        /// <param name="mode">A display mode of the parameter.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="mode">The parameter display mode.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
@@ -213,6 +234,9 @@ public static class AllureContextExtensions
 
     extension (IAllureFixtureContext context)
     {
+        /// <summary>
+        /// Adds a parameter to the current fixture.
+        /// </summary>
         public void AddParameter(string name, string value) =>
             context.AddParameter(new()
             {
@@ -220,6 +244,9 @@ public static class AllureContextExtensions
                 Value = value,
             });
 
+        /// <summary>
+        /// Adds a parameter with the specified display mode to the current fixture.
+        /// </summary>
         public void AddParameter(string name, string value, ParameterMode mode) =>
             context.AddParameter(new()
             {
@@ -249,9 +276,9 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
-        /// <param name="mode">A display mode of the parameter.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="mode">The parameter display mode.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
@@ -270,17 +297,20 @@ public static class AllureContextExtensions
         /// <summary>
         /// Sets the name of the fixture associated with this context.
         /// </summary>
-        /// <param name="newName">The new name of the step.</param>
+        /// <param name="newName">The new name of the fixture.</param>
         public Task SetNameAsync(string newName) =>
             context.SetNameAsync(newName, default);
 
         /// <summary>
-        /// Adds a fully constructed parameter to the step.
+        /// Adds a fully constructed parameter to the fixture.
         /// </summary>
         /// <param name="parameter">A parameter to add.</param>
         public Task AddParameterAsync(Parameter parameter) =>
             context.AddParameterAsync(parameter, default);
 
+        /// <summary>
+        /// Asynchronously adds a parameter to the current fixture.
+        /// </summary>
         public Task AddParameterAsync(string name, string value) =>
             context.AddParameterAsync(new()
             {
@@ -288,6 +318,9 @@ public static class AllureContextExtensions
                 Value = value,
             }, default);
 
+        /// <summary>
+        /// Asynchronously adds a parameter to the current fixture.
+        /// </summary>
         public Task AddParameterAsync(string name, string value, CancellationToken cancellationToken) =>
             context.AddParameterAsync(new()
             {
@@ -295,6 +328,9 @@ public static class AllureContextExtensions
                 Value = value,
             }, cancellationToken);
 
+        /// <summary>
+        /// Asynchronously adds a parameter with the specified display mode to the current fixture.
+        /// </summary>
         public Task AddParameterAsync(
             string name,
             string value,
@@ -307,6 +343,9 @@ public static class AllureContextExtensions
                 Mode = mode,
             }, default);
 
+        /// <summary>
+        /// Asynchronously adds a parameter with the specified display mode to the current fixture.
+        /// </summary>
         public Task AddParameterAsync(
             string name,
             string value,
@@ -324,8 +363,8 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
@@ -345,8 +384,8 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
@@ -368,9 +407,9 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
-        /// <param name="mode">A display mode of the parameter.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="mode">The parameter display mode.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer
         /// configured for the current Allure runtime.
@@ -392,9 +431,9 @@ public static class AllureContextExtensions
         /// Adds a parameter whose value is obtained by serializing the specified
         /// CLR value.
         /// </summary>
-        /// <param name="name">A name of the parameter.</param>
-        /// <param name="value">A value to serialize.</param>
-        /// <param name="mode">A display mode of the parameter.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="mode">The parameter display mode.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         /// <remarks>
         /// The value is converted to text using the parameter serializer

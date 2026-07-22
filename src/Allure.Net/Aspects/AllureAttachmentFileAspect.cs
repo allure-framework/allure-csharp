@@ -9,11 +9,14 @@ using AspectInjector.Broker;
 namespace Allure.Aspects;
 
 /// <summary>
-/// An aspect that creates attachments from files pointed by a functions' return values.
+/// Creates attachments from file paths returned by annotated methods.
 /// </summary>
 [Aspect(Scope.Global)]
 public class AllureAttachmentFileAspect
 {
+    /// <summary>
+    /// Attaches the file returned by the annotated method.
+    /// </summary>
     [Advice(Kind.After)]
     public void AttachReturnValue(
         [Argument(Source.Name)] string name,

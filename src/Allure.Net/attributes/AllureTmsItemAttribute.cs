@@ -20,7 +20,7 @@ public class AllureTmsItemAttribute(string tmsItemIdOrUrl) : AllureApiAttribute
     public string IdOrUrl { get; init; } = tmsItemIdOrUrl;
 
     /// <summary>
-    /// A display text of the TMS item link.
+    /// The display text of the TMS item link.
     /// </summary>
     public string? Title { get; set; }
 

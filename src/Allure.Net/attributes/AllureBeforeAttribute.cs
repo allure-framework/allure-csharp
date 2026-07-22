@@ -22,7 +22,7 @@ public sealed class AllureBeforeAttribute : AllureOperationAttribute
     /// Wraps each call of the method or constructor in a named setup fixture.
     /// </summary>
     /// <param name="name">
-    /// A name of the fixture. Use the <c>{paramName}</c> placeholders to interpolate the
+    /// The name of the fixture. Use <c>{paramName}</c> placeholders to interpolate the
     /// arguments.
     /// </param>
     public AllureBeforeAttribute(string name) : base(name) { }

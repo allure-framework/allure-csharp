@@ -20,7 +20,7 @@ public class AllureParameterAttribute : Attribute
     public string? Name { get; init; }
 
     /// <summary>
-    /// A display mode of the parameter.
+    /// The display mode of the parameter.
     /// </summary>
     /// <remarks>
     /// This property controls how Allure displays the value of the parameter. It doesn't affect

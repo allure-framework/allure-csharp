@@ -10,11 +10,14 @@ using AspectInjector.Broker;
 namespace Allure.Aspects;
 
 /// <summary>
-/// An aspect that creates attachments from a functions' return values.
+/// Creates attachments from annotated method return values.
 /// </summary>
 [Aspect(Scope.Global)]
 public class AllureAttachmentAspect
 {
+    /// <summary>
+    /// Attaches the annotated method's return value.
+    /// </summary>
     [Advice(Kind.After)]
     public void AttachReturnValue(
         [Argument(Source.Name)] string name,

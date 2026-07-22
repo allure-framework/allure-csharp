@@ -20,7 +20,7 @@ public class AllureIssueAttribute(string issueIdOrUrl) : AllureApiAttribute
     public string IdOrUrl { get; init; } = issueIdOrUrl;
 
     /// <summary>
-    /// A display text of the issue link.
+    /// The display text of the issue link.
     /// </summary>
     public string? Title { get; set; }
 

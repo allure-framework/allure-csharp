@@ -7,6 +7,9 @@ using Allure.Internal;
 
 namespace Allure.Runtime;
 
+/// <summary>
+/// Stores runtime routes and resolves the runtime matching an API scope.
+/// </summary>
 public sealed class AllureRuntimeRegistry
 {
     readonly object monitor = new();
@@ -24,12 +27,22 @@ public sealed class AllureRuntimeRegistry
         }
     }
 
+    /// <summary>
+    /// Resolves the runtime matching the current test or fixture scope.
+    /// </summary>
     public IAllureRuntime? ResolveCurrentScope() =>
         this.GetRuntime(static (r) => r.MatchesCurrentScope);
 
+    /// <summary>
+    /// Resolves a runtime capable of accepting global result data.
+    /// </summary>
     public IAllureRuntime? ResolveGlobalScope() =>
         this.GetRuntime(static (r) => r.MatchesGlobalScope);
 
+    /// <summary>
+    /// Installs a runtime route.
+    /// The installation lasts until the returned registration is disposed.
+    /// </summary>
     public IDisposable Install(IAllureRuntimeRoute route)
     {
         if (route is null)

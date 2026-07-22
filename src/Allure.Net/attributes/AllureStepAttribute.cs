@@ -22,7 +22,7 @@ public sealed class AllureStepAttribute : AllureOperationAttribute
     /// Wraps each call of the method in a named Allure step.
     /// </summary>
     /// <param name="name">
-    /// A name of the step. Use the <c>{paramName}</c> placeholders to interpolate the
+    /// The name of the step. Use <c>{paramName}</c> placeholders to interpolate the
     /// arguments.
     /// </param>
     public AllureStepAttribute(string name) : base(name) { }

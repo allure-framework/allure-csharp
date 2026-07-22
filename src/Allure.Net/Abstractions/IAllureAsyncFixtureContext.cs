@@ -12,7 +12,7 @@ public interface IAllureAsyncFixtureContext : IAllureOperationContext
     /// <summary>
     /// Sets the name of the fixture associated with this context.
     /// </summary>
-    /// <param name="newName">The new name of the step.</param>
+    /// <param name="newName">The new name of the fixture.</param>
     /// <param name="cancellationToken">A canellation token</param>
     Task SetNameAsync(string newName, CancellationToken cancellationToken);
 

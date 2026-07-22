@@ -11,6 +11,9 @@ public abstract class AllureMetaAttribute : AllureApiAttribute
 {
     private readonly AllureApiAttribute[] attributes;
 
+    /// <summary>
+    /// Initializes the composed metadata attribute.
+    /// </summary>
     public AllureMetaAttribute()
     {
         this.attributes = [
