@@ -5,10 +5,10 @@ using AspectInjector.Broker;
 namespace Allure;
 
 /// <summary>
-/// When applied to a method returning <c>byte[]</c>, <c>string</c>,
-/// <see cref="System.IO.Stream"/>, or a corresponding async type
-/// (e.g., <c>Task&lt;byte[]></c>), creates an attachment
-/// from the return value each time the method is called.
+/// When applied to a method returning <c>byte[]</c>, <see cref="string"/>,
+/// <see cref="System.IO.Stream"/>, <c>ReadOnlyMemory&lt;byte></c>,
+/// or a corresponding async type (e.g., <c>Task&lt;byte[]></c>), creates
+/// an attachment from the return value each time the method is called.
 /// </summary>
 [Injection(typeof(AllureAttachmentAspect))]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
@@ -22,8 +22,8 @@ public class AllureAttachmentAttribute : Attribute
 
     /// <summary>
     /// A content type of the attachment. It affects how the attachment is rendered in the report.
-    /// By default, <c>application/octet-stream</c> is used for <c>byte[]</c> and <c>text/plain</c>
-    /// for <c>string</c>.
+    /// The default contnet type of a <see cref="string"/> is <c>text/plain</c>.
+    /// For other types, no default value is set.
     /// </summary>
     /// <remarks>
     /// Examples: <c>application/json</c>, <c>image/png</c>.

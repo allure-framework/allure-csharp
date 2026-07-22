@@ -6,6 +6,7 @@ using Allure.Abstractions;
 using Allure.Internal;
 using Allure.Runtime;
 using AspectInjector.Broker;
+using CommunityToolkit.HighPerformance;
 
 namespace Allure.Aspects;
 
@@ -104,6 +105,7 @@ public class AllureAttachmentAspect
                 writable: false
             )
         ),
+        ReadOnlyMemory<byte> memory => StreamGuard.Own(memory.AsStream()),
         Stream stream => StreamGuard.NotOwn(stream),
         _ => throw new InvalidOperationException(
             $"Can't create an Allure attachment from {value.GetType().FullName}. "
