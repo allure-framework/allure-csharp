@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Parameters;
 
-public class AddTestParameterTests : ApiOperationTestsBase
+public class AddTestParameterTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddTestParameterByNameAndValueRoutedToEndpoint()

@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Attachments;
 
-public class AddScreenDiffTests : ApiOperationTestsBase
+public class AddScreenDiffTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddScreenDiffStreamsRoutedToEndpoint()

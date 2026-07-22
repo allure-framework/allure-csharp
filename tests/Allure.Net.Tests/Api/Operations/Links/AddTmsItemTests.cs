@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Links;
 
-public class AddTmsItemTests : ApiOperationTestsBase
+public class AddTmsItemTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddTmsItemByUrlRoutedToEndpoint()

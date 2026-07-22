@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Globals;
 
-public class AddGlobalErrorTests : ApiOperationTestsBase
+public class AddGlobalErrorTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddGlobalErrorExceptionRoutedToGlobalEndpoint()
@@ -420,4 +420,3 @@ public class AddGlobalErrorTests : ApiOperationTestsBase
     }
 
 }
-

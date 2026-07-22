@@ -5,7 +5,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Attributes;
 
-public class SetUpAttributeTests : ApiOperationTestsBase
+public class SetUpAttributeTests : AllureApiTestsBase
 {
     [Test]
     public async Task AttributeHasExpectedUsage()

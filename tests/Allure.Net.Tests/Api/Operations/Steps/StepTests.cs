@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Steps;
 
-public class StepTests : ApiOperationTestsBase
+public class StepTests : AllureApiTestsBase
 {
     [Test]
     public async Task StepWithNameRoutedToCurrentEndpoint()

@@ -3,7 +3,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Attachments;
 
-public class AddFileScreenDiffTests : ApiOperationTestsBase
+public class AddFileScreenDiffTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddFileScreenDiffRoutedToEndpoint()
@@ -130,4 +130,3 @@ public class AddFileScreenDiffTests : ApiOperationTestsBase
         );
     }
 }
-

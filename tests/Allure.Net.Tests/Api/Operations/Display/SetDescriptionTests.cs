@@ -3,7 +3,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Display;
 
-public class SetDescriptionTests : ApiOperationTestsBase
+public class SetDescriptionTests : AllureApiTestsBase
 {
     [Test]
     public async Task SetDescriptionRoutedToEndpoint()

@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Labels;
 
-public class SetSeverityTests : ApiOperationTestsBase
+public class SetSeverityTests : AllureApiTestsBase
 {
     [Test]
     public async Task SetSeverityRoutedToEndpoint()

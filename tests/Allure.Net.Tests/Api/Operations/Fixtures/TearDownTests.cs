@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Fixtures;
 
-public class TearDownTests : ApiOperationTestsBase
+public class TearDownTests : AllureApiTestsBase
 {
     [Test]
     public async Task TearDownActionRoutedToCurrentEndpoint()

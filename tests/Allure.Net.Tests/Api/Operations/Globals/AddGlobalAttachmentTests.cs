@@ -5,7 +5,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Globals;
 
-public class AddGlobalAttachmentTests : ApiOperationTestsBase
+public class AddGlobalAttachmentTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddGlobalAttachmentStreamRoutedToGlobalEndpoint()

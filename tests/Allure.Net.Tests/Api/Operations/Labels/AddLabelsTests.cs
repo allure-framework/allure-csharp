@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Labels;
 
-public class AddLabelsTests : ApiOperationTestsBase
+public class AddLabelsTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddLabelsRoutedToEndpoint()

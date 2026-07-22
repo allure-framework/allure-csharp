@@ -3,7 +3,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Globals;
 
-public class AddGlobalFileAttachmentTests : ApiOperationTestsBase
+public class AddGlobalFileAttachmentTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddGlobalFileAttachmentByPathRoutedToGlobalEndpoint()

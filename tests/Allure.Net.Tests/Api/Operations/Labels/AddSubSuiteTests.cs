@@ -3,7 +3,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Labels;
 
-public class AddSubSuiteTests : ApiOperationTestsBase
+public class AddSubSuiteTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddSubSuiteRoutedToEndpoint()

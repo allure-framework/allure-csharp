@@ -4,7 +4,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Fixtures;
 
-public class SetUpTests : ApiOperationTestsBase
+public class SetUpTests : AllureApiTestsBase
 {
     [Test]
     public async Task SetUpActionRoutedToCurrentEndpoint()

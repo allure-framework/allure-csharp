@@ -5,7 +5,7 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Attachments;
 
-public class AddAttachmentTests : ApiOperationTestsBase
+public class AddAttachmentTests : AllureApiTestsBase
 {
     [Test]
     public async Task AddAttachmentStreamRoutedToEndpoint()

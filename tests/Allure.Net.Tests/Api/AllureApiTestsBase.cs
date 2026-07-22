@@ -3,7 +3,7 @@ using Allure.Net.Tests.Infrastructure;
 
 namespace Allure.Net.Tests.Api;
 
-public class ApiOperationTestsBase
+public class AllureApiTestsBase
 {
     public enum InstallationScope
     {

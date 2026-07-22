@@ -33,10 +33,9 @@ public class OverloadConsistencyTests
     }
 
     static MethodInfo[] PublicMethods() =>
-        new[] { typeof(AllureApi), typeof(AllureInProcessApi) }
+        [.. new[] { typeof(AllureApi), typeof(AllureInProcessApi) }
             .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static))
-            .Where(method => !method.IsSpecialName)
-            .ToArray();
+            .Where(method => !method.IsSpecialName)];
 
     static bool IsCancellationOverload(MethodInfo method, MethodInfo candidate)
     {
