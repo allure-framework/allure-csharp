@@ -26,7 +26,7 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
-    public static void AddFileAttachment(string path, string name) =>
+    public static void AddFileAttachment(string path, string? name) =>
         AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
             name: name ?? Path.GetFileName(path),
             path: path,
@@ -41,7 +41,7 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
-    public static void AddFileAttachment(string path, string name, string mediaType) =>
+    public static void AddFileAttachment(string path, string name, string? mediaType) =>
         AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
             name: name ?? Path.GetFileName(path),
             path: path,
@@ -130,7 +130,7 @@ public static partial class AllureApi
     public static void AddAttachment(
         string name,
         Stream content,
-        string mediaType
+        string? mediaType
     )
     {
         AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
@@ -151,7 +151,7 @@ public static partial class AllureApi
     public static void AddAttachment(
         string name,
         ReadOnlyMemory<byte> content,
-        string mediaType
+        string? mediaType
     )
     {
         using var stream = content.AsStream();
@@ -173,7 +173,7 @@ public static partial class AllureApi
     public static void AddAttachment(
         string name,
         string content,
-        string mediaType
+        string? mediaType
     )
     {
         using var stream = ToStream(content);

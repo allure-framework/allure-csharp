@@ -12,6 +12,11 @@ public abstract class AllureOperationAttribute(string? name) :
     IAllureNameSource
 {
     /// <summary>
+    /// Initializes the operation without an explicit name.
+    /// </summary>
+    public AllureOperationAttribute() : this(null) { }
+
+    /// <summary>
     /// Gets the operation name format, or <see langword="null"/> if no format was provided.
     /// </summary>
     public string? Name => name;

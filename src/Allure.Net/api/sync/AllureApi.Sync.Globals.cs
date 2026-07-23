@@ -26,7 +26,7 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
-    public static void AddGlobalFileAttachment(string path, string name) =>
+    public static void AddGlobalFileAttachment(string path, string? name) =>
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
@@ -46,7 +46,7 @@ public static partial class AllureApi
     public static void AddGlobalFileAttachment(
         string path,
         string name,
-        string mediaType
+        string? mediaType
     ) =>
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
             name: name ?? Path.GetFileName(path),
@@ -66,7 +66,7 @@ public static partial class AllureApi
     public static void AddGlobalFileAttachment(
         string path,
         string name,
-        string mediaType,
+        string? mediaType,
         string fileExtension
     ) =>
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
@@ -119,7 +119,7 @@ public static partial class AllureApi
     public static void AddGlobalAttachment(
         string name,
         Stream content,
-        string mediaType
+        string? mediaType
     )
     {
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
@@ -139,7 +139,7 @@ public static partial class AllureApi
     public static void AddGlobalAttachment(
         string name,
         ReadOnlyMemory<byte> content,
-        string mediaType
+        string? mediaType
     )
     {
         using var stream = content.AsStream();
@@ -161,7 +161,7 @@ public static partial class AllureApi
     public static void AddGlobalAttachment(
         string name,
         Stream content,
-        string mediaType,
+        string? mediaType,
         string fileExtension
     )
     {
@@ -183,7 +183,7 @@ public static partial class AllureApi
     public static void AddGlobalAttachment(
         string name,
         ReadOnlyMemory<byte> content,
-        string mediaType,
+        string? mediaType,
         string fileExtension
     )
     {
