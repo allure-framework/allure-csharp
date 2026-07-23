@@ -3,9 +3,10 @@ using System.Collections.Generic;
 namespace Allure.Model;
 
 /// <summary>
-/// Represents a container that groups tests and their fixtures.
+/// Represents a container that groups test results with the fixtures that
+/// affected them.
 /// </summary>
-public sealed class Scope
+public sealed class TestResultScope
 {
     /// <summary>
     /// Gets or sets the scope's unique identifier.

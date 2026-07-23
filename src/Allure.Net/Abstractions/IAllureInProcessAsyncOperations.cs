@@ -4,6 +4,6 @@ namespace Allure.Abstractions;
 /// Defines asynchronous operations that require an in-process Allure runtime.
 /// </summary>
 public interface IAllureInProcessAsyncOperations :
-    IAllureAsyncOperations<IAllureAsyncInProcessStepContext, IAllureAsyncInProcessFixtureContext>
+    IAllureAsyncOperations<IAllureInProcessAsyncStepContext, IAllureInProcessAsyncFixtureContext>
 {
 }

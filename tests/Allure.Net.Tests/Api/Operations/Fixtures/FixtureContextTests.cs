@@ -10,7 +10,7 @@ public class FixtureContextTests
     [Test]
     public async Task AddParameterFromNameAndValueCreatesParameter()
     {
-        var context = IAllureFixtureContext.Mock();
+        var context = IAllureSyncFixtureContext.Mock();
 
         context.AddParameter("Parameter name", "Parameter value");
 
@@ -26,7 +26,7 @@ public class FixtureContextTests
     [Test]
     public async Task AddParameterWithModeCreatesParameter()
     {
-        var context = IAllureFixtureContext.Mock();
+        var context = IAllureSyncFixtureContext.Mock();
 
         context.AddParameter("Parameter name", "Parameter value", ParameterMode.Masked);
 
@@ -302,9 +302,9 @@ public class FixtureContextTests
         )).WasCalled(Times.Once);
     }
 
-    private static IAllureFixtureContextMock CreateSyncFixtureContext()
+    private static IAllureSyncFixtureContextMock CreateSyncFixtureContext()
     {
-        var context = IAllureFixtureContext.Mock();
+        var context = IAllureSyncFixtureContext.Mock();
         context.ParameterSerializer.Returns(new TestParameterSerializer());
         return context;
     }

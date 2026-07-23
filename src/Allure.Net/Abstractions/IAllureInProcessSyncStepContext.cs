@@ -8,7 +8,7 @@ namespace Allure.Abstractions;
 /// <summary>
 /// Provides direct access to a step result in the current process.
 /// </summary>
-public interface IAllureInProcessStepContext : IAllureStepContext
+public interface IAllureInProcessSyncStepContext : IAllureSyncStepContext
 {
     /// <summary>
     /// Updates the current step result.

@@ -113,7 +113,7 @@ public class StepTests : AllureApiTestsBase
     [Test]
     public async Task StepContextActionRoutedToCurrentEndpoint()
     {
-        Action<IAllureStepContext> body = _ => { };
+        Action<IAllureSyncStepContext> body = _ => { };
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
         AllureApi.Step("Step name", body);
@@ -178,12 +178,12 @@ public class StepTests : AllureApiTestsBase
     [Test]
     public async Task StepContextFunctionReturnsEndpointValue()
     {
-        Func<IAllureStepContext, int> body = _ => 17;
+        Func<IAllureSyncStepContext, int> body = _ => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.SyncApi.Step(
             Any(),
             Any(),
-            Any<Func<IAllureStepContext, int>>()
+            Any<Func<IAllureSyncStepContext, int>>()
         ).Returns(42);
 
         var actual = AllureApi.Step("Step name", body);
@@ -771,7 +771,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(observedToken).IsEqualTo(cancellation.Token);
     }
 
-    private static void Exercise(IAllureStepContext context)
+    private static void Exercise(IAllureSyncStepContext context)
     {
         context.SetName("Updated name");
         context.AddParameter(new Parameter { Name = "parameter", Value = "value" });

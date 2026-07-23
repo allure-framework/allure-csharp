@@ -36,7 +36,7 @@ public class SetUpTests : AllureApiTestsBase
     [Test]
     public async Task SetUpContextActionRoutedToCurrentEndpoint()
     {
-        Action<IAllureFixtureContext> body = _ => { };
+        Action<IAllureSyncFixtureContext> body = _ => { };
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
         AllureApi.SetUp("Fixture name", body);
@@ -101,12 +101,12 @@ public class SetUpTests : AllureApiTestsBase
     [Test]
     public async Task SetUpContextFunctionReturnsEndpointValue()
     {
-        Func<IAllureFixtureContext, int> body = _ => 17;
+        Func<IAllureSyncFixtureContext, int> body = _ => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.SyncApi.SetUp(
             Any(),
             Any(),
-            Any<Func<IAllureFixtureContext, int>>()
+            Any<Func<IAllureSyncFixtureContext, int>>()
         ).Returns(42);
 
         var actual = AllureApi.SetUp("Fixture name", body);
@@ -527,7 +527,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(observedToken).IsEqualTo(cancellation.Token);
     }
 
-    private static void Exercise(IAllureFixtureContext context)
+    private static void Exercise(IAllureSyncFixtureContext context)
     {
         context.SetName("Updated name");
         context.AddParameter(new Parameter { Name = "parameter", Value = "value" });

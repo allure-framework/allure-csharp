@@ -15,8 +15,8 @@ namespace Allure.Abstractions;
 /// The fixture context type.
 /// </typeparam>
 public interface IAllureSyncOperations<out TStepContext, out TFixtureContext>
-    where TStepContext : IAllureStepContext
-    where TFixtureContext : IAllureFixtureContext
+    where TStepContext : IAllureSyncStepContext
+    where TFixtureContext : IAllureSyncFixtureContext
 {
     /// <summary>
     /// Sets the name of the current test.

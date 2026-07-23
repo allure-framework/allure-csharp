@@ -14,10 +14,10 @@ sealed class RoutingTestRuntime(
 
     public bool IsAvailable { get; set; } = available;
 
-    public IAllureOperations Operations { get; } = new TestApiOperations(sync, @async);
+    public AllureOperations Operations { get; } = new AllureOperations(sync, @async);
 
-    public IAllureInProcessOperations InProcessOperations { get; } =
-        new TestInProcessApiOperations(sync, @async);
+    public AllureInProcessOperations InProcessOperations { get; } =
+        new AllureInProcessOperations(sync, @async);
 
     public IAllureParameterSerializer ParameterSerializer { get; } = serializer;
 }

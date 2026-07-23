@@ -8,14 +8,14 @@ using Allure.Model;
 namespace Allure.Internal;
 
 class NullOperationContext :
-    IAllureStepContext,
+    IAllureSyncStepContext,
     IAllureAsyncStepContext,
-    IAllureFixtureContext,
+    IAllureSyncFixtureContext,
     IAllureAsyncFixtureContext,
-    IAllureInProcessStepContext,
-    IAllureAsyncInProcessStepContext,
-    IAllureInProcessFixtureContext,
-    IAllureAsyncInProcessFixtureContext
+    IAllureInProcessSyncStepContext,
+    IAllureInProcessAsyncStepContext,
+    IAllureInProcessSyncFixtureContext,
+    IAllureInProcessAsyncFixtureContext
 {
     public void AddParameter(Parameter parameter)
     {

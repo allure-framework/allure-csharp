@@ -36,7 +36,7 @@ public class TearDownTests : AllureApiTestsBase
     [Test]
     public async Task TearDownContextActionRoutedToCurrentEndpoint()
     {
-        Action<IAllureFixtureContext> body = _ => { };
+        Action<IAllureSyncFixtureContext> body = _ => { };
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
         AllureApi.TearDown("Fixture name", body);
@@ -101,12 +101,12 @@ public class TearDownTests : AllureApiTestsBase
     [Test]
     public async Task TearDownContextFunctionReturnsEndpointValue()
     {
-        Func<IAllureFixtureContext, int> body = _ => 17;
+        Func<IAllureSyncFixtureContext, int> body = _ => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.SyncApi.TearDown(
             Any(),
             Any(),
-            Any<Func<IAllureFixtureContext, int>>()
+            Any<Func<IAllureSyncFixtureContext, int>>()
         ).Returns(42);
 
         var actual = AllureApi.TearDown("Fixture name", body);
@@ -527,7 +527,7 @@ public class TearDownTests : AllureApiTestsBase
         await Assert.That(observedToken).IsEqualTo(cancellation.Token);
     }
 
-    private static void Exercise(IAllureFixtureContext context)
+    private static void Exercise(IAllureSyncFixtureContext context)
     {
         context.SetName("Updated name");
         context.AddParameter(new Parameter { Name = "parameter", Value = "value" });

@@ -10,7 +10,7 @@ namespace Allure;
 /// </summary>
 public static class AllureContextExtensions
 {
-    extension (IAllureStepContext context)
+    extension (IAllureSyncStepContext context)
     {
         /// <summary>
         /// Adds a parameter to the current step.
@@ -232,7 +232,7 @@ public static class AllureContextExtensions
             );
     }
 
-    extension (IAllureFixtureContext context)
+    extension (IAllureSyncFixtureContext context)
     {
         /// <summary>
         /// Adds a parameter to the current fixture.

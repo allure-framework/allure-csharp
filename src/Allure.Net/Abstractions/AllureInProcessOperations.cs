@@ -3,15 +3,18 @@ namespace Allure.Abstractions;
 /// <summary>
 /// Groups the synchronous and asynchronous operations of an in-process runtime endpoint.
 /// </summary>
-public interface IAllureOperations
+public class AllureInProcessOperations(
+    IAllureInProcessSyncOperations sync,
+    IAllureInProcessAsyncOperations @async
+)
 {
     /// <summary>
     /// Gets the synchronous operations.
     /// </summary>
-    IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> Sync { get; }
+    public IAllureInProcessSyncOperations Sync => sync;
 
     /// <summary>
     /// Gets the asynchronous operations.
     /// </summary>
-    IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> Async { get; }
+    public IAllureInProcessAsyncOperations Async => @async;
 }

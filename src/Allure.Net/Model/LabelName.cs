@@ -8,95 +8,95 @@ public static class LabelName
     /// <summary>
     /// The Allure test case identifier label.
     /// </summary>
-    public static string AllureId = "ALLURE_ID";
+    public const string AllureId = "ALLURE_ID";
 
     /// <summary>
     /// The suite label.
     /// </summary>
-    public static string Suite = "suite";
+    public const string Suite = "suite";
 
     /// <summary>
     /// The parent suite label.
     /// </summary>
-    public static string ParentSuite = "parentSuite";
+    public const string ParentSuite = "parentSuite";
 
     /// <summary>
     /// The sub-suite label.
     /// </summary>
-    public static string SubSuite = "subSuite";
+    public const string SubSuite = "subSuite";
 
     /// <summary>
     /// The epic label.
     /// </summary>
-    public static string Epic = "epic";
+    public const string Epic = "epic";
 
     /// <summary>
     /// The feature label.
     /// </summary>
-    public static string Feature = "feature";
+    public const string Feature = "feature";
 
     /// <summary>
     /// The story label.
     /// </summary>
-    public static string Story = "story";
+    public const string Story = "story";
 
     /// <summary>
     /// The severity label.
     /// </summary>
-    public static string Severity = "severity";
+    public const string Severity = "severity";
 
     /// <summary>
     /// The tag label.
     /// </summary>
-    public static string Tag = "tag";
+    public const string Tag = "tag";
 
     /// <summary>
     /// The owner label.
     /// </summary>
-    public static string Owner = "owner";
+    public const string Owner = "owner";
 
     /// <summary>
     /// The lead label.
     /// </summary>
-    public static string Lead = "lead";
+    public const string Lead = "lead";
 
     /// <summary>
     /// The host label.
     /// </summary>
-    public static string Host = "host";
+    public const string Host = "host";
 
     /// <summary>
     /// The thread label.
     /// </summary>
-    public static string Thread = "thread";
+    public const string Thread = "thread";
 
     /// <summary>
     /// The test method label.
     /// </summary>
-    public static string TestMethod = "testMethod";
+    public const string TestMethod = "testMethod";
 
     /// <summary>
     /// The test class label.
     /// </summary>
-    public static string TestClass = "testClass";
+    public const string TestClass = "testClass";
 
     /// <summary>
     /// The package label.
     /// </summary>
-    public static string Package = "package";
+    public const string Package = "package";
 
     /// <summary>
     /// The test framework label.
     /// </summary>
-    public static string Framework = "framework";
+    public const string Framework = "framework";
 
     /// <summary>
     /// The programming language label.
     /// </summary>
-    public static string Language = "language";
+    public const string Language = "language";
 
     /// <summary>
     /// The test layer label.
     /// </summary>
-    public static string Layer = "layer";
+    public const string Layer = "layer";
 }

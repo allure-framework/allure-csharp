@@ -12,7 +12,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     /// <param name="name">The name of the step.</param>
     /// <param name="body">The code to run.</param>
-    public static void Step(string name, Action<IAllureInProcessStepContext> body)
+    public static void Step(string name, Action<IAllureInProcessSyncStepContext> body)
     {
         if (ResolveOperations() is { Sync: var api })
         {
@@ -33,7 +33,7 @@ public static partial class AllureInProcessApi
     /// <returns>The original value returned by the function.</returns>
     public static TResult Step<TResult>(
         string name,
-        Func<IAllureInProcessStepContext, TResult> body
+        Func<IAllureInProcessSyncStepContext, TResult> body
     ) =>
         ResolveOperations() is { Sync: var api }
             ? api.Step(name, [], body)

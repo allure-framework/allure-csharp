@@ -8,7 +8,7 @@ namespace Allure.Abstractions;
 /// <summary>
 /// Provides direct access to a fixture result from an asynchronous operation.
 /// </summary>
-public interface IAllureAsyncInProcessFixtureContext : IAllureAsyncFixtureContext
+public interface IAllureInProcessAsyncFixtureContext : IAllureAsyncFixtureContext
 {
     /// <summary>
     /// Updates the current fixture result.

@@ -14,7 +14,7 @@ sealed class TestRuntime(
 
     public bool IsAvailable { get; set; } = isAvailable;
 
-    public IAllureOperations Operations { get; } = new TestApiOperations(
+    public AllureOperations Operations { get; } = new AllureOperations(
         sync ?? InterfaceStub.Create<IAllureInProcessSyncOperations>(),
         @async ?? InterfaceStub.Create<IAllureInProcessAsyncOperations>()
     );

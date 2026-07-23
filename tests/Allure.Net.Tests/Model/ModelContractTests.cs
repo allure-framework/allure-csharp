@@ -49,8 +49,8 @@ public class ModelContractTests
     [Test]
     public async Task ScopeCollectionsAreOwnedByEachInstance()
     {
-        var first = new Scope { Uuid = "first", Name = null };
-        var second = new Scope { Uuid = "second", Name = "scope" };
+        var first = new TestResultScope { Uuid = "first", Name = null };
+        var second = new TestResultScope { Uuid = "second", Name = "scope" };
 
         first.Children.Add("test-id");
         first.Befores.Add(new() { Name = "before" });

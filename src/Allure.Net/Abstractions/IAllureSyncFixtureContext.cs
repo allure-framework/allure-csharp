@@ -3,18 +3,18 @@ using Allure.Model;
 namespace Allure.Abstractions;
 
 /// <summary>
-/// Provides an API tied to a specific step.
+/// Provides an API tied to a specific fixture.
 /// </summary>
-public interface IAllureStepContext : IAllureOperationContext
+public interface IAllureSyncFixtureContext : IAllureOperationContext
 {
     /// <summary>
-    /// Sets the name of the step associated with this context.
+    /// Sets the name of the fixture associated with this context.
     /// </summary>
-    /// <param name="newName">The new name of the step.</param>
+    /// <param name="newName">The new name of the fixture.</param>
     void SetName(string newName);
 
     /// <summary>
-    /// Adds a parameter with the specified text value to the step.
+    /// Adds a parameter with the specified text value to the fixture.
     /// </summary>
     /// <param name="parameter">A parameter to add.</param>
     /// <remarks>

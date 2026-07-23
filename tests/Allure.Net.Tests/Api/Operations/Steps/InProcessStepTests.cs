@@ -9,7 +9,7 @@ public class InProcessStepTests : AllureApiTestsBase
     [Test]
     public async Task StepContextActionRoutedToCurrentEndpoint()
     {
-        Action<IAllureInProcessStepContext> body = _ => { };
+        Action<IAllureInProcessSyncStepContext> body = _ => { };
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
 
         AllureInProcessApi.Step("Step name", body);
@@ -40,12 +40,12 @@ public class InProcessStepTests : AllureApiTestsBase
     [Test]
     public async Task StepContextFunctionReturnsEndpointValue()
     {
-        Func<IAllureInProcessStepContext, int> body = _ => 17;
+        Func<IAllureInProcessSyncStepContext, int> body = _ => 17;
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.SyncApi.Step(
             Any(),
             Any(),
-            Any<Func<IAllureInProcessStepContext, int>>()
+            Any<Func<IAllureInProcessSyncStepContext, int>>()
         ).Returns(42);
 
         var actual = AllureInProcessApi.Step("Step name", body);
@@ -79,11 +79,11 @@ public class InProcessStepTests : AllureApiTestsBase
     [Test]
     public async Task StepAsyncContextActionReturnsEndpointTask()
     {
-        Func<IAllureAsyncInProcessStepContext, Task> body = _ => Task.CompletedTask;
+        Func<IAllureInProcessAsyncStepContext, Task> body = _ => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessStepContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncStepContext, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureInProcessApi.StepAsync("Step name", body);
@@ -117,11 +117,11 @@ public class InProcessStepTests : AllureApiTestsBase
     public async Task StepAsyncContextActionWithTokenReturnsEndpointTask()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessStepContext, Task> body = _ => Task.CompletedTask;
+        Func<IAllureInProcessAsyncStepContext, Task> body = _ => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessStepContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncStepContext, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureInProcessApi.StepAsync("Step name", body, cancellation.Token);
@@ -156,11 +156,11 @@ public class InProcessStepTests : AllureApiTestsBase
     public async Task StepAsyncCancellableContextActionReturnsEndpointTask()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessStepContext, CancellationToken, Task> body = (_, _) => Task.CompletedTask;
+        Func<IAllureInProcessAsyncStepContext, CancellationToken, Task> body = (_, _) => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessStepContext, CancellationToken, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncStepContext, CancellationToken, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureInProcessApi.StepAsync("Step name", body, cancellation.Token);
@@ -197,10 +197,10 @@ public class InProcessStepTests : AllureApiTestsBase
     [Test]
     public async Task StepAsyncContextFunctionReturnsEndpointValue()
     {
-        Func<IAllureAsyncInProcessStepContext, Task<int>> body = _ => Task.FromResult(17);
+        Func<IAllureInProcessAsyncStepContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessStepContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncStepContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureInProcessApi.StepAsync("Step name", body);
@@ -236,10 +236,10 @@ public class InProcessStepTests : AllureApiTestsBase
     public async Task StepAsyncContextFunctionWithTokenReturnsEndpointValue()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessStepContext, Task<int>> body = _ => Task.FromResult(17);
+        Func<IAllureInProcessAsyncStepContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessStepContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncStepContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureInProcessApi.StepAsync("Step name", body, cancellation.Token);
@@ -276,12 +276,12 @@ public class InProcessStepTests : AllureApiTestsBase
     public async Task StepAsyncCancellableContextFunctionReturnsEndpointValue()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessStepContext, CancellationToken, Task<int>> body = (_, _) => Task.FromResult(17);
+        Func<IAllureInProcessAsyncStepContext, CancellationToken, Task<int>> body = (_, _) => Task.FromResult(17);
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
             Any(),
             Any(),
-            Any<Func<IAllureAsyncInProcessStepContext, CancellationToken, Task<int>>>(),
+            Any<Func<IAllureInProcessAsyncStepContext, CancellationToken, Task<int>>>(),
             Any()
         ).ReturnsAsync(Task.FromResult(42));
 
@@ -318,7 +318,7 @@ public class InProcessStepTests : AllureApiTestsBase
         await Assert.That(observedToken).IsEqualTo(cancellation.Token);
     }
 
-    private static void Exercise(IAllureInProcessStepContext context)
+    private static void Exercise(IAllureInProcessSyncStepContext context)
     {
         context.UpdateStepResult(_ =>
             throw new InvalidOperationException("A null context must not invoke the update.")
@@ -329,7 +329,7 @@ public class InProcessStepTests : AllureApiTestsBase
         }
     }
 
-    private static Task ExerciseAsync(IAllureAsyncInProcessStepContext context)
+    private static Task ExerciseAsync(IAllureInProcessAsyncStepContext context)
     {
         context.UpdateStepResult(_ =>
             throw new InvalidOperationException("A null context must not invoke the update.")

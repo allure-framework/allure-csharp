@@ -22,10 +22,10 @@ public class Attachment
     /// If set to <see langword="null"/>, the media type is derived by the
     /// report generator.
     /// </remarks>
-    public string? MediaType { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>
     /// Gets or sets the attachment file extension, including the leading dot.
     /// </summary>
-    required public string FileExtension { get; set; }
+    public string FileExtension { get; set; } = "";
 }

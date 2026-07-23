@@ -8,7 +8,7 @@ namespace Allure.Abstractions;
 /// Defines synchronous operations that require an in-process Allure runtime.
 /// </summary>
 public interface IAllureInProcessSyncOperations :
-    IAllureSyncOperations<IAllureInProcessStepContext, IAllureInProcessFixtureContext>
+    IAllureSyncOperations<IAllureInProcessSyncStepContext, IAllureInProcessSyncFixtureContext>
 {
     /// <summary>
     /// Updates the current test result, if one exists.

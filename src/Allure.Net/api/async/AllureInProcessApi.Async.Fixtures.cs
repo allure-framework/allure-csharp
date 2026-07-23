@@ -11,7 +11,7 @@ public static partial class AllureInProcessApi
     /// <summary>
     /// Runs a context-aware asynchronous function as a setup fixture.
     /// </summary>
-    public static Task SetUpAsync(string name, Func<IAllureAsyncInProcessFixtureContext, Task> body) =>
+    public static Task SetUpAsync(string name, Func<IAllureInProcessAsyncFixtureContext, Task> body) =>
         ResolveOperations() is { Async: var api }
             ? api.SetUpAsync(name, [], body, default)
             : body(NullOperationContext.Instance);
@@ -21,7 +21,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task SetUpAsync(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, Task> body,
+        Func<IAllureInProcessAsyncFixtureContext, Task> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
@@ -33,7 +33,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task SetUpAsync(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task> body,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
@@ -43,7 +43,7 @@ public static partial class AllureInProcessApi
     /// <summary>
     /// Runs a context-aware asynchronous function as a setup fixture and returns its result.
     /// </summary>
-    public static Task<TResult> SetUpAsync<TResult>(string name, Func<IAllureAsyncInProcessFixtureContext, Task<TResult>> body) =>
+    public static Task<TResult> SetUpAsync<TResult>(string name, Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body) =>
         ResolveOperations() is { Async: var api }
             ? api.SetUpAsync(name, [], body, default)
             : body(NullOperationContext.Instance);
@@ -53,7 +53,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task<TResult> SetUpAsync<TResult>(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, Task<TResult>> body,
+        Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
@@ -65,7 +65,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task<TResult> SetUpAsync<TResult>(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task<TResult>> body,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
@@ -75,7 +75,7 @@ public static partial class AllureInProcessApi
     /// <summary>
     /// Runs a context-aware asynchronous function as a teardown fixture.
     /// </summary>
-    public static Task TearDownAsync(string name, Func<IAllureAsyncInProcessFixtureContext, Task> body) =>
+    public static Task TearDownAsync(string name, Func<IAllureInProcessAsyncFixtureContext, Task> body) =>
         ResolveOperations() is { Async: var api }
             ? api.TearDownAsync(name, [], body, default)
             : body(NullOperationContext.Instance);
@@ -85,7 +85,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task TearDownAsync(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, Task> body,
+        Func<IAllureInProcessAsyncFixtureContext, Task> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
@@ -97,7 +97,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task TearDownAsync(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task> body,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
@@ -107,7 +107,7 @@ public static partial class AllureInProcessApi
     /// <summary>
     /// Runs a context-aware asynchronous function as a teardown fixture and returns its result.
     /// </summary>
-    public static Task<TResult> TearDownAsync<TResult>(string name, Func<IAllureAsyncInProcessFixtureContext, Task<TResult>> body) =>
+    public static Task<TResult> TearDownAsync<TResult>(string name, Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body) =>
         ResolveOperations() is { Async: var api }
             ? api.TearDownAsync(name, [], body, default)
             : body(NullOperationContext.Instance);
@@ -117,7 +117,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task<TResult> TearDownAsync<TResult>(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, Task<TResult>> body,
+        Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
@@ -129,7 +129,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task<TResult> TearDownAsync<TResult>(
         string name,
-        Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task<TResult>> body,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body,
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }

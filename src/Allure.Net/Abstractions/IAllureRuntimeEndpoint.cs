@@ -18,7 +18,7 @@ public interface IAllureRuntimeEndpoint
     /// <summary>
     /// Gets the runtime-specific implementation of the API operations.
     /// </summary>
-    IAllureOperations Operations { get; }
+    AllureOperations Operations { get; }
 
     /// <summary>
     /// Gets the serializer used for CLR parameter values.

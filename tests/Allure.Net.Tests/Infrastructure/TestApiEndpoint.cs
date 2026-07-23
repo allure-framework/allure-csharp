@@ -3,7 +3,7 @@ using Allure.Abstractions;
 namespace Allure.Net.Tests.Infrastructure;
 
 sealed class TestApiEndpoint(
-    IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>? sync = null,
+    IAllureSyncOperations<IAllureSyncStepContext, IAllureSyncFixtureContext>? sync = null,
     IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>? @async = null,
     IAllureParameterSerializer? serializer = null
 ) : IAllureInProcessRuntimeEndpoint
@@ -20,24 +20,14 @@ sealed class TestApiEndpoint(
 
     public bool IsAvailable => true;
 
-    public IAllureOperations Operations { get; } = new TestApiOperations(
-        sync ?? InterfaceStub.Create<IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>>(),
+    public AllureOperations Operations { get; } = new AllureOperations(
+        sync ?? InterfaceStub.Create<IAllureSyncOperations<IAllureSyncStepContext, IAllureSyncFixtureContext>>(),
         @async ?? InterfaceStub.Create<IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>>()
     );
 
-    public IAllureInProcessOperations InProcessOperations =>
-        new TestInProcessApiOperations(this.inProcessSync, this.inProcessAsync);
+    public AllureInProcessOperations InProcessOperations =>
+        new(this.inProcessSync, this.inProcessAsync);
 
     public IAllureParameterSerializer ParameterSerializer { get; } =
         serializer ?? new TestParameterSerializer();
 }
-
-sealed record TestApiOperations(
-    IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> Sync,
-    IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> Async
-) : IAllureOperations;
-
-sealed record TestInProcessApiOperations(
-    IAllureInProcessSyncOperations Sync,
-    IAllureInProcessAsyncOperations Async
-) : IAllureInProcessOperations;

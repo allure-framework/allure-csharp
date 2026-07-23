@@ -13,17 +13,17 @@ public class AllureApiTestsBase
     }
 
     public static EndpointMocks<
-        IAllureSyncOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
+        IAllureSyncOperations_TStepContext_TFixtureContext_Mock<IAllureSyncStepContext, IAllureSyncFixtureContext>,
         IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
     > InstallEndpoint(
         InstallationScope scope = InstallationScope.CurrentAndGlobal,
         IAllureParameterSerializer? serializer = null
     )
     {
-        var sync = IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>.Mock();
+        var sync = IAllureSyncOperations<IAllureSyncStepContext, IAllureSyncFixtureContext>.Mock();
         var @async = IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>.Mock();
 
-        var operations = new AllureApiOperations(sync, @async);
+        var operations = new AllureOperations(sync, @async);
 
         var currentEndpoint = scope is InstallationScope.Current or InstallationScope.CurrentAndGlobal
             ? IAllureRuntimeEndpoint.Mock()
@@ -61,13 +61,14 @@ public class AllureApiTestsBase
         var sync = IAllureInProcessSyncOperations.Mock();
         var @async = IAllureInProcessAsyncOperations.Mock();
 
-        var operations = new AllureInProcessApiOperations(sync, @async);
+        var operations = new AllureOperations(sync, @async);
+        var inProcessOperations = new AllureInProcessOperations(sync, @async);
 
         var currentEndpoint = scope is InstallationScope.Current or InstallationScope.CurrentAndGlobal
             ? IAllureInProcessRuntimeEndpoint.Mock()
             : null;
         currentEndpoint?.Operations.Returns(operations);
-        currentEndpoint?.InProcessOperations.Returns(operations);
+        currentEndpoint?.InProcessOperations.Returns(inProcessOperations);
         currentEndpoint?.IsAvailable.Returns(true);
         currentEndpoint?.ParameterSerializer.Returns(
             serializer ?? new TestParameterSerializer()
@@ -77,7 +78,7 @@ public class AllureApiTestsBase
             ? IAllureInProcessRuntimeEndpoint.Mock()
             : null;
         globalEndpoint?.Operations.Returns(operations);
-        globalEndpoint?.InProcessOperations.Returns(operations);
+        globalEndpoint?.InProcessOperations.Returns(inProcessOperations);
         globalEndpoint?.IsAvailable.Returns(true);
         globalEndpoint?.ParameterSerializer.Returns(
             serializer ?? new TestParameterSerializer()
@@ -115,28 +116,4 @@ public class AllureApiTestsBase
         ) =>
             new(sync, @async, registration);
     };
-
-    public class AllureApiOperations(
-        IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> sync,
-        IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> @async
-    ) : IAllureOperations
-    {
-        public IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> Sync => sync;
-
-        public IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> Async => @async;
-    }
-
-    public class AllureInProcessApiOperations(
-        IAllureInProcessSyncOperations sync,
-        IAllureInProcessAsyncOperations @async
-    ) : IAllureInProcessOperations, IAllureOperations
-    {
-        public IAllureInProcessSyncOperations Sync => sync;
-
-        public IAllureInProcessAsyncOperations Async => @async;
-
-        IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> IAllureOperations.Sync => Sync;
-
-        IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> IAllureOperations.Async => Async;
-    }
 }

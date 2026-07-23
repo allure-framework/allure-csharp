@@ -9,7 +9,7 @@ public class InProcessTearDownTests : AllureApiTestsBase
     [Test]
     public async Task TearDownContextActionRoutedToCurrentEndpoint()
     {
-        Action<IAllureInProcessFixtureContext> body = _ => { };
+        Action<IAllureInProcessSyncFixtureContext> body = _ => { };
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
 
         AllureInProcessApi.TearDown("Fixture name", body);
@@ -40,12 +40,12 @@ public class InProcessTearDownTests : AllureApiTestsBase
     [Test]
     public async Task TearDownContextFunctionReturnsEndpointValue()
     {
-        Func<IAllureInProcessFixtureContext, int> body = _ => 17;
+        Func<IAllureInProcessSyncFixtureContext, int> body = _ => 17;
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.SyncApi.TearDown(
             Any(),
             Any(),
-            Any<Func<IAllureInProcessFixtureContext, int>>()
+            Any<Func<IAllureInProcessSyncFixtureContext, int>>()
         ).Returns(42);
 
         var actual = AllureInProcessApi.TearDown("Fixture name", body);
@@ -79,11 +79,11 @@ public class InProcessTearDownTests : AllureApiTestsBase
     [Test]
     public async Task TearDownAsyncContextActionReturnsEndpointTask()
     {
-        Func<IAllureAsyncInProcessFixtureContext, Task> body = _ => Task.CompletedTask;
+        Func<IAllureInProcessAsyncFixtureContext, Task> body = _ => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessFixtureContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncFixtureContext, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureInProcessApi.TearDownAsync("Fixture name", body);
@@ -117,11 +117,11 @@ public class InProcessTearDownTests : AllureApiTestsBase
     public async Task TearDownAsyncContextActionWithTokenReturnsEndpointTask()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessFixtureContext, Task> body = _ => Task.CompletedTask;
+        Func<IAllureInProcessAsyncFixtureContext, Task> body = _ => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessFixtureContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncFixtureContext, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureInProcessApi.TearDownAsync("Fixture name", body, cancellation.Token);
@@ -156,11 +156,11 @@ public class InProcessTearDownTests : AllureApiTestsBase
     public async Task TearDownAsyncCancellableContextActionReturnsEndpointTask()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task> body = (_, _) => Task.CompletedTask;
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body = (_, _) => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureInProcessApi.TearDownAsync("Fixture name", body, cancellation.Token);
@@ -197,10 +197,10 @@ public class InProcessTearDownTests : AllureApiTestsBase
     [Test]
     public async Task TearDownAsyncContextFunctionReturnsEndpointValue()
     {
-        Func<IAllureAsyncInProcessFixtureContext, Task<int>> body = _ => Task.FromResult(17);
+        Func<IAllureInProcessAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessFixtureContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncFixtureContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureInProcessApi.TearDownAsync("Fixture name", body);
@@ -236,10 +236,10 @@ public class InProcessTearDownTests : AllureApiTestsBase
     public async Task TearDownAsyncContextFunctionWithTokenReturnsEndpointValue()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessFixtureContext, Task<int>> body = _ => Task.FromResult(17);
+        Func<IAllureInProcessAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
-            Any(), Any(), Any<Func<IAllureAsyncInProcessFixtureContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureInProcessAsyncFixtureContext, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureInProcessApi.TearDownAsync("Fixture name", body, cancellation.Token);
@@ -276,12 +276,12 @@ public class InProcessTearDownTests : AllureApiTestsBase
     public async Task TearDownAsyncCancellableContextFunctionReturnsEndpointValue()
     {
         using var cancellation = new CancellationTokenSource();
-        Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task<int>> body = (_, _) => Task.FromResult(17);
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<int>> body = (_, _) => Task.FromResult(17);
         using var endpoint = InstallInProcessEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.TearDownAsync<int>(
             Any(),
             Any(),
-            Any<Func<IAllureAsyncInProcessFixtureContext, CancellationToken, Task<int>>>(),
+            Any<Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<int>>>(),
             Any()
         ).ReturnsAsync(Task.FromResult(42));
 
@@ -318,7 +318,7 @@ public class InProcessTearDownTests : AllureApiTestsBase
         await Assert.That(observedToken).IsEqualTo(cancellation.Token);
     }
 
-    private static void Exercise(IAllureInProcessFixtureContext context)
+    private static void Exercise(IAllureInProcessSyncFixtureContext context)
     {
         context.UpdateFixtureResult(_ =>
             throw new InvalidOperationException("A null context must not invoke the update.")
@@ -329,7 +329,7 @@ public class InProcessTearDownTests : AllureApiTestsBase
         }
     }
 
-    private static Task ExerciseAsync(IAllureAsyncInProcessFixtureContext context)
+    private static Task ExerciseAsync(IAllureInProcessAsyncFixtureContext context)
     {
         context.UpdateFixtureResult(_ =>
             throw new InvalidOperationException("A null context must not invoke the update.")

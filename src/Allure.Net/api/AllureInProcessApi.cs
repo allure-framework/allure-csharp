@@ -12,7 +12,7 @@ namespace Allure;
 /// </remarks>
 public static partial class AllureInProcessApi
 {
-    static IAllureInProcessOperations? ResolveOperations()
+    static AllureInProcessOperations? ResolveOperations()
     {
         var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
 

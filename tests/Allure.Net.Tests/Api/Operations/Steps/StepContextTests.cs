@@ -10,7 +10,7 @@ public class StepContextTests
     [Test]
     public async Task AddParameterFromNameAndValueCreatesParameter()
     {
-        var context = IAllureStepContext.Mock();
+        var context = IAllureSyncStepContext.Mock();
 
         context.AddParameter("Parameter name", "Parameter value");
 
@@ -26,7 +26,7 @@ public class StepContextTests
     [Test]
     public async Task AddParameterWithModeCreatesParameter()
     {
-        var context = IAllureStepContext.Mock();
+        var context = IAllureSyncStepContext.Mock();
 
         context.AddParameter("Parameter name", "Parameter value", ParameterMode.Masked);
 
@@ -302,9 +302,9 @@ public class StepContextTests
         )).WasCalled(Times.Once);
     }
 
-    private static IAllureStepContextMock CreateSyncContext()
+    private static IAllureSyncStepContextMock CreateSyncContext()
     {
-        var context = IAllureStepContext.Mock();
+        var context = IAllureSyncStepContext.Mock();
         context.ParameterSerializer.Returns(new TestParameterSerializer());
         return context;
     }
