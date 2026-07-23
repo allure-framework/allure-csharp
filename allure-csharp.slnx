@@ -55,6 +55,9 @@
     <Project Path="src/Allure.Net.Commons/Allure.Net.Commons.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
+    <Project Path="src/Allure.Net.Sdk/Allure.Net.Sdk.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.NUnit/Allure.NUnit.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
