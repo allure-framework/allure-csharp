@@ -13,6 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="System.Text.Json" Version="10.0.10" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />
         <None Include="../../img/Allure-Color.png" Pack="true" PackagePath="\" />
     </ItemGroup>
