@@ -4,8 +4,8 @@ namespace Allure.Net.Tests.Infrastructure;
 
 sealed class RoutingTestRuntime(
     string name,
-    IAllureInProcessOperations sync,
-    IAllureAsyncInProcessOperations @async,
+    IAllureInProcessSyncOperations sync,
+    IAllureInProcessAsyncOperations @async,
     IAllureParameterSerializer serializer,
     bool available = true
 ) : IAllureInProcessRuntimeEndpoint
@@ -14,9 +14,9 @@ sealed class RoutingTestRuntime(
 
     public bool IsAvailable { get; set; } = available;
 
-    public IAllureApiOperations Operations { get; } = new TestApiOperations(sync, @async);
+    public IAllureOperations Operations { get; } = new TestApiOperations(sync, @async);
 
-    public IAllureInProcessApiOperations InProcessOperations { get; } =
+    public IAllureInProcessOperations InProcessOperations { get; } =
         new TestInProcessApiOperations(sync, @async);
 
     public IAllureParameterSerializer ParameterSerializer { get; } = serializer;

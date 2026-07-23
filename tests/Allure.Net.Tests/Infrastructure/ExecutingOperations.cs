@@ -5,8 +5,8 @@ namespace Allure.Net.Tests.Infrastructure;
 
 sealed class ExecutingOperations
 {
-    public RecordingInterface<IAllureOperations<IAllureStepContext, IAllureFixtureContext>> Sync { get; } =
-        RecordingInterface<IAllureOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
+    public RecordingInterface<IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>> Sync { get; } =
+        RecordingInterface<IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
 
     public RecordingInterface<IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>> Async { get; } =
         RecordingInterface<IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>>.Create();

@@ -5,8 +5,8 @@ namespace Allure.Net.Tests.Infrastructure;
 sealed class TestRuntime(
     string name,
     bool isAvailable = true,
-    IAllureInProcessOperations? sync = null,
-    IAllureAsyncInProcessOperations? @async = null,
+    IAllureInProcessSyncOperations? sync = null,
+    IAllureInProcessAsyncOperations? @async = null,
     IAllureParameterSerializer? serializer = null
 ) : IAllureRuntimeEndpoint
 {
@@ -14,9 +14,9 @@ sealed class TestRuntime(
 
     public bool IsAvailable { get; set; } = isAvailable;
 
-    public IAllureApiOperations Operations { get; } = new TestApiOperations(
-        sync ?? InterfaceStub.Create<IAllureInProcessOperations>(),
-        @async ?? InterfaceStub.Create<IAllureAsyncInProcessOperations>()
+    public IAllureOperations Operations { get; } = new TestApiOperations(
+        sync ?? InterfaceStub.Create<IAllureInProcessSyncOperations>(),
+        @async ?? InterfaceStub.Create<IAllureInProcessAsyncOperations>()
     );
 
     public IAllureParameterSerializer ParameterSerializer { get; } =

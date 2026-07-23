@@ -216,8 +216,8 @@ public class RuntimeRouterIntegrationTests
     {
         public RuntimeFixture(string name, bool available = true)
         {
-            this.Sync = RecordingInterface<IAllureInProcessOperations>.Create();
-            this.Async = RecordingInterface<IAllureAsyncInProcessOperations>.Create();
+            this.Sync = RecordingInterface<IAllureInProcessSyncOperations>.Create();
+            this.Async = RecordingInterface<IAllureInProcessAsyncOperations>.Create();
             this.Serializer = new CountingSerializer(name);
             this.Runtime = new RoutingTestRuntime(
                 name,
@@ -228,9 +228,9 @@ public class RuntimeRouterIntegrationTests
             );
         }
 
-        public RecordingInterface<IAllureInProcessOperations> Sync { get; }
+        public RecordingInterface<IAllureInProcessSyncOperations> Sync { get; }
 
-        public RecordingInterface<IAllureAsyncInProcessOperations> Async { get; }
+        public RecordingInterface<IAllureInProcessAsyncOperations> Async { get; }
 
         public CountingSerializer Serializer { get; }
 

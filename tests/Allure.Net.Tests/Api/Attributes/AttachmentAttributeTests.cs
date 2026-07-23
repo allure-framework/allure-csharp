@@ -539,7 +539,7 @@ public class AttachmentAttributeTests : AllureApiTestsBase
     }
 
     private static CapturedContent CaptureRegular(EndpointMocks<
-        IAllureOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
+        IAllureSyncOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
         IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
     > endpoint)
     {
@@ -554,7 +554,7 @@ public class AttachmentAttributeTests : AllureApiTestsBase
     }
 
     private static CapturedContent CaptureGlobal(EndpointMocks<
-        IAllureOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
+        IAllureSyncOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
         IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
     > endpoint)
     {

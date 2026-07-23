@@ -13,14 +13,14 @@ public class AllureApiTestsBase
     }
 
     public static EndpointMocks<
-        IAllureOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
+        IAllureSyncOperations_TStepContext_TFixtureContext_Mock<IAllureStepContext, IAllureFixtureContext>,
         IAllureAsyncOperations_TStepContext_TFixtureContext_Mock<IAllureAsyncStepContext, IAllureAsyncFixtureContext>
     > InstallEndpoint(
         InstallationScope scope = InstallationScope.CurrentAndGlobal,
         IAllureParameterSerializer? serializer = null
     )
     {
-        var sync = IAllureOperations<IAllureStepContext, IAllureFixtureContext>.Mock();
+        var sync = IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>.Mock();
         var @async = IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>.Mock();
 
         var operations = new AllureApiOperations(sync, @async);
@@ -53,13 +53,13 @@ public class AllureApiTestsBase
     public static IDisposable InstallNoEndpoint() =>
         FacadeTestEnvironment.Use();
 
-    public static EndpointMocks<IAllureInProcessOperationsMock, IAllureAsyncInProcessOperationsMock> InstallInProcessEndpoint(
+    public static EndpointMocks<IAllureInProcessSyncOperationsMock, IAllureInProcessAsyncOperationsMock> InstallInProcessEndpoint(
         InstallationScope scope = InstallationScope.CurrentAndGlobal,
         IAllureParameterSerializer? serializer = null
     )
     {
-        var sync = IAllureInProcessOperations.Mock();
-        var @async = IAllureAsyncInProcessOperations.Mock();
+        var sync = IAllureInProcessSyncOperations.Mock();
+        var @async = IAllureInProcessAsyncOperations.Mock();
 
         var operations = new AllureInProcessApiOperations(sync, @async);
 
@@ -117,26 +117,26 @@ public class AllureApiTestsBase
     };
 
     public class AllureApiOperations(
-        IAllureOperations<IAllureStepContext, IAllureFixtureContext> sync,
+        IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> sync,
         IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> @async
-    ) : IAllureApiOperations
+    ) : IAllureOperations
     {
-        public IAllureOperations<IAllureStepContext, IAllureFixtureContext> Sync => sync;
+        public IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> Sync => sync;
 
         public IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> Async => @async;
     }
 
     public class AllureInProcessApiOperations(
-        IAllureInProcessOperations sync,
-        IAllureAsyncInProcessOperations @async
-    ) : IAllureInProcessApiOperations, IAllureApiOperations
+        IAllureInProcessSyncOperations sync,
+        IAllureInProcessAsyncOperations @async
+    ) : IAllureInProcessOperations, IAllureOperations
     {
-        public IAllureInProcessOperations Sync => sync;
+        public IAllureInProcessSyncOperations Sync => sync;
 
-        public IAllureAsyncInProcessOperations Async => @async;
+        public IAllureInProcessAsyncOperations Async => @async;
 
-        IAllureOperations<IAllureStepContext, IAllureFixtureContext> IAllureApiOperations.Sync => Sync;
+        IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext> IAllureOperations.Sync => Sync;
 
-        IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> IAllureApiOperations.Async => Async;
+        IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext> IAllureOperations.Async => Async;
     }
 }

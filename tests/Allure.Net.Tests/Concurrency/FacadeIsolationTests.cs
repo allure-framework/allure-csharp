@@ -10,9 +10,9 @@ public class FacadeIsolationTests
     {
         var executions = Enumerable.Range(0, 24).Select(index => Task.Run(async () =>
         {
-            var currentSync = RecordingInterface<IAllureOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
+            var currentSync = RecordingInterface<IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
             var currentAsync = RecordingInterface<IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>>.Create();
-            var globalSync = RecordingInterface<IAllureOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
+            var globalSync = RecordingInterface<IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
             var globalAsync = RecordingInterface<IAllureAsyncOperations<IAllureAsyncStepContext, IAllureAsyncFixtureContext>>.Create();
             using var scope = FacadeTestEnvironment.Use(
                 new TestApiEndpoint(currentSync.Instance, currentAsync.Instance),
@@ -54,13 +54,13 @@ public class FacadeIsolationTests
     [Test]
     public async Task NestedScopeDoesNotOverwriteParentAsyncContext()
     {
-        var parent = RecordingInterface<IAllureOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
+        var parent = RecordingInterface<IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
         using var parentScope = FacadeTestEnvironment.Use(current: new TestApiEndpoint(sync: parent.Instance));
 
         AllureApi.SetName("parent-before");
         var childCall = await Task.Run(() =>
         {
-            var child = RecordingInterface<IAllureOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
+            var child = RecordingInterface<IAllureSyncOperations<IAllureStepContext, IAllureFixtureContext>>.Create();
             using var childScope = FacadeTestEnvironment.Use(current: new TestApiEndpoint(sync: child.Instance));
             AllureApi.SetName("child");
             return child.SingleCall;

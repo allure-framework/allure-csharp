@@ -8,5 +8,5 @@ public interface IAllureInProcessRuntimeEndpoint : IAllureRuntimeEndpoint
     /// <summary>
     /// Gets the runtime-specific implementation of the in-process API operations.
     /// </summary>
-    IAllureInProcessApiOperations InProcessOperations { get; }
+    IAllureInProcessOperations InProcessOperations { get; }
 }
