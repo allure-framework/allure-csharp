@@ -12,8 +12,8 @@ public static partial class AllureApi
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
-    public static void AddFileAttachment(string path) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+    public static void AddAttachmentFromFile(string path) =>
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachmentFromFile(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -26,8 +26,8 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
-    public static void AddFileAttachment(string path, string? name) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+    public static void AddAttachmentFromFile(string path, string? name) =>
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachmentFromFile(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -41,8 +41,8 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
-    public static void AddFileAttachment(string path, string name, string? mediaType) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+    public static void AddAttachmentFromFile(string path, string name, string? mediaType) =>
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachmentFromFile(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -57,13 +57,13 @@ public static partial class AllureApi
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
-    public static void AddFileAttachment(
+    public static void AddAttachmentFromFile(
         string path,
         string name,
         string? mediaType,
         string fileExtension
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileAttachment(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachmentFromFile(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -263,12 +263,12 @@ public static partial class AllureApi
     /// <param name="expectedScreenPath">A path to the actual screen.</param>
     /// <param name="actuaScreenPath">A path to the expected screen.</param>
     /// <param name="screenDiffPath">A path to the screen diff.</param>
-    public static void AddFileScreenDiff(
+    public static void AddScreenDiffFromFiles(
         string expectedScreenPath,
         string actuaScreenPath,
         string screenDiffPath
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddFileScreenDiff(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddScreenDiffFromFiles(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath

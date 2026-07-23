@@ -15,8 +15,8 @@ public static partial class AllureApi
     /// Adds a global attachment not tied to the current fixture, test, or step.
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
-    public static Task AddGlobalFileAttachmentAsync(string path) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(string path) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -29,11 +29,11 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(
         string path,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -46,8 +46,8 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
-    public static Task AddGlobalFileAttachmentAsync(string path, string name) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(string path, string name) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -61,12 +61,12 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(
         string path,
         string name,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -83,12 +83,12 @@ public static partial class AllureApi
     /// Set to <see langword="null"/> to detect the type at report generation time.
     /// </param>
     /// <param name="path">The path to the attached file.</param>
-    public static Task AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(
         string path,
         string name,
         string mediaType
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -106,13 +106,13 @@ public static partial class AllureApi
     /// </param>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(
         string path,
         string name,
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -128,13 +128,13 @@ public static partial class AllureApi
     /// <param name="mediaType">The media type of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
     ///
-    public static Task AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(
         string path,
         string name,
         string mediaType,
         string fileExtension
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -151,14 +151,14 @@ public static partial class AllureApi
     /// <param name="fileExtension">An extension of the attachment file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     ///
-    public static Task AddGlobalFileAttachmentAsync(
+    public static Task AddGlobalAttachmentFromFileAsync(
         string path,
         string name,
         string mediaType,
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,

@@ -57,7 +57,7 @@ public class AllureAttachmentFileAspect
 
         if (isGlobal)
         {
-            endpoint.Operations.Sync.AddGlobalFileAttachment(
+            endpoint.Operations.Sync.AddGlobalAttachmentFromFile(
                 name: attachmentName,
                 path: path,
                 mediaType: contentType,
@@ -66,7 +66,7 @@ public class AllureAttachmentFileAspect
         }
         else
         {
-            endpoint.Operations.Sync.AddFileAttachment(
+            endpoint.Operations.Sync.AddAttachmentFromFile(
                 name: attachmentName,
                 path: path,
                 mediaType: contentType,

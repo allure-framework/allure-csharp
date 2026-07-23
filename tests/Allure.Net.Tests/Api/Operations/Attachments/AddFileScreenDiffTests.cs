@@ -3,16 +3,16 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Attachments;
 
-public class AddFileScreenDiffTests : AllureApiTestsBase
+public class AddScreenDiffFromFilesTests : AllureApiTestsBase
 {
     [Test]
-    public async Task AddFileScreenDiffRoutedToEndpoint()
+    public async Task AddScreenDiffFromFilesRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        AllureApi.AddFileScreenDiff("/tmp/expected.png", "/tmp/actual.png", "/tmp/diff.png");
+        AllureApi.AddScreenDiffFromFiles("/tmp/expected.png", "/tmp/actual.png", "/tmp/diff.png");
 
-        await Assert.That(endpoint.SyncApi.AddFileScreenDiff(
+        await Assert.That(endpoint.SyncApi.AddScreenDiffFromFiles(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png"
@@ -21,25 +21,25 @@ public class AddFileScreenDiffTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddFileScreenDiffDoesNotThrowWithoutEndpoint()
+    public void AddScreenDiffFromFilesDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddFileScreenDiff("/tmp/expected.png", "/tmp/actual.png", "/tmp/diff.png");
+        AllureApi.AddScreenDiffFromFiles("/tmp/expected.png", "/tmp/actual.png", "/tmp/diff.png");
     }
 
     [Test]
-    public async Task AddFileScreenDiffAsyncRoutedToEndpoint()
+    public async Task AddScreenDiffFromFilesAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileScreenDiffAsync(
+        await AllureApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png"
         );
 
-        await Assert.That(endpoint.AsyncApi.AddFileScreenDiffAsync(
+        await Assert.That(endpoint.AsyncApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png",
@@ -49,14 +49,14 @@ public class AddFileScreenDiffTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileScreenDiffAsyncResultTaskForwardedToCaller()
+    public async Task AddScreenDiffFromFilesAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileScreenDiffAsync(Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddScreenDiffFromFilesAsync(Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileScreenDiffAsync(
+        var actual = AllureApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png"
@@ -66,11 +66,11 @@ public class AddFileScreenDiffTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileScreenDiffAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddScreenDiffFromFilesAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileScreenDiffAsync(
+        await AllureApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png"
@@ -78,19 +78,19 @@ public class AddFileScreenDiffTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileScreenDiffAsyncWithTokenRoutedToEndpoint()
+    public async Task AddScreenDiffFromFilesAsyncWithTokenRoutedToEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileScreenDiffAsync(
+        await AllureApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png",
             cts.Token
         );
 
-        await Assert.That(endpoint.AsyncApi.AddFileScreenDiffAsync(
+        await Assert.That(endpoint.AsyncApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png",
@@ -100,14 +100,14 @@ public class AddFileScreenDiffTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileScreenDiffAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddScreenDiffFromFilesAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileScreenDiffAsync(Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddScreenDiffFromFilesAsync(Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileScreenDiffAsync(
+        var actual = AllureApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png",
@@ -118,11 +118,11 @@ public class AddFileScreenDiffTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileScreenDiffAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddScreenDiffFromFilesAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileScreenDiffAsync(
+        await AllureApi.AddScreenDiffFromFilesAsync(
             "/tmp/expected.png",
             "/tmp/actual.png",
             "/tmp/diff.png",

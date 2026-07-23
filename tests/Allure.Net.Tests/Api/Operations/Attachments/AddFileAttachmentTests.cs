@@ -3,16 +3,16 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Attachments;
 
-public class AddFileAttachmentTests : AllureApiTestsBase
+public class AddAttachmentFromFileTests : AllureApiTestsBase
 {
     [Test]
-    public async Task AddFileAttachmentByPathRoutedToEndpoint()
+    public async Task AddAttachmentFromFileByPathRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        AllureApi.AddFileAttachment("/tmp/report.json");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json");
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "report.json",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -22,21 +22,21 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddFileAttachmentByPathDoesNotThrowWithoutEndpoint()
+    public void AddAttachmentFromFileByPathDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddFileAttachment("/tmp/report.json");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json");
     }
 
     [Test]
-    public async Task AddFileAttachmentByPathAsyncRoutedToEndpoint()
+    public async Task AddAttachmentFromFileByPathAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json");
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "report.json",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -47,35 +47,35 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentByPathAsyncResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileByPathAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync("/tmp/report.json");
+        var actual = AllureApi.AddAttachmentFromFileAsync("/tmp/report.json");
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddFileAttachmentByPathAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileByPathAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json");
     }
 
     [Test]
-    public async Task AddFileAttachmentByPathAsyncWithTokenRoutedToEndpoint()
+    public async Task AddAttachmentFromFileByPathAsyncWithTokenRoutedToEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", cts.Token);
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", cts.Token);
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "report.json",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -86,34 +86,34 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentByPathAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileByPathAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync("/tmp/report.json", CancellationToken.None);
+        var actual = AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", CancellationToken.None);
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddFileAttachmentByPathAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileByPathAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", CancellationToken.None);
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", CancellationToken.None);
     }
 
     [Test]
-    public async Task AddFileAttachmentWithNameRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithNameRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        AllureApi.AddFileAttachment("/tmp/report.json", "JSON report");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json", "JSON report");
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "JSON report",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -123,21 +123,21 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddFileAttachmentWithNameDoesNotThrowWithoutEndpoint()
+    public void AddAttachmentFromFileWithNameDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddFileAttachment("/tmp/report.json", "JSON report");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json", "JSON report");
     }
 
     [Test]
-    public async Task AddFileAttachmentWithNameAsyncRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithNameAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report");
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -148,35 +148,35 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithNameAsyncResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileWithNameAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report");
+        var actual = AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report");
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddFileAttachmentWithNameAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileWithNameAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report");
     }
 
     [Test]
-    public async Task AddFileAttachmentWithNameAsyncWithTokenRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithNameAsyncWithTokenRoutedToEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", cts.Token);
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", cts.Token);
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -187,34 +187,34 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithNameAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileWithNameAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", CancellationToken.None);
+        var actual = AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", CancellationToken.None);
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddFileAttachmentWithNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileWithNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", CancellationToken.None);
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", CancellationToken.None);
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMediaTypeRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithMediaTypeRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        AllureApi.AddFileAttachment("/tmp/report.json", "JSON report", "application/json");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json", "JSON report", "application/json");
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -224,21 +224,21 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddFileAttachmentWithMediaTypeDoesNotThrowWithoutEndpoint()
+    public void AddAttachmentFromFileWithMediaTypeDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddFileAttachment("/tmp/report.json", "JSON report", "application/json");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json", "JSON report", "application/json");
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMediaTypeAsyncRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithMediaTypeAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json");
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -249,35 +249,35 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMediaTypeAsyncResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileWithMediaTypeAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json");
+        var actual = AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json");
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMediaTypeAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileWithMediaTypeAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json");
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMediaTypeAsyncWithTokenRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithMediaTypeAsyncWithTokenRoutedToEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json", cts.Token);
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json", cts.Token);
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -288,14 +288,14 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMediaTypeAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileWithMediaTypeAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync(
+        var actual = AllureApi.AddAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -306,11 +306,11 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMediaTypeAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileWithMediaTypeAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync(
+        await AllureApi.AddAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -319,13 +319,13 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMetadataRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithMetadataRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        AllureApi.AddFileAttachment("/tmp/report.json", "JSON report", "application/json", ".allure-json");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json", "JSON report", "application/json", ".allure-json");
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -335,21 +335,21 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddFileAttachmentWithMetadataDoesNotThrowWithoutEndpoint()
+    public void AddAttachmentFromFileWithMetadataDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddFileAttachment("/tmp/report.json", "JSON report", "application/json", ".allure-json");
+        AllureApi.AddAttachmentFromFile("/tmp/report.json", "JSON report", "application/json", ".allure-json");
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMetadataAsyncRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithMetadataAsyncRoutedToEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json", ".allure-json");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json", ".allure-json");
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -360,14 +360,14 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMetadataAsyncResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileWithMetadataAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync(
+        var actual = AllureApi.AddAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -378,20 +378,20 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMetadataAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileWithMetadataAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json", ".allure-json");
+        await AllureApi.AddAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json", ".allure-json");
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMetadataAsyncWithTokenRoutedToEndpoint()
+    public async Task AddAttachmentFromFileWithMetadataAsyncWithTokenRoutedToEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
 
-        await AllureApi.AddFileAttachmentAsync(
+        await AllureApi.AddAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -399,7 +399,7 @@ public class AddFileAttachmentTests : AllureApiTestsBase
             cts.Token
         );
 
-        await Assert.That(endpoint.AsyncApi.AddFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -410,14 +410,14 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMetadataAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddAttachmentFromFileWithMetadataAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.AddFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddFileAttachmentAsync(
+        var actual = AllureApi.AddAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -429,11 +429,11 @@ public class AddFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddFileAttachmentWithMetadataAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddAttachmentFromFileWithMetadataAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddFileAttachmentAsync(
+        await AllureApi.AddAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",

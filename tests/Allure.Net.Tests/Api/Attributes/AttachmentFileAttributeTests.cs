@@ -55,7 +55,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
         var result = CompleteAttachment(17);
 
         await Assert.That(result).IsEqualTo(FilePath("attachment.example"));
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "Attachment argument:17",
             FilePath("attachment.example"),
             "application/example",
@@ -74,7 +74,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
         var result = CompleteGlobalAttachment(18);
 
         await Assert.That(result.FullName).IsEqualTo(FilePath("global.data"));
-        await Assert.That(endpoint.SyncApi.AddGlobalFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachmentFromFile(
             "Global argument:18",
             FilePath("global.data"),
             "text/global",
@@ -89,7 +89,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = UnnamedAttachment();
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "unnamed.json",
             FilePath("unnamed.json"),
             IsNull<string?>(),
@@ -104,7 +104,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = EmptyNamedAttachment();
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "empty-name.txt",
             FilePath("empty-name.txt"),
             IsNull<string?>(),
@@ -122,7 +122,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = InterpolatedAttachment(17, "text");
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "value:17 value:text",
             FilePath("interpolated.bin"),
             IsNull<string?>(),
@@ -140,7 +140,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = RenamedParameterAttachment(17);
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "value:17",
             FilePath("renamed.bin"),
             IsNull<string?>(),
@@ -158,7 +158,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = IgnoredParameterAttachment(17);
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "value:17",
             FilePath("ignored.bin"),
             IsNull<string?>(),
@@ -173,7 +173,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = ContentTypeWithExtensionAttachment();
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "content.example",
             FilePath("content.example"),
             "application/json",
@@ -188,7 +188,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = ContentTypeWithoutExtensionAttachment();
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "content",
             FilePath("content"),
             "application/json",
@@ -203,7 +203,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         _ = NoExtensionAttachment();
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "no-extension",
             FilePath("no-extension"),
             IsNull<string?>(),
@@ -253,7 +253,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
         var result = await AsyncStringAttachment();
 
         await Assert.That(result).IsEqualTo(FilePath("async.txt"));
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "async.txt",
             FilePath("async.txt"),
             IsNull<string?>(),
@@ -269,7 +269,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
         var result = await AsyncFileInfoAttachment();
 
         await Assert.That(result.FullName).IsEqualTo(FilePath("value-task.data"));
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "value-task.data",
             FilePath("value-task.data"),
             IsNull<string?>(),
@@ -304,7 +304,7 @@ public class AttachmentFileAttributeTests : AllureApiTestsBase
 
         MultipleInterpolationsOfSameParameter(counter);
 
-        await Assert.That(endpoint.SyncApi.AddFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddAttachmentFromFile(
             "serialized:1 serialized:1",
             Any(),
             Any(),

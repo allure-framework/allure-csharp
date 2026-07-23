@@ -160,7 +160,7 @@ static class ModelFunctionExtensions
             writer.Write(outputFileName, contentBytes);
         }
 
-        public static void AddFileAttachment(
+        public static void AddAttachmentFromFile(
             IAllureResultsWriter writer,
             TestResult testResult,
             string? name,

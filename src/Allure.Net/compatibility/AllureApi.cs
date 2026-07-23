@@ -404,17 +404,17 @@ public static class AllureApi
     /// Adds an attachment to the current fixture, test or step.
     /// </summary>
     /// <remarks>
-    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddFileAttachment(string, string, string)"/>.
+    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddAttachmentFromFile(string, string, string)"/>.
     /// Please, note, that the new function has a different parameter order: 'path, name, type' instead of 'name, type, path'.
     /// </remarks>
-    [Obsolete("Use Allure.AllureApi.AddFileAttachment instead. Make sure to update the argument order from 'name, type, path' to 'path, name, type'")]
+    [Obsolete("Use Allure.AllureApi.AddAttachmentFromFile instead. Make sure to update the argument order from 'name, type, path' to 'path, name, type'")]
     public static void AddAttachment(
         string name,
         string? type,
         string path
     )
     {
-        NewAllureApi.AddFileAttachment(path: path, name: name, mediaType: type);
+        NewAllureApi.AddAttachmentFromFile(path: path, name: name, mediaType: type);
     }
 
     /// <summary>
@@ -445,32 +445,32 @@ public static class AllureApi
     /// from the file extension.
     /// </summary>
     /// <remarks>
-    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddFileAttachment(string, string)"/>.
+    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddAttachmentFromFile(string, string)"/>.
     /// </remarks>
-    [Obsolete("Use Allure.AllureApi.AddFileAttachment instead.")]
+    [Obsolete("Use Allure.AllureApi.AddAttachmentFromFile instead.")]
     public static void AddAttachment(
         string path,
         string? name = null
     )
     {
-        NewAllureApi.AddFileAttachment(path, name);
+        NewAllureApi.AddAttachmentFromFile(path, name);
     }
 
     /// <summary>
     /// Adds a global attachment not tied to the current fixture, test, or step.
     /// </summary>
     /// <remarks>
-    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddGlobalFileAttachment(string, string, string)"/>.
+    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddGlobalAttachmentFromFile(string, string, string)"/>.
     /// Please, note, that the new function has a different parameter order: 'path, name, type' instead of 'name, type, path'.
     /// </remarks>
-    [Obsolete("Use Allure.AllureApi.AddGlobalFileAttachment instead. Make sure to update the argument order from 'name, type, path' to 'path, name, type'")]
+    [Obsolete("Use Allure.AllureApi.AddGlobalAttachmentFromFile instead. Make sure to update the argument order from 'name, type, path' to 'path, name, type'")]
     public static void AddGlobalAttachment(
         string name,
         string? type,
         string path
     )
     {
-        NewAllureApi.AddGlobalFileAttachment(
+        NewAllureApi.AddGlobalAttachmentFromFile(
             path: path,
             name: name,
             mediaType: type
@@ -505,15 +505,15 @@ public static class AllureApi
     /// Derives the media type from the file extension.
     /// </summary>
     /// <remarks>
-    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddGlobalFileAttachment(string, string)"/>.
+    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddGlobalAttachmentFromFile(string, string)"/>.
     /// </remarks>
-    [Obsolete("Use Allure.AllureApi.AddGlobalFileAttachment instead.")]
+    [Obsolete("Use Allure.AllureApi.AddGlobalAttachmentFromFile instead.")]
     public static void AddGlobalAttachment(
         string path,
         string? name = null
     )
     {
-        NewAllureApi.AddGlobalFileAttachment(path, name);
+        NewAllureApi.AddGlobalAttachmentFromFile(path, name);
     }
 
     /// <summary>
@@ -556,16 +556,16 @@ public static class AllureApi
     /// Attaches screen diff images to the current fixture, test, or step.
     /// </summary>
     /// <remarks>
-    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddFileScreenDiff"/>.
+    /// This is a part of the legacy API. Please, switch to <see cref="NewAllureApi.AddScreenDiffFromFiles"/>.
     /// </remarks>
-    [Obsolete("Use Allure.AllureApi.AddFileScreenDiff instead.")]
+    [Obsolete("Use Allure.AllureApi.AddScreenDiffFromFiles instead.")]
     public static void AddScreenDiff(
         string expectedPngPath,
         string actualPngPath,
         string diffPngPath
     )
     {
-        NewAllureApi.AddFileScreenDiff(expectedPngPath, actualPngPath, diffPngPath);
+        NewAllureApi.AddScreenDiffFromFiles(expectedPngPath, actualPngPath, diffPngPath);
     }
 
     /// <summary>

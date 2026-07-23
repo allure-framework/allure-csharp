@@ -14,8 +14,8 @@ public static partial class AllureApi
     /// </summary>
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
-    public static Task AddFileAttachmentAsync(string path) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(string path) =>
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -29,8 +29,8 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddFileAttachmentAsync(string path, CancellationToken cancellationToken) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(string path, CancellationToken cancellationToken) =>
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -44,8 +44,8 @@ public static partial class AllureApi
     /// <remarks>If no test or fixture is running, does nothing.</remarks>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
-    public static Task AddFileAttachmentAsync(string path, string name) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(string path, string name) =>
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -60,12 +60,12 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(
         string path,
         string name,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: null,
@@ -80,8 +80,8 @@ public static partial class AllureApi
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
-    public static Task AddFileAttachmentAsync(string path, string name, string mediaType) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(string path, string name, string mediaType) =>
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -97,13 +97,13 @@ public static partial class AllureApi
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(
         string path,
         string name,
         string mediaType,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -119,13 +119,13 @@ public static partial class AllureApi
     /// <param name="name">A display name of the attachment.</param>
     /// <param name="mediaType">A media type of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
-    public static Task AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(
         string path,
         string name,
         string? mediaType,
         string fileExtension
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -142,14 +142,14 @@ public static partial class AllureApi
     /// <param name="mediaType">A media type of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddFileAttachmentAsync(
+    public static Task AddAttachmentFromFileAsync(
         string path,
         string name,
         string? mediaType,
         string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileAttachmentAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddAttachmentFromFileAsync(
             name: name ?? Path.GetFileName(path),
             path: path,
             mediaType: mediaType,
@@ -653,12 +653,12 @@ public static partial class AllureApi
     /// <param name="expectedScreenPath">A path to the actual screen.</param>
     /// <param name="actuaScreenPath">A path to the expected screen.</param>
     /// <param name="screenDiffPath">A path to the screen diff.</param>
-    public static Task AddFileScreenDiffAsync(
+    public static Task AddScreenDiffFromFilesAsync(
         string expectedScreenPath,
         string actuaScreenPath,
         string screenDiffPath
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddScreenDiffFromFilesAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,
@@ -673,13 +673,13 @@ public static partial class AllureApi
     /// <param name="actuaScreenPath">A path to the expected screen.</param>
     /// <param name="screenDiffPath">A path to the screen diff.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public static Task AddFileScreenDiffAsync(
+    public static Task AddScreenDiffFromFilesAsync(
         string expectedScreenPath,
         string actuaScreenPath,
         string screenDiffPath,
         CancellationToken cancellationToken
     ) =>
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddFileScreenDiffAsync(
+        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Async.AddScreenDiffFromFilesAsync(
             expectedPath: expectedScreenPath,
             actualPath: actuaScreenPath,
             diffPath: screenDiffPath,

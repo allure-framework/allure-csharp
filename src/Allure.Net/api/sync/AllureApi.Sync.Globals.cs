@@ -13,8 +13,8 @@ public static partial class AllureApi
     /// Adds a global attachment not tied to the current fixture, test, or step.
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
-    public static void AddGlobalFileAttachment(string path) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+    public static void AddGlobalAttachmentFromFile(string path) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachmentFromFile(
             name: Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -26,8 +26,8 @@ public static partial class AllureApi
     /// </summary>
     /// <param name="path">The path to the attached file.</param>
     /// <param name="name">The name of the attachment.</param>
-    public static void AddGlobalFileAttachment(string path, string? name) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+    public static void AddGlobalAttachmentFromFile(string path, string? name) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachmentFromFile(
             name: name ?? Path.GetFileName(path),
             mediaType: null,
             path: path,
@@ -43,12 +43,12 @@ public static partial class AllureApi
     /// Set to <see langword="null"/> to detect the type at report generation time.
     /// </param>
     /// <param name="path">The path to the attached file.</param>
-    public static void AddGlobalFileAttachment(
+    public static void AddGlobalAttachmentFromFile(
         string path,
         string name,
         string? mediaType
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachmentFromFile(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,
@@ -63,13 +63,13 @@ public static partial class AllureApi
     /// <param name="mediaType">The media type of the attachment.</param>
     /// <param name="fileExtension">An extension of the attachment file.</param>
     ///
-    public static void AddGlobalFileAttachment(
+    public static void AddGlobalAttachmentFromFile(
         string path,
         string name,
         string? mediaType,
         string fileExtension
     ) =>
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalFileAttachment(
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachmentFromFile(
             name: name ?? Path.GetFileName(path),
             mediaType: mediaType,
             path: path,

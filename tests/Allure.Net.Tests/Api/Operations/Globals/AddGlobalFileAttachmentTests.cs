@@ -3,16 +3,16 @@ using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Globals;
 
-public class AddGlobalFileAttachmentTests : AllureApiTestsBase
+public class AddGlobalAttachmentFromFileTests : AllureApiTestsBase
 {
     [Test]
-    public async Task AddGlobalFileAttachmentByPathRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileByPathRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json");
 
-        await Assert.That(endpoint.SyncApi.AddGlobalFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachmentFromFile(
             "report.json",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -22,21 +22,21 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddGlobalFileAttachmentByPathDoesNotThrowWithoutEndpoint()
+    public void AddGlobalAttachmentFromFileByPathDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json");
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentByPathAsyncRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileByPathAsyncRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json");
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json");
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "report.json",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -47,35 +47,35 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentByPathAsyncResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileByPathAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json");
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json");
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentByPathAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileByPathAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json");
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json");
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentByPathAsyncWithTokenRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileByPathAsyncWithTokenRoutedToGlobalEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", cts.Token);
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", cts.Token);
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "report.json",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -86,34 +86,34 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentByPathAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileByPathAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", CancellationToken.None);
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", CancellationToken.None);
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentByPathAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileByPathAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", CancellationToken.None);
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", CancellationToken.None);
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithNameRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithNameRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json", "JSON report");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json", "JSON report");
 
-        await Assert.That(endpoint.SyncApi.AddGlobalFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachmentFromFile(
             "JSON report",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -123,21 +123,21 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddGlobalFileAttachmentWithNameDoesNotThrowWithoutEndpoint()
+    public void AddGlobalAttachmentFromFileWithNameDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json", "JSON report");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json", "JSON report");
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithNameAsyncRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithNameAsyncRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report");
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report");
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -148,35 +148,35 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithNameAsyncResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileWithNameAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report");
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report");
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithNameAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithNameAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report");
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report");
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithNameAsyncWithTokenRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithNameAsyncWithTokenRoutedToGlobalEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report", cts.Token);
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report", cts.Token);
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             IsNull<string?>(),
@@ -187,34 +187,34 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithNameAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileWithNameAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report", CancellationToken.None);
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report", CancellationToken.None);
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithNameAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report", CancellationToken.None);
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report", CancellationToken.None);
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMediaTypeRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMediaTypeRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json", "JSON report", "application/json");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json", "JSON report", "application/json");
 
-        await Assert.That(endpoint.SyncApi.AddGlobalFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachmentFromFile(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -224,21 +224,21 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddGlobalFileAttachmentWithMediaTypeDoesNotThrowWithoutEndpoint()
+    public void AddGlobalAttachmentFromFileWithMediaTypeDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json", "JSON report", "application/json");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json", "JSON report", "application/json");
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMediaTypeAsyncRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMediaTypeAsyncRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json");
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json");
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -249,35 +249,35 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMediaTypeAsyncResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileWithMediaTypeAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json");
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json");
 
         await Assert.That(actual).IsSameReferenceAs(tcs.Task);
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMediaTypeAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMediaTypeAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json");
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json");
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMediaTypeAsyncWithTokenRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMediaTypeAsyncWithTokenRoutedToGlobalEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync("/tmp/report.json", "JSON report", "application/json", cts.Token);
+        await AllureApi.AddGlobalAttachmentFromFileAsync("/tmp/report.json", "JSON report", "application/json", cts.Token);
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -288,14 +288,14 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMediaTypeAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileWithMediaTypeAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync(
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -306,11 +306,11 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMediaTypeAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMediaTypeAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync(
+        await AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -319,13 +319,13 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMetadataRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMetadataRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json", "JSON report", "application/json", ".allure-json");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json", "JSON report", "application/json", ".allure-json");
 
-        await Assert.That(endpoint.SyncApi.AddGlobalFileAttachment(
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachmentFromFile(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -335,26 +335,26 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public void AddGlobalFileAttachmentWithMetadataDoesNotThrowWithoutEndpoint()
+    public void AddGlobalAttachmentFromFileWithMetadataDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        AllureApi.AddGlobalFileAttachment("/tmp/report.json", "JSON report", "application/json", ".allure-json");
+        AllureApi.AddGlobalAttachmentFromFile("/tmp/report.json", "JSON report", "application/json", ".allure-json");
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMetadataAsyncRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMetadataAsyncRoutedToGlobalEndpoint()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync(
+        await AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
             ".allure-json"
         );
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -365,14 +365,14 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMetadataAsyncResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileWithMetadataAsyncResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync(
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -383,11 +383,11 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMetadataAsyncDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMetadataAsyncDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync(
+        await AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -396,12 +396,12 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMetadataAsyncWithTokenRoutedToGlobalEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMetadataAsyncWithTokenRoutedToGlobalEndpoint()
     {
         var cts = new CancellationTokenSource();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
 
-        await AllureApi.AddGlobalFileAttachmentAsync(
+        await AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -409,7 +409,7 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
             cts.Token
         );
 
-        await Assert.That(endpoint.AsyncApi.AddGlobalFileAttachmentAsync(
+        await Assert.That(endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(
             "JSON report",
             "/tmp/report.json",
             "application/json",
@@ -420,14 +420,14 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMetadataAsyncWithTokenResultTaskForwardedToCaller()
+    public async Task AddGlobalAttachmentFromFileWithMetadataAsyncWithTokenResultTaskForwardedToCaller()
     {
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Global);
-        endpoint.AsyncApi.AddGlobalFileAttachmentAsync(Any(), Any(), Any(), Any(), Any())
+        endpoint.AsyncApi.AddGlobalAttachmentFromFileAsync(Any(), Any(), Any(), Any(), Any())
             .ReturnsAsync(tcs.Task);
 
-        var actual = AllureApi.AddGlobalFileAttachmentAsync(
+        var actual = AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",
@@ -439,11 +439,11 @@ public class AddGlobalFileAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
-    public async Task AddGlobalFileAttachmentWithMetadataAsyncWithTokenDoesNotThrowWithoutEndpoint()
+    public async Task AddGlobalAttachmentFromFileWithMetadataAsyncWithTokenDoesNotThrowWithoutEndpoint()
     {
         using var _ = InstallNoEndpoint();
 
-        await AllureApi.AddGlobalFileAttachmentAsync(
+        await AllureApi.AddGlobalAttachmentFromFileAsync(
             "/tmp/report.json",
             "JSON report",
             "application/json",

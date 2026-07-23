@@ -126,7 +126,7 @@ public interface IAllureAsyncOperations<out TStepContext, out TFixtureContext>
     /// contexts in that order. The first one that exists defines
     /// the target of the attachment.
     /// </remarks>
-    Task AddFileAttachmentAsync(
+    Task AddAttachmentFromFileAsync(
         string name,
         string path,
         string? mediaType,
@@ -137,7 +137,7 @@ public interface IAllureAsyncOperations<out TStepContext, out TFixtureContext>
     /// <summary>
     /// Asynchronously adds a file attachment not associated with a test or fixture.
     /// </summary>
-    Task AddGlobalFileAttachmentAsync(
+    Task AddGlobalAttachmentFromFileAsync(
         string name,
         string path,
         string? mediaType,
@@ -154,7 +154,7 @@ public interface IAllureAsyncOperations<out TStepContext, out TFixtureContext>
     /// contexts in that order. The first one that exists defines
     /// the target of the attachment.
     /// </remarks>
-    Task AddFileScreenDiffAsync(
+    Task AddScreenDiffFromFilesAsync(
         string expectedPath,
         string actualPath,
         string diffPath,

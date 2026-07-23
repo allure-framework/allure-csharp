@@ -111,12 +111,12 @@ public interface IAllureSyncOperations<out TStepContext, out TFixtureContext>
     /// contexts in that order. The first one that exists defines
     /// the target of the attachment.
     /// </remarks>
-    void AddFileAttachment(string name, string path, string? mediaType, string fileExtension);
+    void AddAttachmentFromFile(string name, string path, string? mediaType, string fileExtension);
 
     /// <summary>
     /// Adds a file attachment that is not associated with a test or fixture.
     /// </summary>
-    void AddGlobalFileAttachment(
+    void AddGlobalAttachmentFromFile(
         string name,
         string path,
         string? mediaType,
@@ -131,7 +131,7 @@ public interface IAllureSyncOperations<out TStepContext, out TFixtureContext>
     /// contexts in that order. The first one that exists defines
     /// the target of the attachment.
     /// </remarks>
-    void AddFileScreenDiff(string expectedPath, string actualPath, string diffPath);
+    void AddScreenDiffFromFiles(string expectedPath, string actualPath, string diffPath);
 
     /// <summary>
     /// Adds an error that is not associated with a test or fixture.
