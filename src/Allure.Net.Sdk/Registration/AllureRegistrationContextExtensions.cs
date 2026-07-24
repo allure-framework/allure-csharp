@@ -1,0 +1,57 @@
+using System;
+using Allure.Sdk.Configuration;
+using Allure.Sdk.Internal.Registration;
+
+namespace Allure.Sdk.Registration;
+
+public static class AllureRegistrationContextExtensions
+{
+    extension<TConfiguration>(
+        IAllureRuntimeRegistrationContext<TConfiguration> context
+    )
+        where TConfiguration : AllureConfiguration, new()
+    {
+        /// <summary>
+        /// Load a configuration from the specified source.
+        /// </summary>
+        /// <param name="sourceFactory">A function that creates the configuration source.</param>
+        public void UseConfigurationSource(Func<IAllureConfigurationSource<TConfiguration>> sourceFactory) =>
+            context.UseConfigurationSources(() => [sourceFactory()]);
+
+        /// <summary>
+        /// Load configuration of a specific type from the specified JSON file.
+        /// </summary>
+        public void UseConfigurationFile(string path) =>
+            context.UseConfigurationSources(
+                () => [new JsonFileConfigurationSource<TConfiguration>(path)]
+            );
+
+        /// <summary>
+        /// Load configuration from an environment variable.
+        /// </summary>
+        /// <param name="variableName">The name of the variable.</param>
+        public void UseEnvironmentVariable(string variableName) =>
+            context.UseConfigurationSources(
+                () => [JsonFileConfigurationSource.FromEnvironmentVariable<TConfiguration>(variableName)]
+            );
+
+        /// <summary>
+        /// Use the provided configuration object.
+        /// </summary>
+        public void UseConfiguration(TConfiguration configuration) =>
+            context.UseConfigurationSources(
+                () => [LambdaConfigurationSource.Create("explicit", () => configuration)]
+            );
+    }
+
+    extension (IAllureRegistrationContext context)
+    {
+        public void ConfigureSerialization(Action<IParameterSerializerRegistrationContext> registration) =>
+            context.UseParameterSerializer(() =>
+            {
+                var builder = new DefaultParameterSerializerBuilder();
+                registration(builder);
+                return builder.Build();
+            });
+    }
+}
