@@ -3,6 +3,7 @@ name: Test
 env:
   SOLUTION_PATH: allure-csharp.slnx
   BUILD_CONFIGURATION: 'Release'
+  PACK_CONFIGURATION: 'Publish'
 
 on:
   workflow_dispatch:
@@ -53,7 +54,7 @@ jobs:
           dotnet pack ${{ env.SOLUTION_PATH }}\
             --no-restore\
             --no-build\
-            --configuration ${{ env.BUILD_CONFIGURATION }}
+            --configuration ${{ env.PACK_CONFIGURATION }}
 
       - name: Build test samples
         run: |
