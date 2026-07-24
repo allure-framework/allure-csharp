@@ -1,5 +1,4 @@
 using System;
-using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Runtime;
 
@@ -8,6 +7,8 @@ namespace Allure.Sdk.Registration;
 public interface IAllureIntegrationRegistrationContext<TConfiguration>
     where TConfiguration : AllureConfiguration, new()
 {
+    void UseRegistrationHook(Func<TConfiguration, IAllureRuntimeRegistrationHook<TConfiguration>> hookFactory);
+
     void UseContext(
         Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> contextFactory
     );

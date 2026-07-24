@@ -10,13 +10,16 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public sealed class AllureIntegrationRegistrationContext<TConfiguration>(string runtimeName) :
-    IAllureIntegrationRegistrationContext<TConfiguration>
+public class AllureIntegrationBuilder<TConfiguration>(string runtimeName) :
+    IAllureIntegrationRegistrationContext<TConfiguration>,
+    IAllureRuntimeRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
 {
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults<TConfiguration>.ConfigurationSources;
+
+    List<Func<TConfiguration, IAllureRuntimeRegistrationHook<TConfiguration>>> hookFactories = [];
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> currentContextFactory =
         AllureRegistrationDefaults<TConfiguration>.Context;
@@ -41,6 +44,11 @@ public sealed class AllureIntegrationRegistrationContext<TConfiguration>(string 
     public void UseConfigurationSources(Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory)
     {
         this.currentConfigurationSourcesFactory = sourcesFactory;
+    }
+
+    public void UseRegistrationHook(Func<TConfiguration, IAllureRuntimeRegistrationHook<TConfiguration>> hookFactory)
+    {
+        this.hookFactories.Add(hookFactory);
     }
 
     public void UseContext(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> contextFactory)
@@ -86,9 +94,13 @@ public sealed class AllureIntegrationRegistrationContext<TConfiguration>(string 
         this.currentEndpointRegistration = (endpointId, endpointRegistration);
     }
 
-    public IAllureRuntime Build()
+    public IAllureRuntime<TConfiguration> Build()
     {
+
         var configuration = this.ResolveConfiguration();
+
+        configuration = this.RunHooks(configuration);
+
         var parameterSerializer = this.currentSerializerFactory(configuration);
         var destination = this.currentDestinationFactory(configuration);
 
@@ -102,7 +114,7 @@ public sealed class AllureIntegrationRegistrationContext<TConfiguration>(string 
         var lifecycleApi = this.currentLifecycleApiFactory(dependencies);
         var modelApi = this.currentModelApiFactory(dependencies);
 
-        var runtime = new AllureRuntime<TConfiguration>(
+        var runtime = this.CreateRuntimeInstance(
             configuration,
             parameterSerializer,
             destination,
@@ -125,6 +137,22 @@ public sealed class AllureIntegrationRegistrationContext<TConfiguration>(string 
         return runtime;
     }
 
+    protected virtual IAllureRuntime<TConfiguration> CreateRuntimeInstance(
+        TConfiguration configuration,
+        IAllureParameterSerializer parameterSerializer,
+        IAllureResultsDestination destination,
+        IAllureRuntimeContext context,
+        IAllureLifecycleApi lifecycleApi,
+        IAllureModelApi modelApi
+    ) => new AllureRuntime<TConfiguration>(
+        configuration,
+        parameterSerializer,
+        destination,
+        context,
+        lifecycleApi,
+        modelApi
+    );
+
     TConfiguration ResolveConfiguration()
     {
         foreach (var source in this.currentConfigurationSourcesFactory())
@@ -136,5 +164,19 @@ public sealed class AllureIntegrationRegistrationContext<TConfiguration>(string 
         }
 
         return new TConfiguration();
+    }
+
+    TConfiguration RunHooks(TConfiguration configuration)
+    {
+        var configurationSourcesFactoryBefore = this.currentConfigurationSourcesFactory;
+
+        foreach (var hook in this.hookFactories)
+        {
+            hook(configuration).SetUp(this);
+        }
+
+        return ReferenceEquals(configurationSourcesFactoryBefore, this.currentConfigurationSourcesFactory)
+            ? configuration
+            : this.ResolveConfiguration();
     }
 }
