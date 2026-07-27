@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Allure.Abstractions;
 using Allure.Runtime;
 using Allure.Sdk.Configuration;
+using Allure.Sdk.Extensions;
 using Allure.Sdk.Internal.Registration;
 using Allure.Sdk.Internal.Runtime;
 using Allure.Sdk.Results;
@@ -10,16 +11,18 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public class AllureIntegrationBuilder<TConfiguration>(string runtimeName) :
-    IAllureIntegrationRegistrationContext<TConfiguration>,
+public class AllureIntegrationBuilder<TConfiguration, THook>(string runtimeName) :
+    IAllureIntegrationRegistrationContext<TConfiguration, THook>,
     IAllureRuntimeRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
+    where THook : IAllureRuntimeRegistrationHook<TConfiguration>
 {
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults<TConfiguration>.ConfigurationSources;
 
-    List<Func<TConfiguration, IAllureRuntimeRegistrationHook<TConfiguration>>> hookFactories = [];
+    Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> currentHooksProviderFactory =
+        AllureRegistrationDefaults<TConfiguration, THook>.HookProviders;
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> currentContextFactory =
         AllureRegistrationDefaults<TConfiguration>.Context;
@@ -46,9 +49,9 @@ public class AllureIntegrationBuilder<TConfiguration>(string runtimeName) :
         this.currentConfigurationSourcesFactory = sourcesFactory;
     }
 
-    public void UseRegistrationHook(Func<TConfiguration, IAllureRuntimeRegistrationHook<TConfiguration>> hookFactory)
+    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> hookProvidersFactory)
     {
-        this.hookFactories.Add(hookFactory);
+        this.currentHooksProviderFactory = hookProvidersFactory;
     }
 
     public void UseContext(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> contextFactory)
@@ -97,9 +100,7 @@ public class AllureIntegrationBuilder<TConfiguration>(string runtimeName) :
     public IAllureRuntime<TConfiguration> Build()
     {
 
-        var configuration = this.ResolveConfiguration();
-
-        configuration = this.RunHooks(configuration);
+        var configuration = this.RunHooks();
 
         var parameterSerializer = this.currentSerializerFactory(configuration);
         var destination = this.currentDestinationFactory(configuration);
@@ -166,17 +167,21 @@ public class AllureIntegrationBuilder<TConfiguration>(string runtimeName) :
         return new TConfiguration();
     }
 
-    TConfiguration RunHooks(TConfiguration configuration)
+    TConfiguration RunHooks()
     {
+        var preHookConfiguration = this.ResolveConfiguration();
         var configurationSourcesFactoryBefore = this.currentConfigurationSourcesFactory;
 
-        foreach (var hook in this.hookFactories)
+        foreach (var provider in this.currentHooksProviderFactory(preHookConfiguration))
         {
-            hook(configuration).SetUp(this);
+            if (provider.HasHook)
+            {
+                provider.GetHook().SetUp(this);
+            }
         }
 
         return ReferenceEquals(configurationSourcesFactoryBefore, this.currentConfigurationSourcesFactory)
-            ? configuration
+            ? preHookConfiguration
             : this.ResolveConfiguration();
     }
 }

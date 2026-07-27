@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
+using Allure.Sdk.Extensions;
 using Allure.Sdk.Internal.Registration;
 using Allure.Sdk.Internal.Runtime;
 using Allure.Sdk.Results;
@@ -11,12 +12,6 @@ namespace Allure.Sdk.Registration;
 
 public static class AllureRegistrationDefaults
 {
-    // public static Func<IAllureTestApi<IAllureStepContext>> FrontEndSyncTestApi =>
-    //     static () => new DispatchingTestApi();
-
-    // public static Func<IAllureAsyncTestApi<IAllureAsyncStepContext>> FrontEndAsyncTestApi =>
-    //     static () => new DispatchingAsyncTestApi();
-
     public static Func<IAllureParameterSerializer> ParameterSerializer =>
         static () => new DefaultParameterSerializerBuilder().Build();
 }
@@ -47,4 +42,15 @@ public static class AllureRegistrationDefaults<TConfiguration>
 
     public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> ModelApi =>
         static (runtime) => new RuntimeBoundModelApi(runtime.RuntimeReference);
+}
+
+public static class AllureRegistrationDefaults<TConfiguration, THook>
+    where TConfiguration : AllureConfiguration, new()
+    where THook : IAllureRuntimeRegistrationHook<TConfiguration>
+{
+    public static Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> HookProviders =>
+        static (configuration) => [
+            ReflectionBasedAllureRegistrationHookProvider<TConfiguration, THook>.FromEnvironmentVariable(),
+            ReflectionBasedAllureRegistrationHookProvider<TConfiguration, THook>.FromConfiguration(configuration),
+        ];
 }
