@@ -97,6 +97,9 @@ public class FileSystemResultsDestination : IAllureResultsDestination
     public void CopyAttachment(string destinationFileName, string sourceFilePath)
     {
         var outputFilePath = Path.Combine(outputDirectory, destinationFileName);
+
+        this.EnsureDirectory();
+
         File.Copy(sourceFilePath, outputFilePath);
     }
 
