@@ -51,9 +51,19 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
         this.availabilityPredicate = isAvailable;
     }
 
+    public void SetAvailabilityPredicate(Func<bool> isAvailable)
+    {
+        this.availabilityPredicate = (_) => isAvailable();
+    }
+
     public void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> suppressedRouteIdsFactory)
     {
         this.currentSuppressedRouteIdsFactory = suppressedRouteIdsFactory;
+    }
+
+    public void SuppressRoutes(Func<IEnumerable<string>> suppressedRouteIdsFactory)
+    {
+        this.currentSuppressedRouteIdsFactory = (_) => suppressedRouteIdsFactory();
     }
 
     public void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate)

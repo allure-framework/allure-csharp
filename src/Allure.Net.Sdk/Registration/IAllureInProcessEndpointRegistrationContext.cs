@@ -7,8 +7,20 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
+public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> : IAllureEndpointRegistrationContext
+    where TConfiguration : AllureConfiguration
+{
+    void UseParameterSerializer(
+        Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> serializerFactory
+    );
+
+    void SetAvailabilityPredicate(Func<IAllureRuntime<TConfiguration>, bool> isAvailable);
+
+    void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> routeIdsFactory);
+}
+
 public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, THook> :
-    IAllureRegistrationContext
+    IAllureInProcessEndpointRegistrationContext<TConfiguration>
     where TConfiguration : AllureConfiguration
     where THook : IAllureEndpointRegistrationHook
 {
@@ -16,17 +28,9 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, THo
         Func<TConfiguration, IEnumerable<IAllureEndpointRegistrationHookProvider<THook>>> hookProvidersFactory
     );
 
-    void SetAvailabilityPredicate(Func<IAllureRuntime<TConfiguration>, bool> isAvailable);
-
     void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);
 
     void UseGlobalScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);
 
     void UseOperations(Func<IAllureRuntime<TConfiguration>, AllureInProcessOperations> operationsFactory);
-
-    void UseParameterSerializer(
-        Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> serializerFactory
-    );
-
-    void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> routeIdsFactory);
 }
