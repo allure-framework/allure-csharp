@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using Allure.Model;
+
+namespace Allure.Sdk.Functions;
+
+/// <summary>
+/// Contains functions to help implementing Allure model-related conversions.
+/// </summary>
+public static class EnvironmentLabels
+{
+    /// <summary>
+    /// Returns a sequence of labels defined by the environment variables in form
+    /// of <c>ALLURE_LABEL_&lt;name>=&lt;value></c>
+    /// </summary>
+    public static IEnumerable<Label> Enumerate()
+    {
+        foreach (DictionaryEntry entry in GetEnvironmentVariables())
+        {
+            var key = entry.Key as string;
+            var value = entry.Value as string;
+            if (ShouldAddEnvVarAsLabel(key, value))
+            {
+                var name = key.Substring(ENV_LABEL_PATTERN.Length);
+                yield return new() { Name = name, Value = value };
+            }
+        }
+    }
+
+    static IDictionary GetEnvironmentVariables() =>
+        (GetEnvironmentVariablesBox.Value
+            ?? Environment.GetEnvironmentVariables).Invoke();
+
+    static bool ShouldAddEnvVarAsLabel(
+        [NotNullWhen(true)] string? name,
+        [NotNullWhen(true)] string? value
+    ) =>
+        name is not null
+            && name.Length > ENV_LABEL_PATTERN.Length
+            && name.StartsWith(ENV_LABEL_PATTERN)
+            && !string.IsNullOrEmpty(value);
+
+    const string ENV_LABEL_PATTERN = "ALLURE_LABEL_";
+
+    static AsyncLocal<Func<IDictionary>?> GetEnvironmentVariablesBox { get; set; } = new();
+}

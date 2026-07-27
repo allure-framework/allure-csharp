@@ -34,7 +34,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         CancellationToken cancellationToken
     )
     {
-        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        var source = AttachmentSource.CreateName(fileExtension);
         var attachment = new Attachment
         {
             Name = name,
@@ -56,7 +56,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
     )
     {
         var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        var source = AttachmentSource.CreateName(fileExtension);
         Globals globals = new()
         {
             Attachments =
@@ -82,7 +82,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         CancellationToken cancellationToken
     )
     {
-        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        var source = AttachmentSource.CreateName(fileExtension);
         var attachment = new Attachment
         {
             Name = name,
@@ -104,7 +104,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
     )
     {
         var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = ModelFunctions.GetAttachmentSourceName(fileExtension);
+        var source = AttachmentSource.CreateName(fileExtension);
         Globals globals = new()
         {
             Attachments =
@@ -144,7 +144,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         {
             foreach (var link in links)
             {
-                ModelFunctions.ApplyLinkTemplates(linkTemplates, link);
+                LinkTemplates.Apply(linkTemplates, link);
                 testResult.Links.Add(link);
             }
 
@@ -156,7 +156,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
     {
         runtime.ModelApi.UpdateTestResult((testResult) =>
         {
-            ModelFunctions.ApplyLinkTemplates(linkTemplates, link);
+            LinkTemplates.Apply(linkTemplates, link);
             testResult.Links.Add(link);
         });
         return Task.CompletedTask;
@@ -279,8 +279,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         }
         catch (Exception e)
         {
-            status = ModelFunctions.ResolveErrorStatus(this.failExceptions, e);
-            statusDetails = ModelFunctions.ToStatusDetails(e);
+            status = ErrorStatus.Resolve(this.failExceptions, e);
+            statusDetails = StatusDetails.FromException(e);
             throw;
         }
         finally
@@ -325,8 +325,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         }
         catch (Exception e)
         {
-            status = ModelFunctions.ResolveErrorStatus(this.failExceptions, e);
-            statusDetails = ModelFunctions.ToStatusDetails(e);
+            status = ErrorStatus.Resolve(this.failExceptions, e);
+            statusDetails = StatusDetails.FromException(e);
             throw;
         }
         finally
@@ -394,8 +394,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         }
         catch (Exception e)
         {
-            status = ModelFunctions.ResolveErrorStatus(this.failExceptions, e);
-            statusDetails = ModelFunctions.ToStatusDetails(e);
+            status = ErrorStatus.Resolve(this.failExceptions, e);
+            statusDetails = StatusDetails.FromException(e);
             throw;
         }
         finally
@@ -423,8 +423,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         }
         catch (Exception e)
         {
-            status = ModelFunctions.ResolveErrorStatus(this.failExceptions, e);
-            statusDetails = ModelFunctions.ToStatusDetails(e);
+            status = ErrorStatus.Resolve(this.failExceptions, e);
+            statusDetails = StatusDetails.FromException(e);
             throw;
         }
         finally
@@ -452,8 +452,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         }
         catch (Exception e)
         {
-            status = ModelFunctions.ResolveErrorStatus(this.failExceptions, e);
-            statusDetails = ModelFunctions.ToStatusDetails(e);
+            status = ErrorStatus.Resolve(this.failExceptions, e);
+            statusDetails = StatusDetails.FromException(e);
             throw;
         }
         finally
@@ -481,8 +481,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         }
         catch (Exception e)
         {
-            status = ModelFunctions.ResolveErrorStatus(this.failExceptions, e);
-            statusDetails = ModelFunctions.ToStatusDetails(e);
+            status = ErrorStatus.Resolve(this.failExceptions, e);
+            statusDetails = StatusDetails.FromException(e);
             throw;
         }
         finally
