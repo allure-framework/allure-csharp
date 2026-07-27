@@ -124,7 +124,7 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
         if (this.currentEndpointRegistration is var (routeId, routeRegistration))
         {
             var endpointRouteBuilder =
-                new AllureInProcessEndpointBuilder<TConfiguration>(runtimeName, routeId, runtime);
+                new AllureInProcessRouteBuilder<TConfiguration>(runtimeName, routeId, runtime);
             routeRegistration(runtime, endpointRouteBuilder);
             var route = endpointRouteBuilder.Build();
             AllureRuntimeRouter.Install(route);

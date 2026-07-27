@@ -29,7 +29,7 @@ public static class AllureRegistrationDefaults
         );
 
     public static Func<TConfiguration, IAllureParameterSerializer> ParameterSerializer<TConfiguration>()=>
-        static (_) => new DefaultParameterSerializerBuilder().Build();
+        static (_) => new RuleBasedParameterSerializerBuilder().Build();
 
     public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> Context<TConfiguration>()
         where TConfiguration : AllureConfiguration

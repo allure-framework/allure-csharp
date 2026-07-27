@@ -8,7 +8,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
 
-class AllureInProcessEndpointBuilder<TConfiguration>(
+class AllureInProcessRouteBuilder<TConfiguration>(
     string runtimeName,
     string routeId,
     IAllureRuntime<TConfiguration> runtime

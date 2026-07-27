@@ -49,7 +49,7 @@ public static class AllureRegistrationContextExtensions
         public void ConfigureSerialization(Action<IParameterSerializerRegistrationContext> registration) =>
             context.UseParameterSerializer(() =>
             {
-                var builder = new DefaultParameterSerializerBuilder();
+                var builder = new RuleBasedParameterSerializerBuilder();
                 registration(builder);
                 return builder.Build();
             });
