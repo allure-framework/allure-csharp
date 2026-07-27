@@ -6,9 +6,6 @@ using Allure.Model;
 
 namespace Allure.Sdk.Functions;
 
-/// <summary>
-/// Contains functions to help implementing Allure model-related conversions.
-/// </summary>
 public static class EnvironmentLabels
 {
     /// <summary>
