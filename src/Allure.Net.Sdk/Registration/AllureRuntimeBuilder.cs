@@ -19,25 +19,25 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
     where THook : IAllureRuntimeRegistrationHook<TConfiguration>
 {
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
-        AllureRegistrationDefaults<TConfiguration>.ConfigurationSources;
+        AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
     Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> currentHooksProviderFactory =
-        AllureRegistrationDefaults<TConfiguration, THook>.HookProviders;
+        AllureRegistrationDefaults.HookProviders<TConfiguration, THook>();
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> currentContextFactory =
-        AllureRegistrationDefaults<TConfiguration>.Context;
+        AllureRegistrationDefaults.Context<TConfiguration>();
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> currentLifecycleApiFactory =
-        AllureRegistrationDefaults<TConfiguration>.LifecycleApi;
+        AllureRegistrationDefaults.LifecycleApi<TConfiguration>();
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> currentModelApiFactory =
-        AllureRegistrationDefaults<TConfiguration>.ModelApi;
+        AllureRegistrationDefaults.ModelApi<TConfiguration>();
 
     Func<TConfiguration, IAllureParameterSerializer> currentSerializerFactory =
-        (_) => AllureRegistrationDefaults.ParameterSerializer();
+        AllureRegistrationDefaults.ParameterSerializer<TConfiguration>();
 
     Func<TConfiguration, IAllureResultsDestination> currentDestinationFactory =
-        AllureRegistrationDefaults<TConfiguration>.Destination;
+        AllureRegistrationDefaults.Destination<TConfiguration>();
 
     (
         string id,
