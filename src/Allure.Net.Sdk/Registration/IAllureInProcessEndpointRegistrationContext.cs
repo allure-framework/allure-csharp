@@ -25,7 +25,7 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, THo
     where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
     void UseRegistrationHooks(
-        Func<TConfiguration, IEnumerable<Func<THook?>>> hookProvidersFactory
+        Func<TConfiguration, IEnumerable<THook?>> hooksFactory
     );
 
     void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);

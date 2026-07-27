@@ -14,7 +14,7 @@ public interface IAllureIntegrationRegistrationContext<TConfiguration, TRuntimeH
     where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
     void UseRegistrationHooks(
-        Func<TConfiguration, IEnumerable<Func<TRuntimeHook?>>> hookProvidersFactory
+        Func<TConfiguration, IEnumerable<TRuntimeHook?>> hooksFactory
     );
 
     void UseContext(
