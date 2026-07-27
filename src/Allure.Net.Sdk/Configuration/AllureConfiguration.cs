@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Allure.Sdk.Configuration;
 
-public class AllureConfiguration
+public record class AllureConfiguration
 {
     readonly string resultsDirectory =
         Path.Combine(Environment.CurrentDirectory, "allure-results");
