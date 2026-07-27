@@ -220,7 +220,7 @@ public readonly record struct AllureExecutionState()
         if (!this.HasScope)
         {
             throw new InvalidOperationException(
-                "Cannot pop a scope from the scope stack becasue no "
+                "Cannot pop a scope from the scope stack because no "
                     + "scope is currently running."
             );
         }
@@ -280,7 +280,7 @@ public readonly record struct AllureExecutionState()
         if (!this.HasTest && !this.HasFixture)
         {
             throw new InvalidOperationException(
-                "Cannot start a new step becasue there is"
+                "Cannot start a new step because there is"
                     + "neither test, nor fixture to receive the step."
             );
         }

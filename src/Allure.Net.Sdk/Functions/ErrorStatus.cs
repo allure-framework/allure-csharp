@@ -10,7 +10,7 @@ public static class ErrorStatus
 {
     /// <summary>
     /// Checks if an exception type, one of its base types, or one of the
-    /// interfaces it implements exists in the list of known execption types.
+    /// interfaces it implements exists in the list of known excecption types.
     /// </summary>
     /// <param name="knownErrorBases">The list of known exception types.</param>
     /// <param name="e">The exception to check.</param>
@@ -41,6 +41,6 @@ public static class ErrorStatus
             : Status.Broken;
 
     static IEnumerable<string> GetExceptionTypeNamesClosure(Exception e) =>
-        TypeFunctions.GetTypeClosure(e.GetType())
+        TypeHierarchy.Enumerate(e.GetType())
             .Select(static (t) => t.FullName);
 }

@@ -55,7 +55,7 @@ public class FileSystemResultsDestination : IAllureResultsDestination
 
     public async Task WriteTestResultAsync(TestResult testResult, CancellationToken cancellationToken)
     {
-        await this.WriteAllureObjectAsync(testResult, "-result.json");
+        await this.WriteAllureObjectAsync(testResult, "-result.json", cancellationToken);
     }
 
     public void WriteContainer(TestResultScope container)
@@ -65,7 +65,7 @@ public class FileSystemResultsDestination : IAllureResultsDestination
 
     public async Task WriteContainerAsync(TestResultScope container, CancellationToken cancellationToken)
     {
-        await this.WriteAllureObjectAsync(container, "-container.json");
+        await this.WriteAllureObjectAsync(container, "-container.json", cancellationToken);
     }
 
     public void WriteGlobals(Globals globals)
@@ -75,7 +75,7 @@ public class FileSystemResultsDestination : IAllureResultsDestination
 
     public async Task WriteGlobalsAsync(Globals globals, CancellationToken cancellationToken)
     {
-        await this.WriteAllureObjectAsync(globals, "-globals.json");
+        await this.WriteAllureObjectAsync(globals, "-globals.json", cancellationToken);
     }
 
     public void WriteAttachment(string outputFileName, Stream content)
@@ -129,10 +129,10 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         JsonSerializer.Serialize(fileStream, allureObject, serializerOptions);
     }
 
-    async Task WriteAllureObjectAsync(object allureObject, string suffix)
+    async Task WriteAllureObjectAsync(object allureObject, string suffix, CancellationToken cancellationToken)
     {
         using var fileStream = this.CreateAllureObjectOutputStream(suffix);
-        await JsonSerializer.SerializeAsync(fileStream, allureObject, serializerOptions);
+        await JsonSerializer.SerializeAsync(fileStream, allureObject, serializerOptions, cancellationToken);
     }
 
     FileStream CreateAllureObjectOutputStream(string suffix)

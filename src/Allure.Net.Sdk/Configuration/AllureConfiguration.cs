@@ -6,17 +6,17 @@ namespace Allure.Sdk.Configuration;
 
 public class AllureConfiguration
 {
-    readonly string resultsDirecory =
+    readonly string resultsDirectory =
         Path.Combine(Environment.CurrentDirectory, "allure-results");
 
     public string Hostname { get; init; } = Environment.MachineName;
 
     public string ResultsDirectory
     {
-        get => this.resultsDirecory;
+        get => this.resultsDirectory;
         init
         {
-            this.resultsDirecory = Path.GetFullPath(value);
+            this.resultsDirectory = Path.GetFullPath(value);
         }
     }
 

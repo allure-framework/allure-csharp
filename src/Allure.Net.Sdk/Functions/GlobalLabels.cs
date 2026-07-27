@@ -8,7 +8,7 @@ using Allure.Sdk.Configuration;
 namespace Allure.Sdk.Functions;
 
 /// <summary>
-/// Defines a set of functions to retreive labels that affect all test results
+/// Defines a set of functions to retrieve labels that affect all test results
 /// of the current execution.
 /// </summary>
 public static class GlobalLabels

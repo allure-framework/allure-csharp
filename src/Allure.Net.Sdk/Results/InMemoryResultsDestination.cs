@@ -59,7 +59,12 @@ public class InMemoryResultsDestination : IAllureResultsDestination
     {
         using MemoryStream memoryStream = new();
         content.CopyTo(memoryStream);
-        this.ByteAttachments.Add(outputFileName, memoryStream.ToArray());
+        var data = memoryStream.ToArray();
+
+        lock (this.monitor)
+        {
+            this.ByteAttachments.Add(outputFileName, data);
+        }
     }
 
     /// <inheritdoc/>

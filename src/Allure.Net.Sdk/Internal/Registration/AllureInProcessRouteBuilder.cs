@@ -24,7 +24,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
 
     Func<IAllureRuntime<TConfiguration>, bool> availabilityPredicate = (_) => true;
 
-    Func<IAllureRuntime<TConfiguration>, bool> curentScopePredicate = (_) => true;
+    Func<IAllureRuntime<TConfiguration>, bool> currentScopePredicate = (_) => true;
 
     Func<IAllureRuntime<TConfiguration>, bool> globalScopePredicate = (_) => true;
 
@@ -58,7 +58,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
 
     public void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate)
     {
-        this.curentScopePredicate = predicate;
+        this.currentScopePredicate = predicate;
     }
 
     public void UseGlobalScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate)
@@ -86,7 +86,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
         this.RunHooks();
         return new AllureRuntimeRoute(
             routeId,
-            () => this.curentScopePredicate(runtime),
+            () => this.currentScopePredicate(runtime),
             () => this.globalScopePredicate(runtime),
             [.. this.currentSuppressedRouteIdsFactory(runtime)],
             new AllureInProcessRuntimeEndpoint(

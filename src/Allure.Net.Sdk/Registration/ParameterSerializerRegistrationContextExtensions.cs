@@ -19,10 +19,10 @@ public static class ParameterSerializerRegistrationContextExtensions
             }
         }
 
-        public void AddLambdaRule<TValue>(
+        public void AddDelegateRule<TValue>(
             Func<TValue, string> serialize
         ) =>
-            registration.AddRule(LambdaParameterSerializationRule.Create(serialize));
+            registration.AddRule(DelegateParameterSerializationRule.Create(serialize));
 
         public void AddJsonRule(JsonSerializerOptions jsonOptions) =>
             registration.AddRule(new JsonParameterSerializationRule(jsonOptions));

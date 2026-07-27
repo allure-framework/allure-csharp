@@ -31,7 +31,7 @@ public class ReflectionRegistrationHookProvider<THook>(
             assemblyQualifiedTypeName,
             ResolveAssembly,
             typeResolver: null,
-            throwOnError: false,
+            throwOnError: true,
             ignoreCase: false
         );
 

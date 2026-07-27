@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Allure.Sdk.Internal;
 
-internal static class TypeFunctions
+internal static class TypeHierarchy
 {
-    internal static IEnumerable<Type> GetTypeClosure(Type type)
+    internal static IEnumerable<Type> Enumerate(Type type)
     {
         for (var t = type; t != null; t = t.BaseType)
         {

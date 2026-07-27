@@ -30,7 +30,7 @@ public static class AllureRegistrationContextExtensions
         /// Load configuration from an environment variable.
         /// </summary>
         /// <param name="variableName">The name of the variable.</param>
-        public void UseEnvironmentVariable(string variableName) =>
+        public void UseConfigurationPathEnvironmentVariable(string variableName) =>
             context.UseConfigurationSources(
                 () => [JsonFileConfigurationSource.FromPathEnvironmentVariable<TConfiguration>(variableName)]
             );

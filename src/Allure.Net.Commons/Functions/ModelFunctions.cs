@@ -19,7 +19,7 @@ public static class ModelFunctions
 {
     /// <summary>
     /// Checks if an exception type, one of its base types, or one of the
-    /// interfaces it implements exists in the list of known execption types.
+    /// interfaces it implements exists in the list of known excecption types.
     /// </summary>
     /// <param name="knownErrorBases">The list of known exception types.</param>
     /// <param name="e">The exception to check.</param>

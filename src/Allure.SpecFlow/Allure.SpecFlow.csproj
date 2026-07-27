@@ -11,7 +11,7 @@
         <PackageIcon>Allure-SF-Color.png</PackageIcon>
         <PackageTags>$(PackageTags) specflow</PackageTags>
 
-        <!-- This assembly can't be signed becasue of Lib.Harmony -->
+        <!-- This assembly can't be signed because of Lib.Harmony -->
         <SignAssembly>false</SignAssembly>
     </PropertyGroup>
 
