@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Allure.Abstractions;
 using Allure.Model;
 
@@ -10,6 +11,19 @@ namespace Allure.Sdk.Functions;
 /// </summary>
 public static class Parameters
 {
+    public static IEnumerable<Parameter> Create(
+    IEnumerable<ParameterInfo> parameters,
+    IEnumerable<object?> values,
+    IAllureParameterSerializer parameterSerializer
+) =>
+    Create(
+        parameters.Select(static p => p.Name),
+        parameters.Select(static p =>
+            p.GetCustomAttribute<AllureParameterAttribute>()),
+        values,
+        parameterSerializer
+    );
+
     public static IEnumerable<Parameter> Create(
         IEnumerable<string> parameterNames,
         IEnumerable<AllureParameterAttribute?> attributes,

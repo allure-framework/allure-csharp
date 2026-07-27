@@ -10,7 +10,7 @@ public static class ReflectionNames
     public static string ForType(Type type) =>
         type.IsGenericParameter ? type.Name : SerializeNonParameterType(type);
 
-    public static string ForTypeMethod(MethodInfo method)
+    public static string ForMethodSignature(MethodInfo method)
     {
         if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
         {
@@ -20,14 +20,14 @@ public static class ReflectionNames
         var methodName = method.Name;
         var typeParameters = method.GetGenericArguments();
         var typeParametersDecl = ForTypeArguments(typeParameters);
-        var parameterTypes = ForParameters(method.GetParameters());
+        var parameterTypes = ForParameterTypes(method.GetParameters());
         return $"{methodName}{typeParametersDecl}({parameterTypes})";
     }
 
     public static string ForMethod(MethodInfo method) =>
-        $"{ForType(method.DeclaringType)}.{ForMethod(method)}";
+        $"{ForType(method.DeclaringType)}.{ForMethodSignature(method)}";
 
-    public static string ForParameters(
+    public static string ForParameterTypes(
         IEnumerable<ParameterInfo> parameters
     ) =>
         SerializeTypeList(

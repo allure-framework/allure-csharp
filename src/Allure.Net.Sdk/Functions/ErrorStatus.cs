@@ -17,7 +17,7 @@ public static class ErrorStatus
     public static bool IsKnown(IEnumerable<string> knownErrorBases, Exception e) =>
         knownErrorBases
             ?.Intersect(
-                Exceptions.GetTypeNameClosure(e)
+                GetExceptionTypeNamesClosure(e)
             )
             ?.Any() == true;
 
@@ -39,4 +39,8 @@ public static class ErrorStatus
         IsKnown(failExceptions, e)
             ? Status.Failed
             : Status.Broken;
+
+    static IEnumerable<string> GetExceptionTypeNamesClosure(Exception e) =>
+        TypeFunctions.GetTypeClosure(e.GetType())
+            .Select(static (t) => t.FullName);
 }

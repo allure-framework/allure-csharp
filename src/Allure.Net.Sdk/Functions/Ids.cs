@@ -15,21 +15,11 @@ public static class Ids
     public static string NewUuid() => Guid.NewGuid().ToString();
 
     /// <summary>
-    /// Creates a string that unuquely identifies a test case represented by a given method.
-    /// </summary>
-    /// <param name="method">
-    /// A method.
-    /// If it's a constructed generic method, its generic definition is used instead.
-    /// </param>
-    public static string ForTestCase(MethodInfo method) =>
-        ReflectionNames.ForMethod(method);
-
-    /// <summary>
     /// Creates a testCaseId value. testCaseId has a fixed length and depends
     /// only on a given fullName. The fullName shouldn't depend on test parameters.
     /// </summary>
-    public static string ForTestCaseFixedLength(string fullName) =>
-        Md5.ForString(fullName);
+    public static string ForTestCase(string fullName) =>
+        Md5.FromString(fullName);
 
     /// <summary>
     /// Creates a string that uniquely identifies a given test represented by a
@@ -42,7 +32,7 @@ public static class Ids
         string fullName,
         IEnumerable<Parameter> parameters
     ) =>
-        Md5.ForObject(new
+        Md5.FromObject(new
         {
             fullName,
             parameters = parameters.Where(p => !p.Excluded)

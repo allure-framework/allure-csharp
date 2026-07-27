@@ -5,7 +5,7 @@ namespace Allure.Sdk.Functions;
 
 public static class Md5
 {
-    public static string ForString(string input)
+    public static string FromString(string input)
     {
         using var md5 = System.Security.Cryptography.MD5.Create();
         var inputBytes = Encoding.UTF8.GetBytes(input);
@@ -13,7 +13,7 @@ public static class Md5
         return ToHexString(outputBytes);
     }
 
-    public static string ForObject(object value) => ForString(
+    internal static string FromObject(object value) => FromString(
         JsonSerializer.Serialize(value)
     );
 

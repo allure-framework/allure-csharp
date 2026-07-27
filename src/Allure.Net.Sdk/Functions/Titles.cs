@@ -22,7 +22,7 @@ public static class Titles
     /// </list>
     /// The type node can be renamed by applying <see cref="AllureNameAttribute"/> to the class.
     /// </remarks>
-    public static List<string> PathForType(Type type)
+    public static List<string> PathFor(Type type)
     {
         static IEnumerable<string> ExpandNestness(Type type)
         {
@@ -61,14 +61,14 @@ public static class Titles
     /// </list>
     /// The type and method nodes can be renamed by applying <see cref="AllureNameAttribute"/>.
     /// </remarks>
-    public static List<string> PathForMethod(MethodInfo method)
+    public static List<string> PathFor(MethodInfo method)
     {
-        var titlePath = PathForType(method.DeclaringType);
+        var titlePath = PathFor(method.DeclaringType);
         if (method.GetParameters().Length > 0)
         {
             titlePath.Add(
                 method.GetCustomAttribute<AllureNameAttribute>()?.Name
-                    ?? ReflectionNames.ForMethod(method)
+                    ?? ReflectionNames.ForMethodSignature(method)
             );
         }
         return titlePath;
