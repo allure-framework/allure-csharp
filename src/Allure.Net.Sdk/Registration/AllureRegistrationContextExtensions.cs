@@ -40,7 +40,7 @@ public static class AllureRegistrationContextExtensions
         /// </summary>
         public void UseConfiguration(TConfiguration configuration) =>
             context.UseConfigurationSources(
-                () => [LambdaConfigurationSource.Create("explicit", () => configuration)]
+                () => [DelegateConfigurationSource.Create("explicit", () => configuration)]
             );
     }
 

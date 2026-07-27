@@ -3,7 +3,7 @@ using Allure.Sdk.Configuration;
 
 namespace Allure.Sdk.Extensions;
 
-public class LambdaAllureRegistrationHookProvider<TConfiguration, THook>(
+public class DelegateAllureRegistrationHookProvider<TConfiguration, THook>(
     Func<THook?> hookFactory
 ) :
     IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>

@@ -2,7 +2,7 @@ using System;
 
 namespace Allure.Sdk.Configuration;
 
-public sealed class LambdaConfigurationSource<TConfiguration>(
+public sealed class DelegateConfigurationSource<TConfiguration>(
     string name,
     Func<TConfiguration> factory
 ) :
@@ -17,9 +17,9 @@ public sealed class LambdaConfigurationSource<TConfiguration>(
     public TConfiguration LoadConfiguration() => factory();
 }
 
-public static class LambdaConfigurationSource
+public static class DelegateConfigurationSource
 {
-    public static LambdaConfigurationSource<TConfiguration> Create<TConfiguration>(
+    public static DelegateConfigurationSource<TConfiguration> Create<TConfiguration>(
         string name,
         Func<TConfiguration> configurationFactory
     )
