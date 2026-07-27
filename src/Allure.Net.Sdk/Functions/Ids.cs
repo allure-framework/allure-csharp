@@ -42,15 +42,11 @@ public static class Ids
         string fullName,
         IEnumerable<Parameter> parameters
     ) =>
-        Md5.ForString(
-            JsonSerializer.Serialize(
-                new
-                {
-                    fullName,
-                    parameters = parameters.Where(p => !p.Excluded)
-                        .OrderBy(p => p.Name)
-                        .Select(p => p.Value)
-                }
-            )
-        );
+        Md5.ForObject(new
+        {
+            fullName,
+            parameters = parameters.Where(p => !p.Excluded)
+                .OrderBy(p => p.Name)
+                .Select(p => p.Value)
+        });
 }

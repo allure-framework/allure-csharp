@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 
 namespace Allure.Sdk.Functions;
 
@@ -11,6 +12,10 @@ public static class Md5
         var outputBytes = md5.ComputeHash(inputBytes);
         return ToHexString(outputBytes);
     }
+
+    public static string ForObject(object value) => ForString(
+        JsonSerializer.Serialize(value)
+    );
 
     static string ToHexString(byte[] inputBytes)
     {
