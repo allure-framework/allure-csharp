@@ -13,8 +13,8 @@ public static class Md5
         return ToHexString(outputBytes);
     }
 
-    internal static string FromObject(object value) => FromString(
-        JsonSerializer.Serialize(value)
+    public static string FromJson(object input) => FromString(
+        JsonSerializer.Serialize(input)
     );
 
     static string ToHexString(byte[] inputBytes)

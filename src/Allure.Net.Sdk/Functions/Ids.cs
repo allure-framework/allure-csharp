@@ -30,7 +30,7 @@ public static class Ids
         string fullName,
         IEnumerable<Parameter> parameters
     ) =>
-        Md5.FromObject(new
+        Md5.FromJson(new
         {
             fullName,
             parameters = parameters.Where(p => !p.Excluded)
