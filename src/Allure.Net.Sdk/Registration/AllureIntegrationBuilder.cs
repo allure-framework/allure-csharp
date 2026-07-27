@@ -64,11 +64,6 @@ public class AllureIntegrationBuilder<TConfiguration, THook>(string runtimeName)
         this.currentDestinationFactory = destinationFactory;
     }
 
-    public void UseDestination(Func<IAllureResultsDestination> destinationFactory)
-    {
-        this.currentDestinationFactory = (_) => destinationFactory();
-    }
-
     public void UseLifecycleApi(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> lifecycleApiFactory)
     {
         this.currentLifecycleApiFactory = lifecycleApiFactory;

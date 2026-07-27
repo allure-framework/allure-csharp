@@ -6,9 +6,7 @@ using Allure.Sdk.Results;
 
 namespace Allure.Sdk.Registration;
 
-public interface IAllureRuntimeRegistrationContext<TConfiguration> :
-    IAllureRuntimeRegistrationContext
-
+public interface IAllureRuntimeRegistrationContext<TConfiguration>
     where TConfiguration : AllureConfiguration
 {
     void UseConfigurationSources(
@@ -20,9 +18,4 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     );
 
     void UseDestination(Func<TConfiguration, IAllureResultsDestination> destinationFactory);
-}
-
-public interface IAllureRuntimeRegistrationContext : IAllureRegistrationContext
-{
-    void UseDestination(Func<IAllureResultsDestination> destinationFactory);
 }

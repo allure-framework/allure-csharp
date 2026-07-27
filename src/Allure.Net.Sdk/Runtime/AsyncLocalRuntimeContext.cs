@@ -2,9 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Sdk.Registration;
-using Allure.Sdk.Runtime;
 
-namespace Allure.Sdk.Internal.Runtime;
+namespace Allure.Sdk.Runtime;
 
 /// <summary>
 /// Provides an Allure runtime context whose current execution state is stored
