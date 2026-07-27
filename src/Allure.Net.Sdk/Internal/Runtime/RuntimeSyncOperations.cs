@@ -13,7 +13,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-sealed class RuntimeBoundSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration> runtime) :
+sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration> runtime) :
     IAllureInProcessSyncOperations
 
     where TConfiguration : AllureConfiguration
@@ -234,7 +234,7 @@ sealed class RuntimeBoundSyncOperations<TConfiguration>(IAllureRuntime<TConfigur
         int level = this.StartStep(name, parameters);
         try
         {
-            body(new RuntimeBoundSyncStepContext(runtime, level));
+            body(new RuntimeSyncStepContext(runtime, level));
         }
         catch (Exception e)
         {
@@ -282,7 +282,7 @@ sealed class RuntimeBoundSyncOperations<TConfiguration>(IAllureRuntime<TConfigur
         int level = this.StartStep(name, parameters);
         try
         {
-            return body(new RuntimeBoundSyncStepContext(runtime, level));
+            return body(new RuntimeSyncStepContext(runtime, level));
         }
         catch (Exception e)
         {
@@ -441,7 +441,7 @@ sealed class RuntimeBoundSyncOperations<TConfiguration>(IAllureRuntime<TConfigur
         this.StartSetUp(name, parameters);
         try
         {
-            body(new RuntimeBoundSyncFixtureContext(runtime));
+            body(new RuntimeSyncFixtureContext(runtime));
         }
         catch (Exception e)
         {
@@ -485,7 +485,7 @@ sealed class RuntimeBoundSyncOperations<TConfiguration>(IAllureRuntime<TConfigur
         this.StartSetUp(name, parameters);
         try
         {
-            return body(new RuntimeBoundSyncFixtureContext(runtime));
+            return body(new RuntimeSyncFixtureContext(runtime));
         }
         catch (Exception e)
         {
@@ -529,7 +529,7 @@ sealed class RuntimeBoundSyncOperations<TConfiguration>(IAllureRuntime<TConfigur
         this.StartTearDown(name, parameters);
         try
         {
-            body(new RuntimeBoundSyncFixtureContext(runtime));
+            body(new RuntimeSyncFixtureContext(runtime));
         }
         catch (Exception e)
         {
@@ -573,7 +573,7 @@ sealed class RuntimeBoundSyncOperations<TConfiguration>(IAllureRuntime<TConfigur
         this.StartTearDown(name, parameters);
         try
         {
-            return body(new RuntimeBoundSyncFixtureContext(runtime));
+            return body(new RuntimeSyncFixtureContext(runtime));
         }
         catch (Exception e)
         {

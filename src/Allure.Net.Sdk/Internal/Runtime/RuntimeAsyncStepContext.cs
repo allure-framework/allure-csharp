@@ -1,33 +1,36 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 using Allure.Abstractions;
 using Allure.Model;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-class RuntimeBoundSyncStepContext(IAllureRuntime runtime, int level) :
-    IAllureInProcessSyncStepContext
+class RuntimeAsyncStepContext(IAllureRuntime runtime, int level) :
+    IAllureInProcessAsyncStepContext
 {
     AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;
 
-    IAllureParameterSerializer IAllureOperationContext.ParameterSerializer =>
-        runtime.ParameterSerializer;
+    IAllureParameterSerializer IAllureOperationContext.ParameterSerializer => runtime.ParameterSerializer;
 
-    public void AddParameter(Parameter parameter)
+    public Task AddParameterAsync(Parameter parameter, CancellationToken _)
     {
         runtime.ModelApi.UpdateStepResult(
             level,
             (stepResult) => stepResult.Parameters.Add(parameter)
         );
+        return Task.CompletedTask;
     }
 
-    public void SetName(string newName)
+    public Task SetNameAsync(string newName, CancellationToken _)
     {
         runtime.ModelApi.UpdateStepResult(
             level,
             (stepResult) => stepResult.Name = newName
         );
+        return Task.CompletedTask;
     }
 
     public bool TryReadStepResult<T>(
@@ -51,5 +54,14 @@ class RuntimeBoundSyncStepContext(IAllureRuntime runtime, int level) :
         {
             runtime.ModelApi.UpdateStepResult(level, update);
         }
+    }
+
+    Task AddParameter(Parameter parameter)
+    {
+        runtime.ModelApi.UpdateStepResult(
+            level,
+            (stepResult) => stepResult.Parameters.Add(parameter)
+        );
+        return Task.CompletedTask;
     }
 }

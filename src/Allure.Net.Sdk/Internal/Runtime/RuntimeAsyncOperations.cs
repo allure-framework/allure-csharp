@@ -14,7 +14,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-sealed class RuntimeBoundAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguration> runtime) :
+sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguration> runtime) :
     IAllureInProcessAsyncOperations
 
     where TConfiguration : AllureConfiguration
@@ -275,7 +275,7 @@ sealed class RuntimeBoundAsyncOperations<TConfiguration>(IAllureRuntime<TConfigu
         int level = this.StartStep(name, parameters);
         try
         {
-            await body(new RuntimeBoundAsyncStepContext(runtime, level), cancellationToken);
+            await body(new RuntimeAsyncStepContext(runtime, level), cancellationToken);
         }
         catch (Exception e)
         {
@@ -319,7 +319,7 @@ sealed class RuntimeBoundAsyncOperations<TConfiguration>(IAllureRuntime<TConfigu
         try
         {
             return await body(
-                new RuntimeBoundAsyncStepContext(runtime, level),
+                new RuntimeAsyncStepContext(runtime, level),
                 cancellationToken
             );
         }
@@ -390,7 +390,7 @@ sealed class RuntimeBoundAsyncOperations<TConfiguration>(IAllureRuntime<TConfigu
 
         try
         {
-            await body(new RuntimeBoundAsyncFixtureContext(runtime), cancellationToken);
+            await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {
@@ -419,7 +419,7 @@ sealed class RuntimeBoundAsyncOperations<TConfiguration>(IAllureRuntime<TConfigu
 
         try
         {
-            return await body(new RuntimeBoundAsyncFixtureContext(runtime), cancellationToken);
+            return await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {
@@ -448,7 +448,7 @@ sealed class RuntimeBoundAsyncOperations<TConfiguration>(IAllureRuntime<TConfigu
 
         try
         {
-            await body(new RuntimeBoundAsyncFixtureContext(runtime), cancellationToken);
+            await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {
@@ -477,7 +477,7 @@ sealed class RuntimeBoundAsyncOperations<TConfiguration>(IAllureRuntime<TConfigu
 
         try
         {
-            return await body(new RuntimeBoundAsyncFixtureContext(runtime), cancellationToken);
+            return await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {

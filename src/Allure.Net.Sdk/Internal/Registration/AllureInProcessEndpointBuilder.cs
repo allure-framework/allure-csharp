@@ -27,8 +27,8 @@ class AllureInProcessEndpointBuilder<TConfiguration>(
 
     Func<IAllureRuntime<TConfiguration>, AllureInProcessOperations> currentOperationsFactory = (runtime) =>
         new AllureInProcessOperations(
-            new RuntimeBoundSyncOperations<TConfiguration>(runtime),
-            new RuntimeBoundAsyncOperations<TConfiguration>(runtime)
+            new RuntimeSyncOperations<TConfiguration>(runtime),
+            new RuntimeAsyncOperations<TConfiguration>(runtime)
         );
 
     Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> currentSerializerFactory =

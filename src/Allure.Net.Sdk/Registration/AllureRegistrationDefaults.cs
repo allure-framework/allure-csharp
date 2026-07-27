@@ -39,12 +39,12 @@ public static class AllureRegistrationDefaults
     public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> LifecycleApi<TConfiguration>()
         where TConfiguration : AllureConfiguration
     =>
-        static (runtime) => new RuntimeBoundLifecycleApi(runtime.RuntimeReference);
+        static (runtime) => new RuntimeLifecycleApi(runtime.RuntimeReference);
 
     public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> ModelApi<TConfiguration>()
         where TConfiguration : AllureConfiguration
     =>
-        static (runtime) => new RuntimeBoundModelApi(runtime.RuntimeReference);
+        static (runtime) => new RuntimeModelApi(runtime.RuntimeReference);
 
     public static Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> HookProviders<TConfiguration, THook>()
         where TConfiguration : AllureConfiguration, new()

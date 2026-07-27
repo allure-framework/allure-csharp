@@ -1,31 +1,34 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 using Allure.Abstractions;
 using Allure.Model;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-class RuntimeBoundSyncFixtureContext(IAllureRuntime runtime) :
-    IAllureInProcessSyncFixtureContext
+class RuntimeAsyncFixtureContext(IAllureRuntime runtime) :
+    IAllureInProcessAsyncFixtureContext
 {
     AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;
 
-    IAllureParameterSerializer IAllureOperationContext.ParameterSerializer =>
-        runtime.ParameterSerializer;
+    IAllureParameterSerializer IAllureOperationContext.ParameterSerializer => runtime.ParameterSerializer;
 
-    public void AddParameter(Parameter parameter)
+    public Task AddParameterAsync(Parameter parameter, CancellationToken _)
     {
         runtime.ModelApi.UpdateFixtureResult(
             (fixtureResult) => fixtureResult.Parameters.Add(parameter)
         );
+        return Task.CompletedTask;
     }
 
-    public void SetName(string newName)
+    public Task SetNameAsync(string newName, CancellationToken _)
     {
         runtime.ModelApi.UpdateFixtureResult(
             (fixtureResult) => fixtureResult.Name = newName
         );
+        return Task.CompletedTask;
     }
 
     public bool TryReadFixtureResult<T>(
