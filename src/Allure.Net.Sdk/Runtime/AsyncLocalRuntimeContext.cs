@@ -15,7 +15,7 @@ namespace Allure.Sdk.Runtime;
 /// A late bound reference.
 /// </param>
 public sealed class AsyncLocalRuntimeContext(
-    ILateBoundReferenceView<IAllureRuntime> reference
+    IReadOnlyLateBoundReference<IAllureRuntime> reference
 ) :
     IAllureRuntimeContext
 {

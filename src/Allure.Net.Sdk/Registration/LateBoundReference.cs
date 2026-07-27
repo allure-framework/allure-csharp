@@ -2,7 +2,7 @@ using System;
 
 namespace Allure.Sdk.Registration;
 
-public sealed class LateBoundReference<T> : ILateBoundReferenceView<T>
+public sealed class LateBoundReference<T> : IReadOnlyLateBoundReference<T>
 {
     T? value = default;
 

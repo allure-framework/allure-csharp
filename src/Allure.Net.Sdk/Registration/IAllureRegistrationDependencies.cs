@@ -11,5 +11,5 @@ public interface IAllureRegistrationDependencies<TConfiguration>
 
     IAllureParameterSerializer ParameterSerializer { get; }
 
-    ILateBoundReferenceView<IAllureRuntime<TConfiguration>> RuntimeReference { get; }
+    IReadOnlyLateBoundReference<IAllureRuntime<TConfiguration>> RuntimeReference { get; }
 }

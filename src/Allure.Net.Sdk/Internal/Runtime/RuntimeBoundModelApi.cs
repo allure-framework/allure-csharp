@@ -9,7 +9,7 @@ using Allure.Sdk.Runtime;
 namespace Allure.Sdk.Internal.Runtime;
 
 class RuntimeBoundModelApi(
-    ILateBoundReferenceView<IAllureRuntime> runtimeReference
+    IReadOnlyLateBoundReference<IAllureRuntime> runtimeReference
 ) :
     IAllureModelApi
 {

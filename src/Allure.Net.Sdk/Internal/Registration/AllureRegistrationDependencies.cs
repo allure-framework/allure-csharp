@@ -16,7 +16,7 @@ sealed class AllureRegistrationDependencies<TConfiguration>(
 {
     public TConfiguration Configuration => configuration;
 
-    public ILateBoundReferenceView<IAllureRuntime<TConfiguration>> RuntimeReference => runtimeReference;
+    public IReadOnlyLateBoundReference<IAllureRuntime<TConfiguration>> RuntimeReference => runtimeReference;
 
     public IAllureParameterSerializer ParameterSerializer => parameterSerializer;
 
