@@ -16,7 +16,7 @@ public static class AllureRegistrationDefaults
         where TConfiguration : AllureConfiguration, new()
     =>
         static () => [
-            JsonFileConfigurationSource.FromEnvironmentVariable<TConfiguration>(),
+            JsonFileConfigurationSource.FromPathEnvironmentVariable<TConfiguration>(),
             JsonFileConfigurationSource.FromBaseDirectory<TConfiguration>(),
         ];
 

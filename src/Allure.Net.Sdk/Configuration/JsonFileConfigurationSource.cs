@@ -140,7 +140,7 @@ public class JsonFileConfigurationSource<TConfiguration>(string path) :
 
 public static class JsonFileConfigurationSource
 {
-    public static JsonFileConfigurationSource<TConfiguration> FromEnvironmentVariable<TConfiguration>(
+    public static JsonFileConfigurationSource<TConfiguration> FromPathEnvironmentVariable<TConfiguration>(
         string environmentVariableName
     )
         where TConfiguration : AllureConfiguration, new()
@@ -148,10 +148,10 @@ public static class JsonFileConfigurationSource
         Environment.GetEnvironmentVariable(environmentVariableName)
     );
 
-    public static JsonFileConfigurationSource<TConfiguration> FromEnvironmentVariable<TConfiguration>()
+    public static JsonFileConfigurationSource<TConfiguration> FromPathEnvironmentVariable<TConfiguration>()
         where TConfiguration : AllureConfiguration, new()
     =>
-        FromEnvironmentVariable<TConfiguration>("ALLURE_CONFIG");
+        FromPathEnvironmentVariable<TConfiguration>("ALLURE_CONFIG");
 
     public static JsonFileConfigurationSource<TConfiguration> FromBaseDirectory<TConfiguration>()
         where TConfiguration : AllureConfiguration, new()
