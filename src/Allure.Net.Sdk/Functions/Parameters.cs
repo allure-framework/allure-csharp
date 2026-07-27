@@ -9,25 +9,25 @@ namespace Allure.Sdk.Functions;
 public static class Parameters
 {
     public static IEnumerable<Parameter> Create(
-    IEnumerable<ParameterInfo> parameters,
-    IEnumerable<object?> values,
-    IAllureParameterSerializer parameterSerializer
-) =>
-    Create(
-        parameters.Select(static p => p.Name),
-        parameters.Select(static p =>
-            p.GetCustomAttribute<AllureParameterAttribute>()),
-        values,
-        parameterSerializer
-    );
+        IEnumerable<ParameterInfo> parameters,
+        IEnumerable<object?> values,
+        IAllureParameterSerializer parameterSerializer
+    ) =>
+        Create(
+            parameters.Select(static p => p.Name),
+            parameters.Select(static p =>
+                p.GetCustomAttribute<AllureParameterAttribute>()),
+            values,
+            parameterSerializer
+        );
 
     public static IEnumerable<Parameter> Create(
         IEnumerable<string> parameterNames,
         IEnumerable<AllureParameterAttribute?> attributes,
         IEnumerable<object?> values,
         IAllureParameterSerializer parameterSerializer
-    )
-        => parameterNames
+    ) =>
+        parameterNames
             .Zip(attributes, static (n, a) => (name: n, attr: a))
             .Zip(values, static (p, v) => (p.name, p.attr, value: v))
             .Where(static (tuple) => tuple.attr?.Ignore is not true)
@@ -39,8 +39,8 @@ public static class Parameters
         AllureParameterAttribute? attribute,
         object? value,
         IAllureParameterSerializer parameterSerializer
-    )
-        => new()
+    ) =>
+        new()
         {
             Name = attribute?.Name ?? parameterName,
             Value = parameterSerializer.Serialize(value),
@@ -48,8 +48,8 @@ public static class Parameters
             Mode = ResolveParameterMode(attribute)
         };
 
-    static ParameterMode? ResolveParameterMode(AllureParameterAttribute? attribute)
-        => attribute is AllureParameterAttribute { Mode: ParameterMode mode and not ParameterMode.Default }
+    static ParameterMode? ResolveParameterMode(AllureParameterAttribute? attribute) =>
+        attribute is AllureParameterAttribute { Mode: ParameterMode mode and not ParameterMode.Default }
             ? mode
             : null;
 }
