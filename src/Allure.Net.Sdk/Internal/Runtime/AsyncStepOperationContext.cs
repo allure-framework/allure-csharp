@@ -8,7 +8,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-class RuntimeAsyncStepContext(IAllureRuntime runtime, int level) :
+class AsyncStepOperationContext(IAllureRuntime runtime, int level) :
     IAllureInProcessAsyncStepContext
 {
     AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;

@@ -8,7 +8,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-class RuntimeAsyncFixtureContext(IAllureRuntime runtime) :
+class AsyncFixtureOperationContext(IAllureRuntime runtime) :
     IAllureInProcessAsyncFixtureContext
 {
     AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;

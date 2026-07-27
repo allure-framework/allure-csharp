@@ -6,8 +6,8 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-class RuntimeSyncFixtureContext(IAllureRuntime runtime) :
-    IAllureInProcessSyncFixtureContext
+class SyncStepOperationContext(IAllureRuntime runtime, int level) :
+    IAllureInProcessSyncStepContext
 {
     AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;
 
@@ -16,26 +16,28 @@ class RuntimeSyncFixtureContext(IAllureRuntime runtime) :
 
     public void AddParameter(Parameter parameter)
     {
-        runtime.ModelApi.UpdateFixtureResult(
-            (fixtureResult) => fixtureResult.Parameters.Add(parameter)
+        runtime.ModelApi.UpdateStepResult(
+            level,
+            (stepResult) => stepResult.Parameters.Add(parameter)
         );
     }
 
     public void SetName(string newName)
     {
-        runtime.ModelApi.UpdateFixtureResult(
-            (fixtureResult) => fixtureResult.Name = newName
+        runtime.ModelApi.UpdateStepResult(
+            level,
+            (stepResult) => stepResult.Name = newName
         );
     }
 
-    public bool TryReadFixtureResult<T>(
-        Func<FixtureResult, T> read,
+    public bool TryReadStepResult<T>(
+        Func<StepResult, T> read,
         [MaybeNullWhen(false)] out T result
     )
     {
-        if (this.CurrentState.HasFixture)
+        if (this.CurrentState.HasStep)
         {
-            result = runtime.ModelApi.ReadFixtureResult(read);
+            result = runtime.ModelApi.ReadStepResult(level, read);
             return true;
         }
 
@@ -43,11 +45,11 @@ class RuntimeSyncFixtureContext(IAllureRuntime runtime) :
         return false;
     }
 
-    public void UpdateFixtureResult(Action<FixtureResult> update)
+    public void UpdateStepResult(Action<StepResult> update)
     {
-        if (this.CurrentState.HasFixture)
+        if (this.CurrentState.HasStep)
         {
-            runtime.ModelApi.UpdateFixtureResult(update);
+            runtime.ModelApi.UpdateStepResult(level, update);
         }
     }
 }

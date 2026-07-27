@@ -6,8 +6,8 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-class RuntimeSyncStepContext(IAllureRuntime runtime, int level) :
-    IAllureInProcessSyncStepContext
+class SyncFixtureOperationContext(IAllureRuntime runtime) :
+    IAllureInProcessSyncFixtureContext
 {
     AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;
 
@@ -16,28 +16,26 @@ class RuntimeSyncStepContext(IAllureRuntime runtime, int level) :
 
     public void AddParameter(Parameter parameter)
     {
-        runtime.ModelApi.UpdateStepResult(
-            level,
-            (stepResult) => stepResult.Parameters.Add(parameter)
+        runtime.ModelApi.UpdateFixtureResult(
+            (fixtureResult) => fixtureResult.Parameters.Add(parameter)
         );
     }
 
     public void SetName(string newName)
     {
-        runtime.ModelApi.UpdateStepResult(
-            level,
-            (stepResult) => stepResult.Name = newName
+        runtime.ModelApi.UpdateFixtureResult(
+            (fixtureResult) => fixtureResult.Name = newName
         );
     }
 
-    public bool TryReadStepResult<T>(
-        Func<StepResult, T> read,
+    public bool TryReadFixtureResult<T>(
+        Func<FixtureResult, T> read,
         [MaybeNullWhen(false)] out T result
     )
     {
-        if (this.CurrentState.HasStep)
+        if (this.CurrentState.HasFixture)
         {
-            result = runtime.ModelApi.ReadStepResult(level, read);
+            result = runtime.ModelApi.ReadFixtureResult(read);
             return true;
         }
 
@@ -45,11 +43,11 @@ class RuntimeSyncStepContext(IAllureRuntime runtime, int level) :
         return false;
     }
 
-    public void UpdateStepResult(Action<StepResult> update)
+    public void UpdateFixtureResult(Action<FixtureResult> update)
     {
-        if (this.CurrentState.HasStep)
+        if (this.CurrentState.HasFixture)
         {
-            runtime.ModelApi.UpdateStepResult(level, update);
+            runtime.ModelApi.UpdateFixtureResult(update);
         }
     }
 }

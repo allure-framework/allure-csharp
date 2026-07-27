@@ -234,7 +234,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         int level = this.StartStep(name, parameters);
         try
         {
-            body(new RuntimeSyncStepContext(runtime, level));
+            body(new SyncStepOperationContext(runtime, level));
         }
         catch (Exception e)
         {
@@ -282,7 +282,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         int level = this.StartStep(name, parameters);
         try
         {
-            return body(new RuntimeSyncStepContext(runtime, level));
+            return body(new SyncStepOperationContext(runtime, level));
         }
         catch (Exception e)
         {
@@ -441,7 +441,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartSetUp(name, parameters);
         try
         {
-            body(new RuntimeSyncFixtureContext(runtime));
+            body(new SyncFixtureOperationContext(runtime));
         }
         catch (Exception e)
         {
@@ -485,7 +485,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartSetUp(name, parameters);
         try
         {
-            return body(new RuntimeSyncFixtureContext(runtime));
+            return body(new SyncFixtureOperationContext(runtime));
         }
         catch (Exception e)
         {
@@ -529,7 +529,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartTearDown(name, parameters);
         try
         {
-            body(new RuntimeSyncFixtureContext(runtime));
+            body(new SyncFixtureOperationContext(runtime));
         }
         catch (Exception e)
         {
@@ -573,7 +573,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartTearDown(name, parameters);
         try
         {
-            return body(new RuntimeSyncFixtureContext(runtime));
+            return body(new SyncFixtureOperationContext(runtime));
         }
         catch (Exception e)
         {

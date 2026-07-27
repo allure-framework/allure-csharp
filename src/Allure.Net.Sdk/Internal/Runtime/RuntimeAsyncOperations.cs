@@ -275,7 +275,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         int level = this.StartStep(name, parameters);
         try
         {
-            await body(new RuntimeAsyncStepContext(runtime, level), cancellationToken);
+            await body(new AsyncStepOperationContext(runtime, level), cancellationToken);
         }
         catch (Exception e)
         {
@@ -319,7 +319,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         try
         {
             return await body(
-                new RuntimeAsyncStepContext(runtime, level),
+                new AsyncStepOperationContext(runtime, level),
                 cancellationToken
             );
         }
@@ -390,7 +390,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
+            await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {
@@ -419,7 +419,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            return await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
+            return await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {
@@ -448,7 +448,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
+            await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {
@@ -477,7 +477,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            return await body(new RuntimeAsyncFixtureContext(runtime), cancellationToken);
+            return await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
         }
         catch (Exception e)
         {
