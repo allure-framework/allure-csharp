@@ -1,11 +1,11 @@
 namespace Allure.Sdk.Configuration;
 
-public interface IAllureConfigurationSource<out TConfig>
-    where TConfig : AllureConfiguration
+public interface IAllureConfigurationSource<out TConfiguration>
+    where TConfiguration : AllureConfiguration
 {
     string Name { get; }
 
     bool CanLoad { get; }
 
-    TConfig LoadConfiguration();
+    TConfiguration LoadConfiguration();
 }
