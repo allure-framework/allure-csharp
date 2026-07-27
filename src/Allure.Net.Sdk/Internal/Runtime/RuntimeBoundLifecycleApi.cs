@@ -14,7 +14,7 @@ class RuntimeBoundLifecycleApi(
 
     IAllureModelApi ModelApi => runtimeReference.Value.ModelApi;
 
-    IAllureRuntimeContext ContextApi => runtimeReference.Value.ContextApi;
+    IAllureExecutionContext ContextApi => runtimeReference.Value.ContextApi;
 
     public void ScheduleTest(TestResult testResult)
     {

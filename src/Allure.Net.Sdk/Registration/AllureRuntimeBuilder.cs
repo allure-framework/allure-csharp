@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Allure.Abstractions;
 using Allure.Runtime;
 using Allure.Sdk.Configuration;
-using Allure.Sdk.Extensions;
 using Allure.Sdk.Internal.Registration;
 using Allure.Sdk.Internal.Runtime;
+using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
 
@@ -16,15 +16,15 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
     IAllureRuntimeRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
-    where THook : IAllureRuntimeRegistrationHook<TConfiguration>
+    where THook : IAllureRegistrationHook<TConfiguration>
 {
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
-    Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> currentHooksProviderFactory =
+    Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> currentHooksProviderFactory =
         AllureRegistrationDefaults.HookProviders<TConfiguration, THook>();
 
-    Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> currentContextFactory =
+    Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> currentContextFactory =
         AllureRegistrationDefaults.Context<TConfiguration>();
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> currentLifecycleApiFactory =
@@ -49,12 +49,12 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
         this.currentConfigurationSourcesFactory = sourcesFactory;
     }
 
-    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> hookProvidersFactory)
+    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> hookProvidersFactory)
     {
         this.currentHooksProviderFactory = hookProvidersFactory;
     }
 
-    public void UseContext(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> contextFactory)
+    public void UseContext(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> contextFactory)
     {
         this.currentContextFactory = contextFactory;
     }
@@ -137,7 +137,7 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
         TConfiguration configuration,
         IAllureParameterSerializer parameterSerializer,
         IAllureResultsDestination destination,
-        IAllureRuntimeContext context,
+        IAllureExecutionContext context,
         IAllureLifecycleApi lifecycleApi,
         IAllureModelApi modelApi
     ) => new AllureRuntime<TConfiguration>(

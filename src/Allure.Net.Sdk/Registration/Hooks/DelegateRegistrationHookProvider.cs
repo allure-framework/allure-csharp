@@ -1,15 +1,15 @@
 using System;
 using Allure.Sdk.Configuration;
 
-namespace Allure.Sdk.Extensions;
+namespace Allure.Sdk.Registration.Hooks;
 
-public class DelegateAllureRegistrationHookProvider<TConfiguration, THook>(
+public class DelegateRegistrationHookProvider<TConfiguration, THook>(
     Func<THook?> hookFactory
 ) :
-    IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>
+    IAllureRegistrationHookProvider<TConfiguration, THook>
 
     where TConfiguration : AllureConfiguration, new()
-    where THook : IAllureRuntimeRegistrationHook<TConfiguration>
+    where THook : IAllureRegistrationHook<TConfiguration>
 {
     readonly Lazy<THook?> hook = new(hookFactory);
 

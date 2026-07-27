@@ -14,10 +14,10 @@ namespace Allure.Sdk.Runtime;
 /// <param name="reference">
 /// A late bound reference.
 /// </param>
-public sealed class AsyncLocalRuntimeContext(
+public sealed class AsyncLocalExecutionContext(
     IReadOnlyLateBoundReference<IAllureRuntime> reference
 ) :
-    IAllureRuntimeContext
+    IAllureExecutionContext
 {
     readonly AsyncLocal<AllureExecutionState> currentState = new();
 

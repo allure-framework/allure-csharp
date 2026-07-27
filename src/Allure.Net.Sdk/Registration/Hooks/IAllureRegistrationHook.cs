@@ -1,9 +1,8 @@
 using Allure.Sdk.Configuration;
-using Allure.Sdk.Registration;
 
-namespace Allure.Sdk.Extensions;
+namespace Allure.Sdk.Registration.Hooks;
 
-public interface IAllureRuntimeRegistrationHook<TConfiguration>
+public interface IAllureRegistrationHook<TConfiguration>
     where TConfiguration : AllureConfiguration
 {
     void SetUp(IAllureRuntimeRegistrationContext<TConfiguration> context);

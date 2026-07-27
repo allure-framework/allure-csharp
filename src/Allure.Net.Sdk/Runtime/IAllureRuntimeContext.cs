@@ -7,7 +7,7 @@ namespace Allure.Sdk.Runtime;
 /// Defines how the current execution state of an Allure runtime is accessed,
 /// updated, and temporarily replaced while an operation is performed.
 /// </summary>
-public interface IAllureRuntimeContext
+public interface IAllureExecutionContext
 {
     /// <summary>
     /// Gets the Allure runtime associated with this context.

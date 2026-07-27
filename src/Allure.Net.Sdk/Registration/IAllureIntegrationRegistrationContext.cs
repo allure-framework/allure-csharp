@@ -1,21 +1,21 @@
 using System;
 using System.Collections.Generic;
 using Allure.Sdk.Configuration;
-using Allure.Sdk.Extensions;
+using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
 public interface IAllureIntegrationRegistrationContext<TConfiguration, THook>
     where TConfiguration : AllureConfiguration, new()
-    where THook : IAllureRuntimeRegistrationHook<TConfiguration>
+    where THook : IAllureRegistrationHook<TConfiguration>
 {
     void UseRegistrationHooks(
-        Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> hookProvidersFactory
+        Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> hookProvidersFactory
     );
 
     void UseContext(
-        Func<IAllureRegistrationDependencies<TConfiguration>, IAllureRuntimeContext> contextFactory
+        Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> contextFactory
     );
 
     void UseLifecycleApi(

@@ -9,7 +9,7 @@ class AllureRuntime<TConfiguration>(
     TConfiguration configuration,
     IAllureParameterSerializer parameterSerializer,
     IAllureResultsDestination resultsDestination,
-    IAllureRuntimeContext context,
+    IAllureExecutionContext context,
     IAllureLifecycleApi lifecycleApi,
     IAllureModelApi modelApi
 ) :
@@ -25,7 +25,7 @@ class AllureRuntime<TConfiguration>(
 
     public IAllureResultsDestination ResultsDestination { get; } = resultsDestination;
 
-    public IAllureRuntimeContext ContextApi { get; } = context;
+    public IAllureExecutionContext ContextApi { get; } = context;
 
     public IAllureLifecycleApi LifecycleApi { get; } = lifecycleApi;
 

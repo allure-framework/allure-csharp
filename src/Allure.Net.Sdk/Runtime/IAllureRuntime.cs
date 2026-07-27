@@ -8,7 +8,7 @@ public interface IAllureRuntime
 {
     AllureConfiguration Configuration { get; }
 
-    IAllureRuntimeContext ContextApi { get; }
+    IAllureExecutionContext ContextApi { get; }
 
     IAllureLifecycleApi LifecycleApi { get; }
 
