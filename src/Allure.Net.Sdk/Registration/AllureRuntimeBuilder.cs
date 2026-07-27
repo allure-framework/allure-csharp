@@ -11,18 +11,18 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
-    IAllureIntegrationRegistrationContext<TConfiguration, THook>,
-    IAllureRuntimeRegistrationContext<TConfiguration>
+public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(string runtimeName) :
+    IAllureIntegrationRegistrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
 
     where TConfiguration : AllureConfiguration, new()
-    where THook : IAllureRegistrationHook<TConfiguration>
+    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
+    where TEndpointHook : IAllureEndpointRegistrationHook
 {
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
-    Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> currentHooksProviderFactory =
-        AllureRegistrationDefaults.HookProviders<TConfiguration, THook>();
+    Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, TRuntimeHook>>> currentRuntimeHooksProviderFactory =
+        AllureRegistrationDefaults.HookProviders<TConfiguration, TRuntimeHook>();
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> currentContextFactory =
         AllureRegistrationDefaults.Context<TConfiguration>();
@@ -41,7 +41,7 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
 
     (
         string id,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration>>
+        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration, TEndpointHook>>
     )? currentEndpointRegistration = null;
 
     public void UseConfigurationSources(Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory)
@@ -49,9 +49,9 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
         this.currentConfigurationSourcesFactory = sourcesFactory;
     }
 
-    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> hookProvidersFactory)
+    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, TRuntimeHook>>> hookProvidersFactory)
     {
-        this.currentHooksProviderFactory = hookProvidersFactory;
+        this.currentRuntimeHooksProviderFactory = hookProvidersFactory;
     }
 
     public void UseContext(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> contextFactory)
@@ -86,7 +86,7 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
 
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration>> endpointRegistration
+        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration, TEndpointHook>> endpointRegistration
     )
     {
         this.currentEndpointRegistration = (endpointId, endpointRegistration);
@@ -124,7 +124,7 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
         if (this.currentEndpointRegistration is var (routeId, routeRegistration))
         {
             var endpointRouteBuilder =
-                new AllureInProcessRouteBuilder<TConfiguration>(runtimeName, routeId, runtime);
+                new AllureInProcessRouteBuilder<TConfiguration, TEndpointHook>(runtimeName, routeId, runtime);
             routeRegistration(runtime, endpointRouteBuilder);
             var route = endpointRouteBuilder.Build();
             AllureRuntimeRouter.Install(route);
@@ -167,7 +167,7 @@ public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
         var preHookConfiguration = this.ResolveConfiguration();
         var configurationSourcesFactoryBefore = this.currentConfigurationSourcesFactory;
 
-        foreach (var provider in this.currentHooksProviderFactory(preHookConfiguration))
+        foreach (var provider in this.currentRuntimeHooksProviderFactory(preHookConfiguration))
         {
             if (provider.HasHook)
             {

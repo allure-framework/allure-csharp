@@ -4,19 +4,24 @@ using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Runtime;
 using Allure.Sdk.Registration;
+using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
 
-class AllureInProcessRouteBuilder<TConfiguration>(
+class AllureInProcessRouteBuilder<TConfiguration, THook>(
     string runtimeName,
     string routeId,
     IAllureRuntime<TConfiguration> runtime
 ) :
-    IAllureInProcessEndpointRegistrationContext<TConfiguration>
+    IAllureInProcessEndpointRegistrationContext<TConfiguration, THook>
 
     where TConfiguration : AllureConfiguration
+    where THook : IAllureEndpointRegistrationHook
 {
+    Func<TConfiguration, IEnumerable<IAllureEndpointRegistrationHookProvider<THook>>> currentEndpointHooksProviderFactory =
+        (_) => [];
+
     Func<IAllureRuntime<TConfiguration>, bool> availabilityPredicate = (_) => true;
 
     Func<IAllureRuntime<TConfiguration>, bool> curentScopePredicate = (_) => true;
@@ -33,6 +38,13 @@ class AllureInProcessRouteBuilder<TConfiguration>(
 
     Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> currentSerializerFactory =
         (_) => runtime.ParameterSerializer;
+
+    public void UseRegistrationHooks(
+        Func<TConfiguration, IEnumerable<IAllureEndpointRegistrationHookProvider<THook>>> hookProvidersFactory
+    )
+    {
+        this.currentEndpointHooksProviderFactory = hookProvidersFactory;
+    }
 
     public void SetAvailabilityPredicate(Func<IAllureRuntime<TConfiguration>, bool> isAvailable)
     {
@@ -64,16 +76,36 @@ class AllureInProcessRouteBuilder<TConfiguration>(
         this.currentSerializerFactory = serializerFactory;
     }
 
-    public IAllureRuntimeRoute Build() => new AllureRuntimeRoute(
-        routeId,
-        () => this.curentScopePredicate(runtime),
-        () => this.globalScopePredicate(runtime),
-        [.. this.currentSuppressedRouteIdsFactory(runtime)],
-        new AllureInProcessRuntimeEndpoint(
-            runtimeName,
-            () => this.availabilityPredicate(runtime),
-            this.currentOperationsFactory(runtime),
-            this.currentSerializerFactory(runtime)
-        )
-    );
+    public void UseParameterSerializer(Func<IAllureParameterSerializer> serializerFactory)
+    {
+        this.currentSerializerFactory = (_) => serializerFactory();
+    }
+
+    public IAllureRuntimeRoute Build()
+    {
+        this.RunHooks();
+        return new AllureRuntimeRoute(
+            routeId,
+            () => this.curentScopePredicate(runtime),
+            () => this.globalScopePredicate(runtime),
+            [.. this.currentSuppressedRouteIdsFactory(runtime)],
+            new AllureInProcessRuntimeEndpoint(
+                runtimeName,
+                () => this.availabilityPredicate(runtime),
+                this.currentOperationsFactory(runtime),
+                this.currentSerializerFactory(runtime)
+            )
+        );
+    }
+
+    void RunHooks()
+    {
+        foreach (var hook in this.currentEndpointHooksProviderFactory(runtime.Configuration))
+        {
+            if (hook.HasHook)
+            {
+                hook.GetHook().SetUp(this);
+            }
+        }
+    }
 }

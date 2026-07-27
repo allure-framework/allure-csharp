@@ -3,13 +3,13 @@ using Allure.Sdk.Configuration;
 
 namespace Allure.Sdk.Registration.Hooks;
 
-public class DelegateRegistrationHookProvider<TConfiguration, THook>(
+public class DelegateRuntimeRegistrationHookProvider<TConfiguration, THook>(
     Func<THook?> hookFactory
 ) :
-    IAllureRegistrationHookProvider<TConfiguration, THook>
+    IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>
 
     where TConfiguration : AllureConfiguration, new()
-    where THook : IAllureRegistrationHook<TConfiguration>
+    where THook : IAllureRuntimeRegistrationHook<TConfiguration>
 {
     readonly Lazy<THook?> hook = new(hookFactory);
 

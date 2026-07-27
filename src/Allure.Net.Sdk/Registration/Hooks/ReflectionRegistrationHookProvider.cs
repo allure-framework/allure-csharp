@@ -2,17 +2,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Allure.Sdk.Configuration;
 
 namespace Allure.Sdk.Registration.Hooks;
 
-public class ReflectionRegistrationHookProvider<TConfiguration, THook>(
+public class ReflectionRegistrationHookProvider<THook>(
     string? assemblyQualifiedTypeName
-) :
-    IAllureRegistrationHookProvider<TConfiguration, THook>
-
-    where TConfiguration : AllureConfiguration, new()
-    where THook : IAllureRegistrationHook<TConfiguration>
+)
 {
     readonly Type? hookType = assemblyQualifiedTypeName is not null
         ? ResolveType(assemblyQualifiedTypeName)
@@ -29,19 +24,6 @@ public class ReflectionRegistrationHookProvider<TConfiguration, THook>(
 
         return (THook)Activator.CreateInstance(this.hookType);
     }
-
-    public static ReflectionRegistrationHookProvider<TConfiguration, THook> FromConfiguration(
-        TConfiguration configuration
-    ) =>
-        new(configuration.RegistrationHook);
-
-    public static ReflectionRegistrationHookProvider<TConfiguration, THook> FromEnvironmentVariable(
-        string environmentVariableName
-    ) =>
-        new(Environment.GetEnvironmentVariable(environmentVariableName));
-
-    public static ReflectionRegistrationHookProvider<TConfiguration, THook> FromEnvironmentVariable() =>
-        FromEnvironmentVariable("ALLURE_REGISTRATION_HOOK");
 
     static Type ResolveType(string assemblyQualifiedTypeName)
     {

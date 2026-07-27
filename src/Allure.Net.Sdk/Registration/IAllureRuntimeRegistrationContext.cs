@@ -6,7 +6,8 @@ using Allure.Sdk.Results;
 
 namespace Allure.Sdk.Registration;
 
-public interface IAllureRuntimeRegistrationContext<TConfiguration>
+public interface IAllureRuntimeRegistrationContext<TConfiguration> :
+    IAllureRegistrationContext
     where TConfiguration : AllureConfiguration
 {
     void UseConfigurationSources(

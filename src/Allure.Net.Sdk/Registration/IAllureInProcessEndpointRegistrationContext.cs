@@ -2,13 +2,20 @@ using System;
 using System.Collections.Generic;
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
+using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public interface IAllureInProcessEndpointRegistrationContext<TConfiguration>
+public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, THook> :
+    IAllureRegistrationContext
     where TConfiguration : AllureConfiguration
+    where THook : IAllureEndpointRegistrationHook
 {
+    void UseRegistrationHooks(
+        Func<TConfiguration, IEnumerable<IAllureEndpointRegistrationHookProvider<THook>>> hookProvidersFactory
+    );
+
     void SetAvailabilityPredicate(Func<IAllureRuntime<TConfiguration>, bool> isAvailable);
 
     void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);

@@ -6,12 +6,15 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public interface IAllureIntegrationRegistrationContext<TConfiguration, THook>
+public interface IAllureIntegrationRegistrationContext<TConfiguration, TRuntimeHook, TEndpointHook> :
+    IAllureRuntimeRegistrationContext<TConfiguration>
+
     where TConfiguration : AllureConfiguration, new()
-    where THook : IAllureRegistrationHook<TConfiguration>
+    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
+    where TEndpointHook : IAllureEndpointRegistrationHook
 {
     void UseRegistrationHooks(
-        Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> hookProvidersFactory
+        Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, TRuntimeHook>>> hookProvidersFactory
     );
 
     void UseContext(
@@ -28,6 +31,6 @@ public interface IAllureIntegrationRegistrationContext<TConfiguration, THook>
 
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration>> endpointRegistration
+        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration, TEndpointHook>> endpointRegistration
     );
 }

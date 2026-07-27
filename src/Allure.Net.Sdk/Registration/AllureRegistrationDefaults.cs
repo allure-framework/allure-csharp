@@ -46,12 +46,12 @@ public static class AllureRegistrationDefaults
     =>
         static (runtime) => new RuntimeModelApi(runtime.RuntimeReference);
 
-    public static Func<TConfiguration, IEnumerable<IAllureRegistrationHookProvider<TConfiguration, THook>>> HookProviders<TConfiguration, THook>()
+    public static Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, THook>>> HookProviders<TConfiguration, THook>()
         where TConfiguration : AllureConfiguration, new()
-        where THook : IAllureRegistrationHook<TConfiguration>
+        where THook : IAllureRuntimeRegistrationHook<TConfiguration>
     =>
         static (configuration) => [
-            ReflectionRegistrationHookProvider<TConfiguration, THook>.FromEnvironmentVariable(),
-            ReflectionRegistrationHookProvider<TConfiguration, THook>.FromConfiguration(configuration),
+            ReflectionRuntimeRegistrationHookProvider<TConfiguration, THook>.FromEnvironmentVariable(),
+            ReflectionRuntimeRegistrationHookProvider<TConfiguration, THook>.FromConfiguration(configuration),
         ];
 }
