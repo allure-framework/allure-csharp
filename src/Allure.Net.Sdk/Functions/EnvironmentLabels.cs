@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using Allure.Model;
 
 namespace Allure.Sdk.Functions;
@@ -18,7 +17,7 @@ public static class EnvironmentLabels
     /// </summary>
     public static IEnumerable<Label> Enumerate()
     {
-        foreach (DictionaryEntry entry in GetEnvironmentVariables())
+        foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
         {
             var key = entry.Key as string;
             var value = entry.Value as string;
@@ -30,10 +29,6 @@ public static class EnvironmentLabels
         }
     }
 
-    static IDictionary GetEnvironmentVariables() =>
-        (GetEnvironmentVariablesBox.Value
-            ?? Environment.GetEnvironmentVariables).Invoke();
-
     static bool ShouldAddEnvVarAsLabel(
         [NotNullWhen(true)] string? name,
         [NotNullWhen(true)] string? value
@@ -44,6 +39,4 @@ public static class EnvironmentLabels
             && !string.IsNullOrEmpty(value);
 
     const string ENV_LABEL_PATTERN = "ALLURE_LABEL_";
-
-    static AsyncLocal<Func<IDictionary>?> GetEnvironmentVariablesBox { get; set; } = new();
 }
