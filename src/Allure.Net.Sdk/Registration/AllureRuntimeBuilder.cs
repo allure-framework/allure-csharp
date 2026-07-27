@@ -16,7 +16,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
-    where TEndpointHook : IAllureEndpointRegistrationHook
+    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();

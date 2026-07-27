@@ -22,7 +22,7 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> : I
 public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, THook> :
     IAllureInProcessEndpointRegistrationContext<TConfiguration>
     where TConfiguration : AllureConfiguration
-    where THook : IAllureEndpointRegistrationHook
+    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
     void UseRegistrationHooks(
         Func<TConfiguration, IEnumerable<Func<THook?>>> hookProvidersFactory

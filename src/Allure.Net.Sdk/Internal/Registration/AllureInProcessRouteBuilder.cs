@@ -17,7 +17,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
     IAllureInProcessEndpointRegistrationContext<TConfiguration, THook>
 
     where TConfiguration : AllureConfiguration
-    where THook : IAllureEndpointRegistrationHook
+    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
     Func<TConfiguration, IEnumerable<Func<THook?>>> currentEndpointHooksProviderFactory =
         (_) => [];
