@@ -11,7 +11,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public class AllureIntegrationBuilder<TConfiguration, THook>(string runtimeName) :
+public class AllureRuntimeBuilder<TConfiguration, THook>(string runtimeName) :
     IAllureIntegrationRegistrationContext<TConfiguration, THook>,
     IAllureRuntimeRegistrationContext<TConfiguration>
 
