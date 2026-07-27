@@ -2,30 +2,27 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Allure.Sdk.Configuration;
 
 namespace Allure.Sdk.Registration.Hooks;
 
-public class ReflectionRegistrationHookProvider<THook>(
-    string? assemblyQualifiedTypeName
-)
+public static class ReflectionHookProvider
 {
-    readonly Type? hookType = assemblyQualifiedTypeName is not null
-        ? ResolveType(assemblyQualifiedTypeName)
-        : null;
+    public static THook? FromConfiguration<TConfiguration, THook>(TConfiguration configuration)
+        where TConfiguration : AllureConfiguration
+    =>
+        configuration.RegistrationHook is { } hookTypeName
+            ? Resolve<THook>(hookTypeName)
+            : default;
 
-    public bool HasHook => this.hookType is not null;
+    public static THook? FromTypeEnvironmentVariable<TConfiguration, THook>(string variableName)
+        where TConfiguration : AllureConfiguration
+    =>
+        Environment.GetEnvironmentVariable(variableName) is { Length: > 0 } hookTypeName
+            ? Resolve<THook>(hookTypeName)
+            : default;
 
-    public THook GetHook()
-    {
-        if (this.hookType is null)
-        {
-            throw new InvalidOperationException("Cannot resolve the hook class.");
-        }
-
-        return (THook)Activator.CreateInstance(this.hookType);
-    }
-
-    static Type ResolveType(string assemblyQualifiedTypeName)
+    internal static THook Resolve<THook>(string assemblyQualifiedTypeName)
     {
         var type = Type.GetType(
             assemblyQualifiedTypeName,
@@ -38,18 +35,18 @@ public class ReflectionRegistrationHookProvider<THook>(
         if (!type.GetInterfaces().Any(static (iFace) => iFace == typeof(THook)))
         {
             throw new InvalidOperationException(
-                $"An Allure runtime registration hook must implement {typeof(THook)}"
+                $"{type} must implement {typeof(THook)} so be an Allure registration hook."
             );
         }
 
         if (type.GetConstructor([]) is null)
         {
             throw new InvalidOperationException(
-                $"An Allure runtime registration hook must have a public parameterless constructor"
+                $"An Allure registration hook must have a public parameterless constructor"
             );
         }
 
-        return type;
+        return (THook)Activator.CreateInstance(type);
     }
 
     static Assembly? ResolveAssembly(AssemblyName requestedName)

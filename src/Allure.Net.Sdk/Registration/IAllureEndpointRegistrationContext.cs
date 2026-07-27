@@ -16,7 +16,7 @@ public interface IAllureEndpointRegistrationContext<THook> : IAllureEndpointRegi
     where THook : IAllureEndpointRegistrationHook
 {
     void UseRegistrationHooks(
-        Func<IEnumerable<IAllureEndpointRegistrationHookProvider<THook>>> hookProvidersFactory
+        Func<IEnumerable<Func<THook?>>> hookProvidersFactory
     );
 
     void UseCurrentScopePredicate(Func<bool> predicate);

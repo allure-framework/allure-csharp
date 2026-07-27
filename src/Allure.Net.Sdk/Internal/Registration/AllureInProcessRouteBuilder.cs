@@ -19,7 +19,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
     where TConfiguration : AllureConfiguration
     where THook : IAllureEndpointRegistrationHook
 {
-    Func<TConfiguration, IEnumerable<IAllureEndpointRegistrationHookProvider<THook>>> currentEndpointHooksProviderFactory =
+    Func<TConfiguration, IEnumerable<Func<THook?>>> currentEndpointHooksProviderFactory =
         (_) => [];
 
     Func<IAllureRuntime<TConfiguration>, bool> availabilityPredicate = (_) => true;
@@ -40,7 +40,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
         (_) => runtime.ParameterSerializer;
 
     public void UseRegistrationHooks(
-        Func<TConfiguration, IEnumerable<IAllureEndpointRegistrationHookProvider<THook>>> hookProvidersFactory
+        Func<TConfiguration, IEnumerable<Func<THook?>>> hookProvidersFactory
     )
     {
         this.currentEndpointHooksProviderFactory = hookProvidersFactory;
@@ -112,10 +112,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
     {
         foreach (var hook in this.currentEndpointHooksProviderFactory(runtime.Configuration))
         {
-            if (hook.HasHook)
-            {
-                hook.GetHook().SetUp(this);
-            }
+            hook?.Invoke()?.SetUp(this);
         }
     }
 }

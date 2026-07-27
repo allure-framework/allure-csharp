@@ -21,8 +21,8 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
-    Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, TRuntimeHook>>> currentRuntimeHooksProviderFactory =
-        AllureRegistrationDefaults.HookProviders<TConfiguration, TRuntimeHook>();
+    Func<TConfiguration, IEnumerable<Func<TRuntimeHook?>>> currentRuntimeHooksProviderFactory =
+        AllureRegistrationDefaults.RuntimeHookProviders<TConfiguration, TRuntimeHook>();
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> currentContextFactory =
         AllureRegistrationDefaults.Context<TConfiguration>();
@@ -49,7 +49,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
         this.currentConfigurationSourcesFactory = sourcesFactory;
     }
 
-    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<IAllureRuntimeRegistrationHookProvider<TConfiguration, TRuntimeHook>>> hookProvidersFactory)
+    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<Func<TRuntimeHook?>>> hookProvidersFactory)
     {
         this.currentRuntimeHooksProviderFactory = hookProvidersFactory;
     }
@@ -169,10 +169,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
 
         foreach (var provider in this.currentRuntimeHooksProviderFactory(preHookConfiguration))
         {
-            if (provider.HasHook)
-            {
-                provider.GetHook().SetUp(this);
-            }
+            provider?.Invoke()?.SetUp(this);
         }
 
         return ReferenceEquals(configurationSourcesFactoryBefore, this.currentConfigurationSourcesFactory)
