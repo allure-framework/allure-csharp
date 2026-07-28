@@ -38,7 +38,7 @@ sealed class RuleBasedParameterSerializer(
 
         if (this.TrySerializeFromCache(value, out var text))
         {
-            return text;
+            return text ?? nullRepresentation;
         }
 
         foreach (var rule in rules)
@@ -46,7 +46,7 @@ sealed class RuleBasedParameterSerializer(
             if (rule.TrySerialize(value, out text))
             {
                 this.matchedRulesCache[type] = rule;
-                return text;
+                return text ?? nullRepresentation;
             }
         }
 
