@@ -156,20 +156,10 @@ public interface IAllureSyncOperations<out TStepContext, out TFixtureContext>
     /// <summary>
     /// Runs an action as a step.
     /// </summary>
-    void Step(string name, IEnumerable<Parameter> parameters, Action body);
-
-    /// <summary>
-    /// Runs a context-aware action as a step.
-    /// </summary>
     void Step(string name, IEnumerable<Parameter> parameters, Action<TStepContext> body);
 
     /// <summary>
     /// Runs a function as a step and returns its result.
-    /// </summary>
-    TResult Step<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body);
-
-    /// <summary>
-    /// Runs a context-aware function as a step and returns its result.
     /// </summary>
     TResult Step<TResult>(
         string name,
@@ -180,20 +170,10 @@ public interface IAllureSyncOperations<out TStepContext, out TFixtureContext>
     /// <summary>
     /// Runs a setup fixture.
     /// </summary>
-    void SetUp(string name, IEnumerable<Parameter> parameters, Action body);
-
-    /// <summary>
-    /// Runs a context-aware setup fixture.
-    /// </summary>
     void SetUp(string name, IEnumerable<Parameter> parameters, Action<TFixtureContext> body);
 
     /// <summary>
     /// Runs a setup fixture and returns its result.
-    /// </summary>
-    TResult SetUp<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body);
-
-    /// <summary>
-    /// Runs a context-aware setup fixture and returns its result.
     /// </summary>
     TResult SetUp<TResult>(
         string name,
@@ -204,20 +184,10 @@ public interface IAllureSyncOperations<out TStepContext, out TFixtureContext>
     /// <summary>
     /// Runs a teardown fixture.
     /// </summary>
-    void TearDown(string name, IEnumerable<Parameter> parameters, Action body);
-
-    /// <summary>
-    /// Runs a context-aware teardown fixture.
-    /// </summary>
     void TearDown(string name, IEnumerable<Parameter> parameters, Action<TFixtureContext> body);
 
     /// <summary>
     /// Runs a teardown fixture and returns its result.
-    /// </summary>
-    TResult TearDown<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body);
-
-    /// <summary>
-    /// Runs a context-aware teardown fixture and returns its result.
     /// </summary>
     TResult TearDown<TResult>(
         string name,

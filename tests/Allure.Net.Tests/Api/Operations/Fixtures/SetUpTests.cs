@@ -17,7 +17,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.SetUp(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body)
+            Any<Action<IAllureSyncFixtureContext>>()
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
@@ -69,7 +69,7 @@ public class SetUpTests : AllureApiTestsBase
     {
         Func<int> body = () => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.SetUp(Any(), Any(), Any<Func<int>>()).Returns(42);
+        endpoint.SyncApi.SetUp(Any(), Any(), Any<Func<IAllureSyncFixtureContext, int>>()).Returns(42);
 
         var actual = AllureApi.SetUp("Fixture name", body);
 
@@ -77,7 +77,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.SetUp(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body)
+            Any<Func<IAllureSyncFixtureContext, int>>()
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
@@ -143,7 +143,12 @@ public class SetUpTests : AllureApiTestsBase
         Func<Task> body = () => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync(Any(), Any(), Any<Func<Task>>(), Any()).ReturnsAsync(tcs.Task);
+        endpoint.AsyncApi.SetUpAsync(
+            Any(),
+            Any(),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(),
+            Any()
+        ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.SetUpAsync("Fixture name", body);
 
@@ -151,7 +156,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -179,7 +184,12 @@ public class SetUpTests : AllureApiTestsBase
         Func<Task> body = () => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync(Any(), Any(), Any<Func<Task>>(), Any()).ReturnsAsync(tcs.Task);
+        endpoint.AsyncApi.SetUpAsync(
+            Any(),
+            Any(),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(),
+            Any()
+        ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.SetUpAsync("Fixture name", body, cancellation.Token);
 
@@ -187,7 +197,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -216,7 +226,7 @@ public class SetUpTests : AllureApiTestsBase
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.SetUpAsync(
-            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.SetUpAsync("Fixture name", body);
@@ -225,7 +235,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -254,7 +264,7 @@ public class SetUpTests : AllureApiTestsBase
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.SetUpAsync(
-            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.SetUpAsync("Fixture name", body, cancellation.Token);
@@ -263,7 +273,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -333,7 +343,7 @@ public class SetUpTests : AllureApiTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.SetUpAsync<int>(
-            Any(), Any(), Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body);
@@ -342,7 +352,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync<int>(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -371,7 +381,7 @@ public class SetUpTests : AllureApiTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.SetUpAsync(
-            Any(), Any(), Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body, cancellation.Token);
@@ -380,7 +390,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -409,7 +419,7 @@ public class SetUpTests : AllureApiTestsBase
         Func<IAllureAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.SetUpAsync(
-            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body);
@@ -418,7 +428,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -448,7 +458,7 @@ public class SetUpTests : AllureApiTestsBase
         Func<IAllureAsyncFixtureContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.SetUpAsync(
-            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.SetUpAsync("Fixture name", body, cancellation.Token);
@@ -457,7 +467,7 @@ public class SetUpTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Fixture name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();

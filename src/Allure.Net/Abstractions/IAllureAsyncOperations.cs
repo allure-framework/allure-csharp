@@ -188,52 +188,12 @@ public interface IAllureAsyncOperations<out TStepContext, out TFixtureContext>
     Task StepAsync(
         string name,
         IEnumerable<Parameter> parameters,
-        Func<Task> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a context-aware asynchronous function as a step.
-    /// </summary>
-    Task StepAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<TStepContext, Task> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a cancellable, context-aware asynchronous function as a step.
-    /// </summary>
-    Task StepAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
         Func<TStepContext, CancellationToken, Task> body,
         CancellationToken cancellationToken
     );
 
     /// <summary>
     /// Runs an asynchronous function as a step and returns its result.
-    /// </summary>
-    Task<TResult> StepAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<Task<TResult>> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a context-aware asynchronous function as a step and returns its result.
-    /// </summary>
-    Task<TResult> StepAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<TStepContext, Task<TResult>> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a cancellable, context-aware asynchronous function as a step and returns its result.
     /// </summary>
     Task<TResult> StepAsync<TResult>(
         string name,
@@ -248,52 +208,12 @@ public interface IAllureAsyncOperations<out TStepContext, out TFixtureContext>
     Task SetUpAsync(
         string name,
         IEnumerable<Parameter> parameters,
-        Func<Task> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a context-aware asynchronous setup fixture.
-    /// </summary>
-    Task SetUpAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<TFixtureContext, Task> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a cancellable, context-aware asynchronous setup fixture.
-    /// </summary>
-    Task SetUpAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
         Func<TFixtureContext, CancellationToken, Task> body,
         CancellationToken cancellationToken
     );
 
     /// <summary>
     /// Runs an asynchronous setup fixture and returns its result.
-    /// </summary>
-    Task<TResult> SetUpAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<Task<TResult>> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a context-aware asynchronous setup fixture and returns its result.
-    /// </summary>
-    Task<TResult> SetUpAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<TFixtureContext, Task<TResult>> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a cancellable, context-aware asynchronous setup fixture and returns its result.
     /// </summary>
     Task<TResult> SetUpAsync<TResult>(
         string name,
@@ -308,52 +228,12 @@ public interface IAllureAsyncOperations<out TStepContext, out TFixtureContext>
     Task TearDownAsync(
         string name,
         IEnumerable<Parameter> parameters,
-        Func<Task> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a context-aware asynchronous teardown fixture.
-    /// </summary>
-    Task TearDownAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<TFixtureContext, Task> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a cancellable, context-aware asynchronous teardown fixture.
-    /// </summary>
-    Task TearDownAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
         Func<TFixtureContext, CancellationToken, Task> body,
         CancellationToken cancellationToken
     );
 
     /// <summary>
     /// Runs an asynchronous teardown fixture and returns its result.
-    /// </summary>
-    Task<TResult> TearDownAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<Task<TResult>> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a context-aware asynchronous teardown fixture and returns its result.
-    /// </summary>
-    Task<TResult> TearDownAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<TFixtureContext, Task<TResult>> body,
-        CancellationToken cancellationToken
-    );
-
-    /// <summary>
-    /// Runs a cancellable, context-aware asynchronous teardown fixture and returns its result.
     /// </summary>
     Task<TResult> TearDownAsync<TResult>(
         string name,

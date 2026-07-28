@@ -13,7 +13,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task SetUpAsync(string name, Func<IAllureInProcessAsyncFixtureContext, Task> body) =>
         ResolveOperations() is { Async: var api }
-            ? api.SetUpAsync(name, [], body, default)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -25,7 +25,7 @@ public static partial class AllureInProcessApi
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
-            ? api.SetUpAsync(name, [], body, cancellationToken)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -45,7 +45,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task<TResult> SetUpAsync<TResult>(string name, Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body) =>
         ResolveOperations() is { Async: var api }
-            ? api.SetUpAsync(name, [], body, default)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -57,7 +57,7 @@ public static partial class AllureInProcessApi
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
-            ? api.SetUpAsync(name, [], body, cancellationToken)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -77,7 +77,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task TearDownAsync(string name, Func<IAllureInProcessAsyncFixtureContext, Task> body) =>
         ResolveOperations() is { Async: var api }
-            ? api.TearDownAsync(name, [], body, default)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -89,7 +89,7 @@ public static partial class AllureInProcessApi
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
-            ? api.TearDownAsync(name, [], body, cancellationToken)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -109,7 +109,7 @@ public static partial class AllureInProcessApi
     /// </summary>
     public static Task<TResult> TearDownAsync<TResult>(string name, Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body) =>
         ResolveOperations() is { Async: var api }
-            ? api.TearDownAsync(name, [], body, default)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -121,7 +121,7 @@ public static partial class AllureInProcessApi
         CancellationToken cancellationToken
     ) =>
         ResolveOperations() is { Async: var api }
-            ? api.TearDownAsync(name, [], body, cancellationToken)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Abstractions;
@@ -452,5 +453,157 @@ public static class AllureContextExtensions
                 mode,
                 cancellationToken
             );
+    }
+
+    extension (IAllureInProcessSyncStepContext context)
+    {
+        /// <summary>
+        /// Reads a value from the step result associated with this context.
+        /// If the step is inaccessible, throws an exception.
+        /// </summary>
+        public TResult ReadStepResult<TResult>(
+            Func<StepResult, TResult> read
+        ) =>
+            context.TryReadStepResult(read, out var result)
+                ? result
+                : throw new InvalidOperationException(
+                    "Cannot read step result: the step associated with this context is not running."
+                );
+
+        /// <summary>
+        /// Reads a value from the step result associated with this context, or returns a fallback value.
+        /// </summary>
+        public TResult ReadStepResult<TResult>(
+            Func<StepResult, TResult> read,
+            TResult fallback
+        ) =>
+            context.TryReadStepResult(read, out var result)
+                ? result
+                : fallback;
+
+        /// <summary>
+        /// Reads a value from the step result associated with this context, or creates a fallback value.
+        /// </summary>
+        public TResult ReadStepResult<TResult>(
+            Func<StepResult, TResult> read,
+            Func<TResult> fallbackFactory
+        ) =>
+            context.TryReadStepResult(read, out var result)
+                ? result
+                : fallbackFactory();
+    }
+
+    extension (IAllureInProcessAsyncStepContext context)
+    {
+        /// <summary>
+        /// Reads a value from the step result associated with this context.
+        /// If the step is inaccessible, throws an exception.
+        /// </summary>
+        public TResult ReadStepResult<TResult>(
+            Func<StepResult, TResult> read
+        ) =>
+            context.TryReadStepResult(read, out var result)
+                ? result
+                : throw new InvalidOperationException(
+                    "Cannot read step result: the step associated with this context is not running."
+                );
+
+        /// <summary>
+        /// Reads a value from the step result associated with this context, or returns a fallback value.
+        /// </summary>
+        public TResult ReadStepResult<TResult>(
+            Func<StepResult, TResult> read,
+            TResult fallback
+        ) =>
+            context.TryReadStepResult(read, out var result)
+                ? result
+                : fallback;
+
+        /// <summary>
+        /// Reads a value from the step result associated with this context, or creates a fallback value.
+        /// </summary>
+        public TResult ReadStepResult<TResult>(
+            Func<StepResult, TResult> read,
+            Func<TResult> fallbackFactory
+        ) =>
+            context.TryReadStepResult(read, out var result)
+                ? result
+                : fallbackFactory();
+    }
+
+    extension (IAllureInProcessSyncFixtureContext context)
+    {
+        /// <summary>
+        /// Reads a value from the fixture result associated with this context.
+        /// If the fixture is inaccessible, throws an exception.
+        /// </summary>
+        public TResult ReadFixtureResult<TResult>(
+            Func<FixtureResult, TResult> read
+        ) =>
+            context.TryReadFixtureResult(read, out var result)
+                ? result
+                : throw new InvalidOperationException(
+                    "Cannot read fixture result: the fixture associated with this context is not running."
+                );
+
+        /// <summary>
+        /// Reads a value from the fixture result associated with this context, or returns a fallback value.
+        /// </summary>
+        public TResult ReadFixtureResult<TResult>(
+            Func<FixtureResult, TResult> read,
+            TResult fallback
+        ) =>
+            context.TryReadFixtureResult(read, out var result)
+                ? result
+                : fallback;
+
+        /// <summary>
+        /// Reads a value from the fixture result associated with this context, or creates a fallback value.
+        /// </summary>
+        public TResult ReadFixtureResult<TResult>(
+            Func<FixtureResult, TResult> read,
+            Func<TResult> fallbackFactory
+        ) =>
+            context.TryReadFixtureResult(read, out var result)
+                ? result
+                : fallbackFactory();
+    }
+
+    extension (IAllureInProcessAsyncFixtureContext context)
+    {
+        /// <summary>
+        /// Reads a value from the fixture result associated with this context.
+        /// If the fixture is inaccessible, throws an exception.
+        /// </summary>
+        public TResult ReadFixtureResult<TResult>(
+            Func<FixtureResult, TResult> read
+        ) =>
+            context.TryReadFixtureResult(read, out var result)
+                ? result
+                : throw new InvalidOperationException(
+                    "Cannot read fixture result: the fixture associated with this context is not running."
+                );
+
+        /// <summary>
+        /// Reads a value from the fixture result associated with this context, or returns a fallback value.
+        /// </summary>
+        public TResult ReadFixtureResult<TResult>(
+            Func<FixtureResult, TResult> read,
+            TResult fallback
+        ) =>
+            context.TryReadFixtureResult(read, out var result)
+                ? result
+                : fallback;
+
+        /// <summary>
+        /// Reads a value from the fixture result associated with this context, or creates a fallback value.
+        /// </summary>
+        public TResult ReadFixtureResult<TResult>(
+            Func<FixtureResult, TResult> read,
+            Func<TResult> fallbackFactory
+        ) =>
+            context.TryReadFixtureResult(read, out var result)
+                ? result
+                : fallbackFactory();
     }
 }

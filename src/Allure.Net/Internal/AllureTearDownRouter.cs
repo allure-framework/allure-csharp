@@ -15,7 +15,7 @@ class AllureTearDownRouter : AllureOperationRouter
         IEnumerable<Parameter> parameters,
         Action body
     ) =>
-        endpoint.Operations.Sync.TearDown(name, parameters, body);
+        endpoint.Operations.Sync.TearDown(name, parameters, (_) => body());
 
     protected override T Run<T>(
         IAllureRuntimeEndpoint endpoint,
@@ -23,7 +23,7 @@ class AllureTearDownRouter : AllureOperationRouter
         IEnumerable<Parameter> parameters,
         Func<T> body
     ) =>
-        endpoint.Operations.Sync.TearDown(name, parameters, body);
+        endpoint.Operations.Sync.TearDown(name, parameters, (_) => body());
 
     protected override Task RunAsync(
         IAllureRuntimeEndpoint endpoint,
@@ -32,7 +32,7 @@ class AllureTearDownRouter : AllureOperationRouter
         Func<Task> body,
         CancellationToken cancellationToken
     ) =>
-        endpoint.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken);
+        endpoint.Operations.Async.TearDownAsync(name, parameters, (_, _) => body(), cancellationToken);
 
     protected override Task<T> RunAsync<T>(
         IAllureRuntimeEndpoint endpoint,
@@ -41,7 +41,7 @@ class AllureTearDownRouter : AllureOperationRouter
         Func<Task<T>> body,
         CancellationToken cancellationToken
     ) =>
-        endpoint.Operations.Async.TearDownAsync(name, parameters, body, cancellationToken);
+        endpoint.Operations.Async.TearDownAsync(name, parameters, (_, _) => body(), cancellationToken);
 
     public static AllureTearDownRouter Instance { get; } = new();
 }

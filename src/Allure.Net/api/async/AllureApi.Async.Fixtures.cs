@@ -14,7 +14,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task SetUpAsync(string name, Func<Task> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, default)
+            ? api.SetUpAsync(name, [], (_, _) => body(), default)
             : body();
 
     /// <summary>
@@ -22,7 +22,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task SetUpAsync(string name, Func<Task> body, CancellationToken cancellationToken) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, cancellationToken)
+            ? api.SetUpAsync(name, [], (_, _) => body(), cancellationToken)
             : body();
 
     /// <summary>
@@ -30,7 +30,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task SetUpAsync(string name, Func<IAllureAsyncFixtureContext, Task> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, default)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -42,7 +42,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, cancellationToken)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -62,7 +62,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task<TResult> SetUpAsync<TResult>(string name, Func<Task<TResult>> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, default)
+            ? api.SetUpAsync(name, [], (_, _) => body(), default)
             : body();
 
     /// <summary>
@@ -70,7 +70,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task<TResult> SetUpAsync<TResult>(string name, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, cancellationToken)
+            ? api.SetUpAsync(name, [], (_, _) => body(), cancellationToken)
             : body();
 
     /// <summary>
@@ -78,7 +78,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task<TResult> SetUpAsync<TResult>(string name, Func<IAllureAsyncFixtureContext, Task<TResult>> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, default)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -90,7 +90,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.SetUpAsync(name, [], body, cancellationToken)
+            ? api.SetUpAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -110,7 +110,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task TearDownAsync(string name, Func<Task> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, default)
+            ? api.TearDownAsync(name, [], (_, _) => body(), default)
             : body();
 
     /// <summary>
@@ -122,7 +122,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, cancellationToken)
+            ? api.TearDownAsync(name, [], (_, _) => body(), cancellationToken)
             : body();
 
     /// <summary>
@@ -130,7 +130,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task TearDownAsync(string name, Func<IAllureAsyncFixtureContext, Task> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, default)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -142,7 +142,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, cancellationToken)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -162,7 +162,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task<TResult> TearDownAsync<TResult>(string name, Func<Task<TResult>> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, default)
+            ? api.TearDownAsync(name, [], (_, _) => body(), default)
             : body();
 
     /// <summary>
@@ -174,7 +174,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, cancellationToken)
+            ? api.TearDownAsync(name, [], (_, _) => body(), cancellationToken)
             : body();
 
     /// <summary>
@@ -182,7 +182,7 @@ public static partial class AllureApi
     /// </summary>
     public static Task<TResult> TearDownAsync<TResult>(string name, Func<IAllureAsyncFixtureContext, Task<TResult>> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, default)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -194,7 +194,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.TearDownAsync(name, [], body, cancellationToken)
+            ? api.TearDownAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>

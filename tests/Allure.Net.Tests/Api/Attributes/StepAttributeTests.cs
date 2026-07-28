@@ -36,11 +36,11 @@ public class StepAttributeTests : AllureApiTestsBase
         CallCounter calls = new();
         Parameter[] parameters = [];
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.Step(Any(), Any(), Any<Action>()).Callback(
+        endpoint.SyncApi.Step(Any(), Any(), Any<Action<IAllureSyncStepContext>>()).Callback(
             (_, values, body) =>
             {
                 parameters = [.. values];
-                body();
+                body(null!);
             }
         );
 
@@ -53,7 +53,7 @@ public class StepAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.Step(
             "Complete serialized:17",
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Action>()
+            IsNotNull<Action<IAllureSyncStepContext>>()
         )).WasCalled(Times.Once);
     }
 
@@ -67,7 +67,7 @@ public class StepAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.Step(
             nameof(UnnamedStep),
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Func<int>>()
+            IsNotNull<Func<IAllureSyncStepContext, int>>()
         )).WasCalled(Times.Once);
     }
 
@@ -81,7 +81,7 @@ public class StepAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.Step(
             nameof(EmptyNamedStep),
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Func<int>>()
+            IsNotNull<Func<IAllureSyncStepContext, int>>()
         )).WasCalled(Times.Once);
     }
 
@@ -89,7 +89,7 @@ public class StepAttributeTests : AllureApiTestsBase
     public async Task FunctionReturnsEndpointValue()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.Step(Any(), Any(), Any<Func<int>>()).Returns(42);
+        endpoint.SyncApi.Step(Any(), Any(), Any<Func<IAllureSyncStepContext, int>>()).Returns(42);
 
         var result = ResultStep();
 
@@ -97,7 +97,7 @@ public class StepAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.Step(
             "Result step",
             IsEmpty<IEnumerable<Parameter>>(),
-            IsNotNull<Func<int>>()
+            IsNotNull<Func<IAllureSyncStepContext, int>>()
         )).WasCalled(Times.Once);
     }
 
@@ -106,11 +106,11 @@ public class StepAttributeTests : AllureApiTestsBase
     {
         Parameter[] parameters = [];
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.Step(Any(), Any(), Any<Action>()).Callback(
+        endpoint.SyncApi.Step(Any(), Any(), Any<Action<IAllureSyncStepContext>>()).Callback(
             (_, values, body) =>
             {
-                parameters = values.ToArray();
-                body();
+                parameters = [.. values];
+                body(null!);
             }
         );
 
@@ -131,11 +131,11 @@ public class StepAttributeTests : AllureApiTestsBase
         var argument3 = new ToStringCounter("unused");
         Parameter[] parameters = [];
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.Step(Any(), Any(), Any<Action>()).Callback(
+        endpoint.SyncApi.Step(Any(), Any(), Any<Action<IAllureSyncStepContext>>()).Callback(
             (_, values, body) =>
             {
                 parameters = [.. values];
-                body();
+                body(null!);
             }
         );
 
@@ -149,7 +149,7 @@ public class StepAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.Step(
             "serialized:included:1 serialized:included:1 serialized:usedOnlyInName:1",
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Action>()
+            IsNotNull<Action<IAllureSyncStepContext>>()
         )).WasCalled(Times.Once);
     }
 
@@ -171,7 +171,7 @@ public class StepAttributeTests : AllureApiTestsBase
         endpoint.AsyncApi.StepAsync(
             Any(),
             Any(),
-            Any<Func<Task>>(),
+            Any<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
             Any()
         ).ReturnsAsync(Task.CompletedTask);
 
@@ -180,7 +180,7 @@ public class StepAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync(
             "Async step",
             IsEmpty<IEnumerable<Parameter>>(),
-            IsNotNull<Func<Task>>(),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
@@ -193,7 +193,7 @@ public class StepAttributeTests : AllureApiTestsBase
         endpoint.AsyncApi.StepAsync(
             Any(),
             Any(),
-            Any<Func<Task<int>>>(),
+            Any<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(),
             Any()
         ).ReturnsAsync(Task.FromResult(42));
 
@@ -203,7 +203,7 @@ public class StepAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync(
             "Async result step",
             IsEmpty<IEnumerable<Parameter>>(),
-            IsNotNull<Func<Task<int>>>(),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
@@ -233,8 +233,8 @@ public class StepAttributeTests : AllureApiTestsBase
     public async Task ExceptionFromMethodIsPropagated()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.Step(Any(), Any(), Any<Action>()).Callback(
-            (_, _, body) => body()
+        endpoint.SyncApi.Step(Any(), Any(), Any<Action<IAllureSyncStepContext>>()).Callback(
+            (_, _, body) => body(null!)
         );
 
         await Assert.That(FailingStep).Throws<StepMethodException>();

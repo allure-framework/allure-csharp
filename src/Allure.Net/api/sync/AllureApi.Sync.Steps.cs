@@ -44,7 +44,7 @@ public static partial class AllureApi
     {
         if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
-            api.Step(name, [], body);
+            api.Step(name, [], (_) => body());
         }
         else
         {
@@ -79,7 +79,7 @@ public static partial class AllureApi
     /// <returns>The original value returned by the function.</returns>
     public static TResult Step<TResult>(string name, Func<TResult> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api}
-            ? api.Step(name, [], body)
+            ? api.Step(name, [], (_) => body())
             : body();
 
     /// <summary>

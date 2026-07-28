@@ -85,7 +85,7 @@ public static partial class AllureApi
     /// <param name="body">The code to run.</param>
     public static Task StepAsync(string name, Func<Task> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, default)
+            ? api.StepAsync(name, [], (_, _) => body(), default)
             : body();
 
     /// <summary>
@@ -97,7 +97,7 @@ public static partial class AllureApi
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task StepAsync(string name, Func<Task> body, CancellationToken cancellationToken) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, cancellationToken)
+            ? api.StepAsync(name, [], (_, _) => body(), cancellationToken)
             : body();
 
     /// <summary>
@@ -108,7 +108,7 @@ public static partial class AllureApi
     /// <param name="body">The code to run.</param>
     public static Task StepAsync(string name, Func<IAllureAsyncStepContext, Task> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, default)
+            ? api.StepAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -120,7 +120,7 @@ public static partial class AllureApi
     /// <param name="cancellationToken">A cancellation token.</param>
     public static Task StepAsync(string name, Func<IAllureAsyncStepContext, Task> body, CancellationToken cancellationToken) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, cancellationToken)
+            ? api.StepAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>
@@ -144,7 +144,7 @@ public static partial class AllureApi
     /// <returns>The original value returned by the function.</returns>
     public static Task<TResult> StepAsync<TResult>(string name, Func<Task<TResult>> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, default)
+            ? api.StepAsync(name, [], (_, _) => body(), default)
             : body();
 
     /// <summary>
@@ -157,7 +157,7 @@ public static partial class AllureApi
     /// <returns>The original value returned by the function.</returns>
     public static Task<TResult> StepAsync<TResult>(string name, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, cancellationToken)
+            ? api.StepAsync(name, [], (_, _) => body(), cancellationToken)
             : body();
 
     /// <summary>
@@ -172,7 +172,7 @@ public static partial class AllureApi
         Func<IAllureAsyncStepContext, Task<TResult>> body
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, default)
+            ? api.StepAsync(name, [], (ctx, _) => body(ctx), default)
             : body(NullOperationContext.Instance);
 
 
@@ -190,7 +190,7 @@ public static partial class AllureApi
         CancellationToken cancellationToken
     ) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Async: var api }
-            ? api.StepAsync(name, [], body, cancellationToken)
+            ? api.StepAsync(name, [], (ctx, _) => body(ctx), cancellationToken)
             : body(NullOperationContext.Instance);
 
     /// <summary>

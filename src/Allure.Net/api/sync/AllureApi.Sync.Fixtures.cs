@@ -14,7 +14,7 @@ public static partial class AllureApi
     {
         if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
-            api.SetUp(name, [], body);
+            api.SetUp(name, [], (_) => body());
         }
         else
         {
@@ -42,7 +42,7 @@ public static partial class AllureApi
     /// </summary>
     public static TResult SetUp<TResult>(string name, Func<TResult> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api }
-            ? api.SetUp(name, [], body)
+            ? api.SetUp(name, [], (_) => body())
             : body();
 
     /// <summary>
@@ -60,7 +60,7 @@ public static partial class AllureApi
     {
         if (AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api })
         {
-            api.TearDown(name, [], body);
+            api.TearDown(name, [], (_) => body());
         }
         else
         {
@@ -88,7 +88,7 @@ public static partial class AllureApi
     /// </summary>
     public static TResult TearDown<TResult>(string name, Func<TResult> body) =>
         AllureRuntimeRouter.ResolveCurrentScope() is { Operations.Sync: var api }
-            ? api.TearDown(name, [], body)
+            ? api.TearDown(name, [], (_) => body())
             : body();
 
     /// <summary>

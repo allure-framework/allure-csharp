@@ -37,11 +37,11 @@ public class SetUpAttributeTests : AllureApiTestsBase
         CallCounter calls = new();
         Parameter[] parameters = [];
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action>()).Callback(
+        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action<IAllureSyncFixtureContext>>()).Callback(
             (_, values, body) =>
             {
                 parameters = [.. values];
-                body();
+                body(null!);
             }
         );
 
@@ -54,7 +54,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.SetUp(
             "Complete serialized:17",
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Action>()
+            IsNotNull<Action<IAllureSyncFixtureContext>>()
         )).WasCalled(Times.Once);
     }
 
@@ -68,7 +68,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.SetUp(
             nameof(UnnamedSetUp),
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Func<int>>()
+            IsNotNull<Func<IAllureSyncFixtureContext, int>>()
         )).WasCalled(Times.Once);
     }
 
@@ -82,7 +82,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.SetUp(
             nameof(EmptyNamedSetUp),
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Func<int>>()
+            IsNotNull<Func<IAllureSyncFixtureContext, int>>()
         )).WasCalled(Times.Once);
     }
 
@@ -90,7 +90,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
     public async Task FunctionReturnsEndpointValue()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.SetUp(Any(), Any(), Any<Func<int>>()).Returns(42);
+        endpoint.SyncApi.SetUp(Any(), Any(), Any<Func<IAllureSyncFixtureContext, int>>()).Returns(42);
 
         var result = ResultSetUp();
 
@@ -98,7 +98,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.SetUp(
             "Result setup",
             IsEmpty<IEnumerable<Parameter>>(),
-            IsNotNull<Func<int>>()
+            IsNotNull<Func<IAllureSyncFixtureContext, int>>()
         )).WasCalled(Times.Once);
     }
 
@@ -107,11 +107,11 @@ public class SetUpAttributeTests : AllureApiTestsBase
     {
         Parameter[] parameters = [];
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action>()).Callback(
+        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action<IAllureSyncFixtureContext>>()).Callback(
             (_, values, body) =>
             {
                 parameters = [.. values];
-                body();
+                body(null!);
             }
         );
 
@@ -132,11 +132,11 @@ public class SetUpAttributeTests : AllureApiTestsBase
         var argument3 = new ToStringCounter("unused");
         Parameter[] parameters = [];
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action>()).Callback(
+        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action<IAllureSyncFixtureContext>>()).Callback(
             (_, values, body) =>
             {
                 parameters = [.. values];
-                body();
+                body(null!);
             }
         );
 
@@ -150,7 +150,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.SetUp(
             "serialized:included:1 serialized:included:1 serialized:usedOnlyInName:1",
             IsNotNull<IEnumerable<Parameter>>(),
-            IsNotNull<Action>()
+            IsNotNull<Action<IAllureSyncFixtureContext>>()
         )).WasCalled(Times.Once);
     }
 
@@ -169,7 +169,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
     public async Task TaskMethodIsRoutedToAsyncApi()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync(Any(), Any(), Any<Func<Task>>(), Any())
+        endpoint.AsyncApi.SetUpAsync(Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(), Any())
             .ReturnsAsync(Task.CompletedTask);
 
         await AsyncSetUp();
@@ -177,7 +177,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Async setup",
             IsEmpty<IEnumerable<Parameter>>(),
-            IsNotNull<Func<Task>>(),
+            IsNotNull<Func<IAllureAsyncFixtureContext, CancellationToken, Task>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
@@ -187,7 +187,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
     public async Task TaskOfResultReturnsEndpointValue()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.SetUpAsync(Any(), Any(), Any<Func<Task<int>>>(), Any())
+        endpoint.AsyncApi.SetUpAsync(Any(), Any(), Any<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(), Any())
             .ReturnsAsync(Task.FromResult(42));
 
         var result = await AsyncResultSetUp();
@@ -196,7 +196,7 @@ public class SetUpAttributeTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.SetUpAsync(
             "Async result setup",
             IsEmpty<IEnumerable<Parameter>>(),
-            IsNotNull<Func<Task<int>>>(),
+            IsNotNull<Func<IAllureAsyncFixtureContext, CancellationToken, Task<int>>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
@@ -226,8 +226,8 @@ public class SetUpAttributeTests : AllureApiTestsBase
     public async Task ExceptionFromMethodIsPropagated()
     {
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action>()).Callback(
-            (_, _, body) => body()
+        endpoint.SyncApi.SetUp(Any(), Any(), Any<Action<IAllureSyncFixtureContext>>()).Callback(
+            (_, _, body) => body(null!)
         );
 
         await Assert.That(FailingSetUp).Throws<FixtureMethodException>();

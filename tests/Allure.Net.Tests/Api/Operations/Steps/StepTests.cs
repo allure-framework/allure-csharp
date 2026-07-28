@@ -94,7 +94,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.Step(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body)
+            IsNotNull<Action<IAllureSyncStepContext>>()
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
@@ -146,7 +146,7 @@ public class StepTests : AllureApiTestsBase
     {
         Func<int> body = () => 17;
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.SyncApi.Step(Any(), Any(), Any<Func<int>>()).Returns(42);
+        endpoint.SyncApi.Step(Any(), Any(), Any<Func<IAllureSyncStepContext, int>>()).Returns(42);
 
         var actual = AllureApi.Step("Step name", body);
 
@@ -154,7 +154,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.SyncApi.Step(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body)
+            IsNotNull<Func<IAllureSyncStepContext, int>>()
         )).WasCalled(Times.Once);
         endpoint.SyncApi.VerifyNoOtherCalls();
     }
@@ -387,7 +387,12 @@ public class StepTests : AllureApiTestsBase
         Func<Task> body = () => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.StepAsync(Any(), Any(), Any<Func<Task>>(), Any()).ReturnsAsync(tcs.Task);
+        endpoint.AsyncApi.StepAsync(
+            Any(),
+            Any(),
+            Any<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
+            Any()
+        ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.StepAsync("Step name", body);
 
@@ -395,7 +400,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -423,7 +428,12 @@ public class StepTests : AllureApiTestsBase
         Func<Task> body = () => Task.CompletedTask;
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
-        endpoint.AsyncApi.StepAsync(Any(), Any(), Any<Func<Task>>(), Any()).ReturnsAsync(tcs.Task);
+        endpoint.AsyncApi.StepAsync(
+            Any(),
+            Any(),
+            Any<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
+            Any()
+        ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.StepAsync("Step name", body, cancellation.Token);
 
@@ -431,7 +441,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -460,7 +470,7 @@ public class StepTests : AllureApiTestsBase
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync(
-            Any(), Any(), Any<Func<IAllureAsyncStepContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, CancellationToken, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.StepAsync("Step name", body);
@@ -469,7 +479,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -498,7 +508,7 @@ public class StepTests : AllureApiTestsBase
         TaskCompletionSource tcs = new();
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync(
-            Any(), Any(), Any<Func<IAllureAsyncStepContext, Task>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, CancellationToken, Task>>(), Any()
         ).ReturnsAsync(tcs.Task);
 
         var actual = AllureApi.StepAsync("Step name", body, cancellation.Token);
@@ -507,7 +517,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -577,16 +587,16 @@ public class StepTests : AllureApiTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), Any(), Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body);
 
         await Assert.That(actual).IsEqualTo(42);
-        await Assert.That(endpoint.AsyncApi.StepAsync<int>(
+        await Assert.That(endpoint.AsyncApi.StepAsync(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -615,7 +625,7 @@ public class StepTests : AllureApiTestsBase
         Func<Task<int>> body = () => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), Any(), Any<Func<Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body, cancellation.Token);
@@ -624,7 +634,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync<int>(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -653,7 +663,7 @@ public class StepTests : AllureApiTestsBase
         Func<IAllureAsyncStepContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), Any(), Any<Func<IAllureAsyncStepContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body);
@@ -662,7 +672,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync<int>(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(),
             CancellationToken.None
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
@@ -692,7 +702,7 @@ public class StepTests : AllureApiTestsBase
         Func<IAllureAsyncStepContext, Task<int>> body = _ => Task.FromResult(17);
         using var endpoint = InstallEndpoint(InstallationScope.Current);
         endpoint.AsyncApi.StepAsync<int>(
-            Any(), Any(), Any<Func<IAllureAsyncStepContext, Task<int>>>(), Any()
+            Any(), Any(), Any<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(), Any()
         ).ReturnsAsync(Task.FromResult(42));
 
         var actual = await AllureApi.StepAsync("Step name", body, cancellation.Token);
@@ -701,7 +711,7 @@ public class StepTests : AllureApiTestsBase
         await Assert.That(endpoint.AsyncApi.StepAsync<int>(
             "Step name",
             IsEmpty<IEnumerable<Parameter>>(),
-            Is(body),
+            IsNotNull<Func<IAllureAsyncStepContext, CancellationToken, Task<int>>>(),
             cancellation.Token
         )).WasCalled(Times.Once);
         endpoint.AsyncApi.VerifyNoOtherCalls();
