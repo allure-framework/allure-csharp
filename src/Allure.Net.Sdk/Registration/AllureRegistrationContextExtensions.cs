@@ -1,6 +1,7 @@
 using System;
+using System.Text.Json;
 using Allure.Sdk.Configuration;
-using Allure.Sdk.Internal.Registration;
+using Allure.Sdk.Serialization;
 
 namespace Allure.Sdk.Registration;
 
@@ -44,14 +45,27 @@ public static class AllureRegistrationContextExtensions
             );
     }
 
-    extension (IAllureRegistrationContext context)
+    extension (IParameterSerializationRulesContext context)
     {
-        public void ConfigureSerialization(Action<IParameterSerializationRulesContext> registration) =>
-            context.UseParameterSerializer(() =>
-            {
-                var builder = new RuleBasedParameterSerializerBuilder();
-                registration(builder);
-                return builder.Build();
-            });
+        public void AddRule(IParameterSerializationRule rule) =>
+            context.AddRules(rule);
+
+        public void RemoveAllRules() => context.RemoveRules((_) => true);
+
+        public void ReplaceRule(
+            Func<IParameterSerializationRule, bool> predicate,
+            IParameterSerializationRule rule
+        ) =>
+            context.ReplaceRule(predicate, (_) => rule);
+
+        public void UseJsonOptions(
+            Func<JsonSerializerOptions> jsonOptionsFactory
+        ) =>
+            context.TransformJsonOptions((_) => jsonOptionsFactory());
+
+        public void UseJsonOptions(
+            JsonSerializerOptions jsonOptions
+        ) =>
+            context.TransformJsonOptions((_) => jsonOptions);
     }
 }

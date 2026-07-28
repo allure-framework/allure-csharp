@@ -5,6 +5,8 @@ namespace Allure.Sdk.Serialization;
 public class DelegateParameterSerializationRule<T>(Func<T, string> serialize) :
     TypedParameterSerializationRule<T>
 {
+    public Func<T, string> Delegate => serialize;
+
     protected override string Serialize(T value) => serialize(value);
 }
 

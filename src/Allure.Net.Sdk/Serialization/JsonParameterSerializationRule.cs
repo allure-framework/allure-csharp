@@ -9,6 +9,8 @@ public class JsonParameterSerializationRule(JsonSerializerOptions serializerOpti
 {
     public JsonParameterSerializationRule() : this(CreateDefaultJsonOptions()) { }
 
+    public JsonSerializerOptions SerializerOptions => serializerOptions;
+
     public bool TrySerialize(object value, [NotNullWhen(true)] out string? text)
     {
         text = JsonSerializer.Serialize(value, serializerOptions);

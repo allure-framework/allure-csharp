@@ -9,16 +9,18 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
 
-class AllureInProcessRouteBuilder<TConfiguration, THook>(
-    string runtimeName,
-    string routeId,
-    IAllureRuntime<TConfiguration> runtime
-) :
+class AllureInProcessRouteBuilder<TConfiguration, THook> :
     IAllureInProcessEndpointIntegrationContext<TConfiguration, THook>
 
     where TConfiguration : AllureConfiguration
     where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
+    readonly string runtimeName;
+
+    readonly string routeId;
+
+    readonly IAllureRuntime<TConfiguration> runtime;
+
     Func<TConfiguration, IEnumerable<THook?>> currentHooksFactory =
         (_) => [];
 
@@ -36,8 +38,30 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
             new RuntimeAsyncOperations<TConfiguration>(runtime)
         );
 
-    Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> currentSerializerFactory =
-        (_) => runtime.ParameterSerializer;
+    Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> currentSerializerFactory;
+
+    readonly List<Action<TConfiguration, IParameterSerializationRulesContext>> currentRuleBasedSerializerRegistrations;
+
+    public AllureInProcessRouteBuilder(
+        string runtimeName,
+        string routeId,
+        IAllureRuntime<TConfiguration> runtime,
+        bool useRuleBasedSerializer,
+        IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> ruleBasedSerializerRegistrations
+    )
+    {
+        this.runtimeName = runtimeName;
+        this.routeId = routeId;
+        this.runtime = runtime;
+        this.currentRuleBasedSerializerRegistrations = [.. ruleBasedSerializerRegistrations];
+        this.currentSerializerFactory =
+            useRuleBasedSerializer
+                ? (runtime) =>
+                    AllureRegistrationDefaults.ParameterSerializer<TConfiguration>(
+                        currentRuleBasedSerializerRegistrations
+                    )(runtime.Configuration)
+                : (_) => runtime.ParameterSerializer;
+    }
 
     public void UseRegistrationHooks(
         Func<TConfiguration, IEnumerable<THook?>> hooksFactory
@@ -91,26 +115,36 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
         this.currentSerializerFactory = (_) => serializerFactory();
     }
 
+    public void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration)
+    {
+        this.currentRuleBasedSerializerRegistrations.Add(registration);
+    }
+
+    public void ConfigureSerialization(Action<IParameterSerializationRulesContext> registration)
+    {
+        this.ConfigureSerialization((_, ctx) => registration(ctx));
+    }
+
     public IAllureRuntimeRoute Build()
     {
         this.RunHooks();
         return new AllureRuntimeRoute(
             routeId,
-            () => this.currentScopePredicate(runtime),
-            () => this.globalScopePredicate(runtime),
-            [.. this.currentSuppressedRouteIdsFactory(runtime)],
+            () => this.currentScopePredicate(this.runtime),
+            () => this.globalScopePredicate(this.runtime),
+            [.. this.currentSuppressedRouteIdsFactory(this.runtime)],
             new AllureInProcessRuntimeEndpoint(
-                runtimeName,
-                () => this.availabilityPredicate(runtime),
-                this.currentOperationsFactory(runtime),
-                this.currentSerializerFactory(runtime)
+                this.runtimeName,
+                () => this.availabilityPredicate(this.runtime),
+                this.currentOperationsFactory(this.runtime),
+                this.currentSerializerFactory(this.runtime)
             )
         );
     }
 
     void RunHooks()
     {
-        foreach (var hook in this.currentHooksFactory(runtime.Configuration))
+        foreach (var hook in this.currentHooksFactory(this.runtime.Configuration))
         {
             hook?.SetUp(this);
         }

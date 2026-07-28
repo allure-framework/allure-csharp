@@ -13,6 +13,8 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> : I
         Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> serializerFactory
     );
 
+    void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration);
+
     void SetAvailabilityPredicate(Func<IAllureRuntime<TConfiguration>, bool> isAvailable);
 
     void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> routeIdsFactory);

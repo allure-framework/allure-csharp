@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Allure.Sdk.Serialization;
 
@@ -6,12 +7,17 @@ namespace Allure.Sdk.Registration;
 
 public interface IParameterSerializationRulesContext
 {
-    void DoNotUseDefaultRules();
+    void RemoveRules(Func<IParameterSerializationRule, bool> criteria);
 
-    void AddRule(IParameterSerializationRule rule);
+    void AddRules(params IEnumerable<IParameterSerializationRule> rules);
 
-    void UseJsonOptions(
-        Func<JsonSerializerOptions, JsonSerializerOptions> jsonOptionsFactory
+    void ReplaceRule(
+        Func<IParameterSerializationRule, bool> predicate,
+        Func<IParameterSerializationRule, IParameterSerializationRule> ruleFactory
+    );
+
+    void TransformJsonOptions(
+        Func<JsonSerializerOptions, JsonSerializerOptions> jsonOptionsTransformer
     );
 
     void UseFallback(Func<object, string> fallback);

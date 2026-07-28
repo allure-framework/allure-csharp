@@ -28,8 +28,18 @@ public static class AllureRegistrationDefaults
             configuration.IndentOutput
         );
 
-    public static Func<TConfiguration, IAllureParameterSerializer> ParameterSerializer<TConfiguration>()=>
-        static (_) => new RuleBasedParameterSerializerBuilder().Build();
+    public static Func<TConfiguration, IAllureParameterSerializer> ParameterSerializer<TConfiguration>(
+        IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> registrations
+    ) =>
+        (configuration) =>
+        {
+            var builder = new RuleBasedParameterSerializerBuilder();
+            foreach (var registration in registrations)
+            {
+                registration(configuration, builder);
+            }
+            return builder.Build();
+        };
 
     public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> Context<TConfiguration>()
         where TConfiguration : AllureConfiguration
@@ -51,7 +61,7 @@ public static class AllureRegistrationDefaults
         where THook : IAllureRuntimeRegistrationHook<TConfiguration>
     =>
         static (configuration) => [
-            ReflectionHooks.FromEnvironmentVariable<TConfiguration, THook>("ALLURE_RUNTIME_REGISTRATION_HOOK"),
+            ReflectionHooks.FromEnvironmentVariable<THook>("ALLURE_RUNTIME_REGISTRATION_HOOK"),
             ReflectionHooks.FromConfiguration<TConfiguration, THook>(configuration),
         ];
 }

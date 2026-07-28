@@ -14,6 +14,8 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
         Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory
     );
 
+    void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration);
+
     void UseParameterSerializer(
         Func<TConfiguration, IAllureParameterSerializer> serializerFactory
     );

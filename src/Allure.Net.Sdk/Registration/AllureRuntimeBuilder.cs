@@ -11,13 +11,15 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(string runtimeName) :
+public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
     IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
     where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
+    readonly string runtimeName;
+
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
@@ -33,16 +35,27 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> currentModelApiFactory =
         AllureRegistrationDefaults.ModelApi<TConfiguration>();
 
-    Func<TConfiguration, IAllureParameterSerializer> currentSerializerFactory =
-        AllureRegistrationDefaults.ParameterSerializer<TConfiguration>();
+    bool useRuleBasedSerializer = true;
+
+    Func<TConfiguration, IAllureParameterSerializer> currentSerializerFactory;
 
     Func<TConfiguration, IAllureResultsDestination> currentDestinationFactory =
         AllureRegistrationDefaults.Destination<TConfiguration>();
+
+    readonly List<Action<TConfiguration, IParameterSerializationRulesContext>> currentRuleBasedSerializerRegistrations = [];
 
     (
         string id,
         Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>>
     )? currentEndpointRegistration = null;
+
+    public AllureRuntimeBuilder(string runtimeName)
+    {
+        this.currentSerializerFactory = AllureRegistrationDefaults.ParameterSerializer<TConfiguration>(
+            this.currentRuleBasedSerializerRegistrations
+        );
+        this.runtimeName = runtimeName;
+    }
 
     public void UseConfigurationSources(Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory)
     {
@@ -74,14 +87,23 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
         this.currentModelApiFactory = modelApiFactory;
     }
 
+    public void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration)
+    {
+        this.currentRuleBasedSerializerRegistrations.Add(registration);
+    }
+
+    public void ConfigureSerialization(Action<IParameterSerializationRulesContext> registration) =>
+        this.ConfigureSerialization((_, context) => registration(context));
+
     public void UseParameterSerializer(Func<TConfiguration, IAllureParameterSerializer> serializerFactory)
     {
+        this.useRuleBasedSerializer = false;
         this.currentSerializerFactory = serializerFactory;
     }
 
     public void UseParameterSerializer(Func<IAllureParameterSerializer> serializerFactory)
     {
-        this.currentSerializerFactory = (_) => serializerFactory();
+        this.UseParameterSerializer((_) => serializerFactory());
     }
 
     public void RegisterInProcessEndpoint(
@@ -124,7 +146,13 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
         if (this.currentEndpointRegistration is var (routeId, routeRegistration))
         {
             var endpointRouteBuilder =
-                new AllureInProcessRouteBuilder<TConfiguration, TEndpointHook>(runtimeName, routeId, runtime);
+                new AllureInProcessRouteBuilder<TConfiguration, TEndpointHook>(
+                    this.runtimeName,
+                    routeId,
+                    runtime,
+                    this.useRuleBasedSerializer,
+                    this.currentRuleBasedSerializerRegistrations
+                );
             routeRegistration(runtime, endpointRouteBuilder);
             var route = endpointRouteBuilder.Build();
             AllureRuntimeRouter.Install(route);
