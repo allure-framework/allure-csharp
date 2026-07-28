@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,8 +14,17 @@ public class JsonParameterSerializationRule(JsonSerializerOptions serializerOpti
 
     public bool TrySerialize(object value, [NotNullWhen(true)] out string? text)
     {
-        text = JsonSerializer.Serialize(value, serializerOptions);
-        return true;
+        try
+        {
+            text = JsonSerializer.Serialize(value, serializerOptions);
+            return true;
+        }
+        catch (Exception)
+        {
+        }
+
+        text = null;
+        return false;
     }
 
     public static JsonSerializerOptions CreateDefaultJsonOptions() => new()
