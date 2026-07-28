@@ -11,7 +11,7 @@ public interface IParameterSerializationRulesContext
 
     void AddRules(params IEnumerable<IParameterSerializationRule> rules);
 
-    void ReplaceRule(
+    void ReplaceRules(
         Func<IParameterSerializationRule, bool> predicate,
         Func<IParameterSerializationRule, IParameterSerializationRule> ruleFactory
     );

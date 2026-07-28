@@ -36,7 +36,7 @@ sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesC
         this.actions.Add(new RemoveRulesAction(criteria));
     }
 
-    public void ReplaceRule(
+    public void ReplaceRules(
         Func<IParameterSerializationRule, bool> predicate,
         Func<IParameterSerializationRule, IParameterSerializationRule> ruleFactory
     )

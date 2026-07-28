@@ -44,28 +44,4 @@ public static class AllureRegistrationContextExtensions
                 () => [DelegateConfigurationSource.Create("explicit", () => configuration)]
             );
     }
-
-    extension (IParameterSerializationRulesContext context)
-    {
-        public void AddRule(IParameterSerializationRule rule) =>
-            context.AddRules(rule);
-
-        public void RemoveAllRules() => context.RemoveRules((_) => true);
-
-        public void ReplaceRule(
-            Func<IParameterSerializationRule, bool> predicate,
-            IParameterSerializationRule rule
-        ) =>
-            context.ReplaceRule(predicate, (_) => rule);
-
-        public void UseJsonOptions(
-            Func<JsonSerializerOptions> jsonOptionsFactory
-        ) =>
-            context.TransformJsonOptions((_) => jsonOptionsFactory());
-
-        public void UseJsonOptions(
-            JsonSerializerOptions jsonOptions
-        ) =>
-            context.TransformJsonOptions((_) => jsonOptions);
-    }
 }
