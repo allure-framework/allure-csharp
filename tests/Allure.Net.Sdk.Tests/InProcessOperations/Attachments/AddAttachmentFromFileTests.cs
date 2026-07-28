@@ -59,6 +59,112 @@ public class AddAttachmentFromFileTests
     }
 
     [Test]
+    public async Task AddAttachmentFromFileAddsToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            AllureInProcessApi.SetUp("fixture", _ =>
+                AllureApi.AddAttachmentFromFile(
+                    "/input/report.json",
+                    "report",
+                    null,
+                    ".json"
+                )
+            );
+        });
+
+        await Assert.That(scope.Befores.Single().Attachments)
+            .HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddAttachmentFromFilePrioritizesCurrentStepOverFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            AllureInProcessApi.SetUp("fixture", _ =>
+                AllureInProcessApi.Step("step", _ =>
+                    AllureApi.AddAttachmentFromFile(
+                        "/input/report.json",
+                        "report",
+                        null,
+                        ".json"
+                    )
+                )
+            );
+        });
+
+        var fixture = scope.Befores.Single();
+        await Assert.That(fixture.Attachments).IsEmpty();
+        await Assert.That(fixture.Steps.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddAttachmentFromFileAsyncAddsToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                (_, token) => AllureApi.AddAttachmentFromFileAsync(
+                    "/input/report.json",
+                    "report",
+                    null,
+                    ".json",
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        await Assert.That(scope.Befores.Single().Attachments)
+            .HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddAttachmentFromFileAsyncPrioritizesCurrentStepOverFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                (_, token) => AllureInProcessApi.StepAsync(
+                    "step",
+                    (_, stepToken) => AllureApi.AddAttachmentFromFileAsync(
+                        "/input/report.json",
+                        "report",
+                        null,
+                        ".json",
+                        stepToken
+                    ),
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        var fixture = scope.Befores.Single();
+        await Assert.That(fixture.Attachments).IsEmpty();
+        await Assert.That(fixture.Steps.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
     public async Task AddAttachmentFromFileThrowsIfNoExecutableItemRunning()
     {
         var environment = AllureApiTestEnvironment.Create();
@@ -93,5 +199,11 @@ public class AddAttachmentFromFileTests
     {
         Uuid = Guid.NewGuid().ToString(),
         Name = "test",
+    };
+
+    static TestResultScope NewScope() => new()
+    {
+        Uuid = Guid.NewGuid().ToString(),
+        Name = "scope",
     };
 }

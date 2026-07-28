@@ -60,6 +60,110 @@ public class AddAttachmentTests
     }
 
     [Test]
+    public async Task AddAttachmentAddsToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            AllureInProcessApi.SetUp("fixture", _ =>
+            {
+                using var content = new MemoryStream([1]);
+                AllureApi.AddAttachment("attachment", content);
+            });
+        });
+
+        await Assert.That(scope.Befores.Single().Attachments)
+            .HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddAttachmentPrioritizesCurrentStepOverFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            AllureInProcessApi.SetUp("fixture", _ =>
+                AllureInProcessApi.Step("step", _ =>
+                {
+                    using var content = new MemoryStream([1]);
+                    AllureApi.AddAttachment("attachment", content);
+                })
+            );
+        });
+
+        var fixture = scope.Befores.Single();
+        await Assert.That(fixture.Attachments).IsEmpty();
+        await Assert.That(fixture.Steps.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddAttachmentAsyncAddsToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                async (_, token) =>
+                {
+                    using var content = new MemoryStream([1]);
+                    await AllureApi.AddAttachmentAsync(
+                        "attachment",
+                        content,
+                        token
+                    );
+                },
+                CancellationToken.None
+            );
+        });
+
+        await Assert.That(scope.Befores.Single().Attachments)
+            .HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddAttachmentAsyncPrioritizesCurrentStepOverFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                async (_, token) => await AllureInProcessApi.StepAsync(
+                    "step",
+                    async (_, stepToken) =>
+                    {
+                        using var content = new MemoryStream([1]);
+                        await AllureApi.AddAttachmentAsync(
+                            "attachment",
+                            content,
+                            stepToken
+                        );
+                    },
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        var fixture = scope.Befores.Single();
+        await Assert.That(fixture.Attachments).IsEmpty();
+        await Assert.That(fixture.Steps.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
     public async Task AddAttachmentThrowsIfNoExecutableItemRunning()
     {
         var environment = AllureApiTestEnvironment.Create();
@@ -91,5 +195,11 @@ public class AddAttachmentTests
     {
         Uuid = Guid.NewGuid().ToString(),
         Name = "test",
+    };
+
+    static TestResultScope NewScope() => new()
+    {
+        Uuid = Guid.NewGuid().ToString(),
+        Name = "scope",
     };
 }

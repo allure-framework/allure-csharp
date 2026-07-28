@@ -62,6 +62,143 @@ public class AddScreenDiffFromFilesTests
         }
     }
 
+    [Test]
+    public async Task AddScreenDiffFromFilesAddsToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var paths = await CreateScreenFiles();
+
+        try
+        {
+            environment.Run(current =>
+            {
+                current.Runtime.LifecycleApi.StartScope(scope);
+                AllureInProcessApi.SetUp("fixture", _ =>
+                    AllureApi.AddScreenDiffFromFiles(
+                        paths.Expected,
+                        paths.Actual,
+                        paths.Diff
+                    )
+                );
+            });
+
+            await Assert.That(scope.Befores.Single().Attachments)
+                .HasSingleItem();
+        }
+        finally
+        {
+            DeleteScreenFiles(paths);
+        }
+    }
+
+    [Test]
+    public async Task AddScreenDiffFromFilesPrioritizesCurrentStepOverFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var paths = await CreateScreenFiles();
+
+        try
+        {
+            environment.Run(current =>
+            {
+                current.Runtime.LifecycleApi.StartScope(scope);
+                AllureInProcessApi.SetUp("fixture", _ =>
+                    AllureInProcessApi.Step("step", _ =>
+                        AllureApi.AddScreenDiffFromFiles(
+                            paths.Expected,
+                            paths.Actual,
+                            paths.Diff
+                        )
+                    )
+                );
+            });
+
+            var fixture = scope.Befores.Single();
+            await Assert.That(fixture.Attachments).IsEmpty();
+            await Assert.That(fixture.Steps.Single().Attachments)
+                .HasSingleItem();
+        }
+        finally
+        {
+            DeleteScreenFiles(paths);
+        }
+    }
+
+    [Test]
+    public async Task AddScreenDiffFromFilesAsyncAddsToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var paths = await CreateScreenFiles();
+
+        try
+        {
+            await environment.RunAsync(async current =>
+            {
+                current.Runtime.LifecycleApi.StartScope(scope);
+                await AllureInProcessApi.SetUpAsync(
+                    "fixture",
+                    (_, token) => AllureApi.AddScreenDiffFromFilesAsync(
+                        paths.Expected,
+                        paths.Actual,
+                        paths.Diff,
+                        token
+                    ),
+                    CancellationToken.None
+                );
+            });
+
+            await Assert.That(scope.Befores.Single().Attachments)
+                .HasSingleItem();
+        }
+        finally
+        {
+            DeleteScreenFiles(paths);
+        }
+    }
+
+    [Test]
+    public async Task AddScreenDiffFromFilesAsyncPrioritizesCurrentStepOverFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var paths = await CreateScreenFiles();
+
+        try
+        {
+            await environment.RunAsync(async current =>
+            {
+                current.Runtime.LifecycleApi.StartScope(scope);
+                await AllureInProcessApi.SetUpAsync(
+                    "fixture",
+                    (_, token) => AllureInProcessApi.StepAsync(
+                        "step",
+                        (_, stepToken) =>
+                            AllureApi.AddScreenDiffFromFilesAsync(
+                                paths.Expected,
+                                paths.Actual,
+                                paths.Diff,
+                                stepToken
+                            ),
+                        token
+                    ),
+                    CancellationToken.None
+                );
+            });
+
+            var fixture = scope.Befores.Single();
+            await Assert.That(fixture.Attachments).IsEmpty();
+            await Assert.That(fixture.Steps.Single().Attachments)
+                .HasSingleItem();
+        }
+        finally
+        {
+            DeleteScreenFiles(paths);
+        }
+    }
+
     static async Task<ScreenFiles> CreateScreenFiles()
     {
         var prefix = Path.Combine(
@@ -110,6 +247,12 @@ public class AddScreenDiffFromFilesTests
     {
         Uuid = Guid.NewGuid().ToString(),
         Name = "test",
+    };
+
+    static TestResultScope NewScope() => new()
+    {
+        Uuid = Guid.NewGuid().ToString(),
+        Name = "scope",
     };
 
     sealed record ScreenFiles(string Expected, string Actual, string Diff);
