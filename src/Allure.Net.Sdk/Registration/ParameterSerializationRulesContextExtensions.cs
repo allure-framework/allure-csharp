@@ -18,11 +18,11 @@ public static class ParameterSerializationRulesContextExtensions
         => context.RemoveRules(static (rule) => rule is TRule);
 
         public void ReplaceRules<TRule>(
-            Func<IParameterSerializationRule, IParameterSerializationRule> ruleFactory
+            Func<TRule, IParameterSerializationRule> ruleFactory
         )
             where TRule : IParameterSerializationRule
         =>
-            context.ReplaceRules(static (rule) => rule is TRule, ruleFactory);
+            context.ReplaceRules(static (rule) => rule is TRule, (rule) => ruleFactory((TRule)rule));
 
         public void ReplaceRule(
             Func<IParameterSerializationRule, bool> predicate,
@@ -48,11 +48,11 @@ public static class ParameterSerializationRulesContextExtensions
             ReplaceRule(context, predicate, (_) => rule);
 
         public void ReplaceRule<TRule>(
-            Func<IParameterSerializationRule, IParameterSerializationRule> ruleFactory
+            Func<TRule, IParameterSerializationRule> ruleFactory
         )
             where TRule : IParameterSerializationRule
         =>
-            ReplaceRule(context, static (rule) => rule is TRule, ruleFactory);
+            ReplaceRule(context, static (rule) => rule is TRule, (rule) => ruleFactory((TRule)rule));
 
         public void ReplaceRule<TRule>(
             IParameterSerializationRule rule

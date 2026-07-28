@@ -102,6 +102,49 @@ public class DefaultParameterSerializationTests
     }
 
     [Test]
+    public async Task ShouldIgnoreDelegateProperties()
+    {
+        var serializer = CreateSerializer();
+        var value = new ObjectWithDelegate
+        {
+            Name = "value",
+            Callback = () => { },
+        };
+
+        await Assert.That(serializer.Serialize(value))
+            .IsEqualTo("""{"Name":"value"}""");
+    }
+
+    [Test]
+    public async Task ShouldSerializeJsonObjectsThatOverrideToStringAsStrings()
+    {
+        var serializer = CreateSerializer();
+        var value = new ObjectWithCustomToString { Value = 17 };
+
+        await Assert.That(serializer.Serialize(value))
+            .IsEqualTo("\"custom: 17\"");
+    }
+
+    [Test]
+    public async Task ShouldUseInheritedToStringOverrideForJsonObjects()
+    {
+        var serializer = CreateSerializer();
+        var value = new ObjectInheritingCustomToString();
+
+        await Assert.That(serializer.Serialize(value))
+            .IsEqualTo("\"inherited\"");
+    }
+
+    [Test]
+    public async Task ShouldSerializeCollectionsThatOverrideToStringAsJsonCollections()
+    {
+        var serializer = CreateSerializer();
+        var value = new CollectionWithCustomToString { 1, 2 };
+
+        await Assert.That(serializer.Serialize(value)).IsEqualTo("[1,2]");
+    }
+
+    [Test]
     public async Task ShouldUseToStringWhenJsonSerializationThrows()
     {
         var serializer = CreateSerializer();
@@ -132,6 +175,32 @@ public class DefaultParameterSerializationTests
         public required string Name { get; init; }
 
         public CyclicObject? Next { get; set; }
+    }
+
+    sealed class ObjectWithDelegate
+    {
+        public required string Name { get; init; }
+
+        public required Action Callback { get; init; }
+    }
+
+    sealed class ObjectWithCustomToString
+    {
+        public int Value { get; init; }
+
+        public override string ToString() => $"custom: {this.Value}";
+    }
+
+    abstract class ObjectWithInheritedToString
+    {
+        public override string ToString() => "inherited";
+    }
+
+    sealed class ObjectInheritingCustomToString : ObjectWithInheritedToString;
+
+    sealed class CollectionWithCustomToString : List<int>
+    {
+        public override string ToString() => "collection";
     }
 
     sealed class ThrowingObject
