@@ -210,28 +210,6 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         runtime.LifecycleApi.StopStep();
     }
 
-    public void Step(string name, IEnumerable<Parameter> parameters, Action body)
-    {
-        Status status = Status.Passed;
-        StatusDetails? statusDetails = null;
-
-        _ = this.StartStep(name, parameters);
-        try
-        {
-            body();
-        }
-        catch (Exception e)
-        {
-            status = ErrorStatus.Resolve(this.failExceptions, e);
-            statusDetails = StatusDetails.FromException(e);
-            throw;
-        }
-        finally
-        {
-            this.StopStep(status, statusDetails);
-        }
-    }
-
     public void Step(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessSyncStepContext> body)
     {
         Status status = Status.Passed;
@@ -241,28 +219,6 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         try
         {
             body(new SyncStepOperationContext(runtime, level));
-        }
-        catch (Exception e)
-        {
-            status = ErrorStatus.Resolve(this.failExceptions, e);
-            statusDetails = StatusDetails.FromException(e);
-            throw;
-        }
-        finally
-        {
-            this.StopStep(status, statusDetails);
-        }
-    }
-
-    public TResult Step<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body)
-    {
-        Status status = Status.Passed;
-        StatusDetails? statusDetails = null;
-
-        _ = this.StartStep(name, parameters);
-        try
-        {
-            return body();
         }
         catch (Exception e)
         {
@@ -417,28 +373,6 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         });
     }
 
-    public void SetUp(string name, IEnumerable<Parameter> parameters, Action body)
-    {
-        Status status = Status.Passed;
-        StatusDetails? statusDetails = null;
-
-        this.StartSetUp(name, parameters);
-        try
-        {
-            body();
-        }
-        catch (Exception e)
-        {
-            status = ErrorStatus.Resolve(this.failExceptions, e);
-            statusDetails = StatusDetails.FromException(e);
-            throw;
-        }
-        finally
-        {
-            this.StopFixture(status, statusDetails);
-        }
-    }
-
     public void SetUp(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessSyncFixtureContext> body)
     {
         Status status = Status.Passed;
@@ -448,28 +382,6 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         try
         {
             body(new SyncFixtureOperationContext(runtime));
-        }
-        catch (Exception e)
-        {
-            status = ErrorStatus.Resolve(this.failExceptions, e);
-            statusDetails = StatusDetails.FromException(e);
-            throw;
-        }
-        finally
-        {
-            this.StopFixture(status, statusDetails);
-        }
-    }
-
-    public TResult SetUp<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body)
-    {
-        Status status = Status.Passed;
-        StatusDetails? statusDetails = null;
-
-        this.StartSetUp(name, parameters);
-        try
-        {
-            return body();
         }
         catch (Exception e)
         {
@@ -505,28 +417,6 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         }
     }
 
-    public void TearDown(string name, IEnumerable<Parameter> parameters, Action body)
-    {
-        Status status = Status.Passed;
-        StatusDetails? statusDetails = null;
-
-        this.StartTearDown(name, parameters);
-        try
-        {
-            body();
-        }
-        catch (Exception e)
-        {
-            status = ErrorStatus.Resolve(this.failExceptions, e);
-            statusDetails = StatusDetails.FromException(e);
-            throw;
-        }
-        finally
-        {
-            this.StopFixture(status, statusDetails);
-        }
-    }
-
     public void TearDown(string name, IEnumerable<Parameter> parameters, Action<IAllureInProcessSyncFixtureContext> body)
     {
         Status status = Status.Passed;
@@ -536,28 +426,6 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         try
         {
             body(new SyncFixtureOperationContext(runtime));
-        }
-        catch (Exception e)
-        {
-            status = ErrorStatus.Resolve(this.failExceptions, e);
-            statusDetails = StatusDetails.FromException(e);
-            throw;
-        }
-        finally
-        {
-            this.StopFixture(status, statusDetails);
-        }
-    }
-
-    public TResult TearDown<TResult>(string name, IEnumerable<Parameter> parameters, Func<TResult> body)
-    {
-        Status status = Status.Passed;
-        StatusDetails? statusDetails = null;
-
-        this.StartTearDown(name, parameters);
-        try
-        {
-            return body();
         }
         catch (Exception e)
         {

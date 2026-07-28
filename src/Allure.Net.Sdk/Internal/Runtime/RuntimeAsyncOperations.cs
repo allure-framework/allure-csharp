@@ -246,22 +246,6 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         return Task.CompletedTask;
     }
 
-    public Task StepAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<Task> body,
-        CancellationToken cancellationToken
-    ) =>
-        StepAsync(name, parameters, (_, _) => body(), cancellationToken);
-
-    public Task StepAsync(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<IAllureInProcessAsyncStepContext, Task> body,
-        CancellationToken cancellationToken
-    ) =>
-        StepAsync(name, parameters, (ctx, _) => body(ctx), cancellationToken);
-
     public async Task StepAsync(
         string name,
         IEnumerable<Parameter> parameters,
@@ -288,22 +272,6 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             this.StopStep(status, statusDetails);
         }
     }
-
-    public Task<TResult> StepAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<Task<TResult>> body,
-        CancellationToken cancellationToken
-    ) =>
-        StepAsync(name, parameters, (_, _) => body(), cancellationToken);
-
-    public Task<TResult> StepAsync<TResult>(
-        string name,
-        IEnumerable<Parameter> parameters,
-        Func<IAllureInProcessAsyncStepContext, Task<TResult>> body,
-        CancellationToken cancellationToken
-    ) =>
-        StepAsync(name, parameters, (ctx, _) => body(ctx), cancellationToken);
 
     public async Task<TResult> StepAsync<TResult>(
         string name,
@@ -375,12 +343,6 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         return Task.CompletedTask;
     }
 
-    public Task SetUpAsync(string name, IEnumerable<Parameter> parameters, Func<Task> body, CancellationToken cancellationToken) =>
-        SetUpAsync(name, parameters, (_, _) => body(), cancellationToken);
-
-    public Task SetUpAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, Task> body, CancellationToken cancellationToken) =>
-        SetUpAsync(name, parameters, (ctx, _) => body(ctx), cancellationToken);
-
     public async Task SetUpAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body, CancellationToken cancellationToken)
     {
         Status status = Status.Passed;
@@ -403,12 +365,6 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             this.StopFixture(status, statusDetails);
         }
     }
-
-    public Task<TResult> SetUpAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
-        SetUpAsync(name, parameters, (_, _) => body(), cancellationToken);
-
-    public Task<TResult> SetUpAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body, CancellationToken cancellationToken) =>
-        SetUpAsync(name, parameters, (ctx, _) => body(ctx), cancellationToken);
 
     public async Task<TResult> SetUpAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken)
     {
@@ -433,12 +389,6 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         }
     }
 
-    public Task TearDownAsync(string name, IEnumerable<Parameter> parameters, Func<Task> body, CancellationToken cancellationToken) =>
-        TearDownAsync(name, parameters, (_, _) => body(), cancellationToken);
-
-    public Task TearDownAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, Task> body, CancellationToken cancellationToken) =>
-        TearDownAsync(name, parameters, (ctx, _) => body(ctx), cancellationToken);
-
     public async Task TearDownAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body, CancellationToken cancellationToken)
     {
         Status status = Status.Passed;
@@ -461,12 +411,6 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             this.StopFixture(status, statusDetails);
         }
     }
-
-    public Task<TResult> TearDownAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<Task<TResult>> body, CancellationToken cancellationToken) =>
-        TearDownAsync(name, parameters, (_, _) => body(), cancellationToken);
-
-    public Task<TResult> TearDownAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, Task<TResult>> body, CancellationToken cancellationToken) =>
-        TearDownAsync(name, parameters, (ctx, _) => body(ctx), cancellationToken);
 
     public async Task<TResult> TearDownAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken)
     {
