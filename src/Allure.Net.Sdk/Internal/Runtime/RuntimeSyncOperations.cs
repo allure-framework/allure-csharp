@@ -326,6 +326,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
                 static (a) => a.Type == DIFF_MEDIA_TYPE
             );
         var name = string.Format(DIFF_NAME_PATTERN, currentDiffCount + 1);
+
         using var stream = new MemoryStream();
         JsonSerializer.Serialize(stream, new
         {
@@ -333,6 +334,9 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
             actual = ToDiffEntry(actual),
             diff = ToDiffEntry(diff)
         });
+
+        stream.Position = 0;
+
         AddAttachment(name, stream, DIFF_MEDIA_TYPE, ".json");
     }
 

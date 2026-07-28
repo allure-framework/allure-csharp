@@ -294,6 +294,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
                 static (a) => a.Type == DIFF_MEDIA_TYPE
             );
         var name = string.Format(DIFF_NAME_PATTERN, currentDiffCount + 1);
+
         using var stream = new MemoryStream();
         await JsonSerializer.SerializeAsync(stream, new
         {
@@ -301,6 +302,9 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             actual = await ToDiffEntryAsync(actual, cancellationToken),
             diff = await ToDiffEntryAsync(diff, cancellationToken)
         });
+
+        stream.Position = 0;
+
         await AddAttachmentAsync(name, stream, DIFF_MEDIA_TYPE, ".json", cancellationToken);
     }
 

@@ -1,4 +1,5 @@
 using Allure.Sdk.Configuration;
+using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Net.Sdk.Tests.Infrastructure;
@@ -7,12 +8,18 @@ sealed class AllureApiTestEnvironment
 {
     readonly AsyncLocal<bool> isInScope = new();
 
-    AllureApiTestEnvironment(IAllureRuntime<AllureConfiguration> runtime)
+    AllureApiTestEnvironment(
+        IAllureRuntime<AllureConfiguration> runtime,
+        InMemoryResultsDestination destination
+    )
     {
         this.Runtime = runtime;
+        this.Destination = destination;
     }
 
     public IAllureRuntime<AllureConfiguration> Runtime { get; }
+
+    public InMemoryResultsDestination Destination { get; }
 
     public static AllureApiTestEnvironment Create(
         AllureConfiguration? configuration = null
@@ -34,7 +41,10 @@ sealed class AllureApiTestEnvironment
                 }
             )
         );
-        environment = new(runtimeEnvironment.Runtime);
+        environment = new(
+            runtimeEnvironment.Runtime,
+            runtimeEnvironment.Destination
+        );
         return environment;
     }
 
