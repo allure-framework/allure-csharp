@@ -9,7 +9,7 @@ namespace Allure.Sdk.Internal.Registration;
 
 sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesContext
 {
-    readonly List<RuleAction> actions = [];
+    readonly List<RuleAction> actions;
 
     Func<object, string> currentFallback = static (o) => o.ToString();
 
