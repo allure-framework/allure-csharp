@@ -51,7 +51,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
 
     public AllureRuntimeBuilder(string runtimeName)
     {
-        this.currentSerializerFactory = AllureRegistrationDefaults.ParameterSerializer<TConfiguration>(
+        this.currentSerializerFactory = AllureRegistrationDefaults.ParameterSerializer(
             this.currentRuleBasedSerializerRegistrations
         );
         this.runtimeName = runtimeName;
@@ -89,6 +89,15 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
 
     public void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration)
     {
+        if (!this.useRuleBasedSerializer)
+        {
+            this.useRuleBasedSerializer = true;
+            this.currentRuleBasedSerializerRegistrations.Clear();
+            this.currentSerializerFactory = AllureRegistrationDefaults.ParameterSerializer(
+                this.currentRuleBasedSerializerRegistrations
+            );
+        }
+
         this.currentRuleBasedSerializerRegistrations.Add(registration);
     }
 

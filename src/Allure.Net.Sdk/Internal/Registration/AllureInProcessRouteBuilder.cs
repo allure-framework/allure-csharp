@@ -38,6 +38,8 @@ class AllureInProcessRouteBuilder<TConfiguration, THook> :
             new RuntimeAsyncOperations<TConfiguration>(runtime)
         );
 
+    bool useRuleBasedSerializer = false;
+
     Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> currentSerializerFactory;
 
     readonly List<Action<TConfiguration, IParameterSerializationRulesContext>> currentRuleBasedSerializerRegistrations;
@@ -50,6 +52,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook> :
         IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> ruleBasedSerializerRegistrations
     )
     {
+        this.useRuleBasedSerializer = useRuleBasedSerializer;
         this.runtimeName = runtimeName;
         this.routeId = routeId;
         this.runtime = runtime;
@@ -107,16 +110,24 @@ class AllureInProcessRouteBuilder<TConfiguration, THook> :
 
     public void UseParameterSerializer(Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> serializerFactory)
     {
+        this.useRuleBasedSerializer = false;
         this.currentSerializerFactory = serializerFactory;
     }
 
-    public void UseParameterSerializer(Func<IAllureParameterSerializer> serializerFactory)
-    {
-        this.currentSerializerFactory = (_) => serializerFactory();
-    }
+    public void UseParameterSerializer(Func<IAllureParameterSerializer> serializerFactory) =>
+        this.UseParameterSerializer((_) => serializerFactory());
 
     public void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration)
     {
+        if (!this.useRuleBasedSerializer)
+        {
+            this.currentRuleBasedSerializerRegistrations.Clear();
+            this.currentSerializerFactory = (runtime) => AllureRegistrationDefaults.ParameterSerializer(
+                currentRuleBasedSerializerRegistrations
+            )(runtime.Configuration);
+            this.useRuleBasedSerializer = true;
+        }
+
         this.currentRuleBasedSerializerRegistrations.Add(registration);
     }
 
