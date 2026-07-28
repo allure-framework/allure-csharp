@@ -495,7 +495,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         }
         finally
         {
-            this.StopStep(status, statusDetails);
+            this.StopFixture(status, statusDetails);
         }
     }
 
@@ -583,7 +583,7 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         }
         finally
         {
-            this.StopStep(status, statusDetails);
+            this.StopFixture(status, statusDetails);
         }
     }
 
