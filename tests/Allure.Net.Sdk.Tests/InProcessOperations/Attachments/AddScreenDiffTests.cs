@@ -127,6 +127,63 @@ public class AddScreenDiffTests
     }
 
     [Test]
+    public async Task AddScreenDiffPrioritizesCurrentFixtureOverTest()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var test = NewTest();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTest(test);
+            AllureInProcessApi.SetUp("fixture", _ =>
+            {
+                using var expected = new MemoryStream([1]);
+                using var actual = new MemoryStream([2]);
+                using var diff = new MemoryStream([3]);
+                AllureApi.AddScreenDiff(expected, actual, diff);
+            });
+        });
+
+        await Assert.That(test.Attachments).IsEmpty();
+        await Assert.That(scope.Befores.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddScreenDiffAsyncPrioritizesCurrentFixtureOverTest()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var test = NewTest();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTest(test);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                async (_, token) =>
+                {
+                    using var expected = new MemoryStream([1]);
+                    using var actual = new MemoryStream([2]);
+                    using var diff = new MemoryStream([3]);
+                    await AllureApi.AddScreenDiffAsync(
+                        expected,
+                        actual,
+                        diff,
+                        token
+                    );
+                },
+                CancellationToken.None
+            );
+        });
+
+        await Assert.That(test.Attachments).IsEmpty();
+        await Assert.That(scope.Befores.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
     public async Task AddScreenDiffAsyncPrioritizesCurrentStepOverFixture()
     {
         var environment = AllureApiTestEnvironment.Create();

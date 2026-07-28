@@ -134,6 +134,59 @@ public class AddAttachmentFromFileTests
     }
 
     [Test]
+    public async Task AddAttachmentFromFilePrioritizesCurrentFixtureOverTest()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var test = NewTest();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTest(test);
+            AllureInProcessApi.SetUp("fixture", _ =>
+                AllureApi.AddAttachmentFromFile(
+                    "/input/report.json",
+                    "report",
+                    null,
+                    ".json"
+                )
+            );
+        });
+
+        await Assert.That(test.Attachments).IsEmpty();
+        await Assert.That(scope.Befores.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
+    public async Task AddAttachmentFromFileAsyncPrioritizesCurrentFixtureOverTest()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var test = NewTest();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTest(test);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                (_, token) => AllureApi.AddAttachmentFromFileAsync(
+                    "/input/report.json",
+                    "report",
+                    null,
+                    ".json",
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        await Assert.That(test.Attachments).IsEmpty();
+        await Assert.That(scope.Befores.Single().Attachments).HasSingleItem();
+    }
+
+    [Test]
     public async Task AddAttachmentFromFileAsyncPrioritizesCurrentStepOverFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
