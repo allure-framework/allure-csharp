@@ -5,9 +5,9 @@ using Allure.Sdk.Serialization;
 
 namespace Allure.Sdk.Registration;
 
-public static class ParameterSerializerRegistrationContextExtensions
+public static class ParameterSerializationRulesContextExtensions
 {
-    extension (IParameterSerializerRegistrationContext registration)
+    extension (IParameterSerializationRulesContext registration)
     {
         public void AddRules(
             params IEnumerable<IParameterSerializationRule> rules

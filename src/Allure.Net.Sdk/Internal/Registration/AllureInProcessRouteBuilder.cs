@@ -14,7 +14,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook>(
     string routeId,
     IAllureRuntime<TConfiguration> runtime
 ) :
-    IAllureInProcessEndpointRegistrationContext<TConfiguration, THook>
+    IAllureInProcessEndpointIntegrationContext<TConfiguration, THook>
 
     where TConfiguration : AllureConfiguration
     where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration>

@@ -6,7 +6,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public interface IAllureIntegrationRegistrationContext<TConfiguration, TRuntimeHook, TEndpointHook> :
+public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook> :
     IAllureRuntimeRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
@@ -31,6 +31,6 @@ public interface IAllureIntegrationRegistrationContext<TConfiguration, TRuntimeH
 
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration, TEndpointHook>> endpointRegistration
+        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
     );
 }

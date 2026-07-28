@@ -4,7 +4,7 @@ using Allure.Sdk.Serialization;
 
 namespace Allure.Sdk.Registration;
 
-public interface IParameterSerializerRegistrationContext
+public interface IParameterSerializationRulesContext
 {
     void DoNotUseDefaultRules();
 

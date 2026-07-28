@@ -6,7 +6,7 @@ using Allure.Sdk.Serialization;
 
 namespace Allure.Sdk.Internal.Registration;
 
-sealed class RuleBasedParameterSerializerBuilder : IParameterSerializerRegistrationContext
+sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesContext
 {
     readonly List<IParameterSerializationRule> rules = [];
 

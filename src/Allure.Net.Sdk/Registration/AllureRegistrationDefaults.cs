@@ -51,7 +51,7 @@ public static class AllureRegistrationDefaults
         where THook : IAllureRuntimeRegistrationHook<TConfiguration>
     =>
         static (configuration) => [
-            ReflectionHookProvider.FromTypeEnvironmentVariable<TConfiguration, THook>("ALLURE_RUNTIME_REGISTRATION_HOOK"),
-            ReflectionHookProvider.FromConfiguration<TConfiguration, THook>(configuration),
+            ReflectionHooks.FromEnvironmentVariable<TConfiguration, THook>("ALLURE_RUNTIME_REGISTRATION_HOOK"),
+            ReflectionHooks.FromConfiguration<TConfiguration, THook>(configuration),
         ];
 }

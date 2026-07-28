@@ -12,7 +12,7 @@ using Allure.Sdk.Runtime;
 namespace Allure.Sdk.Registration;
 
 public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(string runtimeName) :
-    IAllureIntegrationRegistrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
+    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
@@ -41,7 +41,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
 
     (
         string id,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration, TEndpointHook>>
+        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>>
     )? currentEndpointRegistration = null;
 
     public void UseConfigurationSources(Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory)
@@ -86,7 +86,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
 
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointRegistrationContext<TConfiguration, TEndpointHook>> endpointRegistration
+        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
     )
     {
         this.currentEndpointRegistration = (endpointId, endpointRegistration);

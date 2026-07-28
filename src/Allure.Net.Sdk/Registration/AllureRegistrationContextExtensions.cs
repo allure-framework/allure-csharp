@@ -46,7 +46,7 @@ public static class AllureRegistrationContextExtensions
 
     extension (IAllureRegistrationContext context)
     {
-        public void ConfigureSerialization(Action<IParameterSerializerRegistrationContext> registration) =>
+        public void ConfigureSerialization(Action<IParameterSerializationRulesContext> registration) =>
             context.UseParameterSerializer(() =>
             {
                 var builder = new RuleBasedParameterSerializerBuilder();

@@ -6,7 +6,7 @@ using Allure.Sdk.Configuration;
 
 namespace Allure.Sdk.Registration.Hooks;
 
-public static class ReflectionHookProvider
+public static class ReflectionHooks
 {
     public static THook? FromConfiguration<TConfiguration, THook>(TConfiguration configuration)
         where TConfiguration : AllureConfiguration
@@ -15,9 +15,7 @@ public static class ReflectionHookProvider
             ? Resolve<THook>(hookTypeName)
             : default;
 
-    public static THook? FromTypeEnvironmentVariable<TConfiguration, THook>(string variableName)
-        where TConfiguration : AllureConfiguration
-    =>
+    public static THook? FromEnvironmentVariable<THook>(string variableName) =>
         Environment.GetEnvironmentVariable(variableName) is { Length: > 0 } hookTypeName
             ? Resolve<THook>(hookTypeName)
             : default;
