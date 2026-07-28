@@ -11,21 +11,26 @@ namespace Allure.Sdk.Runtime;
 /// executing tests and steps to maintain independent execution states, provided
 /// that the <see cref="ExecutionContext"/> is propagated correctly.
 /// </summary>
-/// <param name="reference">
-/// A late bound reference.
-/// </param>
-public sealed class AsyncLocalExecutionContext(
-    IReadOnlyLateBoundReference<IAllureRuntime> reference
-) :
-    IAllureExecutionContext
+public sealed class AsyncLocalExecutionContext : IAllureExecutionContext
 {
-    readonly AsyncLocal<AllureExecutionState> currentState = new();
+    readonly IReadOnlyLateBoundReference<IAllureRuntime> reference;
+
+    readonly AsyncLocal<AllureExecutionState> currentState;
 
     /// <inheritdoc/>
-    public IAllureRuntime Runtime => reference.Value;
+    public IAllureRuntime Runtime => this.reference.Value;
 
     /// <inheritdoc/>
     public AllureExecutionState CurrentState => currentState.Value;
+
+    public AsyncLocalExecutionContext(IReadOnlyLateBoundReference<IAllureRuntime> reference)
+    {
+        this.reference = reference;
+        this.currentState = new()
+        {
+            Value = new(),
+        };
+    }
 
     /// <inheritdoc/>
     public TResult GetWithState<TResult>(AllureExecutionState state, Func<IAllureRuntime, TResult> function)

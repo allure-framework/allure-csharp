@@ -26,6 +26,7 @@ public class RuntimeComponentRegistrationTests
         TestConfiguration? destinationConfiguration = null;
 
         var builder = CreateBuilder();
+
         builder.UseConfiguration(configuration);
         builder.UseParameterSerializer(received =>
         {
