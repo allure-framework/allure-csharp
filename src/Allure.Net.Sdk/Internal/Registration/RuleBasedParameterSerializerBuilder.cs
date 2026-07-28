@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text.Json;
 using Allure.Sdk.Registration;
@@ -16,7 +15,7 @@ sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesC
 
     string currentNullRepresentation = "null";
 
-    List<Func<JsonSerializerOptions, JsonSerializerOptions>> currentJsonOptionTransformers = [];
+    readonly List<Func<JsonSerializerOptions, JsonSerializerOptions>> currentJsonOptionTransformers = [];
 
     public RuleBasedParameterSerializerBuilder()
     {
@@ -31,9 +30,9 @@ sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesC
         this.actions.AddRange(rules.Select(static (rule) => new AddRuleAction(rule)));
     }
 
-    public void RemoveRules(Func<IParameterSerializationRule, bool> criteria)
+    public void RemoveRules(Func<IParameterSerializationRule, bool> predicate)
     {
-        this.actions.Add(new RemoveRulesAction(criteria));
+        this.actions.Add(new RemoveRulesAction(predicate));
     }
 
     public void ReplaceRules(
@@ -123,12 +122,12 @@ sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesC
     }
 
     record class RemoveRulesAction(
-        Func<IParameterSerializationRule, bool> Criteria
+        Func<IParameterSerializationRule, bool> Predicate
     ) : RuleAction
     {
         internal override void ApplyTo(List<IParameterSerializationRule> rules)
         {
-            rules.RemoveAll((rule) => this.Criteria(rule));
+            rules.RemoveAll((rule) => this.Predicate(rule));
         }
     }
 }

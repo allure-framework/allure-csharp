@@ -7,7 +7,7 @@ namespace Allure.Sdk.Registration;
 
 public interface IParameterSerializationRulesContext
 {
-    void RemoveRules(Func<IParameterSerializationRule, bool> criteria);
+    void RemoveRules(Func<IParameterSerializationRule, bool> predicate);
 
     void AddRules(params IEnumerable<IParameterSerializationRule> rules);
 
