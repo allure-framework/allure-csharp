@@ -1,55 +1,30 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using Allure.Abstractions;
 using Allure.Model;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-class SyncStepOperationContext(IAllureRuntime runtime, int level) :
+sealed class SyncStepOperationContext(IAllureRuntime runtime, int level) :
+    StepOperationContext(runtime, level),
     IAllureInProcessSyncStepContext
 {
-    AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;
-
-    IAllureParameterSerializer IAllureOperationContext.ParameterSerializer =>
-        runtime.ParameterSerializer;
-
     public void AddParameter(Parameter parameter)
     {
-        runtime.ModelApi.UpdateStepResult(
-            level,
+        this.EnsureInScope();
+
+        this.Runtime.ModelApi.UpdateStepResult(
+            this.Level,
             (stepResult) => stepResult.Parameters.Add(parameter)
         );
     }
 
     public void SetName(string newName)
     {
-        runtime.ModelApi.UpdateStepResult(
-            level,
+        this.EnsureInScope();
+
+        this.Runtime.ModelApi.UpdateStepResult(
+            this.Level,
             (stepResult) => stepResult.Name = newName
         );
-    }
-
-    public bool TryReadStepResult<T>(
-        Func<StepResult, T> read,
-        [MaybeNullWhen(false)] out T result
-    )
-    {
-        if (this.CurrentState.HasStep)
-        {
-            result = runtime.ModelApi.ReadStepResult(level, read);
-            return true;
-        }
-
-        result = default;
-        return false;
-    }
-
-    public void UpdateStepResult(Action<StepResult> update)
-    {
-        if (this.CurrentState.HasStep)
-        {
-            runtime.ModelApi.UpdateStepResult(level, update);
-        }
     }
 }

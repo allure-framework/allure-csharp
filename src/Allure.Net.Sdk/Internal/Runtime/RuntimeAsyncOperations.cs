@@ -198,24 +198,9 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
     public Task SetNameAsync(string newName, CancellationToken cancellationToken)
     {
-        if (this.CurrentState.HasStep)
-        {
-            runtime.ModelApi.UpdateStepResult(
-                (stepResult) => stepResult.Name = newName
-            );
-        }
-        else if (CurrentState.HasFixture)
-        {
-            runtime.ModelApi.UpdateFixtureResult(
-                (fixtureResult) => fixtureResult.Name = newName
-            );
-        }
-        else
-        {
-            runtime.ModelApi.UpdateTestResult(
-                (testResult) => testResult.Name = newName
-            );
-        }
+        runtime.ModelApi.UpdateCurrentExecutableItem(
+            (item) => item.Name = newName
+        );
         return Task.CompletedTask;
     }
 
@@ -259,7 +244,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         int level = this.StartStep(name, parameters);
         try
         {
-            await body(new AsyncStepOperationContext(runtime, level), cancellationToken);
+            using AsyncStepOperationContext context = new(runtime, level);
+            await body(context, cancellationToken);
         }
         catch (Exception e)
         {
@@ -286,10 +272,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         int level = this.StartStep(name, parameters);
         try
         {
-            return await body(
-                new AsyncStepOperationContext(runtime, level),
-                cancellationToken
-            );
+            using AsyncStepOperationContext context = new(runtime, level);
+            return await body(context, cancellationToken);
         }
         catch (Exception e)
         {
@@ -352,7 +336,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
+            using var context = new AsyncFixtureOperationContext(runtime);
+            await body(context, cancellationToken);
         }
         catch (Exception e)
         {
@@ -375,7 +360,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            return await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
+            using var context = new AsyncFixtureOperationContext(runtime);
+            return await body(context, cancellationToken);
         }
         catch (Exception e)
         {
@@ -398,7 +384,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
+            using var context = new AsyncFixtureOperationContext(runtime);
+            await body(context, cancellationToken);
         }
         catch (Exception e)
         {
@@ -421,7 +408,8 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
         try
         {
-            return await body(new AsyncFixtureOperationContext(runtime), cancellationToken);
+            using var context = new AsyncFixtureOperationContext(runtime);
+            return await body(context, cancellationToken);
         }
         catch (Exception e)
         {

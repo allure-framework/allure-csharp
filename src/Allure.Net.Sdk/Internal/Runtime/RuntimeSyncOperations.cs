@@ -168,24 +168,9 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
 
     public void SetName(string newName)
     {
-        if (CurrentState.HasStep)
-        {
-            runtime.ModelApi.UpdateStepResult(
-                (stepResult) => stepResult.Name = newName
-            );
-        }
-        else if (CurrentState.HasFixture)
-        {
-            runtime.ModelApi.UpdateFixtureResult(
-                (fixtureResult) => fixtureResult.Name = newName
-            );
-        }
-        else
-        {
-            runtime.ModelApi.UpdateTestResult(
-                (testResult) => testResult.Name = newName
-            );
-        }
+        runtime.ModelApi.UpdateCurrentExecutableItem(
+            (item) => item.Name = newName
+        );
     }
 
     public void SetTestName(string newName) =>
@@ -218,7 +203,8 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         int level = this.StartStep(name, parameters);
         try
         {
-            body(new SyncStepOperationContext(runtime, level));
+            using SyncStepOperationContext context = new(runtime, level);
+            body(context);
         }
         catch (Exception e)
         {
@@ -244,7 +230,8 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         int level = this.StartStep(name, parameters);
         try
         {
-            return body(new SyncStepOperationContext(runtime, level));
+            using SyncStepOperationContext context = new(runtime, level);
+            return body(context);
         }
         catch (Exception e)
         {
@@ -381,7 +368,8 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartSetUp(name, parameters);
         try
         {
-            body(new SyncFixtureOperationContext(runtime));
+            using SyncFixtureOperationContext context = new(runtime);
+            body(context);
         }
         catch (Exception e)
         {
@@ -403,7 +391,8 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartSetUp(name, parameters);
         try
         {
-            return body(new SyncFixtureOperationContext(runtime));
+            using SyncFixtureOperationContext context = new(runtime);
+            return body(context);
         }
         catch (Exception e)
         {
@@ -425,7 +414,8 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartTearDown(name, parameters);
         try
         {
-            body(new SyncFixtureOperationContext(runtime));
+            using SyncFixtureOperationContext context = new(runtime);
+            body(context);
         }
         catch (Exception e)
         {
@@ -447,7 +437,8 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         this.StartTearDown(name, parameters);
         try
         {
-            return body(new SyncFixtureOperationContext(runtime));
+            using SyncFixtureOperationContext context = new(runtime);
+            return body(context);
         }
         catch (Exception e)
         {
