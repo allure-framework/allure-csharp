@@ -326,10 +326,149 @@ public class StepTests
         await Assert.That(observed).IsEqualTo(cancellation.Token);
     }
 
+    [Test]
+    public async Task StepAddsNestedStepToCurrentStep()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var test = NewTest();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartTest(test);
+            AllureInProcessApi.Step(
+                "outer",
+                _ => AllureInProcessApi.Step("inner", _ => { })
+            );
+        });
+
+        var outer = await Assert.That(test.Steps).HasSingleItem();
+        var inner = await Assert.That(outer.Steps).HasSingleItem();
+        await Assert.That(inner.Name).IsEqualTo("inner");
+    }
+
+    [Test]
+    public async Task StepAsyncAddsNestedStepToCurrentStep()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var test = NewTest();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartTest(test);
+            await AllureInProcessApi.StepAsync(
+                "outer",
+                async (_, token) => await AllureInProcessApi.StepAsync(
+                    "inner",
+                    (_, _) => Task.CompletedTask,
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        var outer = await Assert.That(test.Steps).HasSingleItem();
+        var inner = await Assert.That(outer.Steps).HasSingleItem();
+        await Assert.That(inner.Name).IsEqualTo("inner");
+    }
+
+    [Test]
+    public async Task StepAddsStepToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            AllureInProcessApi.SetUp(
+                "fixture",
+                _ => AllureInProcessApi.Step("step", _ => { })
+            );
+        });
+
+        await Assert.That(scope.Befores.Single().Steps).HasSingleItem();
+    }
+
+    [Test]
+    public async Task StepAsyncAddsStepToCurrentFixture()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                async (_, token) => await AllureInProcessApi.StepAsync(
+                    "step",
+                    (_, _) => Task.CompletedTask,
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        await Assert.That(scope.Befores.Single().Steps).HasSingleItem();
+    }
+
+    [Test]
+    public async Task StepPrioritizesCurrentFixtureOverTest()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var test = NewTest();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTest(test);
+            AllureInProcessApi.SetUp(
+                "fixture",
+                _ => AllureInProcessApi.Step("step", _ => { })
+            );
+        });
+
+        await Assert.That(test.Steps).IsEmpty();
+        await Assert.That(scope.Befores.Single().Steps).HasSingleItem();
+    }
+
+    [Test]
+    public async Task StepAsyncPrioritizesCurrentFixtureOverTest()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var scope = NewScope();
+        var test = NewTest();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTest(test);
+            await AllureInProcessApi.SetUpAsync(
+                "fixture",
+                async (_, token) => await AllureInProcessApi.StepAsync(
+                    "step",
+                    (_, _) => Task.CompletedTask,
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        await Assert.That(test.Steps).IsEmpty();
+        await Assert.That(scope.Befores.Single().Steps).HasSingleItem();
+    }
+
     static AllureTestResult NewTest() => new()
     {
         Uuid = Guid.NewGuid().ToString(),
         Name = "test",
+    };
+
+    static TestResultScope NewScope() => new()
+    {
+        Uuid = Guid.NewGuid().ToString(),
+        Name = "scope",
     };
 
     sealed class TestException(string message) : Exception(message);

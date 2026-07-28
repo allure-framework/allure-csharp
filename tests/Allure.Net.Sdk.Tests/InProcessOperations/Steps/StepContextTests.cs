@@ -550,6 +550,55 @@ public class StepContextTests
             );
     }
 
+    [Test]
+    public async Task ContextTargetsBoundStepWhileNestedStepIsRunning()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var test = NewTest();
+
+        environment.Run(current =>
+        {
+            current.Runtime.LifecycleApi.StartTest(test);
+            AllureInProcessApi.Step("outer", outerContext =>
+                AllureInProcessApi.Step(
+                    "inner",
+                    _ => outerContext.SetName("renamed outer")
+                )
+            );
+        });
+
+        var outer = await Assert.That(test.Steps).HasSingleItem();
+        await Assert.That(outer.Name).IsEqualTo("renamed outer");
+        await Assert.That(outer.Steps.Single().Name).IsEqualTo("inner");
+    }
+
+    [Test]
+    public async Task AsyncContextTargetsBoundStepWhileNestedStepIsRunning()
+    {
+        var environment = AllureApiTestEnvironment.Create();
+        var test = NewTest();
+
+        await environment.RunAsync(async current =>
+        {
+            current.Runtime.LifecycleApi.StartTest(test);
+            await AllureInProcessApi.StepAsync(
+                "outer",
+                async (outerContext, token) => await AllureInProcessApi.StepAsync(
+                    "inner",
+                    async (_, _) => await outerContext.SetNameAsync(
+                        "renamed outer"
+                    ),
+                    token
+                ),
+                CancellationToken.None
+            );
+        });
+
+        var outer = await Assert.That(test.Steps).HasSingleItem();
+        await Assert.That(outer.Name).IsEqualTo("renamed outer");
+        await Assert.That(outer.Steps.Single().Name).IsEqualTo("inner");
+    }
+
     static AllureTestResult NewTest() => new()
     {
         Uuid = Guid.NewGuid().ToString(),
