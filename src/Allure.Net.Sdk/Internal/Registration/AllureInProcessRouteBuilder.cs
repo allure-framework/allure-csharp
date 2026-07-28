@@ -111,6 +111,7 @@ class AllureInProcessRouteBuilder<TConfiguration, THook> :
     public void UseParameterSerializer(Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> serializerFactory)
     {
         this.useRuleBasedSerializer = false;
+        this.currentRuleBasedSerializerRegistrations.Clear();
         this.currentSerializerFactory = serializerFactory;
     }
 
@@ -121,7 +122,6 @@ class AllureInProcessRouteBuilder<TConfiguration, THook> :
     {
         if (!this.useRuleBasedSerializer)
         {
-            this.currentRuleBasedSerializerRegistrations.Clear();
             this.currentSerializerFactory = (runtime) => AllureRegistrationDefaults.ParameterSerializer(
                 currentRuleBasedSerializerRegistrations
             )(runtime.Configuration);
