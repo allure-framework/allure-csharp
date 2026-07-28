@@ -90,7 +90,10 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using FileStream output = this.CreateOutput(outputFileName);
+
         await content.CopyToAsync(output, DefaultCopyBufferSize, cancellationToken);
     }
 
@@ -109,8 +112,11 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var source = File.OpenRead(sourceFilePath);
         using var output = this.CreateOutput(destinationFileName);
+
         await source.CopyToAsync(output, DefaultCopyBufferSize, cancellationToken);
     }
 
@@ -131,7 +137,10 @@ public class FileSystemResultsDestination : IAllureResultsDestination
 
     async Task WriteAllureObjectAsync(object allureObject, string suffix, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var fileStream = this.CreateAllureObjectOutputStream(suffix);
+
         await JsonSerializer.SerializeAsync(fileStream, allureObject, serializerOptions, cancellationToken);
     }
 
