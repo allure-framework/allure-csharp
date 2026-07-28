@@ -40,7 +40,7 @@ sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesC
         Func<IParameterSerializationRule, IParameterSerializationRule> ruleFactory
     )
     {
-        this.actions.Add(new ReplaceRuleAction(predicate, ruleFactory));
+        this.actions.Add(new ReplaceRulesAction(predicate, ruleFactory));
     }
 
     public void TransformJsonOptions(
@@ -103,7 +103,7 @@ sealed class RuleBasedParameterSerializerBuilder : IParameterSerializationRulesC
         }
     }
 
-    record class ReplaceRuleAction(
+    record class ReplaceRulesAction(
         Func<IParameterSerializationRule, bool> Predicate,
         Func<IParameterSerializationRule, IParameterSerializationRule> Factory
     ) : RuleAction
