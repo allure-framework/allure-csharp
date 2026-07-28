@@ -168,7 +168,13 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
 
     public void SetName(string newName)
     {
-        if (CurrentState.HasFixture)
+        if (CurrentState.HasStep)
+        {
+            runtime.ModelApi.UpdateStepResult(
+                (stepResult) => stepResult.Name = newName
+            );
+        }
+        else if (CurrentState.HasFixture)
         {
             runtime.ModelApi.UpdateFixtureResult(
                 (fixtureResult) => fixtureResult.Name = newName
