@@ -1,4 +1,3 @@
-using Allure.Model;
 using Allure.Net.Sdk.Tests.Infrastructure;
 using AllureTestResult = Allure.Model.TestResult;
 
