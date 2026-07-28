@@ -1,8 +1,9 @@
 using System;
+using Allure.Sdk.Registration;
 
-namespace Allure.Sdk.Registration;
+namespace Allure.Sdk.Internal.Registration;
 
-public sealed class LateBoundReference<T> : IReadOnlyLateBoundReference<T>
+sealed class LateBoundReference<T> : IReadOnlyLateBoundReference<T>
 {
     T? value = default;
 
