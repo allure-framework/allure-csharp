@@ -73,6 +73,10 @@ jobs:
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-net" -- dotnet run --project ./tests/Allure.Net.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
           npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-testing-platform" -- dotnet run --project ./tests/Allure.TestingPlatform.Tests\
             --no-restore\
             --no-build\
