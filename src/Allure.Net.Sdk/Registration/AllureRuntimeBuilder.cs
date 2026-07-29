@@ -4,7 +4,6 @@ using Allure.Abstractions;
 using Allure.Runtime;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Registration;
-using Allure.Sdk.Internal.Runtime;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
@@ -12,17 +11,20 @@ using Allure.Sdk.Runtime;
 namespace Allure.Sdk.Registration;
 
 /// <summary>
-/// Configures and constructs an Allure runtime and its optional in-process endpoint.
+/// Provides the base implementation for builders that construct a custom Allure
+/// runtime and its optional in-process endpoint.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
 /// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
-public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
-    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
+/// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
+public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook, TRuntime> :
+    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook, TRuntime>
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
     where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
+    where TRuntime : IAllureRuntime<TConfiguration>
 {
     readonly string runtimeName;
 
@@ -52,7 +54,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
 
     (
         string id,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>>
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>>
     )? currentEndpointRegistration = null;
 
     /// <summary>
@@ -138,7 +140,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
     /// <inheritdoc/>
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
     )
     {
         this.currentEndpointRegistration = (endpointId, endpointRegistration);
@@ -149,7 +151,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
     /// and installs its configured endpoint.
     /// </summary>
     /// <returns>The constructed runtime.</returns>
-    public IAllureRuntime<TConfiguration> Build()
+    public TRuntime Build()
     {
 
         var configuration = this.RunHooks();
@@ -199,20 +201,20 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
     /// <summary>
     /// Creates the runtime instance from the resolved components.
     /// </summary>
-    protected virtual IAllureRuntime<TConfiguration> CreateRuntimeInstance(
+    /// <param name="configuration">The resolved runtime configuration.</param>
+    /// <param name="parameterSerializer">The configured parameter serializer.</param>
+    /// <param name="destination">The configured results destination.</param>
+    /// <param name="context">The configured execution-context service.</param>
+    /// <param name="lifecycleApi">The configured lifecycle API.</param>
+    /// <param name="modelApi">The configured model API.</param>
+    /// <returns>The constructed runtime instance.</returns>
+    protected abstract TRuntime CreateRuntimeInstance(
         TConfiguration configuration,
         IAllureParameterSerializer parameterSerializer,
         IAllureResultsDestination destination,
         IAllureExecutionContext context,
         IAllureLifecycleApi lifecycleApi,
         IAllureModelApi modelApi
-    ) => new AllureRuntime<TConfiguration>(
-        configuration,
-        parameterSerializer,
-        destination,
-        context,
-        lifecycleApi,
-        modelApi
     );
 
     TConfiguration ResolveConfiguration()
@@ -242,4 +244,76 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
             ? preHookConfiguration
             : this.ResolveConfiguration();
     }
+}
+
+/// <summary>
+/// Configures and constructs a standard Allure runtime with a custom
+/// configuration type, custom registration hook types, and optional
+/// in-process endpoint.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
+/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
+/// <param name="runtimeName">The runtime display name.</param>
+public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(string runtimeName) :
+    AllureRuntimeBuilder<
+        TConfiguration,
+        TRuntimeHook,
+        TEndpointHook,
+        IAllureRuntime<TConfiguration>
+    >(runtimeName),
+    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
+
+    where TConfiguration : AllureConfiguration, new()
+    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
+    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
+{
+    /// <inheritdoc/>
+    protected override IAllureRuntime<TConfiguration> CreateRuntimeInstance(
+        TConfiguration configuration,
+        IAllureParameterSerializer parameterSerializer,
+        IAllureResultsDestination destination,
+        IAllureExecutionContext context,
+        IAllureLifecycleApi lifecycleApi,
+        IAllureModelApi modelApi
+    ) => new AllureRuntime<TConfiguration>(
+        configuration,
+        parameterSerializer,
+        destination,
+        context,
+        lifecycleApi,
+        modelApi
+    );
+}
+
+/// <summary>
+/// Configures and constructs a standard Allure runtime and its optional
+/// in-process endpoint.
+/// </summary>
+/// <param name="runtimeName">The runtime display name.</param>
+public class AllureRuntimeBuilder(string runtimeName) :
+    AllureRuntimeBuilder<
+        AllureConfiguration,
+        IAllureRuntimeRegistrationHook,
+        IAllureInProcessEndpointRegistrationHook,
+        IAllureRuntime<AllureConfiguration>
+    >(runtimeName),
+    IAllureRuntimeIntegrationContext
+{
+    /// <inheritdoc/>
+    protected override IAllureRuntime<AllureConfiguration> CreateRuntimeInstance(
+        AllureConfiguration configuration,
+        IAllureParameterSerializer parameterSerializer,
+        IAllureResultsDestination destination,
+        IAllureExecutionContext context,
+        IAllureLifecycleApi lifecycleApi,
+        IAllureModelApi modelApi
+    ) => new AllureRuntime<AllureConfiguration>(
+        configuration,
+        parameterSerializer,
+        destination,
+        context,
+        lifecycleApi,
+        modelApi
+    );
 }

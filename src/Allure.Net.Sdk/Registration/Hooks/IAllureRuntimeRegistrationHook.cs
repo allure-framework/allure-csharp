@@ -14,3 +14,10 @@ public interface IAllureRuntimeRegistrationHook<TConfiguration>
     /// </summary>
     void SetUp(IAllureRuntimeRegistrationContext<TConfiguration> context);
 }
+
+/// <summary>
+/// Customizes an Allure runtime that uses the standard
+/// <see cref="AllureConfiguration"/> during registration.
+/// </summary>
+public interface IAllureRuntimeRegistrationHook :
+    IAllureRuntimeRegistrationHook<AllureConfiguration>;

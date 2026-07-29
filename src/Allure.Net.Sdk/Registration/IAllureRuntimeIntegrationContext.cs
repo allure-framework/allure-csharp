@@ -12,12 +12,14 @@ namespace Allure.Sdk.Registration;
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
 /// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
-public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook> :
+/// <typeparam name="TRuntime">The type of runtime constructed by the integration.</typeparam>
+public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook, TRuntime> :
     IAllureRuntimeRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
     where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
+    where TRuntime : IAllureRuntime<TConfiguration>
 {
     /// <summary>
     /// Configures the hooks invoked during runtime registration.
@@ -52,6 +54,31 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, 
     /// </summary>
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
     );
 }
+
+/// <summary>
+/// Configures a standard Allure runtime with a custom configuration type,
+/// custom registration hook types, and its in-process endpoint integration.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
+/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
+public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook> :
+    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook, IAllureRuntime<TConfiguration>>
+
+    where TConfiguration : AllureConfiguration, new()
+    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
+    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>;
+
+/// <summary>
+/// Configures a standard Allure runtime and its in-process endpoint integration.
+/// </summary>
+public interface IAllureRuntimeIntegrationContext :
+    IAllureRuntimeIntegrationContext<
+        AllureConfiguration,
+        IAllureRuntimeRegistrationHook,
+        IAllureInProcessEndpointRegistrationHook,
+        IAllureRuntime<AllureConfiguration>
+    >;

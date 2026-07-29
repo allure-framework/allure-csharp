@@ -14,3 +14,10 @@ public interface IAllureInProcessEndpointRegistrationHook<TConfiguration>
     /// </summary>
     void SetUp(IAllureInProcessEndpointRegistrationContext<TConfiguration> context);
 }
+
+/// <summary>
+/// Customizes an in-process Allure endpoint that uses the standard
+/// <see cref="AllureConfiguration"/> during registration.
+/// </summary>
+public interface IAllureInProcessEndpointRegistrationHook :
+    IAllureInProcessEndpointRegistrationHook<AllureConfiguration>;
