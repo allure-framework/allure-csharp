@@ -280,8 +280,8 @@ public readonly record struct AllureExecutionState()
         if (!this.HasTest && !this.HasFixture)
         {
             throw new InvalidOperationException(
-                "Cannot start a new step because there is"
-                    + "neither test, nor fixture to receive the step."
+                "Cannot start a new step because there is neither a test nor "
+                    + "a fixture to receive the step."
             );
         }
 

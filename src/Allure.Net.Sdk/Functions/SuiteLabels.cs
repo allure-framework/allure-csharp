@@ -3,26 +3,28 @@ using Allure.Model;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Applies default suite-hierarchy labels to test results.
+/// </summary>
 public static class SuiteLabels
 {
     /// <summary>
-    /// Checks if the test result contains a suite-hierarchy label, i.e., one
-    /// of the <c>parentSuite</c>, <c>suite</c>, or <c>subSuite</c> labels. If
-    /// not, adds the provided default values to the list of labels. Otherwise,
-    /// leaves the test result as is.
+    /// Adds the provided default suite-hierarchy labels unless the test result
+    /// already contains a <c>parentSuite</c>, <c>suite</c>, or
+    /// <c>subSuite</c> label.
     /// </summary>
-    /// <param name="testResult">A test result to modify</param>
+    /// <param name="testResult">The test result to modify.</param>
     /// <param name="parentSuite">
     /// A value for the <c>parentSuite</c> label. If null or empty, the label
-    /// won't be added
+    /// is not added.
     /// </param>
     /// <param name="suite">
-    /// A value for the <c>suite</c> label. If null or empty, the label won't
-    /// be added
+    /// A value for the <c>suite</c> label. If null or empty, the label is not
+    /// added.
     /// </param>
     /// <param name="subSuite">
-    /// A value for the <c>subSuite</c> label. If null or empty, the label won't
-    /// be added
+    /// A value for the <c>subSuite</c> label. If null or empty, the label is not
+    /// added.
     /// </param>
     public static void Ensure(
         TestResult testResult,

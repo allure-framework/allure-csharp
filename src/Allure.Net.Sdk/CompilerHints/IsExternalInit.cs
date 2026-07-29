@@ -5,9 +5,8 @@
 namespace System.Runtime.CompilerServices;
 
 /// <summary>
-/// This class serves as an init-only setter modreq to make a library that
-/// uses init only setters compile against pre-net5.0 TFMs (including .NET
-/// Standard). See
+/// Provides the compiler-required modifier type for init-only setters when
+/// targeting frameworks earlier than .NET 5, including .NET Standard. See
 /// <see href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/init#metadata-encoding">
 ///   this article
 /// </see>

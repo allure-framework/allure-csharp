@@ -1,5 +1,8 @@
 ﻿namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Generates source file names for Allure attachments.
+/// </summary>
 public static class AttachmentSource
 {
     /// <summary>

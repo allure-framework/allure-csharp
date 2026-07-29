@@ -24,7 +24,7 @@ public static class GlobalLabels
 
     /// <summary>
     /// Returns a sequence of labels defined by the variables that match the
-    /// <c>ALLURE_LABEL_&lt;name>=&lt;value></c> pattern.
+    /// <c>ALLURE_LABEL_&lt;name&gt;=&lt;value&gt;</c> pattern.
     /// </summary>
     /// <remarks>
     /// Use <see cref="System.Environment.GetEnvironmentVariables()"/> to get the

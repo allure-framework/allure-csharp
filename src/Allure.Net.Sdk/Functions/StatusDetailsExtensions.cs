@@ -3,6 +3,9 @@ using Allure.Model;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Provides factories for Allure status details.
+/// </summary>
 public static class StatusDetailsExtensions
 {
     extension (StatusDetails)

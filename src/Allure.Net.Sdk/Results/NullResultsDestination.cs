@@ -6,7 +6,7 @@ using Allure.Model;
 namespace Allure.Sdk.Results;
 
 /// <summary>
-/// An absent destination that ignores everything written to it.
+/// A destination that discards all results and attachments written to it.
 /// </summary>
 public class NullResultsDestination : IAllureResultsDestination
 {
@@ -64,7 +64,7 @@ public class NullResultsDestination : IAllureResultsDestination
         Task.CompletedTask;
 
     /// <summary>
-    /// A cached instance of the null destination.
+    /// Gets the shared null destination instance.
     /// </summary>
     public static NullResultsDestination Instance { get; } = new();
 }

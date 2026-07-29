@@ -6,7 +6,7 @@ using Allure.Model;
 namespace Allure.Sdk.Results;
 
 /// <summary>
-/// Represents a destination of Allure results.
+/// Represents a destination for Allure results.
 /// </summary>
 public interface IAllureResultsDestination
 {
@@ -43,15 +43,15 @@ public interface IAllureResultsDestination
     /// <summary>
     /// Writes an attachment file to the destination.
     /// </summary>
-    /// <param name="outputFileName">A name of the attachment file in the output location.</param>
-    /// <param name="content">A stream thad defines the content of the attachment.</param>
+    /// <param name="outputFileName">The attachment file name in the output location.</param>
+    /// <param name="content">The stream containing the attachment data.</param>
     void WriteAttachment(string outputFileName, Stream content);
 
     /// <summary>
     /// Writes an attachment file to the destination.
     /// </summary>
-    /// <param name="outputFileName">A name of the attachment file in the output location.</param>
-    /// <param name="content">A stream thad defines the content of the attachment.</param>
+    /// <param name="outputFileName">The attachment file name in the output location.</param>
+    /// <param name="content">The stream containing the attachment data.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     Task WriteAttachmentAsync(
         string outputFileName,
@@ -62,15 +62,15 @@ public interface IAllureResultsDestination
     /// <summary>
     /// Copies an attachment file from an existing file to the destination.
     /// </summary>
-    /// <param name="destinationFileName">A name of the file in the output location.</param>
-    /// <param name="sourceFilePath">The path of the file.</param>
+    /// <param name="destinationFileName">The file name in the output location.</param>
+    /// <param name="sourceFilePath">The source file path.</param>
     void CopyAttachment(string destinationFileName, string sourceFilePath);
 
     /// <summary>
     /// Copies an attachment file from an existing file to the destination.
     /// </summary>
-    /// <param name="destinationFileName">A name of the file in the output location.</param>
-    /// <param name="sourceFilePath">The path of the file.</param>
+    /// <param name="destinationFileName">The file name in the output location.</param>
+    /// <param name="sourceFilePath">The source file path.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     Task CopyAttachmentAsync(
         string destinationFileName,

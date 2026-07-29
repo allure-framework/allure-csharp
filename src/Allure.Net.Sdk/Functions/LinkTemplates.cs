@@ -5,8 +5,16 @@ using Allure.Sdk.Configuration;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Applies configured templates to Allure links.
+/// </summary>
 public static class LinkTemplates
 {
+    /// <summary>
+    /// Applies the template matching the link type when the link URL is not absolute.
+    /// </summary>
+    /// <param name="templates">The templates indexed by link type.</param>
+    /// <param name="link">The link to update.</param>
     public static void Apply(
         IReadOnlyDictionary<string, AllureLinkTemplate> templates,
         Link link

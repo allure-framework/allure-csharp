@@ -6,8 +6,14 @@ using Allure.Sdk.Configuration;
 
 namespace Allure.Sdk.Registration.Hooks;
 
+/// <summary>
+/// Resolves registration hooks from configuration and environment variables.
+/// </summary>
 public static class ReflectionHooks
 {
+    /// <summary>
+    /// Creates the hook type named by the runtime configuration, if configured.
+    /// </summary>
     public static THook? FromConfiguration<TConfiguration, THook>(TConfiguration configuration)
         where TConfiguration : AllureConfiguration
     =>
@@ -15,6 +21,9 @@ public static class ReflectionHooks
             ? Resolve<THook>(hookTypeName)
             : default;
 
+    /// <summary>
+    /// Creates the hook type named by an environment variable, if configured.
+    /// </summary>
     public static THook? FromEnvironmentVariable<THook>(string variableName) =>
         Environment.GetEnvironmentVariable(variableName) is { Length: > 0 } hookTypeName
             ? Resolve<THook>(hookTypeName)
@@ -33,14 +42,16 @@ public static class ReflectionHooks
         if (!type.GetInterfaces().Any(static (iFace) => iFace == typeof(THook)))
         {
             throw new InvalidOperationException(
-                $"{type} must implement {typeof(THook)} so be an Allure registration hook."
+                $"Type '{type}' must implement '{typeof(THook)}' to be an "
+                    + "Allure registration hook."
             );
         }
 
         if (type.GetConstructor([]) is null)
         {
             throw new InvalidOperationException(
-                $"An Allure registration hook must have a public parameterless constructor"
+                $"Allure registration hook type '{type}' must have a public "
+                    + "parameterless constructor."
             );
         }
 

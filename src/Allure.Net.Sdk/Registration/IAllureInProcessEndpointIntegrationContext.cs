@@ -7,18 +7,35 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
+/// <summary>
+/// Configures an in-process Allure endpoint and its integration hooks.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="THook">The endpoint registration hook type.</typeparam>
 public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, THook> :
     IAllureInProcessEndpointRegistrationContext<TConfiguration>
     where TConfiguration : AllureConfiguration
     where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
 {
+    /// <summary>
+    /// Configures the hooks invoked during endpoint registration.
+    /// </summary>
     void UseRegistrationHooks(
         Func<TConfiguration, IEnumerable<THook?>> hooksFactory
     );
 
+    /// <summary>
+    /// Configures the predicate used to match the current test or fixture scope.
+    /// </summary>
     void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);
 
+    /// <summary>
+    /// Configures the predicate used to match the global scope.
+    /// </summary>
     void UseGlobalScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);
 
+    /// <summary>
+    /// Configures the operations exposed by the endpoint.
+    /// </summary>
     void UseOperations(Func<IAllureRuntime<TConfiguration>, AllureInProcessOperations> operationsFactory);
 }

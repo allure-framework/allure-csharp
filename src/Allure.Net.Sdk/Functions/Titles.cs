@@ -5,14 +5,17 @@ using System.Reflection;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Creates title paths used to organize tests in Allure Report.
+/// </summary>
 public static class Titles
 {
     /// <summary>
-    /// Creates a titlePath: a path to a test class in a tree of test results.
+    /// Creates a title path to a test class in the test result tree.
     /// </summary>
-    /// <param name="type">A type representing a test class</param>
+    /// <param name="type">The type representing a test class.</param>
     /// <remarks>
-    /// A titlePath consists of:
+    /// A title path consists of:
     /// <list type="bullet">
     /// <item>assembly name</item>
     /// <item>elements of namespace</item>
@@ -46,11 +49,11 @@ public static class Titles
     }
 
     /// <summary>
-    /// Creates a titlePath: a path to a test class in a tree of test results.
+    /// Creates a title path to a test method in the test result tree.
     /// </summary>
-    /// <param name="method">A test method</param>
+    /// <param name="method">The test method.</param>
     /// <remarks>
-    /// A titlePath consists of:
+    /// A title path consists of:
     /// <list type="bullet">
     /// <item>assembly name</item>
     /// <item>elements of namespace</item>

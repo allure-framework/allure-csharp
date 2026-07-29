@@ -5,11 +5,21 @@ using System.Reflection;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Creates stable names for reflected types and methods.
+/// </summary>
 public static class ReflectionNames
 {
+    /// <summary>
+    /// Creates a stable name for a reflected type.
+    /// </summary>
     public static string ForType(Type type) =>
         type.IsGenericParameter ? type.Name : SerializeNonParameterType(type);
 
+    /// <summary>
+    /// Creates a stable signature containing a method's name, generic arguments,
+    /// and parameter types.
+    /// </summary>
     public static string ForMethodSignature(MethodInfo method)
     {
         if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
@@ -24,9 +34,15 @@ public static class ReflectionNames
         return $"{methodName}{typeParametersDecl}({parameterTypes})";
     }
 
+    /// <summary>
+    /// Creates a stable fully qualified name for a reflected method.
+    /// </summary>
     public static string ForMethod(MethodInfo method) =>
         $"{ForType(method.DeclaringType)}.{ForMethodSignature(method)}";
 
+    /// <summary>
+    /// Creates a comma-separated list of reflected parameter type names.
+    /// </summary>
     public static string ForParameterTypes(
         IEnumerable<ParameterInfo> parameters
     ) =>
@@ -34,6 +50,9 @@ public static class ReflectionNames
             parameters.Select(p => p.ParameterType)
         );
 
+    /// <summary>
+    /// Creates a bracketed, comma-separated list of type argument names.
+    /// </summary>
     public static string ForTypeArguments(IEnumerable<Type> types) =>
         types.Any() ? SerializeNonEmptyTypeArgumentList(types) : "";
 

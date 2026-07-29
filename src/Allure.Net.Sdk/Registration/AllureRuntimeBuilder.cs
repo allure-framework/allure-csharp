@@ -11,6 +11,12 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
+/// <summary>
+/// Configures and constructs an Allure runtime and its optional in-process endpoint.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
+/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
 public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
     IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
 
@@ -49,6 +55,10 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
         Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>>
     )? currentEndpointRegistration = null;
 
+    /// <summary>
+    /// Initializes a runtime builder with the specified display name.
+    /// </summary>
+    /// <param name="runtimeName">The runtime display name.</param>
     public AllureRuntimeBuilder(string runtimeName)
     {
         this.currentSerializerFactory = AllureRegistrationDefaults.ParameterSerializer(
@@ -57,36 +67,43 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
         this.runtimeName = runtimeName;
     }
 
+    /// <inheritdoc/>
     public void UseConfigurationSources(Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory)
     {
         this.currentConfigurationSourcesFactory = sourcesFactory;
     }
 
+    /// <inheritdoc/>
     public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<TRuntimeHook?>> hookFactory)
     {
         this.currentHooksFactory = hookFactory;
     }
 
+    /// <inheritdoc/>
     public void UseContext(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> contextFactory)
     {
         this.currentContextFactory = contextFactory;
     }
 
+    /// <inheritdoc/>
     public void UseDestination(Func<TConfiguration, IAllureResultsDestination> destinationFactory)
     {
         this.currentDestinationFactory = destinationFactory;
     }
 
+    /// <inheritdoc/>
     public void UseLifecycleApi(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> lifecycleApiFactory)
     {
         this.currentLifecycleApiFactory = lifecycleApiFactory;
     }
 
+    /// <inheritdoc/>
     public void UseModelApi(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> modelApiFactory)
     {
         this.currentModelApiFactory = modelApiFactory;
     }
 
+    /// <inheritdoc/>
     public void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration)
     {
         if (!this.useRuleBasedSerializer)
@@ -100,9 +117,11 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
         this.currentRuleBasedSerializerRegistrations.Add(registration);
     }
 
+    /// <inheritdoc/>
     public void ConfigureSerialization(Action<IParameterSerializationRulesContext> registration) =>
         this.ConfigureSerialization((_, context) => registration(context));
 
+    /// <inheritdoc/>
     public void UseParameterSerializer(Func<TConfiguration, IAllureParameterSerializer> serializerFactory)
     {
         this.useRuleBasedSerializer = false;
@@ -110,11 +129,13 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
         this.currentSerializerFactory = serializerFactory;
     }
 
+    /// <inheritdoc/>
     public void UseParameterSerializer(Func<IAllureParameterSerializer> serializerFactory)
     {
         this.UseParameterSerializer((_) => serializerFactory());
     }
 
+    /// <inheritdoc/>
     public void RegisterInProcessEndpoint(
         string endpointId,
         Action<IAllureRuntime<TConfiguration>, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
@@ -123,6 +144,11 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
         this.currentEndpointRegistration = (endpointId, endpointRegistration);
     }
 
+    /// <summary>
+    /// Resolves configuration, runs registration hooks, constructs the runtime,
+    /// and installs its configured endpoint.
+    /// </summary>
+    /// <returns>The constructed runtime.</returns>
     public IAllureRuntime<TConfiguration> Build()
     {
 
@@ -170,6 +196,9 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook> :
         return runtime;
     }
 
+    /// <summary>
+    /// Creates the runtime instance from the resolved components.
+    /// </summary>
     protected virtual IAllureRuntime<TConfiguration> CreateRuntimeInstance(
         TConfiguration configuration,
         IAllureParameterSerializer parameterSerializer,

@@ -8,13 +8,24 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace Allure.Sdk.Serialization;
 
+/// <summary>
+/// Serializes parameter values to JSON.
+/// </summary>
+/// <param name="serializerOptions">The JSON serializer options.</param>
 public class JsonParameterSerializationRule(JsonSerializerOptions serializerOptions) :
     IParameterSerializationRule
 {
+    /// <summary>
+    /// Initializes a rule with the default JSON serializer options.
+    /// </summary>
     public JsonParameterSerializationRule() : this(CreateDefaultJsonOptions()) { }
 
+    /// <summary>
+    /// Gets the JSON serializer options.
+    /// </summary>
     public JsonSerializerOptions SerializerOptions => serializerOptions;
 
+    /// <inheritdoc/>
     public bool TrySerialize(object value, [NotNullWhen(true)] out string? text)
     {
         try
@@ -30,6 +41,9 @@ public class JsonParameterSerializationRule(JsonSerializerOptions serializerOpti
         return false;
     }
 
+    /// <summary>
+    /// Creates the default JSON serializer options used for Allure parameters.
+    /// </summary>
     public static JsonSerializerOptions CreateDefaultJsonOptions()
     {
         JsonSerializerOptions options = new ()
@@ -112,7 +126,7 @@ public class JsonParameterSerializationRule(JsonSerializerOptions serializerOpti
             Type typeToConvert,
             JsonSerializerOptions options)
         {
-            throw new NotSupportedException($"This converter cannot deserialize.");
+            throw new NotSupportedException("This converter does not support deserialization.");
         }
     }
 }

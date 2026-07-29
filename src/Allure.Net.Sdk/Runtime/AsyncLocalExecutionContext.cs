@@ -23,6 +23,9 @@ public sealed class AsyncLocalExecutionContext : IAllureExecutionContext
     /// <inheritdoc/>
     public AllureExecutionState CurrentState => currentState.Value;
 
+    /// <summary>
+    /// Initializes a context for a runtime reference that will be bound after construction.
+    /// </summary>
     public AsyncLocalExecutionContext(IReadOnlyLateBoundReference<IAllureRuntime> reference)
     {
         this.reference = reference;

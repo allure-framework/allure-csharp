@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 namespace Allure.Sdk.Results;
 
 /// <summary>
-/// A destination that represents a directory in the local file system.
+/// A destination that writes Allure results to a local file-system directory.
 /// </summary>
 public class FileSystemResultsDestination : IAllureResultsDestination
 {
@@ -19,6 +19,11 @@ public class FileSystemResultsDestination : IAllureResultsDestination
     private readonly string outputDirectory;
     private readonly JsonSerializerOptions serializerOptions;
 
+    /// <summary>
+    /// Initializes a destination that writes to the specified directory.
+    /// </summary>
+    /// <param name="directoryPath">The output directory path.</param>
+    /// <param name="indentJson">Whether to indent generated JSON files.</param>
     public FileSystemResultsDestination(string directoryPath, bool indentJson)
     {
         this.outputDirectory = directoryPath;
@@ -50,36 +55,43 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         };
     }
 
+    /// <inheritdoc/>
     public void WriteTestResult(TestResult testResult)
     {
         this.WriteAllureObject(testResult, "-result.json");
     }
 
+    /// <inheritdoc/>
     public async Task WriteTestResultAsync(TestResult testResult, CancellationToken cancellationToken)
     {
         await this.WriteAllureObjectAsync(testResult, "-result.json", cancellationToken);
     }
 
+    /// <inheritdoc/>
     public void WriteContainer(TestResultScope container)
     {
         this.WriteAllureObject(container, "-container.json");
     }
 
+    /// <inheritdoc/>
     public async Task WriteContainerAsync(TestResultScope container, CancellationToken cancellationToken)
     {
         await this.WriteAllureObjectAsync(container, "-container.json", cancellationToken);
     }
 
+    /// <inheritdoc/>
     public void WriteGlobals(Globals globals)
     {
         this.WriteAllureObject(globals, "-globals.json");
     }
 
+    /// <inheritdoc/>
     public async Task WriteGlobalsAsync(Globals globals, CancellationToken cancellationToken)
     {
         await this.WriteAllureObjectAsync(globals, "-globals.json", cancellationToken);
     }
 
+    /// <inheritdoc/>
     public void WriteAttachment(string outputFileName, Stream content)
     {
         using var writer = new AtomicFileWriter(this.outputDirectory, outputFileName);
@@ -87,6 +99,7 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         writer.Commit();
     }
 
+    /// <inheritdoc/>
     public async Task WriteAttachmentAsync(
         string outputFileName,
         Stream content,
@@ -100,6 +113,7 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         writer.Commit();
     }
 
+    /// <inheritdoc/>
     public void CopyAttachment(string destinationFileName, string sourceFilePath)
     {
         using var writer = new AtomicFileWriter(this.outputDirectory, destinationFileName);
@@ -110,6 +124,7 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         writer.Commit();
     }
 
+    /// <inheritdoc/>
     public async Task CopyAttachmentAsync(
         string destinationFileName,
         string sourceFilePath,

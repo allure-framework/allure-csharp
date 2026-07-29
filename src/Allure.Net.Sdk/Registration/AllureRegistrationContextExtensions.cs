@@ -5,22 +5,30 @@ using Allure.Sdk.Serialization;
 
 namespace Allure.Sdk.Registration;
 
+/// <summary>
+/// Provides convenient configuration-source registration methods.
+/// </summary>
 public static class AllureRegistrationContextExtensions
 {
+    /// <summary>
+    /// Provides convenient configuration-source registration methods.
+    /// </summary>
+    /// <typeparam name="TConfiguration">A configuration type.</typeparam>
+    /// <param name="context">A runtime registration context.</param>
     extension<TConfiguration>(
         IAllureRuntimeRegistrationContext<TConfiguration> context
     )
         where TConfiguration : AllureConfiguration, new()
     {
         /// <summary>
-        /// Load a configuration from the specified source.
+        /// Loads configuration from the specified source.
         /// </summary>
         /// <param name="sourceFactory">A function that creates the configuration source.</param>
         public void UseConfigurationSource(Func<IAllureConfigurationSource<TConfiguration>> sourceFactory) =>
             context.UseConfigurationSources(() => [sourceFactory()]);
 
         /// <summary>
-        /// Load configuration of a specific type from the specified JSON file.
+        /// Loads configuration from the specified JSON file.
         /// </summary>
         public void UseConfigurationFile(string path) =>
             context.UseConfigurationSources(
@@ -28,7 +36,7 @@ public static class AllureRegistrationContextExtensions
             );
 
         /// <summary>
-        /// Load configuration from an environment variable.
+        /// Loads the configuration file path from an environment variable.
         /// </summary>
         /// <param name="variableName">The name of the variable.</param>
         public void UseConfigurationPathEnvironmentVariable(string variableName) =>
@@ -37,7 +45,7 @@ public static class AllureRegistrationContextExtensions
             );
 
         /// <summary>
-        /// Use the provided configuration object.
+        /// Uses the provided configuration object.
         /// </summary>
         public void UseConfiguration(TConfiguration configuration) =>
             context.UseConfigurationSources(

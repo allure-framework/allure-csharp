@@ -7,7 +7,7 @@ using Allure.Model;
 namespace Allure.Sdk.Results;
 
 /// <summary>
-/// An destination that stores all results in memory. Useful for testing.
+/// A destination that stores all results in memory. Useful for testing.
 /// </summary>
 public class InMemoryResultsDestination : IAllureResultsDestination
 {
@@ -29,12 +29,12 @@ public class InMemoryResultsDestination : IAllureResultsDestination
     public List<Globals> Globals { get; } = [];
 
     /// <summary>
-    /// Gets a list of all written attachment content.
+    /// Gets attachment data indexed by output file name.
     /// </summary>
     public Dictionary<string, byte[]> ByteAttachments { get; } = [];
 
     /// <summary>
-    /// Gets a list of all copied attachment files.
+    /// Gets source file paths indexed by destination file name.
     /// </summary>
     public Dictionary<string, string> FileAttachments { get; } = [];
 
@@ -122,6 +122,9 @@ public class InMemoryResultsDestination : IAllureResultsDestination
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Removes all stored results and attachments.
+    /// </summary>
     public void Clear()
     {
         lock(this.monitor)

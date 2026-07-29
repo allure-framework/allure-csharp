@@ -6,8 +6,18 @@ using Allure.Model;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Creates Allure parameters from method parameters and argument values.
+/// </summary>
 public static class Parameters
 {
+    /// <summary>
+    /// Creates Allure parameters using metadata from reflected method parameters.
+    /// </summary>
+    /// <param name="parameters">The reflected parameter metadata.</param>
+    /// <param name="values">The corresponding argument values.</param>
+    /// <param name="parameterSerializer">The serializer used for argument values.</param>
+    /// <returns>The created parameters.</returns>
     public static IEnumerable<Parameter> Create(
         IEnumerable<ParameterInfo> parameters,
         IEnumerable<object?> values,
@@ -21,6 +31,14 @@ public static class Parameters
             parameterSerializer
         );
 
+    /// <summary>
+    /// Creates Allure parameters from separate names, attributes, and values.
+    /// </summary>
+    /// <param name="parameterNames">The source parameter names.</param>
+    /// <param name="attributes">The corresponding Allure parameter attributes.</param>
+    /// <param name="values">The corresponding argument values.</param>
+    /// <param name="parameterSerializer">The serializer used for argument values.</param>
+    /// <returns>The created parameters.</returns>
     public static IEnumerable<Parameter> Create(
         IEnumerable<string> parameterNames,
         IEnumerable<AllureParameterAttribute?> attributes,

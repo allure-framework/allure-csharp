@@ -6,11 +6,14 @@ using Allure.Sdk.Internal;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Classifies exceptions as failed or broken Allure statuses.
+/// </summary>
 public static class ErrorStatus
 {
     /// <summary>
-    /// Checks if an exception type, one of its base types, or one of the
-    /// interfaces it implements exists in the list of known excecption types.
+    /// Checks whether an exception's type, one of its base types, or one of its
+    /// implemented interfaces appears in the list of known exception types.
     /// </summary>
     /// <param name="knownErrorBases">The list of known exception types.</param>
     /// <param name="e">The exception to check.</param>
@@ -22,7 +25,7 @@ public static class ErrorStatus
             ?.Any() == true;
 
     /// <summary>
-    /// Returns a <see cref="Status.Failed"/> if a given exception represents
+    /// Returns <see cref="Status.Failed"/> if the exception represents
     /// an assertion error. Otherwise, returns <see cref="Status.Broken"/>.
     /// </summary>
     /// <param name="failExceptions">
@@ -31,7 +34,7 @@ public static class ErrorStatus
     ///   from the configuration associated with the current lifecycle instance.
     /// </param>
     /// <param name="e">The exception to convert.</param>
-    /// <returns></returns>
+    /// <returns>The status corresponding to the exception.</returns>
     public static Status Resolve(
         IEnumerable<string> failExceptions,
         Exception e

@@ -1,13 +1,12 @@
 namespace System.Diagnostics.CodeAnalysis;
 
 /// <summary>
-/// This attribute hints the compiler that the parameter it's applied to
-/// has the nullability described by it type, but it may additionally be null
-/// when the method returns a specified value.
-/// It's not included in netstandard2.0 but can be define it the project's code.
+/// Indicates that the parameter may be <see langword="null"/> when the method
+/// returns the specified value.
+/// This attribute is not included in .NET Standard 2.0, so it is defined locally.
 /// </summary>
 /// <param name="returnValue">
-/// A return value that indicated the argument is not null
+/// The return value for which the parameter may be <see langword="null"/>.
 /// </param>
 [AttributeUsage(AttributeTargets.Parameter)]
 internal sealed class MaybeNullWhenAttribute(bool returnValue) : Attribute {

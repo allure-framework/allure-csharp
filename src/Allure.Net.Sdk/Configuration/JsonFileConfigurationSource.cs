@@ -1,11 +1,15 @@
 using System;
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Allure.Sdk.Configuration;
 
+/// <summary>
+/// Loads Allure configuration from a JSON file.
+/// </summary>
+/// <typeparam name="TConfiguration">The configuration type.</typeparam>
+/// <param name="path">The path to the JSON configuration file.</param>
 public class JsonFileConfigurationSource<TConfiguration>(string path) :
     IAllureConfigurationSource<TConfiguration>
 
@@ -17,10 +21,19 @@ public class JsonFileConfigurationSource<TConfiguration>(string path) :
         PropertyNameCaseInsensitive = false,
     };
 
-    public string Name => $"json from {path}";
+    /// <inheritdoc/>
+    public string Name => $"JSON from {path}";
 
+    /// <inheritdoc/>
     public bool CanLoad => path is { Length: >0 };
 
+    /// <inheritdoc/>
+    /// <exception cref="FileNotFoundException">
+    /// The configured file does not exist.
+    /// </exception>
+    /// <exception cref="JsonException">
+    /// The file does not contain a supported JSON configuration object.
+    /// </exception>
     public TConfiguration LoadConfiguration()
     {
         var configFullPath = Path.GetFullPath(path);
@@ -48,7 +61,7 @@ public class JsonFileConfigurationSource<TConfiguration>(string path) :
         root.TryGetPropertyValue("allure", out var allureNode)
             ? (allureNode as JsonObject
                 ?? throw new InvalidOperationException(
-                    "The 'allure' property must contain a JSON object"))
+                    "The 'allure' property must contain a JSON object."))
             : root;
 
     void NormalizeLegacyProperties(JsonObject configuration)
@@ -139,8 +152,19 @@ public class JsonFileConfigurationSource<TConfiguration>(string path) :
     }
 }
 
+/// <summary>
+/// Creates JSON-file configuration sources using conventional paths.
+/// </summary>
 public static class JsonFileConfigurationSource
 {
+    /// <summary>
+    /// Creates a source whose path is read from the specified environment variable.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The configuration type.</typeparam>
+    /// <param name="environmentVariableName">
+    /// The name of the environment variable containing the file path.
+    /// </param>
+    /// <returns>The configuration source.</returns>
     public static JsonFileConfigurationSource<TConfiguration> FromPathEnvironmentVariable<TConfiguration>(
         string environmentVariableName
     )
@@ -149,11 +173,22 @@ public static class JsonFileConfigurationSource
         Environment.GetEnvironmentVariable(environmentVariableName)
     );
 
+    /// <summary>
+    /// Creates a source whose path is read from the <c>ALLURE_CONFIG</c>
+    /// environment variable.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The configuration type.</typeparam>
+    /// <returns>The configuration source.</returns>
     public static JsonFileConfigurationSource<TConfiguration> FromPathEnvironmentVariable<TConfiguration>()
         where TConfiguration : AllureConfiguration, new()
     =>
         FromPathEnvironmentVariable<TConfiguration>("ALLURE_CONFIG");
 
+    /// <summary>
+    /// Creates a source for <c>allureConfig.json</c> in the application base directory.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The configuration type.</typeparam>
+    /// <returns>The configuration source.</returns>
     public static JsonFileConfigurationSource<TConfiguration> FromBaseDirectory<TConfiguration>()
         where TConfiguration : AllureConfiguration, new()
     =>

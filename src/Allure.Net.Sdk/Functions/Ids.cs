@@ -5,6 +5,9 @@ using Allure.Model;
 
 namespace Allure.Sdk.Functions;
 
+/// <summary>
+/// Generates identifiers used by Allure result objects.
+/// </summary>
 public static class Ids
 {
     /// <summary>
@@ -13,8 +16,7 @@ public static class Ids
     public static string NewUuid() => Guid.NewGuid().ToString();
 
     /// <summary>
-    /// Creates a testCaseId value. testCaseId has a fixed length and depends
-    /// only on a given fullName. The fullName shouldn't depend on test parameters.
+    /// Creates a fixed-length test case ID derived from a test's full name.
     /// </summary>
     public static string ForTestCase(string fullName) =>
         Md5.FromString(fullName);
@@ -22,9 +24,9 @@ public static class Ids
     /// <summary>
     /// Creates a string that uniquely identifies a given test represented by a
     /// test case full name and a sequence of Allure parameters.
-    /// The result can be used a <c>historyId</c> value.
+    /// The result can be used as a history ID.
     /// </summary>
-    /// <param name="fullName">The fullName of a test.</param>
+    /// <param name="fullName">The full name of a test.</param>
     /// <param name="parameters">The parameters of a test.</param>
     public static string ForTest(
         string fullName,
