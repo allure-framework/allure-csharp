@@ -6,6 +6,7 @@ using Allure.Model;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+
 namespace Allure.Sdk.Results;
 
 /// <summary>
@@ -14,6 +15,7 @@ namespace Allure.Sdk.Results;
 public class FileSystemResultsDestination : IAllureResultsDestination
 {
     const int DefaultCopyBufferSize = 81920;
+    const int DefaultCreateBufferSize = 1024 * 4;
     private readonly string outputDirectory;
     private readonly JsonSerializerOptions serializerOptions;
 
@@ -80,8 +82,9 @@ public class FileSystemResultsDestination : IAllureResultsDestination
 
     public void WriteAttachment(string outputFileName, Stream content)
     {
-        using FileStream output = this.CreateOutput(outputFileName);
-        content.CopyTo(output);
+        using var writer = new AtomicFileWriter(this.outputDirectory, outputFileName);
+        content.CopyTo(writer.Stream);
+        writer.Commit();
     }
 
     public async Task WriteAttachmentAsync(
@@ -92,18 +95,19 @@ public class FileSystemResultsDestination : IAllureResultsDestination
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using FileStream output = this.CreateOutput(outputFileName);
-
-        await content.CopyToAsync(output, DefaultCopyBufferSize, cancellationToken);
+        using var writer = new AtomicFileWriter(this.outputDirectory, outputFileName, FileOptions.Asynchronous);
+        await content.CopyToAsync(writer.Stream, DefaultCopyBufferSize, cancellationToken);
+        writer.Commit();
     }
 
     public void CopyAttachment(string destinationFileName, string sourceFilePath)
     {
-        var outputFilePath = Path.Combine(outputDirectory, destinationFileName);
+        using var writer = new AtomicFileWriter(this.outputDirectory, destinationFileName);
+        using var source = File.OpenRead(sourceFilePath);
 
-        this.EnsureDirectory();
+        source.CopyTo(writer.Stream);
 
-        File.Copy(sourceFilePath, outputFilePath);
+        writer.Commit();
     }
 
     public async Task CopyAttachmentAsync(
@@ -114,45 +118,30 @@ public class FileSystemResultsDestination : IAllureResultsDestination
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        using var writer = new AtomicFileWriter(this.outputDirectory, destinationFileName, FileOptions.Asynchronous);
         using var source = File.OpenRead(sourceFilePath);
-        using var output = this.CreateOutput(destinationFileName);
 
-        await source.CopyToAsync(output, DefaultCopyBufferSize, cancellationToken);
-    }
+        await source.CopyToAsync(writer.Stream, DefaultCopyBufferSize, cancellationToken);
 
-    FileStream CreateOutput(string name)
-    {
-        var outputFilePath = Path.Combine(outputDirectory, name);
-
-        this.EnsureDirectory();
-
-        return File.Open(outputFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+        writer.Commit();
     }
 
     void WriteAllureObject(object allureObject, string suffix)
     {
-        using var fileStream = this.CreateAllureObjectOutputStream(suffix);
-        JsonSerializer.Serialize(fileStream, allureObject, serializerOptions);
+        using var writer = new AtomicFileWriter(this.outputDirectory, CreateResultFileName(suffix));
+        JsonSerializer.Serialize(writer.Stream, allureObject, serializerOptions);
+        writer.Commit();
     }
 
     async Task WriteAllureObjectAsync(object allureObject, string suffix, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var fileStream = this.CreateAllureObjectOutputStream(suffix);
+        using var writer = new AtomicFileWriter(this.outputDirectory, CreateResultFileName(suffix), FileOptions.Asynchronous);
 
-        await JsonSerializer.SerializeAsync(fileStream, allureObject, serializerOptions, cancellationToken);
-    }
+        await JsonSerializer.SerializeAsync(writer.Stream, allureObject, serializerOptions, cancellationToken);
 
-    FileStream CreateAllureObjectOutputStream(string suffix)
-    {
-        var uuid = Guid.NewGuid();
-        var outputFileName = $"{uuid:N}{suffix}";
-        var outputFilePath = Path.Combine(outputDirectory, outputFileName);
-
-        this.EnsureDirectory();
-
-        return File.OpenWrite(outputFilePath);
+        writer.Commit();
     }
 
     void EnsureDirectory()
@@ -160,6 +149,56 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         if (!Directory.Exists(this.outputDirectory))
         {
             Directory.CreateDirectory(this.outputDirectory);
+        }
+    }
+
+    static string CreateResultFileName(string suffix) =>
+        $"{Guid.NewGuid():N}{suffix}";
+
+    class AtomicFileWriter : IDisposable
+    {
+        readonly string tmpPath;
+        readonly string outputPath;
+
+        public FileStream Stream { get; }
+
+        public AtomicFileWriter(string directory, string fileName, FileOptions extraOptions = FileOptions.None)
+        {
+            var uuid = Guid.NewGuid().ToString("N");
+            this.tmpPath = Path.Combine(directory, $".allure-write-{uuid}.tmp");
+            this.outputPath = Path.Combine(directory, fileName);
+
+            Directory.CreateDirectory(directory);
+
+            this.Stream = new(
+                this.tmpPath,
+                mode: FileMode.CreateNew,
+                access: FileAccess.Write,
+                share: FileShare.None,
+                bufferSize: DefaultCreateBufferSize,
+                options: FileOptions.SequentialScan | extraOptions
+            );
+        }
+
+        public void Commit()
+        {
+            this.Stream.Flush(flushToDisk: true);
+            this.Stream.Close();
+
+            File.Move(this.tmpPath, this.outputPath);
+        }
+
+        public void Dispose()
+        {
+            this.Stream.Dispose();
+
+            try
+            {
+                File.Delete(this.tmpPath);
+            }
+            catch
+            {
+            }
         }
     }
 }
