@@ -126,7 +126,7 @@ public class FileSystemResultsDestination : IAllureResultsDestination
 
         this.EnsureDirectory();
 
-        return File.OpenWrite(outputFilePath);
+        return File.Open(outputFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
     }
 
     void WriteAllureObject(object allureObject, string suffix)
