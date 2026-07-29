@@ -156,23 +156,11 @@ public class SerializerSelectionTests
             .IsEqualTo("runtime");
     }
 
-    static AllureRuntimeBuilder<
-        AllureConfiguration,
-        RecordingRuntimeHook<AllureConfiguration>,
-        RecordingEndpointHook<AllureConfiguration>
-    > CreateBuilder(
-        Action<AllureRuntimeBuilder<
-            AllureConfiguration,
-            RecordingRuntimeHook<AllureConfiguration>,
-            RecordingEndpointHook<AllureConfiguration>
-        >> configure
+    static TestRuntimeBuilder<AllureConfiguration> CreateBuilder(
+        Action<TestRuntimeBuilder<AllureConfiguration>> configure
     )
     {
-        var builder = new AllureRuntimeBuilder<
-            AllureConfiguration,
-            RecordingRuntimeHook<AllureConfiguration>,
-            RecordingEndpointHook<AllureConfiguration>
-        >("serializer-selection");
+        var builder = new TestRuntimeBuilder<AllureConfiguration>("serializer-selection");
         builder.UseConfiguration(new AllureConfiguration());
         configure(builder);
         return builder;

@@ -121,11 +121,8 @@ public class InProcessEndpointRegistrationTests
         isInGlobalScope.Value = false;
     }
 
-    static AllureRuntimeBuilder<
-        AllureConfiguration,
-        RecordingRuntimeHook<AllureConfiguration>,
-        RecordingEndpointHook<AllureConfiguration>
-    > CreateBuilder() => new("endpoint-registration-tests");
+    static TestRuntimeBuilder<AllureConfiguration> CreateBuilder() =>
+        new("endpoint-registration-tests");
 
     static string NewRouteId() => $"endpoint-registration-{Guid.NewGuid():N}";
 }

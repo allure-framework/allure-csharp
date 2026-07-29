@@ -1,7 +1,5 @@
 using System;
-using System.Text.Json;
 using Allure.Sdk.Configuration;
-using Allure.Sdk.Serialization;
 
 namespace Allure.Sdk.Registration;
 

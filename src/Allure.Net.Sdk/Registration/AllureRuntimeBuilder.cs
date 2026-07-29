@@ -15,15 +15,33 @@ namespace Allure.Sdk.Registration;
 /// runtime and its optional in-process endpoint.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntimeRegistrationContext">The runtime registration context type.</typeparam>
 /// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
+/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
 /// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
 /// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
-public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook, TRuntime> :
-    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook, TRuntime>
+public abstract class AllureRuntimeBuilder<
+    TConfiguration,
+    TRuntimeRegistrationContext,
+    TRuntimeHook,
+    TEndpointRegistrationContext,
+    TEndpointHook,
+    TRuntime
+> :
+    IAllureRuntimeIntegrationContext<
+        TConfiguration,
+        TRuntimeRegistrationContext,
+        TRuntimeHook,
+        TEndpointRegistrationContext,
+        TEndpointHook,
+        TRuntime
+    >
 
     where TConfiguration : AllureConfiguration, new()
-    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
+    where TRuntimeRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
+    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
+    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
+    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext>
     where TRuntime : IAllureRuntime<TConfiguration>
 {
     readonly string runtimeName;
@@ -32,7 +50,7 @@ public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpoi
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
     Func<TConfiguration, IEnumerable<TRuntimeHook?>> currentHooksFactory =
-        AllureRegistrationDefaults.RuntimeHookProviders<TConfiguration, TRuntimeHook>();
+        AllureRegistrationDefaults.RuntimeHookProviders<TConfiguration, TRuntimeRegistrationContext, TRuntimeHook>();
 
     Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> currentContextFactory =
         AllureRegistrationDefaults.Context<TConfiguration>();
@@ -54,7 +72,7 @@ public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpoi
 
     (
         string id,
-        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>>
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointRegistrationContext, TEndpointHook>>
     )? currentEndpointRegistration = null;
 
     /// <summary>
@@ -140,7 +158,7 @@ public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpoi
     /// <inheritdoc/>
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointHook>> endpointRegistration
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TConfiguration, TEndpointRegistrationContext, TEndpointHook>> endpointRegistration
     )
     {
         this.currentEndpointRegistration = (endpointId, endpointRegistration);
@@ -182,14 +200,13 @@ public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpoi
 
         if (this.currentEndpointRegistration is var (routeId, routeRegistration))
         {
-            var endpointRouteBuilder =
-                new AllureInProcessRouteBuilder<TConfiguration, TEndpointHook>(
-                    this.runtimeName,
-                    routeId,
-                    runtime,
-                    this.useRuleBasedSerializer,
-                    this.currentRuleBasedSerializerRegistrations
-                );
+            var endpointRouteBuilder = this.CreateRouteBuilder(new(
+                this.runtimeName,
+                routeId,
+                runtime,
+                this.useRuleBasedSerializer,
+                this.currentRuleBasedSerializerRegistrations
+            ));
             routeRegistration(runtime, endpointRouteBuilder);
             var route = endpointRouteBuilder.Build();
             AllureRuntimeRouter.Install(route);
@@ -217,6 +234,12 @@ public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpoi
         IAllureModelApi modelApi
     );
 
+    protected abstract TRuntimeRegistrationContext RegistrationContext { get; }
+
+    protected abstract AllureInProcessRouteBuilder<TConfiguration, TEndpointRegistrationContext, TEndpointHook> CreateRouteBuilder(
+        AllureRouteBuilderArgs<TConfiguration> args
+    );
+
     TConfiguration ResolveConfiguration()
     {
         foreach (var source in this.currentConfigurationSourcesFactory())
@@ -237,7 +260,7 @@ public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpoi
 
         foreach (var provider in this.currentHooksFactory(preHookConfiguration))
         {
-            provider?.SetUp(this);
+            provider?.SetUp(this.RegistrationContext);
         }
 
         return ReferenceEquals(configurationSourcesFactoryBefore, this.currentConfigurationSourcesFactory)
@@ -252,21 +275,33 @@ public abstract class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpoi
 /// in-process endpoint.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntimeRegistrationContext">The runtime registration context type.</typeparam>
 /// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
+/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
 /// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
 /// <param name="runtimeName">The runtime display name.</param>
-public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(string runtimeName) :
+public abstract class AllureRuntimeBuilder<
+    TConfiguration,
+    TRuntimeRegistrationContext,
+    TRuntimeHook,
+    TEndpointRegistrationContext,
+    TEndpointHook
+>(string runtimeName) :
     AllureRuntimeBuilder<
         TConfiguration,
+        TRuntimeRegistrationContext,
         TRuntimeHook,
+        TEndpointRegistrationContext,
         TEndpointHook,
         IAllureRuntime<TConfiguration>
     >(runtimeName),
-    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeHook, TEndpointHook>
+    IAllureRuntimeIntegrationContext<TConfiguration, TRuntimeRegistrationContext, TRuntimeHook, TEndpointRegistrationContext, TEndpointHook>
 
     where TConfiguration : AllureConfiguration, new()
-    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration>
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
+    where TRuntimeRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
+    where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
+    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
+    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext>
 {
     /// <inheritdoc/>
     protected override IAllureRuntime<TConfiguration> CreateRuntimeInstance(
@@ -294,7 +329,9 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntimeHook, TEndpointHook>(s
 public class AllureRuntimeBuilder(string runtimeName) :
     AllureRuntimeBuilder<
         AllureConfiguration,
+        IAllureRuntimeRegistrationContext,
         IAllureRuntimeRegistrationHook,
+        IAllureInProcessEndpointRegistrationContext,
         IAllureInProcessEndpointRegistrationHook,
         IAllureRuntime<AllureConfiguration>
     >(runtimeName),
@@ -316,4 +353,13 @@ public class AllureRuntimeBuilder(string runtimeName) :
         lifecycleApi,
         modelApi
     );
+
+    protected override IAllureRuntimeRegistrationContext RegistrationContext => this;
+
+    protected override AllureInProcessRouteBuilder<
+        AllureConfiguration,
+        IAllureInProcessEndpointRegistrationContext,
+        IAllureInProcessEndpointRegistrationHook
+    > CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration> args) =>
+        new AllureInProcessRouteBuilder(args);
 }

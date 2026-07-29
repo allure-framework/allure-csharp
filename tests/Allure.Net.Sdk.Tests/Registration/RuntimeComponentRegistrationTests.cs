@@ -177,11 +177,7 @@ public class RuntimeComponentRegistrationTests
             .WithMessageContaining("has not been bound");
     }
 
-    static AllureRuntimeBuilder<
-        TestConfiguration,
-        RecordingRuntimeHook<TestConfiguration>,
-        RecordingEndpointHook<TestConfiguration>
-    > CreateBuilder() =>
+    static TestRuntimeBuilder<TestConfiguration> CreateBuilder() =>
         new("component-tests");
 
     static string NewDirectoryPath() =>

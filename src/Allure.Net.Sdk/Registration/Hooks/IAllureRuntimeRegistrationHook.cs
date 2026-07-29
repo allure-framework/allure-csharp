@@ -6,13 +6,15 @@ namespace Allure.Sdk.Registration.Hooks;
 /// Customizes an Allure runtime during registration.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public interface IAllureRuntimeRegistrationHook<TConfiguration>
+/// <typeparam name="TContext">The registration context type.</typeparam>
+public interface IAllureRuntimeRegistrationHook<TConfiguration, TContext>
     where TConfiguration : AllureConfiguration
+    where TContext : IAllureRuntimeRegistrationContext<TConfiguration>
 {
     /// <summary>
     /// Applies custom runtime configuration.
     /// </summary>
-    void SetUp(IAllureRuntimeRegistrationContext<TConfiguration> context);
+    void SetUp(TContext context);
 }
 
 /// <summary>
@@ -20,4 +22,7 @@ public interface IAllureRuntimeRegistrationHook<TConfiguration>
 /// <see cref="AllureConfiguration"/> during registration.
 /// </summary>
 public interface IAllureRuntimeRegistrationHook :
-    IAllureRuntimeRegistrationHook<AllureConfiguration>;
+    IAllureRuntimeRegistrationHook<
+        AllureConfiguration,
+        IAllureRuntimeRegistrationContext
+    >;

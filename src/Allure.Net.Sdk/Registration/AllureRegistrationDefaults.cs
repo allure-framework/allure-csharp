@@ -80,9 +80,10 @@ public static class AllureRegistrationDefaults
     /// <summary>
     /// Creates the default runtime-hook provider factory.
     /// </summary>
-    public static Func<TConfiguration, IEnumerable<THook?>> RuntimeHookProviders<TConfiguration, THook>()
+    public static Func<TConfiguration, IEnumerable<THook?>> RuntimeHookProviders<TConfiguration, TContext, THook>()
         where TConfiguration : AllureConfiguration, new()
-        where THook : IAllureRuntimeRegistrationHook<TConfiguration>
+        where TContext : IAllureRuntimeRegistrationContext<TConfiguration>
+        where THook : IAllureRuntimeRegistrationHook<TConfiguration, TContext>
     =>
         static (configuration) => [
             ReflectionHooks.FromEnvironmentVariable<THook>("ALLURE_RUNTIME_REGISTRATION_HOOK"),

@@ -35,3 +35,6 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> : I
     /// </summary>
     void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> routeIdsFactory);
 }
+
+public interface IAllureInProcessEndpointRegistrationContext :
+    IAllureInProcessEndpointRegistrationContext<AllureConfiguration>;

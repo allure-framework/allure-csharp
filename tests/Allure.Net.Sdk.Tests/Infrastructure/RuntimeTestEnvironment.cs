@@ -26,17 +26,15 @@ sealed class RuntimeTestEnvironment<TConfiguration>
         TConfiguration? configuration = null,
         Action<AllureRuntimeBuilder<
             TConfiguration,
+            IAllureRuntimeRegistrationContext<TConfiguration>,
             RecordingRuntimeHook<TConfiguration>,
+            IAllureInProcessEndpointRegistrationContext<TConfiguration>,
             RecordingEndpointHook<TConfiguration>
         >>? configure = null
     )
     {
         var destination = new InMemoryResultsDestination();
-        var builder = new AllureRuntimeBuilder<
-            TConfiguration,
-            RecordingRuntimeHook<TConfiguration>,
-            RecordingEndpointHook<TConfiguration>
-        >("sdk-test");
+        var builder = new TestRuntimeBuilder<TConfiguration>("sdk-test");
 
         builder.UseConfiguration(configuration ?? new TConfiguration());
         builder.UseDestination(_ => destination);
@@ -46,13 +44,46 @@ sealed class RuntimeTestEnvironment<TConfiguration>
     }
 }
 
+sealed class TestRuntimeBuilder<TConfiguration>(string runtimeName) : AllureRuntimeBuilder<
+    TConfiguration,
+    IAllureRuntimeRegistrationContext<TConfiguration>,
+    RecordingRuntimeHook<TConfiguration>,
+    IAllureInProcessEndpointRegistrationContext<TConfiguration>,
+    RecordingEndpointHook<TConfiguration>
+>(runtimeName)
+    where TConfiguration : AllureConfiguration, new()
+{
+    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+
+    protected override AllureInProcessRouteBuilder<TConfiguration, IAllureInProcessEndpointRegistrationContext<TConfiguration>, RecordingEndpointHook<TConfiguration>> CreateRouteBuilder(
+        AllureRouteBuilderArgs<TConfiguration> args
+    )
+    {
+        return new TestEndpointRouteBuilder<TConfiguration>(args);
+    }
+}
+
+sealed class TestEndpointRouteBuilder<TConfiguration>(AllureRouteBuilderArgs<TConfiguration> args) :
+    AllureInProcessRouteBuilder<
+        TConfiguration,
+        IAllureInProcessEndpointRegistrationContext<TConfiguration>,
+        RecordingEndpointHook<TConfiguration>
+    >(args)
+
+    where TConfiguration : AllureConfiguration
+{
+    protected override IAllureInProcessEndpointRegistrationContext<TConfiguration> RegistrationContext => this;
+}
+
 sealed class RuntimeTestEnvironment
 {
     public static RuntimeTestEnvironment<AllureConfiguration> Create(
         AllureConfiguration? configuration = null,
         Action<AllureRuntimeBuilder<
             AllureConfiguration,
+            IAllureRuntimeRegistrationContext<AllureConfiguration>,
             RecordingRuntimeHook<AllureConfiguration>,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration>,
             RecordingEndpointHook<AllureConfiguration>
         >>? configure = null
     ) =>
@@ -61,7 +92,7 @@ sealed class RuntimeTestEnvironment
 
 sealed class RecordingRuntimeHook<TConfiguration>(
     Action<IAllureRuntimeRegistrationContext<TConfiguration>>? setUp = null
-) : IAllureRuntimeRegistrationHook<TConfiguration>
+) : IAllureRuntimeRegistrationHook<TConfiguration, IAllureRuntimeRegistrationContext<TConfiguration>>
     where TConfiguration : AllureConfiguration, new()
 {
     public int CallCount { get; private set; }
@@ -77,7 +108,7 @@ sealed class RecordingRuntimeHook<TConfiguration>(
 
 sealed class RecordingEndpointHook<TConfiguration>(
     Action<IAllureInProcessEndpointRegistrationContext<TConfiguration>>? setUp = null
-) : IAllureInProcessEndpointRegistrationHook<TConfiguration>
+) : IAllureInProcessEndpointRegistrationHook<TConfiguration, IAllureInProcessEndpointRegistrationContext<TConfiguration>>
     where TConfiguration : AllureConfiguration
 {
     public int CallCount { get; private set; }

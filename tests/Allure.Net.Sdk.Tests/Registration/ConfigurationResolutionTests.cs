@@ -141,11 +141,7 @@ public class ConfigurationResolutionTests
         }
     }
 
-    static AllureRuntimeBuilder<
-        TestConfiguration,
-        RecordingRuntimeHook<TestConfiguration>,
-        RecordingEndpointHook<TestConfiguration>
-    > CreateBuilder() =>
+    static TestRuntimeBuilder<TestConfiguration> CreateBuilder() =>
         new("configuration-tests");
 
     sealed record class TestConfiguration : AllureConfiguration

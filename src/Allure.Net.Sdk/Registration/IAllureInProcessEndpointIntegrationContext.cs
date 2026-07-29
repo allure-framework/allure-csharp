@@ -11,11 +11,13 @@ namespace Allure.Sdk.Registration;
 /// Configures an in-process Allure endpoint and its integration hooks.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TContext">The registration context type.</typeparam>
 /// <typeparam name="THook">The endpoint registration hook type.</typeparam>
-public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, THook> :
+public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, TContext, THook> :
     IAllureInProcessEndpointRegistrationContext<TConfiguration>
     where TConfiguration : AllureConfiguration
-    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration>
+    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
+    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext>
 {
     /// <summary>
     /// Configures the hooks invoked during endpoint registration.

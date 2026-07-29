@@ -6,13 +6,15 @@ namespace Allure.Sdk.Registration.Hooks;
 /// Customizes an in-process Allure endpoint during registration.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public interface IAllureInProcessEndpointRegistrationHook<TConfiguration>
+/// <typeparam name="TContext">The registration context type.</typeparam>
+public interface IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext>
     where TConfiguration : AllureConfiguration
+    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
 {
     /// <summary>
     /// Applies custom endpoint configuration.
     /// </summary>
-    void SetUp(IAllureInProcessEndpointRegistrationContext<TConfiguration> context);
+    void SetUp(TContext context);
 }
 
 /// <summary>
@@ -20,4 +22,7 @@ public interface IAllureInProcessEndpointRegistrationHook<TConfiguration>
 /// <see cref="AllureConfiguration"/> during registration.
 /// </summary>
 public interface IAllureInProcessEndpointRegistrationHook :
-    IAllureInProcessEndpointRegistrationHook<AllureConfiguration>;
+    IAllureInProcessEndpointRegistrationHook<
+        AllureConfiguration,
+        IAllureInProcessEndpointRegistrationContext
+    >;
