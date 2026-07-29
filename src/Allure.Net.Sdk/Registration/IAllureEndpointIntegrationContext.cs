@@ -8,9 +8,11 @@ namespace Allure.Sdk.Registration;
 /// <summary>
 /// Configures an external Allure runtime endpoint and its integration hooks.
 /// </summary>
+/// <typeparam name="TContext">The registration context type.</typeparam>
 /// <typeparam name="THook">The endpoint registration hook type.</typeparam>
-public interface IAllureEndpointIntegrationContext<THook> : IAllureEndpointRegistrationContext
-    where THook : IAllureEndpointRegistrationHook
+public interface IAllureEndpointIntegrationContext<TContext, THook> : IAllureEndpointRegistrationContext
+    where TContext : IAllureEndpointRegistrationContext
+    where THook : IAllureEndpointRegistrationHook<TContext>
 {
     /// <summary>
     /// Configures the hooks invoked during endpoint registration.
@@ -34,3 +36,10 @@ public interface IAllureEndpointIntegrationContext<THook> : IAllureEndpointRegis
     /// </summary>
     void UseOperations(Func<AllureOperations> operationsFactory);
 }
+
+/// <summary>
+/// Configures an external Allure runtime endpoint and its integration hooks
+/// through the standard endpoint registration context.
+/// </summary>
+public interface IAllureEndpointIntegrationContext :
+    IAllureEndpointIntegrationContext<IAllureEndpointRegistrationContext, IAllureEndpointRegistrationHook>;

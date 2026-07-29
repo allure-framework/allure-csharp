@@ -5,6 +5,15 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
+/// <summary>
+/// Carries the components resolved by a runtime builder into an in-process
+/// route builder.
+/// </summary>
+/// <remarks>
+/// Instances are created by the SDK and supplied to
+/// <c>CreateRouteBuilder</c> implementations.
+/// </remarks>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 public sealed class AllureRouteBuilderArgs<TConfiguration>
     where TConfiguration : AllureConfiguration
 {

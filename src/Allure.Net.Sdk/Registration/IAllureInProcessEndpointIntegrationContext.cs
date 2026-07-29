@@ -41,3 +41,15 @@ public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, TCon
     /// </summary>
     void UseOperations(Func<IAllureRuntime<TConfiguration>, AllureInProcessOperations> operationsFactory);
 }
+
+/// <summary>
+/// Configures an in-process endpoint and its integration hooks for an Allure
+/// runtime that uses the standard <see cref="AllureConfiguration"/>.
+/// </summary>
+public interface IAllureInProcessEndpointIntegrationContext :
+    IAllureInProcessEndpointIntegrationContext<
+        AllureConfiguration,
+        IAllureInProcessEndpointRegistrationContext,
+        IAllureInProcessEndpointRegistrationHook
+    >,
+    IAllureInProcessEndpointRegistrationContext;

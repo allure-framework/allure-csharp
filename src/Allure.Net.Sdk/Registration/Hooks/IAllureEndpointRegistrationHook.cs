@@ -14,7 +14,7 @@ public interface IAllureEndpointRegistrationHook<TContext>
 }
 
 /// <summary>
-/// Customizes a standard in-process Allure runtime endpoint.
+/// Customizes an Allure endpoint through the standard registration context.
 /// </summary>
 public interface IAllureEndpointRegistrationHook :
     IAllureEndpointRegistrationHook<IAllureEndpointRegistrationContext>;

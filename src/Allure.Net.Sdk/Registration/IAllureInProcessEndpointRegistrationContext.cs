@@ -36,5 +36,9 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> : I
     void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> routeIdsFactory);
 }
 
+/// <summary>
+/// Configures an in-process endpoint for an Allure runtime that uses the
+/// standard <see cref="AllureConfiguration"/>.
+/// </summary>
 public interface IAllureInProcessEndpointRegistrationContext :
     IAllureInProcessEndpointRegistrationContext<AllureConfiguration>;

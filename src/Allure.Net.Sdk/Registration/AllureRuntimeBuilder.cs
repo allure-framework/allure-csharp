@@ -234,8 +234,17 @@ public abstract class AllureRuntimeBuilder<
         IAllureModelApi modelApi
     );
 
+    /// <summary>
+    /// Gets the integration-specific context passed to runtime registration
+    /// hooks.
+    /// </summary>
     protected abstract TRuntimeRegistrationContext RegistrationContext { get; }
 
+    /// <summary>
+    /// Creates the integration-specific in-process route builder.
+    /// </summary>
+    /// <param name="args">The resolved route builder arguments.</param>
+    /// <returns>The route builder used to configure and construct the endpoint route.</returns>
     protected abstract AllureInProcessRouteBuilder<TConfiguration, TEndpointRegistrationContext, TEndpointHook> CreateRouteBuilder(
         AllureRouteBuilderArgs<TConfiguration> args
     );
@@ -326,7 +335,7 @@ public abstract class AllureRuntimeBuilder<
 /// in-process endpoint.
 /// </summary>
 /// <param name="runtimeName">The runtime display name.</param>
-public class AllureRuntimeBuilder(string runtimeName) :
+public sealed class AllureRuntimeBuilder(string runtimeName) :
     AllureRuntimeBuilder<
         AllureConfiguration,
         IAllureRuntimeRegistrationContext,
@@ -354,8 +363,10 @@ public class AllureRuntimeBuilder(string runtimeName) :
         modelApi
     );
 
+    /// <inheritdoc/>
     protected override IAllureRuntimeRegistrationContext RegistrationContext => this;
 
+    /// <inheritdoc/>
     protected override AllureInProcessRouteBuilder<
         AllureConfiguration,
         IAllureInProcessEndpointRegistrationContext,

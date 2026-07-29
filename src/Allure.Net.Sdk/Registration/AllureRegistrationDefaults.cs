@@ -80,6 +80,9 @@ public static class AllureRegistrationDefaults
     /// <summary>
     /// Creates the default runtime-hook provider factory.
     /// </summary>
+    /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+    /// <typeparam name="TContext">The runtime registration context type.</typeparam>
+    /// <typeparam name="THook">The runtime registration hook type.</typeparam>
     public static Func<TConfiguration, IEnumerable<THook?>> RuntimeHookProviders<TConfiguration, TContext, THook>()
         where TConfiguration : AllureConfiguration, new()
         where TContext : IAllureRuntimeRegistrationContext<TConfiguration>
