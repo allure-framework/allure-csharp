@@ -191,6 +191,172 @@ public class FileSystemResultsDestinationTests
         }
     }
 
+    [Test]
+    public async Task ShouldThrowWhenOutputDirectoryIsAnExistingFile()
+    {
+        var path = NewDirectoryPath();
+        try
+        {
+            await File.WriteAllTextAsync(path, "not a directory");
+            var destination = new FileSystemResultsDestination(path, false);
+
+            await Assert.That(() => destination.WriteTestResult(NewTestResult()))
+                .Throws<IOException>();
+
+            await Assert.That(await File.ReadAllTextAsync(path))
+                .IsEqualTo("not a directory");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Test]
+    public async Task ShouldWriteObjectsConcurrentlyFromSynchronousCalls()
+    {
+        await VerifyConcurrentObjectWrites((destination, index) =>
+            Task.Run(() =>
+            {
+                destination.WriteTestResult(NewTestResult($"result-{index:D2}"));
+                destination.WriteContainer(NewContainer($"container-{index:D2}"));
+                destination.WriteGlobals(NewGlobals($"global-{index:D2}"));
+            })
+        );
+    }
+
+    [Test]
+    public async Task ShouldWriteObjectsConcurrentlyFromAsynchronousCalls()
+    {
+        await VerifyConcurrentObjectWrites(async (destination, index) =>
+        {
+            await destination.WriteTestResultAsync(
+                NewTestResult($"result-{index:D2}"),
+                CancellationToken.None
+            );
+            await destination.WriteContainerAsync(
+                NewContainer($"container-{index:D2}"),
+                CancellationToken.None
+            );
+            await destination.WriteGlobalsAsync(
+                NewGlobals($"global-{index:D2}"),
+                CancellationToken.None
+            );
+        });
+    }
+
+    [Test]
+    public async Task ShouldWriteDistinctAttachmentsConcurrentlyFromSynchronousCalls()
+    {
+        await VerifyConcurrentAttachmentWrites((destination, fileName, content) =>
+            Task.Run(() =>
+            {
+                using var stream = new MemoryStream(content);
+                destination.WriteAttachment(fileName, stream);
+            })
+        );
+    }
+
+    [Test]
+    public async Task ShouldWriteDistinctAttachmentsConcurrentlyFromAsynchronousCalls()
+    {
+        await VerifyConcurrentAttachmentWrites(async (destination, fileName, content) =>
+        {
+            using var stream = new MemoryStream(content);
+            await destination.WriteAttachmentAsync(
+                fileName,
+                stream,
+                CancellationToken.None
+            );
+        });
+    }
+
+    static async Task VerifyConcurrentObjectWrites(
+        Func<FileSystemResultsDestination, int, Task> write
+    )
+    {
+        const int writeCount = 20;
+        var directory = NewDirectoryPath();
+        try
+        {
+            var destination = new FileSystemResultsDestination(directory, false);
+
+            await Task.WhenAll(
+                Enumerable.Range(0, writeCount).Select(index => write(destination, index))
+            );
+
+            var files = Directory.GetFiles(directory);
+            await Assert.That(files.Length).IsEqualTo(writeCount * 3);
+            await Assert.That(files.Select(Path.GetFileName).Distinct().Count())
+                .IsEqualTo(writeCount * 3);
+            await Assert.That(files.Count(path => path.EndsWith("-result.json")))
+                .IsEqualTo(writeCount);
+            await Assert.That(files.Count(path => path.EndsWith("-container.json")))
+                .IsEqualTo(writeCount);
+            await Assert.That(files.Count(path => path.EndsWith("-globals.json")))
+                .IsEqualTo(writeCount);
+
+            var contents = await Task.WhenAll(
+                files.Select(path => File.ReadAllTextAsync(path))
+            );
+            await Assert.That(contents.All(IsValidJson)).IsTrue();
+            foreach (var index in Enumerable.Range(0, writeCount))
+            {
+                await Assert.That(contents.Count(content => content.Contains($"result-{index:D2}")))
+                    .IsEqualTo(1);
+                await Assert.That(contents.Count(content => content.Contains($"container-{index:D2}")))
+                    .IsEqualTo(1);
+                await Assert.That(contents.Count(content => content.Contains($"global-{index:D2}")))
+                    .IsEqualTo(1);
+            }
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    static async Task VerifyConcurrentAttachmentWrites(
+        Func<FileSystemResultsDestination, string, byte[], Task> write
+    )
+    {
+        const int writeCount = 20;
+        var directory = NewDirectoryPath();
+        try
+        {
+            var destination = new FileSystemResultsDestination(directory, false);
+            var attachments = Enumerable.Range(0, writeCount)
+                .Select(index => (
+                    FileName: $"attachment-{index}.bin",
+                    Content: Enumerable.Range(0, index + 1)
+                        .Select(value => (byte)(value + index))
+                        .ToArray()
+                ))
+                .ToArray();
+
+            await Task.WhenAll(
+                attachments.Select(attachment =>
+                    write(destination, attachment.FileName, attachment.Content)
+                )
+            );
+
+            await Assert.That(Directory.GetFiles(directory).Length)
+                .IsEqualTo(writeCount);
+            foreach (var attachment in attachments)
+            {
+                await Assert.That(
+                    await File.ReadAllBytesAsync(
+                        Path.Combine(directory, attachment.FileName)
+                    )
+                ).IsEquivalentTo(attachment.Content);
+            }
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
     static async Task VerifyObjectWrite(
         string suffix,
         string expectedContent,
@@ -255,11 +421,11 @@ public class FileSystemResultsDestinationTests
         await Assert.That(document.RootElement.ValueKind).IsEqualTo(JsonValueKind.Object);
     }
 
-    static AllureTestResult NewTestResult() =>
+    static AllureTestResult NewTestResult(string name = "result name") =>
         new()
         {
             Uuid = Guid.NewGuid().ToString("N"),
-            Name = "result name",
+            Name = name,
             Status = Status.Passed,
             Stage = Stage.Finished,
             Parameters =
@@ -273,22 +439,22 @@ public class FileSystemResultsDestinationTests
             },
         };
 
-    static TestResultScope NewContainer() =>
+    static TestResultScope NewContainer(string name = "container name") =>
         new()
         {
             Uuid = Guid.NewGuid().ToString("N"),
-            Name = "container name",
+            Name = name,
             Children = { "child-id" },
         };
 
-    static Globals NewGlobals() =>
+    static Globals NewGlobals(string message = "global error") =>
         new()
         {
             Errors =
             {
                 new()
                 {
-                    Message = "global error",
+                    Message = message,
                     Trace = "global trace",
                 },
             },

@@ -9,6 +9,91 @@ namespace Allure.Net.Sdk.Tests.Registration;
 public class RuntimeComponentRegistrationTests
 {
     [Test]
+    public async Task ShouldCreateDefaultDestinationFromConfiguration()
+    {
+        var directory = NewDirectoryPath();
+        try
+        {
+            var configuration = new TestConfiguration
+            {
+                ResultsDirectory = directory,
+                IndentOutput = true,
+            };
+
+            var destination =
+                AllureRegistrationDefaults.Destination<TestConfiguration>()(
+                    configuration
+                );
+
+            await Assert.That(destination)
+                .IsTypeOf<FileSystemResultsDestination>();
+
+            destination.WriteGlobals(new()
+            {
+                Errors = { new() { Message = "factory error" } },
+            });
+
+            var json = await File.ReadAllTextAsync(
+                Directory.GetFiles(directory, "*-globals.json").Single()
+            );
+            await Assert.That(json).Contains("factory error");
+            await Assert.That(json.Contains('\n')).IsTrue();
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    [Test]
+    public async Task ShouldUseFinalConfigurationForDefaultDestinationInBuiltRuntime()
+    {
+        var originalDirectory = NewDirectoryPath();
+        var finalDirectory = NewDirectoryPath();
+        try
+        {
+            var original = new TestConfiguration
+            {
+                ResultsDirectory = originalDirectory,
+            };
+            var final = new TestConfiguration
+            {
+                ResultsDirectory = finalDirectory,
+                IndentOutput = true,
+            };
+            var builder = CreateBuilder();
+            builder.UseConfiguration(original);
+            builder.UseRegistrationHooks(_ =>
+            [
+                new RecordingRuntimeHook<TestConfiguration>(
+                    context => context.UseConfiguration(final)
+                ),
+            ]);
+
+            var runtime = builder.Build();
+            runtime.ResultsDestination.WriteGlobals(new()
+            {
+                Errors = { new() { Message = "runtime error" } },
+            });
+
+            await Assert.That(runtime.ResultsDestination)
+                .IsTypeOf<FileSystemResultsDestination>();
+            await Assert.That(runtime.Configuration).IsSameReferenceAs(final);
+            await Assert.That(Directory.Exists(originalDirectory)).IsFalse();
+            var json = await File.ReadAllTextAsync(
+                Directory.GetFiles(finalDirectory, "*-globals.json").Single()
+            );
+            await Assert.That(json).Contains("runtime error");
+            await Assert.That(json.Contains('\n')).IsTrue();
+        }
+        finally
+        {
+            DeleteDirectory(originalDirectory);
+            DeleteDirectory(finalDirectory);
+        }
+    }
+
+    [Test]
     public async Task ShouldBuildRuntimeFromFinalConfigurationAndRegisteredComponents()
     {
         var configuration = new TestConfiguration();
@@ -98,6 +183,17 @@ public class RuntimeComponentRegistrationTests
         RecordingEndpointHook<TestConfiguration>
     > CreateBuilder() =>
         new("component-tests");
+
+    static string NewDirectoryPath() =>
+        Path.Combine(Path.GetTempPath(), $"allure-sdk-registration-{Guid.NewGuid():N}");
+
+    static void DeleteDirectory(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path, true);
+        }
+    }
 
     sealed record class TestConfiguration : AllureConfiguration;
 }
