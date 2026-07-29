@@ -1,6 +1,4 @@
-using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Allure.Sdk.Registration;
 
 namespace Allure.Sdk.Runtime;
@@ -11,98 +9,19 @@ namespace Allure.Sdk.Runtime;
 /// executing tests and steps to maintain independent execution states, provided
 /// that the <see cref="ExecutionContext"/> is propagated correctly.
 /// </summary>
-public sealed class AsyncLocalExecutionContext : IAllureExecutionContext
+/// <param name="reference">
+/// A reference to the Allure runtime associated with this context.
+/// </param>
+public sealed class AsyncLocalExecutionContext(
+    IReadOnlyLateBoundReference<IAllureRuntime> reference
+) : AllureExecutionContext(reference)
 {
-    readonly IReadOnlyLateBoundReference<IAllureRuntime> reference;
-
-    readonly AsyncLocal<AllureExecutionState> currentState;
+    readonly AsyncLocal<AllureExecutionState> currentState = new() { Value = new() };
 
     /// <inheritdoc/>
-    public IAllureRuntime Runtime => this.reference.Value;
-
-    /// <inheritdoc/>
-    public AllureExecutionState CurrentState => currentState.Value;
-
-    /// <summary>
-    /// Initializes a context for a runtime reference that will be bound after construction.
-    /// </summary>
-    public AsyncLocalExecutionContext(IReadOnlyLateBoundReference<IAllureRuntime> reference)
+    public override AllureExecutionState CurrentState
     {
-        this.reference = reference;
-        this.currentState = new()
-        {
-            Value = new(),
-        };
-    }
-
-    /// <inheritdoc/>
-    public TResult GetWithState<TResult>(AllureExecutionState state, Func<IAllureRuntime, TResult> function)
-    {
-        var originalState = currentState.Value;
-        currentState.Value = state;
-
-        try
-        {
-            return function(this.Runtime);
-        }
-        finally
-        {
-            currentState.Value = originalState;
-        }
-    }
-
-    /// <inheritdoc/>
-    public async Task<TResult> GetWithStateAsync<TResult>(AllureExecutionState state, Func<IAllureRuntime, Task<TResult>> asyncFunction)
-    {
-        var originalState = currentState.Value;
-        currentState.Value = state;
-
-        try
-        {
-            return await asyncFunction(this.Runtime);
-        }
-        finally
-        {
-            currentState.Value = originalState;
-        }
-    }
-
-    /// <inheritdoc/>
-    public AllureExecutionState RunWithState(AllureExecutionState state, Action<IAllureRuntime> action)
-    {
-        var originalState = currentState.Value;
-        currentState.Value = state;
-
-        try
-        {
-            action(this.Runtime);
-            return currentState.Value;
-        }
-        finally
-        {
-            currentState.Value = originalState;
-        }
-    }
-
-    /// <inheritdoc/>
-    public async Task RunWithStateAsync(AllureExecutionState state, Func<IAllureRuntime, Task> asyncAction)
-    {
-        var originalState = currentState.Value;
-        currentState.Value = state;
-
-        try
-        {
-            await asyncAction(this.Runtime);
-        }
-        finally
-        {
-            currentState.Value = originalState;
-        }
-    }
-
-    /// <inheritdoc/>
-    public void Update(Func<AllureExecutionState, AllureExecutionState> transition)
-    {
-        currentState.Value = transition(currentState.Value);
+        get => this.currentState.Value;
+        protected set => this.currentState.Value = value;
     }
 }
