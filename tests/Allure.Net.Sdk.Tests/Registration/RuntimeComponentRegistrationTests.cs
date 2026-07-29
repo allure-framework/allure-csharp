@@ -100,9 +100,9 @@ public class RuntimeComponentRegistrationTests
         var serializer = new RecordingParameterSerializer(_ => "serialized");
         var destination = new InMemoryResultsDestination();
 
-        var context = InterfaceStub.Create<IAllureExecutionContext>();
-        var lifecycle = InterfaceStub.Create<IAllureLifecycleApi>();
-        var model = InterfaceStub.Create<IAllureModelApi>();
+        var context = IAllureExecutionContext.Mock();
+        var lifecycle = IAllureLifecycleApi.Mock();
+        var model = IAllureModelApi.Mock();
 
         var dependencyInputs =
             new List<IAllureRegistrationDependencies<TestConfiguration>>();
@@ -169,7 +169,7 @@ public class RuntimeComponentRegistrationTests
         builder.UseContext(dependencies =>
         {
             _ = dependencies.RuntimeReference.Value;
-            return InterfaceStub.Create<IAllureExecutionContext>();
+            return IAllureExecutionContext.Mock();
         });
 
         await Assert.That(builder.Build)

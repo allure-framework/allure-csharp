@@ -131,6 +131,8 @@ public class SerializerSelectionTests
                 (receivedRuntime, endpoint) =>
                 {
                     endpoint.SetAvailabilityPredicate(_ => false);
+                    endpoint.UseCurrentScopePredicate(_ => false);
+                    endpoint.UseGlobalScopePredicate(_ => false);
                     endpoint.UseParameterSerializer(runtime =>
                     {
                         endpointFactoryCalls++;

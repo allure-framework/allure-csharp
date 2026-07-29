@@ -204,11 +204,16 @@ public class RegistrationHookTests
         ]);
         builder.RegisterInProcessEndpoint(
             $"endpoint-hooks-{Guid.NewGuid():N}",
-            (_, context) => context.UseRegistrationHooks(received =>
+            (_, context) =>
             {
-                calls.Add(ReferenceEquals(received, final) ? "configuration" : "unexpected");
-                return [first, null, second];
-            })
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
+                context.UseRegistrationHooks(received =>
+                {
+                    calls.Add(ReferenceEquals(received, final) ? "configuration" : "unexpected");
+                    return [first, null, second];
+                });
+            }
         );
 
         var runtime = builder.Build();
