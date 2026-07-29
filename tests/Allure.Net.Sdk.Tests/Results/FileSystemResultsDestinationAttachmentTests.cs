@@ -135,6 +135,111 @@ public class FileSystemResultsDestinationAttachmentTests
     }
 
     [Test]
+    public async Task ShouldPublishAttachmentOnlyAfterAtomicWriteCompletes()
+    {
+        var directory = NewDirectoryPath();
+        try
+        {
+            using var content = new PausingReadStream(AttachmentContent);
+            var outputPath = Path.Combine(directory, "attachment.bin");
+            var write = new FileSystemResultsDestination(directory, false)
+                .WriteAttachmentAsync(
+                    "attachment.bin",
+                    content,
+                    CancellationToken.None
+                );
+
+            await content.WaitUntilPaused();
+
+            await Assert.That(File.Exists(outputPath)).IsFalse();
+            await Assert.That(GetTemporaryFiles(directory).Count()).IsEqualTo(1);
+
+            content.Resume();
+            await write;
+
+            await Assert.That(await File.ReadAllBytesAsync(outputPath))
+                .IsEquivalentTo(
+                    AttachmentContent,
+                    TUnit.Assertions.Enums.CollectionOrdering.Matching
+                );
+            await Assert.That(GetTemporaryFiles(directory)).IsEmpty();
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    [Test]
+    public async Task ShouldRemoveTemporaryFileWhenAtomicWriteFails()
+    {
+        var directory = NewDirectoryPath();
+        try
+        {
+            using var content = new PausingReadStream(
+                AttachmentContent,
+                throwAfterPause: true
+            );
+            var outputPath = Path.Combine(directory, "attachment.bin");
+            var write = new FileSystemResultsDestination(directory, false)
+                .WriteAttachmentAsync(
+                    "attachment.bin",
+                    content,
+                    CancellationToken.None
+                );
+
+            await content.WaitUntilPaused();
+
+            await Assert.That(File.Exists(outputPath)).IsFalse();
+            await Assert.That(GetTemporaryFiles(directory).Count()).IsEqualTo(1);
+
+            content.Resume();
+            await Assert.That(async () => await write).Throws<IOException>();
+
+            await Assert.That(File.Exists(outputPath)).IsFalse();
+            await Assert.That(GetTemporaryFiles(directory)).IsEmpty();
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    [Test]
+    public async Task ShouldRemoveTemporaryFileWhenAtomicWriteIsCancelled()
+    {
+        var directory = NewDirectoryPath();
+        try
+        {
+            using var content = new PausingReadStream(AttachmentContent);
+            using var cancellation = new CancellationTokenSource();
+            var outputPath = Path.Combine(directory, "attachment.bin");
+            var write = new FileSystemResultsDestination(directory, false)
+                .WriteAttachmentAsync(
+                    "attachment.bin",
+                    content,
+                    cancellation.Token
+                );
+
+            await content.WaitUntilPaused();
+
+            await Assert.That(File.Exists(outputPath)).IsFalse();
+            await Assert.That(GetTemporaryFiles(directory).Count()).IsEqualTo(1);
+
+            cancellation.Cancel();
+            await Assert.That(async () => await write)
+                .Throws<OperationCanceledException>();
+
+            await Assert.That(File.Exists(outputPath)).IsFalse();
+            await Assert.That(GetTemporaryFiles(directory)).IsEmpty();
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    [Test]
     public async Task ShouldCopyAttachment()
     {
         await VerifyFileCopy(
@@ -302,11 +407,101 @@ public class FileSystemResultsDestinationAttachmentTests
     static string NewDirectoryPath() =>
         Path.Combine(Path.GetTempPath(), $"allure-sdk-destination-{Guid.NewGuid():N}");
 
+    static IEnumerable<string> GetTemporaryFiles(string directory) =>
+        Directory.Exists(directory)
+            ? Directory.EnumerateFiles(directory, ".allure-write-*.tmp")
+            : [];
+
     static void DeleteDirectory(string path)
     {
         if (Directory.Exists(path))
         {
             Directory.Delete(path, true);
         }
+    }
+
+    sealed class PausingReadStream(
+        byte[] content,
+        bool throwAfterPause = false
+    ) : Stream
+    {
+        readonly TaskCompletionSource paused = new(
+            TaskCreationOptions.RunContinuationsAsynchronously
+        );
+        readonly TaskCompletionSource resume = new(
+            TaskCreationOptions.RunContinuationsAsynchronously
+        );
+        int readCount;
+
+        public Task WaitUntilPaused() => this.paused.Task;
+
+        public void Resume() => this.resume.TrySetResult();
+
+        public override async ValueTask<int> ReadAsync(
+            Memory<byte> buffer,
+            CancellationToken cancellationToken = default
+        )
+        {
+            if (this.readCount++ == 0)
+            {
+                var count = Math.Min(3, content.Length);
+                content.AsMemory(0, count).CopyTo(buffer);
+                return count;
+            }
+
+            if (this.readCount == 2)
+            {
+                this.paused.TrySetResult();
+                await this.resume.Task.WaitAsync(cancellationToken);
+
+                if (throwAfterPause)
+                {
+                    throw new IOException("The source stream failed.");
+                }
+
+                var remainder = content.AsMemory(Math.Min(3, content.Length));
+                remainder.CopyTo(buffer);
+                return remainder.Length;
+            }
+
+            return 0;
+        }
+
+        public override async Task<int> ReadAsync(
+            byte[] buffer,
+            int offset,
+            int count,
+            CancellationToken cancellationToken
+        ) =>
+            await this.ReadAsync(
+                buffer.AsMemory(offset, count),
+                cancellationToken
+            );
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => throw new NotSupportedException();
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override void Flush()
+        {
+        }
+
+        public override int Read(byte[] buffer, int offset, int count) =>
+            throw new NotSupportedException();
+
+        public override long Seek(long offset, SeekOrigin origin) =>
+            throw new NotSupportedException();
+
+        public override void SetLength(long value) =>
+            throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count) =>
+            throw new NotSupportedException();
     }
 }
