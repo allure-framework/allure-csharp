@@ -13,7 +13,8 @@ public class JsonFileConfigurationSource<TConfiguration>(string path) :
 {
     static readonly JsonSerializerOptions serializerOptions = new()
     {
-        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = false,
     };
 
     public string Name => $"json from {path}";
