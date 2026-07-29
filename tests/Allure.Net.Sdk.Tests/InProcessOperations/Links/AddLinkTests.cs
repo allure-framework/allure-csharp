@@ -28,7 +28,7 @@ public class AddLinkTests
 
         await Assert.That(test.Links.Single()).IsSameReferenceAs(link);
         await Assert.That(link.Url).IsEqualTo("https://issues/123");
-        await Assert.That(link.Name).IsEqualTo("Issue bug");
+        await Assert.That(link.Name).IsEqualTo("bug");
     }
 
     [Test]
@@ -40,7 +40,6 @@ public class AddLinkTests
         {
             Type = "issue",
             Url = "123",
-            Name = "bug",
         };
 
         await environment.RunAsync(async current =>
@@ -54,7 +53,7 @@ public class AddLinkTests
 
         await Assert.That(test.Links.Single()).IsSameReferenceAs(link);
         await Assert.That(link.Url).IsEqualTo("https://issues/123");
-        await Assert.That(link.Name).IsEqualTo("Issue bug");
+        await Assert.That(link.Name).IsEqualTo("Issue 123");
     }
 
     [Test]

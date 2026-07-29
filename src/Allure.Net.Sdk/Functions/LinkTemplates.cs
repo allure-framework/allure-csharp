@@ -30,12 +30,11 @@ public static class LinkTemplates
         var urlInput = link.Url;
         link.Url = string.Format(urlTemplate, urlInput);
 
-        if (nameTemplate is null)
+        if (nameTemplate is null || !string.IsNullOrEmpty(link.Name))
         {
             return;
         }
 
-        var nameInput = link.Name ?? urlInput;
-        link.Name = string.Format(nameTemplate, nameInput);
+        link.Name = string.Format(nameTemplate, urlInput);
     }
 }

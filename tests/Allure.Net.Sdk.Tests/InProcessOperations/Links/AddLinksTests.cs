@@ -29,7 +29,7 @@ public class AddLinksTests
         await Assert.That(links.Select(link => link.Url))
             .IsEquivalentTo(["https://issues/123", "https://issues/456"]);
         await Assert.That(links.Select(link => link.Name!))
-            .IsEquivalentTo(["Issue 123", "Issue second"]);
+            .IsEquivalentTo(["Issue 123", "second"]);
     }
 
     [Test]
@@ -56,7 +56,7 @@ public class AddLinksTests
         await Assert.That(links.Select(link => link.Url))
             .IsEquivalentTo(["https://issues/123", "https://issues/456"]);
         await Assert.That(links.Select(link => link.Name!))
-            .IsEquivalentTo(["Issue 123", "Issue second"]);
+            .IsEquivalentTo(["Issue 123", "second"]);
     }
 
     [Test]
