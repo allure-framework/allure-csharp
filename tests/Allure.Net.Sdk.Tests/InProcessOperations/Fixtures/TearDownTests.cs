@@ -6,7 +6,7 @@ namespace Allure.Net.Sdk.Tests.InProcessOperations.Fixtures;
 public class TearDownTests
 {
     [Test]
-    public async Task TearDownActionAddsBeforeFixture()
+    public async Task TearDownActionAddsTearDownFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -14,7 +14,7 @@ public class TearDownTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.TearDown(
                 "setup",
                 _ => { calls++; }
@@ -31,7 +31,7 @@ public class TearDownTests
     }
 
     [Test]
-    public async Task TearDownFunctionAddsBeforeFixture()
+    public async Task TearDownFunctionAddsTearDownFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -39,7 +39,7 @@ public class TearDownTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.TearDown(
                 "setup",
                 _ => calls++
@@ -63,7 +63,7 @@ public class TearDownTests
 
         var result = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             return AllureInProcessApi.TearDown("setup", _ => 42);
         });
 
@@ -79,7 +79,7 @@ public class TearDownTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 AllureInProcessApi.TearDown(
@@ -111,7 +111,7 @@ public class TearDownTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 _ = AllureInProcessApi.TearDown(
@@ -141,7 +141,7 @@ public class TearDownTests
     }
 
     [Test]
-    public async Task TearDownAsyncActionAddsBeforeFixture()
+    public async Task TearDownAsyncActionAddsTearDownFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -149,7 +149,7 @@ public class TearDownTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.TearDownAsync(
                 "setup",
                 _ =>
@@ -170,7 +170,7 @@ public class TearDownTests
     }
 
     [Test]
-    public async Task TearDownAsyncFunctionAddsBeforeFixture()
+    public async Task TearDownAsyncFunctionAddsTearDownFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -178,7 +178,7 @@ public class TearDownTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             _ = await AllureInProcessApi.TearDownAsync(
                 "setup",
                 _ => Task.FromResult(calls++)
@@ -202,7 +202,7 @@ public class TearDownTests
 
         var result = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             return await AllureInProcessApi.TearDownAsync("setup", _ => Task.FromResult(42));
         });
 
@@ -218,7 +218,7 @@ public class TearDownTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 await AllureInProcessApi.TearDownAsync(
@@ -250,7 +250,7 @@ public class TearDownTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 _ = await AllureInProcessApi.TearDownAsync(
@@ -289,7 +289,7 @@ public class TearDownTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.TearDownAsync(
                 "setup",
                 (_, token) =>
@@ -314,7 +314,7 @@ public class TearDownTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.TearDownAsync(
                 "setup",
                 (_, token) =>

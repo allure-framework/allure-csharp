@@ -379,7 +379,7 @@ public class StepTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "fixture",
                 _ => AllureInProcessApi.Step("step", _ => { })
@@ -397,7 +397,7 @@ public class StepTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "fixture",
                 async (_, token) => await AllureInProcessApi.StepAsync(
@@ -421,7 +421,7 @@ public class StepTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             current.Runtime.LifecycleApi.StartTest(test);
             AllureInProcessApi.SetUp(
                 "fixture",
@@ -442,7 +442,7 @@ public class StepTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             current.Runtime.LifecycleApi.StartTest(test);
             await AllureInProcessApi.SetUpAsync(
                 "fixture",

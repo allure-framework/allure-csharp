@@ -29,7 +29,7 @@ public class SetNameTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "fixture",
                 _ => AllureApi.SetName("renamed")
@@ -81,7 +81,7 @@ public class SetNameTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "fixture",
                 async (_, _) => await AllureApi.SetNameAsync("renamed", CancellationToken.None),

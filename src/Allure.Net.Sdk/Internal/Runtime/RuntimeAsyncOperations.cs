@@ -449,7 +449,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
     void StartSetUp(string name, IEnumerable<Parameter> parameters)
     {
-        runtime.LifecycleApi.StartBeforeFixture(new()
+        runtime.LifecycleApi.StartSetUpFixture(new()
         {
             Name = name,
             Parameters = [.. parameters],
@@ -458,7 +458,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
 
     void StartTearDown(string name, IEnumerable<Parameter> parameters)
     {
-        runtime.LifecycleApi.StartAfterFixture(new()
+        runtime.LifecycleApi.StartTearDownFixture(new()
         {
             Name = name,
             Parameters = [.. parameters],

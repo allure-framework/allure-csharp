@@ -6,7 +6,7 @@ namespace Allure.Net.Sdk.Tests.InProcessOperations.Fixtures;
 public class SetUpTests
 {
     [Test]
-    public async Task SetUpActionAddsBeforeFixture()
+    public async Task SetUpActionAddsSetUpFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -14,7 +14,7 @@ public class SetUpTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 _ => { calls++; }
@@ -31,7 +31,7 @@ public class SetUpTests
     }
 
     [Test]
-    public async Task SetUpFunctionAddsBeforeFixture()
+    public async Task SetUpFunctionAddsSetUpFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -39,7 +39,7 @@ public class SetUpTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 _ => calls++
@@ -63,7 +63,7 @@ public class SetUpTests
 
         var result = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             return AllureInProcessApi.SetUp("setup", _ => 42);
         });
 
@@ -79,7 +79,7 @@ public class SetUpTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 AllureInProcessApi.SetUp(
@@ -111,7 +111,7 @@ public class SetUpTests
 
         var state = environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 _ = AllureInProcessApi.SetUp(
@@ -141,7 +141,7 @@ public class SetUpTests
     }
 
     [Test]
-    public async Task SetUpAsyncActionAddsBeforeFixture()
+    public async Task SetUpAsyncActionAddsSetUpFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -149,7 +149,7 @@ public class SetUpTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 _ =>
@@ -170,7 +170,7 @@ public class SetUpTests
     }
 
     [Test]
-    public async Task SetUpAsyncFunctionAddsBeforeFixture()
+    public async Task SetUpAsyncFunctionAddsSetUpFixture()
     {
         var environment = AllureApiTestEnvironment.Create();
         var scope = NewScope();
@@ -178,7 +178,7 @@ public class SetUpTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             _ = await AllureInProcessApi.SetUpAsync(
                 "setup",
                 _ => Task.FromResult(calls++)
@@ -202,7 +202,7 @@ public class SetUpTests
 
         var result = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             return await AllureInProcessApi.SetUpAsync("setup", _ => Task.FromResult(42));
         });
 
@@ -218,7 +218,7 @@ public class SetUpTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 await AllureInProcessApi.SetUpAsync(
@@ -250,7 +250,7 @@ public class SetUpTests
 
         var state = await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             try
             {
                 _ = await AllureInProcessApi.SetUpAsync(
@@ -289,7 +289,7 @@ public class SetUpTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 (_, token) =>
@@ -314,7 +314,7 @@ public class SetUpTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 (_, token) =>

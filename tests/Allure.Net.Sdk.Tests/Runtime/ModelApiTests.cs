@@ -12,8 +12,8 @@ public class ModelApiTests
         var runtime = RuntimeTestEnvironment.Create().Runtime;
         var outer = new TestResultScope { Uuid = "outer", Name = "outer" };
         var inner = new TestResultScope { Uuid = "inner", Name = "inner" };
-        runtime.LifecycleApi.StartScope(outer);
-        runtime.LifecycleApi.StartScope(inner);
+        runtime.LifecycleApi.StartTestScope(outer);
+        runtime.LifecycleApi.StartTestScope(inner);
 
         runtime.ModelApi.UpdateScope(scope => scope.Name += "-current");
         runtime.ModelApi.UpdateScope(0, scope => scope.Name += "-level-0");
@@ -68,8 +68,8 @@ public class ModelApiTests
         var runtime = RuntimeTestEnvironment.Create().Runtime;
         var scope = new TestResultScope { Uuid = "scope", Name = "scope" };
         var fixture = new FixtureResult { Name = "fixture" };
-        runtime.LifecycleApi.StartScope(scope);
-        runtime.LifecycleApi.StartBeforeFixture(fixture);
+        runtime.LifecycleApi.StartTestScope(scope);
+        runtime.LifecycleApi.StartSetUpFixture(fixture);
         runtime.ModelApi.UpdateFixtureResult(result => result.Name = "updated-fixture");
 
         await Assert.That(runtime.ModelApi.ReadFixtureResult(result => result))
@@ -92,8 +92,8 @@ public class ModelApiTests
         var runtime = RuntimeTestEnvironment.Create().Runtime;
         var scope = new TestResultScope { Uuid = "scope", Name = "scope" };
         var fixture = new FixtureResult { Name = "fixture" };
-        runtime.LifecycleApi.StartScope(scope);
-        runtime.LifecycleApi.StartBeforeFixture(fixture);
+        runtime.LifecycleApi.StartTestScope(scope);
+        runtime.LifecycleApi.StartSetUpFixture(fixture);
 
         runtime.ModelApi.UpdateCurrentExecutableItem(item => item.Name += "-current");
         await Assert.That(
@@ -132,7 +132,7 @@ public class ModelApiTests
             () => runtime.ModelApi.ReadCurrentExecutableItem(item => item)
         ).Throws<InvalidOperationException>();
 
-        runtime.LifecycleApi.StartScope(new() { Uuid = "scope", Name = "scope" });
+        runtime.LifecycleApi.StartTestScope(new() { Uuid = "scope", Name = "scope" });
         await Assert.That(() => runtime.ModelApi.ReadScope(-1, scope => scope))
             .Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => runtime.ModelApi.ReadScope(1, scope => scope))

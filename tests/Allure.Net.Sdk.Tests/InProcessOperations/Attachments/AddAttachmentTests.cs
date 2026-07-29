@@ -67,7 +67,7 @@ public class AddAttachmentTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp("fixture", _ =>
             {
                 using var content = new MemoryStream([1]);
@@ -87,7 +87,7 @@ public class AddAttachmentTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp("fixture", _ =>
                 AllureInProcessApi.Step("step", _ =>
                 {
@@ -110,7 +110,7 @@ public class AddAttachmentTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "fixture",
                 async (_, token) =>
@@ -139,7 +139,7 @@ public class AddAttachmentTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             current.Runtime.LifecycleApi.StartTest(test);
             AllureInProcessApi.SetUp("fixture", _ =>
             {
@@ -161,7 +161,7 @@ public class AddAttachmentTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             current.Runtime.LifecycleApi.StartTest(test);
             await AllureInProcessApi.SetUpAsync(
                 "fixture",
@@ -190,7 +190,7 @@ public class AddAttachmentTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "fixture",
                 async (_, token) => await AllureInProcessApi.StepAsync(

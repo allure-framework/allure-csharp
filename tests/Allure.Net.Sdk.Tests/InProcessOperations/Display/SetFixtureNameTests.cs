@@ -13,7 +13,7 @@ public class SetFixtureNameTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "fixture",
                 _ => AllureApi.SetFixtureName("renamed")
@@ -31,7 +31,7 @@ public class SetFixtureNameTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "fixture",
                 (_, _) => AllureApi.SetFixtureNameAsync(

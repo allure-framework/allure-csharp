@@ -24,13 +24,13 @@ class RuntimeLifecycleApi(
         this.ContextApi.Update((state) => state.SetTestResult(testResult));
     }
 
-    public void StartAfterFixture(FixtureResult fixtureResult) =>
+    public void StartTearDownFixture(FixtureResult fixtureResult) =>
         this.StartFixture(fixtureResult, (scope) => scope.Afters.Add(fixtureResult));
 
-    public void StartBeforeFixture(FixtureResult fixtureResult) =>
+    public void StartSetUpFixture(FixtureResult fixtureResult) =>
         this.StartFixture(fixtureResult, (scope) => scope.Befores.Add(fixtureResult));
 
-    public void StartScope(TestResultScope scope)
+    public void StartTestScope(TestResultScope scope)
     {
         this.ContextApi.Update((state) => state.PushScope(scope));
     }
@@ -64,7 +64,7 @@ class RuntimeLifecycleApi(
         return fixtureResult;
     }
 
-    public TestResultScope StopScope()
+    public TestResultScope StopTestScope()
     {
         var scope = this.CurrentState.CurrentScope;
         this.ContextApi.Update(static (state) => state.PopScope());

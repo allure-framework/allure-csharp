@@ -14,8 +14,8 @@ public class LifecycleTests
         var inner = new TestResultScope { Uuid = "inner", Name = "inner" };
         var test = new AllureTestResult { Uuid = "test", Name = "test" };
 
-        runtime.LifecycleApi.StartScope(outer);
-        runtime.LifecycleApi.StartScope(inner);
+        runtime.LifecycleApi.StartTestScope(outer);
+        runtime.LifecycleApi.StartTestScope(inner);
         runtime.LifecycleApi.ScheduleTest(test);
 
         await Assert.That(runtime.ContextApi.CurrentState.ScopeDepth).IsEqualTo(2);
@@ -25,28 +25,28 @@ public class LifecycleTests
         await Assert.That(inner.Children).IsEquivalentTo(["test"]);
 
         await Assert.That(runtime.LifecycleApi.StopTest()).IsSameReferenceAs(test);
-        await Assert.That(runtime.LifecycleApi.StopScope()).IsSameReferenceAs(inner);
-        await Assert.That(runtime.LifecycleApi.StopScope()).IsSameReferenceAs(outer);
+        await Assert.That(runtime.LifecycleApi.StopTestScope()).IsSameReferenceAs(inner);
+        await Assert.That(runtime.LifecycleApi.StopTestScope()).IsSameReferenceAs(outer);
     }
 
     [Test]
-    public async Task ShouldAttachBeforeAndAfterFixturesToCurrentScope()
+    public async Task ShouldAttachSetUpAndTearDownFixturesToCurrentScope()
     {
         var runtime = RuntimeTestEnvironment.Create().Runtime;
         var scope = new TestResultScope { Uuid = "scope", Name = "scope" };
-        var before = new FixtureResult { Name = "before" };
-        var after = new FixtureResult { Name = "after" };
-        runtime.LifecycleApi.StartScope(scope);
+        var setup = new FixtureResult { Name = "setup" };
+        var teardown = new FixtureResult { Name = "teardown" };
+        runtime.LifecycleApi.StartTestScope(scope);
 
-        runtime.LifecycleApi.StartBeforeFixture(before);
-        var stoppedBefore = runtime.LifecycleApi.StopFixture();
-        runtime.LifecycleApi.StartAfterFixture(after);
-        var stoppedAfter = runtime.LifecycleApi.StopFixture();
+        runtime.LifecycleApi.StartSetUpFixture(setup);
+        var stoppedSetUp = runtime.LifecycleApi.StopFixture();
+        runtime.LifecycleApi.StartTearDownFixture(teardown);
+        var stoppedTearDown = runtime.LifecycleApi.StopFixture();
 
-        await Assert.That(stoppedBefore).IsSameReferenceAs(before);
-        await Assert.That(stoppedAfter).IsSameReferenceAs(after);
-        await Assert.That(scope.Befores).IsEquivalentTo([before]);
-        await Assert.That(scope.Afters).IsEquivalentTo([after]);
+        await Assert.That(stoppedSetUp).IsSameReferenceAs(setup);
+        await Assert.That(stoppedTearDown).IsSameReferenceAs(teardown);
+        await Assert.That(scope.Befores).IsEquivalentTo([setup]);
+        await Assert.That(scope.Afters).IsEquivalentTo([teardown]);
         await Assert.That(runtime.ContextApi.CurrentState.HasFixture).IsFalse();
     }
 
@@ -131,7 +131,7 @@ public class LifecycleTests
         var runtime = RuntimeTestEnvironment.Create().Runtime;
 
         await Assert.That(
-            () => runtime.LifecycleApi.StartBeforeFixture(new() { Name = "fixture" })
+            () => runtime.LifecycleApi.StartSetUpFixture(new() { Name = "fixture" })
         ).Throws<InvalidOperationException>();
     }
 
@@ -139,11 +139,11 @@ public class LifecycleTests
     public async Task ShouldRejectSecondActiveFixture()
     {
         var runtime = RuntimeTestEnvironment.Create().Runtime;
-        runtime.LifecycleApi.StartScope(new() { Uuid = "scope", Name = "scope" });
-        runtime.LifecycleApi.StartBeforeFixture(new() { Name = "first" });
+        runtime.LifecycleApi.StartTestScope(new() { Uuid = "scope", Name = "scope" });
+        runtime.LifecycleApi.StartSetUpFixture(new() { Name = "first" });
 
         await Assert.That(
-            () => runtime.LifecycleApi.StartAfterFixture(new() { Name = "second" })
+            () => runtime.LifecycleApi.StartTearDownFixture(new() { Name = "second" })
         ).Throws<InvalidOperationException>();
     }
 
@@ -174,15 +174,15 @@ public class LifecycleTests
     public async Task ShouldRejectScopeChangesWhileExecutableItemIsActive()
     {
         var runtime = RuntimeTestEnvironment.Create().Runtime;
-        runtime.LifecycleApi.StartScope(new() { Uuid = "scope", Name = "scope" });
+        runtime.LifecycleApi.StartTestScope(new() { Uuid = "scope", Name = "scope" });
         runtime.LifecycleApi.StartTest(new() { Uuid = "test", Name = "test" });
 
         await Assert.That(
-            () => runtime.LifecycleApi.StartScope(
+            () => runtime.LifecycleApi.StartTestScope(
                 new() { Uuid = "nested", Name = "nested" }
             )
         ).Throws<InvalidOperationException>();
-        await Assert.That(runtime.LifecycleApi.StopScope)
+        await Assert.That(runtime.LifecycleApi.StopTestScope)
             .Throws<InvalidOperationException>();
     }
 
@@ -191,7 +191,7 @@ public class LifecycleTests
     {
         var runtime = RuntimeTestEnvironment.Create().Runtime;
 
-        await Assert.That(runtime.LifecycleApi.StopScope)
+        await Assert.That(runtime.LifecycleApi.StopTestScope)
             .Throws<InvalidOperationException>();
         await Assert.That(runtime.LifecycleApi.StopFixture)
             .Throws<InvalidOperationException>();

@@ -13,7 +13,7 @@ public class UpdateFixtureResultTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp("fixture", _ =>
                 AllureInProcessApi.UpdateFixtureResult(
                     result => result.Name = "updated"

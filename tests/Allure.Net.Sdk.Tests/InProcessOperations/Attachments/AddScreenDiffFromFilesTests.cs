@@ -73,7 +73,7 @@ public class AddScreenDiffFromFilesTests
         {
             environment.Run(current =>
             {
-                current.Runtime.LifecycleApi.StartScope(scope);
+                current.Runtime.LifecycleApi.StartTestScope(scope);
                 AllureInProcessApi.SetUp("fixture", _ =>
                     AllureApi.AddScreenDiffFromFiles(
                         paths.Expected,
@@ -103,7 +103,7 @@ public class AddScreenDiffFromFilesTests
         {
             environment.Run(current =>
             {
-                current.Runtime.LifecycleApi.StartScope(scope);
+                current.Runtime.LifecycleApi.StartTestScope(scope);
                 AllureInProcessApi.SetUp("fixture", _ =>
                     AllureInProcessApi.Step("step", _ =>
                         AllureApi.AddScreenDiffFromFiles(
@@ -137,7 +137,7 @@ public class AddScreenDiffFromFilesTests
         {
             await environment.RunAsync(async current =>
             {
-                current.Runtime.LifecycleApi.StartScope(scope);
+                current.Runtime.LifecycleApi.StartTestScope(scope);
                 await AllureInProcessApi.SetUpAsync(
                     "fixture",
                     (_, token) => AllureApi.AddScreenDiffFromFilesAsync(
@@ -171,7 +171,7 @@ public class AddScreenDiffFromFilesTests
         {
             environment.Run(current =>
             {
-                current.Runtime.LifecycleApi.StartScope(scope);
+                current.Runtime.LifecycleApi.StartTestScope(scope);
                 current.Runtime.LifecycleApi.StartTest(test);
                 AllureInProcessApi.SetUp("fixture", _ =>
                     AllureApi.AddScreenDiffFromFiles(
@@ -204,7 +204,7 @@ public class AddScreenDiffFromFilesTests
         {
             await environment.RunAsync(async current =>
             {
-                current.Runtime.LifecycleApi.StartScope(scope);
+                current.Runtime.LifecycleApi.StartTestScope(scope);
                 current.Runtime.LifecycleApi.StartTest(test);
                 await AllureInProcessApi.SetUpAsync(
                     "fixture",
@@ -239,7 +239,7 @@ public class AddScreenDiffFromFilesTests
         {
             await environment.RunAsync(async current =>
             {
-                current.Runtime.LifecycleApi.StartScope(scope);
+                current.Runtime.LifecycleApi.StartTestScope(scope);
                 await AllureInProcessApi.SetUpAsync(
                     "fixture",
                     (_, token) => AllureInProcessApi.StepAsync(

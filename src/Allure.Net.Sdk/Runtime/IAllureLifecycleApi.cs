@@ -10,22 +10,22 @@ public interface IAllureLifecycleApi
     /// <summary>
     /// Starts a test result scope.
     /// </summary>
-    void StartScope(TestResultScope scope);
+    void StartTestScope(TestResultScope scope);
 
     /// <summary>
     /// Stops and returns the current test result scope.
     /// </summary>
-    TestResultScope StopScope();
+    TestResultScope StopTestScope();
 
     /// <summary>
-    /// Starts a before fixture in the current scope.
+    /// Starts a setup fixture in the current scope.
     /// </summary>
-    void StartBeforeFixture(FixtureResult fixtureResult);
+    void StartSetUpFixture(FixtureResult fixtureResult);
 
     /// <summary>
-    /// Starts an after fixture in the current scope.
+    /// Starts an teardown fixture in the current scope.
     /// </summary>
-    void StartAfterFixture(FixtureResult fixtureResult);
+    void StartTearDownFixture(FixtureResult fixtureResult);
 
     /// <summary>
     /// Stops and returns the current fixture.

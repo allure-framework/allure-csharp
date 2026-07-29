@@ -15,7 +15,7 @@ public class TryReadFixtureResultTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp("fixture", _ =>
             {
                 success = AllureInProcessApi.TryReadFixtureResult(

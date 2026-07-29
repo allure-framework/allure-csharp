@@ -14,7 +14,7 @@ public class FixtureContextTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 context => context.SetName("renamed")
@@ -32,7 +32,7 @@ public class FixtureContextTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 context => context.AddParameter(new (){ Name = "Foo", Value = "Bar" })
@@ -53,7 +53,7 @@ public class FixtureContextTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 context => context.SetNameAsync("renamed")
@@ -71,7 +71,7 @@ public class FixtureContextTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 context => context.AddParameterAsync(new (){ Name = "Foo", Value = "Bar" })
@@ -92,7 +92,7 @@ public class FixtureContextTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 context => context.UpdateFixtureResult(static (fixture) =>
@@ -113,7 +113,7 @@ public class FixtureContextTests
 
         environment.Run(current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 context => context.ReadFixtureResult(
@@ -133,7 +133,7 @@ public class FixtureContextTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async context => context.UpdateFixtureResult(static (fixture) =>
@@ -154,7 +154,7 @@ public class FixtureContextTests
 
         await environment.RunAsync(async current =>
         {
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async context => context.ReadFixtureResult(
@@ -175,7 +175,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; }
@@ -199,7 +199,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; return 1; }
@@ -223,7 +223,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; }
@@ -247,7 +247,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; return 1; }
@@ -271,7 +271,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; }
@@ -295,7 +295,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; return 1; }
@@ -319,7 +319,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; }
@@ -343,7 +343,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; return 1; }
@@ -367,7 +367,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; }
@@ -391,7 +391,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; return 1; }
@@ -415,7 +415,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; }
@@ -439,7 +439,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; return 1; }
@@ -463,7 +463,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; }
@@ -487,7 +487,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.SetUp(
                 "setup",
                 ctx => { context = ctx; return 1; }
@@ -511,7 +511,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; }
@@ -535,7 +535,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.SetUpAsync(
                 "setup",
                 async ctx => { context = ctx; return 1; }
@@ -559,7 +559,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.TearDown(
                 "teardown",
                 ctx => { context = ctx; }
@@ -583,7 +583,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.Run(current =>
         {
             IAllureInProcessSyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             AllureInProcessApi.TearDown(
                 "teardown",
                 ctx => { context = ctx; return 1; }
@@ -607,7 +607,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.TearDownAsync(
                 "teardown",
                 async ctx => { context = ctx; }
@@ -631,7 +631,7 @@ public class FixtureContextTests
         await Assert.That(() => environment.RunAsync(async current =>
         {
             IAllureInProcessAsyncFixtureContext? context = null;
-            current.Runtime.LifecycleApi.StartScope(scope);
+            current.Runtime.LifecycleApi.StartTestScope(scope);
             await AllureInProcessApi.TearDownAsync(
                 "teardown",
                 async ctx => { context = ctx; return 1; }
