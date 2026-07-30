@@ -15,31 +15,31 @@ namespace Allure.Sdk.Registration;
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TContext">The endpoint registration context type.</typeparam>
 /// <typeparam name="THook">The endpoint registration hook type.</typeparam>
-public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THook> :
-    IAllureInProcessEndpointIntegrationContext<TConfiguration, TContext, THook>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
+public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THook, TRuntime> :
+    IAllureInProcessEndpointIntegrationContext<TConfiguration, TContext, THook, TRuntime>
 
     where TConfiguration : AllureConfiguration
-    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
-    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext>
+    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>
+    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext, TRuntime>
+    where TRuntime : IAllureRuntime<TConfiguration>
 {
     readonly string runtimeName;
 
     readonly string routeId;
 
-    readonly IAllureRuntime<TConfiguration> runtime;
-
     Func<TConfiguration, IEnumerable<THook?>> currentHooksFactory =
         (_) => [];
 
-    Func<IAllureRuntime<TConfiguration>, bool> availabilityPredicate = (_) => true;
+    Func<TRuntime, bool> availabilityPredicate = (_) => true;
 
-    Func<IAllureRuntime<TConfiguration>, bool> currentScopePredicate = (_) => true;
+    Func<TRuntime, bool> currentScopePredicate = (_) => true;
 
-    Func<IAllureRuntime<TConfiguration>, bool> globalScopePredicate = (_) => true;
+    Func<TRuntime, bool> globalScopePredicate = (_) => true;
 
-    Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> currentSuppressedRouteIdsFactory = (_) => [];
+    Func<TRuntime, IEnumerable<string>> currentSuppressedRouteIdsFactory = (_) => [];
 
-    Func<IAllureRuntime<TConfiguration>, AllureInProcessOperations> currentOperationsFactory = (runtime) =>
+    Func<TRuntime, AllureInProcessOperations> currentOperationsFactory = (runtime) =>
         new AllureInProcessOperations(
             new RuntimeSyncOperations<TConfiguration>(runtime),
             new RuntimeAsyncOperations<TConfiguration>(runtime)
@@ -47,21 +47,26 @@ public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THoo
 
     bool useRuleBasedSerializer = false;
 
-    Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> currentSerializerFactory;
+    Func<TRuntime, IAllureParameterSerializer> currentSerializerFactory;
 
     readonly List<Action<TConfiguration, IParameterSerializationRulesContext>> currentRuleBasedSerializerRegistrations;
+
+    /// <summary>
+    /// Gets the integration-specific runtime associated with this route.
+    /// </summary>
+    protected TRuntime Runtime { get; }
 
     /// <summary>
     /// Initializes an in-process route builder from the components resolved by
     /// its runtime builder.
     /// </summary>
     /// <param name="args">The resolved route builder arguments.</param>
-    public AllureInProcessRouteBuilder(AllureRouteBuilderArgs<TConfiguration> args)
+    public AllureInProcessRouteBuilder(AllureRouteBuilderArgs<TConfiguration, TRuntime> args)
     {
         this.useRuleBasedSerializer = args.UseRuleBasedSerializer;
         this.runtimeName = args.RuntimeName;
         this.routeId = args.RouteId;
-        this.runtime = args.Runtime;
+        this.Runtime = args.Runtime;
         this.currentRuleBasedSerializerRegistrations = [.. args.RuleBasedSerializerRegistrations];
         this.currentSerializerFactory =
             useRuleBasedSerializer
@@ -69,7 +74,7 @@ public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THoo
                     AllureRegistrationDefaults.ParameterSerializer<TConfiguration>(
                         currentRuleBasedSerializerRegistrations
                     )(runtime.Configuration)
-                : (_) => runtime.ParameterSerializer;
+                : (_) => this.Runtime.ParameterSerializer;
     }
 
     /// <inheritdoc/>
@@ -81,7 +86,7 @@ public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THoo
     }
 
     /// <inheritdoc/>
-    public void SetAvailabilityPredicate(Func<IAllureRuntime<TConfiguration>, bool> isAvailable)
+    public void SetAvailabilityPredicate(Func<TRuntime, bool> isAvailable)
     {
         this.availabilityPredicate = isAvailable;
     }
@@ -93,7 +98,7 @@ public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THoo
     }
 
     /// <inheritdoc/>
-    public void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> suppressedRouteIdsFactory)
+    public void SuppressRoutes(Func<TRuntime, IEnumerable<string>> suppressedRouteIdsFactory)
     {
         this.currentSuppressedRouteIdsFactory = suppressedRouteIdsFactory;
     }
@@ -105,25 +110,25 @@ public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THoo
     }
 
     /// <inheritdoc/>
-    public void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate)
+    public void UseCurrentScopePredicate(Func<TRuntime, bool> predicate)
     {
         this.currentScopePredicate = predicate;
     }
 
     /// <inheritdoc/>
-    public void UseGlobalScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate)
+    public void UseGlobalScopePredicate(Func<TRuntime, bool> predicate)
     {
         this.globalScopePredicate = predicate;
     }
 
     /// <inheritdoc/>
-    public void UseOperations(Func<IAllureRuntime<TConfiguration>, AllureInProcessOperations> operationsFactory)
+    public void UseOperations(Func<TRuntime, AllureInProcessOperations> operationsFactory)
     {
         this.currentOperationsFactory = operationsFactory;
     }
 
     /// <inheritdoc/>
-    public void UseParameterSerializer(Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> serializerFactory)
+    public void UseParameterSerializer(Func<TRuntime, IAllureParameterSerializer> serializerFactory)
     {
         this.useRuleBasedSerializer = false;
         this.currentRuleBasedSerializerRegistrations.Clear();
@@ -163,14 +168,14 @@ public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THoo
         this.RunHooks();
         return new AllureRuntimeRoute(
             routeId,
-            () => this.currentScopePredicate(this.runtime),
-            () => this.globalScopePredicate(this.runtime),
-            [.. this.currentSuppressedRouteIdsFactory(this.runtime)],
+            () => this.currentScopePredicate(this.Runtime),
+            () => this.globalScopePredicate(this.Runtime),
+            [.. this.currentSuppressedRouteIdsFactory(this.Runtime)],
             new AllureInProcessRuntimeEndpoint(
                 this.runtimeName,
-                () => this.availabilityPredicate(this.runtime),
-                this.currentOperationsFactory(this.runtime),
-                this.currentSerializerFactory(this.runtime)
+                () => this.availabilityPredicate(this.Runtime),
+                this.currentOperationsFactory(this.Runtime),
+                this.currentSerializerFactory(this.Runtime)
             )
         );
     }
@@ -183,15 +188,39 @@ public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THoo
 
     void RunHooks()
     {
-        foreach (var hook in this.currentHooksFactory(this.runtime.Configuration))
+        foreach (var hook in this.currentHooksFactory(this.Runtime.Configuration))
         {
             hook?.SetUp(this.RegistrationContext);
         }
     }
 }
 
+/// <summary>
+/// Provides the base implementation for builders that construct an in-process
+/// endpoint route for a standard Allure runtime with an integration-specific
+/// registration context and hook.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TContext">The endpoint registration context type.</typeparam>
+/// <typeparam name="THook">The endpoint registration hook type.</typeparam>
+/// <param name="args">The resolved route builder arguments.</param>
+public abstract class AllureInProcessRouteBuilder<TConfiguration, TContext, THook>(
+    AllureRouteBuilderArgs<TConfiguration, IAllureRuntime<TConfiguration>> args
+) :
+    AllureInProcessRouteBuilder<
+        TConfiguration,
+        TContext,
+        THook,
+        IAllureRuntime<TConfiguration>
+    >(args),
+    IAllureInProcessEndpointIntegrationContext<TConfiguration, TContext, THook>
+
+    where TConfiguration : AllureConfiguration
+    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
+    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext>;
+
 class AllureInProcessRouteBuilder(
-    AllureRouteBuilderArgs<AllureConfiguration> args
+    AllureRouteBuilderArgs<AllureConfiguration, IAllureRuntime<AllureConfiguration>> args
 ) :
     AllureInProcessRouteBuilder<
         AllureConfiguration,

@@ -31,13 +31,13 @@ public class RegistrationHookTests
             return [first, null, second];
         });
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
         await Assert.That(calls)
             .IsEquivalentTo(["configuration", "first", "second"]);
         await Assert.That(first.CallCount).IsEqualTo(1);
         await Assert.That(second.CallCount).IsEqualTo(1);
-        await Assert.That(runtime.Configuration).IsSameReferenceAs(configuration);
+        await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(configuration);
     }
 
     [Test]
@@ -62,11 +62,11 @@ public class RegistrationHookTests
         });
         builder.UseRegistrationHooks(_ => [hook]);
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
         await Assert.That(originalLoads).IsEqualTo(1);
         await Assert.That(replacementLoads).IsEqualTo(1);
-        await Assert.That(runtime.Configuration).IsSameReferenceAs(replacement);
+        await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(replacement);
     }
 
     [Test]
@@ -90,10 +90,10 @@ public class RegistrationHookTests
         });
         builder.UseRegistrationHooks(_ => [hook]);
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
         await Assert.That(sourceFactoryCalls).IsEqualTo(1);
-        await Assert.That(runtime.ResultsDestination)
+        await Assert.That(registration.Runtime.ResultsDestination)
             .IsSameReferenceAs(destination);
     }
 
@@ -116,10 +116,10 @@ public class RegistrationHookTests
             ];
         });
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
         await Assert.That(received).IsSameReferenceAs(original);
-        await Assert.That(runtime.Configuration).IsSameReferenceAs(replacement);
+        await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(replacement);
     }
 
     [Test]
@@ -135,9 +135,9 @@ public class RegistrationHookTests
             new RecordingRuntimeHook<TestConfiguration>(context => context.UseConfiguration(second)),
         ]);
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
-        await Assert.That(runtime.Configuration).IsSameReferenceAs(second);
+        await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(second);
     }
 
     [Test]
@@ -183,9 +183,9 @@ public class RegistrationHookTests
             ),
         ]);
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
-        await Assert.That(runtime.ParameterSerializer).IsSameReferenceAs(serializer);
+        await Assert.That(registration.Runtime.ParameterSerializer).IsSameReferenceAs(serializer);
     }
 
     [Test]
@@ -216,7 +216,7 @@ public class RegistrationHookTests
             }
         );
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
         await Assert.That(calls.Count).IsEqualTo(3);
         await Assert.That(calls[0]).IsEqualTo("configuration");
@@ -224,7 +224,7 @@ public class RegistrationHookTests
         await Assert.That(calls[2]).IsEqualTo("second");
         await Assert.That(first.CallCount).IsEqualTo(1);
         await Assert.That(second.CallCount).IsEqualTo(1);
-        await Assert.That(runtime.Configuration).IsSameReferenceAs(final);
+        await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(final);
     }
 
     [Test]

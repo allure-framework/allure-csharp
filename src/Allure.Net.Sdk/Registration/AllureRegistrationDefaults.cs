@@ -23,7 +23,7 @@ public static class AllureRegistrationDefaults
     =>
         static () => [
             JsonFileConfigurationSource.FromPathEnvironmentVariable<TConfiguration>(),
-            JsonFileConfigurationSource.FromBaseDirectory<TConfiguration>(),
+            JsonFileConfigurationSource.FromBaseDirectory<TConfiguration>(true),
         ];
 
     /// <summary>

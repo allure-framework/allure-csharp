@@ -6,19 +6,20 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Net.Sdk.Tests.Infrastructure;
 
-sealed class RuntimeTestEnvironment<TConfiguration>
+sealed class RuntimeTestEnvironment<TConfiguration> : IDisposable
     where TConfiguration : AllureConfiguration, new()
 {
+    readonly AllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration;
     RuntimeTestEnvironment(
-        IAllureRuntime<TConfiguration> runtime,
+        AllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration,
         InMemoryResultsDestination destination
     )
     {
-        this.Runtime = runtime;
+        this.registration = registration;
         this.Destination = destination;
     }
 
-    public IAllureRuntime<TConfiguration> Runtime { get; }
+    public IAllureRuntime<TConfiguration> Runtime => this.registration.Runtime;
 
     public InMemoryResultsDestination Destination { get; }
 
@@ -42,6 +43,11 @@ sealed class RuntimeTestEnvironment<TConfiguration>
 
         return new(builder.Build(), destination);
     }
+
+    public void Dispose()
+    {
+        this.registration?.Dispose();
+    }
 }
 
 sealed class TestRuntimeBuilder<TConfiguration>(string runtimeName) : AllureRuntimeBuilder<
@@ -55,15 +61,25 @@ sealed class TestRuntimeBuilder<TConfiguration>(string runtimeName) : AllureRunt
 {
     protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
 
-    protected override AllureInProcessRouteBuilder<TConfiguration, IAllureInProcessEndpointRegistrationContext<TConfiguration>, RecordingEndpointHook<TConfiguration>> CreateRouteBuilder(
-        AllureRouteBuilderArgs<TConfiguration> args
+    protected override AllureInProcessRouteBuilder<
+        TConfiguration,
+        IAllureInProcessEndpointRegistrationContext<TConfiguration>,
+        RecordingEndpointHook<TConfiguration>,
+        IAllureRuntime<TConfiguration>
+    > CreateRouteBuilder(
+        AllureRouteBuilderArgs<TConfiguration, IAllureRuntime<TConfiguration>> args
     )
     {
         return new TestEndpointRouteBuilder<TConfiguration>(args);
     }
 }
 
-sealed class TestEndpointRouteBuilder<TConfiguration>(AllureRouteBuilderArgs<TConfiguration> args) :
+sealed class TestEndpointRouteBuilder<TConfiguration>(
+    AllureRouteBuilderArgs<
+        TConfiguration,
+        IAllureRuntime<TConfiguration>
+    > args
+) :
     AllureInProcessRouteBuilder<
         TConfiguration,
         IAllureInProcessEndpointRegistrationContext<TConfiguration>,
@@ -99,6 +115,23 @@ sealed class RecordingRuntimeHook<TConfiguration>(
 
     public void SetUp(
         IAllureRuntimeRegistrationContext<TConfiguration> context
+    )
+    {
+        this.CallCount++;
+        setUp?.Invoke(context);
+    }
+}
+
+sealed class RecordingEndpointHook<TConfiguration, TRuntime>(
+    Action<IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>>? setUp = null
+) : IAllureInProcessEndpointRegistrationHook<TConfiguration, IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>, TRuntime>
+    where TConfiguration : AllureConfiguration
+    where TRuntime : IAllureRuntime<TConfiguration>
+{
+    public int CallCount { get; private set; }
+
+    public void SetUp(
+        IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime> context
     )
     {
         this.CallCount++;

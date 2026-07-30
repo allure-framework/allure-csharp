@@ -70,15 +70,15 @@ public class RuntimeComponentRegistrationTests
                 ),
             ]);
 
-            var runtime = builder.Build();
-            runtime.ResultsDestination.WriteGlobals(new()
+            using var registration = builder.Build();
+            registration.Runtime.ResultsDestination.WriteGlobals(new()
             {
                 Errors = { new() { Message = "runtime error" } },
             });
 
-            await Assert.That(runtime.ResultsDestination)
+            await Assert.That(registration.Runtime.ResultsDestination)
                 .IsTypeOf<FileSystemResultsDestination>();
-            await Assert.That(runtime.Configuration).IsSameReferenceAs(final);
+            await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(final);
             await Assert.That(Directory.Exists(originalDirectory)).IsFalse();
             var json = await File.ReadAllTextAsync(
                 Directory.GetFiles(finalDirectory, "*-globals.json").Single()
@@ -139,7 +139,7 @@ public class RuntimeComponentRegistrationTests
             return model;
         });
 
-        var runtime = builder.Build();
+        using var registration = builder.Build();
 
         await Assert.That(serializerConfiguration)
             .IsSameReferenceAs(configuration);
@@ -151,14 +151,14 @@ public class RuntimeComponentRegistrationTests
             .IsSameReferenceAs(configuration);
         await Assert.That(dependencyInputs[0].ParameterSerializer)
             .IsSameReferenceAs(serializer);
-        await Assert.That(runtime.Configuration).IsSameReferenceAs(configuration);
-        await Assert.That(runtime.ParameterSerializer).IsSameReferenceAs(serializer);
-        await Assert.That(runtime.ResultsDestination).IsSameReferenceAs(destination);
-        await Assert.That(runtime.ContextApi).IsSameReferenceAs(context);
-        await Assert.That(runtime.LifecycleApi).IsSameReferenceAs(lifecycle);
-        await Assert.That(runtime.ModelApi).IsSameReferenceAs(model);
+        await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(configuration);
+        await Assert.That(registration.Runtime.ParameterSerializer).IsSameReferenceAs(serializer);
+        await Assert.That(registration.Runtime.ResultsDestination).IsSameReferenceAs(destination);
+        await Assert.That(registration.Runtime.ContextApi).IsSameReferenceAs(context);
+        await Assert.That(registration.Runtime.LifecycleApi).IsSameReferenceAs(lifecycle);
+        await Assert.That(registration.Runtime.ModelApi).IsSameReferenceAs(model);
         await Assert.That(dependencyInputs[0].RuntimeReference.Value)
-            .IsSameReferenceAs(runtime);
+            .IsSameReferenceAs(registration.Runtime);
     }
 
     [Test]

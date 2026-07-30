@@ -10,7 +10,10 @@ namespace Allure.Sdk.Configuration;
 /// </summary>
 /// <typeparam name="TConfiguration">The configuration type.</typeparam>
 /// <param name="path">The path to the JSON configuration file.</param>
-public class JsonFileConfigurationSource<TConfiguration>(string path) :
+/// <param name="isOptional">
+/// Whether the source should be skipped when the file does not exist.
+/// </param>
+public class JsonFileConfigurationSource<TConfiguration>(string path, bool isOptional) :
     IAllureConfigurationSource<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
@@ -25,7 +28,14 @@ public class JsonFileConfigurationSource<TConfiguration>(string path) :
     public string Name => $"JSON from {path}";
 
     /// <inheritdoc/>
-    public bool CanLoad => path is { Length: >0 };
+    public bool CanLoad => path is { Length: >0 }
+        && (!isOptional || File.Exists(Path.GetFullPath(path)));
+
+    /// <summary>
+    /// Creates a mandatory configuration source that throws if the file does not exist.
+    /// </summary>
+    /// <param name="path">The path to the JSON configuration file.</param>
+    public JsonFileConfigurationSource(string path) : this(path, false) { }
 
     /// <inheritdoc/>
     /// <exception cref="FileNotFoundException">
@@ -188,9 +198,12 @@ public static class JsonFileConfigurationSource
     /// Creates a source for <c>allureConfig.json</c> in the application base directory.
     /// </summary>
     /// <typeparam name="TConfiguration">The configuration type.</typeparam>
+    /// <param name="isOptional">
+    /// Whether the source should be skipped when the file does not exist.
+    /// </param>
     /// <returns>The configuration source.</returns>
-    public static JsonFileConfigurationSource<TConfiguration> FromBaseDirectory<TConfiguration>()
+    public static JsonFileConfigurationSource<TConfiguration> FromBaseDirectory<TConfiguration>(bool isOptional)
         where TConfiguration : AllureConfiguration, new()
     =>
-        new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "allureConfig.json"));
+        new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "allureConfig.json"), isOptional);
 }

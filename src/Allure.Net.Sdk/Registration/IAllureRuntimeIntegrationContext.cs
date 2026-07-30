@@ -28,8 +28,8 @@ public interface IAllureRuntimeIntegrationContext<
     where TConfiguration : AllureConfiguration, new()
     where TRuntimeRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
     where TRuntimeHook : IAllureRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext>
+    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>
+    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
     where TRuntime : IAllureRuntime<TConfiguration>
 {
     /// <summary>
@@ -70,7 +70,8 @@ public interface IAllureRuntimeIntegrationContext<
             IAllureInProcessEndpointIntegrationContext<
                 TConfiguration,
                 TEndpointRegistrationContext,
-                TEndpointHook
+                TEndpointHook,
+                TRuntime
             >
         > endpointRegistration
     );

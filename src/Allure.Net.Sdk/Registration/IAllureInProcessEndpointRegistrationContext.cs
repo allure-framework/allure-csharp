@@ -10,14 +10,18 @@ namespace Allure.Sdk.Registration;
 /// Configures an in-process endpoint for an Allure runtime.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> : IAllureEndpointRegistrationContext
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
+public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime> :
+    IAllureEndpointRegistrationContext
+
     where TConfiguration : AllureConfiguration
+    where TRuntime : IAllureRuntime<TConfiguration>
 {
     /// <summary>
     /// Configures the parameter serializer used by the endpoint.
     /// </summary>
     void UseParameterSerializer(
-        Func<IAllureRuntime<TConfiguration>, IAllureParameterSerializer> serializerFactory
+        Func<TRuntime, IAllureParameterSerializer> serializerFactory
     );
 
     /// <summary>
@@ -28,13 +32,22 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> : I
     /// <summary>
     /// Configures endpoint availability using the constructed runtime.
     /// </summary>
-    void SetAvailabilityPredicate(Func<IAllureRuntime<TConfiguration>, bool> isAvailable);
+    void SetAvailabilityPredicate(Func<TRuntime, bool> isAvailable);
 
     /// <summary>
     /// Configures suppressed route IDs using the constructed runtime.
     /// </summary>
-    void SuppressRoutes(Func<IAllureRuntime<TConfiguration>, IEnumerable<string>> routeIdsFactory);
+    void SuppressRoutes(Func<TRuntime, IEnumerable<string>> routeIdsFactory);
 }
+
+/// <summary>
+/// Configures an in-process endpoint for a standard Allure runtime.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> :
+    IAllureInProcessEndpointRegistrationContext<TConfiguration, IAllureRuntime<TConfiguration>>
+
+    where TConfiguration : AllureConfiguration;
 
 /// <summary>
 /// Configures an in-process endpoint for an Allure runtime that uses the

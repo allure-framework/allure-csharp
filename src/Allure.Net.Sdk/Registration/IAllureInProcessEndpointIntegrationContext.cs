@@ -13,11 +13,14 @@ namespace Allure.Sdk.Registration;
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TContext">The registration context type.</typeparam>
 /// <typeparam name="THook">The endpoint registration hook type.</typeparam>
-public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, TContext, THook> :
-    IAllureInProcessEndpointRegistrationContext<TConfiguration>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
+public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, TContext, THook, TRuntime> :
+    IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>
+
     where TConfiguration : AllureConfiguration
-    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
-    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext>
+    where TRuntime : IAllureRuntime<TConfiguration>
+    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>
+    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext, TRuntime>
 {
     /// <summary>
     /// Configures the hooks invoked during endpoint registration.
@@ -29,18 +32,38 @@ public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, TCon
     /// <summary>
     /// Configures the predicate used to match the current test or fixture scope.
     /// </summary>
-    void UseCurrentScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);
+    void UseCurrentScopePredicate(Func<TRuntime, bool> predicate);
 
     /// <summary>
     /// Configures the predicate used to match the global scope.
     /// </summary>
-    void UseGlobalScopePredicate(Func<IAllureRuntime<TConfiguration>, bool> predicate);
+    void UseGlobalScopePredicate(Func<TRuntime, bool> predicate);
 
     /// <summary>
     /// Configures the operations exposed by the endpoint.
     /// </summary>
-    void UseOperations(Func<IAllureRuntime<TConfiguration>, AllureInProcessOperations> operationsFactory);
+    void UseOperations(Func<TRuntime, AllureInProcessOperations> operationsFactory);
 }
+
+/// <summary>
+/// Configures an in-process endpoint and its integration hooks for a standard
+/// Allure runtime.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TContext">The registration context type.</typeparam>
+/// <typeparam name="THook">The endpoint registration hook type.</typeparam>
+public interface IAllureInProcessEndpointIntegrationContext<TConfiguration, TContext, THook> :
+    IAllureInProcessEndpointIntegrationContext<
+        TConfiguration,
+        TContext,
+        THook,
+        IAllureRuntime<TConfiguration>
+    >,
+    IAllureInProcessEndpointRegistrationContext<TConfiguration>
+
+    where TConfiguration : AllureConfiguration
+    where TContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
+    where THook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TContext>;
 
 /// <summary>
 /// Configures an in-process endpoint and its integration hooks for an Allure
@@ -50,6 +73,7 @@ public interface IAllureInProcessEndpointIntegrationContext :
     IAllureInProcessEndpointIntegrationContext<
         AllureConfiguration,
         IAllureInProcessEndpointRegistrationContext,
-        IAllureInProcessEndpointRegistrationHook
+        IAllureInProcessEndpointRegistrationHook,
+        IAllureRuntime<AllureConfiguration>
     >,
     IAllureInProcessEndpointRegistrationContext;

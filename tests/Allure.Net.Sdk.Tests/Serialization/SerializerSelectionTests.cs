@@ -12,13 +12,13 @@ public class SerializerSelectionTests
     public async Task ShouldUseExplicitParameterSerializer()
     {
         var expected = new RecordingParameterSerializer(_ => "explicit");
-        var runtime = CreateBuilder(builder =>
+        using var registration = CreateBuilder(builder =>
             builder.UseParameterSerializer(() => expected)
         ).Build();
 
-        await Assert.That(runtime.ParameterSerializer)
+        await Assert.That(registration.Runtime.ParameterSerializer)
             .IsSameReferenceAs(expected);
-        await Assert.That(runtime.ParameterSerializer.Serialize(17))
+        await Assert.That(registration.Runtime.ParameterSerializer.Serialize(17))
             .IsEqualTo("explicit");
     }
 
@@ -26,7 +26,7 @@ public class SerializerSelectionTests
     public async Task ShouldUseExplicitSerializerWhenConfiguredAfterRules()
     {
         var expected = new RecordingParameterSerializer(_ => "explicit");
-        var runtime = CreateBuilder(builder =>
+        using var registration = CreateBuilder(builder =>
         {
             builder.ConfigureSerialization(
                 context => context.AddDelegateRule<int>(_ => "rule")
@@ -34,9 +34,9 @@ public class SerializerSelectionTests
             builder.UseParameterSerializer(() => expected);
         }).Build();
 
-        await Assert.That(runtime.ParameterSerializer)
+        await Assert.That(registration.Runtime.ParameterSerializer)
             .IsSameReferenceAs(expected);
-        await Assert.That(runtime.ParameterSerializer.Serialize(17))
+        await Assert.That(registration.Runtime.ParameterSerializer.Serialize(17))
             .IsEqualTo("explicit");
     }
 
@@ -45,7 +45,7 @@ public class SerializerSelectionTests
     {
         var explicitSerializer =
             new RecordingParameterSerializer(_ => "explicit");
-        var runtime = CreateBuilder(builder =>
+        using var registration = CreateBuilder(builder =>
         {
             builder.UseParameterSerializer(() => explicitSerializer);
             builder.ConfigureSerialization(
@@ -53,9 +53,9 @@ public class SerializerSelectionTests
             );
         }).Build();
 
-        await Assert.That(runtime.ParameterSerializer)
+        await Assert.That(registration.Runtime.ParameterSerializer)
             .IsNotSameReferenceAs(explicitSerializer);
-        await Assert.That(runtime.ParameterSerializer.Serialize(17))
+        await Assert.That(registration.Runtime.ParameterSerializer.Serialize(17))
             .IsEqualTo("rule");
         await Assert.That(explicitSerializer.Values).IsEmpty();
     }
@@ -65,7 +65,7 @@ public class SerializerSelectionTests
     {
         var explicitSerializer =
             new RecordingParameterSerializer(_ => "explicit");
-        var runtime = CreateBuilder(builder =>
+        using var registration = CreateBuilder(builder =>
         {
             builder.ConfigureSerialization(
                 context => context.AddDelegateRule<string>(_ => "old-rule")
@@ -76,9 +76,9 @@ public class SerializerSelectionTests
             );
         }).Build();
 
-        await Assert.That(runtime.ParameterSerializer.Serialize(17))
+        await Assert.That(registration.Runtime.ParameterSerializer.Serialize(17))
             .IsEqualTo("new-rule");
-        await Assert.That(runtime.ParameterSerializer.Serialize("text"))
+        await Assert.That(registration.Runtime.ParameterSerializer.Serialize("text"))
             .IsEqualTo("\"text\"");
         await Assert.That(explicitSerializer.Values).IsEmpty();
     }
@@ -88,7 +88,7 @@ public class SerializerSelectionTests
     {
         var firstCalls = 0;
         var secondCalls = 0;
-        var runtime = CreateBuilder(builder =>
+        using var registration = CreateBuilder(builder =>
         {
             builder.ConfigureSerialization(context =>
                 context.AddDelegateRule<int>(_ =>
@@ -106,7 +106,7 @@ public class SerializerSelectionTests
             );
         }).Build();
 
-        await Assert.That(runtime.ParameterSerializer.Serialize(17))
+        await Assert.That(registration.Runtime.ParameterSerializer.Serialize(17))
             .IsEqualTo("second");
         await Assert.That(firstCalls).IsEqualTo(0);
         await Assert.That(secondCalls).IsEqualTo(1);
@@ -123,7 +123,7 @@ public class SerializerSelectionTests
         IAllureRuntime<AllureConfiguration>? endpointRuntime = null;
         var endpointFactoryCalls = 0;
 
-        var runtime = CreateBuilder(builder =>
+        using var registration = CreateBuilder(builder =>
         {
             builder.UseParameterSerializer(() => runtimeSerializer);
             builder.RegisterInProcessEndpoint(
@@ -144,15 +144,15 @@ public class SerializerSelectionTests
             );
         }).Build();
 
-        await Assert.That(runtime.ParameterSerializer)
+        await Assert.That(registration.Runtime.ParameterSerializer)
             .IsSameReferenceAs(runtimeSerializer);
         await Assert.That(endpointFactoryCalls).IsEqualTo(1);
-        await Assert.That(endpointRuntime).IsSameReferenceAs(runtime);
+        await Assert.That(registration.Runtime).IsSameReferenceAs(endpointRuntime);
         await Assert.That(selectedEndpointSerializer)
             .IsSameReferenceAs(endpointSerializer);
         await Assert.That(selectedEndpointSerializer!.Serialize(17))
             .IsEqualTo("endpoint");
-        await Assert.That(runtime.ParameterSerializer.Serialize(17))
+        await Assert.That(registration.Runtime.ParameterSerializer.Serialize(17))
             .IsEqualTo("runtime");
     }
 

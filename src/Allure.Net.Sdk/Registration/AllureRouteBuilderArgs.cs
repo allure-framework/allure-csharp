@@ -14,19 +14,21 @@ namespace Allure.Sdk.Registration;
 /// <c>CreateRouteBuilder</c> implementations.
 /// </remarks>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public sealed class AllureRouteBuilderArgs<TConfiguration>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
+public class AllureRouteBuilderArgs<TConfiguration, TRuntime>
     where TConfiguration : AllureConfiguration
+    where TRuntime : IAllureRuntime<TConfiguration>
 {
     internal string RuntimeName { get; }
     internal string RouteId { get; }
-    internal IAllureRuntime<TConfiguration> Runtime { get; }
+    internal TRuntime Runtime { get; }
     internal bool UseRuleBasedSerializer { get; }
     internal IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> RuleBasedSerializerRegistrations { get; }
 
     internal AllureRouteBuilderArgs(
         string runtimeName,
         string routeId,
-        IAllureRuntime<TConfiguration> runtime,
+        TRuntime runtime,
         bool useRuleBasedSerializer,
         IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> ruleBasedSerializerRegistrations
     )
