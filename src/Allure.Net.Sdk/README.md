@@ -35,8 +35,12 @@ adapter built with this package, rather than using the SDK directly.
 ## Build a runtime
 
 Create one runtime for each independently configured integration instance and
-keep it alive for the lifetime of that instance. Choose the simplest builder
-that provides the extension points your integration needs.
+keep its registration alive for the lifetime of that instance. Use one of the builders provided by `Allure.Net.Sdk`. Their `Build` method returns
+an `AllureRuntimeRegistration<TRuntime>` that exposes the runtime through its
+`Runtime` property. Disposing this object cancels the registration.
+
+Choose the simplest builder that provides the extension points your integration
+needs.
 
 ### Use the standard runtime and configuration
 
@@ -49,7 +53,8 @@ using Allure.Sdk.Registration;
 using Allure.Sdk.Runtime;
 
 var builder = new AllureRuntimeBuilder("My Test Framework");
-IAllureRuntime<AllureConfiguration> runtime = builder.Build();
+using var registration = builder.Build();
+IAllureRuntime<AllureConfiguration> runtime = registration.Runtime;
 ```
 
 Before calling `Build`, the integration can use the builder to:
@@ -57,7 +62,7 @@ Before calling `Build`, the integration can use the builder to:
 - select configuration sources;
 - configure the results destination and parameter serialization;
 - replace the execution context, lifecycle API, or model API;
-- register runtime and endpoint hooks;
+- configure runtime and endpoint hook providers;
 - register an in-process endpoint that connects the Allure API with the runtime.
 
 #### Let framework users customize registration
@@ -83,8 +88,9 @@ public sealed class ProjectAllureRegistration :
 
 By default, the builder first loads the hook named by the
 `ALLURE_RUNTIME_REGISTRATION_HOOK` environment variable, then the hook named
-by the resolved configuration's `runtimeRegistrationHook` property. Unset hooks are
-ignored. For example, a user can select a hook in `allureConfig.json`:
+by the resolved configuration's `runtimeRegistrationHook` property. Unset
+hooks are ignored. For example, a user can select a hook in
+`allureConfig.json`:
 
 ```json
 {
@@ -124,7 +130,8 @@ builder.UseRegistrationHooks(configuration => [
     MyFrameworkRegistration.CurrentHook,
 ]);
 
-IAllureRuntime<AllureConfiguration> runtime = builder.Build();
+using var registration = builder.Build();
+IAllureRuntime<AllureConfiguration> runtime = registration.Runtime;
 ```
 
 To disable registration hooks, return an empty collection:
@@ -144,6 +151,7 @@ runtime builder:
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
 using Allure.Sdk.Registration.Hooks;
+using Allure.Sdk.Runtime;
 
 public sealed record class MyFrameworkConfiguration : AllureConfiguration
 {
@@ -169,12 +177,16 @@ public interface IMyFrameworkEndpointRegistrationHook :
     >;
 
 sealed class MyFrameworkRouteBuilder(
-    AllureRouteBuilderArgs<MyFrameworkConfiguration> args
+    AllureRouteBuilderArgs<
+        MyFrameworkConfiguration,
+        IAllureRuntime<MyFrameworkConfiguration>
+    > args
 ) :
     AllureInProcessRouteBuilder<
         MyFrameworkConfiguration,
         IMyFrameworkEndpointRegistrationContext,
-        IMyFrameworkEndpointRegistrationHook
+        IMyFrameworkEndpointRegistrationHook,
+        IAllureRuntime<MyFrameworkConfiguration>
     >(args),
     IMyFrameworkEndpointRegistrationContext
 {
@@ -198,18 +210,25 @@ public sealed class MyFrameworkRuntimeBuilder(string runtimeName) :
     protected override AllureInProcessRouteBuilder<
         MyFrameworkConfiguration,
         IMyFrameworkEndpointRegistrationContext,
-        IMyFrameworkEndpointRegistrationHook
+        IMyFrameworkEndpointRegistrationHook,
+        IAllureRuntime<MyFrameworkConfiguration>
     > CreateRouteBuilder(
-        AllureRouteBuilderArgs<MyFrameworkConfiguration> args
+        AllureRouteBuilderArgs<
+            MyFrameworkConfiguration,
+            IAllureRuntime<MyFrameworkConfiguration>
+        > args
     ) => new MyFrameworkRouteBuilder(args);
 }
 ```
 
-The integration constructs the standard runtime with this builder:
+The integration constructs the standard runtime with this builder and retains
+its registration:
 
 ```csharp
-IAllureRuntime<MyFrameworkConfiguration> runtime =
+using var registration =
     new MyFrameworkRuntimeBuilder("My Test Framework").Build();
+
+IAllureRuntime<MyFrameworkConfiguration> runtime = registration.Runtime;
 ```
 
 Framework users customize registration by implementing the hook interface
@@ -232,15 +251,17 @@ public sealed class ProjectAllureRegistration :
 
 ### Add integration-specific runtime services
 
-If the integration also exposes additional runtime services, derive a
-runtime from `AllureRuntime<TConfiguration>` and a builder from the
-six-parameter `AllureRuntimeBuilder`. Reuse the configuration, context, hook,
-and route-builder types from the previous example, and replace the
-five-parameter builder with:
+If the integration also exposes additional runtime services, derive a runtime
+from `AllureRuntime<TConfiguration>` and a builder from the six-parameter
+`AllureRuntimeBuilder`. The runtime registration context and hook from the
+previous example can be reused. Define endpoint context and hook types for the
+custom runtime, then replace the route builder and five-parameter runtime
+builder with:
 
 ```csharp
 using Allure.Abstractions;
 using Allure.Sdk.Registration;
+using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
 
@@ -270,13 +291,44 @@ public sealed class MyFrameworkRuntime(
     public FrameworkOutputCapture OutputCapture { get; } = outputCapture;
 }
 
+public interface IMyFrameworkRuntimeEndpointRegistrationContext :
+    IAllureInProcessEndpointRegistrationContext<
+        MyFrameworkConfiguration,
+        MyFrameworkRuntime
+    >;
+
+public interface IMyFrameworkRuntimeEndpointRegistrationHook :
+    IAllureInProcessEndpointRegistrationHook<
+        MyFrameworkConfiguration,
+        IMyFrameworkRuntimeEndpointRegistrationContext,
+        MyFrameworkRuntime
+    >;
+
+sealed class MyFrameworkRouteBuilder(
+    AllureRouteBuilderArgs<
+        MyFrameworkConfiguration,
+        MyFrameworkRuntime
+    > args
+) :
+    AllureInProcessRouteBuilder<
+        MyFrameworkConfiguration,
+        IMyFrameworkRuntimeEndpointRegistrationContext,
+        IMyFrameworkRuntimeEndpointRegistrationHook,
+        MyFrameworkRuntime
+    >(args),
+    IMyFrameworkRuntimeEndpointRegistrationContext
+{
+    protected override IMyFrameworkRuntimeEndpointRegistrationContext
+        RegistrationContext => this;
+}
+
 public sealed class MyFrameworkRuntimeBuilder(string runtimeName) :
     AllureRuntimeBuilder<
         MyFrameworkConfiguration,
         IMyFrameworkRuntimeRegistrationContext,
         IMyFrameworkRuntimeRegistrationHook,
-        IMyFrameworkEndpointRegistrationContext,
-        IMyFrameworkEndpointRegistrationHook,
+        IMyFrameworkRuntimeEndpointRegistrationContext,
+        IMyFrameworkRuntimeEndpointRegistrationHook,
         MyFrameworkRuntime
     >(runtimeName),
     IMyFrameworkRuntimeRegistrationContext
@@ -286,10 +338,14 @@ public sealed class MyFrameworkRuntimeBuilder(string runtimeName) :
 
     protected override AllureInProcessRouteBuilder<
         MyFrameworkConfiguration,
-        IMyFrameworkEndpointRegistrationContext,
-        IMyFrameworkEndpointRegistrationHook
+        IMyFrameworkRuntimeEndpointRegistrationContext,
+        IMyFrameworkRuntimeEndpointRegistrationHook,
+        MyFrameworkRuntime
     > CreateRouteBuilder(
-        AllureRouteBuilderArgs<MyFrameworkConfiguration> args
+        AllureRouteBuilderArgs<
+            MyFrameworkConfiguration,
+            MyFrameworkRuntime
+        > args
     ) => new MyFrameworkRouteBuilder(args);
 
     protected override MyFrameworkRuntime CreateRuntimeInstance(
@@ -311,11 +367,17 @@ public sealed class MyFrameworkRuntimeBuilder(string runtimeName) :
 }
 ```
 
-The custom builder returns the concrete runtime type:
+Within `MyFrameworkRouteBuilder`, the inherited `Runtime` property has type
+`MyFrameworkRuntime`, so route construction can use integration-specific
+runtime services.
+
+The registration exposes the concrete runtime type:
 
 ```csharp
-MyFrameworkRuntime runtime =
+using var registration =
     new MyFrameworkRuntimeBuilder("My Test Framework").Build();
+
+MyFrameworkRuntime runtime = registration.Runtime;
 
 if (runtime.OutputCapture.Enabled)
 {
@@ -501,8 +563,13 @@ builder.RegisterInProcessEndpoint(
     }
 );
 
-var runtime = builder.Build();
+using var registration = builder.Build();
+var runtime = registration.Runtime;
 ```
+
+Keep the registration alive while the integration is active. Dispose it when
+the integration shuts down so the endpoint is removed. Use `DisposeAsync` when
+the custom runtime requires asynchronous disposal.
 
 The current-scope predicate should return `true` only while the integration owns
 the active test or fixture. The global-scope predicate should return `true` only
@@ -515,6 +582,18 @@ alongside a general adapter, call `SuppressRoutes` with the general adapter's
 route ID. The endpoint uses the runtime's standard operations and serializer by
 default; `UseOperations`, endpoint-level `ConfigureSerialization`, and
 `UseParameterSerializer` are available for specialized bridges.
+
+### Out-of-process endpoints
+
+`Allure.Net.Sdk` currently provides registration support only for in-process
+endpoints. Integrations that communicate with the runtime across a process
+boundary must implement `Allure.Abstractions.IAllureRuntimeEndpoint` and `Allure.Abstractions.IAllureRuntimeRoute`,
+then install the route with `Allure.Runtime.AllureRuntimeRouter.Install`.
+
+The integration is responsible for the transport, request routing,
+serialization, availability checks, and resource cleanup. Keep the
+`IDisposable` returned by `Install` and dispose it when the integration shuts
+down to remove the route.
 
 ## Customize runtime components
 
@@ -564,5 +643,6 @@ parameters are known.
   or write the content under that name through `ResultsDestination`.
 - Keep Allure execution state isolated for each parallel framework execution.
 - Keep endpoint matching narrow and define suppression when adapters overlap.
+- Dispose the runtime registration when the integration shuts down.
 - Test the adapter with `InMemoryResultsDestination`, including failures,
   skipped tests, fixtures, nested steps, attachments, and parallel execution.
