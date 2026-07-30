@@ -17,7 +17,7 @@ public static class ReflectionHooks
     public static THook? FromConfiguration<TConfiguration, THook>(TConfiguration configuration)
         where TConfiguration : AllureConfiguration
     =>
-        configuration.RegistrationHook is { } hookTypeName
+        configuration.RuntimeRegistrationHook is { } hookTypeName
             ? Resolve<THook>(hookTypeName)
             : default;
 

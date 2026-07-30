@@ -52,5 +52,5 @@ public record class AllureConfiguration
     /// <summary>
     /// Gets the assembly-qualified name of the runtime registration hook type.
     /// </summary>
-    public string? RegistrationHook { get; init; }
+    public string? RuntimeRegistrationHook { get; init; }
 }

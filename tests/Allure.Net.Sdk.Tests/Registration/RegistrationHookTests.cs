@@ -257,7 +257,7 @@ public class RegistrationHookTests
         var builder = CreateReflectionBuilder();
         builder.UseConfiguration(new AllureConfiguration
         {
-            RegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
+            RuntimeRegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
         });
 
         builder.Build();
@@ -285,7 +285,7 @@ public class RegistrationHookTests
             var builder = CreateReflectionBuilder();
             builder.UseConfiguration(new AllureConfiguration
             {
-                RegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
+                RuntimeRegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
             });
 
             builder.Build();
@@ -308,7 +308,7 @@ public class RegistrationHookTests
         var typeName = typeof(ReflectionRuntimeHook).AssemblyQualifiedName!;
         var fromConfiguration = ReflectionHooks
             .FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
-                new() { RegistrationHook = typeName }
+                new() { RuntimeRegistrationHook = typeName }
             );
         var variableName = $"ALLURE_SDK_TEST_HOOK_{Guid.NewGuid():N}";
         Environment.SetEnvironmentVariable(variableName, null);
@@ -327,15 +327,15 @@ public class RegistrationHookTests
     public async Task ShouldRejectInvalidReflectionHooks()
     {
         await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
-            new() { RegistrationHook = typeof(NotARegistrationHook).AssemblyQualifiedName }
+            new() { RuntimeRegistrationHook = typeof(NotARegistrationHook).AssemblyQualifiedName }
         )).Throws<InvalidOperationException>().WithMessageContaining("must implement");
 
         await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
-            new() { RegistrationHook = typeof(PrivateConstructorRuntimeHook).AssemblyQualifiedName }
+            new() { RuntimeRegistrationHook = typeof(PrivateConstructorRuntimeHook).AssemblyQualifiedName }
         )).Throws<InvalidOperationException>().WithMessageContaining("public parameterless constructor");
 
         await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
-            new() { RegistrationHook = "No.Such.Hook, No.Such.Assembly" }
+            new() { RuntimeRegistrationHook = "No.Such.Hook, No.Such.Assembly" }
         )).Throws<FileNotFoundException>();
     }
 

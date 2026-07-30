@@ -22,7 +22,7 @@ public class JsonFileConfigurationSourceTests
               "failExceptions": ["FatalException"],
               "indentOutput": true,
               "globalLabels": { "browser": "Chrome" },
-              "registrationHook": "Hooks.Configure"
+              "runtimeRegistrationHook": "Hooks.Configure"
             }
             """);
 
@@ -40,7 +40,7 @@ public class JsonFileConfigurationSourceTests
                 .IsEquivalentTo(ImmutableList.Create("FatalException"));
             await Assert.That(configuration.IndentOutput).IsTrue();
             await Assert.That(configuration.GlobalLabels["browser"]).IsEqualTo("Chrome");
-            await Assert.That(configuration.RegistrationHook).IsEqualTo("Hooks.Configure");
+            await Assert.That(configuration.RuntimeRegistrationHook).IsEqualTo("Hooks.Configure");
         }
         finally
         {
@@ -102,7 +102,7 @@ public class JsonFileConfigurationSourceTests
             await Assert.That(configuration.FailExceptions).IsEmpty();
             await Assert.That(configuration.IndentOutput).IsFalse();
             await Assert.That(configuration.GlobalLabels).IsEmpty();
-            await Assert.That(configuration.RegistrationHook).IsNull();
+            await Assert.That(configuration.RuntimeRegistrationHook).IsNull();
         }
         finally
         {

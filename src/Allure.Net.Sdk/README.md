@@ -83,12 +83,12 @@ public sealed class ProjectAllureRegistration :
 
 By default, the builder first loads the hook named by the
 `ALLURE_RUNTIME_REGISTRATION_HOOK` environment variable, then the hook named
-by the resolved configuration's `registrationHook` property. Unset hooks are
+by the resolved configuration's `runtimeRegistrationHook` property. Unset hooks are
 ignored. For example, a user can select a hook in `allureConfig.json`:
 
 ```json
 {
-  "registrationHook": "MyTests.ProjectAllureRegistration, MyTests"
+  "runtimeRegistrationHook": "MyTests.ProjectAllureRegistration, MyTests"
 }
 ```
 
