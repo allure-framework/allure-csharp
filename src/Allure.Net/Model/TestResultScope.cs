@@ -16,7 +16,7 @@ public sealed class TestResultScope
     /// <summary>
     /// Gets or sets the scope's display name.
     /// </summary>
-    required public string? Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets the identifiers of test results in this scope.

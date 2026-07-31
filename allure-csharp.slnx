@@ -55,6 +55,9 @@
     <Project Path="src/Allure.Net.Commons/Allure.Net.Commons.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
+    <Project Path="src/Allure.Net.Sdk/Allure.Net.Sdk.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.NUnit/Allure.NUnit.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
@@ -76,6 +79,9 @@
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Net.Tests/Allure.Net.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.Net.Sdk.Tests/Allure.Net.Sdk.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.NUnit.Tests/Allure.NUnit.Tests.csproj">

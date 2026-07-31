@@ -53,8 +53,8 @@ public class ModelContractTests
         var second = new TestResultScope { Uuid = "second", Name = "scope" };
 
         first.Children.Add("test-id");
-        first.Befores.Add(new() { Name = "before" });
-        first.Afters.Add(new() { Name = "after" });
+        first.Befores.Add(new() { Name = "setup" });
+        first.Afters.Add(new() { Name = "teardown" });
 
         await Assert.That(second.Children).IsEmpty();
         await Assert.That(second.Befores).IsEmpty();
