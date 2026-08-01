@@ -181,6 +181,29 @@ public abstract class AllureRuntimeBuilder<
     }
 
     /// <summary>
+    /// Resolves configuration and runs registration hooks without constructing
+    /// the runtime or installing its configured endpoint.
+    /// </summary>
+    /// <returns>
+    /// A single-use plan that exposes the resolved configuration and can
+    /// construct the runtime later.
+    /// </returns>
+    /// <remarks>
+    /// Use this method to separate configuration resolution from runtime
+    /// construction. Calling <see cref="Build()"/> performs both stages
+    /// immediately.
+    /// </remarks>
+    public IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> Prepare()
+    {
+        var initialConfiguration = this.ResolveConfiguration();
+        var resolvedConfiguration = this.RunHooks(initialConfiguration);
+        return new AllureRuntimeRegistrationPlan<TConfiguration, TRuntime>(
+            resolvedConfiguration,
+            this.Build
+        );
+    }
+
+    /// <summary>
     /// Resolves configuration, runs registration hooks, constructs the runtime,
     /// and installs its configured endpoint.
     /// </summary>
@@ -192,10 +215,11 @@ public abstract class AllureRuntimeBuilder<
     /// The caller should dispose the returned registration when the runtime's
     /// in-process endpoint is no longer needed.
     /// </remarks>
-    public AllureRuntimeRegistration<TRuntime> Build()
-    {
-        var configuration = this.RunHooks();
+    public IAllureRuntimeRegistration<TRuntime> Build() =>
+        this.Prepare().Build();
 
+    internal AllureRuntimeRegistration<TRuntime> Build(TConfiguration configuration)
+    {
         var parameterSerializer = this.currentSerializerFactory(configuration);
         var destination = this.currentDestinationFactory(configuration);
 
@@ -291,18 +315,17 @@ public abstract class AllureRuntimeBuilder<
         return new TConfiguration();
     }
 
-    TConfiguration RunHooks()
+    TConfiguration RunHooks(TConfiguration initialConfiguration)
     {
-        var preHookConfiguration = this.ResolveConfiguration();
         var configurationSourcesFactoryBefore = this.currentConfigurationSourcesFactory;
 
-        foreach (var provider in this.currentHooksFactory(preHookConfiguration))
+        foreach (var provider in this.currentHooksFactory(initialConfiguration))
         {
             provider?.SetUp(this.RegistrationContext);
         }
 
         return ReferenceEquals(configurationSourcesFactoryBefore, this.currentConfigurationSourcesFactory)
-            ? preHookConfiguration
+            ? initialConfiguration
             : this.ResolveConfiguration();
     }
 }

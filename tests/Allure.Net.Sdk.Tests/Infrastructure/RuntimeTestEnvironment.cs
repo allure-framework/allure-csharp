@@ -9,9 +9,9 @@ namespace Allure.Net.Sdk.Tests.Infrastructure;
 sealed class RuntimeTestEnvironment<TConfiguration> : IDisposable
     where TConfiguration : AllureConfiguration, new()
 {
-    readonly AllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration;
+    readonly IAllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration;
     RuntimeTestEnvironment(
-        AllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration,
+        IAllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration,
         InMemoryResultsDestination destination
     )
     {
