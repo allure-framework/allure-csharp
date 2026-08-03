@@ -24,10 +24,10 @@ public interface IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>
     TConfiguration Configuration { get; }
 
     /// <summary>
-    /// A reference to a runtime that becomes available after <see cref="Build"/>
+    /// A reference to a runtime registration that becomes available after <see cref="Build"/>
     /// is called.
     /// </summary>
-    IReadOnlyLateBoundReference<TRuntime> RuntimeReference { get; }
+    IReadOnlyLateBoundReference<IAllureRuntimeRegistration<TRuntime>> RegistrationReference { get; }
 
     /// <summary>
     /// Constructs the runtime and installs its configured endpoint.

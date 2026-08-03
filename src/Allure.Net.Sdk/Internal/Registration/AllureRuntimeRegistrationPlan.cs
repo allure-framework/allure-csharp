@@ -15,13 +15,14 @@ sealed class AllureRuntimeRegistrationPlan<TConfiguration, TRuntime>(
     where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>
 {
-    readonly LateBoundReference<TRuntime> runtimeReference = new();
+    readonly LateBoundReference<IAllureRuntimeRegistration<TRuntime>> runtimeReference = new();
 
     int built = 0;
 
     public TConfiguration Configuration => configuration;
 
-    public IReadOnlyLateBoundReference<TRuntime> RuntimeReference => this.runtimeReference;
+    public IReadOnlyLateBoundReference<IAllureRuntimeRegistration<TRuntime>> RegistrationReference =>
+        this.runtimeReference;
 
     public IAllureRuntimeRegistration<TRuntime> Build()
     {
@@ -33,7 +34,7 @@ sealed class AllureRuntimeRegistrationPlan<TConfiguration, TRuntime>(
         }
 
         var runtimeRegistration = runtimeFactory(this.Configuration);
-        this.runtimeReference.Bind(runtimeRegistration.Runtime);
+        this.runtimeReference.Bind(runtimeRegistration);
         return runtimeRegistration;
     }
 }
