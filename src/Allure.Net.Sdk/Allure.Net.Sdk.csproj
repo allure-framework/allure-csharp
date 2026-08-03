@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <RootNamespace>Allure.Sdk</RootNamespace>
+        <Description>Provides the API and utilities for building Allure integrations.</Description>
+        <PackageIcon>Allure-Color.png</PackageIcon>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.Net\Allure.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.10" />
+        <PackageReference Include="System.Text.Json" Version="10.0.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../img/Allure-Color.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>

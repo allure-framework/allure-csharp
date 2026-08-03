@@ -279,7 +279,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
     TestResult ApplyFileArtifactProperty(TestResult testResult, FileArtifactProperty fileArtifact)
     {
-        ModelFunctions.AddFileAttachment(
+        ModelFunctions.AddAttachmentFromFile(
             this.Writer,
             testResult,
             fileArtifact.DisplayName,

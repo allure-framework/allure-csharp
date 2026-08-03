@@ -3,6 +3,7 @@ name: Test
 env:
   SOLUTION_PATH: allure-csharp.slnx
   BUILD_CONFIGURATION: 'Release'
+  PACK_CONFIGURATION: 'Publish'
 
 on:
   workflow_dispatch:
@@ -53,7 +54,7 @@ jobs:
           dotnet pack ${{ env.SOLUTION_PATH }}\
             --no-restore\
             --no-build\
-            --configuration ${{ env.BUILD_CONFIGURATION }}
+            --configuration ${{ env.PACK_CONFIGURATION }}
 
       - name: Build test samples
         run: |
@@ -70,6 +71,14 @@ jobs:
       - name: 'Run tests'
         run: |
           npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-commons" -- dotnet test ./tests/Allure.Net.Commons.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-net" -- dotnet run --project ./tests/Allure.Net.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-sdk" -- dotnet run --project ./tests/Allure.Net.Sdk.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}

@@ -1,0 +1,28 @@
+using System.Threading;
+using System.Threading.Tasks;
+using Allure.Model;
+
+namespace Allure.Abstractions;
+
+/// <summary>
+/// Provides an async API tied to a specific step.
+/// </summary>
+public interface IAllureAsyncStepContext : IAllureOperationContext
+{
+    /// <summary>
+    /// Sets the name of the step associated with this context.
+    /// </summary>
+    /// <param name="newName">The new name of the step.</param>
+    /// <param name="cancellationToken">A canellation token</param>
+    Task SetNameAsync(string newName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Adds a parameter with the specified text value to the step.
+    /// </summary>
+    /// <param name="parameter">A parameter to add.</param>
+    /// <param name="cancellationToken">A canellation token</param>
+    /// <remarks>
+    /// The value is used as-is.
+    /// </remarks>
+    Task AddParameterAsync(Parameter parameter, CancellationToken cancellationToken);
+}

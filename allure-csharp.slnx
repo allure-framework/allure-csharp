@@ -49,7 +49,13 @@
     <File Path="img/Allure-X-Color.png" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Allure.Net/Allure.Net.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
     <Project Path="src/Allure.Net.Commons/Allure.Net.Commons.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
+    <Project Path="src/Allure.Net.Sdk/Allure.Net.Sdk.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
     <Project Path="src/Allure.NUnit/Allure.NUnit.csproj">
@@ -70,6 +76,12 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.Net.Tests/Allure.Net.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.Net.Sdk.Tests/Allure.Net.Sdk.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.NUnit.Tests/Allure.NUnit.Tests.csproj">
