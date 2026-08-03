@@ -22,6 +22,20 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     );
 
     /// <summary>
+    /// Adds a transformation to apply to the loaded runtime configuration.
+    /// </summary>
+    /// <param name="transformation">
+    /// A function that receives the current configuration and returns the
+    /// configuration to pass to the next transformation or use to construct
+    /// the runtime.
+    /// </param>
+    /// <remarks>
+    /// Transformations are applied in registration order after configuration
+    /// sources have been resolved and registration hooks have run.
+    /// </remarks>
+    void TransformConfiguration(Func<TConfiguration, TConfiguration> transformation);
+
+    /// <summary>
     /// Configures parameter serialization rules using the resolved configuration.
     /// </summary>
     void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration);

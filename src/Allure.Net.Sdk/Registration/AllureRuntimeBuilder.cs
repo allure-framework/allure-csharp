@@ -49,6 +49,8 @@ public abstract class AllureRuntimeBuilder<
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
+    readonly List<Func<TConfiguration, TConfiguration>> configurationTransformations = [];
+
     Func<TConfiguration, IEnumerable<TRuntimeHook?>> currentHooksFactory =
         AllureRegistrationDefaults.RuntimeHookProviders<TConfiguration, TRuntimeRegistrationContext, TRuntimeHook>();
 
@@ -99,6 +101,12 @@ public abstract class AllureRuntimeBuilder<
     public void UseConfigurationSources(Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory)
     {
         this.currentConfigurationSourcesFactory = sourcesFactory;
+    }
+
+    /// <inheritdoc/>
+    public void TransformConfiguration(Func<TConfiguration, TConfiguration> transformation)
+    {
+        this.configurationTransformations.Add(transformation);
     }
 
     /// <inheritdoc/>
@@ -196,9 +204,10 @@ public abstract class AllureRuntimeBuilder<
     public IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> Prepare()
     {
         var initialConfiguration = this.ResolveConfiguration();
-        var resolvedConfiguration = this.RunHooks(initialConfiguration);
+        var loadedConfiguration = this.RunHooks(initialConfiguration);
+        var resolvedConfiguration = this.ApplyConfigurationTransformations(loadedConfiguration);
         return new AllureRuntimeRegistrationPlan<TConfiguration, TRuntime>(
-            resolvedConfiguration,
+            loadedConfiguration,
             this.Build
         );
     }
@@ -301,6 +310,16 @@ public abstract class AllureRuntimeBuilder<
     > CreateRouteBuilder(
         AllureRouteBuilderArgs<TConfiguration, TRuntime> args
     );
+
+    TConfiguration ApplyConfigurationTransformations(TConfiguration loadedConfiguration)
+    {
+        TConfiguration transformedConfiguration = loadedConfiguration;
+        foreach (var transformation in this.configurationTransformations)
+        {
+            transformedConfiguration = transformation(transformedConfiguration);
+        }
+        return transformedConfiguration;
+    }
 
     TConfiguration ResolveConfiguration()
     {
