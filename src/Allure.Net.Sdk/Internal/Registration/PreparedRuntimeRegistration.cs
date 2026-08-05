@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Allure.Runtime;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
@@ -7,17 +8,35 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
 
-internal class PreparedRuntimeRegistration<TConfiguration, TEndpointRegistrationContext, TEndpointHook, TRuntime, TIntegrationSnapshot>(
+internal class PreparedRuntimeRegistration<
+    TConfiguration,
+    TEndpointRegistrationContext,
+    TEndpointHook,
+    TRuntime,
+    TIntegrationSnapshot
+>(
     string runtimeName,
     TConfiguration configuration,
-    AllureRuntimeRegistrationSnapshot<TConfiguration, TEndpointRegistrationContext, TEndpointHook, TRuntime> commonSnapshot,
+    AllureRuntimeRegistrationSnapshot<
+        TConfiguration,
+        TEndpointRegistrationContext,
+        TEndpointHook,
+        TRuntime
+    > commonSnapshot,
     TIntegrationSnapshot integrationSnapshot
 ) :
     IPreparedRuntimeRegistration<TConfiguration, TRuntime>
 
     where TConfiguration : AllureConfiguration
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
+    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<
+        TConfiguration,
+        TRuntime
+    >
+    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<
+        TConfiguration,
+        TEndpointRegistrationContext,
+        TRuntime
+    >
     where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
         TConfiguration,
         TEndpointRegistrationContext,
@@ -54,11 +73,11 @@ internal class PreparedRuntimeRegistration<TConfiguration, TEndpointRegistration
 
         var runtime = integrationSnapshot.CreateRuntime(runtimeCreationArguments);
 
+        IDisposable? endpointRegistration = null;
+
         try
         {
             dependencies.BindRuntime(runtime);
-
-            IDisposable? endpointRegistration = null;
 
             if (commonSnapshot.EndpointRegistration is var (routeId, routeRegistration))
             {
@@ -79,10 +98,63 @@ internal class PreparedRuntimeRegistration<TConfiguration, TEndpointRegistration
 
             return new AllureRuntimeRegistration<TRuntime>(runtime, endpointRegistration);
         }
-        catch
+        catch (Exception buildException)
         {
-            (runtime as IDisposable)?.Dispose();
+            CleanupRuntimeRegistration(runtime, endpointRegistration, buildException);
             throw;
+        }
+    }
+
+    static void CleanupRuntimeRegistration(
+        TRuntime runtime,
+        IDisposable? endpointRegistration,
+        Exception buildException
+    )
+    {
+        var cleanupExceptions = new List<Exception>();
+
+        try
+        {
+            endpointRegistration?.Dispose();
+        }
+        catch (Exception exception)
+        {
+            cleanupExceptions.Add(exception);
+        }
+
+        try
+        {
+            DisposeRuntimeAfterFailedBuild(runtime);
+        }
+        catch (Exception exception)
+        {
+            cleanupExceptions.Add(exception);
+        }
+
+        if (cleanupExceptions.Count > 0)
+        {
+            throw new AggregateException(
+                "Runtime construction failed and cleanup also failed.",
+                [buildException, .. cleanupExceptions]
+            );
+        }
+    }
+
+    static void DisposeRuntimeAfterFailedBuild(TRuntime runtime)
+    {
+        if (runtime is IDisposable disposable)
+        {
+            disposable.Dispose();
+            return;
+        }
+
+        if (runtime is IAsyncDisposable asyncDisposable)
+        {
+            asyncDisposable
+                .DisposeAsync()
+                .AsTask()
+                .GetAwaiter()
+                .GetResult();
         }
     }
 }
