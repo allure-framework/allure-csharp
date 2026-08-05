@@ -43,21 +43,21 @@ public interface IAllureRuntimeIntegrationContext<
     /// Configures the execution-context service.
     /// </summary>
     void UseContext(
-        Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> contextFactory
+        Func<TConfiguration, IAllureExecutionContext> contextFactory
     );
 
     /// <summary>
     /// Configures the lifecycle API service.
     /// </summary>
     void UseLifecycleApi(
-        Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> lifecycleApiFactory
+        Func<TConfiguration, IAllureLifecycleApi> lifecycleApiFactory
     );
 
     /// <summary>
     /// Configures the model API service.
     /// </summary>
     void UseModelApi(
-        Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> modelApiFactory
+        Func<TConfiguration, IAllureModelApi> modelApiFactory
     );
 
     /// <summary>

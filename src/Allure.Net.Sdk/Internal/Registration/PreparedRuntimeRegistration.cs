@@ -52,15 +52,18 @@ internal class PreparedRuntimeRegistration<
         var parameterSerializer = commonSnapshot.SerializerFactory(configuration);
         var destination = commonSnapshot.DestinationFactory(configuration);
 
-        var dependencies = new AllureRegistrationDependencies<TConfiguration>(
-            configuration,
-            parameterSerializer,
-            new LateBoundReference<IAllureRuntime<TConfiguration>>()
-        );
+        var constructionRuntimeReference =
+            new LateBoundReference<IAllureRuntime<TConfiguration>>();
 
-        var context = commonSnapshot.ContextFactory(dependencies);
-        var lifecycleApi = commonSnapshot.LifecycleApiFactory(dependencies);
-        var modelApi = commonSnapshot.ModelApiFactory(dependencies);
+        var serviceCreationContext =
+            new RuntimeServiceCreationContext<TConfiguration>(
+                configuration,
+                constructionRuntimeReference
+            );
+
+        var context = commonSnapshot.ContextFactory(serviceCreationContext);
+        var lifecycleApi = commonSnapshot.LifecycleApiFactory(serviceCreationContext);
+        var modelApi = commonSnapshot.ModelApiFactory(serviceCreationContext);
 
         RuntimeCreationArguments<TConfiguration> runtimeCreationArguments = new(
             Configuration: configuration,
@@ -77,7 +80,7 @@ internal class PreparedRuntimeRegistration<
 
         try
         {
-            dependencies.BindRuntime(runtime);
+            constructionRuntimeReference.Bind(runtime);
 
             if (commonSnapshot.EndpointRegistration is var (routeId, routeRegistration))
             {

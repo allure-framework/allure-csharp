@@ -15,9 +15,9 @@ internal sealed record AllureRuntimeRegistrationSnapshot<
     TEndpointHook,
     TRuntime
 >(
-    Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> ContextFactory,
-    Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> LifecycleApiFactory,
-    Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> ModelApiFactory,
+    Func<RuntimeServiceCreationContext<TConfiguration>, IAllureExecutionContext> ContextFactory,
+    Func<RuntimeServiceCreationContext<TConfiguration>, IAllureLifecycleApi> LifecycleApiFactory,
+    Func<RuntimeServiceCreationContext<TConfiguration>, IAllureModelApi> ModelApiFactory,
     bool UseRuleBasedSerializer,
     Func<TConfiguration, IAllureParameterSerializer> SerializerFactory,
     Func<TConfiguration, IAllureResultsDestination> DestinationFactory,

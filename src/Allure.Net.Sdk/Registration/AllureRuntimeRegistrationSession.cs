@@ -4,6 +4,7 @@ using System.Linq;
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Registration;
+using Allure.Sdk.Internal.Runtime;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
@@ -92,22 +93,22 @@ public abstract class AllureRuntimeRegistrationSession<
         >();
 
     Func<
-        IAllureRegistrationDependencies<TConfiguration>,
+        RuntimeServiceCreationContext<TConfiguration>,
         IAllureExecutionContext
     > currentContextFactory =
-        AllureRegistrationDefaults.Context<TConfiguration>();
+        (ctx) => new AsyncLocalExecutionContext(ctx.RuntimeReference);
 
     Func<
-        IAllureRegistrationDependencies<TConfiguration>,
+        RuntimeServiceCreationContext<TConfiguration>,
         IAllureLifecycleApi
     > currentLifecycleApiFactory =
-        AllureRegistrationDefaults.LifecycleApi<TConfiguration>();
+        (ctx) => new RuntimeLifecycleApi(ctx.RuntimeReference);
 
     Func<
-        IAllureRegistrationDependencies<TConfiguration>,
+        RuntimeServiceCreationContext<TConfiguration>,
         IAllureModelApi
     > currentModelApiFactory =
-        AllureRegistrationDefaults.ModelApi<TConfiguration>();
+        (ctx) => new RuntimeModelApi(ctx.RuntimeReference);
 
     bool useRuleBasedSerializer = true;
 
@@ -140,14 +141,14 @@ public abstract class AllureRuntimeRegistrationSession<
     public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<TRuntimeHook?>> hooksFactory) =>
         this.Modify(() => this.currentHooksFactory = hooksFactory);
 
-    public void UseContext(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> contextFactory) =>
-        this.Modify(() => this.currentContextFactory = contextFactory);
+    public void UseContext(Func<TConfiguration, IAllureExecutionContext> contextFactory) =>
+        this.Modify(() => this.currentContextFactory = (ctx) => contextFactory(ctx.Configuration));
 
-    public void UseLifecycleApi(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> lifecycleApiFactory) =>
-        this.Modify(() => this.currentLifecycleApiFactory = lifecycleApiFactory);
+    public void UseLifecycleApi(Func<TConfiguration, IAllureLifecycleApi> lifecycleApiFactory) =>
+        this.Modify(() => this.currentLifecycleApiFactory = (ctx) => lifecycleApiFactory(ctx.Configuration));
 
-    public void UseModelApi(Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> modelApiFactory) =>
-        this.Modify(() => this.currentModelApiFactory = modelApiFactory);
+    public void UseModelApi(Func<TConfiguration, IAllureModelApi> modelApiFactory) =>
+        this.Modify(() => this.currentModelApiFactory = (ctx) => modelApiFactory(ctx.Configuration));
 
     public void RegisterInProcessEndpoint(
         string endpointId,
