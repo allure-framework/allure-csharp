@@ -213,6 +213,36 @@ public class AllureRuntimeRegistrationTests
         }
     }
 
+    sealed class RegistrationTestRuntimeRegistrationSnapshot<TRuntime>(
+        RuntimeFactory<TRuntime> runtimeFactory
+    ) :
+        IAllureRuntimeIntegrationSnapshot<
+            AllureConfiguration,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+            RecordingEndpointHook<AllureConfiguration, TRuntime>,
+            TRuntime
+        >
+
+        where TRuntime : IAllureRuntime<AllureConfiguration>
+    {
+        public AllureInProcessRouteBuilder<AllureConfiguration, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>, RecordingEndpointHook<AllureConfiguration, TRuntime>, TRuntime> CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args)
+        {
+            return new RegistrationTestRouteBuilder<TRuntime>(args);
+        }
+
+        public TRuntime CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
+        {
+            return runtimeFactory(new(
+                args.Configuration,
+                args.ParameterSerializer,
+                args.Destination,
+                args.Context,
+                args.LifecycleApi,
+                args.ModelApi
+            ));
+        }
+    }
+
     sealed class RegistrationTestRuntimeRegistrationSession<TRuntime>(
         RuntimeFactory<TRuntime> runtimeFactory
     ) :
@@ -230,7 +260,7 @@ public class AllureRuntimeRegistrationTests
                 RecordingEndpointHook<AllureConfiguration, TRuntime>,
                 TRuntime
             >,
-            object,
+            RegistrationTestRuntimeRegistrationSnapshot<TRuntime>,
             TRuntime
         >
 
@@ -240,24 +270,9 @@ public class AllureRuntimeRegistrationTests
 
         protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext => this;
 
-        protected override object CaptureIntegrationSnapshot() => new();
-
-        protected override AllureInProcessRouteBuilder<AllureConfiguration, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>, RecordingEndpointHook<AllureConfiguration, TRuntime>, TRuntime> CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args, object integrationSnapshot)
-        {
-            return new RegistrationTestRouteBuilder<TRuntime>(args);
-        }
-
-        protected override TRuntime CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args, object integrationSnapshot)
-        {
-            return runtimeFactory(new(
-                args.Configuration,
-                args.ParameterSerializer,
-                args.Destination,
-                args.Context,
-                args.LifecycleApi,
-                args.ModelApi
-            ));
-        }
+        protected override RegistrationTestRuntimeRegistrationSnapshot<TRuntime> CaptureIntegrationSnapshot() => new(
+            runtimeFactory
+        );
     }
 
     sealed class RegistrationTestRuntimeBuilder<TRuntime>(
@@ -277,6 +292,7 @@ public class AllureRuntimeRegistrationTests
                 RecordingEndpointHook<AllureConfiguration, TRuntime>,
                 TRuntime
             >,
+            RegistrationTestRuntimeRegistrationSnapshot<TRuntime>,
             TRuntime
         >("registration-tests", () => new RegistrationTestRuntimeRegistrationSession<TRuntime>(runtimeFactory))
 

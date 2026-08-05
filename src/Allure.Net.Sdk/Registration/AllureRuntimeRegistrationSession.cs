@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Registration;
@@ -62,6 +63,12 @@ public abstract class AllureRuntimeRegistrationSession<
         TConfiguration,
         TRuntimeRegistrationContext,
         TRuntimeHook,
+        TEndpointRegistrationContext,
+        TEndpointHook,
+        TRuntime
+    >
+    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
+        TConfiguration,
         TEndpointRegistrationContext,
         TEndpointHook,
         TRuntime
@@ -221,21 +228,6 @@ public abstract class AllureRuntimeRegistrationSession<
 
     protected abstract TIntegrationSnapshot CaptureIntegrationSnapshot();
 
-    protected abstract TRuntime CreateRuntime(
-        RuntimeCreationArguments<TConfiguration> args,
-        TIntegrationSnapshot integrationSnapshot
-    );
-
-    protected abstract AllureInProcessRouteBuilder<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    > CreateRouteBuilder(
-        AllureRouteBuilderArgs<TConfiguration, TRuntime> args,
-        TIntegrationSnapshot integrationSnapshot
-    );
-
     internal override IPreparedRuntimeRegistration<TConfiguration, TRuntime> Prepare(
         string runtimeName,
         Action<TRuntimeIntegrationContext> registration
@@ -253,10 +245,11 @@ public abstract class AllureRuntimeRegistrationSession<
 
                 var finalConfiguration = this.RunHooks(initialConfiguration);
 
+                this.CloseRegistration();
+
                 var commonSnapshot = this.CaptureCommonSnapshot();
                 var integrationSnapshot = this.CaptureIntegrationSnapshot();
 
-                this.CloseRegistration();
 
                 return new PreparedRuntimeRegistration<
                     TConfiguration,
@@ -268,9 +261,7 @@ public abstract class AllureRuntimeRegistrationSession<
                     runtimeName,
                     finalConfiguration,
                     commonSnapshot,
-                    integrationSnapshot,
-                    runtimeFactory: this.CreateRuntime,
-                    routeBuilderFactory: this.CreateRouteBuilder
+                    integrationSnapshot
                 );
             }
             catch
@@ -352,6 +343,7 @@ public abstract class AllureRuntimeRegistrationSession<
     TConfiguration RunHooks(TConfiguration initialConfiguration)
     {
         var configurationSourcesFactoryBefore = this.currentConfigurationSourcesFactory;
+        var transformationCount = configurationTransformations.Count;
 
         foreach (var provider in this.currentHooksFactory(initialConfiguration))
         {
@@ -359,14 +351,23 @@ public abstract class AllureRuntimeRegistrationSession<
         }
 
         return ReferenceEquals(configurationSourcesFactoryBefore, this.currentConfigurationSourcesFactory)
-            ? initialConfiguration
+            ? this.ApplyRemainingTransformations(initialConfiguration, transformationCount)
             : this.ResolveConfiguration();
     }
 
-    TConfiguration ApplyConfigurationTransformations(TConfiguration loadedConfiguration)
+    TConfiguration ApplyRemainingTransformations(TConfiguration loadedConfiguration, int skip) =>
+        ApplyConfigurationTransformations(loadedConfiguration, this.configurationTransformations.Skip(skip));
+
+    TConfiguration ApplyConfigurationTransformations(TConfiguration loadedConfiguration) =>
+        ApplyConfigurationTransformations(loadedConfiguration, this.configurationTransformations);
+
+    static TConfiguration ApplyConfigurationTransformations(
+        TConfiguration loadedConfiguration,
+        IEnumerable<Func<TConfiguration, TConfiguration>> transformations
+    )
     {
         TConfiguration transformedConfiguration = loadedConfiguration;
-        foreach (var transformation in this.configurationTransformations)
+        foreach (var transformation in transformations)
         {
             transformedConfiguration = transformation(transformedConfiguration);
         }
@@ -388,7 +389,8 @@ public abstract class AllureRuntimeRegistrationSession<
     TRuntimeHook,
     TEndpointRegistrationContext,
     TEndpointHook,
-    TRuntimeIntegrationContext
+    TRuntimeIntegrationContext,
+    TIntegrationSnapshot
 > :
     AllureRuntimeRegistrationSession<
         TConfiguration,
@@ -397,7 +399,7 @@ public abstract class AllureRuntimeRegistrationSession<
         TEndpointRegistrationContext,
         TEndpointHook,
         TRuntimeIntegrationContext,
-        object,
+        TIntegrationSnapshot,
         IAllureRuntime<TConfiguration>
     >,
     IAllureRuntimeIntegrationContext<
@@ -428,23 +430,11 @@ public abstract class AllureRuntimeRegistrationSession<
         TEndpointRegistrationContext,
         TEndpointHook
     >
-{
-    static readonly object snapshot = new();
-
-    protected override object CaptureIntegrationSnapshot() => snapshot;
-
-    protected override IAllureRuntime<TConfiguration> CreateRuntime(
-        RuntimeCreationArguments<TConfiguration> args,
-        object _
-    ) => new AllureRuntime<TConfiguration>(
-        args.Configuration,
-        args.ParameterSerializer,
-        args.Destination,
-        args.Context,
-        args.LifecycleApi,
-        args.ModelApi
-    );
-}
+    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
+        TConfiguration,
+        TEndpointRegistrationContext,
+        TEndpointHook
+    >;
 
 public class AllureRuntimeRegistrationSession :
     AllureRuntimeRegistrationSession<
@@ -453,7 +443,8 @@ public class AllureRuntimeRegistrationSession :
         IAllureRuntimeRegistrationHook,
         IAllureInProcessEndpointRegistrationContext,
         IAllureInProcessEndpointRegistrationHook,
-        IAllureRuntimeIntegrationContext
+        IAllureRuntimeIntegrationContext,
+        IAllureRuntimeIntegrationSnapshot
     >,
     IAllureRuntimeIntegrationContext
 {
@@ -461,14 +452,6 @@ public class AllureRuntimeRegistrationSession :
 
     protected override IAllureRuntimeRegistrationContext RegistrationContext => this;
 
-    protected override AllureInProcessRouteBuilder<
-        AllureConfiguration,
-        IAllureInProcessEndpointRegistrationContext,
-        IAllureInProcessEndpointRegistrationHook,
-        IAllureRuntime<AllureConfiguration>
-    > CreateRouteBuilder(
-        AllureRouteBuilderArgs<AllureConfiguration, IAllureRuntime<AllureConfiguration>> args,
-        object _
-    ) =>
-        new AllureInProcessRouteBuilder(args);
+    protected override IAllureRuntimeIntegrationSnapshot CaptureIntegrationSnapshot() =>
+        new AllureRuntimeIntegrationSnapshot();
 }

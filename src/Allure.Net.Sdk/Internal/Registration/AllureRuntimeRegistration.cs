@@ -15,7 +15,6 @@ sealed class AllureRuntimeRegistration<TRuntime>(
 {
     int disposed = 0;
 
-
     public TRuntime Runtime => runtime;
 
     public void Dispose()

@@ -11,20 +11,19 @@ internal class PreparedRuntimeRegistration<TConfiguration, TEndpointRegistration
     string runtimeName,
     TConfiguration configuration,
     AllureRuntimeRegistrationSnapshot<TConfiguration, TEndpointRegistrationContext, TEndpointHook, TRuntime> commonSnapshot,
-    TIntegrationSnapshot integrationSnapshot,
-    Func<RuntimeCreationArguments<TConfiguration>, TIntegrationSnapshot, TRuntime> runtimeFactory,
-    Func<AllureRouteBuilderArgs<TConfiguration, TRuntime>, TIntegrationSnapshot, AllureInProcessRouteBuilder<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >> routeBuilderFactory
+    TIntegrationSnapshot integrationSnapshot
 ) :
     IPreparedRuntimeRegistration<TConfiguration, TRuntime>
 
     where TConfiguration : AllureConfiguration
     where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime>
     where TEndpointHook : IAllureInProcessEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
+    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
+        TConfiguration,
+        TEndpointRegistrationContext,
+        TEndpointHook,
+        TRuntime
+    >
     where TRuntime : IAllureRuntime<TConfiguration>
 {
     public TConfiguration Configuration => configuration;
@@ -53,29 +52,37 @@ internal class PreparedRuntimeRegistration<TConfiguration, TEndpointRegistration
             ModelApi: modelApi
         );
 
-        var runtime = runtimeFactory(runtimeCreationArguments, integrationSnapshot);
+        var runtime = integrationSnapshot.CreateRuntime(runtimeCreationArguments);
 
-        dependencies.BindRuntime(runtime);
-
-        IDisposable? endpointRegistration = null;
-
-        if (commonSnapshot.EndpointRegistration is var (routeId, routeRegistration))
+        try
         {
-            AllureRouteBuilderArgs<TConfiguration, TRuntime> endpointBuildArgs = new(
-                runtimeName,
-                routeId,
-                runtime,
-                commonSnapshot.UseRuleBasedSerializer,
-                commonSnapshot.RuleBasedSerializerRegistrations
-            );
-            var endpointRouteBuilder = routeBuilderFactory(endpointBuildArgs, integrationSnapshot);
+            dependencies.BindRuntime(runtime);
 
-            routeRegistration(runtime, endpointRouteBuilder);
+            IDisposable? endpointRegistration = null;
 
-            var route = endpointRouteBuilder.Build();
-            endpointRegistration = AllureRuntimeRouter.Install(route);
+            if (commonSnapshot.EndpointRegistration is var (routeId, routeRegistration))
+            {
+                AllureRouteBuilderArgs<TConfiguration, TRuntime> endpointBuildArgs = new(
+                    runtimeName,
+                    routeId,
+                    runtime,
+                    commonSnapshot.UseRuleBasedSerializer,
+                    commonSnapshot.RuleBasedSerializerRegistrations
+                );
+                var endpointRouteBuilder = integrationSnapshot.CreateRouteBuilder(endpointBuildArgs);
+
+                routeRegistration(runtime, endpointRouteBuilder);
+
+                var route = endpointRouteBuilder.Build();
+                endpointRegistration = AllureRuntimeRouter.Install(route);
+            }
+
+            return new AllureRuntimeRegistration<TRuntime>(runtime, endpointRegistration);
         }
-
-        return new AllureRuntimeRegistration<TRuntime>(runtime, endpointRegistration);
+        catch
+        {
+            (runtime as IDisposable)?.Dispose();
+            throw;
+        }
     }
 }

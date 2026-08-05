@@ -17,6 +17,7 @@ namespace Allure.Sdk.Registration;
 /// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
 /// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
 /// <typeparam name="TRuntimeIntegrationContext">The integration context type.</typeparam>
+/// <typeparam name="TIntegrationSnapshot">The integration snapshot type.</typeparam>
 /// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
 public class AllureRuntimeBuilder<
     TConfiguration,
@@ -25,6 +26,7 @@ public class AllureRuntimeBuilder<
     TEndpointRegistrationContext,
     TEndpointHook,
     TRuntimeIntegrationContext,
+    TIntegrationSnapshot,
     TRuntime
 >(
     string runtimeName,
@@ -46,6 +48,12 @@ public class AllureRuntimeBuilder<
         TConfiguration,
         TRuntimeRegistrationContext,
         TRuntimeHook,
+        TEndpointRegistrationContext,
+        TEndpointHook,
+        TRuntime
+    >
+    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
+        TConfiguration,
         TEndpointRegistrationContext,
         TEndpointHook,
         TRuntime
@@ -76,10 +84,10 @@ public class AllureRuntimeBuilder<
         Action<TRuntimeIntegrationContext> registration
     )
     {
-        if (Interlocked.CompareExchange(ref this.state, STAGE_BUILT, STAGE_CREATED) != STAGE_CREATED)
+        if (Interlocked.CompareExchange(ref this.state, STAGE_CONSUMED, STAGE_CREATED) != STAGE_CREATED)
         {
             throw new InvalidOperationException(
-                "The runtime has already been built."
+                "The builder was already used."
             );
         }
 
@@ -93,7 +101,7 @@ public class AllureRuntimeBuilder<
     }
 
     const int STAGE_CREATED = 0;
-    const int STAGE_BUILT = 1;
+    const int STAGE_CONSUMED = 1;
 }
 
 public class AllureRuntimeBuilder<
@@ -102,7 +110,8 @@ public class AllureRuntimeBuilder<
     TRuntimeHook,
     TEndpointRegistrationContext,
     TEndpointHook,
-    TRuntimeIntegrationContext
+    TRuntimeIntegrationContext,
+    TIntegrationSnapshot
 >(
     string runtimeName,
     Func<
@@ -112,7 +121,8 @@ public class AllureRuntimeBuilder<
             TRuntimeHook,
             TEndpointRegistrationContext,
             TEndpointHook,
-            TRuntimeIntegrationContext
+            TRuntimeIntegrationContext,
+            TIntegrationSnapshot
         >
     > sessionFactory
 ) :
@@ -123,6 +133,7 @@ public class AllureRuntimeBuilder<
         TEndpointRegistrationContext,
         TEndpointHook,
         TRuntimeIntegrationContext,
+        TIntegrationSnapshot,
         IAllureRuntime<TConfiguration>
     >(runtimeName, sessionFactory)
 
@@ -137,6 +148,11 @@ public class AllureRuntimeBuilder<
         TRuntimeHook,
         TEndpointRegistrationContext,
         TEndpointHook
+    >
+    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
+        TConfiguration,
+        TEndpointRegistrationContext,
+        TEndpointHook
     >;
 
 public class AllureRuntimeBuilder(string runtimeName) : AllureRuntimeBuilder<
@@ -145,7 +161,8 @@ public class AllureRuntimeBuilder(string runtimeName) : AllureRuntimeBuilder<
     IAllureRuntimeRegistrationHook,
     IAllureInProcessEndpointRegistrationContext,
     IAllureInProcessEndpointRegistrationHook,
-    IAllureRuntimeIntegrationContext
+    IAllureRuntimeIntegrationContext,
+    IAllureRuntimeIntegrationSnapshot
 >(
     runtimeName,
     () => new AllureRuntimeRegistrationSession()

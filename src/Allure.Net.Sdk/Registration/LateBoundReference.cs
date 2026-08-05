@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace Allure.Sdk.Registration;
 
@@ -9,15 +10,22 @@ namespace Allure.Sdk.Registration;
 /// <typeparam name="T">The referenced value type.</typeparam>
 public sealed class LateBoundReference<T> : IReadOnlyLateBoundReference<T>
 {
-    T? value = default;
+    sealed class Holder(T value)
+    {
+        public T Value { get; } = value;
+    }
+
+    Holder? holder = null;
 
     /// <inheritdoc/>
-    public bool IsBound => this.value is not null;
+    public bool IsBound => Volatile.Read(ref this.holder) is not null;
 
     /// <inheritdoc/>
-    public T Value => this.value ?? throw new InvalidOperationException(
-        $"{typeof(T).Name} has not been bound yet."
-    );
+    public T Value => Volatile.Read(ref this.holder) is { Value: T value }
+        ? value
+        : throw new InvalidOperationException(
+            $"{typeof(T).Name} has not been bound yet."
+        );
 
     /// <summary>
     /// Assigns the referenced value.
@@ -31,14 +39,19 @@ public sealed class LateBoundReference<T> : IReadOnlyLateBoundReference<T>
     /// </exception>
     public void Bind(T value)
     {
-        if (this.IsBound)
+        if (value is null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        var holder = new Holder(value);
+
+        if (Interlocked.CompareExchange(ref this.holder, holder, null) is not null)
         {
             throw new InvalidOperationException(
                 $"{typeof(T).Name} is already bound."
             );
         }
-
-        this.value = value ?? throw new ArgumentNullException(nameof(value));
     }
 
     /// <inheritdoc/>

@@ -31,7 +31,7 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     /// </param>
     /// <remarks>
     /// Transformations are applied in registration order after configuration
-    /// sources have been resolved and registration hooks have run.
+    /// sources have been resolved.
     /// </remarks>
     void TransformConfiguration(Func<TConfiguration, TConfiguration> transformation);
 
