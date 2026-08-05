@@ -120,26 +120,29 @@ public class AllureRuntimeRegistrationTests
     {
         var destination = new InMemoryResultsDestination();
         var builder = new RegistrationTestRuntimeBuilder<TRuntime>(runtimeFactory);
-        builder.UseConfiguration(new AllureConfiguration());
-        builder.UseDestination(_ => destination);
-
-        if (registerRoute)
+        var plan = builder.Prepare((ctx) =>
         {
-            var isInTestScope = new AsyncLocal<bool>
+            ctx.UseConfiguration(new AllureConfiguration());
+            ctx.UseDestination(_ => destination);
+            if (registerRoute)
             {
-                Value = true
-            };
-            builder.RegisterInProcessEndpoint(
-                $"registration-test-{Guid.NewGuid():N}",
-                (_, endpoint) =>
+                var isInTestScope = new AsyncLocal<bool>
                 {
-                    endpoint.UseCurrentScopePredicate(_ => false);
-                    endpoint.UseGlobalScopePredicate(_ => isInTestScope.Value);
-                }
-            );
-        }
+                    Value = true
+                };
+                ctx.RegisterInProcessEndpoint(
+                    $"registration-test-{Guid.NewGuid():N}",
+                    (_, endpoint) =>
+                    {
+                        endpoint.UseCurrentScopePredicate(_ => false);
+                        endpoint.UseGlobalScopePredicate(_ => isInTestScope.Value);
+                    }
+                );
+            }
+        });
 
-        return (builder.Build(), destination);
+
+        return (plan.Build(), destination);
     }
 
     delegate TRuntime RuntimeFactory<out TRuntime>(RuntimeArguments args);
@@ -210,6 +213,53 @@ public class AllureRuntimeRegistrationTests
         }
     }
 
+    sealed class RegistrationTestRuntimeRegistrationSession<TRuntime>(
+        RuntimeFactory<TRuntime> runtimeFactory
+    ) :
+        AllureRuntimeRegistrationSession<
+            AllureConfiguration,
+            IAllureRuntimeRegistrationContext<AllureConfiguration>,
+            RecordingRuntimeHook<AllureConfiguration>,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+            RecordingEndpointHook<AllureConfiguration, TRuntime>,
+            IAllureRuntimeIntegrationContext<
+                AllureConfiguration,
+                IAllureRuntimeRegistrationContext<AllureConfiguration>,
+                RecordingRuntimeHook<AllureConfiguration>,
+                IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+                RecordingEndpointHook<AllureConfiguration, TRuntime>,
+                TRuntime
+            >,
+            object,
+            TRuntime
+        >
+
+        where TRuntime : IAllureRuntime<AllureConfiguration>
+    {
+        protected override IAllureRuntimeIntegrationContext<AllureConfiguration, IAllureRuntimeRegistrationContext<AllureConfiguration>, RecordingRuntimeHook<AllureConfiguration>, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>, RecordingEndpointHook<AllureConfiguration, TRuntime>, TRuntime> IntegrationContext => this;
+
+        protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext => this;
+
+        protected override object CaptureIntegrationSnapshot() => new();
+
+        protected override AllureInProcessRouteBuilder<AllureConfiguration, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>, RecordingEndpointHook<AllureConfiguration, TRuntime>, TRuntime> CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args, object integrationSnapshot)
+        {
+            return new RegistrationTestRouteBuilder<TRuntime>(args);
+        }
+
+        protected override TRuntime CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args, object integrationSnapshot)
+        {
+            return runtimeFactory(new(
+                args.Configuration,
+                args.ParameterSerializer,
+                args.Destination,
+                args.Context,
+                args.LifecycleApi,
+                args.ModelApi
+            ));
+        }
+    }
+
     sealed class RegistrationTestRuntimeBuilder<TRuntime>(
         RuntimeFactory<TRuntime> runtimeFactory
     ) :
@@ -219,39 +269,18 @@ public class AllureRuntimeRegistrationTests
             RecordingRuntimeHook<AllureConfiguration>,
             IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
             RecordingEndpointHook<AllureConfiguration, TRuntime>,
+            IAllureRuntimeIntegrationContext<
+                AllureConfiguration,
+                IAllureRuntimeRegistrationContext<AllureConfiguration>,
+                RecordingRuntimeHook<AllureConfiguration>,
+                IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+                RecordingEndpointHook<AllureConfiguration, TRuntime>,
+                TRuntime
+            >,
             TRuntime
-        >("registration-tests")
+        >("registration-tests", () => new RegistrationTestRuntimeRegistrationSession<TRuntime>(runtimeFactory))
 
-        where TRuntime : IAllureRuntime<AllureConfiguration>
-    {
-        protected override IAllureRuntimeRegistrationContext<AllureConfiguration>
-            RegistrationContext => this;
-
-        protected override TRuntime CreateRuntimeInstance(
-            AllureConfiguration configuration,
-            IAllureParameterSerializer parameterSerializer,
-            IAllureResultsDestination destination,
-            IAllureExecutionContext context,
-            IAllureLifecycleApi lifecycleApi,
-            IAllureModelApi modelApi
-        ) => runtimeFactory(new(
-            configuration,
-            parameterSerializer,
-            destination,
-            context,
-            lifecycleApi,
-            modelApi
-        ));
-
-        protected override AllureInProcessRouteBuilder<
-            AllureConfiguration,
-            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
-            RecordingEndpointHook<AllureConfiguration, TRuntime>,
-            TRuntime
-        > CreateRouteBuilder(
-            AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args
-        ) => new RegistrationTestRouteBuilder<TRuntime>(args);
-    }
+        where TRuntime : IAllureRuntime<AllureConfiguration>;
 
     sealed class RegistrationTestRouteBuilder<TRuntime>(
         AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args

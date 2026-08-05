@@ -16,18 +16,22 @@ public class InProcessEndpointRegistrationTests
         var isAvailable = false;
         var destination = new InMemoryResultsDestination();
         var builder = CreateBuilder();
-        builder.UseConfiguration(new AllureConfiguration());
-        builder.UseDestination(_ => destination);
-        builder.RegisterInProcessEndpoint(
-            NewRouteId(),
-            (_, endpoint) =>
-            {
-                endpoint.SetAvailabilityPredicate(() => isAvailable);
-                endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
-                endpoint.UseCurrentScopePredicate(_ => false);
-            }
-        );
-        builder.Build();
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new AllureConfiguration());
+            ctx.UseDestination(_ => destination);
+            ctx.RegisterInProcessEndpoint(
+                NewRouteId(),
+                (_, endpoint) =>
+                {
+                    endpoint.SetAvailabilityPredicate(() => isAvailable);
+                    endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
+                    endpoint.UseCurrentScopePredicate(_ => false);
+                }
+            );
+
+        });
+        using var _ = plan.Build();
 
         isInGlobalScope.Value = true;
         AllureApi.AddGlobalAttachment("unavailable", new byte[] { 1 });
@@ -51,31 +55,36 @@ public class InProcessEndpointRegistrationTests
         var suppressingDestination = new InMemoryResultsDestination();
         var targetRouteId = NewRouteId();
         var targetBuilder = CreateBuilder();
-        targetBuilder.UseConfiguration(new AllureConfiguration());
-        targetBuilder.UseDestination(_ => targetDestination);
-        targetBuilder.RegisterInProcessEndpoint(
-            targetRouteId,
-            (_, endpoint) =>
-            {
-                endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
-                endpoint.UseCurrentScopePredicate(_ => false);
-            }
-        );
-        targetBuilder.Build();
+        using var _ = targetBuilder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new AllureConfiguration());
+            ctx.UseDestination(_ => targetDestination);
+            ctx.RegisterInProcessEndpoint(
+                targetRouteId,
+                (_, endpoint) =>
+                {
+                    endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
+                    endpoint.UseCurrentScopePredicate(_ => false);
+                }
+            );
+
+        }).Build();
 
         var suppressingBuilder = CreateBuilder();
-        suppressingBuilder.UseConfiguration(new AllureConfiguration());
-        suppressingBuilder.UseDestination(_ => suppressingDestination);
-        suppressingBuilder.RegisterInProcessEndpoint(
-            NewRouteId(),
-            (_, endpoint) =>
-            {
-                endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
-                endpoint.UseCurrentScopePredicate(_ => false);
-                endpoint.SuppressRoutes(() => [targetRouteId]);
-            }
-        );
-        suppressingBuilder.Build();
+        suppressingBuilder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new AllureConfiguration());
+            ctx.UseDestination(_ => suppressingDestination);
+            ctx.RegisterInProcessEndpoint(
+                NewRouteId(),
+                (_, endpoint) =>
+                {
+                    endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
+                    endpoint.UseCurrentScopePredicate(_ => false);
+                    endpoint.SuppressRoutes(() => [targetRouteId]);
+                }
+            );
+        }).Build();
 
         isInGlobalScope.Value = true;
         AllureApi.AddGlobalAttachment("suppressed", new byte[] { 1 });
@@ -93,21 +102,23 @@ public class InProcessEndpointRegistrationTests
         var builder = CreateBuilder();
         var syncOperations = IAllureInProcessSyncOperations.Mock();
         var asyncOperations = IAllureInProcessAsyncOperations.Mock();
-        builder.UseConfiguration(new AllureConfiguration());
-        builder.RegisterInProcessEndpoint(
-            NewRouteId(),
-            (_, endpoint) =>
-            {
-                endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
-                endpoint.UseCurrentScopePredicate(_ => false);
-                endpoint.UseOperations(_ =>
+        using var _ = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new AllureConfiguration());
+            ctx.RegisterInProcessEndpoint(
+                NewRouteId(),
+                (_, endpoint) =>
                 {
-                    operationsFactoryCalls++;
-                    return new(syncOperations, asyncOperations);
-                });
-            }
-        );
-        builder.Build();
+                    endpoint.UseGlobalScopePredicate(_ => isInGlobalScope.Value);
+                    endpoint.UseCurrentScopePredicate(_ => false);
+                    endpoint.UseOperations(_ =>
+                    {
+                        operationsFactoryCalls++;
+                        return new(syncOperations, asyncOperations);
+                    });
+                }
+            );
+        }).Build();
 
         isInGlobalScope.Value = true;
         AllureApi.AddGlobalAttachment("custom operations", new byte[] { 1 });
@@ -131,14 +142,18 @@ public class InProcessEndpointRegistrationTests
             service
         );
 
-        builder.RegisterInProcessEndpoint(NewRouteId(), (_, ctx) =>
+        var plan = builder.Prepare((ctx) =>
         {
-            ctx.SetAvailabilityPredicate((_) => false);
-            ctx.UseCurrentScopePredicate((_) => false);
-            ctx.UseGlobalScopePredicate((_) => false);
+            ctx.RegisterInProcessEndpoint(NewRouteId(), (_, ctx) =>
+            {
+                ctx.SetAvailabilityPredicate((_) => false);
+                ctx.UseCurrentScopePredicate((_) => false);
+                ctx.UseGlobalScopePredicate((_) => false);
+            });
         });
 
-        using var _ = builder.Build();
+
+        using var _ = plan.Build();
 
         await Assert.That(builder.ServiceObservedByRouteBuilder)
             .IsSameReferenceAs(service);
@@ -169,9 +184,55 @@ public class InProcessEndpointRegistrationTests
         public object Service { get; } = service;
     }
 
+    sealed record class RuntimeWithServiceRegistrationSnapshot(object Service);
+
+    sealed class RuntimeWithServiceRegistrationSession(
+        object service,
+        Action<object> notifyRouteBuilderService
+    ) : AllureRuntimeRegistrationSession<
+        AllureConfiguration,
+        IAllureRuntimeRegistrationContext<AllureConfiguration>,
+        RecordingRuntimeHook<AllureConfiguration>,
+        IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
+        RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
+        IAllureRuntimeIntegrationContext<
+            AllureConfiguration,
+            IAllureRuntimeRegistrationContext<AllureConfiguration>,
+            RecordingRuntimeHook<AllureConfiguration>,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
+            RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
+            RuntimeWithService
+        >,
+        RuntimeWithServiceRegistrationSnapshot,
+        RuntimeWithService
+    >
+    {
+        protected override IAllureRuntimeIntegrationContext<AllureConfiguration, IAllureRuntimeRegistrationContext<AllureConfiguration>, RecordingRuntimeHook<AllureConfiguration>, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>, RecordingEndpointHook<AllureConfiguration, RuntimeWithService>, RuntimeWithService> IntegrationContext => this;
+
+        protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext => this;
+
+        protected override RuntimeWithServiceRegistrationSnapshot CaptureIntegrationSnapshot()
+        {
+            return new(service);
+        }
+
+        protected override AllureInProcessRouteBuilder<AllureConfiguration, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>, RecordingEndpointHook<AllureConfiguration, RuntimeWithService>, RuntimeWithService> CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, RuntimeWithService> args, RuntimeWithServiceRegistrationSnapshot integrationSnapshot)
+        {
+            var builder = new RuntimeWithServiceRouteBuilder(args);
+            notifyRouteBuilderService(builder.Service);
+            return builder;
+        }
+
+        protected override RuntimeWithService CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args, RuntimeWithServiceRegistrationSnapshot integrationSnapshot)
+        {
+            return new (args.Configuration, args.ParameterSerializer, args.Destination, args.Context, args.LifecycleApi, args.ModelApi, integrationSnapshot.Service);
+        }
+    }
+
     sealed class RuntimeWithServiceBuilder(
         string runtimeName,
-        object service
+        object service,
+        RuntimeWithServiceBuilder.ObjectBox observedServiceBox
     ) :
         AllureRuntimeBuilder<
             AllureConfiguration,
@@ -179,47 +240,29 @@ public class InProcessEndpointRegistrationTests
             RecordingRuntimeHook<AllureConfiguration>,
             IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
             RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-            RuntimeWithService
-        >(runtimeName),
-        IAllureRuntimeRegistrationContext<AllureConfiguration>
-    {
-        public object? ServiceObservedByRouteBuilder { get; private set; }
-
-        protected override IAllureRuntimeRegistrationContext<AllureConfiguration>
-            RegistrationContext => this;
-
-        protected override RuntimeWithService CreateRuntimeInstance(
-            AllureConfiguration configuration,
-            IAllureParameterSerializer parameterSerializer,
-            IAllureResultsDestination destination,
-            IAllureExecutionContext context,
-            IAllureLifecycleApi lifecycleApi,
-            IAllureModelApi modelApi
-        ) => new(
-            configuration,
-            parameterSerializer,
-            destination,
-            context,
-            lifecycleApi,
-            modelApi,
-            service
-        );
-
-        protected override AllureInProcessRouteBuilder<
-            AllureConfiguration,
-            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
-            RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-            RuntimeWithService
-        > CreateRouteBuilder(
-            AllureRouteBuilderArgs<
+            IAllureRuntimeIntegrationContext<
                 AllureConfiguration,
+                IAllureRuntimeRegistrationContext<AllureConfiguration>,
+                RecordingRuntimeHook<AllureConfiguration>,
+                IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
+                RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
                 RuntimeWithService
-            > args
-        )
+            >,
+            RuntimeWithService
+        >(runtimeName, () => new RuntimeWithServiceRegistrationSession(service, observedServiceBox.SetValue))
+    {
+        public RuntimeWithServiceBuilder(string runtimeName, object service) : this(runtimeName, service, new())
         {
-            var builder = new RuntimeWithServiceRouteBuilder(args);
-            this.ServiceObservedByRouteBuilder = builder.Service;
-            return builder;
+
+        }
+
+        public object? ServiceObservedByRouteBuilder => observedServiceBox.Value;
+
+        internal class ObjectBox()
+        {
+            public object? Value { get; private set; } = null;
+
+            public void SetValue(object value) => this.Value = value;
         }
     }
 

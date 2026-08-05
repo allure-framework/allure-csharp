@@ -16,10 +16,12 @@ public class ConfigurationResolutionTests
             new TestConfiguration { Value = "later" }
         );
         var builder = CreateBuilder();
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfigurationSources(() => [skipped, first, later]);
+        });
 
-        builder.UseConfigurationSources(() => [skipped, first, later]);
-
-        using var runtime = builder.Build();
+        using var runtime = plan.Build();
 
         await Assert.That(runtime.Runtime.Configuration).IsSameReferenceAs(expected);
         await Assert.That(skipped.LoadCount).IsEqualTo(0);
@@ -31,30 +33,36 @@ public class ConfigurationResolutionTests
     public async Task ShouldCreateDefaultConfigurationWhenNoSourceCanLoad()
     {
         var builder = CreateBuilder();
-        builder.UseConfigurationSources(
-            () => [new RecordingConfigurationSource(canLoad: false)]
-        );
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfigurationSources(
+                () => [new RecordingConfigurationSource(canLoad: false)]
+            );
+        });
 
-        using var runtime = builder.Build();
+        using var runtime = plan.Build();
 
         await Assert.That(runtime.Runtime.Configuration).IsNotNull();
         await Assert.That(runtime.Runtime.Configuration.Value).IsNull();
     }
 
     [Test]
-    public async Task ShouldEvaluateConfigurationSourceFactoryAtBuildTime()
+    public async Task ShouldEvaluateConfigurationSourceFactoryAtPrepareTime()
     {
         var factoryCalls = 0;
         var expected = new TestConfiguration();
         var builder = CreateBuilder();
-        builder.UseConfigurationSources(() =>
+        var plan = builder.Prepare((ctx) =>
         {
-            factoryCalls++;
-            return [new RecordingConfigurationSource(expected)];
+            ctx.UseConfigurationSources(() =>
+            {
+                factoryCalls++;
+                return [new RecordingConfigurationSource(expected)];
+            });
         });
 
-        await Assert.That(factoryCalls).IsEqualTo(0);
-        using var runtime = builder.Build();
+        await Assert.That(factoryCalls).IsEqualTo(1);
+        using var runtime = plan.Build();
 
         await Assert.That(factoryCalls).IsEqualTo(1);
         await Assert.That(runtime.Runtime.Configuration).IsSameReferenceAs(expected);
@@ -65,9 +73,12 @@ public class ConfigurationResolutionTests
     {
         var expected = new TestConfiguration();
         var builder = CreateBuilder();
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(expected);
+        });
 
-        builder.UseConfiguration(expected);
-        using var runtime = builder.Build();
+        using var runtime = plan.Build();
 
         await Assert.That(runtime.Runtime.Configuration).IsSameReferenceAs(expected);
     }
@@ -78,13 +89,16 @@ public class ConfigurationResolutionTests
         var expected = new TestConfiguration();
         var sourceFactoryCalls = 0;
         var builder = CreateBuilder();
-
-        builder.UseConfigurationSource(() =>
+        var plan = builder.Prepare((ctx) =>
         {
-            sourceFactoryCalls++;
-            return new RecordingConfigurationSource(expected);
+            ctx.UseConfigurationSource(() =>
+            {
+                sourceFactoryCalls++;
+                return new RecordingConfigurationSource(expected);
+            });
         });
-        using var runtime = builder.Build();
+
+        using var runtime = plan.Build();
 
         await Assert.That(sourceFactoryCalls).IsEqualTo(1);
         await Assert.That(runtime.Runtime.Configuration).IsSameReferenceAs(expected);
@@ -102,9 +116,12 @@ public class ConfigurationResolutionTests
         try
         {
             var builder = CreateBuilder();
-            builder.UseConfigurationFile(path);
+            var plan = builder.Prepare((ctx) =>
+            {
+                ctx.UseConfigurationFile(path);
+            });
 
-            using var runtime = builder.Build();
+            using var runtime = plan.Build();
 
             await Assert.That(runtime.Runtime.Configuration.Value).IsEqualTo("from-file");
         }
@@ -128,9 +145,12 @@ public class ConfigurationResolutionTests
         try
         {
             var builder = CreateBuilder();
-            builder.UseConfigurationPathEnvironmentVariable(variableName);
+            var plan = builder.Prepare((ctx) =>
+            {
+                ctx.UseConfigurationPathEnvironmentVariable(variableName);
+            });
 
-            using var runtime = builder.Build();
+            using var runtime = plan.Build();
 
             await Assert.That(runtime.Runtime.Configuration.Value)
                 .IsEqualTo("from-environment");

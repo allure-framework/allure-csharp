@@ -62,15 +62,18 @@ public class RuntimeComponentRegistrationTests
                 IndentOutput = true,
             };
             var builder = CreateBuilder();
-            builder.UseConfiguration(original);
-            builder.UseRegistrationHooks(_ =>
-            [
-                new RecordingRuntimeHook<TestConfiguration>(
-                    context => context.UseConfiguration(final)
-                ),
-            ]);
+            var plan = builder.Prepare((ctx) =>
+            {
+                ctx.UseConfiguration(original);
+                ctx.UseRegistrationHooks(_ =>
+                [
+                    new RecordingRuntimeHook<TestConfiguration>(
+                        context => context.UseConfiguration(final)
+                    ),
+                ]);
+            });
 
-            using var registration = builder.Build();
+            using var registration = plan.Build();
             registration.Runtime.ResultsDestination.WriteGlobals(new()
             {
                 Errors = { new() { Message = "runtime error" } },
@@ -111,35 +114,38 @@ public class RuntimeComponentRegistrationTests
         TestConfiguration? destinationConfiguration = null;
 
         var builder = CreateBuilder();
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(configuration);
+            ctx.UseParameterSerializer(received =>
+            {
+                serializerConfiguration = received;
+                return serializer;
+            });
+            ctx.UseDestination(received =>
+            {
+                destinationConfiguration = received;
+                return destination;
+            });
+            ctx.UseContext(dependencies =>
+            {
+                dependencyInputs.Add(dependencies);
+                return context;
+            });
+            ctx.UseLifecycleApi(dependencies =>
+            {
+                dependencyInputs.Add(dependencies);
+                return lifecycle;
+            });
+            ctx.UseModelApi(dependencies =>
+            {
+                dependencyInputs.Add(dependencies);
+                return model;
+            });
+        });
 
-        builder.UseConfiguration(configuration);
-        builder.UseParameterSerializer(received =>
-        {
-            serializerConfiguration = received;
-            return serializer;
-        });
-        builder.UseDestination(received =>
-        {
-            destinationConfiguration = received;
-            return destination;
-        });
-        builder.UseContext(dependencies =>
-        {
-            dependencyInputs.Add(dependencies);
-            return context;
-        });
-        builder.UseLifecycleApi(dependencies =>
-        {
-            dependencyInputs.Add(dependencies);
-            return lifecycle;
-        });
-        builder.UseModelApi(dependencies =>
-        {
-            dependencyInputs.Add(dependencies);
-            return model;
-        });
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(serializerConfiguration)
             .IsSameReferenceAs(configuration);
@@ -165,14 +171,17 @@ public class RuntimeComponentRegistrationTests
     public async Task ShouldThrowWhenRuntimeReferenceIsReadDirectlyFromFactory()
     {
         var builder = CreateBuilder();
-        builder.UseConfiguration(new TestConfiguration());
-        builder.UseContext(dependencies =>
+        var plan = builder.Prepare((ctx) =>
         {
-            _ = dependencies.RuntimeReference.Value;
-            return IAllureExecutionContext.Mock();
+            ctx.UseConfiguration(new TestConfiguration());
+            ctx.UseContext(dependencies =>
+            {
+                _ = dependencies.RuntimeReference.Value;
+                return IAllureExecutionContext.Mock();
+            });
         });
 
-        await Assert.That(builder.Build)
+        await Assert.That(plan.Build)
             .Throws<InvalidOperationException>()
             .WithMessageContaining("has not been bound");
     }

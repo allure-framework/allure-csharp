@@ -7,34 +7,38 @@ using Allure.Sdk.Runtime;
 namespace Allure.Sdk.Internal.Registration;
 
 sealed class AllureRuntimeRegistrationPlan<TConfiguration, TRuntime>(
-    TConfiguration configuration,
-    Func<TConfiguration, IAllureRuntimeRegistration<TRuntime>> runtimeFactory
+    IPreparedRuntimeRegistration<TConfiguration, TRuntime> preparedRegistration,
+    LateBoundReference<TRuntime> runtimeReference
 ) :
     IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>
 
     where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>
 {
-    readonly LateBoundReference<IAllureRuntimeRegistration<TRuntime>> runtimeReference = new();
+    int state = 0;
 
-    int built = 0;
+    public TConfiguration Configuration => preparedRegistration.Configuration;
 
-    public TConfiguration Configuration => configuration;
-
-    public IReadOnlyLateBoundReference<IAllureRuntimeRegistration<TRuntime>> RegistrationReference =>
-        this.runtimeReference;
+    public IReadOnlyLateBoundReference<TRuntime> RuntimeReference => runtimeReference;
 
     public IAllureRuntimeRegistration<TRuntime> Build()
     {
-        if (Interlocked.Exchange(ref this.built, 1) != 0)
+        if (Interlocked.CompareExchange(ref this.state, STATE_BUILDING, STATE_PREPARED) != STATE_PREPARED)
         {
             throw new InvalidOperationException(
-                "The runtime has already been built."
+                "This plan has already been used."
             );
         }
 
-        var runtimeRegistration = runtimeFactory(this.Configuration);
-        this.runtimeReference.Bind(runtimeRegistration);
-        return runtimeRegistration;
+        var registration = preparedRegistration.Build();
+
+        runtimeReference.Bind(registration.Runtime);
+
+        Volatile.Write(ref this.state, STATE_BUILT);
+        return registration;
     }
+
+    const int STATE_PREPARED = 0;
+    const int STATE_BUILDING = 1;
+    const int STATE_BUILT = 2;
 }
