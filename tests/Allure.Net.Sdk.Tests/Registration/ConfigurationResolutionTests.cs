@@ -191,10 +191,10 @@ public class ConfigurationResolutionTests
 
         public int LoadCount { get; private set; }
 
-        public TestConfiguration LoadConfiguration()
+        public TrackedConfiguration<TestConfiguration> LoadConfiguration()
         {
             this.LoadCount++;
-            return this.configuration;
+            return TrackedConfiguration.WithAllPropertiesSet(this.Name, this.configuration);
         }
     }
 }

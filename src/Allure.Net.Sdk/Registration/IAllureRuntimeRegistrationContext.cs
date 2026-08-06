@@ -33,7 +33,9 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     /// Transformations are applied in registration order after configuration
     /// sources have been resolved.
     /// </remarks>
-    void TransformConfiguration(Func<TConfiguration, TConfiguration> transformation);
+    void TransformConfiguration(
+        Func<TrackedConfiguration<TConfiguration>, TrackedConfiguration<TConfiguration>> transformation
+    );
 
     /// <summary>
     /// Configures parameter serialization rules using the resolved configuration.

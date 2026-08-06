@@ -28,8 +28,19 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEquivalentTo([
+                "Hostname",
+                "ResultsDirectory",
+                "LinkTemplates",
+                "FailExceptions",
+                "IndentOutput",
+                "GlobalLabels",
+                "RuntimeRegistrationHook",
+            ]);
 
             await Assert.That(configuration.Hostname).IsEqualTo("build-agent");
             await Assert.That(configuration.ResultsDirectory)
@@ -55,8 +66,11 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEquivalentTo(["Hostname"]);
 
             await Assert.That(configuration.Hostname).IsEqualTo("nested");
         }
@@ -73,9 +87,14 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<TestConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<TestConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
 
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEquivalentTo([
+                "Hostname",
+                "Value",
+            ]);
             await Assert.That(configuration.Hostname).IsEqualTo("agent");
             await Assert.That(configuration.Value).IsEqualTo("custom");
         }
@@ -92,8 +111,11 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEmpty();
 
             await Assert.That(configuration.Hostname).IsEqualTo(Environment.MachineName);
             await Assert.That(configuration.ResultsDirectory)
@@ -127,8 +149,15 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEquivalentTo([
+                "Hostname",
+                "ResultsDirectory",
+                "LinkTemplates",
+            ]);
 
             await Assert.That(configuration.Hostname).IsEqualTo("legacy-agent");
             await Assert.That(configuration.ResultsDirectory)
@@ -155,8 +184,13 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEquivalentTo([
+                "LinkTemplates",
+            ]);
 
             await Assert.That(configuration.LinkTemplates).IsEmpty();
         }
@@ -175,8 +209,13 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEquivalentTo([
+                "LinkTemplates",
+            ]);
 
             await Assert.That(configuration.LinkTemplates)
                 .IsEquivalentTo(
@@ -204,8 +243,15 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEquivalentTo([
+                "Hostname",
+                "ResultsDirectory",
+                "LinkTemplates",
+            ]);
 
             await Assert.That(configuration.Hostname).IsEqualTo("modern-agent");
             await Assert.That(configuration.ResultsDirectory)
@@ -228,8 +274,11 @@ public class JsonFileConfigurationSourceTests
 
         try
         {
-            var configuration = new JsonFileConfigurationSource<AllureConfiguration>(path)
+            var trackedConfiguration = new JsonFileConfigurationSource<AllureConfiguration>(path)
                 .LoadConfiguration();
+            var configuration = trackedConfiguration.Configuration;
+
+            await Assert.That(trackedConfiguration.AssignedProperties).IsEmpty();
 
             await Assert.That(configuration.Hostname).IsNotEqualTo("wrong");
             await Assert.That(configuration.ResultsDirectory)

@@ -83,7 +83,12 @@ public abstract class AllureRuntimeRegistrationSession<
     Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> currentConfigurationSourcesFactory =
         AllureRegistrationDefaults.ConfigurationSources<TConfiguration>();
 
-    readonly List<Func<TConfiguration, TConfiguration>> configurationTransformations = [];
+    readonly List<
+        Func<
+            TrackedConfiguration<TConfiguration>,
+            TrackedConfiguration<TConfiguration>
+        >
+    > configurationTransformations = [];
 
     Func<TConfiguration, IEnumerable<TRuntimeHook?>> currentHooksFactory =
         AllureRegistrationDefaults.RuntimeHookProviders<
@@ -167,7 +172,9 @@ public abstract class AllureRuntimeRegistrationSession<
     public void UseConfigurationSources(Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory) =>
         this.Modify(() => this.currentConfigurationSourcesFactory = sourcesFactory);
 
-    public void TransformConfiguration(Func<TConfiguration, TConfiguration> transformation) =>
+    public void TransformConfiguration(
+        Func<TrackedConfiguration<TConfiguration>, TrackedConfiguration<TConfiguration>> transformation
+    ) =>
         this.Modify(() => this.configurationTransformations.Add(transformation));
 
     public void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration) =>
@@ -260,7 +267,7 @@ public abstract class AllureRuntimeRegistrationSession<
                     TIntegrationSnapshot
                 >(
                     runtimeName,
-                    finalConfiguration,
+                    finalConfiguration.Configuration,
                     commonSnapshot,
                     integrationSnapshot
                 );
@@ -323,12 +330,12 @@ public abstract class AllureRuntimeRegistrationSession<
         }
     }
 
-    TConfiguration ResolveConfiguration() =>
+    TrackedConfiguration<TConfiguration> ResolveConfiguration() =>
         this.ApplyConfigurationTransformations(
             this.LoadConfiguration()
         );
 
-    TConfiguration LoadConfiguration()
+    TrackedConfiguration<TConfiguration> LoadConfiguration()
     {
         foreach (var source in this.currentConfigurationSourcesFactory())
         {
@@ -338,15 +345,20 @@ public abstract class AllureRuntimeRegistrationSession<
             }
         }
 
-        return new TConfiguration();
+        return new TrackedConfiguration<TConfiguration>(
+            "default",
+            new()
+        );
     }
 
-    TConfiguration RunHooks(TConfiguration initialConfiguration)
+    TrackedConfiguration<TConfiguration> RunHooks(
+        TrackedConfiguration<TConfiguration> initialConfiguration
+    )
     {
         var configurationSourcesFactoryBefore = this.currentConfigurationSourcesFactory;
         var transformationCount = configurationTransformations.Count;
 
-        foreach (var provider in this.currentHooksFactory(initialConfiguration))
+        foreach (var provider in this.currentHooksFactory(initialConfiguration.Configuration))
         {
             provider?.SetUp(this.RegistrationContext);
         }
@@ -356,18 +368,29 @@ public abstract class AllureRuntimeRegistrationSession<
             : this.ResolveConfiguration();
     }
 
-    TConfiguration ApplyRemainingTransformations(TConfiguration loadedConfiguration, int skip) =>
-        ApplyConfigurationTransformations(loadedConfiguration, this.configurationTransformations.Skip(skip));
+    TrackedConfiguration<TConfiguration> ApplyRemainingTransformations(
+        TrackedConfiguration<TConfiguration> loadedConfiguration,
+        int skip
+    ) =>
+        ApplyConfigurationTransformations(
+            loadedConfiguration,
+            this.configurationTransformations.Skip(skip)
+        );
 
-    TConfiguration ApplyConfigurationTransformations(TConfiguration loadedConfiguration) =>
-        ApplyConfigurationTransformations(loadedConfiguration, this.configurationTransformations);
+    TrackedConfiguration<TConfiguration> ApplyConfigurationTransformations(
+        TrackedConfiguration<TConfiguration> loadedConfiguration
+    ) =>
+        ApplyConfigurationTransformations(
+            loadedConfiguration,
+            this.configurationTransformations
+        );
 
-    static TConfiguration ApplyConfigurationTransformations(
-        TConfiguration loadedConfiguration,
-        IEnumerable<Func<TConfiguration, TConfiguration>> transformations
+    static TrackedConfiguration<TConfiguration> ApplyConfigurationTransformations(
+        TrackedConfiguration<TConfiguration> loadedConfiguration,
+        IEnumerable<Func<TrackedConfiguration<TConfiguration>, TrackedConfiguration<TConfiguration>>> transformations
     )
     {
-        TConfiguration transformedConfiguration = loadedConfiguration;
+        TrackedConfiguration<TConfiguration> transformedConfiguration = loadedConfiguration;
         foreach (var transformation in transformations)
         {
             transformedConfiguration = transformation(transformedConfiguration);
