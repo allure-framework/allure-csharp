@@ -4,7 +4,7 @@ namespace Allure.Sdk.Configuration;
 /// Provides configuration values to an Allure runtime.
 /// </summary>
 /// <typeparam name="TConfiguration">The configuration type.</typeparam>
-public interface IAllureConfigurationSource<out TConfiguration>
+public interface IAllureConfigurationSource<TConfiguration>
     where TConfiguration : AllureConfiguration
 {
     /// <summary>
@@ -18,8 +18,10 @@ public interface IAllureConfigurationSource<out TConfiguration>
     bool CanLoad { get; }
 
     /// <summary>
-    /// Loads configuration from the source.
+    /// Loads configuration and identifies the properties assigned by the source.
     /// </summary>
-    /// <returns>The loaded configuration.</returns>
-    TConfiguration LoadConfiguration();
+    /// <returns>
+    /// The loaded configuration together with its source name and assigned properties.
+    /// </returns>
+    TrackedConfiguration<TConfiguration> LoadConfiguration();
 }

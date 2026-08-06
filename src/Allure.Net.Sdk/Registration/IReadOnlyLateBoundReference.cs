@@ -1,3 +1,5 @@
+using System;
+
 namespace Allure.Sdk.Registration;
 
 /// <summary>
@@ -18,4 +20,18 @@ public interface IReadOnlyLateBoundReference<out T>
     /// The reference has not yet been assigned.
     /// </exception>
     T Value { get; }
+
+    /// <summary>
+    /// Creates a read-only reference whose value is projected from this
+    /// reference when first accessed.
+    /// </summary>
+    /// <typeparam name="TResult">The projected value type.</typeparam>
+    /// <param name="selector">
+    /// The function used to project the assigned source value.
+    /// </param>
+    /// <returns>
+    /// A reference that is bound when this reference is bound and lazily
+    /// evaluates the projection once.
+    /// </returns>
+    IReadOnlyLateBoundReference<TResult> Select<TResult>(Func<T, TResult> selector);
 }

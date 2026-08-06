@@ -12,7 +12,7 @@ public class SerializerSelectionTests
     public async Task ShouldUseExplicitParameterSerializer()
     {
         var expected = new RecordingParameterSerializer(_ => "explicit");
-        using var registration = CreateBuilder(builder =>
+        using var registration = PrepareBuilder(builder =>
             builder.UseParameterSerializer(() => expected)
         ).Build();
 
@@ -26,7 +26,7 @@ public class SerializerSelectionTests
     public async Task ShouldUseExplicitSerializerWhenConfiguredAfterRules()
     {
         var expected = new RecordingParameterSerializer(_ => "explicit");
-        using var registration = CreateBuilder(builder =>
+        using var registration = PrepareBuilder(builder =>
         {
             builder.ConfigureSerialization(
                 context => context.AddDelegateRule<int>(_ => "rule")
@@ -45,7 +45,7 @@ public class SerializerSelectionTests
     {
         var explicitSerializer =
             new RecordingParameterSerializer(_ => "explicit");
-        using var registration = CreateBuilder(builder =>
+        using var registration = PrepareBuilder(builder =>
         {
             builder.UseParameterSerializer(() => explicitSerializer);
             builder.ConfigureSerialization(
@@ -65,7 +65,7 @@ public class SerializerSelectionTests
     {
         var explicitSerializer =
             new RecordingParameterSerializer(_ => "explicit");
-        using var registration = CreateBuilder(builder =>
+        using var registration = PrepareBuilder(builder =>
         {
             builder.ConfigureSerialization(
                 context => context.AddDelegateRule<string>(_ => "old-rule")
@@ -88,7 +88,7 @@ public class SerializerSelectionTests
     {
         var firstCalls = 0;
         var secondCalls = 0;
-        using var registration = CreateBuilder(builder =>
+        using var registration = PrepareBuilder(builder =>
         {
             builder.ConfigureSerialization(context =>
                 context.AddDelegateRule<int>(_ =>
@@ -123,7 +123,7 @@ public class SerializerSelectionTests
         IAllureRuntime<AllureConfiguration>? endpointRuntime = null;
         var endpointFactoryCalls = 0;
 
-        using var registration = CreateBuilder(builder =>
+        using var registration = PrepareBuilder(builder =>
         {
             builder.UseParameterSerializer(() => runtimeSerializer);
             builder.RegisterInProcessEndpoint(
@@ -156,13 +156,22 @@ public class SerializerSelectionTests
             .IsEqualTo("runtime");
     }
 
-    static TestRuntimeBuilder<AllureConfiguration> CreateBuilder(
-        Action<TestRuntimeBuilder<AllureConfiguration>> configure
+    static IAllureRuntimeRegistrationPlan<AllureConfiguration, IAllureRuntime<AllureConfiguration>> PrepareBuilder(
+        Action<IAllureRuntimeIntegrationContext<
+            AllureConfiguration,
+            IAllureRuntimeRegistrationContext<AllureConfiguration>,
+            RecordingRuntimeHook<AllureConfiguration>,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration>,
+            RecordingEndpointHook<AllureConfiguration>
+        >> configure
     )
     {
         var builder = new TestRuntimeBuilder<AllureConfiguration>("serializer-selection");
-        builder.UseConfiguration(new AllureConfiguration());
-        configure(builder);
-        return builder;
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new AllureConfiguration());
+            configure(ctx);
+        });
+        return plan;
     }
 }

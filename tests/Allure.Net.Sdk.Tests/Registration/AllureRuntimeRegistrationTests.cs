@@ -1,4 +1,5 @@
 using Allure.Abstractions;
+using Allure.Net.Sdk.Tests.Infrastructure;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
 using Allure.Sdk.Results;
@@ -11,44 +12,41 @@ public class AllureRuntimeRegistrationTests
     [Test]
     public async Task ShouldDisposeRouteBeforeRuntimeOnlyOnce()
     {
-        var events = new List<string>();
-        var runtime = new SyncDisposableRuntime(
-            () => events.Add("runtime")
-        );
-        var route = new CallbackDisposable(
-            () => events.Add("route")
-        );
-        var registration = new AllureRuntimeRegistration<SyncDisposableRuntime>(
-            runtime,
-            route
+        var runtimeDisposals = 0;
+        var (registration, destination) = BuildRegistration(
+            args => new SyncDisposableRuntime(args, () =>
+            {
+                runtimeDisposals++;
+                AllureApi.AddGlobalAttachment("during runtime disposal", new byte[] { 1 });
+            }),
+            registerRoute: true
         );
 
+        AllureApi.AddGlobalAttachment("before disposal", new byte[] { 1 });
         registration.Dispose();
         await registration.DisposeAsync();
-
-        await Assert.That(events.Count).IsEqualTo(2);
-        await Assert.That(events[0]).IsEqualTo("route");
-        await Assert.That(events[1]).IsEqualTo("runtime");
-
         registration.Dispose();
-        await Assert.That(events.Count).IsEqualTo(2);
+
+        await Assert.That(runtimeDisposals).IsEqualTo(1);
+        await Assert.That(destination.Globals.Count).IsEqualTo(1);
     }
 
     [Test]
     public async Task ShouldDisposeAsyncOnlyRuntimeAsynchronouslyOnlyOnce()
     {
-        var routeDisposals = 0;
-        var runtime = new AsyncDisposableRuntime();
-        var registration = new AllureRuntimeRegistration<AsyncDisposableRuntime>(
-            runtime,
-            new CallbackDisposable(() => routeDisposals++)
+        var (registration, destination) = BuildRegistration(
+            args => new AsyncDisposableRuntime(args),
+            registerRoute: true
         );
+        var runtime = registration.Runtime;
 
+        AllureApi.AddGlobalAttachment("before disposal", new byte[] { 1 });
         await registration.DisposeAsync();
         await registration.DisposeAsync();
         registration.Dispose();
+        AllureApi.AddGlobalAttachment("after disposal", new byte[] { 1 });
 
-        await Assert.That(routeDisposals).IsEqualTo(1);
+        await Assert.That(destination.Globals.Count).IsEqualTo(1);
         await Assert.That(runtime.AsyncDisposeCalls).IsEqualTo(1);
     }
 
@@ -56,12 +54,8 @@ public class AllureRuntimeRegistrationTests
     public async Task ShouldFallBackToSyncDisposalFromDisposeAsync()
     {
         var runtimeDisposals = 0;
-        var runtime = new SyncDisposableRuntime(
-            () => runtimeDisposals++
-        );
-        var registration = new AllureRuntimeRegistration<SyncDisposableRuntime>(
-            runtime,
-            routeRegistration: null
+        var (registration, _) = BuildRegistration(
+            args => new SyncDisposableRuntime(args, () => runtimeDisposals++)
         );
 
         await registration.DisposeAsync();
@@ -72,11 +66,10 @@ public class AllureRuntimeRegistrationTests
     [Test]
     public async Task ShouldPreferAsyncDisposalWhenRuntimeSupportsBoth()
     {
-        var runtime = new DualDisposableRuntime();
-        var registration = new AllureRuntimeRegistration<DualDisposableRuntime>(
-            runtime,
-            routeRegistration: null
+        var (registration, _) = BuildRegistration(
+            args => new DualDisposableRuntime(args)
         );
+        var runtime = registration.Runtime;
 
         await registration.DisposeAsync();
 
@@ -87,19 +80,16 @@ public class AllureRuntimeRegistrationTests
     [Test]
     public async Task ShouldDisposeRuntimeOnlyOnceWhenDisposalCallsRace()
     {
-        var routeDisposals = 0;
-        var runtime = new DualDisposableRuntime();
-        var registration = new AllureRuntimeRegistration<DualDisposableRuntime>(
-            runtime,
-            new CallbackDisposable(() => routeDisposals++)
+        var (registration, _) = BuildRegistration(
+            args => new DualDisposableRuntime(args)
         );
+        var runtime = registration.Runtime;
 
         await Task.WhenAll(
             Task.Run(registration.Dispose),
             registration.DisposeAsync().AsTask()
         );
 
-        await Assert.That(routeDisposals).IsEqualTo(1);
         await Assert.That(
             runtime.SyncDisposeCalls + runtime.AsyncDisposeCalls
         ).IsEqualTo(1);
@@ -108,53 +98,85 @@ public class AllureRuntimeRegistrationTests
     [Test]
     public async Task ShouldRemoveRouteWhenRuntimeDisposalThrows()
     {
-        var events = new List<string>();
-        var runtime = new SyncDisposableRuntime(() =>
-        {
-            events.Add("runtime");
-            throw new TestException();
-        });
-        var registration = new AllureRuntimeRegistration<SyncDisposableRuntime>(
-            runtime,
-            new CallbackDisposable(() => events.Add("route"))
+        var (registration, destination) = BuildRegistration(
+            args => new SyncDisposableRuntime(args, () => throw new TestException()),
+            registerRoute: true
         );
 
+        AllureApi.AddGlobalAttachment("before disposal", new byte[] { 1 });
         await Assert.That(registration.Dispose).Throws<TestException>();
+        AllureApi.AddGlobalAttachment("after disposal", new byte[] { 1 });
 
-        await Assert.That(events.Count).IsEqualTo(2);
-        await Assert.That(events[0]).IsEqualTo("route");
-        await Assert.That(events[1]).IsEqualTo("runtime");
+        await Assert.That(destination.Globals.Count).IsEqualTo(1);
     }
 
-    abstract class RuntimeStub : IAllureRuntime
+    static (
+        IAllureRuntimeRegistration<TRuntime> Registration,
+        InMemoryResultsDestination Destination
+    ) BuildRegistration<TRuntime>(
+        RuntimeFactory<TRuntime> runtimeFactory,
+        bool registerRoute = false
+    ) where TRuntime : IAllureRuntime<AllureConfiguration>
     {
-        public AllureConfiguration Configuration =>
-            throw new NotSupportedException();
+        var destination = new InMemoryResultsDestination();
+        var builder = new RegistrationTestRuntimeBuilder<TRuntime>(runtimeFactory);
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new AllureConfiguration());
+            ctx.UseDestination(_ => destination);
+            if (registerRoute)
+            {
+                var isInTestScope = new AsyncLocal<bool>
+                {
+                    Value = true
+                };
+                ctx.RegisterInProcessEndpoint(
+                    $"registration-test-{Guid.NewGuid():N}",
+                    (_, endpoint) =>
+                    {
+                        endpoint.UseCurrentScopePredicate(_ => false);
+                        endpoint.UseGlobalScopePredicate(_ => isInTestScope.Value);
+                    }
+                );
+            }
+        });
 
-        public IAllureExecutionContext ContextApi =>
-            throw new NotSupportedException();
 
-        public IAllureLifecycleApi LifecycleApi =>
-            throw new NotSupportedException();
-
-        public IAllureModelApi ModelApi =>
-            throw new NotSupportedException();
-
-        public IAllureResultsDestination ResultsDestination =>
-            throw new NotSupportedException();
-
-        public IAllureParameterSerializer ParameterSerializer =>
-            throw new NotSupportedException();
+        return (plan.Build(), destination);
     }
 
-    sealed class SyncDisposableRuntime(Action dispose) :
-        RuntimeStub,
-        IDisposable
+    delegate TRuntime RuntimeFactory<out TRuntime>(RuntimeArguments args);
+
+    sealed record RuntimeArguments(
+        AllureConfiguration Configuration,
+        IAllureParameterSerializer ParameterSerializer,
+        IAllureResultsDestination ResultsDestination,
+        IAllureExecutionContext Context,
+        IAllureLifecycleApi LifecycleApi,
+        IAllureModelApi ModelApi
+    );
+
+    abstract class RuntimeStub(RuntimeArguments args) :
+        AllureRuntime<AllureConfiguration>(
+            args.Configuration,
+            args.ParameterSerializer,
+            args.ResultsDestination,
+            args.Context,
+            args.LifecycleApi,
+            args.ModelApi
+        );
+
+    sealed class SyncDisposableRuntime(
+        RuntimeArguments args,
+        Action dispose
+    ) : RuntimeStub(args), IDisposable
     {
         public void Dispose() => dispose();
     }
 
-    sealed class AsyncDisposableRuntime : RuntimeStub, IAsyncDisposable
+    sealed class AsyncDisposableRuntime(RuntimeArguments args) :
+        RuntimeStub(args),
+        IAsyncDisposable
     {
         public int AsyncDisposeCalls { get; private set; }
 
@@ -165,8 +187,8 @@ public class AllureRuntimeRegistrationTests
         }
     }
 
-    sealed class DualDisposableRuntime :
-        RuntimeStub,
+    sealed class DualDisposableRuntime(RuntimeArguments args) :
+        RuntimeStub(args),
         IDisposable,
         IAsyncDisposable
     {
@@ -191,9 +213,107 @@ public class AllureRuntimeRegistrationTests
         }
     }
 
-    sealed class CallbackDisposable(Action dispose) : IDisposable
+    sealed class RegistrationTestRuntimeRegistrationSnapshot<TRuntime>(
+        RuntimeFactory<TRuntime> runtimeFactory
+    ) :
+        IAllureRuntimeIntegrationSnapshot<
+            AllureConfiguration,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+            RecordingEndpointHook<AllureConfiguration, TRuntime>,
+            TRuntime
+        >
+
+        where TRuntime : IAllureRuntime<AllureConfiguration>
     {
-        public void Dispose() => dispose();
+        public AllureInProcessRouteBuilder<AllureConfiguration, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>, RecordingEndpointHook<AllureConfiguration, TRuntime>, TRuntime> CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args)
+        {
+            return new RegistrationTestRouteBuilder<TRuntime>(args);
+        }
+
+        public TRuntime CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
+        {
+            return runtimeFactory(new(
+                args.Configuration,
+                args.ParameterSerializer,
+                args.Destination,
+                args.Context,
+                args.LifecycleApi,
+                args.ModelApi
+            ));
+        }
+    }
+
+    sealed class RegistrationTestRuntimeRegistrationSession<TRuntime>(
+        RuntimeFactory<TRuntime> runtimeFactory
+    ) :
+        AllureRuntimeRegistrationSession<
+            AllureConfiguration,
+            IAllureRuntimeRegistrationContext<AllureConfiguration>,
+            RecordingRuntimeHook<AllureConfiguration>,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+            RecordingEndpointHook<AllureConfiguration, TRuntime>,
+            IAllureRuntimeIntegrationContext<
+                AllureConfiguration,
+                IAllureRuntimeRegistrationContext<AllureConfiguration>,
+                RecordingRuntimeHook<AllureConfiguration>,
+                IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+                RecordingEndpointHook<AllureConfiguration, TRuntime>,
+                TRuntime
+            >,
+            RegistrationTestRuntimeRegistrationSnapshot<TRuntime>,
+            TRuntime
+        >
+
+        where TRuntime : IAllureRuntime<AllureConfiguration>
+    {
+        protected override IAllureRuntimeIntegrationContext<AllureConfiguration, IAllureRuntimeRegistrationContext<AllureConfiguration>, RecordingRuntimeHook<AllureConfiguration>, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>, RecordingEndpointHook<AllureConfiguration, TRuntime>, TRuntime> IntegrationContext => this;
+
+        protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext => this;
+
+        protected override RegistrationTestRuntimeRegistrationSnapshot<TRuntime> CaptureIntegrationSnapshot() => new(
+            runtimeFactory
+        );
+    }
+
+    sealed class RegistrationTestRuntimeBuilder<TRuntime>(
+        RuntimeFactory<TRuntime> runtimeFactory
+    ) :
+        AllureRuntimeBuilder<
+            AllureConfiguration,
+            IAllureRuntimeRegistrationContext<AllureConfiguration>,
+            RecordingRuntimeHook<AllureConfiguration>,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+            RecordingEndpointHook<AllureConfiguration, TRuntime>,
+            IAllureRuntimeIntegrationContext<
+                AllureConfiguration,
+                IAllureRuntimeRegistrationContext<AllureConfiguration>,
+                RecordingRuntimeHook<AllureConfiguration>,
+                IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+                RecordingEndpointHook<AllureConfiguration, TRuntime>,
+                TRuntime
+            >,
+            RegistrationTestRuntimeRegistrationSnapshot<TRuntime>,
+            TRuntime
+        >("registration-tests", () => new RegistrationTestRuntimeRegistrationSession<TRuntime>(runtimeFactory))
+
+        where TRuntime : IAllureRuntime<AllureConfiguration>;
+
+    sealed class RegistrationTestRouteBuilder<TRuntime>(
+        AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args
+    ) :
+        AllureInProcessRouteBuilder<
+            AllureConfiguration,
+            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, TRuntime>,
+            RecordingEndpointHook<AllureConfiguration, TRuntime>,
+            TRuntime
+        >(args)
+
+        where TRuntime : IAllureRuntime<AllureConfiguration>
+    {
+        protected override IAllureInProcessEndpointRegistrationContext<
+            AllureConfiguration,
+            TRuntime
+        > RegistrationContext => this;
     }
 
     sealed class TestException : Exception;
