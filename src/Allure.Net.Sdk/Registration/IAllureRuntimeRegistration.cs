@@ -7,8 +7,11 @@ namespace Allure.Sdk.Registration;
 /// Provides a constructed Allure runtime and owns its registration.
 /// </summary>
 /// <remarks>
-/// Disposing this object cancels the registration and disposes the runtime
-/// if it implements <see cref="IDisposable"/> or <see cref="IAsyncDisposable"/>.
+/// <see cref="IDisposable.Dispose"/> removes the in-process endpoint, if one was
+/// installed, and disposes a runtime that implements <see cref="IDisposable"/>.
+/// <see cref="IAsyncDisposable.DisposeAsync"/> removes the endpoint and prefers
+/// <see cref="IAsyncDisposable"/> when the runtime supports it, falling back to
+/// <see cref="IDisposable"/>.
 /// </remarks>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
 public interface IAllureRuntimeRegistration<TRuntime> :

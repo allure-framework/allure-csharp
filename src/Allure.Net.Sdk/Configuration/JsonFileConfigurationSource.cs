@@ -48,12 +48,12 @@ public class JsonFileConfigurationSource<TConfiguration>(
         this(path, false, defaultSerializerOptions) { }
 
     /// <summary>
-    /// Creates a mandatory configuration source that throws if the file does not exist.
+    /// Creates a configuration source for the specified path.
     /// </summary>
     /// <param name="path">The path to the JSON configuration file.</param>
     /// <param name="isOptional">
-/// Whether the source should be skipped when the file does not exist.
-/// </param>
+    /// Whether the source should be skipped when the file does not exist.
+    /// </param>
     public JsonFileConfigurationSource(string path, bool isOptional) :
         this(path, isOptional, defaultSerializerOptions) { }
 
@@ -63,6 +63,13 @@ public class JsonFileConfigurationSource<TConfiguration>(
     /// </exception>
     /// <exception cref="JsonException">
     /// The file does not contain a supported JSON configuration object.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// The top-level <c>allure</c> property is present but is not a JSON object.
+    /// </exception>
+    /// <exception cref="NotSupportedException">
+    /// The custom converter for <typeparamref name="TConfiguration"/> does not expose
+    /// property-assignment metadata.
     /// </exception>
     public TrackedConfiguration<TConfiguration> LoadConfiguration()
     {

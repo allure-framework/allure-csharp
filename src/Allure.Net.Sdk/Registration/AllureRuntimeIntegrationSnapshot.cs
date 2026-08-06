@@ -4,6 +4,13 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
+/// <summary>
+/// Provides the standard runtime factory and an integration-specific in-process route
+/// builder factory.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
+/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
 public abstract class AllureRuntimeIntegrationSnapshot<
     TConfiguration,
     TEndpointRegistrationContext,
@@ -22,6 +29,7 @@ public abstract class AllureRuntimeIntegrationSnapshot<
         TEndpointRegistrationContext
     >
 {
+    /// <inheritdoc/>
     public abstract AllureInProcessRouteBuilder<
         TConfiguration,
         TEndpointRegistrationContext,
@@ -31,6 +39,7 @@ public abstract class AllureRuntimeIntegrationSnapshot<
         AllureRouteBuilderArgs<TConfiguration, IAllureRuntime<TConfiguration>> args
     );
 
+    /// <inheritdoc/>
     public IAllureRuntime<TConfiguration> CreateRuntime(
         RuntimeCreationArguments<TConfiguration> args
     ) =>
@@ -44,6 +53,10 @@ public abstract class AllureRuntimeIntegrationSnapshot<
         );
 }
 
+/// <summary>
+/// Provides the factories used to construct a standard Allure runtime and its
+/// in-process route builder.
+/// </summary>
 public class AllureRuntimeIntegrationSnapshot() :
     AllureRuntimeIntegrationSnapshot<
         AllureConfiguration,
@@ -52,6 +65,7 @@ public class AllureRuntimeIntegrationSnapshot() :
     >,
     IAllureRuntimeIntegrationSnapshot
 {
+    /// <inheritdoc/>
     public override AllureInProcessRouteBuilder<
         AllureConfiguration,
         IAllureInProcessEndpointRegistrationContext,

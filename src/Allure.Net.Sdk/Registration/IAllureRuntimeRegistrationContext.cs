@@ -17,6 +17,10 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     /// <summary>
     /// Configures the ordered sources used to resolve runtime configuration.
     /// </summary>
+    /// <param name="sourcesFactory">
+    /// A factory that returns an ordered sequence of sources. The first
+    /// source that can load configuration is used.
+    /// </param>
     void UseConfigurationSources(
         Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> sourcesFactory
     );
@@ -40,11 +44,15 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     /// <summary>
     /// Configures parameter serialization rules using the resolved configuration.
     /// </summary>
+    /// <param name="registration">An action that configures the serialization rules.</param>
     void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration);
 
     /// <summary>
     /// Replaces the rule-based parameter serializer with a custom serializer.
     /// </summary>
+    /// <param name="serializerFactory">
+    /// A factory that creates the serializer from the resolved configuration.
+    /// </param>
     void UseParameterSerializer(
         Func<TConfiguration, IAllureParameterSerializer> serializerFactory
     );
@@ -52,6 +60,9 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     /// <summary>
     /// Configures the destination that receives generated Allure results.
     /// </summary>
+    /// <param name="destinationFactory">
+    /// A factory that creates the destination from the resolved configuration.
+    /// </param>
     void UseDestination(Func<TConfiguration, IAllureResultsDestination> destinationFactory);
 }
 

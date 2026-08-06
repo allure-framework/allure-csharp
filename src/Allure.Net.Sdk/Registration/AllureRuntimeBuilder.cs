@@ -8,17 +8,21 @@ using Allure.Sdk.Runtime;
 namespace Allure.Sdk.Registration;
 
 /// <summary>
-/// Provides the base implementation for builders that construct a custom Allure
-/// runtime and its optional in-process endpoint.
+/// Prepares registration of a custom Allure runtime and its optional in-process endpoint.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
 /// <typeparam name="TRuntimeRegistrationContext">The runtime registration context type.</typeparam>
 /// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
 /// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
+/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
 /// <typeparam name="TRuntimeIntegrationContext">The integration context type.</typeparam>
 /// <typeparam name="TIntegrationSnapshot">The integration snapshot type.</typeparam>
-/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
+/// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
+/// <param name="runtimeName">The runtime name used to identify its in-process route.</param>
+/// <param name="sessionFactory">
+/// A factory that creates the single-use registration session configured by
+/// <see cref="Prepare"/>.
+/// </param>
 public class AllureRuntimeBuilder<
     TConfiguration,
     TRuntimeRegistrationContext,
@@ -65,7 +69,7 @@ public class AllureRuntimeBuilder<
     readonly LateBoundReference<TRuntime> runtimeReference = new();
 
     /// <summary>
-    /// A late bound reference to a runtime that becomes available after
+    /// Gets a late-bound reference to the runtime that becomes available after
     /// <see cref="IAllureRuntimeRegistrationPlan{TConfiguration, TRuntime}.Build"/>
     /// is called.
     /// </summary>
@@ -80,6 +84,10 @@ public class AllureRuntimeBuilder<
     /// A single-use plan that exposes the resolved configuration and can
     /// construct the runtime later.
     /// </returns>
+    /// <param name="registration">An action that configures the registration session.</param>
+    /// <exception cref="InvalidOperationException">
+    /// This builder has already been used.
+    /// </exception>
     public IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> Prepare(
         Action<TRuntimeIntegrationContext> registration
     )
@@ -104,6 +112,19 @@ public class AllureRuntimeBuilder<
     const int STAGE_CONSUMED = 1;
 }
 
+/// <summary>
+/// Prepares registrations for a standard Allure runtime with custom configuration,
+/// registration, and endpoint types.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntimeRegistrationContext">The runtime registration context type.</typeparam>
+/// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
+/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
+/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
+/// <typeparam name="TRuntimeIntegrationContext">The integration context type.</typeparam>
+/// <typeparam name="TIntegrationSnapshot">The integration snapshot type.</typeparam>
+/// <param name="runtimeName">The runtime name used to identify its in-process route.</param>
+/// <param name="sessionFactory">A factory that creates a registration session.</param>
 public class AllureRuntimeBuilder<
     TConfiguration,
     TRuntimeRegistrationContext,
@@ -155,6 +176,11 @@ public class AllureRuntimeBuilder<
         TEndpointHook
     >;
 
+/// <summary>
+/// Prepares registrations for a standard Allure runtime and its optional in-process
+/// endpoint.
+/// </summary>
+/// <param name="runtimeName">The runtime name used to identify its in-process route.</param>
 public class AllureRuntimeBuilder(string runtimeName) : AllureRuntimeBuilder<
     AllureConfiguration,
     IAllureRuntimeRegistrationContext,

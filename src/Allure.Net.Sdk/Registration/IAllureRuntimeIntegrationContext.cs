@@ -35,6 +35,9 @@ public interface IAllureRuntimeIntegrationContext<
     /// <summary>
     /// Configures the hooks invoked during runtime registration.
     /// </summary>
+    /// <param name="hooksFactory">
+    /// A factory that creates the hooks from the initially resolved configuration.
+    /// </param>
     void UseRegistrationHooks(
         Func<TConfiguration, IEnumerable<TRuntimeHook?>> hooksFactory
     );
@@ -42,6 +45,9 @@ public interface IAllureRuntimeIntegrationContext<
     /// <summary>
     /// Configures the execution-context service.
     /// </summary>
+    /// <param name="contextFactory">
+    /// A factory that creates the service from the resolved configuration.
+    /// </param>
     void UseContext(
         Func<TConfiguration, IAllureExecutionContext> contextFactory
     );
@@ -49,6 +55,9 @@ public interface IAllureRuntimeIntegrationContext<
     /// <summary>
     /// Configures the lifecycle API service.
     /// </summary>
+    /// <param name="lifecycleApiFactory">
+    /// A factory that creates the service from the resolved configuration.
+    /// </param>
     void UseLifecycleApi(
         Func<TConfiguration, IAllureLifecycleApi> lifecycleApiFactory
     );
@@ -56,6 +65,9 @@ public interface IAllureRuntimeIntegrationContext<
     /// <summary>
     /// Configures the model API service.
     /// </summary>
+    /// <param name="modelApiFactory">
+    /// A factory that creates the service from the resolved configuration.
+    /// </param>
     void UseModelApi(
         Func<TConfiguration, IAllureModelApi> modelApiFactory
     );
@@ -63,6 +75,10 @@ public interface IAllureRuntimeIntegrationContext<
     /// <summary>
     /// Registers an in-process endpoint for the constructed runtime.
     /// </summary>
+    /// <param name="endpointId">The route identifier of the endpoint.</param>
+    /// <param name="endpointRegistration">
+    /// An action that configures the endpoint after the runtime is constructed.
+    /// </param>
     public void RegisterInProcessEndpoint(
         string endpointId,
         Action<

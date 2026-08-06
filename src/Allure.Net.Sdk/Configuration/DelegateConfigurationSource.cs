@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Allure.Sdk.Configuration;
 
@@ -9,7 +7,9 @@ namespace Allure.Sdk.Configuration;
 /// </summary>
 /// <typeparam name="TConfiguration">The configuration type.</typeparam>
 /// <param name="name">A human-readable name for the source.</param>
-/// <param name="factory">The delegate that creates the configuration.</param>
+/// <param name="factory">
+/// The delegate that loads the configuration and identifies its assigned properties.
+/// </param>
 public sealed class DelegateConfigurationSource<TConfiguration>(
     string name,
     Func<TrackedConfiguration<TConfiguration>> factory
@@ -30,7 +30,8 @@ public sealed class DelegateConfigurationSource<TConfiguration>(
     /// <param name="name">A human-readable name for the source.</param>
     /// <param name="factory">
     /// The delegate that creates the configuration.
-    /// The configuration created by this delegate is considered to have all properties set.
+    /// All readable, non-indexed public properties of the created configuration are
+    /// considered assigned.
     /// </param>
     public DelegateConfigurationSource(
         string name,
@@ -59,7 +60,9 @@ public static class DelegateConfigurationSource
     /// </summary>
     /// <typeparam name="TConfiguration">The configuration type.</typeparam>
     /// <param name="name">A human-readable name for the source.</param>
-    /// <param name="configurationFactory">The delegate that creates the configuration.</param>
+    /// <param name="configurationFactory">
+    /// The delegate that loads the configuration and identifies its assigned properties.
+    /// </param>
     /// <returns>The configuration source.</returns>
     public static DelegateConfigurationSource<TConfiguration> Create<TConfiguration>(
         string name,
@@ -76,7 +79,8 @@ public static class DelegateConfigurationSource
     /// <param name="name">A human-readable name for the source.</param>
     /// <param name="configurationFactory">
     /// The delegate that creates the configuration.
-    /// The configuration created by this delegate is considered to have all properties set.
+    /// All readable, non-indexed public properties of the created configuration are
+    /// considered assigned.
     /// </param>
     /// <returns>The configuration source.</returns>
     public static DelegateConfigurationSource<TConfiguration> Create<TConfiguration>(

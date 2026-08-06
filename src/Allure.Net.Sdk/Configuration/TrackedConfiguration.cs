@@ -7,16 +7,41 @@ using System.Reflection;
 
 namespace Allure.Sdk.Configuration;
 
+/// <summary>
+/// Associates a configuration with its source and the properties explicitly assigned
+/// by that source.
+/// </summary>
+/// <typeparam name="TConfiguration">The configuration type.</typeparam>
 public sealed record class TrackedConfiguration<TConfiguration>
 
     where TConfiguration : AllureConfiguration
 {
+    /// <summary>
+    /// Gets the human-readable name of the configuration source.
+    /// </summary>
     public string SourceName { get; }
 
+    /// <summary>
+    /// Gets the configuration.
+    /// </summary>
     public TConfiguration Configuration { get; }
 
+    /// <summary>
+    /// Gets the CLR names of the properties explicitly assigned by the source or by a
+    /// subsequent transformation.
+    /// </summary>
     public ImmutableHashSet<string> AssignedProperties { get; }
 
+    /// <summary>
+    /// Creates tracked configuration from a sequence of CLR property names.
+    /// </summary>
+    /// <param name="sourceName">The human-readable name of the configuration source.</param>
+    /// <param name="configuration">The configuration to track.</param>
+    /// <param name="assignedProperties">The CLR names of the assigned properties.</param>
+    /// <exception cref="ArgumentException">
+    /// An assigned property name does not identify a readable, non-indexed public property
+    /// of <typeparamref name="TConfiguration"/>.
+    /// </exception>
     public TrackedConfiguration(
         string sourceName,
         TConfiguration configuration,
@@ -48,6 +73,15 @@ public sealed record class TrackedConfiguration<TConfiguration>
         this.AssignedProperties = propertySet;
     }
 
+    /// <summary>
+    /// Creates tracked configuration from a sequence of property selectors.
+    /// </summary>
+    /// <param name="sourceName">The human-readable name of the configuration source.</param>
+    /// <param name="configuration">The configuration to track.</param>
+    /// <param name="assignedProperties">Expressions that select the assigned properties.</param>
+    /// <exception cref="ArgumentException">
+    /// An expression does not directly select a property of the configuration.
+    /// </exception>
     public TrackedConfiguration(
         string sourceName,
         TConfiguration configuration,
@@ -57,13 +91,44 @@ public sealed record class TrackedConfiguration<TConfiguration>
     {
     }
 
+    /// <summary>
+    /// Determines whether the property with the specified CLR name has been assigned.
+    /// </summary>
+    /// <param name="name">The CLR property name.</param>
+    /// <returns><see langword="true"/> if the property has been assigned; otherwise, <see langword="false"/>.</returns>
     public bool IsPropertySet(string name) => this.AssignedProperties.Contains(name);
 
+    /// <summary>
+    /// Determines whether the selected property has been assigned.
+    /// </summary>
+    /// <typeparam name="TValue">The property value type.</typeparam>
+    /// <param name="expression">An expression that selects a property.</param>
+    /// <returns><see langword="true"/> if the property has been assigned; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="expression"/> does not directly select a property of the configuration.
+    /// </exception>
     public bool IsPropertySet<TValue>(Expression<Func<TConfiguration, TValue>> expression) =>
         this.AssignedProperties.Contains(
             ExtractPropertyName(expression)
         );
 
+    /// <summary>
+    /// Returns tracked configuration with the selected property updated and marked as assigned.
+    /// </summary>
+    /// <typeparam name="TValue">The property value type.</typeparam>
+    /// <param name="propertySelector">An expression that selects the property to update.</param>
+    /// <param name="value">The value passed to <paramref name="update"/>.</param>
+    /// <param name="update">A function that returns a configuration containing the new value.</param>
+    /// <returns>A new tracked configuration containing the update.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="propertySelector"/> or <paramref name="update"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="propertySelector"/> does not directly select a property of the configuration.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="update"/> returns <see langword="null"/>.
+    /// </exception>
     public TrackedConfiguration<TConfiguration> WithProperty<TValue>(
         Expression<Func<TConfiguration, TValue>> propertySelector,
         TValue value,
@@ -94,6 +159,27 @@ public sealed record class TrackedConfiguration<TConfiguration>
         );
     }
 
+    /// <summary>
+    /// Returns tracked configuration with the selected property updated only if it has not
+    /// already been assigned.
+    /// </summary>
+    /// <typeparam name="TValue">The property value type.</typeparam>
+    /// <param name="propertySelector">An expression that selects the property to update.</param>
+    /// <param name="value">The value passed to <paramref name="update"/>.</param>
+    /// <param name="update">A function that returns a configuration containing the new value.</param>
+    /// <returns>
+    /// This instance if the property is already assigned; otherwise, a new tracked
+    /// configuration containing the update.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="propertySelector"/> or <paramref name="update"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="propertySelector"/> does not directly select a property of the configuration.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="update"/> returns <see langword="null"/>.
+    /// </exception>
     public TrackedConfiguration<TConfiguration> WithPropertyIfUnset<TValue>(
         Expression<Func<TConfiguration, TValue>> propertySelector,
         TValue value,
@@ -173,8 +259,19 @@ public sealed record class TrackedConfiguration<TConfiguration>
     }
 }
 
+/// <summary>
+/// Creates tracked configuration values.
+/// </summary>
 public static class TrackedConfiguration
 {
+    /// <summary>
+    /// Creates tracked configuration in which every readable, non-indexed public property
+    /// is marked as assigned.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The configuration type.</typeparam>
+    /// <param name="sourceName">The human-readable name of the configuration source.</param>
+    /// <param name="configuration">The configuration to track.</param>
+    /// <returns>The tracked configuration.</returns>
     public static TrackedConfiguration<TConfiguration> WithAllPropertiesSet<TConfiguration>(
         string sourceName,
         TConfiguration configuration

@@ -24,7 +24,7 @@ public interface IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>
     TConfiguration Configuration { get; }
 
     /// <summary>
-    /// A reference to a runtime that becomes available after <see cref="Build"/>
+    /// Gets a reference to the runtime that becomes available after <see cref="Build"/>
     /// is called.
     /// </summary>
     IReadOnlyLateBoundReference<TRuntime> RuntimeReference { get; }
@@ -37,7 +37,7 @@ public interface IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>
     /// in-process endpoint when disposed.
     /// </returns>
     /// <exception cref="System.InvalidOperationException">
-    /// The runtime has already been built from this plan.
+    /// This plan has already been used to build the runtime.
     /// </exception>
     IAllureRuntimeRegistration<TRuntime> Build();
 }
