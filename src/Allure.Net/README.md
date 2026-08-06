@@ -110,7 +110,7 @@ These operations throw `InvalidOperationException` when the selected endpoint do
 
 ## Creating an integration
 
-An integration exposes its runtime through `IAllureRuntimeEndpoint` and describes when that endpoint should receive calls with `IAllureRuntimeRoute`. `MatchesCurrentScope` should use framework-owned execution state, typically an `AsyncLocal`-backed test context, to identify calls belonging to the integration. `MatchesGlobalScope` independently controls whether the route accepts global data such as global attachments and errors.
+An integration exposes its runtime through `IAllureRuntimeEndpoint` and describes when that endpoint should receive calls with `IAllureRuntimeRoute`. `MatchesCurrentScope` should use framework-owned execution state, typically an `AsyncLocal`-backed test context, to identify calls belonging to the integration. Global data, such as global attachments and errors, is routed to the endpoint matching the current scope when one is available. `MatchesGlobalScope` controls whether the route accepts global data when no current-scope endpoint is available.
 
 The following example shows the routing portion of an in-process integration. `ExampleEndpoint` supplies the integration's implementations of the synchronous and asynchronous operation interfaces.
 

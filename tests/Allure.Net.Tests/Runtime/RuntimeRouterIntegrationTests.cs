@@ -38,7 +38,7 @@ public class RuntimeRouterIntegrationTests
     }
 
     [Test]
-    public async Task CurrentAndGlobalCallsCanReachDifferentEndpoints()
+    public async Task GlobalFacadeCallPrefersCurrentEndpoint()
     {
         var current = new RuntimeFixture("current");
         var global = new RuntimeFixture("global");
@@ -49,8 +49,10 @@ public class RuntimeRouterIntegrationTests
         AllureApi.SetTestName("test");
         AllureApi.AddGlobalError("global error");
 
-        await Assert.That(current.Sync.SingleCall.Method.Name).IsEqualTo("SetTestName");
-        await Assert.That(global.Sync.SingleCall.Method.Name).IsEqualTo("AddGlobalError");
+        await Assert.That(current.Sync.Calls.Count).IsEqualTo(2);
+        await Assert.That(current.Sync.Calls[0].Method.Name).IsEqualTo("SetTestName");
+        await Assert.That(current.Sync.Calls[1].Method.Name).IsEqualTo("AddGlobalError");
+        await Assert.That(global.Sync.Calls).IsEmpty();
     }
 
     [Test]
