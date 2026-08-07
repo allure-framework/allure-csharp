@@ -1,6 +1,6 @@
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Sdk.Messages;
-using Allure.Net.Commons;
+using Allure.Model;
 using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Tests.FixtureTests;
@@ -23,10 +23,10 @@ public class FixtureContextTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
-        await Assert.That(fixture.name).IsEqualTo("Foo");
-        await Assert.That(fixture.stage).IsEqualTo(Stage.finished);
-        await Assert.That(fixture.status).IsEqualTo(Status.none);
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Foo");
+        await Assert.That(fixture.Stage).IsEqualTo(Stage.Finished);
+        await Assert.That(fixture.Status).IsEqualTo(Status.Unknown);
     }
 
     [Test]
@@ -43,9 +43,9 @@ public class FixtureContextTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.afters).HasSingleItem();
-        await Assert.That(fixture.name).IsEqualTo("Foo");
-        await Assert.That(fixture.stage).IsEqualTo(Stage.finished);
-        await Assert.That(fixture.status).IsEqualTo(Status.none);
+        var fixture = await Assert.That(container.Afters).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Foo");
+        await Assert.That(fixture.Stage).IsEqualTo(Stage.Finished);
+        await Assert.That(fixture.Status).IsEqualTo(Status.Unknown);
     }
 }

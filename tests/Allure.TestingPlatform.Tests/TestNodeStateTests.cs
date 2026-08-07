@@ -1,4 +1,4 @@
-using Allure.Net.Commons;
+using Allure.Model;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
@@ -74,8 +74,8 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.passed);
-        await Assert.That(testResult.statusDetails?.message).IsNull();
+        await Assert.That(testResult.Status).IsEqualTo(Status.Passed);
+        await Assert.That(testResult.StatusDetails?.Message).IsNull();
     }
 
     [Test]
@@ -94,8 +94,8 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.skipped);
-        await Assert.That(testResult.statusDetails?.message).IsNull();
+        await Assert.That(testResult.Status).IsEqualTo(Status.Skipped);
+        await Assert.That(testResult.StatusDetails?.Message).IsNull();
     }
 
     [Test]
@@ -114,9 +114,9 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.failed);
-        await Assert.That(testResult.statusDetails?.message).IsNull();
-        await Assert.That(testResult.statusDetails?.trace).IsNull();
+        await Assert.That(testResult.Status).IsEqualTo(Status.Failed);
+        await Assert.That(testResult.StatusDetails?.Message).IsNull();
+        await Assert.That(testResult.StatusDetails?.Trace).IsNull();
     }
 
     [Test]
@@ -135,8 +135,8 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.broken);
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("The test has timed out.");
+        await Assert.That(testResult.Status).IsEqualTo(Status.Broken);
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("The test has timed out.");
     }
 
     [Test]
@@ -155,7 +155,7 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -174,7 +174,7 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -193,8 +193,8 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
-        await Assert.That(testResult.statusDetails.trace).Contains("System.Exception");
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Trace).Contains("System.Exception");
     }
 
     [Test]
@@ -213,8 +213,8 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
-        await Assert.That(testResult.statusDetails.trace).IsNull();
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Trace).IsNull();
     }
 
     [Test]
@@ -233,7 +233,7 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -252,8 +252,8 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
-        await Assert.That(testResult.statusDetails.trace).Contains("System.Exception");
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Trace).Contains("System.Exception");
     }
 
     [Test]
@@ -272,8 +272,8 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.broken);
-        await Assert.That(testResult.statusDetails.message).IsNull();
+        await Assert.That(testResult.Status).IsEqualTo(Status.Broken);
+        await Assert.That(testResult.StatusDetails.Message).IsNull();
     }
 
     [Test]
@@ -292,7 +292,7 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -311,27 +311,7 @@ public class TestNodeStateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Lorem Ipsum");
-        await Assert.That(testResult.statusDetails.trace).Contains("System.Exception");
-    }
-
-    [Test]
-    public async Task ShouldSetStatusToFailedIfExceptionMatchesFailException()
-    {
-        this.config.FailExceptions = ["System.Exception"];
-        var testNode = new TestNode
-        {
-            DisplayName = "Foo",
-            Properties = new([
-                new ErrorTestNodeStateProperty(new Exception()),
-            ]),
-            Uid = "1"
-        };
-        var message = new TestNodeUpdateMessage(new SessionUid("Bar"), testNode);
-
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
-
-        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.failed);
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.StatusDetails.Trace).Contains("System.Exception");
     }
 }

@@ -1,4 +1,4 @@
-using Allure.Net.Commons;
+using Allure.Model;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
@@ -6,7 +6,7 @@ using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 
-using AllureTestResult = Allure.Net.Commons.TestResult;
+using AllureTestResult = Allure.Model.TestResult;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -37,8 +37,8 @@ public class PendingUpdateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
-        await Assert.That(fixture.name).IsEqualTo("Pending fixture");
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Pending fixture");
     }
 
     [Test]
@@ -65,8 +65,8 @@ public class PendingUpdateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
-        await Assert.That(fixture.name).IsEqualTo("Updated fixture");
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Updated fixture");
     }
 
     [Test]
@@ -98,8 +98,8 @@ public class PendingUpdateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
-        await Assert.That(fixture.description).IsEqualTo("First\n\nSecond");
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Description).IsEqualTo("First\n\nSecond");
     }
 
     [Test]
@@ -129,8 +129,8 @@ public class PendingUpdateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
-        await Assert.That(fixture.name).IsEqualTo("Updated pending fixture");
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Updated pending fixture");
     }
 
     [Test]
@@ -160,8 +160,8 @@ public class PendingUpdateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
-        await Assert.That(fixture.name).IsEqualTo("Updated pending fixture");
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Updated pending fixture");
     }
 
     [Test]
@@ -207,11 +207,11 @@ public class PendingUpdateTests : DataConsumerTestsBase
         var childContainer = this.writer.TestContainers[0];
         var parentContainer = this.writer.TestContainers[1];
 
-        var childFixture = await Assert.That(childContainer.befores).HasSingleItem();
-        var parentFixture = await Assert.That(parentContainer.befores).HasSingleItem();
+        var childFixture = await Assert.That(childContainer.Befores).HasSingleItem();
+        var parentFixture = await Assert.That(parentContainer.Befores).HasSingleItem();
 
-        await Assert.That(childFixture.name).IsEqualTo("Child fixture");
-        await Assert.That(parentFixture.name).IsEqualTo("Parent fixture");
+        await Assert.That(childFixture.Name).IsEqualTo("Child fixture");
+        await Assert.That(parentFixture.Name).IsEqualTo("Parent fixture");
     }
 
     [Test]
@@ -249,12 +249,12 @@ public class PendingUpdateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var child = await Assert.That(container.children).HasSingleItem();
+        var child = await Assert.That(container.Children).HasSingleItem();
 
-        await Assert.That(fixture.name).IsEqualTo("Scope fixture");
-        await Assert.That(child).IsEqualTo(testResult.uuid);
+        await Assert.That(fixture.Name).IsEqualTo("Scope fixture");
+        await Assert.That(child).IsEqualTo(testResult.Uuid);
     }
 
     [Test]
@@ -278,7 +278,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, testNodeMessage, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.name).IsEqualTo("Updated test name");
+        await Assert.That(testResult.Name).IsEqualTo("Updated test name");
     }
 
     [Test]
@@ -340,18 +340,18 @@ public class PendingUpdateTests : DataConsumerTestsBase
         var childContainer = this.writer.TestContainers[0];
         var parentContainer = this.writer.TestContainers[1];
 
-        var childFixture = await Assert.That(childContainer.befores).HasSingleItem();
-        var parentFixture = await Assert.That(parentContainer.befores).HasSingleItem();
+        var childFixture = await Assert.That(childContainer.Befores).HasSingleItem();
+        var parentFixture = await Assert.That(parentContainer.Befores).HasSingleItem();
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var childScopeChild = await Assert.That(childContainer.children).HasSingleItem();
-        var parentScopeChild = await Assert.That(parentContainer.children).HasSingleItem();
+        var childScopeChild = await Assert.That(childContainer.Children).HasSingleItem();
+        var parentScopeChild = await Assert.That(parentContainer.Children).HasSingleItem();
 
-        await Assert.That(childFixture.name).IsEqualTo("Child scope fixture");
-        await Assert.That(parentFixture.name).IsEqualTo("Parent scope fixture");
+        await Assert.That(childFixture.Name).IsEqualTo("Child scope fixture");
+        await Assert.That(parentFixture.Name).IsEqualTo("Parent scope fixture");
 
-        await Assert.That(childScopeChild).IsEqualTo(testResult.uuid);
-        await Assert.That(parentScopeChild).IsEqualTo(testResult.uuid);
+        await Assert.That(childScopeChild).IsEqualTo(testResult.Uuid);
+        await Assert.That(parentScopeChild).IsEqualTo(testResult.Uuid);
     }
 
     [Test]
@@ -429,9 +429,9 @@ public class PendingUpdateTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(2);
-        await Assert.That(container.children).IsEquivalentTo([
-            this.writer.TestResults[0].uuid,
-            this.writer.TestResults[1].uuid,
+        await Assert.That(container.Children).IsEquivalentTo([
+            this.writer.TestResults[0].Uuid,
+            this.writer.TestResults[1].Uuid,
         ], TUnit.Assertions.Enums.CollectionOrdering.Matching);
     }
 
@@ -496,14 +496,14 @@ public class PendingUpdateTests : DataConsumerTestsBase
         var siblingContainer2 = this.writer.TestContainers[1];
         var parentContainer = this.writer.TestContainers[2];
 
-        var siblingFixture1 = await Assert.That(siblingContainer1.befores).HasSingleItem();
-        await Assert.That(siblingFixture1.name).IsEqualTo("Child fixture 1");
+        var siblingFixture1 = await Assert.That(siblingContainer1.Befores).HasSingleItem();
+        await Assert.That(siblingFixture1.Name).IsEqualTo("Child fixture 1");
 
-        var siblingFixture2 = await Assert.That(siblingContainer2.befores).HasSingleItem();
-        await Assert.That(siblingFixture2.name).IsEqualTo("Child fixture 2");
+        var siblingFixture2 = await Assert.That(siblingContainer2.Befores).HasSingleItem();
+        await Assert.That(siblingFixture2.Name).IsEqualTo("Child fixture 2");
 
-        var parentFixture = await Assert.That(parentContainer.befores).HasSingleItem();
-        await Assert.That(parentFixture.name).IsEqualTo("Parent fixture");
+        var parentFixture = await Assert.That(parentContainer.Befores).HasSingleItem();
+        await Assert.That(parentFixture.Name).IsEqualTo("Parent fixture");
     }
 
     [Test]
@@ -567,14 +567,14 @@ public class PendingUpdateTests : DataConsumerTestsBase
         var parentContainer = this.writer.TestContainers[1];
         var grandParentContainer = this.writer.TestContainers[2];
 
-        var childFixture = await Assert.That(childContainer.befores).HasSingleItem();
-        await Assert.That(childFixture.name).IsEqualTo("Child fixture");
+        var childFixture = await Assert.That(childContainer.Befores).HasSingleItem();
+        await Assert.That(childFixture.Name).IsEqualTo("Child fixture");
 
-        var parentFixture = await Assert.That(parentContainer.befores).HasSingleItem();
-        await Assert.That(parentFixture.name).IsEqualTo("Parent fixture");
+        var parentFixture = await Assert.That(parentContainer.Befores).HasSingleItem();
+        await Assert.That(parentFixture.Name).IsEqualTo("Parent fixture");
 
-        var grandParentFixture = await Assert.That(grandParentContainer.befores).HasSingleItem();
-        await Assert.That(grandParentFixture.name).IsEqualTo("Grandparent fixture");
+        var grandParentFixture = await Assert.That(grandParentContainer.Befores).HasSingleItem();
+        await Assert.That(grandParentFixture.Name).IsEqualTo("Grandparent fixture");
     }
 
     [Test]
@@ -623,8 +623,8 @@ public class PendingUpdateTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(2);
-        await Assert.That(container.children).IsEquivalentTo(
-            this.writer.TestResults.Select(static testResult => testResult.uuid)
+        await Assert.That(container.Children).IsEquivalentTo(
+            this.writer.TestResults.Select(static testResult => testResult.Uuid)
         );
     }
 
@@ -674,8 +674,8 @@ public class PendingUpdateTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(2);
-        await Assert.That(container.children).IsEquivalentTo(
-            this.writer.TestResults.Select(static testResult => testResult.uuid)
+        await Assert.That(container.Children).IsEquivalentTo(
+            this.writer.TestResults.Select(static testResult => testResult.Uuid)
         );
     }
 
@@ -742,9 +742,9 @@ public class PendingUpdateTests : DataConsumerTestsBase
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(3);
 
-        await Assert.That(container.children).Count().IsEqualTo(2);
-        await Assert.That(container.children).Contains(this.writer.TestResults[0].uuid);
-        await Assert.That(container.children).Contains(this.writer.TestResults[1].uuid);
-        await Assert.That(container.children).DoesNotContain(this.writer.TestResults[2].uuid);
+        await Assert.That(container.Children).Count().IsEqualTo(2);
+        await Assert.That(container.Children).Contains(this.writer.TestResults[0].Uuid);
+        await Assert.That(container.Children).Contains(this.writer.TestResults[1].Uuid);
+        await Assert.That(container.Children).DoesNotContain(this.writer.TestResults[2].Uuid);
     }
 }

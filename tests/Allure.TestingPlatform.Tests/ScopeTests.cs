@@ -51,8 +51,8 @@ public class ScopeTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var child = await Assert.That(container.children).HasSingleItem();
-        await Assert.That(child).IsEqualTo(testResult.uuid);
+        var child = await Assert.That(container.Children).HasSingleItem();
+        await Assert.That(child).IsEqualTo(testResult.Uuid);
     }
 
     [Test]
@@ -88,8 +88,8 @@ public class ScopeTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var child = await Assert.That(container.children).HasSingleItem();
-        await Assert.That(child).IsEqualTo(testResult.uuid);
+        var child = await Assert.That(container.Children).HasSingleItem();
+        await Assert.That(child).IsEqualTo(testResult.Uuid);
     }
 
     [Test]
@@ -118,8 +118,8 @@ public class ScopeTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var child = await Assert.That(container.children).HasSingleItem();
-        await Assert.That(child).IsEqualTo(testResult.uuid);
+        var child = await Assert.That(container.Children).HasSingleItem();
+        await Assert.That(child).IsEqualTo(testResult.Uuid);
     }
 
     [Test]
@@ -157,8 +157,8 @@ public class ScopeTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var child = await Assert.That(container.children).HasSingleItem();
-        await Assert.That(child).IsEqualTo(testResult.uuid);
+        var child = await Assert.That(container.Children).HasSingleItem();
+        await Assert.That(child).IsEqualTo(testResult.Uuid);
     }
 
     [Test]
@@ -188,8 +188,8 @@ public class ScopeTests : DataConsumerTestsBase
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(2);
-        await Assert.That(container.children).IsEquivalentTo(
-            this.writer.TestResults.Select(static tr => tr.uuid)
+        await Assert.That(container.Children).IsEquivalentTo(
+            this.writer.TestResults.Select(static tr => tr.Uuid)
         );
     }
 
@@ -222,6 +222,6 @@ public class ScopeTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        await Assert.That(container.children).IsEmpty();
+        await Assert.That(container.Children).IsEmpty();
     }
 }

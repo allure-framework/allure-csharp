@@ -1,14 +1,17 @@
-using System.Collections.Immutable;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Configuration;
-using Allure.Net.Commons.Sdk;
-using Allure.Net.Commons.Sdk.Writers;
+using Allure.Model;
+using Allure.Sdk.Configuration;
+using Allure.Sdk.Registration;
+using Allure.Sdk.Results;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Correlation;
+using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Logging;
+
+using AllureTestResult = Allure.Model.TestResult;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -55,7 +58,7 @@ public class ConsumeAsyncErrorHandlingTests
     public async Task ShouldLogMessageProcessingExceptionAndContinueWithNextMessage()
     {
         var exception = new InvalidOperationException("write failed");
-        InMemoryResultsWriter sink = new();
+        InMemoryResultsDestination sink = new();
         var fixture = CreateFixture(
             new TestingPlatformSessionUidCorrelationStrategy(),
             new ThrowingOnceResultsWriter(sink, exception),
@@ -80,15 +83,15 @@ public class ConsumeAsyncErrorHandlingTests
             .And.Contains("Error while processing");
 
         var globals = await Assert.That(fixture.Writer.Globals).HasSingleItem();
-        var attachment = await Assert.That(globals.attachments).HasSingleItem();
-        await Assert.That(attachment.name).IsEqualTo("second");
+        var attachment = await Assert.That(globals.Attachments).HasSingleItem();
+        await Assert.That(attachment.Name).IsEqualTo("second");
     }
 
     [Test]
     public async Task ShouldDiscardTestContextWhenWriterExceptionIsSwallowed()
     {
         var exception = new InvalidOperationException("test result write failed");
-        InMemoryResultsWriter sink = new();
+        InMemoryResultsDestination sink = new();
         var fixture = CreateFixture(
             new TestingPlatformSessionUidCorrelationStrategy(),
             new ThrowingOnceTestResultWriter(sink, exception),
@@ -110,31 +113,32 @@ public class ConsumeAsyncErrorHandlingTests
 
         await Assert.That(fixture.Logger.Calls).HasSingleItem();
         var testResult = await Assert.That(fixture.Writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.name).IsEqualTo("second attempt");
+        await Assert.That(testResult.Name).IsEqualTo("second attempt");
     }
 
     static Fixture CreateFixture(
         ICorrelationStrategy correlationStrategy,
-        IAllureResultsWriter writer = null,
-        InMemoryResultsWriter sink = null
+        IAllureResultsDestination writer = null,
+        InMemoryResultsDestination sink = null
     )
     {
         LoggerSpy logger = new();
         sink ??= new();
         writer ??= sink;
-        var config = new AllureConfiguration();
-        AllureLifecycle lifecycle = new(config, writer);
-        LiveAllureTestingPlatformRuntime runtime = new(
-            AllureTestingPlatformRegistrationMode.Standalone,
-            logger,
-            config,
-            correlationStrategy,
-            writer,
-            [],
-            lifecycle
-        );
+        var config = new AllureTestingPlatformConfiguration();
+        var builder = new AllureTestingPlatformRuntimeBuilder("error-handling-test");
+        var registrationPlan = builder.Prepare(context =>
+        {
+            context.UseConfigurationSource(
+                () => DelegateConfigurationSource.Create("test", () => config)
+            );
+            context.UseLogger(_ => logger);
+            context.UseDestination(_ => writer);
+            context.UseCorrelationStrategy(_ => correlationStrategy);
+        });
+        registrationPlan.Build();
         return new(
-            new(new AllureRuntimeReferenceStub(runtime)),
+            new(registrationPlan.RuntimeReference),
             logger,
             sink
         );
@@ -157,9 +161,12 @@ public class ConsumeAsyncErrorHandlingTests
     );
 
     sealed record Fixture(
-        AllureDataConsumer Consumer,
+        AllureDataConsumer<
+            AllureTestingPlatformConfiguration,
+            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+        > Consumer,
         LoggerSpy Logger,
-        InMemoryResultsWriter Writer
+        InMemoryResultsDestination Writer
     );
 
     sealed class ThrowingCorrelationStrategy(Exception exception) : ICorrelationStrategy
@@ -173,19 +180,31 @@ public class ConsumeAsyncErrorHandlingTests
     }
 
     sealed class ThrowingOnceResultsWriter(
-        IAllureResultsWriter inner,
+        IAllureResultsDestination inner,
         Exception exception
-    ) : IAllureResultsWriter
+    ) : IAllureResultsDestination
     {
         bool shouldThrow = true;
 
-        public void CleanUp() => inner.CleanUp();
+        public void CopyAttachment(string destinationFileName, string sourceFilePath) =>
+            inner.CopyAttachment(destinationFileName, sourceFilePath);
 
-        public void Write(Allure.Net.Commons.TestResult testResult) => inner.Write(testResult);
+        public Task CopyAttachmentAsync(string destinationFileName, string sourceFilePath, CancellationToken cancellationToken) =>
+            inner.CopyAttachmentAsync(destinationFileName, sourceFilePath, cancellationToken);
 
-        public void Write(TestResultContainer container) => inner.Write(container);
+        public void WriteAttachment(string outputFileName, Stream content) =>
+            inner.WriteAttachment(outputFileName, content);
 
-        public void Write(Globals globals)
+        public Task WriteAttachmentAsync(string outputFileName, Stream content, CancellationToken cancellationToken) =>
+            inner.WriteAttachmentAsync(outputFileName, content, cancellationToken);
+
+        public void WriteContainer(TestResultScope scope) =>
+            inner.WriteContainer(scope);
+
+        public Task WriteContainerAsync(TestResultScope scope, CancellationToken cancellationToken) =>
+            inner.WriteContainerAsync(scope, cancellationToken);
+
+        public void WriteGlobals(Globals globals)
         {
             if (this.shouldThrow)
             {
@@ -193,44 +212,61 @@ public class ConsumeAsyncErrorHandlingTests
                 throw exception;
             }
 
-            inner.Write(globals);
+            inner.WriteGlobals(globals);
         }
 
-        public void Write(string outputFileName, byte[] content) =>
-            inner.Write(outputFileName, content);
+        public Task WriteGlobalsAsync(Globals globals, CancellationToken cancellationToken) =>
+            inner.WriteGlobalsAsync(globals, cancellationToken);
 
-        public void Write(string destinationFileName, string sourceFilePath) =>
-            inner.Write(destinationFileName, sourceFilePath);
+        public void WriteTestResult(AllureTestResult testResult) =>
+            inner.WriteTestResult(testResult);
+
+        public Task WriteTestResultAsync(AllureTestResult testResult, CancellationToken cancellationToken) =>
+            inner.WriteTestResultAsync(testResult, cancellationToken);
     }
 
     sealed class ThrowingOnceTestResultWriter(
-        IAllureResultsWriter inner,
+        IAllureResultsDestination inner,
         Exception exception
-    ) : IAllureResultsWriter
+    ) : IAllureResultsDestination
     {
         bool shouldThrow = true;
 
-        public void CleanUp() => inner.CleanUp();
+        public void CopyAttachment(string destinationFileName, string sourceFilePath) =>
+            inner.CopyAttachment(destinationFileName, sourceFilePath);
 
-        public void Write(Allure.Net.Commons.TestResult testResult)
+        public Task CopyAttachmentAsync(string destinationFileName, string sourceFilePath, CancellationToken cancellationToken) =>
+            inner.CopyAttachmentAsync(destinationFileName, sourceFilePath, cancellationToken);
+
+        public void WriteAttachment(string outputFileName, Stream content) =>
+            inner.WriteAttachment(outputFileName, content);
+
+        public Task WriteAttachmentAsync(string outputFileName, Stream content, CancellationToken cancellationToken) =>
+            inner.WriteAttachmentAsync(outputFileName, content, cancellationToken);
+
+        public void WriteContainer(TestResultScope scope) =>
+            inner.WriteContainer(scope);
+
+        public Task WriteContainerAsync(TestResultScope scope, CancellationToken cancellationToken) =>
+            inner.WriteContainerAsync(scope, cancellationToken);
+
+        public void WriteGlobals(Globals globals) =>
+            inner.WriteGlobals(globals);
+
+        public Task WriteGlobalsAsync(Globals globals, CancellationToken cancellationToken) =>
+            inner.WriteGlobalsAsync(globals, cancellationToken);
+
+        public void WriteTestResult(AllureTestResult testResult)
         {
             if (this.shouldThrow)
             {
                 this.shouldThrow = false;
                 throw exception;
             }
-
-            inner.Write(testResult);
+            inner.WriteTestResult(testResult);
         }
 
-        public void Write(TestResultContainer container) => inner.Write(container);
-
-        public void Write(Globals globals) => inner.Write(globals);
-
-        public void Write(string outputFileName, byte[] content) =>
-            inner.Write(outputFileName, content);
-
-        public void Write(string destinationFileName, string sourceFilePath) =>
-            inner.Write(destinationFileName, sourceFilePath);
+        public Task WriteTestResultAsync(AllureTestResult testResult, CancellationToken cancellationToken) =>
+            inner.WriteTestResultAsync(testResult, cancellationToken);
     }
 }

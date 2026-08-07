@@ -3,6 +3,7 @@ using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Correlation;
+using Allure.Model;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -68,10 +69,10 @@ public partial class IsolationTests : DataConsumerTestsBase
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(2);
         var testResult1 = this.writer.TestResults[0];
         var testResult2 = this.writer.TestResults[1];
-        await Assert.That(testResult1.start).IsBetween(before1Start, before2Start);
-        await Assert.That(testResult2.start).IsBetween(before2Start, beforeStop);
-        await Assert.That(testResult1.stop).IsBetween(beforeStop, after1Stop);
-        await Assert.That(testResult2.stop).IsBetween(after1Stop, after2Stop);
+        await Assert.That(testResult1.Start).IsBetween(before1Start, before2Start);
+        await Assert.That(testResult2.Start).IsBetween(before2Start, beforeStop);
+        await Assert.That(testResult1.Stop).IsBetween(beforeStop, after1Stop);
+        await Assert.That(testResult2.Stop).IsBetween(after1Stop, after2Stop);
     }
 
     [Test]
@@ -119,8 +120,8 @@ public partial class IsolationTests : DataConsumerTestsBase
         var testResult1 = this.writer.TestResults[0];
         var testResult2 = this.writer.TestResults[1];
 
-        await Assert.That(testResult1.status).IsEqualTo(Net.Commons.Status.passed);
-        await Assert.That(testResult2.status).IsEqualTo(Net.Commons.Status.failed);
+        await Assert.That(testResult1.Status).IsEqualTo(Status.Passed);
+        await Assert.That(testResult2.Status).IsEqualTo(Status.Failed);
     }
 
     [Test]
@@ -189,8 +190,8 @@ public partial class IsolationTests : DataConsumerTestsBase
         var container1 = this.writer.TestContainers[0];
         var container2 = this.writer.TestContainers[1];
 
-        await Assert.That(container1.children).IsEquivalentTo([testResult1.uuid]);
-        await Assert.That(container2.children).IsEquivalentTo([testResult2.uuid]);
+        await Assert.That(container1.Children).IsEquivalentTo([testResult1.Uuid]);
+        await Assert.That(container2.Children).IsEquivalentTo([testResult2.Uuid]);
     }
 
     [Test]
@@ -263,7 +264,7 @@ public partial class IsolationTests : DataConsumerTestsBase
         var container1 = this.writer.TestContainers[0];
         var container2 = this.writer.TestContainers[1];
 
-        await Assert.That(container1.children).IsEquivalentTo([testResult1.uuid]);
-        await Assert.That(container2.children).IsEquivalentTo([testResult2.uuid]);
+        await Assert.That(container1.Children).IsEquivalentTo([testResult1.Uuid]);
+        await Assert.That(container2.Children).IsEquivalentTo([testResult2.Uuid]);
     }
 }

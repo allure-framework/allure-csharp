@@ -1,223 +1,41 @@
-using Allure.Net.Commons.Configuration;
-using Allure.TestingPlatform.Functions;
+using Allure.Sdk.Registration;
+using Allure.Sdk.Results;
+using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
+using Microsoft.Testing.Platform.Builder;
+using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Configurations;
+
+#pragma warning disable TPEXP // IConfigurationSource is the only direct MTP configuration injection API.
 
 namespace Allure.TestingPlatform.Tests;
 
 public class ConfigurationDiscoveryTests
 {
-    [Test]
-    public async Task ShouldReadConfigurationFromAllureObjectInExplicitFile()
-    {
-        using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "title": "Configured title",
-                "directory": "configured-results",
-                "links": [ "https://example.org/{issue}" ],
-                "indentOutput": true
-              }
-            }
-            """
-        );
-
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            new ServiceProviderStub(),
-            configPath
-        );
-
-        await Assert.That(config.Title).IsEqualTo("Configured title");
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("configured-results"));
-        await Assert.That(config.Links).Contains("https://example.org/{issue}");
-        await Assert.That(config.IndentOutput).IsTrue();
-    }
-
-    [Test]
-    public async Task ShouldReadConfigurationFromRootObjectInExplicitFile()
-    {
-        using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "title": "Root title",
-              "directory": "root-results",
-              "links": [ "https://example.org/{tms}" ]
-            }
-            """
-        );
-
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            new ServiceProviderStub(),
-            configPath
-        );
-
-        await Assert.That(config.Title).IsEqualTo("Root title");
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("root-results"));
-        await Assert.That(config.Links).Contains("https://example.org/{tms}");
-    }
-
-    [Test]
-    public async Task ShouldReadCustomConfigurationTypeFromExplicitFile()
-    {
-        using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "title": "Custom title",
-                "customValue": "Custom value"
-              }
-            }
-            """
-        );
-
-        var config = ConfigurationFunctions.ReadConfiguration<CustomAllureConfiguration>(
-            _ => null,
-            new ServiceProviderStub(),
-            configPath
-        );
-
-        var customConfig = await Assert.That(config).IsTypeOf<CustomAllureConfiguration>();
-        await Assert.That(customConfig.CustomValue).IsEqualTo("Custom value");
-        await Assert.That(customConfig.Title).IsEqualTo("Custom title");
-    }
-
-    [Test]
-    public async Task ShouldReadPathFromEnvironmentVariableIfNotProvidedExplicitly()
-    {
-        string actualEnvVarName = null;
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            name =>
-            {
-                actualEnvVarName = name;
-                return null;
-            },
-            new ServiceProviderStub()
-        );
-
-        await Assert.That(actualEnvVarName).IsEqualTo("ALLURE_CONFIG");
-    }
-
-    [Test]
-    public async Task ShouldReadConfigurationFromEnvironmentVariable()
-    {
-        using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "title": "Environment title",
-                "directory": "environment-results"
-              }
-            }
-            """
-        );
-
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => configPath,
-            new ServiceProviderStub()
-        );
-
-        await Assert.That(config.Title).IsEqualTo("Environment title");
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("environment-results"));
-    }
-
-    [Test]
-    public async Task ShouldPreferExplicitFileOverEnvironmentVariable()
-    {
-        using var temp = TempDirectory.Create();
-        var envConfigPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "title": "Environment title"
-              }
-            }
-            """,
-            "env-allureConfig.json"
-        );
-        var explicitConfigPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "title": "Explicit title"
-              }
-            }
-            """,
-            "explicit-allureConfig.json"
-        );
-
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => envConfigPath,
-            new ServiceProviderStub(),
-            explicitConfigPath
-        );
-
-        await Assert.That(config.Title).IsEqualTo("Explicit title");
-    }
-
-    [Test]
-    public async Task ShouldThrowIfExplicitConfigurationFileDoesNotExist()
-    {
-        var missingConfigPath = Path.Combine(
-            Path.GetTempPath(),
-            Guid.NewGuid().ToString(),
-            "missing-allureConfig.json"
-        );
-
-        await Assert.That(() => ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            new ServiceProviderStub(),
-            missingConfigPath
-        )).Throws<FileNotFoundException>().WithMessageContaining(missingConfigPath);
-    }
-
-    [Test]
-    public async Task ShouldThrowIfEnvVarFileDoesNotExist()
-    {
-        var missingConfigPath = Path.Combine(
-            Path.GetTempPath(),
-            Guid.NewGuid().ToString(),
-            "missing-allureConfig.json"
-        );
-
-        await Assert.That(() => ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => missingConfigPath,
-            new ServiceProviderStub()
-        )).Throws<FileNotFoundException>().WithMessageContaining(missingConfigPath);
-    }
+    static readonly string[] DefaultArgs =
+    [
+        "--no-progress",
+        "--no-ansi",
+        "--output",
+        "Normal",
+        "--show-stdout",
+        "None",
+        "--show-stderr",
+        "None",
+    ];
 
     [Test]
     public async Task ShouldUseMtpResultDirectoryAsDefaultAllureResultsDirectory()
     {
         using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "title": "Configured title"
-              }
-            }
-            """
-        );
         var mtpResults = Path.Combine(temp.Path, "mtp-results");
-        var serviceProvider = new ServiceProviderStub(
-            ("platformOptions:resultDirectory", mtpResults)
-        );
 
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            serviceProvider,
-            configPath
-        );
+        var config = await ResolveConfiguration([], mtpResultsDirectory: mtpResults);
 
-        await Assert.That(config.Directory).IsEqualTo(
+        await Assert.That(config.ResultsDirectory).IsEqualTo(
             Path.GetFullPath(Path.Combine(mtpResults, "allure-results"))
         );
     }
@@ -226,209 +44,146 @@ public class ConfigurationDiscoveryTests
     public async Task ShouldNotOverwriteConfiguredDirectoryWithMtpResultDirectory()
     {
         using var temp = TempDirectory.Create();
+        var configuredResults = Path.Combine(temp.Path, "configured-results");
         var configPath = temp.WriteConfig(
-            """
+            $$"""
             {
-              "allure": {
-                "directory": "configured-results"
-              }
+              "resultsDirectory": "{{configuredResults}}"
             }
             """
         );
-        var mtpResults = Path.Combine(temp.Path, "mtp-results");
-        var serviceProvider = new ServiceProviderStub(
-            ("platformOptions:resultDirectory", mtpResults)
+
+        var config = await ResolveConfiguration(
+            [],
+            configPath,
+            Path.Combine(temp.Path, "mtp-results")
         );
 
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            serviceProvider,
-            configPath
+        await Assert.That(config.ResultsDirectory).IsEqualTo(
+            Path.GetFullPath(configuredResults)
         );
-
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("configured-results"));
     }
 
     [Test]
-    public async Task ShouldPreferCliResultsDirectoryOverAllureObjectDirectory()
+    public async Task ShouldPreferCliResultsDirectoryOverConfiguredDirectory()
     {
         using var temp = TempDirectory.Create();
         var configPath = temp.WriteConfig(
-            """
+            $$"""
             {
-              "allure": {
-                "directory": "configured-results"
-              }
+              "resultsDirectory": "{{Path.Combine(temp.Path, "configured-results")}}"
             }
             """
         );
-        var serviceProvider = new ServiceProviderStub();
-        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
+        var cliResults = Path.Combine(temp.Path, "cli-results");
 
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            serviceProvider,
+        var config = await ResolveConfiguration(
+            ["--allure-results-directory", cliResults],
             configPath
         );
 
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
-    }
-
-    [Test]
-    public async Task ShouldPreferCliResultsDirectoryOverRootObjectDirectory()
-    {
-        using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "directory": "root-results"
-            }
-            """
-        );
-        var serviceProvider = new ServiceProviderStub();
-        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
-
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            serviceProvider,
-            configPath
-        );
-
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
-    }
-
-    [Test]
-    public async Task ShouldPreferCliResultsDirectoryOverEnvironmentConfigurationDirectory()
-    {
-        using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "directory": "environment-results"
-              }
-            }
-            """
-        );
-        var serviceProvider = new ServiceProviderStub();
-        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
-
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => configPath,
-            serviceProvider
-        );
-
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
+        await Assert.That(config.ResultsDirectory).IsEqualTo(Path.GetFullPath(cliResults));
     }
 
     [Test]
     public async Task ShouldPreferCliResultsDirectoryOverMtpResultDirectory()
     {
         using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "allure": {
-                "title": "Configured title"
-              }
-            }
-            """
-        );
-        var mtpResults = Path.Combine(temp.Path, "mtp-results");
-        var serviceProvider = new ServiceProviderStub(
-            ("platformOptions:resultDirectory", mtpResults)
-        );
-        serviceProvider.CommandLineOptions.ResultsDirectory = "cli-results";
+        var cliResults = Path.Combine(temp.Path, "cli-results");
 
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            serviceProvider,
-            configPath
+        var config = await ResolveConfiguration(
+            [
+                "--allure-results-directory",
+                cliResults,
+            ],
+            mtpResultsDirectory: Path.Combine(temp.Path, "mtp-results")
         );
 
-        await Assert.That(config.Directory).IsEqualTo(Path.GetFullPath("cli-results"));
+        await Assert.That(config.ResultsDirectory).IsEqualTo(Path.GetFullPath(cliResults));
     }
 
     [Test]
-    public async Task ShouldPutDefaultDirectoryInRootObjectIfAllureConfigDefinedAtRootLevel()
+    public async Task ShouldFallbackToAllureResultsInBaseDirectoryIfNoMtpResultsDirConfigured()
     {
-        using var temp = TempDirectory.Create();
-        var configPath = temp.WriteConfig(
-            """
-            {
-              "title": "Configured title"
-            }
-            """
-        );
-        var mtpResults = Path.Combine(temp.Path, "mtp-results");
-        var serviceProvider = new ServiceProviderStub(
-            ("platformOptions:resultDirectory", mtpResults)
-        );
+        var config = await ResolveConfiguration([]);
 
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            serviceProvider,
-            configPath
-        );
-
-        await Assert.That(config.Title).IsEqualTo("Configured title");
-        await Assert.That(config.Directory).IsEqualTo(
-            Path.GetFullPath(Path.Combine(mtpResults, "allure-results"))
+        await Assert.That(config.ResultsDirectory).IsEqualTo(
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "allure-results")
         );
     }
 
-    [Test]
-    public async Task ShouldFallbackToAllureResultsInCurrentDirectoryIfNoMtpResultsDirConfigured()
+    static async Task<AllureTestingPlatformConfiguration> ResolveConfiguration(
+        string[] args,
+        string configPath = null,
+        string mtpResultsDirectory = null
+    )
     {
-        var serviceProvider = new ServiceProviderStub();
-
-        var config = ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(
-            _ => null,
-            serviceProvider
-        );
-
-        await Assert.That(config.Directory).IsEqualTo(
-            Path.Combine(Environment.CurrentDirectory, "allure-results")
-        );
-    }
-
-    sealed class ServiceProviderStub(params (string Key, string Value)[] configuration) : IServiceProvider
-    {
-        readonly ConfigurationStub configuration = new(configuration);
-
-        public CommandLineOptionsStub CommandLineOptions { get; } = new();
-
-        public object GetService(Type serviceType)
+        var builder = await TestApplication.CreateBuilderAsync([.. DefaultArgs, .. args]);
+        if (mtpResultsDirectory is not null)
         {
-            if (serviceType == typeof(IConfiguration))
-            {
-                return this.configuration;
-            }
-            else if (serviceType == typeof(ICommandLineOptions))
-            {
-                return this.CommandLineOptions;
-            }
-
-            throw new NotImplementedException();
+            builder.Configuration.AddConfigurationSource(
+                () => new ConfigurationSourceStub(
+                    "platformOptions:resultDirectory",
+                    mtpResultsDirectory
+                )
+            );
         }
-    }
-
-    sealed class CustomAllureConfiguration : AllureConfiguration
-    {
-        public string CustomValue { get; set; }
-    }
-
-    sealed class ConfigurationStub(params (string Key, string Value)[] values) : IConfiguration
-    {
-        readonly Dictionary<string, string> values = values.ToDictionary(
-            value => value.Key,
-            value => value.Value
+        var runtimeReference = builder.AddEmbeddedAllure(
+            "configuration-test",
+            (context, _) =>
+            {
+                context.DisableHostProcessWatchdog();
+                context.UseDestination(_ => new InMemoryResultsDestination());
+                if (configPath is not null)
+                {
+                    context.UseConfigurationFile(configPath);
+                }
+            }
+        );
+        builder.RegisterTestFramework(
+            _ => new TestFrameworkCapabilities(),
+            (_, _) => new TestFrameworkStub()
         );
 
-        public string this[string key]
+        using var app = await builder.BuildAsync();
+        await app.RunAsync();
+        return runtimeReference.Value.Configuration;
+    }
+
+    sealed class ConfigurationSourceStub(string key, string value) : IConfigurationSource
+    {
+        public string Uid => "configuration-source-stub";
+
+        public string Version => "1.0.0";
+
+        public string DisplayName => "Configuration source stub";
+
+        public string Description => "Provides Microsoft Testing Platform configuration for tests.";
+
+        public int Order => 0;
+
+        public Task<bool> IsEnabledAsync() => Task.FromResult(true);
+
+        public Task<IConfigurationProvider> BuildAsync(
+            CommandLineParseResult commandLineParseResult
+        ) =>
+            Task.FromResult<IConfigurationProvider>(new ConfigurationProviderStub(key, value));
+    }
+
+    sealed class ConfigurationProviderStub(string key, string value) : IConfigurationProvider
+    {
+        public Task LoadAsync() => Task.CompletedTask;
+
+        public bool TryGet(string requestedKey, out string result)
         {
-            get => this.values.TryGetValue(key, out var value) ? value : null;
-            set => this.values[key] = value;
+            if (requestedKey == key)
+            {
+                result = value;
+                return true;
+            }
+
+            result = null;
+            return false;
         }
     }
 
@@ -451,9 +206,9 @@ public class ConfigurationDiscoveryTests
             return new(path);
         }
 
-        public string WriteConfig(string json, string fileName = "allureConfig.json")
+        public string WriteConfig(string json)
         {
-            var path = System.IO.Path.Combine(this.Path, fileName);
+            var path = System.IO.Path.Combine(this.Path, "allureConfig.json");
             File.WriteAllText(path, json);
             return path;
         }
@@ -467,3 +222,5 @@ public class ConfigurationDiscoveryTests
         }
     }
 }
+
+#pragma warning restore TPEXP
