@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Configuration;
-using Allure.TestingPlatform.Functions;
+using Allure.Sdk.Registration;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Registration;
@@ -21,11 +19,29 @@ public static class AllureTestingPlatformExtensions
         /// <summary>
         /// Adds Allure.TestingPlatform to the test application and configures it.
         /// </summary>
-        public void AddAllure(Action<IStandaloneAllureRegistrationContext> configureAllure) =>
-            AllureTestingPlatformSdkExtensions.RegisterAllureTestingPlatform(
+        public void AddAllure(Action<IAllureTestingPlatformRuntimeRegistrationContext> registration) =>
+            AllureTestingPlatformSdkExtensions.RegisterAllureTestingPlatform<
+                AllureTestingPlatformConfiguration,
+                IAllureTestingPlatformRuntimeRegistrationContext,
+                IAllureTestingPlatformRuntimeRegistrationHook,
+                IAllureTestingPlatformEndpointRegistrationContext,
+                IAllureTestingPlatformEndpointRegistrationHook,
+                IAllureTestingPlatformRuntimeIntegrationContext,
+                IAllureRuntimeIntegrationSnapshot<
+                    AllureTestingPlatformConfiguration,
+                    IAllureTestingPlatformEndpointRegistrationContext,
+                    IAllureTestingPlatformEndpointRegistrationHook,
+                    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+                >,
+                IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+            >(
                 builder,
-                configureAllure,
-                AllureTestingPlatformRegistrationMode.Standalone
+                "Allure.TestingPlatform",
+                () => new AllureTestingPlatformRuntimeRegistrationSession(),
+                (context, serviceProvider) =>
+                {
+                    registration(context);
+                }
             );
 
         /// <summary>
@@ -33,27 +49,5 @@ public static class AllureTestingPlatformExtensions
         /// </summary>
         public void AddAllure() =>
             AddAllure(builder, static (_) => {});
-    }
-
-    extension (IStandaloneAllureRegistrationContext registration)
-    {
-        /// <summary>
-        /// Load configuration read from the specified JSON file.
-        /// </summary>
-        public IStandaloneAllureRegistrationContext UseConfigurationFile(string file) =>
-            registration.UseConfiguration((serviceProvider) =>
-            ConfigurationFunctions.ReadConfiguration<AllureConfiguration>(serviceProvider, file));
-
-        /// <summary>
-        /// Use the specified Allure configuration instance.
-        /// </summary>
-        public IStandaloneAllureRegistrationContext UseConfiguration(AllureConfiguration configuration) =>
-            registration.UseConfiguration((serviceProvider) => configuration);
-
-        /// <summary>
-        /// Use the specified type formatters to serialize arguments into Allure parameter values.
-        /// </summary>
-        public IStandaloneAllureRegistrationContext UseTypeFormatters(params IEnumerable<ITypeFormatter> formatters) =>
-            registration.UseTypeFormatters(AllureRegistrationDefaults.ExplicitTypeFormatters(formatters));
     }
 }

@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Allure.Sdk.Registration;
+using Allure.TestingPlatform.Configuration;
 
 namespace Allure.TestingPlatform.Sdk.Runtime;
 
@@ -6,49 +8,44 @@ namespace Allure.TestingPlatform.Sdk.Runtime;
 /// Base class for extensions that configure or start the Allure.TestingPlatform runtime.
 /// It is expected to have exactly one such extension per process.
 /// The runtime of the test host process is managed by
-/// <see cref="TestingPlatformExtensions.AllureTestingPlatformInProcessRuntimeController"/>
+/// <see cref="TestingPlatformExtensions.AllureTestingPlatformInProcessRuntimeController{TConfiguration, TRuntime}"/>
 /// by default.
 /// </summary>
-public abstract class AllureTestingPlatformRuntimeControllerExtension(
+public abstract class AllureTestingPlatformRuntimeControllerExtension<TConfiguration, TRuntime>(
     string uid,
     string displayName,
     string description,
-    IAllureTestingPlatformRuntimeController runtimeController
+    IAllureRuntimeRegistrationPlan<
+        TConfiguration,
+        TRuntime
+    > runtimeRegistrationPlan
 ) :
-    AllureTestingPlatformExtension(
+    AllureTestingPlatformExtension<TConfiguration, TRuntime>(
         uid,
         displayName,
         description,
-        runtimeController.RuntimeReference
+        runtimeRegistrationPlan.RuntimeReference
     )
+
+    where TConfiguration : AllureTestingPlatformConfiguration
+    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
+    IAllureRuntimeRegistration<TRuntime>? registration = null;
+
+    protected bool IsStarted => this.registration is not null;
+
+    protected IAllureRuntimeRegistration<TRuntime> Registration => registration ??
+        this.EnsureRuntimeStarted();
+
+    new protected AllureTestingPlatformConfiguration Configuration =>
+        runtimeRegistrationPlan.Configuration;
+
     /// <inheritdoc />
-    public override Task<bool> IsEnabledAsync()
+    public override Task<bool> IsEnabledAsync() =>
+        Task.FromResult(runtimeRegistrationPlan.Configuration.IsEnabled);
+
+    protected IAllureRuntimeRegistration<TRuntime> EnsureRuntimeStarted()
     {
-        if (runtimeController is { RuntimeReference.CurrentRuntime.Phase: AllureTestingPlatformRuntimePhase.NotInitialized })
-        {
-            runtimeController.Configure();
-        }
-
-        return base.IsEnabledAsync();
-    }
-
-    /// <summary>
-    /// Gets the runtime controller used by this extension.
-    /// </summary>
-    protected IAllureTestingPlatformRuntimeController Controller => runtimeController;
-
-    /// <summary>
-    /// If the runtime is configured, starts it. Otherwise, does nothing.
-    /// </summary>
-    /// <returns>The current runtime state.</returns>
-    protected AllureTestingPlatformRuntimeState EnsureRuntimeStarted()
-    {
-        var runtime = this.Controller.RuntimeReference.CurrentRuntime;
-        if (runtime is { Phase: AllureTestingPlatformRuntimePhase.Configured })
-        {
-            runtime = runtimeController.Start();
-        }
-        return runtime;
+        return this.registration ??= runtimeRegistrationPlan.Build();
     }
 }

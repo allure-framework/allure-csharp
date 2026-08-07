@@ -1,4 +1,5 @@
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
 
@@ -11,7 +12,7 @@ public abstract class AllureModelRemoveMessage(
     string displayName,
     string description,
     CorrelationUid correlationUid,
-    IAllureContextUid contextUid
+    IAllureExecutionStateUid contextUid
 ) :
     AllureModelMessage(displayName, description, correlationUid),
     IAllureModelOperationMessage
@@ -19,8 +20,8 @@ public abstract class AllureModelRemoveMessage(
     /// <summary>
     /// Gets the context identifier removed by the message.
     /// </summary>
-    public IAllureContextUid ContextUid { get; } = contextUid;
+    public IAllureExecutionStateUid ContextUid { get; } = contextUid;
 
     /// <inheritdoc />
-    public abstract void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime);
+    public abstract void ApplyTo(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime);
 }

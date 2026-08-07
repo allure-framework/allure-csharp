@@ -1,4 +1,5 @@
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
 
@@ -9,7 +10,7 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// </summary>
 public sealed class AllureTestUpdateMessage(
     CorrelationUid correlationUid,
-    TestContextUid testUid
+    TestExecutionStateUid testUid
 ) :
     AllureModelUpdateMessage(
         "Allure test result update",
@@ -21,12 +22,12 @@ public sealed class AllureTestUpdateMessage(
     /// <summary>
     /// Gets the test context identifier.
     /// </summary>
-    public TestContextUid TestUid { get; } = testUid;
+    public TestExecutionStateUid TestUid { get; } = testUid;
 
     /// <inheritdoc />
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
+    public override void ApplyTo(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime)
     {
-        allureRuntime.Lifecycle.UpdateTestCase((test) =>
+        allureRuntime.ModelApi.UpdateTestResult((test) =>
         {
             this.ApplyProperties(allureRuntime, test);
         });

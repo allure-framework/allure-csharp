@@ -1,20 +1,20 @@
 using System.Collections.Generic;
-using Allure.Net.Commons;
+using Allure.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Internal;
 
-internal class TestHostAllureLifecycleState(AllureLifecycle lifecycle)
+internal class TestHostAllureLifecycleState(IAllureExecutionContext context)
 {
     readonly Dictionary<CorrelationUid, SessionLifecycleState> sessions = [];
 
     public SessionLifecycleState GetOrCreateSessionState(CorrelationUid correlationUid)
     {
-        if (!this.sessions.TryGetValue(correlationUid, out var state))
+        if (!this.sessions.TryGetValue(correlationUid, out var sessionState))
         {
-            this.sessions[correlationUid] = state = new(lifecycle);
+            this.sessions[correlationUid] = sessionState = new(context);
         }
-        return state;
+        return sessionState;
     }
 
     public void RemoveSession(CorrelationUid correlationUid)

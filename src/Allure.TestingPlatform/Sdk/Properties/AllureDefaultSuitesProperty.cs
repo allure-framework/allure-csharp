@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Attributes;
-using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Sdk;
+using Allure.Abstractions;
+using Allure.Model;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -46,9 +46,9 @@ public sealed class AllureDefaultSuitesProperty(
     }
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TestResult target)
     {
-        ModelFunctions.EnsureSuites(target, this.ParentSuite, this.Suite, this.SubSuite);
+        SuiteLabels.Ensure(target, this.ParentSuite, this.Suite, this.SubSuite);
     }
 
     static string? ResolveSubSuite(Type testClass) =>

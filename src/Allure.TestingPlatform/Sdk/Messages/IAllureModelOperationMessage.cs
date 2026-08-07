@@ -1,4 +1,5 @@
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
@@ -11,10 +12,10 @@ public interface IAllureModelOperationMessage
     /// <summary>
     /// Gets the affected context identifier.
     /// </summary>
-    IAllureContextUid ContextUid { get; }
+    IAllureExecutionStateUid ContextUid { get; }
 
     /// <summary>
     /// Applies the message to the live Allure runtime.
     /// </summary>
-    void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime);
+    void ApplyTo(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime);
 }

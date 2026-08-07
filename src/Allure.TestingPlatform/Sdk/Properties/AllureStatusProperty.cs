@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -21,11 +22,11 @@ public sealed class AllureStatusProperty<TModel>(Status status) : IAllurePropert
     public bool OnlyIfUnset { get; init; } = false;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
-        if (!this.OnlyIfUnset || target.status is Status.none)
+        if (!this.OnlyIfUnset || target.Status is Status.Unknown)
         {
-            target.status = this.Status;
+            target.Status = this.Status;
         }
     }
 }

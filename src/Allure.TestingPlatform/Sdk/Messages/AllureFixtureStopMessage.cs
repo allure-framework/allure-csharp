@@ -1,4 +1,5 @@
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
 
@@ -9,7 +10,7 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// </summary>
 public sealed class AllureFixtureStopMessage(
     CorrelationUid correlationUid,
-    FixtureContextUid fixtureUid
+    FixtureExecutionStateUid fixtureUid
 ) :
     AllureModelRemoveMessage(
         "Allure fixture stop",
@@ -21,15 +22,15 @@ public sealed class AllureFixtureStopMessage(
     /// <summary>
     /// Gets the fixture context identifier.
     /// </summary>
-    public FixtureContextUid FixtureUid { get; } = fixtureUid;
+    public FixtureExecutionStateUid FixtureUid { get; } = fixtureUid;
 
     /// <inheritdoc />
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
+    public override void ApplyTo(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime)
     {
-        allureRuntime.Lifecycle.UpdateFixture((fixture) =>
+        allureRuntime.ModelApi.UpdateFixtureResult((fixture) =>
         {
             this.ApplyProperties(allureRuntime, fixture);
         });
-        allureRuntime.Lifecycle.StopFixture();
+        allureRuntime.LifecycleApi.StopFixture();
     }
 }

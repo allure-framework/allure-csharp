@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -15,8 +16,8 @@ public sealed class AllureLinksProperty(IEnumerable<Link> links) : IAllureProper
     public List<Link> Links { get; } = [..links];
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TestResult target)
     {
-        target.links.AddRange(this.Links);
+        target.Links.AddRange(this.Links);
     }
 }

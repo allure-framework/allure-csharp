@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Properties;
 using Allure.TestingPlatform.Sdk.Runtime;
@@ -24,7 +25,10 @@ public abstract class AllureModelMessage(
     /// <summary>
     /// Applies all properties that support the specified model type.
     /// </summary>
-    public void ApplyProperties<T>(LiveAllureTestingPlatformRuntime allureRuntime, T target)
+    public void ApplyProperties<T>(
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime,
+        T target
+    )
     {
         foreach (var property in this.Properties.OfType<IAllureProperty<T>>())
         {

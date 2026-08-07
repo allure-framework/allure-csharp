@@ -1,6 +1,7 @@
 using System;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
+using Allure.Model;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -19,12 +20,12 @@ public sealed class AllureExceptionProperty<TModel>(Exception exception) :
     public Exception Exception { get; } = exception;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime allure, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allure, TModel target)
     {
-        target.status = ModelFunctions.ResolveErrorStatus(
+        target.Status = ErrorStatus.Resolve(
             allure.Configuration.FailExceptions,
             this.Exception
         );
-        target.statusDetails = ModelFunctions.ToStatusDetails(this.Exception);
+        target.StatusDetails = StatusDetails.FromException(this.Exception);
     }
 }

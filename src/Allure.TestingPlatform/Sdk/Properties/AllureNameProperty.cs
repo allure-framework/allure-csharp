@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -15,8 +16,8 @@ public sealed class AllureNameProperty<TModel>(string name) : IAllureProperty<TM
     public string Name { get; } = name;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
-        target.name = this.Name;
+        target.Name = this.Name;
     }
 }

@@ -1,5 +1,6 @@
-using Allure.Net.Commons.Functions;
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
 
@@ -10,8 +11,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// </summary>
 public sealed class AllureScopeStartMessage(
     CorrelationUid correlationUid,
-    ScopeContextUid scopeUid,
-    ScopeContextUid? parentScopeUid = null
+    ScopeExecutionStateUid scopeUid,
+    ScopeExecutionStateUid? parentScopeUid = null
 ) :
     AllureModelCreateMessage(
         "Allure scope start",
@@ -24,16 +25,16 @@ public sealed class AllureScopeStartMessage(
     /// <summary>
     /// Gets the scope context identifier.
     /// </summary>
-    public ScopeContextUid ScopeUid { get; } = scopeUid;
+    public ScopeExecutionStateUid ScopeUid { get; } = scopeUid;
 
     /// <summary>
     /// Gets the parent scope context identifier, if one exists.
     /// </summary>
-    public ScopeContextUid? ParentScopeUid { get; } = parentScopeUid;
+    public ScopeExecutionStateUid? ParentScopeUid { get; } = parentScopeUid;
 
     /// <inheritdoc />
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
+    public override void ApplyTo(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime)
     {
-        allureRuntime.Lifecycle.StartTestContainer(new() { uuid = IdFunctions.CreateUUID() });
+        allureRuntime.LifecycleApi.StartTestScope(new() { Uuid = Ids.NewUuid()  });
     }
 }

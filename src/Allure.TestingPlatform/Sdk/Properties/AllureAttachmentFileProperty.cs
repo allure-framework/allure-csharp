@@ -1,5 +1,6 @@
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
+using Allure.Model;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -25,7 +26,7 @@ public sealed class AllureAttachmentFileProperty<TModel>(string name, string pat
     /// <summary>
     /// Gets or sets the attachment content type.
     /// </summary>
-    public string? ContentType { get; init; }
+    public string? MediaType { get; init; }
 
     /// <summary>
     /// Gets or sets the attachment file extension.
@@ -33,16 +34,16 @@ public sealed class AllureAttachmentFileProperty<TModel>(string name, string pat
     public string FileExtension { get; init; } = System.IO.Path.GetExtension(path);
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime allureRuntime, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime, TModel target)
     {
-        var source = ModelFunctions.GetAttachmentSourceName(this.FileExtension);
+        var source = AttachmentSource.CreateName(this.FileExtension);
         var attachment = new Attachment
         {
-            name = this.Name,
-            type = this.ContentType,
-            source = source
+            Name = this.Name,
+            Type = this.MediaType,
+            Source = source
         };
-        allureRuntime.Writer.Write(source, this.Path);
-        target.attachments.Add(attachment);
+        allureRuntime.ResultsDestination.CopyAttachment(source, this.Path);
+        target.Attachments.Add(attachment);
     }
 }

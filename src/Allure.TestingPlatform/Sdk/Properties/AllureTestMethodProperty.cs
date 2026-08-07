@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Sdk;
+using Allure.Abstractions;
+using Allure.Model;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -36,32 +37,34 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) :
         AllureTestMethodUpdateTargets.All;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime allureRuntime, TestResult target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime, TestResult target)
     {
         if (this.ShouldSetFullName)
         {
-            target.fullName = IdFunctions.CreateFullName(this.TestMethod);
+            target.FullName = ReflectionNames.ForMethod(this.TestMethod);
         }
 
         if (this.ShouldSetTitlePath)
         {
-            target.titlePath = IdFunctions.CreateTitlePath(this.TestMethod);
+            target.TitlePath.Clear();
+            target.TitlePath.AddRange([.. Titles.PathFor(this.TestMethod)]);
         }
 
         if (this.ShouldAddLabels)
         {
-            target.labels.Add(Label.TestClass(this.TestClass.Name));
-            target.labels.Add(Label.TestMethod(this.TestMethod.Name));
-            target.labels.Add(Label.Package(this.TestClass.FullName));
+            target.Labels.Add(Label.TestClass(this.TestClass.Name));
+            target.Labels.Add(Label.TestMethod(this.TestMethod.Name));
+            target.Labels.Add(Label.Package(this.TestClass.FullName));
         }
 
         if (this.ShouldAddParameters)
         {
-            var parameters = ModelFunctions.CreateParameters(
+            var parameters = Parameters.Create(
                 this.TestMethod.GetParameters(),
                 this.Arguments,
-                allureRuntime.TypeFormatters);
-            target.parameters.AddRange(parameters);
+                allureRuntime.ParameterSerializer
+            );
+            target.Parameters.AddRange(parameters);
         }
 
         if (this.ShouldApplyApiAttributes)

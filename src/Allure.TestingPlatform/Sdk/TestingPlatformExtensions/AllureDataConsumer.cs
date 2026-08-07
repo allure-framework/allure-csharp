@@ -2,8 +2,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
 using Allure.TestingPlatform.Sdk.Messages;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.Messages;
@@ -13,16 +11,27 @@ using Microsoft.Testing.Platform.Services;
 using System.Collections.Generic;
 using Microsoft.Testing.Platform.Logging;
 using Allure.TestingPlatform.Internal.Correlation;
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Internal;
+using Allure.TestingPlatform.Configuration;
+using Allure.Model;
+using System.Collections.Immutable;
+using Allure.Sdk.Registration;
+using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 /// <summary>
 /// Consumes Microsoft Testing Platform messages and writes Allure results.
 /// </summary>
-public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer, ITestSessionLifetimeHandler
+public sealed class AllureDataConsumer<TConfiguration, TRuntime> :
+    AllureTestingPlatformExtension<TConfiguration, TRuntime>,
+    IDataConsumer,
+    ITestSessionLifetimeHandler
+
+    where TConfiguration : AllureTestingPlatformConfiguration
+    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
 
@@ -54,7 +63,9 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
     /// <summary>
     /// Creates the Allure data consumer.
     /// </summary>
-    public AllureDataConsumer(IAllureTestingPlatformRuntimeReference runtimeReference) :
+    public AllureDataConsumer(
+        IReadOnlyLateBoundReference<TRuntime> runtimeReference
+    ) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
@@ -62,7 +73,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
             runtimeReference
         )
     {
-        this.allureLifecycleState = new(() => new(this.Lifecycle));
+        this.allureLifecycleState = new(() => new(this.ContextApi));
         correlationState = new(() => new(
             this.CorrelationStrategy,
             this.Logger
@@ -152,7 +163,7 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
     {
         var node = message.TestNode;
         var uid = node.Uid;
-        TestContextUid testContextUid = new(node.Uid);
+        TestExecutionStateUid testContextUid = new(node.Uid);
 
         var stateProperty = node.Properties
             .OfType<TestNodeStateProperty>()
@@ -166,36 +177,38 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
         if (stateProperty is InProgressTestNodeStateProperty)
         {
-            state.ForkNewTestContext(testContextUid, this.StartTest);
+            state.ForkNewTestState(testContextUid, () => this.StartTest(node.DisplayName));
             return;
         }
 
-        var runningTestContext = state.GetRunningTestContext(testContextUid);
+        var runningTestContext = state.GetRunningTestState(testContextUid);
 
         if (!runningTestContext.HasTest)
         {
             // InProgressTestNodeStateProperty is missing. Normally, this should not happen.
             // If it does, create a new test context and pass the context through the state
             // to apply pending updates.
-            runningTestContext = state.ForkContext(testContextUid, runningTestContext, this.StartTest);
+            runningTestContext = state.ForkState(testContextUid, runningTestContext, () => this.StartTest(node.DisplayName));
         }
 
-        state.ReleaseContext(
+        state.ReleaseState(
             testContextUid,
-            () => this.Lifecycle
-                .UpdateTestCase((testResult) =>
+            (runtime) =>
+            {
+                runtime.ModelApi.UpdateTestResult((testResult) =>
                 {
                     this.ApplyProperties(testResult, node);
                     ApplyFallbacks(testResult, node);
-                })
-                .StopTestCase()
-                .WriteTestCase()
+                });
+                var testResult = this.LifecycleApi.StopTest();
+                runtime.ResultsDestination.WriteTestResult(testResult);
+            }
         );
     }
 
     async Task ConsumeSessionFileArtifactMessage(SessionFileArtifact message) =>
-        ModelFunctions.AddGlobalAttachmentFile(
-            this.Writer,
+        GlobalAttachments.SaveFile(
+            this.ResultsDestination,
             message.DisplayName,
             message.FileInfo
         );
@@ -204,10 +217,10 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
     {
         var parentContextUid = message.ParentContextUid;
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
-            .InheritContext(
+            .InheritState(
                 message.ContextUid,
                 message.ParentContextUid,
-                () => message.ApplyTo(this.LiveRuntime)
+                () => message.ApplyTo(this.Runtime)
             );
     }
 
@@ -215,34 +228,34 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
     {
         var contextUid = message.ContextUid;
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
-            .UpdateContext(
+            .UpdateState(
                 message.ContextUid,
-                () => message.ApplyTo(this.LiveRuntime)
+                () => message.ApplyTo(this.Runtime)
             );
     }
 
     async Task ConsumeAllureModelRemoveMessage(AllureModelRemoveMessage message) =>
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
-            .ReleaseContext(
+            .ReleaseState(
                 message.ContextUid,
-                () => message.ApplyTo(this.LiveRuntime)
+                (_) => message.ApplyTo(this.Runtime)
             );
 
     async Task ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
-            .ReleaseScopeContext(
+            .ReleaseScopeState(
                 message.ScopeUid,
-                () => message.ApplyTo(this.LiveRuntime)
+                (_) => message.ApplyTo(this.Runtime)
             );
 
     async Task ConsumeTestsInScopeMessage(AllureScopeTestsMessage message) =>
         this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
             .AssociateTestsWithScope(message.ScopeUid, message.TestUids);
 
-    void StartTest()
+    void StartTest(string name)
     {
-        var testResult = ModelFunctions.CreateTestResult(this.Configuration);
-        this.Lifecycle.StartTestCase(testResult);
+        var testResult = TestResults.Create(name, this.Configuration, Environment.GetEnvironmentVariables());
+        this.LifecycleApi.StartTest(testResult);
     }
 
     void ApplyProperties(TestResult testResult, TestNode node)
@@ -279,8 +292,8 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
     TestResult ApplyFileArtifactProperty(TestResult testResult, FileArtifactProperty fileArtifact)
     {
-        ModelFunctions.AddAttachmentFromFile(
-            this.Writer,
+        TestAttachments.SaveFile(
+            this.ResultsDestination,
             testResult,
             fileArtifact.DisplayName,
             fileArtifact.FileInfo
@@ -290,8 +303,8 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
     TestResult ApplyStdoutProperty(TestResult testResult, StandardOutputProperty stdout)
     {
-        ModelFunctions.AddTxtAttachment(
-            this.Writer,
+        TestAttachments.SaveText(
+            this.ResultsDestination,
             testResult,
             "Standard output",
             stdout.StandardOutput
@@ -301,8 +314,8 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
     TestResult ApplyStderrProperty(TestResult testResult, StandardErrorProperty stderr)
     {
-        ModelFunctions.AddTxtAttachment(
-            this.Writer,
+        TestAttachments.SaveText(
+            this.ResultsDestination,
             testResult,
             "Standard error",
             stderr.StandardError
@@ -312,29 +325,28 @@ public class AllureDataConsumer : AllureTestingPlatformExtension, IDataConsumer,
 
     static TestResult ApplyTimingProperty(TestResult testResult, TimingProperty timing)
     {
-        ModelFunctions.ApplyTimings(testResult, timing);
+        TestResults.ApplyTimings(testResult, timing);
         return testResult;
     }
 
     static void ApplyFallbacks(TestResult testResult, TestNode node)
     {
-        testResult.name ??= node.DisplayName;
-        testResult.fullName ??= node.Uid;
+        testResult.FullName ??= node.Uid;
     }
 
     static TestResult ApplyTestNodeStateProperty(
-        List<string> failExceptions,
+        ImmutableList<string> failExceptions,
         TestResult testResult,
         TestNodeStateProperty testNodeState
     )
     {
-        ModelFunctions.ApplyStateAsFallback(failExceptions, testResult, testNodeState);
+        testResult.ApplyStateAsFallback(failExceptions, testNodeState);
         return testResult;
     }
 
     static TestResult ApplyTestMethodIdentifierProperty(TestResult testResult, TestMethodIdentifierProperty identifierProperty)
     {
-        ModelFunctions.ApplyIdentityAsFallback(testResult, identifierProperty);
+        testResult.ApplyIdentityAsFallback(identifierProperty);
         return testResult;
     }
 }

@@ -1,5 +1,6 @@
 using System;
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -31,15 +32,15 @@ public sealed class AllureDurationProperty<TModel>(long duration) :
     public AllureDurationAnchor RelativeTo { get; init; } = AllureDurationAnchor.Start;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
         if (this.RelativeTo == AllureDurationAnchor.Start)
         {
-            target.stop = target.start + this.Duration;
+            target.Stop = target.Start + this.Duration;
         }
         else
         {
-            target.start = target.stop - this.Duration;
+            target.Start = target.Stop - this.Duration;
         }
     }
 }

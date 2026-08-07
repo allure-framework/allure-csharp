@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -17,8 +18,8 @@ public sealed class AllureStatusDetailsProperty<TModel>(StatusDetails statusDeta
     public StatusDetails StatusDetails { get; } = statusDetails;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
-        target.statusDetails = this.StatusDetails;
+        target.StatusDetails = this.StatusDetails;
     }
 }

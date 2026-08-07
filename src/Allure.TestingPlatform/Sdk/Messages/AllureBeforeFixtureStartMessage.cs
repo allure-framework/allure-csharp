@@ -1,5 +1,6 @@
-using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.Model;
+using Allure.Sdk.Runtime;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Sdk.Messages;
@@ -9,13 +10,13 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// </summary>
 public sealed class AllureBeforeFixtureStartMessage(
     CorrelationUid correlationUid,
-    FixtureContextUid fixtureUid,
-    ScopeContextUid scopeUid,
+    FixtureExecutionStateUid fixtureUid,
+    ScopeExecutionStateUid scopeUid,
     string fixtureName
 ) :
     AllureFixtureStartMessage(correlationUid, fixtureUid, scopeUid, fixtureName)
 {
     /// <inheritdoc />
-    protected override void StartFixture(AllureLifecycle lifecycle, FixtureResult fixtureResult) =>
-        lifecycle.StartBeforeFixture(fixtureResult);
+    protected override void StartFixture(IAllureLifecycleApi lifecycle, FixtureResult fixtureResult) =>
+        lifecycle.StartSetUpFixture(fixtureResult);
 }

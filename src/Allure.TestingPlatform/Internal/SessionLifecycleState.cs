@@ -2,192 +2,191 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Allure.Net.Commons;
+using Allure.Sdk.Runtime;
 using Allure.TestingPlatform.Functions;
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 
 namespace Allure.TestingPlatform.Internal;
 
-internal class SessionLifecycleState(AllureLifecycle lifecycle)
+internal class SessionLifecycleState(IAllureExecutionContext context)
 {
-    readonly Dictionary<IAllureContextUid, AllureContext> contexts = [];
-    readonly Dictionary<TestContextUid, AllureContext> testScopeContexts = [];
-    readonly Dictionary<ScopeContextUid, ImmutableHashSet<TestContextUid>> scopeTests = [];
-    readonly Dictionary<IAllureContextUid, Queue<Action>> pendingUpdates = [];
+    readonly Dictionary<IAllureExecutionStateUid, AllureExecutionState> states = [];
+    readonly Dictionary<TestExecutionStateUid, AllureExecutionState> testScopeStates = [];
+    readonly Dictionary<ScopeExecutionStateUid, ImmutableHashSet<TestExecutionStateUid>> scopeTests = [];
+    readonly Dictionary<IAllureExecutionStateUid, Queue<Action>> pendingUpdates = [];
 
-    public bool TryGetContext(
-        IAllureContextUid contextUid,
-        [NotNullWhen(true)] out AllureContext? context
+    public bool TryGetState(
+        IAllureExecutionStateUid stateUid,
+        [MaybeNullWhen(false)] out AllureExecutionState state
     ) =>
-        this.contexts.TryGetValue(contextUid, out context);
+        this.states.TryGetValue(stateUid, out state);
 
-    public void SetContext(IAllureContextUid contextUid, AllureContext context)
+    public void SetState(IAllureExecutionStateUid stateUid, AllureExecutionState state)
     {
-        this.contexts[contextUid] = this.ApplyPendingUpdates(contextUid, context);
+        this.states[stateUid] = this.ApplyPendingUpdates(stateUid, state);
     }
 
-    public AllureContext GetNewTestContext(TestContextUid testContextUid) =>
-        this.TryGetTestScope(testContextUid, out var scopeContext)
-            ? scopeContext
+    public AllureExecutionState GetNewTestState(TestExecutionStateUid testStateUid) =>
+        this.TryGetTestScope(testStateUid, out var scopeState)
+            ? scopeState
             : new();
 
-    public void AddPendingUpdate(IAllureContextUid contextUid, Action update)
+    public void AddPendingUpdate(IAllureExecutionStateUid stateUid, Action update)
     {
-        if (this.TryGetPendingUpdates(contextUid, out var updates))
+        if (this.TryGetPendingUpdates(stateUid, out var updates))
         {
             updates.Enqueue(update);
         }
         else
         {
-            this.pendingUpdates[contextUid] = new([update]);
+            this.pendingUpdates[stateUid] = new([update]);
         }
     }
 
-    public void InheritContext(
-        IAllureContextUid contextUid,
-        IAllureContextUid? parentContextUid,
+    public void InheritState(
+        IAllureExecutionStateUid stateUid,
+        IAllureExecutionStateUid? parentStateUid,
         Action init
     )
     {
-        if (parentContextUid is not null)
+        if (parentStateUid is not null)
         {
-            if (this.TryGetContext(parentContextUid, out var parentContext))
+            if (this.TryGetState(parentStateUid, out var parentState))
             {
-                this.ForkContext(contextUid, parentContext, init);
+                this.ForkState(stateUid, parentState, init);
             }
             else
             {
-                this.AddPendingUpdate(parentContextUid, () =>
+                this.AddPendingUpdate(parentStateUid, () =>
                 {
-                    this.ForkCurrentContext(contextUid, init);
+                    this.ForkCurrentState(stateUid, init);
                 });
             }
         }
         else
         {
-            this.ForkContext(contextUid, new(), init);
+            this.ForkState(stateUid, new(), init);
         }
     }
 
-    public AllureContext ForkContext(IAllureContextUid contextUid, AllureContext context, Action mutations)
+    public AllureExecutionState ForkState(IAllureExecutionStateUid stateUid, AllureExecutionState state, Action mutations)
     {
-        var newContext = lifecycle.RunInContext(context, mutations);
-        this.SetContext(contextUid, newContext);
-        return newContext;
+        var newState = context.RunWithState(state, (_) => mutations());
+        this.SetState(stateUid, newState);
+        return newState;
     }
 
-    public AllureContext ForkNewTestContext(TestContextUid testContextUid, Action startTest) =>
-        this.ForkContext(testContextUid, this.GetNewTestContext(testContextUid), startTest);
+    public AllureExecutionState ForkNewTestState(TestExecutionStateUid testStateUid, Action startTest) =>
+        this.ForkState(testStateUid, this.GetNewTestState(testStateUid), startTest);
 
-    public AllureContext GetRunningTestContext(TestContextUid testContextUid) =>
-        this.TryGetContext(testContextUid, out var context)
-            ? context
-            : this.GetNewTestContext(testContextUid);
+    public AllureExecutionState GetRunningTestState(TestExecutionStateUid testStateUid) =>
+        this.TryGetState(testStateUid, out var state)
+            ? state
+            : this.GetNewTestState(testStateUid);
 
-    public void ForkCurrentContext(IAllureContextUid contextUid, Action update) =>
-        this.SetContext(contextUid, lifecycle.RunInContext(lifecycle.Context, update));
+    public void ForkCurrentState(IAllureExecutionStateUid stateUid, Action update) =>
+        this.SetState(stateUid, context.RunWithState(context.CurrentState, (_) => update()));
 
-    public void UpdateContext(IAllureContextUid contextUid, Action update)
+    public void UpdateState(IAllureExecutionStateUid stateUid, Action update)
     {
-        if (this.TryGetContext(contextUid, out var context))
+        if (this.TryGetState(stateUid, out var state))
         {
-            this.SetContext(
-                contextUid,
-                lifecycle.RunInContext(context, update)
+            this.SetState(
+                stateUid,
+                context.RunWithState(state, (_) => update())
             );
         }
         else
         {
-            this.AddPendingUpdate(contextUid, update);
+            this.AddPendingUpdate(stateUid, update);
         }
     }
 
-    public void ReleaseContext(IAllureContextUid contextUid, Action commit)
+    public void ReleaseState(IAllureExecutionStateUid stateUid, Action<IAllureRuntime> commit)
     {
-        if (CollectionAlgorithms.TryRemoveAndGet(this.contexts, contextUid, out var context))
+        if (CollectionAlgorithms.TryRemoveAndGet(this.states, stateUid, out var state))
         {
-            lifecycle.RunInContext(context, commit);
+            context.RunWithState(state, commit);
         }
     }
 
-    public void ReleaseScopeContext(ScopeContextUid scopeUid, Action commit)
+    public void ReleaseScopeState(ScopeExecutionStateUid scopeUid, Action<IAllureRuntime> commit)
     {
         if (CollectionAlgorithms.TryRemoveAndGet(this.scopeTests, scopeUid, out var testUids))
         {
             foreach (var testUid in testUids)
             {
-                this.testScopeContexts.Remove(testUid);
+                this.testScopeStates.Remove(testUid);
             }
         }
-        this.ReleaseContext(scopeUid, commit);
+        this.ReleaseState(scopeUid, commit);
     }
 
-    public void AssociateTestsWithScope(ScopeContextUid scopeUid, ImmutableArray<TestContextUid> testUids)
+    public void AssociateTestsWithScope(ScopeExecutionStateUid scopeUid, ImmutableArray<TestExecutionStateUid> testUids)
     {
-        if (!this.TryGetContext(scopeUid, out var scopeContext))
+        if (!this.TryGetState(scopeUid, out var scopeState))
         {
             this.AddPendingUpdate(scopeUid, () =>
             {
-                this.AddTestScopeAssociations(scopeUid, lifecycle.Context, testUids);
+                this.AddTestScopeAssociations(scopeUid, context.CurrentState, testUids);
             });
             return;
         }
 
-        this.AddTestScopeAssociations(scopeUid, scopeContext, testUids);
+        this.AddTestScopeAssociations(scopeUid, scopeState, testUids);
     }
 
-    AllureContext ApplyPendingUpdates(IAllureContextUid contextUid, AllureContext context)
+    AllureExecutionState ApplyPendingUpdates(IAllureExecutionStateUid stateUid, AllureExecutionState state)
     {
-        if (CollectionAlgorithms.TryRemoveAndGet(this.pendingUpdates, contextUid, out var updates))
+        if (CollectionAlgorithms.TryRemoveAndGet(this.pendingUpdates, stateUid, out var updates))
         {
             foreach (var update in updates)
             {
-                context = lifecycle.RunInContext(context, update);
+                state = context.RunWithState(state, (_) => update());
             }
         }
 
-        return context;
+        return state;
     }
 
-    void AddTestScopeAssociations(ScopeContextUid scopeUid, AllureContext scopeContext, ImmutableArray<TestContextUid> testUids)
+    void AddTestScopeAssociations(ScopeExecutionStateUid scopeUid, AllureExecutionState scopeState, ImmutableArray<TestExecutionStateUid> testUids)
     {
         this.scopeTests[scopeUid] = this.scopeTests.TryGetValue(scopeUid, out var currentScopeTestUids)
             ? currentScopeTestUids.Union(testUids)
-            : testUids.ToImmutableHashSet();
+            : [.. testUids];
 
         foreach (var testUid in testUids)
         {
-            this.testScopeContexts[testUid] = scopeContext;
+            this.testScopeStates[testUid] = scopeState;
 
-            if (this.TryGetContext(testUid, out var testContext) && testContext.HasTest)
+            if (this.TryGetState(testUid, out var testState) && testState.HasTest)
             {
-                string? testUuid = null;
-                lifecycle.RunInContext(testContext, () =>
-                {
-                    lifecycle.UpdateTestCase(tr => testUuid = tr.uuid);
-                });
+                string testUuid = context.GetWithState(
+                    testState,
+                    (runtime) => runtime.ModelApi.ReadTestResult(static (tr) => tr.Uuid)
+                );
 
-                lifecycle.RunInContext(scopeContext, () =>
+                context.RunWithState(scopeState, (runtime) =>
                 {
-                    lifecycle.UpdateTestContainers((c) => c.children.Add(testUuid));
+                    runtime.ModelApi.UpdateScope((c) => c.Children.Add(testUuid));
                 });
             }
         }
     }
 
     bool TryGetPendingUpdates(
-        IAllureContextUid contextUid,
+        IAllureExecutionStateUid stateUid,
         [NotNullWhen(true)] out Queue<Action>? updates
     ) =>
-        this.pendingUpdates.TryGetValue(contextUid, out updates);
+        this.pendingUpdates.TryGetValue(stateUid, out updates);
 
-    bool TryGetTestScope(TestContextUid testContextUid, [NotNullWhen(true)] out AllureContext? scopeContext) =>
-        this.TryGetTestLevelScope(testContextUid, out scopeContext)
-            || this.TryGetExplicitTestScope(testContextUid, out scopeContext);
+    bool TryGetTestScope(TestExecutionStateUid testStateUid, [MaybeNullWhen(false)] out AllureExecutionState scopeState) =>
+        this.TryGetTestLevelScope(testStateUid, out scopeState)
+            || this.TryGetExplicitTestScope(testStateUid, out scopeState);
 
-    bool TryGetTestLevelScope(TestContextUid testContextUid, [NotNullWhen(true)] out AllureContext? scopeContext) =>
-        this.TryGetContext(new ScopeContextUid(testContextUid.Value), out scopeContext);
+    bool TryGetTestLevelScope(TestExecutionStateUid testStateUid, [MaybeNullWhen(false)] out AllureExecutionState scopeState) =>
+        this.TryGetState(new ScopeExecutionStateUid(testStateUid.Value), out scopeState);
 
-    bool TryGetExplicitTestScope(TestContextUid testContextUid, [NotNullWhen(true)] out AllureContext? scopeContext) =>
-        this.testScopeContexts.TryGetValue(testContextUid, out scopeContext);
+    bool TryGetExplicitTestScope(TestExecutionStateUid testStateUid, [MaybeNullWhen(false)] out AllureExecutionState scopeState) =>
+        this.testScopeStates.TryGetValue(testStateUid, out scopeState);
 }

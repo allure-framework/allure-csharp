@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -22,15 +23,15 @@ public sealed class AllureDescriptionProperty<TModel>(string description) :
     public bool Append { get; init; } = false;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
-        if (this.Append && target.description is { Length: > 0 })
+        if (this.Append && target.Description is { Length: > 0 })
         {
-            target.description += $"\n\n{this.Description}";
+            target.Description += $"\n\n{this.Description}";
         }
         else
         {
-            target.description = this.Description;
+            target.Description = this.Description;
         }
     }
 }

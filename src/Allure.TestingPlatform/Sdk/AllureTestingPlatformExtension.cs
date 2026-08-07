@@ -1,23 +1,28 @@
 using System;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Configuration;
-using Allure.Net.Commons.Sdk;
+using Allure.Abstractions;
+using Allure.Sdk.Registration;
+using Allure.Sdk.Results;
+using Allure.Sdk.Runtime;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Correlation;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Logging;
+using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Sdk;
 
 /// <summary>
 /// Base class for Allure.TestingPlatform extensions.
 /// </summary>
-public abstract class AllureTestingPlatformExtension : IExtension
+public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> : IExtension
+    where TConfiguration : AllureTestingPlatformConfiguration
+    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
-    readonly IAllureTestingPlatformRuntimeReference runtimeReference;
+    readonly IReadOnlyLateBoundReference<TRuntime> runtimeReference;
 
     /// <inheritdoc />
     public string Uid { get; }
@@ -31,11 +36,68 @@ public abstract class AllureTestingPlatformExtension : IExtension
     /// <inheritdoc />
     public string Description { get; }
 
+    protected TRuntime Runtime => this.runtimeReference.Value;
+
+    /// <summary>
+    /// Gets the resolved Allure configuration.
+    /// </summary>
+    protected TConfiguration Configuration => this.Runtime.Configuration;
+
+    /// <summary>
+    /// Gets the resolved Allure context.
+    /// </summary>
+    protected IAllureExecutionContext ContextApi => this.Runtime.ContextApi;
+
+    /// <summary>
+    /// Gets the resolved correlation context.
+    /// </summary>
+    protected ICorrelationContext CorrelationContext => this.Runtime.CorrelationContext;
+
+    /// <summary>
+    /// Gets the resolved correlation strategy.
+    /// </summary>
+    protected ICorrelationStrategy CorrelationStrategy => this.Runtime.CorrelationStrategy;
+
+    /// <summary>
+    /// Gets the resolved execution state context.
+    /// </summary>
+    protected ExecutionStateContext ExecutionStateContext => this.Runtime.ExecutionStateContext;
+
+    /// <summary>
+    /// Gets the resolved Allure lifecycle API.
+    /// </summary>
+    protected IAllureLifecycleApi LifecycleApi => this.Runtime.LifecycleApi;
+
+    /// <summary>
+    /// Gets the configured runtime logger.
+    /// </summary>
+    protected ILogger Logger => this.Runtime.Logger;
+
+    /// <summary>
+    /// Gets the Mictosoft Testing Platform message bus.
+    /// </summary>
+    protected IMessageBus MessageBus => this.Runtime.MessageBus;
+
+    /// <summary>
+    /// Gets the resolved Allure object model API.
+    /// </summary>
+    protected IAllureModelApi ModelApi => this.Runtime.ModelApi;
+
+    /// <summary>
+    /// Gets the resolved parameter serializer.
+    /// </summary>
+    protected IAllureParameterSerializer ParameterSerializer => this.Runtime.ParameterSerializer;
+
+    /// <summary>
+    /// Gets the resolved Allure results destination.
+    /// </summary>
+    protected IAllureResultsDestination ResultsDestination => this.Runtime.ResultsDestination;
+
     public AllureTestingPlatformExtension(
         string uid,
         string displayName,
         string description,
-        IAllureTestingPlatformRuntimeReference runtimeReference
+        IReadOnlyLateBoundReference<TRuntime> runtimeReference
     )
     {
         this.Uid = uid;
@@ -47,67 +109,9 @@ public abstract class AllureTestingPlatformExtension : IExtension
 
     /// <inheritdoc />
     public virtual Task<bool> IsEnabledAsync() =>
-        runtimeReference is
-        {
-            CurrentRuntime:
-            {
-                Phase: not AllureTestingPlatformRuntimePhase.NotInitialized,
-                IsEnabled: var isEnabled,
-            },
-        }
-            ? Task.FromResult(isEnabled)
+        this.runtimeReference.IsBound
+            ? Task.FromResult(this.Configuration.IsEnabled)
             : throw new InvalidOperationException(
-                "Unexpected error: Allure.TestingPlatform runtime is not configured."
-            );
-
-    /// <summary>
-    /// Gets the configured runtime logger.
-    /// </summary>
-    protected ILogger Logger => ConfiguredRuntime.Logger;
-
-    /// <summary>
-    /// Gets the resolved Allure configuration.
-    /// </summary>
-    protected AllureConfiguration Configuration => ConfiguredRuntime.Configuration;
-
-    /// <summary>
-    /// Gets the resolved Allure results writer.
-    /// </summary>
-    protected IAllureResultsWriter Writer => this.LiveRuntime.Writer;
-
-    /// <summary>
-    /// Gets the resolved parameter type formatters.
-    /// </summary>
-    protected ImmutableDictionary<Type, ITypeFormatter> TypeFormatters =>
-        this.LiveRuntime.TypeFormatters;
-
-    /// <summary>
-    /// Gets the resolved Allure lifecycle.
-    /// </summary>
-    protected AllureLifecycle Lifecycle => this.LiveRuntime.Lifecycle;
-
-    /// <summary>
-    /// Gets the resolved correlation strategy.
-    /// </summary>
-    protected ICorrelationStrategy CorrelationStrategy => this.LiveRuntime.CorrelationStrategy;
-
-    /// <summary>
-    /// Gets the configured runtime state.
-    /// </summary>
-    protected ConfiguredAllureTestingPlatformRuntime ConfiguredRuntime =>
-        runtimeReference is { CurrentRuntime: ConfiguredAllureTestingPlatformRuntime configuredRuntime }
-            ? configuredRuntime
-            : throw new InvalidOperationException(
-                "Allure configuration is unavailable. Check if Allure.TestingPlatform is initialized correctly."
-            );
-
-    /// <summary>
-    /// Gets the live runtime state.
-    /// </summary>
-    protected LiveAllureTestingPlatformRuntime LiveRuntime =>
-        runtimeReference is { CurrentRuntime: LiveAllureTestingPlatformRuntime liveRuntime }
-            ? liveRuntime
-            : throw new InvalidOperationException(
-                "Allure runtime is unavailable. Check if Allure.TestingPlatform is initialized correctly."
+                "Unexpected error: The Allure.TestingPlatform runtime is not registered."
             );
 }

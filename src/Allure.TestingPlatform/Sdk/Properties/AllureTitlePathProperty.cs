@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -16,8 +17,9 @@ public sealed class AllureTitlePathProperty(IEnumerable<string> titlePath) :
     public List<string> TitlePath { get; } = [..titlePath];
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TestResult target)
     {
-        target.titlePath = [..this.TitlePath];
+        target.TitlePath.Clear();
+        target.TitlePath.AddRange([.. this.TitlePath]);
     }
 }

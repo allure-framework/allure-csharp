@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Reflection;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
+using Allure.Model;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -28,13 +29,13 @@ public sealed class AllureTestMethodArgumentsProperty<TModel>(
     public List<object> Arguments { get; } = [..arguments];
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime allure, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allure, TModel target)
     {
-        target.parameters.AddRange(
-            ModelFunctions.CreateParameters(
+        target.Parameters.AddRange(
+            Parameters.Create(
                 this.TestMethod.GetParameters(),
                 this.Arguments,
-                allure.TypeFormatters
+                allure.ParameterSerializer
             )
         );
     }
