@@ -36,7 +36,7 @@ static class TestAttachments
     )
     {
         var inputPath = file.FullName;
-        var outputFileName = AttachmentSource.CreateName(".txt");
+        var outputFileName = AttachmentSource.CreateName(file.Extension);
 
         var attachment = new Attachment
         {
