@@ -73,6 +73,8 @@ public static class AllureTestingPlatformSdkExtensions
                 TRuntime
             >(runtimeName, sessionFactory);
 
+            IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan = null;
+
             var allureRuntimeReference = allureRuntimeBuilder.RuntimeReference;
 
             builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
@@ -84,14 +86,19 @@ public static class AllureTestingPlatformSdkExtensions
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
                 new AllureTestingPlatformHostProcessWatchdog<TConfiguration, TRuntime>(
-                    allureRuntimeBuilder.Prepare((ctx) => RegisterIntegration(ctx, serviceProvider))
+                    registrationPlan ??= allureRuntimeBuilder.Prepare(
+                        (ctx) => RegisterIntegration(ctx, serviceProvider)
+                    )
                 )
             );
 
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
                 new AllureTestingPlatformInProcessRuntimeController<TConfiguration, TRuntime>(
-                    allureRuntimeBuilder.Prepare((ctx) => RegisterIntegration(ctx, serviceProvider))
-                ));
+                    registrationPlan ??= allureRuntimeBuilder.Prepare(
+                        (ctx) => RegisterIntegration(ctx, serviceProvider)
+                    )
+                )
+            );
             builder.TestHost.AddDataConsumer(factory);
             builder.TestHost.AddTestSessionLifetimeHandler(factory);
 
