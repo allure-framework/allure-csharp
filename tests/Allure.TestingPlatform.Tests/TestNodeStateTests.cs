@@ -273,7 +273,7 @@ public class TestNodeStateTests : DataConsumerTestsBase
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
         await Assert.That(testResult.Status).IsEqualTo(Status.Broken);
-        await Assert.That(testResult.StatusDetails.Message).IsNull();
+        await Assert.That(testResult.StatusDetails).IsNull();
     }
 
     [Test]

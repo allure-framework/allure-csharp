@@ -11,7 +11,7 @@ public class GlobalLabelsTests : DataConsumerTestsBase
     protected override AllureTestingPlatformConfiguration Config => new()
     {
         GlobalLabels = ImmutableDictionary.Create<string, string>()
-            .Add("", ""),
+            .Add("globalLabel", "globalValue"),
     };
 
     [Test]
