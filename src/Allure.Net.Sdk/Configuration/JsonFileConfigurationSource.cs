@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Allure.Sdk.Configuration;
 
@@ -13,12 +17,17 @@ namespace Allure.Sdk.Configuration;
 /// <param name="isOptional">
 /// Whether the source should be skipped when the file does not exist.
 /// </param>
-public class JsonFileConfigurationSource<TConfiguration>(string path, bool isOptional) :
+/// <param name="serializerOptions">Serializer options to use for deserialization.</param>
+public class JsonFileConfigurationSource<TConfiguration>(
+    string path,
+    bool isOptional,
+    JsonSerializerOptions serializerOptions
+) :
     IAllureConfigurationSource<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
 {
-    static readonly JsonSerializerOptions serializerOptions = new()
+    static readonly JsonSerializerOptions defaultSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = false,
@@ -35,7 +44,18 @@ public class JsonFileConfigurationSource<TConfiguration>(string path, bool isOpt
     /// Creates a mandatory configuration source that throws if the file does not exist.
     /// </summary>
     /// <param name="path">The path to the JSON configuration file.</param>
-    public JsonFileConfigurationSource(string path) : this(path, false) { }
+    public JsonFileConfigurationSource(string path) :
+        this(path, false, defaultSerializerOptions) { }
+
+    /// <summary>
+    /// Creates a configuration source for the specified path.
+    /// </summary>
+    /// <param name="path">The path to the JSON configuration file.</param>
+    /// <param name="isOptional">
+    /// Whether the source should be skipped when the file does not exist.
+    /// </param>
+    public JsonFileConfigurationSource(string path, bool isOptional) :
+        this(path, isOptional, defaultSerializerOptions) { }
 
     /// <inheritdoc/>
     /// <exception cref="FileNotFoundException">
@@ -44,7 +64,14 @@ public class JsonFileConfigurationSource<TConfiguration>(string path, bool isOpt
     /// <exception cref="JsonException">
     /// The file does not contain a supported JSON configuration object.
     /// </exception>
-    public TConfiguration LoadConfiguration()
+    /// <exception cref="InvalidOperationException">
+    /// The top-level <c>allure</c> property is present but is not a JSON object.
+    /// </exception>
+    /// <exception cref="NotSupportedException">
+    /// The custom converter for <typeparamref name="TConfiguration"/> does not expose
+    /// property-assignment metadata.
+    /// </exception>
+    public TrackedConfiguration<TConfiguration> LoadConfiguration()
     {
         var configFullPath = Path.GetFullPath(path);
         if (!File.Exists(configFullPath))
@@ -63,8 +90,11 @@ public class JsonFileConfigurationSource<TConfiguration>(string path, bool isOpt
         var configurationObject = GetConfigurationObject(root);
         NormalizeLegacyProperties(configurationObject);
 
-        return configurationObject.Deserialize<TConfiguration>(serializerOptions)
-            ?? new();
+        TConfiguration configuration =
+            configurationObject.Deserialize<TConfiguration>(serializerOptions)
+                ?? new();
+
+        return new(this.Name, configuration, this.GetAssignedProperties(configurationObject));
     }
 
     static JsonObject GetConfigurationObject(JsonObject root) =>
@@ -103,6 +133,50 @@ public class JsonFileConfigurationSource<TConfiguration>(string path, bool isOpt
         configuration.Remove("directory");
         configuration.Remove("links");
     }
+
+    IEnumerable<string> GetAssignedProperties(JsonObject configurationObject)
+    {
+        var typeInfo = serializerOptions.GetTypeInfo(typeof(TConfiguration));
+
+        if (typeInfo.Kind == JsonTypeInfoKind.Object)
+        {
+            return GetObjectContractAssignments(typeInfo, configurationObject);
+        }
+
+        var converter = serializerOptions.GetConverter(
+            typeof(TConfiguration)
+        );
+
+        if (converter is IJsonConfigurationAssignmentTracker<TConfiguration> assignmentTracker)
+        {
+            return assignmentTracker.GetAssignedPropertyNames(
+                configurationObject,
+                serializerOptions
+            );
+        }
+
+        throw new NotSupportedException(
+            $"The JSON converter for configuration type "
+                + $"{typeof(TConfiguration).Name} does not provide "
+                + "property-assignment metadata."
+        );
+    }
+
+    static IEnumerable<string> GetObjectContractAssignments(
+        JsonTypeInfo typeInfo,
+        JsonObject configurationObject
+    ) =>
+        typeInfo.Properties
+            .Where((jsonProperty) =>
+                configurationObject.ContainsKey(jsonProperty.Name)
+                && (
+                    jsonProperty.Set is not null
+                    || jsonProperty.AssociatedParameter is not null
+                )
+            )
+            .Select(static jsonProperty => jsonProperty.AttributeProvider)
+            .OfType<PropertyInfo>()
+            .Select(static property => property.Name);
 
     JsonNode? ConvertLegacyLinks(JsonArray jsonArray)
     {

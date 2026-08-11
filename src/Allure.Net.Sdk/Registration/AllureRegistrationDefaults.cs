@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Registration;
-using Allure.Sdk.Internal.Runtime;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
-using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
@@ -52,30 +50,6 @@ public static class AllureRegistrationDefaults
             }
             return builder.Build();
         };
-
-    /// <summary>
-    /// Creates the default asynchronous-local execution-context factory.
-    /// </summary>
-    public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureExecutionContext> Context<TConfiguration>()
-        where TConfiguration : AllureConfiguration
-    =>
-        static (runtime) => new AsyncLocalExecutionContext(runtime.RuntimeReference);
-
-    /// <summary>
-    /// Creates the default lifecycle API factory.
-    /// </summary>
-    public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureLifecycleApi> LifecycleApi<TConfiguration>()
-        where TConfiguration : AllureConfiguration
-    =>
-        static (runtime) => new RuntimeLifecycleApi(runtime.RuntimeReference);
-
-    /// <summary>
-    /// Creates the default model API factory.
-    /// </summary>
-    public static Func<IAllureRegistrationDependencies<TConfiguration>, IAllureModelApi> ModelApi<TConfiguration>()
-        where TConfiguration : AllureConfiguration
-    =>
-        static (runtime) => new RuntimeModelApi(runtime.RuntimeReference);
 
     /// <summary>
     /// Creates the default runtime-hook provider factory.

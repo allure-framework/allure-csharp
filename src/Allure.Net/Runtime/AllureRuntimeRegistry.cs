@@ -34,10 +34,12 @@ public sealed class AllureRuntimeRegistry
         this.GetEndpoint(static (r) => r.MatchesCurrentScope);
 
     /// <summary>
-    /// Resolves an runtime endpoint capable of accepting global result data.
+    /// Resolves the current-scope runtime endpoint when one is available;
+    /// otherwise, resolves an endpoint capable of accepting global result data.
     /// </summary>
     public IAllureRuntimeEndpoint? ResolveGlobalScope() =>
-        this.GetEndpoint(static (r) => r.MatchesGlobalScope);
+        ResolveCurrentScope()
+            ?? this.GetEndpoint(static (r) => r.MatchesGlobalScope);
 
     /// <summary>
     /// Installs a runtime route.

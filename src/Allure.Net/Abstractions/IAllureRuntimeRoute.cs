@@ -18,7 +18,8 @@ public interface IAllureRuntimeRoute
     bool MatchesCurrentScope { get; }
 
     /// <summary>
-    /// Gets whether the route can accept global result data.
+    /// Gets whether the route can accept global result data when no
+    /// current-scope endpoint is available.
     /// </summary>
     bool MatchesGlobalScope { get; }
 

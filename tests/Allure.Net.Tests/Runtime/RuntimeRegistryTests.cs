@@ -15,7 +15,7 @@ public class RuntimeRegistryTests
     }
 
     [Test]
-    public async Task ResolvesMatchingCurrentRuntime()
+    public async Task ResolvesMatchingCurrentRuntimeForCurrentAndGlobalScopes()
     {
         var registry = new AllureRuntimeRegistry();
         var runtime = new TestRuntime("current");
@@ -24,7 +24,7 @@ public class RuntimeRegistryTests
         );
 
         await Assert.That(registry.ResolveCurrentScope()).IsSameReferenceAs(runtime);
-        await Assert.That(registry.ResolveGlobalScope()).IsNull();
+        await Assert.That(registry.ResolveGlobalScope()).IsSameReferenceAs(runtime);
     }
 
     [Test]
@@ -41,7 +41,7 @@ public class RuntimeRegistryTests
     }
 
     [Test]
-    public async Task ResolvesDifferentRuntimesForCurrentAndGlobalScopes()
+    public async Task GlobalScopePrefersCurrentRuntimeOverGlobalRuntime()
     {
         var registry = new AllureRuntimeRegistry();
         var current = new TestRuntime("current");
@@ -54,7 +54,7 @@ public class RuntimeRegistryTests
         );
 
         await Assert.That(registry.ResolveCurrentScope()).IsSameReferenceAs(current);
-        await Assert.That(registry.ResolveGlobalScope()).IsSameReferenceAs(global);
+        await Assert.That(registry.ResolveGlobalScope()).IsSameReferenceAs(current);
     }
 
     [Test]

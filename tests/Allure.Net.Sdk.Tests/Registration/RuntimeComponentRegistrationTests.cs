@@ -62,15 +62,18 @@ public class RuntimeComponentRegistrationTests
                 IndentOutput = true,
             };
             var builder = CreateBuilder();
-            builder.UseConfiguration(original);
-            builder.UseRegistrationHooks(_ =>
-            [
-                new RecordingRuntimeHook<TestConfiguration>(
-                    context => context.UseConfiguration(final)
-                ),
-            ]);
+            var plan = builder.Prepare((ctx) =>
+            {
+                ctx.UseConfiguration(original);
+                ctx.UseRegistrationHooks(_ =>
+                [
+                    new RecordingRuntimeHook<TestConfiguration>(
+                        context => context.UseConfiguration(final)
+                    ),
+                ]);
+            });
 
-            using var registration = builder.Build();
+            using var registration = plan.Build();
             registration.Runtime.ResultsDestination.WriteGlobals(new()
             {
                 Errors = { new() { Message = "runtime error" } },
@@ -104,77 +107,62 @@ public class RuntimeComponentRegistrationTests
         var lifecycle = IAllureLifecycleApi.Mock();
         var model = IAllureModelApi.Mock();
 
-        var dependencyInputs =
-            new List<IAllureRegistrationDependencies<TestConfiguration>>();
-
         TestConfiguration? serializerConfiguration = null;
         TestConfiguration? destinationConfiguration = null;
+        TestConfiguration? contextConfiguration = null;
+        TestConfiguration? lifecycleConfiguration = null;
+        TestConfiguration? modelConfiguration = null;
 
         var builder = CreateBuilder();
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(configuration);
+            ctx.UseParameterSerializer(received =>
+            {
+                serializerConfiguration = received;
+                return serializer;
+            });
+            ctx.UseDestination(received =>
+            {
+                destinationConfiguration = received;
+                return destination;
+            });
+            ctx.UseContext(received =>
+            {
+                contextConfiguration = received;
+                return context;
+            });
+            ctx.UseLifecycleApi(received =>
+            {
+                lifecycleConfiguration = received;
+                return lifecycle;
+            });
+            ctx.UseModelApi(received =>
+            {
+                modelConfiguration = received;
+                return model;
+            });
+        });
 
-        builder.UseConfiguration(configuration);
-        builder.UseParameterSerializer(received =>
-        {
-            serializerConfiguration = received;
-            return serializer;
-        });
-        builder.UseDestination(received =>
-        {
-            destinationConfiguration = received;
-            return destination;
-        });
-        builder.UseContext(dependencies =>
-        {
-            dependencyInputs.Add(dependencies);
-            return context;
-        });
-        builder.UseLifecycleApi(dependencies =>
-        {
-            dependencyInputs.Add(dependencies);
-            return lifecycle;
-        });
-        builder.UseModelApi(dependencies =>
-        {
-            dependencyInputs.Add(dependencies);
-            return model;
-        });
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(serializerConfiguration)
             .IsSameReferenceAs(configuration);
         await Assert.That(destinationConfiguration)
             .IsSameReferenceAs(configuration);
-        await Assert.That(dependencyInputs.Count).IsEqualTo(3);
-        await Assert.That(dependencyInputs.Distinct().Count()).IsEqualTo(1);
-        await Assert.That(dependencyInputs[0].Configuration)
+        await Assert.That(contextConfiguration)
             .IsSameReferenceAs(configuration);
-        await Assert.That(dependencyInputs[0].ParameterSerializer)
-            .IsSameReferenceAs(serializer);
+        await Assert.That(lifecycleConfiguration)
+            .IsSameReferenceAs(configuration);
+        await Assert.That(modelConfiguration)
+            .IsSameReferenceAs(configuration);
         await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(configuration);
         await Assert.That(registration.Runtime.ParameterSerializer).IsSameReferenceAs(serializer);
         await Assert.That(registration.Runtime.ResultsDestination).IsSameReferenceAs(destination);
         await Assert.That(registration.Runtime.ContextApi).IsSameReferenceAs(context);
         await Assert.That(registration.Runtime.LifecycleApi).IsSameReferenceAs(lifecycle);
         await Assert.That(registration.Runtime.ModelApi).IsSameReferenceAs(model);
-        await Assert.That(dependencyInputs[0].RuntimeReference.Value)
-            .IsSameReferenceAs(registration.Runtime);
-    }
-
-    [Test]
-    public async Task ShouldThrowWhenRuntimeReferenceIsReadDirectlyFromFactory()
-    {
-        var builder = CreateBuilder();
-        builder.UseConfiguration(new TestConfiguration());
-        builder.UseContext(dependencies =>
-        {
-            _ = dependencies.RuntimeReference.Value;
-            return IAllureExecutionContext.Mock();
-        });
-
-        await Assert.That(builder.Build)
-            .Throws<InvalidOperationException>()
-            .WithMessageContaining("has not been bound");
     }
 
     static TestRuntimeBuilder<TestConfiguration> CreateBuilder() =>

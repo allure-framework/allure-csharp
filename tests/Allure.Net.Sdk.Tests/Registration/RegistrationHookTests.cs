@@ -20,18 +20,21 @@ public class RegistrationHookTests
             _ => calls.Add("second")
         );
         var builder = CreateBuilder();
-        builder.UseConfiguration(configuration);
-        builder.UseRegistrationHooks(received =>
+        var plan = builder.Prepare((ctx) =>
         {
-            calls.Add(
-                ReferenceEquals(received, configuration)
-                    ? "configuration"
-                    : "unexpected"
-            );
-            return [first, null, second];
+            ctx.UseConfiguration(configuration);
+            ctx.UseRegistrationHooks(received =>
+            {
+                calls.Add(
+                    ReferenceEquals(received, configuration)
+                        ? "configuration"
+                        : "unexpected"
+                );
+                return [first, null, second];
+            });
         });
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(calls)
             .IsEquivalentTo(["configuration", "first", "second"]);
@@ -55,14 +58,17 @@ public class RegistrationHookTests
             })
         );
         var builder = CreateBuilder();
-        builder.UseConfigurationSources(() =>
+        var plan = builder.Prepare((ctx) =>
         {
-            originalLoads++;
-            return [DelegateConfigurationSource.Create("original", () => original)];
+            ctx.UseConfigurationSources(() =>
+            {
+                originalLoads++;
+                return [DelegateConfigurationSource.Create("original", () => original)];
+            });
+            ctx.UseRegistrationHooks(_ => [hook]);
         });
-        builder.UseRegistrationHooks(_ => [hook]);
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(originalLoads).IsEqualTo(1);
         await Assert.That(replacementLoads).IsEqualTo(1);
@@ -78,19 +84,22 @@ public class RegistrationHookTests
             context => context.UseDestination(_ => destination)
         );
         var builder = CreateBuilder();
-        builder.UseConfigurationSources(() =>
+        var plan = builder.Prepare((ctx) =>
         {
-            sourceFactoryCalls++;
-            return [
-                DelegateConfigurationSource.Create(
-                    "configuration",
-                    () => new TestConfiguration()
-                )
-            ];
+            ctx.UseConfigurationSources(() =>
+            {
+                sourceFactoryCalls++;
+                return [
+                    DelegateConfigurationSource.Create(
+                        "configuration",
+                        () => new TestConfiguration()
+                    )
+                ];
+            });
+            ctx.UseRegistrationHooks(_ => [hook]);
         });
-        builder.UseRegistrationHooks(_ => [hook]);
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(sourceFactoryCalls).IsEqualTo(1);
         await Assert.That(registration.Runtime.ResultsDestination)
@@ -104,19 +113,22 @@ public class RegistrationHookTests
         var replacement = new TestConfiguration { Value = "replacement" };
         TestConfiguration? received = null;
         var builder = CreateBuilder();
-        builder.UseConfiguration(original);
-        builder.UseRegistrationHooks(configuration =>
+        var plan = builder.Prepare((ctx) =>
         {
-            received = configuration;
-            return
-            [
-                new RecordingRuntimeHook<TestConfiguration>(context =>
-                    context.UseConfiguration(replacement)
-                ),
-            ];
+            ctx.UseConfiguration(original);
+            ctx.UseRegistrationHooks(configuration =>
+            {
+                received = configuration;
+                return
+                [
+                    new RecordingRuntimeHook<TestConfiguration>(context =>
+                        context.UseConfiguration(replacement)
+                    ),
+                ];
+            });
         });
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(received).IsSameReferenceAs(original);
         await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(replacement);
@@ -128,14 +140,17 @@ public class RegistrationHookTests
         var first = new TestConfiguration { Value = "first" };
         var second = new TestConfiguration { Value = "second" };
         var builder = CreateBuilder();
-        builder.UseConfiguration(new TestConfiguration());
-        builder.UseRegistrationHooks(_ =>
-        [
-            new RecordingRuntimeHook<TestConfiguration>(context => context.UseConfiguration(first)),
-            new RecordingRuntimeHook<TestConfiguration>(context => context.UseConfiguration(second)),
-        ]);
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new TestConfiguration());
+            ctx.UseRegistrationHooks(_ =>
+            [
+                new RecordingRuntimeHook<TestConfiguration>(context => context.UseConfiguration(first)),
+                new RecordingRuntimeHook<TestConfiguration>(context => context.UseConfiguration(second)),
+            ]);
+        });
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(registration.Runtime.Configuration).IsSameReferenceAs(second);
     }
@@ -145,14 +160,17 @@ public class RegistrationHookTests
     {
         var laterHook = new RecordingRuntimeHook<TestConfiguration>();
         var builder = CreateBuilder();
-        builder.UseConfiguration(new TestConfiguration());
-        builder.UseRegistrationHooks(_ =>
-        [
-            new RecordingRuntimeHook<TestConfiguration>(_ => throw new InvalidOperationException("hook failed")),
-            laterHook,
-        ]);
+        Action prepare = () => builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new TestConfiguration());
+            ctx.UseRegistrationHooks(_ =>
+            [
+                new RecordingRuntimeHook<TestConfiguration>(_ => throw new InvalidOperationException("hook failed")),
+                laterHook,
+            ]);
+        });
 
-        await Assert.That(builder.Build)
+        await Assert.That(prepare)
             .Throws<InvalidOperationException>()
             .WithMessageContaining("hook failed");
         await Assert.That(laterHook.CallCount).IsEqualTo(0);
@@ -162,10 +180,13 @@ public class RegistrationHookTests
     public async Task ShouldPropagateRuntimeHookFactoryExceptions()
     {
         var builder = CreateBuilder();
-        builder.UseConfiguration(new TestConfiguration());
-        builder.UseRegistrationHooks(_ => throw new InvalidOperationException("factory failed"));
+        Action prepare = () => builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new TestConfiguration());
+            ctx.UseRegistrationHooks(_ => throw new InvalidOperationException("factory failed"));
+        });
 
-        await Assert.That(builder.Build)
+        await Assert.That(prepare)
             .Throws<InvalidOperationException>()
             .WithMessageContaining("factory failed");
     }
@@ -175,15 +196,18 @@ public class RegistrationHookTests
     {
         var serializer = new RecordingParameterSerializer(_ => "hook serializer");
         var builder = CreateBuilder();
-        builder.UseConfiguration(new TestConfiguration());
-        builder.UseRegistrationHooks(_ =>
-        [
-            new RecordingRuntimeHook<TestConfiguration>(context =>
-                context.UseParameterSerializer(_ => serializer)
-            ),
-        ]);
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new TestConfiguration());
+            ctx.UseRegistrationHooks(_ =>
+            [
+                new RecordingRuntimeHook<TestConfiguration>(context =>
+                    context.UseParameterSerializer(_ => serializer)
+                ),
+            ]);
+        });
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(registration.Runtime.ParameterSerializer).IsSameReferenceAs(serializer);
     }
@@ -197,26 +221,29 @@ public class RegistrationHookTests
         var first = new RecordingEndpointHook<TestConfiguration>(_ => calls.Add("first"));
         var second = new RecordingEndpointHook<TestConfiguration>(_ => calls.Add("second"));
         var builder = CreateBuilder();
-        builder.UseConfiguration(original);
-        builder.UseRegistrationHooks(_ =>
-        [
-            new RecordingRuntimeHook<TestConfiguration>(context => context.UseConfiguration(final)),
-        ]);
-        builder.RegisterInProcessEndpoint(
-            $"endpoint-hooks-{Guid.NewGuid():N}",
-            (_, context) =>
-            {
-                context.UseCurrentScopePredicate(_ => false);
-                context.UseGlobalScopePredicate(_ => false);
-                context.UseRegistrationHooks(received =>
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(original);
+            ctx.UseRegistrationHooks(_ =>
+            [
+                new RecordingRuntimeHook<TestConfiguration>(context => context.UseConfiguration(final)),
+            ]);
+            ctx.RegisterInProcessEndpoint(
+                $"endpoint-hooks-{Guid.NewGuid():N}",
+                (_, context) =>
                 {
-                    calls.Add(ReferenceEquals(received, final) ? "configuration" : "unexpected");
-                    return [first, null, second];
-                });
-            }
-        );
+                    context.UseCurrentScopePredicate(_ => false);
+                    context.UseGlobalScopePredicate(_ => false);
+                    context.UseRegistrationHooks(received =>
+                    {
+                        calls.Add(ReferenceEquals(received, final) ? "configuration" : "unexpected");
+                        return [first, null, second];
+                    });
+                }
+            );
+        });
 
-        using var registration = builder.Build();
+        using var registration = plan.Build();
 
         await Assert.That(calls.Count).IsEqualTo(3);
         await Assert.That(calls[0]).IsEqualTo("configuration");
@@ -232,19 +259,22 @@ public class RegistrationHookTests
     {
         var laterHook = new RecordingEndpointHook<TestConfiguration>();
         var builder = CreateBuilder();
-        builder.UseConfiguration(new TestConfiguration());
-        builder.RegisterInProcessEndpoint(
-            $"endpoint-hook-failure-{Guid.NewGuid():N}",
-            (_, context) => context.UseRegistrationHooks(_ =>
-            [
-                new RecordingEndpointHook<TestConfiguration>(_ =>
-                    throw new InvalidOperationException("endpoint hook failed")
-                ),
-                laterHook,
-            ])
-        );
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(new TestConfiguration());
+            ctx.RegisterInProcessEndpoint(
+                $"endpoint-hook-failure-{Guid.NewGuid():N}",
+                (_, context) => context.UseRegistrationHooks(_ =>
+                [
+                    new RecordingEndpointHook<TestConfiguration>(_ =>
+                        throw new InvalidOperationException("endpoint hook failed")
+                    ),
+                    laterHook,
+                ])
+            );
+        });
 
-        await Assert.That(builder.Build)
+        await Assert.That(plan.Build)
             .Throws<InvalidOperationException>()
             .WithMessageContaining("endpoint hook failed");
         await Assert.That(laterHook.CallCount).IsEqualTo(0);
@@ -255,12 +285,15 @@ public class RegistrationHookTests
     {
         ReflectionRuntimeHook.Calls.Clear();
         var builder = CreateReflectionBuilder();
-        builder.UseConfiguration(new AllureConfiguration
+        var plan = builder.Prepare((ctx) =>
         {
-            RuntimeRegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
+            ctx.UseConfiguration(new AllureConfiguration
+            {
+                RuntimeRegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
+            });
         });
 
-        builder.Build();
+        plan.Build();
 
         var calls = ReflectionRuntimeHook.Calls.ToArray();
         await Assert.That(calls.Length).IsEqualTo(1);
@@ -283,12 +316,15 @@ public class RegistrationHookTests
         try
         {
             var builder = CreateReflectionBuilder();
-            builder.UseConfiguration(new AllureConfiguration
+            var plan = builder.Prepare((ctx) =>
             {
-                RuntimeRegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
+                ctx.UseConfiguration(new AllureConfiguration
+                {
+                    RuntimeRegistrationHook = typeof(ReflectionRuntimeHook).AssemblyQualifiedName,
+                });
             });
 
-            builder.Build();
+            plan.Build();
 
             var calls = ReflectionRuntimeHook.Calls.ToArray();
             await Assert.That(calls.Length).IsEqualTo(2);
