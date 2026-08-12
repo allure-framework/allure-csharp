@@ -24,13 +24,15 @@ public class AllureRouteBuilderArgs<TConfiguration, TRuntime>
     internal TRuntime Runtime { get; }
     internal bool UseRuleBasedSerializer { get; }
     internal IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> RuleBasedSerializerRegistrations { get; }
+    internal Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> Registration { get; }
 
     internal AllureRouteBuilderArgs(
         string runtimeName,
         string routeId,
         TRuntime runtime,
         bool useRuleBasedSerializer,
-        IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> ruleBasedSerializerRegistrations
+        IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> ruleBasedSerializerRegistrations,
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> registration
     )
     {
         this.RuntimeName = runtimeName;
@@ -38,5 +40,6 @@ public class AllureRouteBuilderArgs<TConfiguration, TRuntime>
         this.Runtime = runtime;
         this.UseRuleBasedSerializer = useRuleBasedSerializer;
         this.RuleBasedSerializerRegistrations = ruleBasedSerializerRegistrations;
+        this.Registration = registration;
     }
 }

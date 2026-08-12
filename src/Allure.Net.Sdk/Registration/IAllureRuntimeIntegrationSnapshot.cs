@@ -9,25 +9,9 @@ namespace Allure.Sdk.Registration;
 /// its in-process route builder.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
-/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public interface IAllureRuntimeIntegrationSnapshot<
-    TConfiguration,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntime
->
+public interface IAllureRuntimeIntegrationSnapshot<TConfiguration, TRuntime>
     where TConfiguration : AllureConfiguration
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<
-        TConfiguration,
-        TRuntime
-    >
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TRuntime
-    >
     where TRuntime : IAllureRuntime<TConfiguration>
 {
     /// <summary>
@@ -42,47 +26,27 @@ public interface IAllureRuntimeIntegrationSnapshot<
     /// </summary>
     /// <param name="args">The resolved route builder arguments.</param>
     /// <returns>The in-process route builder.</returns>
-    AllureInProcessRouteBuilder<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    > CreateRouteBuilder(AllureRouteBuilderArgs<TConfiguration, TRuntime> args);
+    IPreparedInProcessRouteBuilder CreateRouteBuilder(
+        AllureRouteBuilderArgs<TConfiguration, TRuntime> args
+    );
 }
 
 /// <summary>
 /// Captures the integration-specific factories used to construct a standard runtime
-/// with custom configuration and endpoint types.
+/// with custom configuration.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
-/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
-public interface IAllureRuntimeIntegrationSnapshot<
-    TConfiguration,
-    TEndpointRegistrationContext,
-    TEndpointHook
-> :
+public interface IAllureRuntimeIntegrationSnapshot<TConfiguration> :
     IAllureRuntimeIntegrationSnapshot<
         TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
         IAllureRuntime<TConfiguration>
     >
 
-    where TConfiguration : AllureConfiguration
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<TConfiguration>
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<
-        TConfiguration,
-        TEndpointRegistrationContext
-    >;
+    where TConfiguration : AllureConfiguration;
 
 /// <summary>
 /// Captures the factories used to construct a standard Allure runtime and its
 /// in-process route builder.
 /// </summary>
 public interface IAllureRuntimeIntegrationSnapshot :
-    IAllureRuntimeIntegrationSnapshot<
-        AllureConfiguration,
-        IAllureInProcessEndpointRegistrationContext,
-        IAllureInProcessEndpointRegistrationHook
-    >;
+    IAllureRuntimeIntegrationSnapshot<AllureConfiguration>;

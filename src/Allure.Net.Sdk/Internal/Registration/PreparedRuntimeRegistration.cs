@@ -8,41 +8,15 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
 
-internal class PreparedRuntimeRegistration<
-    TConfiguration,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntime,
-    TIntegrationSnapshot
->(
+internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
     string runtimeName,
     TConfiguration configuration,
-    AllureRuntimeRegistrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    > commonSnapshot,
-    TIntegrationSnapshot integrationSnapshot
+    AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntime> commonSnapshot,
+    IAllureRuntimeIntegrationSnapshot<TConfiguration, TRuntime> integrationSnapshot
 ) :
     IPreparedRuntimeRegistration<TConfiguration, TRuntime>
 
     where TConfiguration : AllureConfiguration
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<
-        TConfiguration,
-        TRuntime
-    >
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TRuntime
-    >
-    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >
     where TRuntime : IAllureRuntime<TConfiguration>
 {
     public TConfiguration Configuration => configuration;
@@ -89,11 +63,10 @@ internal class PreparedRuntimeRegistration<
                     routeId,
                     runtime,
                     commonSnapshot.UseRuleBasedSerializer,
-                    commonSnapshot.RuleBasedSerializerRegistrations
+                    commonSnapshot.RuleBasedSerializerRegistrations,
+                    routeRegistration
                 );
                 var endpointRouteBuilder = integrationSnapshot.CreateRouteBuilder(endpointBuildArgs);
-
-                routeRegistration(runtime, endpointRouteBuilder);
 
                 var route = endpointRouteBuilder.Build();
                 endpointRegistration = AllureRuntimeRouter.Install(route);

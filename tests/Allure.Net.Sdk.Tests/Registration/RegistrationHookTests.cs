@@ -3,6 +3,7 @@ using Allure.Sdk.Registration;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
 using Allure.Net.Sdk.Tests.Infrastructure;
+using Allure.Sdk.Runtime;
 
 namespace Allure.Net.Sdk.Tests.Registration;
 
@@ -218,8 +219,8 @@ public class RegistrationHookTests
         var original = new TestConfiguration { Value = "original" };
         var final = new TestConfiguration { Value = "final" };
         var calls = new List<string>();
-        var first = new RecordingEndpointHook<TestConfiguration>(_ => calls.Add("first"));
-        var second = new RecordingEndpointHook<TestConfiguration>(_ => calls.Add("second"));
+        var first = new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>(_ => calls.Add("first"));
+        var second = new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>(_ => calls.Add("second"));
         var builder = CreateBuilder();
         var plan = builder.Prepare((ctx) =>
         {
@@ -234,9 +235,9 @@ public class RegistrationHookTests
                 {
                     context.UseCurrentScopePredicate(_ => false);
                     context.UseGlobalScopePredicate(_ => false);
-                    context.UseRegistrationHooks(received =>
+                    context.UseRegistrationHooks(runtime =>
                     {
-                        calls.Add(ReferenceEquals(received, final) ? "configuration" : "unexpected");
+                        calls.Add(ReferenceEquals(runtime.Configuration, final) ? "configuration" : "unexpected");
                         return [first, null, second];
                     });
                 }
@@ -257,7 +258,7 @@ public class RegistrationHookTests
     [Test]
     public async Task ShouldPropagateEndpointHookExceptions()
     {
-        var laterHook = new RecordingEndpointHook<TestConfiguration>();
+        var laterHook = new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>();
         var builder = CreateBuilder();
         var plan = builder.Prepare((ctx) =>
         {
@@ -266,7 +267,7 @@ public class RegistrationHookTests
                 $"endpoint-hook-failure-{Guid.NewGuid():N}",
                 (_, context) => context.UseRegistrationHooks(_ =>
                 [
-                    new RecordingEndpointHook<TestConfiguration>(_ =>
+                    new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>(_ =>
                         throw new InvalidOperationException("endpoint hook failed")
                     ),
                     laterHook,
@@ -343,34 +344,34 @@ public class RegistrationHookTests
     {
         var typeName = typeof(ReflectionRuntimeHook).AssemblyQualifiedName!;
         var fromConfiguration = ReflectionHooks
-            .FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
+            .FromConfiguration<AllureConfiguration, IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>>(
                 new() { RuntimeRegistrationHook = typeName }
             );
         var variableName = $"ALLURE_SDK_TEST_HOOK_{Guid.NewGuid():N}";
         Environment.SetEnvironmentVariable(variableName, null);
 
         var fromEnvironment = ReflectionHooks
-            .FromEnvironmentVariable<IAllureRuntimeRegistrationHook>(variableName);
+            .FromEnvironmentVariable<IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>>(variableName);
 
         await Assert.That(fromConfiguration).IsTypeOf<ReflectionRuntimeHook>();
         await Assert.That(fromEnvironment).IsNull();
         await Assert.That(
-            ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(new())
+            ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>>(new())
         ).IsNull();
     }
 
     [Test]
     public async Task ShouldRejectInvalidReflectionHooks()
     {
-        await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
+        await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>>(
             new() { RuntimeRegistrationHook = typeof(NotARegistrationHook).AssemblyQualifiedName }
         )).Throws<InvalidOperationException>().WithMessageContaining("must implement");
 
-        await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
+        await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>>(
             new() { RuntimeRegistrationHook = typeof(PrivateConstructorRuntimeHook).AssemblyQualifiedName }
         )).Throws<InvalidOperationException>().WithMessageContaining("public parameterless constructor");
 
-        await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRuntimeRegistrationHook>(
+        await Assert.That(() => ReflectionHooks.FromConfiguration<AllureConfiguration, IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>>(
             new() { RuntimeRegistrationHook = "No.Such.Hook, No.Such.Assembly" }
         )).Throws<FileNotFoundException>();
     }
@@ -385,26 +386,26 @@ public class RegistrationHookTests
         public string? Value { get; init; }
     }
 
-    public class ReflectionRuntimeHook : IAllureRuntimeRegistrationHook
+    public class ReflectionRuntimeHook : IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>
     {
         public static System.Collections.Concurrent.ConcurrentQueue<string> Calls { get; } = [];
 
-        public void SetUp(IAllureRuntimeRegistrationContext context)
+        public void SetUp(IAllureRuntimeRegistrationContext<AllureConfiguration> context)
             => Calls.Enqueue("configuration");
     }
 
-    public sealed class EnvironmentReflectionRuntimeHook : IAllureRuntimeRegistrationHook
+    public sealed class EnvironmentReflectionRuntimeHook : IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>
     {
-        public void SetUp(IAllureRuntimeRegistrationContext context) =>
+        public void SetUp(IAllureRuntimeRegistrationContext<AllureConfiguration> context) =>
             ReflectionRuntimeHook.Calls.Enqueue("environment");
     }
 
     public sealed class NotARegistrationHook;
 
-    public sealed class PrivateConstructorRuntimeHook : IAllureRuntimeRegistrationHook
+    public sealed class PrivateConstructorRuntimeHook : IAllureRegistrationHook<IAllureRuntimeRegistrationContext<AllureConfiguration>>
     {
         PrivateConstructorRuntimeHook() { }
 
-        public void SetUp(IAllureRuntimeRegistrationContext context) { }
+        public void SetUp(IAllureRuntimeRegistrationContext<AllureConfiguration> context) { }
     }
 }

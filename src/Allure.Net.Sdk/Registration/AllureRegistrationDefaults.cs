@@ -5,6 +5,7 @@ using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Registration;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
+using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
@@ -36,11 +37,31 @@ public static class AllureRegistrationDefaults
         );
 
     /// <summary>
-    /// Creates a rule-based parameter-serializer factory from rule registrations.
+    /// Creates an endpoint rule-based parameter-serializer factory from rule registrations.
     /// </summary>
-    public static Func<TConfiguration, IAllureParameterSerializer> ParameterSerializer<TConfiguration>(
+    public static Func<TRuntime, IAllureParameterSerializer> EndpointParameterSerializer<TRuntime>(
+        IEnumerable<Action<TRuntime, IParameterSerializationRulesContext>> registrations
+    )
+        where TRuntime : IAllureRuntime
+    =>
+        (configuration) =>
+        {
+            var builder = new RuleBasedParameterSerializerBuilder();
+            foreach (var registration in registrations)
+            {
+                registration(configuration, builder);
+            }
+            return builder.Build();
+        };
+
+    /// <summary>
+    /// Creates a runtime rule-based parameter-serializer factory from rule registrations.
+    /// </summary>
+    public static Func<TConfiguration, IAllureParameterSerializer> RuntimeParameterSerializer<TConfiguration>(
         IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> registrations
-    ) =>
+    )
+        where TConfiguration : AllureConfiguration
+    =>
         (configuration) =>
         {
             var builder = new RuleBasedParameterSerializerBuilder();
@@ -60,7 +81,7 @@ public static class AllureRegistrationDefaults
     public static Func<TConfiguration, IEnumerable<THook?>> RuntimeHookProviders<TConfiguration, TContext, THook>()
         where TConfiguration : AllureConfiguration, new()
         where TContext : IAllureRuntimeRegistrationContext<TConfiguration>
-        where THook : IAllureRuntimeRegistrationHook<TConfiguration, TContext>
+        where THook : IAllureRegistrationHook<TContext>
     =>
         static (configuration) => [
             ReflectionHooks.FromEnvironmentVariable<THook>("ALLURE_RUNTIME_REGISTRATION_HOOK"),

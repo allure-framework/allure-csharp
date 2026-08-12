@@ -9,13 +9,11 @@ namespace Allure.Sdk.Registration;
 /// <summary>
 /// Configures an in-process endpoint for an Allure runtime.
 /// </summary>
-/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime> :
+public interface IAllureInProcessEndpointRegistrationContext<out TRuntime> :
     IAllureEndpointRegistrationContext
 
-    where TConfiguration : AllureConfiguration
-    where TRuntime : IAllureRuntime<TConfiguration>
+    where TRuntime : IAllureRuntime
 {
     /// <summary>
     /// Configures the parameter serializer used by the endpoint.
@@ -25,9 +23,9 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, TRu
     );
 
     /// <summary>
-    /// Configures parameter serialization rules using the resolved runtime configuration.
+    /// Configures endpoint availability using the constructed runtime.
     /// </summary>
-    void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration);
+    void ConfigureSerialization(Action<TRuntime, IParameterSerializationRulesContext> registration);
 
     /// <summary>
     /// Configures endpoint availability using the constructed runtime.
@@ -39,19 +37,3 @@ public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, TRu
     /// </summary>
     void SuppressRoutes(Func<TRuntime, IEnumerable<string>> routeIdsFactory);
 }
-
-/// <summary>
-/// Configures an in-process endpoint for a standard Allure runtime.
-/// </summary>
-/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> :
-    IAllureInProcessEndpointRegistrationContext<TConfiguration, IAllureRuntime<TConfiguration>>
-
-    where TConfiguration : AllureConfiguration;
-
-/// <summary>
-/// Configures an in-process endpoint for an Allure runtime that uses the
-/// standard <see cref="AllureConfiguration"/>.
-/// </summary>
-public interface IAllureInProcessEndpointRegistrationContext :
-    IAllureInProcessEndpointRegistrationContext<AllureConfiguration>;

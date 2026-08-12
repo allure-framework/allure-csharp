@@ -65,10 +65,3 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     /// </param>
     void UseDestination(Func<TConfiguration, IAllureResultsDestination> destinationFactory);
 }
-
-/// <summary>
-/// Configures an Allure runtime that uses the standard
-/// <see cref="AllureConfiguration"/> before it is constructed.
-/// </summary>
-public interface IAllureRuntimeRegistrationContext :
-    IAllureRuntimeRegistrationContext<AllureConfiguration>;

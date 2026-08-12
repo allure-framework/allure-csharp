@@ -157,13 +157,7 @@ public class SerializerSelectionTests
     }
 
     static IAllureRuntimeRegistrationPlan<AllureConfiguration, IAllureRuntime<AllureConfiguration>> PrepareBuilder(
-        Action<IAllureRuntimeIntegrationContext<
-            AllureConfiguration,
-            IAllureRuntimeRegistrationContext<AllureConfiguration>,
-            RecordingRuntimeHook<AllureConfiguration>,
-            IAllureInProcessEndpointRegistrationContext<AllureConfiguration>,
-            RecordingEndpointHook<AllureConfiguration>
-        >> configure
+        Action<IAllureRuntimeIntegrationContext<AllureConfiguration>> configure
     )
     {
         var builder = new TestRuntimeBuilder<AllureConfiguration>("serializer-selection");
