@@ -30,7 +30,7 @@ public class AllureRuntime<TConfiguration>(
 
     where TConfiguration : AllureConfiguration
 {
-    AllureConfiguration IAllureRuntime.Configuration => this.Configuration;
+    AllureConfiguration IAllureRuntimeBase.Configuration => this.Configuration;
 
     /// <inheritdoc/>
     public TConfiguration Configuration { get; } = configuration;

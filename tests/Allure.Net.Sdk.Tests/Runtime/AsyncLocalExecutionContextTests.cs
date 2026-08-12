@@ -155,7 +155,7 @@ public class AsyncLocalExecutionContextTests
     }
 
     static AllureExecutionState CaptureTestState(
-        IAllureRuntime runtime,
+        IAllureRuntimeBase runtime,
         string name
     )
     {

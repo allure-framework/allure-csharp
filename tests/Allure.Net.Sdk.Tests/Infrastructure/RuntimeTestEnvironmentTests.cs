@@ -10,7 +10,7 @@ public class RuntimeTestEnvironmentTests
     {
         var environment = RuntimeTestEnvironment.Create();
 
-        await Assert.That(environment.Runtime).IsAssignableTo<IAllureRuntime>();
+        await Assert.That(environment.Runtime).IsAssignableTo<IAllureRuntimeBase>();
         await Assert.That(environment.Runtime.ResultsDestination)
             .IsSameReferenceAs(environment.Destination);
         await Assert.That(environment.Destination)

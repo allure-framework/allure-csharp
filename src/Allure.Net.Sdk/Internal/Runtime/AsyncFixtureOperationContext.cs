@@ -6,7 +6,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-sealed class AsyncFixtureOperationContext(IAllureRuntime runtime) :
+sealed class AsyncFixtureOperationContext(IAllureRuntimeBase runtime) :
     FixtureOperationContext(runtime),
     IAllureInProcessAsyncFixtureContext
 {

@@ -4,7 +4,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-sealed class SyncStepOperationContext(IAllureRuntime runtime, int level) :
+sealed class SyncStepOperationContext(IAllureRuntimeBase runtime, int level) :
     StepOperationContext(runtime, level),
     IAllureInProcessSyncStepContext
 {

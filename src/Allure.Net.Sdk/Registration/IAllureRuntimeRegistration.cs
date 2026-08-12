@@ -18,7 +18,7 @@ public interface IAllureRuntimeRegistration<TRuntime> :
     IDisposable,
     IAsyncDisposable
 
-    where TRuntime : IAllureRuntime
+    where TRuntime : IAllureRuntimeBase
 {
     /// <summary>
     /// Gets the constructed runtime.

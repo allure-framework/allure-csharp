@@ -13,7 +13,7 @@ namespace Allure.Sdk.Runtime;
 /// A reference to the Allure runtime associated with this context.
 /// </param>
 public sealed class AsyncLocalExecutionContext(
-    IReadOnlyLateBoundReference<IAllureRuntime> reference
+    IReadOnlyLateBoundReference<IAllureRuntimeBase> reference
 ) : AllureExecutionContext(reference)
 {
     readonly AsyncLocal<AllureExecutionState> currentState = new() { Value = new() };

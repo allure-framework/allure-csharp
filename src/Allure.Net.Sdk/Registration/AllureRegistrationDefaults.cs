@@ -42,7 +42,7 @@ public static class AllureRegistrationDefaults
     public static Func<TRuntime, IAllureParameterSerializer> EndpointParameterSerializer<TRuntime>(
         IEnumerable<Action<TRuntime, IParameterSerializationRulesContext>> registrations
     )
-        where TRuntime : IAllureRuntime
+        where TRuntime : IAllureRuntimeBase
     =>
         (configuration) =>
         {

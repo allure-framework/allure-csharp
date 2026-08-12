@@ -13,7 +13,7 @@ namespace Allure.Sdk.Registration;
 public interface IAllureInProcessEndpointIntegrationContext<out TRuntime> :
     IAllureInProcessEndpointRegistrationContext<TRuntime>
 
-    where TRuntime : IAllureRuntime
+    where TRuntime : IAllureRuntimeBase
 {
     /// <summary>
     /// Configures the hooks invoked during endpoint registration.

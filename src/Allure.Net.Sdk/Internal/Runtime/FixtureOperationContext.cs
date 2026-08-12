@@ -6,7 +6,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-abstract class FixtureOperationContext(IAllureRuntime runtime) :
+abstract class FixtureOperationContext(IAllureRuntimeBase runtime) :
     OperationContext(runtime),
     IAllureOperationContext
 {

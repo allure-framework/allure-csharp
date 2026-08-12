@@ -4,11 +4,11 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-abstract class OperationContext(IAllureRuntime runtime) : IAllureOperationContext, IDisposable
+abstract class OperationContext(IAllureRuntimeBase runtime) : IAllureOperationContext, IDisposable
 {
     bool disposed = false;
 
-    protected IAllureRuntime Runtime => runtime;
+    protected IAllureRuntimeBase Runtime => runtime;
 
     protected AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;
 

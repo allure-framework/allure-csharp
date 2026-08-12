@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Allure.Abstractions;
-using Allure.Sdk.Configuration;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
@@ -13,7 +12,7 @@ namespace Allure.Sdk.Registration;
 public interface IAllureInProcessEndpointRegistrationContext<out TRuntime> :
     IAllureEndpointRegistrationContext
 
-    where TRuntime : IAllureRuntime
+    where TRuntime : IAllureRuntimeBase
 {
     /// <summary>
     /// Configures the parameter serializer used by the endpoint.

@@ -4,7 +4,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-sealed class SyncFixtureOperationContext(IAllureRuntime runtime) :
+sealed class SyncFixtureOperationContext(IAllureRuntimeBase runtime) :
     FixtureOperationContext(runtime),
     IAllureInProcessSyncFixtureContext
 {
