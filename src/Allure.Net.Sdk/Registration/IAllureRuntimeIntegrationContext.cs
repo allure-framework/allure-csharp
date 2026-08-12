@@ -13,9 +13,9 @@ namespace Allure.Sdk.Registration;
 /// <typeparam name="TRuntime">The type of runtime constructed by the integration.</typeparam>
 /// <typeparam name="TContext">The type of runtime integration context.</typeparam>
 public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, out TContext> :
-    IAllureRuntimeRegistrationContext<TConfiguration>
+    IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime>
 
-    where TConfiguration : AllureConfiguration, new()
+    where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>
     where TContext : IAllureRuntimeRegistrationContext<TConfiguration>
 {
@@ -28,48 +28,6 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, out 
     void UseRegistrationHooks(
         Func<TConfiguration, IEnumerable<IAllureRegistrationHook<TContext>?>> hooksFactory
     );
-
-    /// <summary>
-    /// Configures the execution-context service.
-    /// </summary>
-    /// <param name="contextFactory">
-    /// A factory that creates the service from the resolved configuration.
-    /// </param>
-    void UseContext(
-        Func<TConfiguration, IAllureExecutionContext> contextFactory
-    );
-
-    /// <summary>
-    /// Configures the lifecycle API service.
-    /// </summary>
-    /// <param name="lifecycleApiFactory">
-    /// A factory that creates the service from the resolved configuration.
-    /// </param>
-    void UseLifecycleApi(
-        Func<TConfiguration, IAllureLifecycleApi> lifecycleApiFactory
-    );
-
-    /// <summary>
-    /// Configures the model API service.
-    /// </summary>
-    /// <param name="modelApiFactory">
-    /// A factory that creates the service from the resolved configuration.
-    /// </param>
-    void UseModelApi(
-        Func<TConfiguration, IAllureModelApi> modelApiFactory
-    );
-
-    /// <summary>
-    /// Registers an in-process endpoint for the constructed runtime.
-    /// </summary>
-    /// <param name="endpointId">The route identifier of the endpoint.</param>
-    /// <param name="endpointRegistration">
-    /// An action that configures the endpoint after the runtime is constructed.
-    /// </param>
-    public void RegisterInProcessEndpoint(
-        string endpointId,
-        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> endpointRegistration
-    );
 }
 
 public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntime> :
@@ -79,7 +37,7 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntime> :
         IAllureRuntimeRegistrationContext<TConfiguration>
     >
 
-    where TConfiguration : AllureConfiguration, new()
+    where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>;
 
 /// <summary>
@@ -92,7 +50,7 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration> :
         IAllureRuntime<TConfiguration>
     >
 
-    where TConfiguration : AllureConfiguration, new();
+    where TConfiguration : AllureConfiguration;
 
 /// <summary>
 /// Configures a standard Allure runtime and its in-process endpoint integration.

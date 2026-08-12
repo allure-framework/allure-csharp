@@ -11,22 +11,20 @@ namespace Allure.Sdk.Registration;
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
-/// <typeparam name="TRegistrationContext">The registration context type.</typeparam>
-/// <typeparam name="TIntegrationContext">The integration context type.</typeparam>
+/// <typeparam name="TContext">The integration context type.</typeparam>
 /// <param name="runtimeName">The runtime name used to identify its in-process route.</param>
 /// <param name="sessionFactory">
 /// A factory that creates the single-use registration session configured by
 /// <see cref="Prepare"/>.
 /// </param>
-public class AllureRuntimeBuilder<TConfiguration, TRuntime, TRegistrationContext, TIntegrationContext>(
+public class AllureRuntimeBuilder<TConfiguration, TRuntime, TContext>(
     string runtimeName,
-    Func<AllureRuntimeRegistrationSession<TConfiguration, TRuntime, TRegistrationContext, TIntegrationContext>> sessionFactory
+    Func<AllureRuntimeRegistrationSessionBase<TConfiguration, TRuntime, TContext>> sessionFactory
 )
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntime : IAllureRuntime<TConfiguration>
-    where TRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
-    where TIntegrationContext : IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
+    where TContext : IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime>
 {
     int state = 0;
 
@@ -53,7 +51,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime, TRegistrationContext
     /// This builder has already been used.
     /// </exception>
     public IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> Prepare(
-        Action<TIntegrationContext> registration
+        Action<TContext> registration
     )
     {
         if (Interlocked.CompareExchange(ref this.state, STAGE_CONSUMED, STAGE_CREATED) != STAGE_CREATED)
@@ -76,45 +74,19 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime, TRegistrationContext
     const int STAGE_CONSUMED = 1;
 }
 
-public class AllureRuntimeBuilder<TConfiguration, TRuntime, TRegistrationContext>(
-    string runtimeName,
-    Func<
-        AllureRuntimeRegistrationSession<
-            TConfiguration,
-            TRuntime,
-            TRegistrationContext,
-            IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
-        >
-    > sessionFactory
-) :
-    AllureRuntimeBuilder<TConfiguration, TRuntime, TRegistrationContext, IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>>(
-        runtimeName,
-        sessionFactory
-    )
-
-    where TConfiguration : AllureConfiguration, new()
-    where TRuntime : IAllureRuntime<TConfiguration>
-    where TRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>;
-
 public class AllureRuntimeBuilder<TConfiguration, TRuntime>(
     string runtimeName,
     Func<
         AllureRuntimeRegistrationSession<
             TConfiguration,
-            TRuntime,
-            IAllureRuntimeRegistrationContext<TConfiguration>,
-            IAllureRuntimeIntegrationContext<TConfiguration, TRuntime>
+            TRuntime
         >
     > sessionFactory
 ) :
     AllureRuntimeBuilder<
         TConfiguration,
         TRuntime,
-        IAllureRuntimeRegistrationContext<TConfiguration>,
-        IAllureRuntimeIntegrationContext<
-            TConfiguration,
-            TRuntime
-        >
+        IAllureRuntimeIntegrationContext<TConfiguration, TRuntime>
     >(
         runtimeName,
         sessionFactory
@@ -127,7 +99,6 @@ public class AllureRuntimeBuilder<TConfiguration>(string runtimeName) :
     AllureRuntimeBuilder<
         TConfiguration,
         IAllureRuntime<TConfiguration>,
-        IAllureRuntimeRegistrationContext<TConfiguration>,
         IAllureRuntimeIntegrationContext<TConfiguration>
     >(
         runtimeName,
@@ -140,7 +111,6 @@ public class AllureRuntimeBuilder(string runtimeName) :
     AllureRuntimeBuilder<
         AllureConfiguration,
         IAllureRuntime<AllureConfiguration>,
-        IAllureRuntimeRegistrationContext<AllureConfiguration>,
         IAllureRuntimeIntegrationContext
     >(
         runtimeName,
