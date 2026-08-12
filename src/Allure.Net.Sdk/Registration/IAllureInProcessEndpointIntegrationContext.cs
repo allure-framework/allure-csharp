@@ -18,6 +18,9 @@ public interface IAllureInProcessEndpointIntegrationContext<out TRuntime> :
     /// <summary>
     /// Configures the hooks invoked during endpoint registration.
     /// </summary>
+    /// <param name="hooksFactory">
+    /// A factory that creates the registration hooks from the constructed runtime.
+    /// </param>
     void UseRegistrationHooks(
         Func<
             TRuntime,
@@ -32,15 +35,26 @@ public interface IAllureInProcessEndpointIntegrationContext<out TRuntime> :
     /// <summary>
     /// Configures the predicate used to match the current test or fixture scope.
     /// </summary>
+    /// <param name="predicate">
+    /// A function that uses the constructed runtime to determine whether the
+    /// endpoint matches the current scope.
+    /// </param>
     void UseCurrentScopePredicate(Func<TRuntime, bool> predicate);
 
     /// <summary>
     /// Configures the predicate used to match the global scope.
     /// </summary>
+    /// <param name="predicate">
+    /// A function that uses the constructed runtime to determine whether the
+    /// endpoint matches the global scope.
+    /// </param>
     void UseGlobalScopePredicate(Func<TRuntime, bool> predicate);
 
     /// <summary>
     /// Configures the operations exposed by the endpoint.
     /// </summary>
+    /// <param name="operationsFactory">
+    /// A factory that creates the endpoint operations from the constructed runtime.
+    /// </param>
     void UseOperations(Func<TRuntime, AllureInProcessOperations> operationsFactory);
 }

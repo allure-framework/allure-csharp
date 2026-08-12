@@ -11,8 +11,12 @@ namespace Allure.Sdk.Registration;
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
-/// <typeparam name="TIntegrationContext">The integration context type.</typeparam>
-/// <param name="runtimeName">The runtime name used to identify its in-process route.</param>
+/// <typeparam name="TIntegrationContext">
+/// The integration context type passed to the registration action.
+/// </typeparam>
+/// <param name="runtimeName">
+/// The runtime name assigned to its in-process endpoint.
+/// </param>
 /// <param name="sessionFactory">
 /// A factory that creates the single-use registration session configured by
 /// <see cref="Prepare"/>.
@@ -74,6 +78,16 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime, TIntegrationContext>
     const int STAGE_CONSUMED = 1;
 }
 
+/// <summary>
+/// Prepares registration of a custom Allure runtime using the standard
+/// integration and registration contexts.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
+/// <param name="runtimeName">
+/// The runtime name assigned to its in-process endpoint.
+/// </param>
+/// <param name="sessionFactory">A factory that creates a registration session.</param>
 public class AllureRuntimeBuilder<TConfiguration, TRuntime>(
     string runtimeName,
     Func<
@@ -95,6 +109,14 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime>(
     where TConfiguration : AllureConfiguration, new()
     where TRuntime : IAllureRuntime<TConfiguration>;
 
+/// <summary>
+/// Prepares registration of a standard Allure runtime with a custom
+/// configuration type.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <param name="runtimeName">
+/// The runtime name assigned to its in-process endpoint.
+/// </param>
 public class AllureRuntimeBuilder<TConfiguration>(string runtimeName) :
     AllureRuntimeBuilder<
         TConfiguration,
@@ -107,6 +129,13 @@ public class AllureRuntimeBuilder<TConfiguration>(string runtimeName) :
 
     where TConfiguration : AllureConfiguration, new();
 
+/// <summary>
+/// Prepares registration of a standard Allure runtime and its optional
+/// in-process endpoint.
+/// </summary>
+/// <param name="runtimeName">
+/// The runtime name assigned to its in-process endpoint.
+/// </param>
 public class AllureRuntimeBuilder(string runtimeName) :
     AllureRuntimeBuilder<
         AllureConfiguration,

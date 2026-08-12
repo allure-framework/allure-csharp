@@ -15,4 +15,8 @@ public interface IAllureRuntime<out TConfiguration> : IAllureRuntimeBase
     new TConfiguration Configuration { get; }
 }
 
+/// <summary>
+/// Exposes an Allure runtime that uses the standard
+/// <see cref="AllureConfiguration"/>.
+/// </summary>
 public interface IAllureRuntime : IAllureRuntime<AllureConfiguration>;

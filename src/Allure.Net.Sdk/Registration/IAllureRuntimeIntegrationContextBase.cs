@@ -4,6 +4,11 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
+/// <summary>
+/// Configures the services and optional in-process endpoint of an Allure runtime.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntime">The type of runtime constructed by the integration.</typeparam>
 public interface IAllureRuntimeIntegrationContextBase<TConfiguration, out TRuntime> :
     IAllureRuntimeRegistrationContext<TConfiguration>
 

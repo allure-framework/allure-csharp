@@ -51,6 +51,16 @@ public class AllureRuntime<TConfiguration>(
     public IAllureModelApi ModelApi { get; } = modelApi;
 }
 
+/// <summary>
+/// Provides the standard implementation of an Allure runtime using
+/// <see cref="AllureConfiguration"/>.
+/// </summary>
+/// <param name="configuration">The runtime configuration.</param>
+/// <param name="parameterSerializer">The parameter serializer.</param>
+/// <param name="resultsDestination">The destination for generated results.</param>
+/// <param name="context">The execution-context service.</param>
+/// <param name="lifecycleApi">The lifecycle API.</param>
+/// <param name="modelApi">The model API.</param>
 public class AllureRuntime(
     AllureConfiguration configuration,
     IAllureParameterSerializer parameterSerializer,

@@ -189,17 +189,20 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
     }
 
     /// <summary>
-    /// Gets the integration-specific context passed to runtime registration
-    /// hooks.
+    /// Gets the integration-specific context passed to the registration action.
     /// </summary>
     protected abstract TIntegrationContext IntegrationContext { get; }
 
     /// <summary>
-    /// Gets the integration-specific context passed to hooks
-    /// hooks.
+    /// Gets the integration-specific context passed to runtime registration hooks.
     /// </summary>
     protected abstract TRegistrationContext RegistrationContext { get; }
 
+    /// <summary>
+    /// Creates the runtime from the components resolved by this registration session.
+    /// </summary>
+    /// <param name="args">The resolved runtime components.</param>
+    /// <returns>The constructed runtime.</returns>
     protected abstract TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args);
 
     internal override IPreparedRuntimeRegistration<TConfiguration, TRuntime> Prepare(
@@ -361,6 +364,13 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
     }
 }
 
+/// <summary>
+/// Provides a single-use registration session for a custom Allure runtime with
+/// a custom integration context and the standard runtime registration context.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
+/// <typeparam name="TIntegrationContext">The runtime integration context type.</typeparam>
 public abstract class AllureRuntimeRegistrationSession<
     TConfiguration,
     TRuntime,
@@ -381,12 +391,17 @@ public abstract class AllureRuntimeRegistrationSession<
         IAllureRuntimeRegistrationContext<TConfiguration>
     >
 {
+    /// <inheritdoc/>
     protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
         new RegistrationContextFacade<TConfiguration, TRuntime>(this);
-
-
 }
 
+/// <summary>
+/// Provides a single-use registration session for a custom Allure runtime using
+/// the standard integration and registration contexts.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
 public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime> :
     AllureRuntimeRegistrationSession<
         TConfiguration,
@@ -399,12 +414,19 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime>
     where TConfiguration : AllureConfiguration, new()
     where TRuntime : IAllureRuntime<TConfiguration>
 {
+    /// <inheritdoc/>
     protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
         new RegistrationContextFacade<TConfiguration, TRuntime>(this);
 
+    /// <inheritdoc/>
     protected override IAllureRuntimeIntegrationContext<TConfiguration, TRuntime> IntegrationContext => this;
 }
 
+/// <summary>
+/// Provides a single-use registration session for a standard Allure runtime
+/// with a custom configuration type.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 public class AllureRuntimeRegistrationSession<TConfiguration> :
     AllureRuntimeRegistrationSession<
         TConfiguration,
@@ -416,11 +438,14 @@ public class AllureRuntimeRegistrationSession<TConfiguration> :
 
     where TConfiguration : AllureConfiguration, new()
 {
+    /// <inheritdoc/>
     protected override IAllureRuntimeIntegrationContext<TConfiguration> IntegrationContext => this;
 
+    /// <inheritdoc/>
     protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
         new RegistrationContextFacade<TConfiguration, IAllureRuntime<TConfiguration>>(this);
 
+    /// <inheritdoc/>
     protected override IAllureRuntime<TConfiguration> CreateRuntime(
         RuntimeCreationArguments<TConfiguration> args
     ) =>
@@ -434,6 +459,9 @@ public class AllureRuntimeRegistrationSession<TConfiguration> :
         );
 }
 
+/// <summary>
+/// Provides a single-use registration session for a standard Allure runtime.
+/// </summary>
 public class AllureRuntimeRegistrationSession :
     AllureRuntimeRegistrationSession<
         AllureConfiguration,
@@ -443,11 +471,14 @@ public class AllureRuntimeRegistrationSession :
     >,
     IAllureRuntimeIntegrationContext
 {
+    /// <inheritdoc/>
     protected override IAllureRuntimeIntegrationContext IntegrationContext => this;
 
+    /// <inheritdoc/>
     protected override IAllureRuntimeRegistrationContext RegistrationContext =>
         new RegistrationContextFacade(this);
 
+    /// <inheritdoc/>
     protected override IAllureRuntime CreateRuntime(
         RuntimeCreationArguments<AllureConfiguration> args
     ) =>

@@ -15,8 +15,10 @@ namespace Allure.Sdk.Registration;
 public static class AllureRegistrationDefaults
 {
     /// <summary>
-    /// Creates the default ordered configuration-source factory.
+    /// Creates the default factory for an ordered sequence of configuration sources.
     /// </summary>
+    /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+    /// <returns>A factory that creates the default configuration sources.</returns>
     public static Func<IEnumerable<IAllureConfigurationSource<TConfiguration>>> ConfigurationSources<TConfiguration>()
         where TConfiguration : AllureConfiguration, new()
     =>
@@ -26,8 +28,12 @@ public static class AllureRegistrationDefaults
         ];
 
     /// <summary>
-    /// Creates the default file-system results-destination factory.
+    /// Creates the default file-system results destination factory.
     /// </summary>
+    /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+    /// <returns>
+    /// A factory that creates a results destination from the resolved configuration.
+    /// </returns>
     public static Func<TConfiguration, IAllureResultsDestination> Destination<TConfiguration>()
         where TConfiguration : AllureConfiguration
     =>
@@ -37,8 +43,15 @@ public static class AllureRegistrationDefaults
         );
 
     /// <summary>
-    /// Creates an endpoint rule-based parameter-serializer factory from rule registrations.
+    /// Creates a rule-based parameter serializer factory for an in-process endpoint.
     /// </summary>
+    /// <typeparam name="TRuntime">The runtime type.</typeparam>
+    /// <param name="registrations">
+    /// The actions that configure serialization rules using the constructed runtime.
+    /// </param>
+    /// <returns>
+    /// A factory that creates a parameter serializer from the constructed runtime.
+    /// </returns>
     public static Func<TRuntime, IAllureParameterSerializer> EndpointParameterSerializer<TRuntime>(
         IEnumerable<Action<TRuntime, IParameterSerializationRulesContext>> registrations
     )
@@ -55,8 +68,15 @@ public static class AllureRegistrationDefaults
         };
 
     /// <summary>
-    /// Creates a runtime rule-based parameter-serializer factory from rule registrations.
+    /// Creates a rule-based parameter serializer factory for a runtime.
     /// </summary>
+    /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+    /// <param name="registrations">
+    /// The actions that configure serialization rules using the resolved configuration.
+    /// </param>
+    /// <returns>
+    /// A factory that creates a parameter serializer from the resolved configuration.
+    /// </returns>
     public static Func<TConfiguration, IAllureParameterSerializer> RuntimeParameterSerializer<TConfiguration>(
         IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> registrations
     )
@@ -73,10 +93,14 @@ public static class AllureRegistrationDefaults
         };
 
     /// <summary>
-    /// Creates the default runtime-hook provider factory.
+    /// Creates the default runtime registration hook factory.
     /// </summary>
     /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
     /// <typeparam name="TContext">The runtime registration context type.</typeparam>
+    /// <returns>
+    /// A factory that discovers registration hooks from the environment and the
+    /// resolved configuration.
+    /// </returns>
     public static Func<TConfiguration, IEnumerable<IAllureRegistrationHook<TContext>?>> RuntimeHookProviders<TConfiguration, TContext>()
         where TConfiguration : AllureConfiguration, new()
         where TContext : IAllureRuntimeRegistrationContext<TConfiguration>

@@ -11,7 +11,7 @@ namespace Allure.Sdk.Registration;
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The type of runtime constructed by the integration.</typeparam>
-/// <typeparam name="TContext">The type of runtime integration context.</typeparam>
+/// <typeparam name="TContext">The runtime registration context type.</typeparam>
 public interface IAllureRuntimeIntegrationContext<TConfiguration, out TRuntime, out TContext> :
     IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime>
 
@@ -30,6 +30,12 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration, out TRuntime, 
     );
 }
 
+/// <summary>
+/// Configures a custom Allure runtime and its optional in-process endpoint using
+/// the standard runtime registration context.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntime">The type of runtime constructed by the integration.</typeparam>
 public interface IAllureRuntimeIntegrationContext<TConfiguration, out TRuntime> :
     IAllureRuntimeIntegrationContext<
         TConfiguration,
@@ -41,7 +47,8 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration, out TRuntime> 
     where TRuntime : IAllureRuntime<TConfiguration>;
 
 /// <summary>
-/// Configures a standard Allure runtime with a custom configuration type.
+/// Configures a standard Allure runtime with a custom configuration type and an
+/// optional in-process endpoint.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 public interface IAllureRuntimeIntegrationContext<TConfiguration> :
