@@ -133,6 +133,29 @@ public class InProcessEndpointRegistrationTests
         isInGlobalScope.Value = false;
     }
 
+    [Test]
+    public async Task ShouldExposeIntegrationSpecificRuntimeToEndpointRegistration()
+    {
+        var service = new object();
+        var observedService = default(object);
+        var builder = new RuntimeWithServiceBuilder("test", service);
+
+        using var _ = builder.Prepare(ctx =>
+            ctx.RegisterInProcessEndpoint(
+                NewRouteId(),
+                (runtime, endpoint) =>
+                {
+                    endpoint.UseCurrentScopePredicate(_ => false);
+                    endpoint.UseGlobalScopePredicate(_ => false);
+                    endpoint.SetAvailabilityPredicate(_ => false);
+                    observedService = runtime.Service;
+                }
+            )
+        ).Build();
+
+        await Assert.That(observedService).IsSameReferenceAs(service);
+    }
+
     static AllureRuntimeBuilder<AllureConfiguration> CreateBuilder() =>
         new("endpoint-registration-tests");
 

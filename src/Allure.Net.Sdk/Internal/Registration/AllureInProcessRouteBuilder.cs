@@ -43,26 +43,25 @@ internal class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
 
     readonly List<Action<TRuntime, IParameterSerializationRulesContext>> currentRuleBasedSerializerRegistrations;
 
-    readonly Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> registration;
+    readonly Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> endpointRegistration;
 
-    /// <summary>
-    /// Gets the integration-specific runtime associated with this route.
-    /// </summary>
     protected TRuntime Runtime { get; }
 
-    /// <summary>
-    /// Initializes an in-process route builder from the components resolved by
-    /// its runtime builder.
-    /// </summary>
-    /// <param name="args">The resolved route builder arguments.</param>
-    public AllureInProcessRouteBuilder(EndpointRouteCreationArguments<TConfiguration, TRuntime> args)
+    public AllureInProcessRouteBuilder(
+        string runtimeName,
+        string routeId,
+        TRuntime runtime,
+        bool useRuleBasedSerializer,
+        IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> ruleBasedSerializerRegistrations,
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> endpointRegistration
+    )
     {
-        this.useRuleBasedSerializer = args.UseRuleBasedSerializer;
-        this.runtimeName = args.RuntimeName;
-        this.routeId = args.RouteId;
-        this.Runtime = args.Runtime;
+        this.useRuleBasedSerializer = useRuleBasedSerializer;
+        this.runtimeName = runtimeName;
+        this.routeId = routeId;
+        this.Runtime = runtime;
         this.currentRuleBasedSerializerRegistrations = [
-            .. args.RuleBasedSerializerRegistrations
+            .. ruleBasedSerializerRegistrations
                 .Select((registration) =>
                     (Action<TRuntime, IParameterSerializationRulesContext>)(
                         (runtime, context) => registration(runtime.Configuration, context)
@@ -73,13 +72,12 @@ internal class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
             useRuleBasedSerializer
                 ? (runtime) =>
                     AllureRegistrationDefaults.EndpointParameterSerializer(
-                        currentRuleBasedSerializerRegistrations
+                        this.currentRuleBasedSerializerRegistrations
                     )(runtime)
                 : (_) => this.Runtime.ParameterSerializer;
-        this.registration = args.Registration;
+        this.endpointRegistration = endpointRegistration;
     }
 
-    /// <inheritdoc/>
     public void UseRegistrationHooks(
         Func<TRuntime, IEnumerable<IAllureRegistrationHook<IAllureInProcessEndpointRegistrationContext<TRuntime>>?>> hooksFactory
     )
@@ -87,49 +85,41 @@ internal class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
         this.currentHooksFactory = hooksFactory;
     }
 
-    /// <inheritdoc/>
     public void SetAvailabilityPredicate(Func<TRuntime, bool> isAvailable)
     {
         this.availabilityPredicate = isAvailable;
     }
 
-    /// <inheritdoc/>
     public void SetAvailabilityPredicate(Func<bool> isAvailable)
     {
         this.availabilityPredicate = (_) => isAvailable();
     }
 
-    /// <inheritdoc/>
     public void SuppressRoutes(Func<TRuntime, IEnumerable<string>> suppressedRouteIdsFactory)
     {
         this.currentSuppressedRouteIdsFactory = suppressedRouteIdsFactory;
     }
 
-    /// <inheritdoc/>
     public void SuppressRoutes(Func<IEnumerable<string>> suppressedRouteIdsFactory)
     {
         this.currentSuppressedRouteIdsFactory = (_) => suppressedRouteIdsFactory();
     }
 
-    /// <inheritdoc/>
     public void UseCurrentScopePredicate(Func<TRuntime, bool> predicate)
     {
         this.currentScopePredicate = predicate;
     }
 
-    /// <inheritdoc/>
     public void UseGlobalScopePredicate(Func<TRuntime, bool> predicate)
     {
         this.globalScopePredicate = predicate;
     }
 
-    /// <inheritdoc/>
     public void UseOperations(Func<TRuntime, AllureInProcessOperations> operationsFactory)
     {
         this.currentOperationsFactory = operationsFactory;
     }
 
-    /// <inheritdoc/>
     public void UseParameterSerializer(Func<TRuntime, IAllureParameterSerializer> serializerFactory)
     {
         this.useRuleBasedSerializer = false;
@@ -137,11 +127,9 @@ internal class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
         this.currentSerializerFactory = serializerFactory;
     }
 
-    /// <inheritdoc/>
     public void UseParameterSerializer(Func<IAllureParameterSerializer> serializerFactory) =>
         this.UseParameterSerializer((_) => serializerFactory());
 
-    /// <inheritdoc/>
     public void ConfigureSerialization(Action<TRuntime, IParameterSerializationRulesContext> registration)
     {
         if (!this.useRuleBasedSerializer)
@@ -155,19 +143,14 @@ internal class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
         this.currentRuleBasedSerializerRegistrations.Add(registration);
     }
 
-    /// <inheritdoc/>
     public void ConfigureSerialization(Action<IParameterSerializationRulesContext> registration)
     {
         this.ConfigureSerialization((_, ctx) => registration(ctx));
     }
 
-    /// <summary>
-    /// Runs the configured endpoint hooks and constructs the route.
-    /// </summary>
-    /// <returns>The constructed in-process runtime route.</returns>
     public IAllureRuntimeRoute Build()
     {
-        this.registration(this.Runtime, this);
+        this.endpointRegistration(this.Runtime, this);
         this.RunHooks();
         return new AllureRuntimeRoute(
             routeId,

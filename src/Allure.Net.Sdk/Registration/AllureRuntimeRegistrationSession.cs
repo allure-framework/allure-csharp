@@ -228,8 +228,7 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
                     runtimeName,
                     finalConfiguration.Configuration,
                     commonSnapshot,
-                    this.CreateRuntime,
-                    (args) => new AllureInProcessRouteBuilder<TConfiguration, TRuntime>(args).Build()
+                    this.CreateRuntime
                 );
             }
             catch

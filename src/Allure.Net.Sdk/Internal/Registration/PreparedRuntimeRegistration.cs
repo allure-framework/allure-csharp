@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Allure.Abstractions;
 using Allure.Runtime;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
@@ -11,9 +10,8 @@ namespace Allure.Sdk.Internal.Registration;
 internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
     string runtimeName,
     TConfiguration configuration,
-    AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntime> commonSnapshot,
-    Func<RuntimeCreationArguments<TConfiguration>, TRuntime> runtimeFactory,
-    Func<EndpointRouteCreationArguments<TConfiguration, TRuntime>, IAllureRuntimeRoute> routeFactory
+    AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntime> registrationSnapshot,
+    Func<RuntimeCreationArguments<TConfiguration>, TRuntime> runtimeFactory
 ) :
     IPreparedRuntimeRegistration<TConfiguration, TRuntime>
 
@@ -24,8 +22,8 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
 
     public IAllureRuntimeRegistration<TRuntime> Build()
     {
-        var parameterSerializer = commonSnapshot.SerializerFactory(configuration);
-        var destination = commonSnapshot.DestinationFactory(configuration);
+        var parameterSerializer = registrationSnapshot.SerializerFactory(configuration);
+        var destination = registrationSnapshot.DestinationFactory(configuration);
 
         var constructionRuntimeReference =
             new LateBoundReference<IAllureRuntime<TConfiguration>>();
@@ -36,9 +34,9 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
                 constructionRuntimeReference
             );
 
-        var context = commonSnapshot.ContextFactory(serviceCreationContext);
-        var lifecycleApi = commonSnapshot.LifecycleApiFactory(serviceCreationContext);
-        var modelApi = commonSnapshot.ModelApiFactory(serviceCreationContext);
+        var context = registrationSnapshot.ContextFactory(serviceCreationContext);
+        var lifecycleApi = registrationSnapshot.LifecycleApiFactory(serviceCreationContext);
+        var modelApi = registrationSnapshot.ModelApiFactory(serviceCreationContext);
 
         RuntimeCreationArguments<TConfiguration> runtimeCreationArguments = new(
             Configuration: configuration,
@@ -57,18 +55,17 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
         {
             constructionRuntimeReference.Bind(runtime);
 
-            if (commonSnapshot.EndpointRegistration is var (routeId, routeRegistration))
+            if (registrationSnapshot.EndpointRegistration is var (routeId, routeRegistration))
             {
-                EndpointRouteCreationArguments<TConfiguration, TRuntime> endpointBuildArgs = new(
+                var routeBuilder = new AllureInProcessRouteBuilder<TConfiguration, TRuntime>(
                     runtimeName,
                     routeId,
                     runtime,
-                    commonSnapshot.UseRuleBasedSerializer,
-                    commonSnapshot.RuleBasedSerializerRegistrations,
+                    registrationSnapshot.UseRuleBasedSerializer,
+                    registrationSnapshot.RuleBasedSerializerRegistrations,
                     routeRegistration
                 );
-
-                var route = routeFactory(endpointBuildArgs);
+                var route = routeBuilder.Build();
 
                 endpointRegistration = AllureRuntimeRouter.Install(route);
             }

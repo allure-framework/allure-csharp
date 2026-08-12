@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Registration;
-using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
