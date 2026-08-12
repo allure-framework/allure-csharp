@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Allure.Abstractions;
-using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
@@ -11,18 +10,23 @@ namespace Allure.Sdk.Registration;
 /// Configures an in-process Allure endpoint and its integration hooks.
 /// </summary>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-/// <typeparam name="TContext">The endpoint registration context type.</typeparam>
-public interface IAllureInProcessEndpointIntegrationContext<out TRuntime, out TContext> :
+public interface IAllureInProcessEndpointIntegrationContext<out TRuntime> :
     IAllureInProcessEndpointRegistrationContext<TRuntime>
 
     where TRuntime : IAllureRuntime
-    where TContext : IAllureInProcessEndpointRegistrationContext<TRuntime>
 {
     /// <summary>
     /// Configures the hooks invoked during endpoint registration.
     /// </summary>
     void UseRegistrationHooks(
-        Func<TRuntime, IEnumerable<IAllureRegistrationHook<TContext>?>> hooksFactory
+        Func<
+            TRuntime,
+            IEnumerable<
+                IAllureRegistrationHook<
+                    IAllureInProcessEndpointRegistrationContext<TRuntime>
+                >?
+            >
+        > hooksFactory
     );
 
     /// <summary>
@@ -40,14 +44,3 @@ public interface IAllureInProcessEndpointIntegrationContext<out TRuntime, out TC
     /// </summary>
     void UseOperations(Func<TRuntime, AllureInProcessOperations> operationsFactory);
 }
-
-public interface IAllureInProcessEndpointIntegrationContext<TRuntime> :
-    IAllureInProcessEndpointIntegrationContext<
-        TRuntime,
-        IAllureInProcessEndpointRegistrationContext<TRuntime>
-    >
-
-    where TRuntime : IAllureRuntime;
-
-public interface IAllureInProcessEndpointIntegrationContext :
-    IAllureInProcessEndpointIntegrationContext<IAllureRuntime<AllureConfiguration>>;
