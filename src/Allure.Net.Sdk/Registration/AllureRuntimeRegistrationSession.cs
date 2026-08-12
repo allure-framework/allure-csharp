@@ -17,9 +17,9 @@ namespace Allure.Sdk.Registration;
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-/// <typeparam name="TIntegrationContext">The runtime integration context type.</typeparam>
 /// <typeparam name="TRegistrationContext">The runtime registration context type.</typeparam>
-public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime, TIntegrationContext, TRegistrationContext> :
+/// <typeparam name="TIntegrationContext">The runtime integration context type.</typeparam>
+public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime, TRegistrationContext, TIntegrationContext> :
     AllureRuntimeRegistrationSessionBase<TConfiguration, TRuntime, TIntegrationContext>,
     IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
 
@@ -370,30 +370,30 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-/// <typeparam name="TIntegrationContext">The runtime integration context type.</typeparam>
+/// <typeparam name="TRegistrationContext">The runtime registration context type.</typeparam>
 public abstract class AllureRuntimeRegistrationSession<
     TConfiguration,
     TRuntime,
-    TIntegrationContext
+    TRegistrationContext
 > :
     AllureRuntimeRegistrationSession<
         TConfiguration,
         TRuntime,
-        TIntegrationContext,
-        IAllureRuntimeRegistrationContext<TConfiguration>
+        TRegistrationContext,
+        IAllureRuntimeIntegrationContext<
+            TConfiguration,
+            TRuntime,
+            TRegistrationContext
+        >
     >
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntime : IAllureRuntime<TConfiguration>
-    where TIntegrationContext : IAllureRuntimeIntegrationContext<
-        TConfiguration,
-        TRuntime,
-        IAllureRuntimeRegistrationContext<TConfiguration>
-    >
+    where TRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
 {
     /// <inheritdoc/>
-    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
-        new RegistrationContextFacade<TConfiguration, TRuntime>(this);
+    protected override IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext> IntegrationContext =>
+        this;
 }
 
 /// <summary>
@@ -406,8 +406,8 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime>
     AllureRuntimeRegistrationSession<
         TConfiguration,
         TRuntime,
-        IAllureRuntimeIntegrationContext<TConfiguration, TRuntime>,
-        IAllureRuntimeRegistrationContext<TConfiguration>
+        IAllureRuntimeRegistrationContext<TConfiguration>,
+        IAllureRuntimeIntegrationContext<TConfiguration, TRuntime>
     >,
     IAllureRuntimeIntegrationContext<TConfiguration, TRuntime>
 
@@ -431,8 +431,8 @@ public class AllureRuntimeRegistrationSession<TConfiguration> :
     AllureRuntimeRegistrationSession<
         TConfiguration,
         IAllureRuntime<TConfiguration>,
-        IAllureRuntimeIntegrationContext<TConfiguration>,
-        IAllureRuntimeRegistrationContext<TConfiguration>
+        IAllureRuntimeRegistrationContext<TConfiguration>,
+        IAllureRuntimeIntegrationContext<TConfiguration>
     >,
     IAllureRuntimeIntegrationContext<TConfiguration>
 
@@ -466,8 +466,8 @@ public class AllureRuntimeRegistrationSession :
     AllureRuntimeRegistrationSession<
         AllureConfiguration,
         IAllureRuntime,
-        IAllureRuntimeIntegrationContext,
-        IAllureRuntimeRegistrationContext
+        IAllureRuntimeRegistrationContext,
+        IAllureRuntimeIntegrationContext
     >,
     IAllureRuntimeIntegrationContext
 {
