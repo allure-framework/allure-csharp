@@ -51,5 +51,5 @@ class RegistrationContextFacade<TConfiguration, TRuntime>(
 sealed class RegistrationContextFacade(
     IAllureRuntimeIntegrationContext integrationContext
 ) :
-    RegistrationContextFacade<AllureConfiguration, IAllureRuntime<AllureConfiguration>>(integrationContext),
+    RegistrationContextFacade<AllureConfiguration, IAllureRuntime>(integrationContext),
     IAllureRuntimeRegistrationContext;

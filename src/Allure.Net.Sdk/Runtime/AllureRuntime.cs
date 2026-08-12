@@ -50,3 +50,21 @@ public class AllureRuntime<TConfiguration>(
     /// <inheritdoc/>
     public IAllureModelApi ModelApi { get; } = modelApi;
 }
+
+public class AllureRuntime(
+    AllureConfiguration configuration,
+    IAllureParameterSerializer parameterSerializer,
+    IAllureResultsDestination resultsDestination,
+    IAllureExecutionContext context,
+    IAllureLifecycleApi lifecycleApi,
+    IAllureModelApi modelApi
+) :
+    AllureRuntime<AllureConfiguration>(
+        configuration,
+        parameterSerializer,
+        resultsDestination,
+        context,
+        lifecycleApi,
+        modelApi
+    ),
+    IAllureRuntime;

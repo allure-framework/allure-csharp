@@ -12,6 +12,3 @@ public interface IAllureRegistrationHook<in TContext>
     /// </summary>
     void SetUp(TContext context);
 }
-
-public interface IAllureRuntimeRegistrationHook :
-    IAllureRegistrationHook<IAllureRuntimeRegistrationContext>;

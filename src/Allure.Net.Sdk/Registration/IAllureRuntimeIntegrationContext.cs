@@ -12,7 +12,7 @@ namespace Allure.Sdk.Registration;
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The type of runtime constructed by the integration.</typeparam>
 /// <typeparam name="TContext">The type of runtime integration context.</typeparam>
-public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, out TContext> :
+public interface IAllureRuntimeIntegrationContext<TConfiguration, out TRuntime, out TContext> :
     IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime>
 
     where TConfiguration : AllureConfiguration
@@ -30,7 +30,7 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, out 
     );
 }
 
-public interface IAllureRuntimeIntegrationContext<TConfiguration, TRuntime> :
+public interface IAllureRuntimeIntegrationContext<TConfiguration, out TRuntime> :
     IAllureRuntimeIntegrationContext<
         TConfiguration,
         TRuntime,
@@ -58,6 +58,6 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration> :
 public interface IAllureRuntimeIntegrationContext :
     IAllureRuntimeIntegrationContext<
         AllureConfiguration,
-        IAllureRuntime<AllureConfiguration>,
+        IAllureRuntime,
         IAllureRuntimeRegistrationContext
     >;

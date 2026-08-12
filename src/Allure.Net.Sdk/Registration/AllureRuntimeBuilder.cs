@@ -110,7 +110,7 @@ public class AllureRuntimeBuilder<TConfiguration>(string runtimeName) :
 public class AllureRuntimeBuilder(string runtimeName) :
     AllureRuntimeBuilder<
         AllureConfiguration,
-        IAllureRuntime<AllureConfiguration>,
+        IAllureRuntime,
         IAllureRuntimeIntegrationContext
     >(
         runtimeName,

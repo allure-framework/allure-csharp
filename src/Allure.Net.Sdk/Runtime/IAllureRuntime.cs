@@ -14,3 +14,5 @@ public interface IAllureRuntime<out TConfiguration> : IAllureRuntimeBase
     /// </summary>
     new TConfiguration Configuration { get; }
 }
+
+public interface IAllureRuntime : IAllureRuntime<AllureConfiguration>;

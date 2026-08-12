@@ -10,7 +10,7 @@ sealed class RuntimeTestEnvironment<TConfiguration> : IDisposable
     where TConfiguration : AllureConfiguration, new()
 {
     readonly IAllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration;
-    RuntimeTestEnvironment(
+    internal RuntimeTestEnvironment(
         IAllureRuntimeRegistration<IAllureRuntime<TConfiguration>> registration,
         InMemoryResultsDestination destination
     )
@@ -52,9 +52,20 @@ sealed class RuntimeTestEnvironment
 {
     public static RuntimeTestEnvironment<AllureConfiguration> Create(
         AllureConfiguration? configuration = null,
-        Action<IAllureRuntimeIntegrationContext<AllureConfiguration>>? configure = null
-    ) =>
-        RuntimeTestEnvironment<AllureConfiguration>.Create(configuration, configure);
+        Action<IAllureRuntimeIntegrationContext>? configure = null
+    )
+    {
+        var destination = new InMemoryResultsDestination();
+        var builder = new AllureRuntimeBuilder("sdk-test");
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseConfiguration(configuration ?? new AllureConfiguration());
+            ctx.UseDestination(_ => destination);
+            configure?.Invoke(ctx);
+        });
+
+        return new(plan.Build(), destination);
+    }
 }
 
 sealed class RecordingRuntimeHook<TConfiguration>(

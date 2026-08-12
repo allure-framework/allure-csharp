@@ -14,7 +14,7 @@ namespace Allure.Sdk.Registration;
 /// <see cref="IDisposable"/>.
 /// </remarks>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public interface IAllureRuntimeRegistration<TRuntime> :
+public interface IAllureRuntimeRegistration<out TRuntime> :
     IDisposable,
     IAsyncDisposable
 

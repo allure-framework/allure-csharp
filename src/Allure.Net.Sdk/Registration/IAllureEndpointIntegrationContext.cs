@@ -9,7 +9,7 @@ namespace Allure.Sdk.Registration;
 /// Configures an external Allure runtime endpoint.
 /// </summary>
 /// <typeparam name="TContext">The registration context type.</typeparam>
-public interface IAllureEndpointIntegrationContext<TContext> : IAllureEndpointRegistrationContext
+public interface IAllureEndpointIntegrationContext<out TContext> : IAllureEndpointRegistrationContext
     where TContext : IAllureEndpointRegistrationContext
 {
     /// <summary>

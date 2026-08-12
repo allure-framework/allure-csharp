@@ -437,7 +437,7 @@ public class AllureRuntimeRegistrationSession<TConfiguration> :
 public class AllureRuntimeRegistrationSession :
     AllureRuntimeRegistrationSession<
         AllureConfiguration,
-        IAllureRuntime<AllureConfiguration>,
+        IAllureRuntime,
         IAllureRuntimeIntegrationContext,
         IAllureRuntimeRegistrationContext
     >,
@@ -448,10 +448,10 @@ public class AllureRuntimeRegistrationSession :
     protected override IAllureRuntimeRegistrationContext RegistrationContext =>
         new RegistrationContextFacade(this);
 
-    protected override IAllureRuntime<AllureConfiguration> CreateRuntime(
+    protected override IAllureRuntime CreateRuntime(
         RuntimeCreationArguments<AllureConfiguration> args
     ) =>
-        new AllureRuntime<AllureConfiguration>(
+        new AllureRuntime(
             args.Configuration,
             args.ParameterSerializer,
             args.Destination,

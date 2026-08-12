@@ -4,7 +4,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
 
-public interface IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime> :
+public interface IAllureRuntimeIntegrationContextBase<TConfiguration, out TRuntime> :
     IAllureRuntimeRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureConfiguration
