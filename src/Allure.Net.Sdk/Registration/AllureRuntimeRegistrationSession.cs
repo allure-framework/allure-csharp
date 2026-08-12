@@ -45,8 +45,7 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
     Func<TConfiguration, IEnumerable<IAllureRegistrationHook<TRegistrationContext>?>> currentHooksFactory =
         AllureRegistrationDefaults.RuntimeHookProviders<
             TConfiguration,
-            TRegistrationContext,
-            IAllureRegistrationHook<TRegistrationContext>
+            TRegistrationContext
         >();
 
     Func<

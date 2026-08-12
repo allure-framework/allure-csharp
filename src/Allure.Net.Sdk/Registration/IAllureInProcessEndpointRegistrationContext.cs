@@ -23,7 +23,7 @@ public interface IAllureInProcessEndpointRegistrationContext<out TRuntime> :
     );
 
     /// <summary>
-    /// Configures endpoint availability using the constructed runtime.
+    /// Configures parameter serialization rules used by the endpoint.
     /// </summary>
     void ConfigureSerialization(Action<TRuntime, IParameterSerializationRulesContext> registration);
 

@@ -11,20 +11,20 @@ namespace Allure.Sdk.Registration;
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
-/// <typeparam name="TContext">The integration context type.</typeparam>
+/// <typeparam name="TIntegrationContext">The integration context type.</typeparam>
 /// <param name="runtimeName">The runtime name used to identify its in-process route.</param>
 /// <param name="sessionFactory">
 /// A factory that creates the single-use registration session configured by
 /// <see cref="Prepare"/>.
 /// </param>
-public class AllureRuntimeBuilder<TConfiguration, TRuntime, TContext>(
+public class AllureRuntimeBuilder<TConfiguration, TRuntime, TIntegrationContext>(
     string runtimeName,
-    Func<AllureRuntimeRegistrationSessionBase<TConfiguration, TRuntime, TContext>> sessionFactory
+    Func<AllureRuntimeRegistrationSessionBase<TConfiguration, TRuntime, TIntegrationContext>> sessionFactory
 )
 
     where TConfiguration : AllureConfiguration, new()
     where TRuntime : IAllureRuntime<TConfiguration>
-    where TContext : IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime>
+    where TIntegrationContext : IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime>
 {
     int state = 0;
 
@@ -51,7 +51,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime, TContext>(
     /// This builder has already been used.
     /// </exception>
     public IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> Prepare(
-        Action<TContext> registration
+        Action<TIntegrationContext> registration
     )
     {
         if (Interlocked.CompareExchange(ref this.state, STAGE_CONSUMED, STAGE_CREATED) != STAGE_CREATED)

@@ -77,14 +77,12 @@ public static class AllureRegistrationDefaults
     /// </summary>
     /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
     /// <typeparam name="TContext">The runtime registration context type.</typeparam>
-    /// <typeparam name="THook">The runtime registration hook type.</typeparam>
-    public static Func<TConfiguration, IEnumerable<THook?>> RuntimeHookProviders<TConfiguration, TContext, THook>()
+    public static Func<TConfiguration, IEnumerable<IAllureRegistrationHook<TContext>?>> RuntimeHookProviders<TConfiguration, TContext>()
         where TConfiguration : AllureConfiguration, new()
         where TContext : IAllureRuntimeRegistrationContext<TConfiguration>
-        where THook : IAllureRegistrationHook<TContext>
     =>
         static (configuration) => [
-            ReflectionHooks.FromEnvironmentVariable<THook>("ALLURE_RUNTIME_REGISTRATION_HOOK"),
-            ReflectionHooks.FromConfiguration<TConfiguration, THook>(configuration),
+            ReflectionHooks.FromEnvironmentVariable<IAllureRegistrationHook<TContext>>("ALLURE_RUNTIME_REGISTRATION_HOOK"),
+            ReflectionHooks.FromConfiguration<TConfiguration, IAllureRegistrationHook<TContext>>(configuration),
         ];
 }
