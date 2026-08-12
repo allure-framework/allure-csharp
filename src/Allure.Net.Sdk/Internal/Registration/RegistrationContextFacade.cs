@@ -47,3 +47,9 @@ class RegistrationContextFacade<TConfiguration, TRuntime>(
     public void UseParameterSerializer(Func<IAllureParameterSerializer> serializerFactory) =>
         integrationContext.UseParameterSerializer(serializerFactory);
 }
+
+sealed class RegistrationContextFacade(
+    IAllureRuntimeIntegrationContext integrationContext
+) :
+    RegistrationContextFacade<AllureConfiguration, IAllureRuntime<AllureConfiguration>>(integrationContext),
+    IAllureRuntimeRegistrationContext;

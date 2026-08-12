@@ -439,14 +439,14 @@ public class AllureRuntimeRegistrationSession :
         AllureConfiguration,
         IAllureRuntime<AllureConfiguration>,
         IAllureRuntimeIntegrationContext,
-        IAllureRuntimeRegistrationContext<AllureConfiguration>
+        IAllureRuntimeRegistrationContext
     >,
     IAllureRuntimeIntegrationContext
 {
     protected override IAllureRuntimeIntegrationContext IntegrationContext => this;
 
-    protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext =>
-        new RegistrationContextFacade<AllureConfiguration, IAllureRuntime<AllureConfiguration>>(this);
+    protected override IAllureRuntimeRegistrationContext RegistrationContext =>
+        new RegistrationContextFacade(this);
 
     protected override IAllureRuntime<AllureConfiguration> CreateRuntime(
         RuntimeCreationArguments<AllureConfiguration> args

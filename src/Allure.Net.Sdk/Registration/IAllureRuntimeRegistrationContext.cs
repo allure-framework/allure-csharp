@@ -65,3 +65,6 @@ public interface IAllureRuntimeRegistrationContext<TConfiguration> :
     /// </param>
     void UseDestination(Func<TConfiguration, IAllureResultsDestination> destinationFactory);
 }
+
+public interface IAllureRuntimeRegistrationContext :
+    IAllureRuntimeRegistrationContext<AllureConfiguration>;

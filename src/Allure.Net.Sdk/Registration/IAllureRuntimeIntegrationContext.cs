@@ -56,4 +56,8 @@ public interface IAllureRuntimeIntegrationContext<TConfiguration> :
 /// Configures a standard Allure runtime and its in-process endpoint integration.
 /// </summary>
 public interface IAllureRuntimeIntegrationContext :
-    IAllureRuntimeIntegrationContext<AllureConfiguration>;
+    IAllureRuntimeIntegrationContext<
+        AllureConfiguration,
+        IAllureRuntime<AllureConfiguration>,
+        IAllureRuntimeRegistrationContext
+    >;
