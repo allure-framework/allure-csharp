@@ -382,7 +382,10 @@ public abstract class AllureRuntimeRegistrationSession<
         IAllureRuntimeRegistrationContext<TConfiguration>
     >
 {
-    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
+        new RegistrationContextFacade<TConfiguration, TRuntime>(this);
+
+
 }
 
 public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime> :
@@ -397,7 +400,8 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime>
     where TConfiguration : AllureConfiguration, new()
     where TRuntime : IAllureRuntime<TConfiguration>
 {
-    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
+        new RegistrationContextFacade<TConfiguration, TRuntime>(this);
 
     protected override IAllureRuntimeIntegrationContext<TConfiguration, TRuntime> IntegrationContext => this;
 }
@@ -415,7 +419,8 @@ public class AllureRuntimeRegistrationSession<TConfiguration> :
 {
     protected override IAllureRuntimeIntegrationContext<TConfiguration> IntegrationContext => this;
 
-    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
+        new RegistrationContextFacade<TConfiguration, IAllureRuntime<TConfiguration>>(this);
 
     protected override IAllureRuntime<TConfiguration> CreateRuntime(
         RuntimeCreationArguments<TConfiguration> args
@@ -441,7 +446,8 @@ public class AllureRuntimeRegistrationSession :
 {
     protected override IAllureRuntimeIntegrationContext IntegrationContext => this;
 
-    protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext => this;
+    protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext =>
+        new RegistrationContextFacade<AllureConfiguration, IAllureRuntime<AllureConfiguration>>(this);
 
     protected override IAllureRuntime<AllureConfiguration> CreateRuntime(
         RuntimeCreationArguments<AllureConfiguration> args
