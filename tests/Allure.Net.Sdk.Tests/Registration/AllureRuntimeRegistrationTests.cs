@@ -231,13 +231,6 @@ public class AllureRuntimeRegistrationTests
                 args.ModelApi
             ));
         }
-
-        protected override IPreparedInProcessRouteBuilder CreateRouteBuilder(
-            AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args
-        )
-        {
-            return new RegistrationTestRouteBuilder<TRuntime>(args);
-        }
     }
 
     sealed class RegistrationTestRuntimeBuilder<TRuntime>(
@@ -247,16 +240,6 @@ public class AllureRuntimeRegistrationTests
             AllureConfiguration,
             TRuntime
         >("registration-tests", () => new RegistrationTestRuntimeRegistrationSession<TRuntime>(runtimeFactory))
-
-        where TRuntime : IAllureRuntime<AllureConfiguration>;
-
-    sealed class RegistrationTestRouteBuilder<TRuntime>(
-        AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args
-    ) :
-        AllureInProcessRouteBuilder<
-            AllureConfiguration,
-            TRuntime
-        >(args)
 
         where TRuntime : IAllureRuntime<AllureConfiguration>;
 

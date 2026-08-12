@@ -376,7 +376,7 @@ public class RegistrationHookTests
         )).Throws<FileNotFoundException>();
     }
 
-    static TestRuntimeBuilder<TestConfiguration> CreateBuilder() =>
+    static AllureRuntimeBuilder<TestConfiguration> CreateBuilder() =>
         new("hook-tests");
 
     static AllureRuntimeBuilder CreateReflectionBuilder() => new("reflection-hook-tests");

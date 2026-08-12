@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Allure.Abstractions;
 using Allure.Runtime;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
-using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
@@ -13,7 +13,7 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
     TConfiguration configuration,
     AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntime> commonSnapshot,
     Func<RuntimeCreationArguments<TConfiguration>, TRuntime> runtimeFactory,
-    Func<AllureRouteBuilderArgs<TConfiguration, TRuntime>, IPreparedInProcessRouteBuilder> routeBuilderFactory
+    Func<EndpointRouteCreationArguments<TConfiguration, TRuntime>, IAllureRuntimeRoute> routeFactory
 ) :
     IPreparedRuntimeRegistration<TConfiguration, TRuntime>
 
@@ -59,7 +59,7 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
 
             if (commonSnapshot.EndpointRegistration is var (routeId, routeRegistration))
             {
-                AllureRouteBuilderArgs<TConfiguration, TRuntime> endpointBuildArgs = new(
+                EndpointRouteCreationArguments<TConfiguration, TRuntime> endpointBuildArgs = new(
                     runtimeName,
                     routeId,
                     runtime,
@@ -67,9 +67,9 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
                     commonSnapshot.RuleBasedSerializerRegistrations,
                     routeRegistration
                 );
-                var endpointRouteBuilder = routeBuilderFactory(endpointBuildArgs);
 
-                var route = endpointRouteBuilder.Build();
+                var route = routeFactory(endpointBuildArgs);
+
                 endpointRegistration = AllureRuntimeRouter.Install(route);
             }
 

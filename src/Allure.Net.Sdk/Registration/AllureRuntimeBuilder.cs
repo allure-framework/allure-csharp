@@ -124,17 +124,7 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime>(
     where TConfiguration : AllureConfiguration, new()
     where TRuntime : IAllureRuntime<TConfiguration>;
 
-public class AllureRuntimeBuilder<TConfiguration>(
-    string runtimeName,
-    Func<
-        AllureRuntimeRegistrationSession<
-            TConfiguration,
-            IAllureRuntime<TConfiguration>,
-            IAllureRuntimeRegistrationContext<TConfiguration>,
-            IAllureRuntimeIntegrationContext<TConfiguration>
-        >
-    > sessionFactory
-) :
+public class AllureRuntimeBuilder<TConfiguration>(string runtimeName) :
     AllureRuntimeBuilder<
         TConfiguration,
         IAllureRuntime<TConfiguration>,
@@ -142,7 +132,7 @@ public class AllureRuntimeBuilder<TConfiguration>(
         IAllureRuntimeIntegrationContext<TConfiguration>
     >(
         runtimeName,
-        sessionFactory
+        () => new AllureRuntimeRegistrationSession<TConfiguration>()
     )
 
     where TConfiguration : AllureConfiguration, new();

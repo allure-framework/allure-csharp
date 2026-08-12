@@ -160,7 +160,7 @@ public class SerializerSelectionTests
         Action<IAllureRuntimeIntegrationContext<AllureConfiguration>> configure
     )
     {
-        var builder = new TestRuntimeBuilder<AllureConfiguration>("serializer-selection");
+        var builder = new AllureRuntimeBuilder<AllureConfiguration>("serializer-selection");
         var plan = builder.Prepare((ctx) =>
         {
             ctx.UseConfiguration(new AllureConfiguration());

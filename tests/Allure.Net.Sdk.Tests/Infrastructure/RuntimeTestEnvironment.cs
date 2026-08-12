@@ -31,7 +31,7 @@ sealed class RuntimeTestEnvironment<TConfiguration> : IDisposable
     )
     {
         var destination = new InMemoryResultsDestination();
-        var builder = new TestRuntimeBuilder<TConfiguration>("sdk-test");
+        var builder = new AllureRuntimeBuilder<TConfiguration>("sdk-test");
         var plan = builder.Prepare((ctx) =>
         {
             ctx.UseConfiguration(configuration ?? new TConfiguration());
@@ -47,34 +47,6 @@ sealed class RuntimeTestEnvironment<TConfiguration> : IDisposable
         this.registration?.Dispose();
     }
 }
-
-sealed class TestRuntimeRegistrationSession<TConfiguration> :
-    AllureRuntimeRegistrationSession<TConfiguration>
-
-    where TConfiguration : AllureConfiguration, new()
-{
-    protected override IPreparedInProcessRouteBuilder CreateRouteBuilder(
-        AllureRouteBuilderArgs<TConfiguration, IAllureRuntime<TConfiguration>> args
-    )
-    {
-        return new TestEndpointRouteBuilder<TConfiguration>(args);
-    }
-}
-
-sealed class TestRuntimeBuilder<TConfiguration>(string runtimeName) :
-    AllureRuntimeBuilder<TConfiguration>(runtimeName, () => new TestRuntimeRegistrationSession<TConfiguration>())
-
-    where TConfiguration : AllureConfiguration, new();
-
-sealed class TestEndpointRouteBuilder<TConfiguration>(
-    AllureRouteBuilderArgs<
-        TConfiguration,
-        IAllureRuntime<TConfiguration>
-    > args
-) :
-    AllureInProcessRouteBuilder<TConfiguration>(args)
-
-    where TConfiguration : AllureConfiguration;
 
 sealed class RuntimeTestEnvironment
 {
@@ -111,21 +83,6 @@ sealed class RecordingEndpointHook<TConfiguration, TRuntime>(
 
     public void SetUp(
         IAllureInProcessEndpointRegistrationContext<TRuntime> context
-    )
-    {
-        this.CallCount++;
-        setUp?.Invoke(context);
-    }
-}
-
-sealed class RecordingEndpointHook(
-    Action<IAllureInProcessEndpointRegistrationContext<IAllureRuntime<AllureConfiguration>>>? setUp = null
-) : IAllureRegistrationHook<IAllureInProcessEndpointRegistrationContext<IAllureRuntime<AllureConfiguration>>>
-{
-    public int CallCount { get; private set; }
-
-    public void SetUp(
-        IAllureInProcessEndpointRegistrationContext<IAllureRuntime<AllureConfiguration>> context
     )
     {
         this.CallCount++;

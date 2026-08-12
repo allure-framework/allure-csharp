@@ -202,10 +202,6 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
 
     protected abstract TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args);
 
-    protected abstract IPreparedInProcessRouteBuilder CreateRouteBuilder(
-        AllureRouteBuilderArgs<TConfiguration, TRuntime> args
-    );
-
     internal IPreparedRuntimeRegistration<TConfiguration, TRuntime> Prepare(
         string runtimeName,
         Action<TIntegrationContext> registration
@@ -233,7 +229,7 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
                     finalConfiguration.Configuration,
                     commonSnapshot,
                     this.CreateRuntime,
-                    this.CreateRouteBuilder
+                    (args) => new AllureInProcessRouteBuilder<TConfiguration, TRuntime>(args).Build()
                 );
             }
             catch
@@ -402,7 +398,7 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime>
     protected override IAllureRuntimeIntegrationContext<TConfiguration, TRuntime> IntegrationContext => this;
 }
 
-public abstract class AllureRuntimeRegistrationSession<TConfiguration> :
+public class AllureRuntimeRegistrationSession<TConfiguration> :
     AllureRuntimeRegistrationSession<
         TConfiguration,
         IAllureRuntime<TConfiguration>,
@@ -454,9 +450,4 @@ public class AllureRuntimeRegistrationSession :
             args.LifecycleApi,
             args.ModelApi
         );
-
-    protected override IPreparedInProcessRouteBuilder CreateRouteBuilder(
-        AllureRouteBuilderArgs<AllureConfiguration, IAllureRuntime<AllureConfiguration>> args
-    ) =>
-        new AllureInProcessRouteBuilder(args);
 }

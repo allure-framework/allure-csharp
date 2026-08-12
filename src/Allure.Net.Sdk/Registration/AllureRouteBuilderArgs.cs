@@ -7,7 +7,7 @@ namespace Allure.Sdk.Registration;
 
 /// <summary>
 /// Carries the components resolved by a runtime builder into an in-process
-/// route builder.
+/// endpoint route.
 /// </summary>
 /// <remarks>
 /// Instances are created by the SDK and supplied to
@@ -15,7 +15,7 @@ namespace Allure.Sdk.Registration;
 /// </remarks>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public class AllureRouteBuilderArgs<TConfiguration, TRuntime>
+public class EndpointRouteCreationArguments<TConfiguration, TRuntime>
     where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>
 {
@@ -26,7 +26,7 @@ public class AllureRouteBuilderArgs<TConfiguration, TRuntime>
     internal IEnumerable<Action<TConfiguration, IParameterSerializationRulesContext>> RuleBasedSerializerRegistrations { get; }
     internal Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> Registration { get; }
 
-    internal AllureRouteBuilderArgs(
+    internal EndpointRouteCreationArguments(
         string runtimeName,
         string routeId,
         TRuntime runtime,

@@ -4,20 +4,14 @@ using System.Linq;
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Internal.Runtime;
+using Allure.Sdk.Registration;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
-namespace Allure.Sdk.Registration;
+namespace Allure.Sdk.Internal.Registration;
 
-/// <summary>
-/// Provides the base implementation for builders that construct an in-process
-/// endpoint route with an integration-specific registration context and hook.
-/// </summary>
-/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <typeparam name="TRuntime">The runtime type.</typeparam>
-public class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
-    IAllureInProcessEndpointIntegrationContext<TRuntime>,
-    IPreparedInProcessRouteBuilder
+internal class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
+    IAllureInProcessEndpointIntegrationContext<TRuntime>
 
     where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>
@@ -61,7 +55,7 @@ public class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
     /// its runtime builder.
     /// </summary>
     /// <param name="args">The resolved route builder arguments.</param>
-    public AllureInProcessRouteBuilder(AllureRouteBuilderArgs<TConfiguration, TRuntime> args)
+    public AllureInProcessRouteBuilder(EndpointRouteCreationArguments<TConfiguration, TRuntime> args)
     {
         this.useRuleBasedSerializer = args.UseRuleBasedSerializer;
         this.runtimeName = args.RuntimeName;
@@ -197,16 +191,3 @@ public class AllureInProcessRouteBuilder<TConfiguration, TRuntime> :
         }
     }
 }
-
-public class AllureInProcessRouteBuilder<TConfiguration>(
-    AllureRouteBuilderArgs<TConfiguration, IAllureRuntime<TConfiguration>> args
-) :
-    AllureInProcessRouteBuilder<TConfiguration, IAllureRuntime<TConfiguration>>(args)
-
-    where TConfiguration : AllureConfiguration;
-
-class AllureInProcessRouteBuilder(
-    AllureRouteBuilderArgs<AllureConfiguration, IAllureRuntime<AllureConfiguration>> args
-) :
-    AllureInProcessRouteBuilder<AllureConfiguration>(args),
-    IAllureInProcessEndpointIntegrationContext;
