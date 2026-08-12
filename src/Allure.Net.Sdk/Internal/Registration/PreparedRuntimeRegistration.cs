@@ -12,7 +12,8 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
     string runtimeName,
     TConfiguration configuration,
     AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntime> commonSnapshot,
-    IAllureRuntimeIntegrationSnapshot<TConfiguration, TRuntime> integrationSnapshot
+    Func<RuntimeCreationArguments<TConfiguration>, TRuntime> runtimeFactory,
+    Func<AllureRouteBuilderArgs<TConfiguration, TRuntime>, IPreparedInProcessRouteBuilder> routeBuilderFactory
 ) :
     IPreparedRuntimeRegistration<TConfiguration, TRuntime>
 
@@ -48,7 +49,7 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
             ModelApi: modelApi
         );
 
-        var runtime = integrationSnapshot.CreateRuntime(runtimeCreationArguments);
+        var runtime = runtimeFactory(runtimeCreationArguments);
 
         IDisposable? endpointRegistration = null;
 
@@ -66,7 +67,7 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
                     commonSnapshot.RuleBasedSerializerRegistrations,
                     routeRegistration
                 );
-                var endpointRouteBuilder = integrationSnapshot.CreateRouteBuilder(endpointBuildArgs);
+                var endpointRouteBuilder = routeBuilderFactory(endpointBuildArgs);
 
                 var route = endpointRouteBuilder.Build();
                 endpointRegistration = AllureRuntimeRouter.Install(route);

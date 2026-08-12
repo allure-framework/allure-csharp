@@ -184,34 +184,22 @@ public class InProcessEndpointRegistrationTests
         public object Service { get; } = service;
     }
 
-    sealed class RuntimeWithServiceRegistrationSnapshot(object service, Action<object> notifyRouteBuilderService) :
-        IAllureRuntimeIntegrationSnapshot<
-            AllureConfiguration,
-            RuntimeWithService
-        >
-    {
-        public IPreparedInProcessRouteBuilder CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, RuntimeWithService> args)
-        {
-            var builder = new RuntimeWithServiceRouteBuilder(args);
-            notifyRouteBuilderService(service);
-            return builder;
-        }
-
-        public RuntimeWithService CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
-        {
-            return new (args.Configuration, args.ParameterSerializer, args.Destination, args.Context, args.LifecycleApi, args.ModelApi, service);
-        }
-    }
-
     sealed class RuntimeWithServiceRegistrationSession(
         object service,
         Action<object> notifyRouteBuilderService
     ) :
         AllureRuntimeRegistrationSession<AllureConfiguration, RuntimeWithService>
     {
-        protected override RuntimeWithServiceRegistrationSnapshot CaptureIntegrationSnapshot()
+        protected override RuntimeWithService CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
         {
-            return new(service, notifyRouteBuilderService);
+            return new (args.Configuration, args.ParameterSerializer, args.Destination, args.Context, args.LifecycleApi, args.ModelApi, service);
+        }
+
+        protected override IPreparedInProcessRouteBuilder CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, RuntimeWithService> args)
+        {
+            var builder = new RuntimeWithServiceRouteBuilder(args);
+            notifyRouteBuilderService(service);
+            return builder;
         }
     }
 

@@ -213,19 +213,14 @@ public class AllureRuntimeRegistrationTests
         }
     }
 
-    sealed class RegistrationTestRuntimeRegistrationSnapshot<TRuntime>(
+    sealed class RegistrationTestRuntimeRegistrationSession<TRuntime>(
         RuntimeFactory<TRuntime> runtimeFactory
     ) :
-        IAllureRuntimeIntegrationSnapshot<AllureConfiguration, TRuntime>
+        AllureRuntimeRegistrationSession<AllureConfiguration, TRuntime>
 
         where TRuntime : IAllureRuntime<AllureConfiguration>
     {
-        public IPreparedInProcessRouteBuilder CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args)
-        {
-            return new RegistrationTestRouteBuilder<TRuntime>(args);
-        }
-
-        public TRuntime CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
+        protected override TRuntime CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
         {
             return runtimeFactory(new(
                 args.Configuration,
@@ -236,18 +231,13 @@ public class AllureRuntimeRegistrationTests
                 args.ModelApi
             ));
         }
-    }
 
-    sealed class RegistrationTestRuntimeRegistrationSession<TRuntime>(
-        RuntimeFactory<TRuntime> runtimeFactory
-    ) :
-        AllureRuntimeRegistrationSession<AllureConfiguration, TRuntime>
-
-        where TRuntime : IAllureRuntime<AllureConfiguration>
-    {
-        protected override RegistrationTestRuntimeRegistrationSnapshot<TRuntime> CaptureIntegrationSnapshot() => new(
-            runtimeFactory
-        );
+        protected override IPreparedInProcessRouteBuilder CreateRouteBuilder(
+            AllureRouteBuilderArgs<AllureConfiguration, TRuntime> args
+        )
+        {
+            return new RegistrationTestRouteBuilder<TRuntime>(args);
+        }
     }
 
     sealed class RegistrationTestRuntimeBuilder<TRuntime>(

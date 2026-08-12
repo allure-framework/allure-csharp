@@ -48,25 +48,16 @@ sealed class RuntimeTestEnvironment<TConfiguration> : IDisposable
     }
 }
 
-sealed class TestRuntimeRegistrationSnapshot<TConfiguration> :
-    AllureRuntimeIntegrationSnapshot<TConfiguration>
-
-    where TConfiguration : AllureConfiguration
-{
-    public override IPreparedInProcessRouteBuilder CreateRouteBuilder(AllureRouteBuilderArgs<TConfiguration, IAllureRuntime<TConfiguration>> args)
-    {
-        return new TestEndpointRouteBuilder<TConfiguration>(args);
-    }
-}
-
 sealed class TestRuntimeRegistrationSession<TConfiguration> :
     AllureRuntimeRegistrationSession<TConfiguration>
 
     where TConfiguration : AllureConfiguration, new()
 {
-    protected override IAllureRuntimeIntegrationSnapshot<TConfiguration, IAllureRuntime<TConfiguration>> CaptureIntegrationSnapshot()
+    protected override IPreparedInProcessRouteBuilder CreateRouteBuilder(
+        AllureRouteBuilderArgs<TConfiguration, IAllureRuntime<TConfiguration>> args
+    )
     {
-        return new TestRuntimeRegistrationSnapshot<TConfiguration>();
+        return new TestEndpointRouteBuilder<TConfiguration>(args);
     }
 }
 

@@ -200,11 +200,11 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
     /// </summary>
     protected abstract TRegistrationContext RegistrationContext { get; }
 
-    /// <summary>
-    /// Captures the integration-specific factories required after the session closes.
-    /// </summary>
-    /// <returns>The immutable integration snapshot.</returns>
-    protected abstract IAllureRuntimeIntegrationSnapshot<TConfiguration, TRuntime> CaptureIntegrationSnapshot();
+    protected abstract TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args);
+
+    protected abstract IPreparedInProcessRouteBuilder CreateRouteBuilder(
+        AllureRouteBuilderArgs<TConfiguration, TRuntime> args
+    );
 
     internal IPreparedRuntimeRegistration<TConfiguration, TRuntime> Prepare(
         string runtimeName,
@@ -226,14 +226,14 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
                 this.CloseRegistration();
 
                 var commonSnapshot = this.CaptureCommonSnapshot();
-                var integrationSnapshot = this.CaptureIntegrationSnapshot();
 
 
                 return new PreparedRuntimeRegistration<TConfiguration, TRuntime>(
                     runtimeName,
                     finalConfiguration.Configuration,
                     commonSnapshot,
-                    integrationSnapshot
+                    this.CreateRuntime,
+                    this.CreateRouteBuilder
                 );
             }
             catch
@@ -416,6 +416,18 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration> :
     protected override IAllureRuntimeIntegrationContext<TConfiguration> IntegrationContext => this;
 
     protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+
+    protected override IAllureRuntime<TConfiguration> CreateRuntime(
+        RuntimeCreationArguments<TConfiguration> args
+    ) =>
+        new AllureRuntime<TConfiguration>(
+            args.Configuration,
+            args.ParameterSerializer,
+            args.Destination,
+            args.Context,
+            args.LifecycleApi,
+            args.ModelApi
+        );
 }
 
 public class AllureRuntimeRegistrationSession :
@@ -427,12 +439,24 @@ public class AllureRuntimeRegistrationSession :
     >,
     IAllureRuntimeIntegrationContext
 {
-    protected override IAllureRuntimeIntegrationSnapshot<AllureConfiguration, IAllureRuntime<AllureConfiguration>> CaptureIntegrationSnapshot()
-    {
-        return new AllureRuntimeIntegrationSnapshot();
-    }
-
     protected override IAllureRuntimeIntegrationContext IntegrationContext => this;
 
     protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext => this;
+
+    protected override IAllureRuntime<AllureConfiguration> CreateRuntime(
+        RuntimeCreationArguments<AllureConfiguration> args
+    ) =>
+        new AllureRuntime<AllureConfiguration>(
+            args.Configuration,
+            args.ParameterSerializer,
+            args.Destination,
+            args.Context,
+            args.LifecycleApi,
+            args.ModelApi
+        );
+
+    protected override IPreparedInProcessRouteBuilder CreateRouteBuilder(
+        AllureRouteBuilderArgs<AllureConfiguration, IAllureRuntime<AllureConfiguration>> args
+    ) =>
+        new AllureInProcessRouteBuilder(args);
 }
