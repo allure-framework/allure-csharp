@@ -144,4 +144,68 @@ public class AllureRuntimeBuilder(string runtimeName) :
     >(
         runtimeName,
         () => new AllureRuntimeRegistrationSession()
-    );
+    )
+{
+    /// <summary>
+    /// Creates the runtime builder from the name and session factory.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+    /// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
+    /// <typeparam name="TIntegrationContext">
+    /// The integration context type passed to the registration action.
+    /// </typeparam>
+    /// <param name="runtimeName">
+    /// The runtime name assigned to its in-process endpoint.
+    /// </param>
+    /// <param name="sessionFactory">
+    /// A factory that creates the single-use registration session configured by
+    /// <see cref="AllureRuntimeBuilder{TConfiguration,TRuntime,TIntegrationContext}.Prepare(Action{TIntegrationContext})"/>.
+    /// </param>
+    /// <returns>A single-use builder that constructs the runtime.</returns>
+    public static AllureRuntimeBuilder<
+        TConfiguration,
+        TRuntime,
+        TIntegrationContext
+    > Create<TConfiguration, TRuntime, TIntegrationContext>(
+        string runtimeName,
+        Func<
+            AllureRuntimeRegistrationSessionBase<
+                TConfiguration,
+                TRuntime,
+                TIntegrationContext
+            >
+        > sessionFactory
+    )
+        where TConfiguration : AllureConfiguration, new()
+        where TRuntime : IAllureRuntime<TConfiguration>
+        where TIntegrationContext : IAllureRuntimeIntegrationContextBase<TConfiguration, TRuntime>
+    =>
+        new(runtimeName, sessionFactory);
+
+    /// <summary>
+    /// Creates the runtime builder from the name and session factory.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+    /// <typeparam name="TRuntime">The type of runtime constructed by the builder.</typeparam>
+    /// <param name="runtimeName">
+    /// The runtime name assigned to its in-process endpoint.
+    /// </param>
+    /// <param name="sessionFactory">
+    /// A factory that creates the single-use registration session configured by
+    /// <see cref="AllureRuntimeBuilder{TConfiguration,TRuntime,TIntegrationContext}.Prepare(Action{TIntegrationContext})"/>.
+    /// </param>
+    /// <returns>A single-use builder for the standard context that constructs the runtime.</returns>
+    public static AllureRuntimeBuilder<TConfiguration, TRuntime> Create<TConfiguration, TRuntime>(
+        string runtimeName,
+        Func<
+            AllureRuntimeRegistrationSession<
+                TConfiguration,
+                TRuntime
+            >
+        > sessionFactory
+    )
+        where TConfiguration : AllureConfiguration, new()
+        where TRuntime : IAllureRuntime<TConfiguration>
+    =>
+        new(runtimeName, sessionFactory);
+}
