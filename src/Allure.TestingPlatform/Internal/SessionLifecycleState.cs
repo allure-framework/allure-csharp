@@ -102,7 +102,7 @@ internal class SessionLifecycleState(IAllureExecutionContext context)
         }
     }
 
-    public void ReleaseState(IAllureExecutionStateUid stateUid, Action<IAllureRuntime> commit)
+    public void ReleaseState(IAllureExecutionStateUid stateUid, Action<IAllureRuntimeBase> commit)
     {
         if (CollectionAlgorithms.TryRemoveAndGet(this.states, stateUid, out var state))
         {
@@ -110,7 +110,7 @@ internal class SessionLifecycleState(IAllureExecutionContext context)
         }
     }
 
-    public void ReleaseScopeState(ScopeExecutionStateUid scopeUid, Action<IAllureRuntime> commit)
+    public void ReleaseScopeState(ScopeExecutionStateUid scopeUid, Action<IAllureRuntimeBase> commit)
     {
         if (CollectionAlgorithms.TryRemoveAndGet(this.scopeTests, scopeUid, out var testUids))
         {

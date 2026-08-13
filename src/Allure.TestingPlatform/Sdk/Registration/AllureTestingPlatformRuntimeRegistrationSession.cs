@@ -14,67 +14,44 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 
 public abstract class AllureTestingPlatformRuntimeRegistrationSession<
     TConfiguration,
-    TRuntimeRegistrationContext,
-    TRuntimeHook,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntimeIntegrationContext,
-    TIntegrationSnapshot,
-    TRuntime
+    TRuntime,
+    TRegistrationContext,
+    TIntegrationContext
 > :
     AllureRuntimeRegistrationSession<
         TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntimeIntegrationContext,
-        TIntegrationSnapshot,
-        TRuntime
+        TRuntime,
+        TRegistrationContext,
+        TIntegrationContext
     >,
     IAllureTestingPlatformRuntimeIntegrationContext<
         TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
+        TRuntime,
+        TRegistrationContext
     >
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
-    where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-    where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-    where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration, TRuntime>
-    where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
-    where TRuntimeIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
-        TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >
-    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
+    where TRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+    where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
+        TConfiguration,
+        TRuntime,
+        TRegistrationContext
+    >
 {
-    internal Func<TConfiguration, ICorrelationStrategy> currentCorrelationStrategyFactory =
+    Func<TConfiguration, ICorrelationStrategy> currentCorrelationStrategyFactory =
         (_) => new TestingPlatformSessionUidCorrelationStrategy();
 
-    internal Func<TConfiguration, ICorrelationContext> currentCorrelationContextFactory =
+    Func<TConfiguration, ICorrelationContext> currentCorrelationContextFactory =
         (_) => NullCorrelationContext.Instance;
 
-    internal Func<TConfiguration, ExecutionStateContext> currentExecutionStateContextFactory =
+    Func<TConfiguration, ExecutionStateContext> currentExecutionStateContextFactory =
         (_) => NullExecutionStateContext.Instance;
 
-    internal Func<TConfiguration, ILogger> currentLoggerFactory =
+    Func<TConfiguration, ILogger> currentLoggerFactory =
         (_) => NullLogger.Instance;
 
-    internal Func<TConfiguration, IMessageBus> currentMessageBusFactory =
+    Func<TConfiguration, IMessageBus> currentMessageBusFactory =
         (_) => NullMessageBus.Instance;
 
     public void Disable()
@@ -123,68 +100,105 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
     {
         this.Modify(() => this.currentMessageBusFactory = messageBusFactory);
     }
+
+    protected override sealed TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args)
+    {
+        var configuration = args.Configuration;
+        return this.CreateRuntime(
+            args,
+            new(
+                Logger: this.currentLoggerFactory(configuration),
+                MessageBus: this.currentMessageBusFactory(configuration),
+                CorrelationStrategy: this.currentCorrelationStrategyFactory(configuration),
+                CorrelationContext: this.currentCorrelationContextFactory(configuration),
+                ExecutionStateContext: this.currentExecutionStateContextFactory(configuration)
+            )
+        );
+    }
+
+    protected abstract TRuntime CreateRuntime(
+        RuntimeCreationArguments<TConfiguration> commonArgs,
+        AllureTestingPlatformRuntimeCreationArguments testingPlatformArgs
+    );
 }
 
 public abstract class AllureTestingPlatformRuntimeRegistrationSession<
     TConfiguration,
-    TRuntimeRegistrationContext,
-    TRuntimeHook,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntimeIntegrationContext,
-    TIntegrationSnapshot
+    TRuntime,
+    TRegistrationContext
 > :
     AllureTestingPlatformRuntimeRegistrationSession<
         TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntimeIntegrationContext,
-        TIntegrationSnapshot,
-        IAllureTestingPlatformRuntime<TConfiguration>
-    >,
-    IAllureTestingPlatformRuntimeIntegrationContext<
-        TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook
+        TRuntime,
+        TRegistrationContext,
+        IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
     >
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
-    where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-    where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-    where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration>
-    where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext>
-    where TRuntimeIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
+    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
+    where TRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+{
+    protected override IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext> IntegrationContext => this;
+}
+
+public abstract class AllureTestingPlatformRuntimeRegistrationSession<
+    TConfiguration,
+    TRuntime
+> :
+    AllureTestingPlatformRuntimeRegistrationSession<
         TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook
-    >
-    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
+        TRuntime,
+        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>,
+        IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+    >,
+    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+
+    where TConfiguration : AllureTestingPlatformConfiguration, new()
+    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
+{
+    protected override IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+}
+
+public class AllureTestingPlatformRuntimeRegistrationSession<TConfiguration> :
+    AllureTestingPlatformRuntimeRegistrationSession<
         TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        IAllureTestingPlatformRuntime<TConfiguration>
-    >;
+        IAllureTestingPlatformRuntime<TConfiguration>,
+        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>,
+        IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>
+    >,
+    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>
+
+    where TConfiguration : AllureTestingPlatformConfiguration, new()
+{
+    protected override IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration> IntegrationContext => this;
+
+    protected override IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+
+    protected override IAllureTestingPlatformRuntime<TConfiguration> CreateRuntime(
+        RuntimeCreationArguments<TConfiguration> commonArgs,
+        AllureTestingPlatformRuntimeCreationArguments testingPlatformArgs
+    ) =>
+        new AllureTestingPlatformRuntime<TConfiguration>(
+            commonArgs.Configuration,
+            commonArgs.ParameterSerializer,
+            commonArgs.Destination,
+            commonArgs.Context,
+            commonArgs.LifecycleApi,
+            commonArgs.ModelApi,
+            testingPlatformArgs.Logger,
+            testingPlatformArgs.MessageBus,
+            testingPlatformArgs.CorrelationStrategy,
+            testingPlatformArgs.CorrelationContext,
+            testingPlatformArgs.ExecutionStateContext
+        );
+}
 
 public class AllureTestingPlatformRuntimeRegistrationSession :
     AllureTestingPlatformRuntimeRegistrationSession<
         AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime,
         IAllureTestingPlatformRuntimeRegistrationContext,
-        IAllureTestingPlatformRuntimeRegistrationHook,
-        IAllureTestingPlatformEndpointRegistrationContext,
-        IAllureTestingPlatformEndpointRegistrationHook,
-        IAllureTestingPlatformRuntimeIntegrationContext,
-        IAllureRuntimeIntegrationSnapshot<
-            AllureTestingPlatformConfiguration,
-            IAllureTestingPlatformEndpointRegistrationContext,
-            IAllureTestingPlatformEndpointRegistrationHook,
-            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-        >
+        IAllureTestingPlatformRuntimeIntegrationContext
     >,
     IAllureTestingPlatformRuntimeIntegrationContext
 {
@@ -192,12 +206,21 @@ public class AllureTestingPlatformRuntimeRegistrationSession :
 
     protected override IAllureTestingPlatformRuntimeRegistrationContext RegistrationContext => this;
 
-    protected override IAllureRuntimeIntegrationSnapshot<AllureTestingPlatformConfiguration, IAllureTestingPlatformEndpointRegistrationContext, IAllureTestingPlatformEndpointRegistrationHook, IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> CaptureIntegrationSnapshot() =>
-        new AllureTestingPlatformRuntimeIntegrationSnapshot(
-            this.currentLoggerFactory,
-            this.currentMessageBusFactory,
-            this.currentCorrelationStrategyFactory,
-            this.currentCorrelationContextFactory,
-            this.currentExecutionStateContextFactory
+    protected override IAllureTestingPlatformRuntime CreateRuntime(
+        RuntimeCreationArguments<AllureTestingPlatformConfiguration> commonArgs,
+        AllureTestingPlatformRuntimeCreationArguments testingPlatformArgs
+    ) =>
+        new AllureTestingPlatformRuntime(
+            commonArgs.Configuration,
+            commonArgs.ParameterSerializer,
+            commonArgs.Destination,
+            commonArgs.Context,
+            commonArgs.LifecycleApi,
+            commonArgs.ModelApi,
+            testingPlatformArgs.Logger,
+            testingPlatformArgs.MessageBus,
+            testingPlatformArgs.CorrelationStrategy,
+            testingPlatformArgs.CorrelationContext,
+            testingPlatformArgs.ExecutionStateContext
         );
 }

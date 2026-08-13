@@ -12,7 +12,7 @@ abstract class OperationContext(
 {
     bool disposed = false;
 
-    protected IAllureRuntime Runtime => runtime;
+    protected IAllureRuntimeBase Runtime => runtime;
 
     protected AllureExecutionState CurrentState => runtime.ContextApi.CurrentState;
 

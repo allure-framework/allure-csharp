@@ -1,79 +1,52 @@
-using System;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Registration;
-using Allure.TestingPlatform.Sdk.Correlation;
-using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Microsoft.Testing.Platform.Logging;
-using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 
 public interface IAllureTestingPlatformRuntimeIntegrationContext<
     TConfiguration,
-    TRuntimeRegistrationContext,
-    TRuntimeHook,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntime
+    out TRuntime,
+    out TContext
 > :
+    IAllureTestingPlatformRuntimeIntegrationContextBase<TConfiguration, TRuntime>,
     IAllureRuntimeIntegrationContext<
         TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >,
-    IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+        TRuntime,
+        TContext
+    >
 
-    where TConfiguration : AllureTestingPlatformConfiguration, new()
-    where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-    where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-    where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration, TRuntime>
-    where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
+    where TConfiguration : AllureTestingPlatformConfiguration
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-{
-    void UseLogger(Func<TConfiguration, ILogger> loggerFactory);
-
-    void UseMessageBus(Func<TConfiguration, IMessageBus> messageBusFactory);
-
-    void UseCorrelationStrategy(Func<TConfiguration, ICorrelationStrategy> correlationStrategyFactory);
-
-    void UseCorrelationContext(Func<TConfiguration, ICorrelationContext> correlationContextFactory);
-
-    void UseExecutionStateContext(Func<TConfiguration, ExecutionStateContext> executionStateContextFactory);
-}
+    where TContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>;
 
 public interface IAllureTestingPlatformRuntimeIntegrationContext<
     TConfiguration,
-    TRuntimeRegistrationContext,
-    TRuntimeHook,
-    TEndpointRegistrationContext,
-    TEndpointHook
+    out TRuntime
 > :
     IAllureTestingPlatformRuntimeIntegrationContext<
         TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        IAllureTestingPlatformRuntime<TConfiguration>
+        TRuntime,
+        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
     >
 
-    where TConfiguration : AllureTestingPlatformConfiguration, new()
-    where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-    where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-    where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration>
-    where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext>;
+    where TConfiguration : AllureTestingPlatformConfiguration
+    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>;
+
+public interface IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration> :
+    IAllureTestingPlatformRuntimeIntegrationContext<
+        TConfiguration,
+        IAllureTestingPlatformRuntime<TConfiguration>,
+        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+    >
+
+    where TConfiguration : AllureTestingPlatformConfiguration;
 
 public interface IAllureTestingPlatformRuntimeIntegrationContext :
     IAllureTestingPlatformRuntimeIntegrationContext<
         AllureTestingPlatformConfiguration,
-        IAllureTestingPlatformRuntimeRegistrationContext,
-        IAllureTestingPlatformRuntimeRegistrationHook,
-        IAllureTestingPlatformEndpointRegistrationContext,
-        IAllureTestingPlatformEndpointRegistrationHook
+        IAllureTestingPlatformRuntime,
+        IAllureTestingPlatformRuntimeRegistrationContext
     >,
     IAllureTestingPlatformRuntimeRegistrationContext;

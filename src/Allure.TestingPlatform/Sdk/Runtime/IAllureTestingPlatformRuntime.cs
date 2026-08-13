@@ -7,10 +7,8 @@ using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Runtime;
 
-public interface IAllureTestingPlatformRuntime<out TConfiguration> :
-    IAllureRuntime<TConfiguration>
-
-    where TConfiguration : AllureTestingPlatformConfiguration
+public interface IAllureTestingPlatformRuntimeBase :
+    IAllureRuntimeBase
 {
     ILogger Logger { get; }
 
@@ -22,3 +20,12 @@ public interface IAllureTestingPlatformRuntime<out TConfiguration> :
 
     ExecutionStateContext ExecutionStateContext { get; }
 }
+
+public interface IAllureTestingPlatformRuntime<out TConfiguration> :
+    IAllureTestingPlatformRuntimeBase,
+    IAllureRuntime<TConfiguration>
+
+    where TConfiguration : AllureTestingPlatformConfiguration;
+
+public interface IAllureTestingPlatformRuntime :
+    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>;

@@ -44,3 +44,31 @@ public class AllureTestingPlatformRuntime<TConfiguration>(
 
     public ExecutionStateContext ExecutionStateContext => executionStateContext;
 }
+
+public class AllureTestingPlatformRuntime(
+    AllureTestingPlatformConfiguration configuration,
+    IAllureParameterSerializer parameterSerializer,
+    IAllureResultsDestination resultsDestination,
+    IAllureExecutionContext context,
+    IAllureLifecycleApi lifecycleApi,
+    IAllureModelApi modelApi,
+    ILogger logger,
+    IMessageBus messageBus,
+    ICorrelationStrategy correlationStrategy,
+    ICorrelationContext correlationContext,
+    ExecutionStateContext executionStateContext
+) :
+    AllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>(
+        configuration,
+        parameterSerializer,
+        resultsDestination,
+        context,
+        lifecycleApi,
+        modelApi,
+        logger,
+        messageBus,
+        correlationStrategy,
+        correlationContext,
+        executionStateContext
+    ),
+    IAllureTestingPlatformRuntime;

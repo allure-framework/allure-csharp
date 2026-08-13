@@ -10,7 +10,6 @@ using Allure.TestingPlatform.Configuration;
 using Allure.Sdk.Registration;
 using Allure.Abstractions;
 using Allure.TestingPlatform.Internal.Runtime;
-using Allure.TestingPlatform.Registration;
 
 namespace Allure.TestingPlatform.Sdk;
 
@@ -23,55 +22,30 @@ public static class AllureTestingPlatformSdkExtensions
     {
         internal IReadOnlyLateBoundReference<TRuntime> RegisterAllureTestingPlatform<
             TConfiguration,
-            TRuntimeRegistrationContext,
-            TRuntimeHook,
-            TEndpointRegistrationContext,
-            TEndpointHook,
-            TRuntimeIntegrationContext,
-            TIntegrationSnapshot,
-            TRuntime
+            TRuntime,
+            TIntegrationContext
         >(
             string runtimeName,
             Func<
-                AllureRuntimeRegistrationSession<
+                AllureRuntimeRegistrationSessionBase<
                     TConfiguration,
-                    TRuntimeIntegrationContext,
-                    TRuntime
+                    TRuntime,
+                    TIntegrationContext
                 >
             > sessionFactory,
-            Action<TRuntimeIntegrationContext, IServiceProvider> registration
+            Action<TIntegrationContext, IServiceProvider> registration
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
-            where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-            where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-            where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration, TRuntime>
-            where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
-            where TRuntimeIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntime
-            >
-            where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-                TConfiguration,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntime
-            >
             where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-        {
-            var allureRuntimeBuilder = new AllureRuntimeBuilder<
+            where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
                 TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntimeIntegrationContext,
-                TIntegrationSnapshot,
                 TRuntime
-            >(runtimeName, sessionFactory);
+            >
+        {
+            var allureRuntimeBuilder = AllureTestingPlatformRuntimeBuilder.Create(
+                runtimeName,
+                sessionFactory
+            );
 
             IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan = null;
 
@@ -105,7 +79,7 @@ public static class AllureTestingPlatformSdkExtensions
             return allureRuntimeReference;
 
             void RegisterIntegration(
-                TRuntimeIntegrationContext context,
+                TIntegrationContext context,
                 IServiceProvider serviceProvider
             )
             {
@@ -166,281 +140,202 @@ public static class AllureTestingPlatformSdkExtensions
 
         public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
             TConfiguration,
-            TRuntimeRegistrationContext,
-            TRuntimeHook,
-            TEndpointRegistrationContext,
-            TEndpointHook,
-            TRuntimeIntegrationContext,
-            TIntegrationSnapshot,
-            TRuntime
+            TRuntime,
+            TIntegrationContext
         >(
             string runtimeName,
             Func<
-                AllureRuntimeRegistrationSession<
+                AllureRuntimeRegistrationSessionBase<
                     TConfiguration,
-                    TRuntimeIntegrationContext,
-                    TRuntime
+                    TRuntime,
+                    TIntegrationContext
                 >
             > sessionFactory,
-            Action<TRuntimeIntegrationContext, IServiceProvider> runtimeRegistration,
+            Action<TIntegrationContext, IServiceProvider> runtimeRegistration,
             Action<
-                IAllureInProcessEndpointIntegrationContext<
-                    TConfiguration,
-                    TEndpointRegistrationContext,
-                    TEndpointHook,
-                    TRuntime
-                >,
+                IAllureInProcessEndpointIntegrationContext<TRuntime>,
                 IServiceProvider,
                 TRuntime
             > endpointRegistration
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
-            where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-            where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-            where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration, TRuntime>
-            where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
-            where TRuntimeIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntime
-            >
-            where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-                TConfiguration,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntime
-            >
             where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
+            where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
+                TConfiguration,
+                TRuntime
+            >
         {
             IReadOnlyLateBoundReference<TRuntime>? runtimeReference = null;
-            return runtimeReference = RegisterAllureTestingPlatform<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntimeIntegrationContext,
-                TIntegrationSnapshot,
-                TRuntime
-            >(builder, runtimeName, sessionFactory, (context, serviceProvider) =>
-            {
-                context.RegisterInProcessEndpoint(runtimeName, (runtime, endpointContext) =>
+            return runtimeReference = RegisterAllureTestingPlatform(
+                builder,
+                runtimeName,
+                sessionFactory,
+                (context, serviceProvider) =>
                 {
-                    endpointContext.UseCurrentScopePredicate((runtime) =>
-                        runtime.ExecutionStateContext is { CurrentTestUid: not null } or { CurrentFixtureUid: not null});
-
-                    endpointContext.UseGlobalScopePredicate((_) => runtimeReference?.IsBound == true);
-                    endpointContext.SetAvailabilityPredicate((_) => runtimeReference?.IsBound == true);
-                    endpointContext.UseOperations((runtime) =>
+                    context.RegisterInProcessEndpoint(runtimeName, (runtime, endpointContext) =>
                     {
-                        var asyncOperations = new AllureTestingPlatformAsyncOperations(runtime);
-                        return new AllureInProcessOperations(
-                            new AllureTestingPlatformSyncOperations(asyncOperations),
-                            asyncOperations
-                        );
+                        endpointContext.UseCurrentScopePredicate((runtime) =>
+                            runtime.ExecutionStateContext is { CurrentTestUid: not null } or { CurrentFixtureUid: not null});
+
+                        endpointContext.UseGlobalScopePredicate((_) => runtimeReference?.IsBound == true);
+                        endpointContext.SetAvailabilityPredicate((_) => runtimeReference?.IsBound == true);
+                        endpointContext.UseOperations((runtime) =>
+                        {
+                            var asyncOperations = new AllureTestingPlatformAsyncOperations(runtime);
+                            return new AllureInProcessOperations(
+                                new AllureTestingPlatformSyncOperations(asyncOperations),
+                                asyncOperations
+                            );
+                        });
+
+                        endpointRegistration(endpointContext, serviceProvider, runtime);
                     });
 
-                    endpointRegistration(endpointContext, serviceProvider, runtime);
-                });
-
-                runtimeRegistration(context, serviceProvider);
-            });
+                    runtimeRegistration(context, serviceProvider);
+                }
+            );
         }
 
         public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
             TConfiguration,
-            TRuntimeRegistrationContext,
-            TRuntimeHook,
-            TEndpointRegistrationContext,
-            TEndpointHook,
-            TRuntimeIntegrationContext,
-            TIntegrationSnapshot,
+            TRuntime,
+            TIntegrationContext
+        >(
+            string runtimeName,
+            Func<
+                AllureRuntimeRegistrationSessionBase<
+                    TConfiguration,
+                    TRuntime,
+                    TIntegrationContext
+                >
+            > sessionFactory,
+            Action<TIntegrationContext, IServiceProvider> registration
+        )
+            where TConfiguration : AllureTestingPlatformConfiguration, new()
+            where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
+            where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
+                TConfiguration,
+                TRuntime
+            >
+        =>
+            AddEmbeddedAllure(builder, runtimeName, sessionFactory, registration, (_, _, _) => { });
+
+        public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
+            TConfiguration,
             TRuntime
         >(
             string runtimeName,
             Func<
-                AllureRuntimeRegistrationSession<
+                AllureRuntimeRegistrationSessionBase<
                     TConfiguration,
-                    TRuntimeIntegrationContext,
-                    TRuntime
+                    TRuntime,
+                    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
                 >
             > sessionFactory,
-            Action<TRuntimeIntegrationContext, IServiceProvider> registration
+            Action<
+                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>,
+                IServiceProvider
+            > runtimeRegistration,
+            Action<
+                IAllureInProcessEndpointIntegrationContext<TRuntime>,
+                IServiceProvider,
+                TRuntime
+            > endpointRegistration
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
-            where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-            where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-            where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration, TRuntime>
-            where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext, TRuntime>
-            where TRuntimeIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntime
-            >
-            where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-                TConfiguration,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntime
-            >
             where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
         =>
             AddEmbeddedAllure<
                 TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntimeIntegrationContext,
-                TIntegrationSnapshot,
-                TRuntime
-            >(builder, runtimeName, sessionFactory, registration, (_, _, _) => {});
+                TRuntime,
+                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+            >(
+                builder,
+                runtimeName,
+                sessionFactory,
+                runtimeRegistration,
+                endpointRegistration
+            );
 
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<TConfiguration>> AddEmbeddedAllure<
+        public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
             TConfiguration,
-            TRuntimeRegistrationContext,
-            TRuntimeHook,
-            TEndpointRegistrationContext,
-            TEndpointHook,
-            TRuntimeIntegrationContext,
-            TIntegrationSnapshot
+            TRuntime
         >(
             string runtimeName,
             Func<
-                AllureRuntimeRegistrationSession<
+                AllureRuntimeRegistrationSessionBase<
                     TConfiguration,
-                    TRuntimeIntegrationContext,
-                    IAllureTestingPlatformRuntime<TConfiguration>
+                    TRuntime,
+                    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
                 >
             > sessionFactory,
-            Action<TRuntimeIntegrationContext, IServiceProvider> runtimeRegistration,
             Action<
-                IAllureInProcessEndpointIntegrationContext<
-                    TConfiguration,
-                    TEndpointRegistrationContext,
-                    TEndpointHook,
-                    IAllureTestingPlatformRuntime<TConfiguration>
-                >,
+                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>,
+                IServiceProvider
+            > registration
+        )
+            where TConfiguration : AllureTestingPlatformConfiguration, new()
+            where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
+        =>
+            AddEmbeddedAllure(
+                builder,
+                runtimeName,
+                sessionFactory,
+                registration,
+                (_, _, _) => { }
+            );
+
+        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<TConfiguration>> AddEmbeddedAllure<TConfiguration>(
+            string runtimeName,
+            Action<
+                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>,
+                IServiceProvider
+            > runtimeRegistration,
+            Action<
+                IAllureInProcessEndpointIntegrationContext<IAllureTestingPlatformRuntime<TConfiguration>>,
                 IServiceProvider,
                 IAllureTestingPlatformRuntime<TConfiguration>
             > endpointRegistration
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
-            where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-            where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-            where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration>
-            where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext>
-            where TRuntimeIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook
-            >
-            where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-                TConfiguration,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                IAllureTestingPlatformRuntime<TConfiguration>
-            >
         =>
-            AddEmbeddedAllure<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntimeIntegrationContext,
-                TIntegrationSnapshot,
-                IAllureTestingPlatformRuntime<TConfiguration>
-            >(builder, runtimeName, sessionFactory, runtimeRegistration, endpointRegistration);
+            AddEmbeddedAllure(
+                builder,
+                runtimeName,
+                () => new AllureTestingPlatformRuntimeRegistrationSession<TConfiguration>(),
+                runtimeRegistration,
+                endpointRegistration
+            );
 
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<TConfiguration>> AddEmbeddedAllure<
-            TConfiguration,
-            TRuntimeRegistrationContext,
-            TRuntimeHook,
-            TEndpointRegistrationContext,
-            TEndpointHook,
-            TRuntimeIntegrationContext,
-            TIntegrationSnapshot
-        >(
+        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<TConfiguration>> AddEmbeddedAllure<TConfiguration>(
             string runtimeName,
-            Func<
-                AllureRuntimeRegistrationSession<
-                    TConfiguration,
-                    TRuntimeIntegrationContext,
-                    IAllureTestingPlatformRuntime<TConfiguration>
-                >
-            > sessionFactory,
-            Action<TRuntimeIntegrationContext, IServiceProvider> registration
+            Action<
+                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>,
+                IServiceProvider
+            > registration
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
-            where TRuntimeRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-            where TRuntimeHook : IAllureTestingPlatformRuntimeRegistrationHook<TConfiguration, TRuntimeRegistrationContext>
-            where TEndpointRegistrationContext : IAllureTestingPlatformEndpointRegistrationContext<TConfiguration>
-            where TEndpointHook : IAllureTestingPlatformEndpointRegistrationHook<TConfiguration, TEndpointRegistrationContext>
-            where TRuntimeIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook
-            >
-            where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-                TConfiguration,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                IAllureTestingPlatformRuntime<TConfiguration>
-            >
         =>
-            AddEmbeddedAllure<
-                TConfiguration,
-                TRuntimeRegistrationContext,
-                TRuntimeHook,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntimeIntegrationContext,
-                TIntegrationSnapshot,
-                IAllureTestingPlatformRuntime<TConfiguration>
-            >(builder, runtimeName, sessionFactory, registration);
+            AddEmbeddedAllure(
+                builder,
+                runtimeName,
+                registration,
+                (_, _, _) => { }
+            );
 
-        /// <summary>
-        /// Adds Allure.TestingPlatform in embedded mode and configures it.
-        /// </summary>
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> AddEmbeddedAllure(
+        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime> AddEmbeddedAllure(
             string runtimeName,
-            Action<IAllureTestingPlatformRuntimeIntegrationContext, IServiceProvider> runtimeRegistration,
             Action<
-                IAllureInProcessEndpointIntegrationContext<
-                    AllureTestingPlatformConfiguration,
-                    IAllureTestingPlatformEndpointRegistrationContext,
-                    IAllureTestingPlatformEndpointRegistrationHook,
-                    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-                >,
+                IAllureTestingPlatformRuntimeIntegrationContext,
+                IServiceProvider
+            > runtimeRegistration,
+            Action<
+                IAllureInProcessEndpointIntegrationContext<IAllureTestingPlatformRuntime>,
                 IServiceProvider,
-                IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+                IAllureTestingPlatformRuntime
             > endpointRegistration
         ) =>
-            AddEmbeddedAllure<
-                AllureTestingPlatformConfiguration,
-                IAllureTestingPlatformRuntimeRegistrationContext,
-                IAllureTestingPlatformRuntimeRegistrationHook,
-                IAllureTestingPlatformEndpointRegistrationContext,
-                IAllureTestingPlatformEndpointRegistrationHook,
-                IAllureTestingPlatformRuntimeIntegrationContext,
-                IAllureRuntimeIntegrationSnapshot<
-                    AllureTestingPlatformConfiguration,
-                    IAllureTestingPlatformEndpointRegistrationContext,
-                    IAllureTestingPlatformEndpointRegistrationHook,
-                    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-                >
-            >(
+            AddEmbeddedAllure(
                 builder,
                 runtimeName,
                 () => new AllureTestingPlatformRuntimeRegistrationSession(),
@@ -448,51 +343,28 @@ public static class AllureTestingPlatformSdkExtensions
                 endpointRegistration
             );
 
-        /// <summary>
-        /// Adds Allure.TestingPlatform in embedded mode and configures it.
-        /// </summary>
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> AddEmbeddedAllure(
+        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime> AddEmbeddedAllure(
             string runtimeName,
-            Action<IAllureTestingPlatformRuntimeIntegrationContext, IServiceProvider> registration
+            Action<
+                IAllureTestingPlatformRuntimeIntegrationContext,
+                IServiceProvider
+            > registration
         ) =>
-            AddEmbeddedAllure(builder, runtimeName, registration, (_, _, _) => { });
+            AddEmbeddedAllure(
+                builder,
+                runtimeName,
+                registration,
+                (_, _, _) => { }
+            );
     }
 
-    extension<
-        TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    > (
-        IAllureTestingPlatformRuntimeIntegrationContext<
+    extension<TConfiguration, TRuntime> (
+        IAllureTestingPlatformRuntimeIntegrationContextBase<
             TConfiguration,
-            TRuntimeRegistrationContext,
-            TRuntimeHook,
-            TEndpointRegistrationContext,
-            TEndpointHook,
             TRuntime
         > context
     )
-        where TConfiguration :
-            AllureTestingPlatformConfiguration,
-            new()
-        where TRuntimeRegistrationContext :
-            IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-        where TRuntimeHook :
-            IAllureTestingPlatformRuntimeRegistrationHook<
-                TConfiguration,
-                TRuntimeRegistrationContext
-            >
-        where TEndpointRegistrationContext :
-            IAllureTestingPlatformEndpointRegistrationContext<TConfiguration, TRuntime>
-        where TEndpointHook :
-            IAllureTestingPlatformEndpointRegistrationHook<
-                TConfiguration,
-                TEndpointRegistrationContext,
-                TRuntime
-            >
+        where TConfiguration : AllureTestingPlatformConfiguration, new()
         where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
     {
         /// <summary>
