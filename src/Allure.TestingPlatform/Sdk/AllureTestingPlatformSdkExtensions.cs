@@ -55,8 +55,15 @@ public static class AllureTestingPlatformSdkExtensions
             builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
 
             var factory =
-                new CompositeExtensionFactory<AllureDataConsumer<TConfiguration, TRuntime>>((serviceProvider) =>
-                    new AllureDataConsumer<TConfiguration, TRuntime>(allureRuntimeReference)
+                new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
+                    new AllureDataConsumer(
+                        (registrationPlan ??= allureRuntimeBuilder.Prepare(
+                            (ctx) => RegisterIntegration(ctx, serviceProvider)
+                        )).Configuration,
+                        allureRuntimeReference.Select(
+                            static (r) => (IAllureTestingPlatformRuntime<TConfiguration>)r
+                        )
+                    )
                 );
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
@@ -68,10 +75,13 @@ public static class AllureTestingPlatformSdkExtensions
             );
 
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-                new AllureTestingPlatformTestHostRuntimeController<TConfiguration, TRuntime>(
-                    registrationPlan ??= allureRuntimeBuilder.Prepare(
+                new AllureTestingPlatformTestHostRuntimeController(
+                    (IAllureRuntimeRegistrationPlan<
+                        TConfiguration,
+                        IAllureTestingPlatformRuntime<TConfiguration>
+                    >)(registrationPlan ??= allureRuntimeBuilder.Prepare(
                         (ctx) => RegisterIntegration(ctx, serviceProvider)
-                    )
+                    ))
                 )
             );
             builder.TestHost.AddDataConsumer(factory);

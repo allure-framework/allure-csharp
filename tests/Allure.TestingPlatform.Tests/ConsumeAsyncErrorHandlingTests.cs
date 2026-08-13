@@ -138,7 +138,7 @@ public class ConsumeAsyncErrorHandlingTests
         });
         registrationPlan.Build();
         return new(
-            new(registrationPlan.RuntimeReference),
+            new(registrationPlan.Configuration, registrationPlan.RuntimeReference),
             logger,
             sink
         );
@@ -161,10 +161,7 @@ public class ConsumeAsyncErrorHandlingTests
     );
 
     sealed record Fixture(
-        AllureDataConsumer<
-            AllureTestingPlatformConfiguration,
-            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-        > Consumer,
+        AllureDataConsumer Consumer,
         LoggerSpy Logger,
         InMemoryResultsDestination Writer
     );

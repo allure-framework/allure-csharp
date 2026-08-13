@@ -10,10 +10,16 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 /// <summary>
 /// Starts the Allure.TestingPlatform runtime inside the test host process.
 /// </summary>
-public class AllureTestingPlatformTestHostRuntimeController<TConfiguration, TRuntime>(
-    IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> runtimeRegistrationPlan
+public sealed class AllureTestingPlatformTestHostRuntimeController(
+    IAllureRuntimeRegistrationPlan<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    > runtimeRegistrationPlan
 ) :
-    AllureTestingPlatformRuntimeControllerExtension<TConfiguration, TRuntime>(
+    AllureTestingPlatformRuntimeControllerExtension<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    >(
         "25aa78ea-da43-40ce-9fcf-356941b2f8cb",
         "Allure.TestingPlatform lifetime",
         "Ensures the Allure.TestingPlatform runtime is initialized correctly, early, "
@@ -21,9 +27,6 @@ public class AllureTestingPlatformTestHostRuntimeController<TConfiguration, TRun
         runtimeRegistrationPlan
     ),
     ITestHostApplicationLifetime
-
-    where TConfiguration : AllureTestingPlatformConfiguration
-    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     /// <inheritdoc />
     public Task BeforeRunAsync(CancellationToken cancellationToken)

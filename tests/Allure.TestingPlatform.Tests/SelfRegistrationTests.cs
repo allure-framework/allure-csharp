@@ -1,17 +1,9 @@
 using System.Xml.Linq;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.Services;
-
-using DefaultConsumer = Allure.TestingPlatform.Sdk.TestingPlatformExtensions.AllureDataConsumer<
-    Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration,
-    Allure.TestingPlatform.Sdk.Runtime.IAllureTestingPlatformRuntime<Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration>
->;
-using DefaultController = Allure.TestingPlatform.Sdk.TestingPlatformExtensions.AllureTestingPlatformTestHostRuntimeController<
-    Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration,
-    Allure.TestingPlatform.Sdk.Runtime.IAllureTestingPlatformRuntime<Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration>
->;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -54,10 +46,10 @@ public class SelfRegistrationTests
         var code = await app.RunAsync();
 
         await Assert.That(code).IsEqualTo(8); // test session run zero tests
-        await Assert.That(serviceProvider.GetService<DefaultConsumer>()).IsNotNull();
-        await Assert.That(serviceProvider.GetService<DefaultController>())
+        await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNotNull();
+        await Assert.That(serviceProvider.GetService<AllureTestingPlatformTestHostRuntimeController>())
             .IsNotNull();
-        await Assert.That(serviceProvider.GetService<DefaultConsumer>().IsEnabledAsync()).IsTrue();
+        await Assert.That(serviceProvider.GetService<AllureDataConsumer>().IsEnabledAsync()).IsTrue();
     }
 
     [Test]
@@ -83,8 +75,8 @@ public class SelfRegistrationTests
         var code = await app.RunAsync();
 
         await Assert.That(code).IsEqualTo(8); // test session run zero tests
-        await Assert.That(serviceProvider.GetService<DefaultConsumer>()).IsNull();
-        await Assert.That(serviceProvider.GetService<DefaultController>())
+        await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNull();
+        await Assert.That(serviceProvider.GetService<AllureTestingPlatformTestHostRuntimeController>())
             .IsNull();
     }
 

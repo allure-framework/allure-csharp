@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Allure.Abstractions;
 using Allure.Sdk.Registration;
@@ -41,7 +40,7 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
     /// <summary>
     /// Gets the resolved Allure configuration.
     /// </summary>
-    protected TConfiguration Configuration => this.Runtime.Configuration;
+    protected TConfiguration Configuration { get; }
 
     /// <summary>
     /// Gets the resolved Allure context.
@@ -97,21 +96,19 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
         string uid,
         string displayName,
         string description,
+        TConfiguration configuration,
         IReadOnlyLateBoundReference<TRuntime> runtimeReference
     )
     {
         this.Uid = uid;
         this.DisplayName = displayName;
         this.Description = description;
+        this.Configuration = configuration;
         this.Version = TestingPlatformFunctions.GetPackageVersion(this.GetType());
         this.runtimeReference = runtimeReference;
     }
 
     /// <inheritdoc />
     public virtual Task<bool> IsEnabledAsync() =>
-        this.runtimeReference.IsBound
-            ? Task.FromResult(this.Configuration.IsEnabled)
-            : throw new InvalidOperationException(
-                "Unexpected error: The Allure.TestingPlatform runtime is not registered."
-            );
+        Task.FromResult(this.Configuration.IsEnabled);
 }

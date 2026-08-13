@@ -7,17 +7,13 @@ using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
-
-using DefaultConsumer = Allure.TestingPlatform.Sdk.TestingPlatformExtensions.AllureDataConsumer<
-    Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration,
-    Allure.TestingPlatform.Sdk.Runtime.IAllureTestingPlatformRuntime
->;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -109,7 +105,7 @@ public class IntegrationTests
         var code = await app.RunAsync();
 
         await Assert.That(code).IsEqualTo(0);
-        var dataConsumer = registrationServiceProvider.GetRequiredService<DefaultConsumer>();
+        var dataConsumer = registrationServiceProvider.GetRequiredService<AllureDataConsumer>();
         await Assert.That(dataConsumer.IsEnabledAsync()).IsTrue();
         await Assert.That(runtimeReference.Value.Configuration).IsSameReferenceAs(config);
         await Assert.That(runtimeReference.Value.ResultsDestination).IsSameReferenceAs(writer);
@@ -150,7 +146,7 @@ public class IntegrationTests
         var code = await app.RunAsync();
 
         await Assert.That(code).IsEqualTo(8);
-        await Assert.That(serviceProvider.GetService<DefaultConsumer>()).IsNull();
+        await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNull();
     }
 
     [Test]
@@ -179,6 +175,6 @@ public class IntegrationTests
         var code = await app.RunAsync();
 
         await Assert.That(code).IsEqualTo(8);
-        await Assert.That(serviceProvider.GetService<DefaultConsumer>()).IsNull();
+        await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNull();
     }
 }

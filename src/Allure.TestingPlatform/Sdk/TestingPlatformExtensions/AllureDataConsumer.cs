@@ -25,13 +25,14 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 /// <summary>
 /// Consumes Microsoft Testing Platform messages and writes Allure results.
 /// </summary>
-public sealed class AllureDataConsumer<TConfiguration, TRuntime> :
-    AllureTestingPlatformExtension<TConfiguration, TRuntime>,
+public sealed class AllureDataConsumer :
+    AllureTestingPlatformExtension<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    >,
     IDataConsumer,
     ITestSessionLifetimeHandler
 
-    where TConfiguration : AllureTestingPlatformConfiguration
-    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
 
@@ -64,12 +65,16 @@ public sealed class AllureDataConsumer<TConfiguration, TRuntime> :
     /// Creates the Allure data consumer.
     /// </summary>
     public AllureDataConsumer(
-        IReadOnlyLateBoundReference<TRuntime> runtimeReference
+        AllureTestingPlatformConfiguration configuration,
+        IReadOnlyLateBoundReference<
+            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+        > runtimeReference
     ) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
             "Creates Allure results from Microsoft Testing Platform messages.",
+            configuration,
             runtimeReference
         )
     {

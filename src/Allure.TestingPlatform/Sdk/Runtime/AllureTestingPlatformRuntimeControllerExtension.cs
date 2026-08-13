@@ -24,6 +24,7 @@ public abstract class AllureTestingPlatformRuntimeControllerExtension<TConfigura
         uid,
         displayName,
         description,
+        runtimeRegistrationPlan.Configuration,
         runtimeRegistrationPlan.RuntimeReference
     )
 

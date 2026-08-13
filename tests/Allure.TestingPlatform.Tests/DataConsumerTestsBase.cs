@@ -25,11 +25,10 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
     protected readonly ServiceProviderStub serviceProvider;
     protected readonly IAllureRuntimeRegistrationPlan<AllureTestingPlatformConfiguration, IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> registrationPlan;
     protected readonly LateBoundReference<IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> runtimeReference;
-    protected readonly AllureDataConsumer<AllureTestingPlatformConfiguration, IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> consumer;
+    protected readonly AllureDataConsumer consumer;
 
     public DataConsumerTestsBase()
     {
-
         this.commandLineOptions = new();
         this.logger = new();
         this.writer = new();
@@ -45,7 +44,7 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
         });
 
         this.runtimeReference = new();
-        this.consumer = new(this.runtimeReference);
+        this.consumer = new(this.Config, this.runtimeReference);
     }
 
     [Before(Test)]

@@ -17,13 +17,15 @@ public class RuntimeExtensionEnablementTests
     [Test]
     public async Task ShouldReportConfiguredRuntimeEnablement()
     {
-        var enabledPlan = CreatePlan(new() { IsEnabled = true });
-        var disabledPlan = CreatePlan(new() { IsEnabled = false });
+        AllureTestingPlatformConfiguration enabledConfig = new() { IsEnabled = true };
+        AllureTestingPlatformConfiguration disabledConfig = new() { IsEnabled = false };
+        var enabledPlan = CreatePlan(enabledConfig);
+        var disabledPlan = CreatePlan(disabledConfig);
         enabledPlan.Build();
         disabledPlan.Build();
 
-        ExtensionProbe enabled = new(enabledPlan.RuntimeReference);
-        ExtensionProbe disabled = new(disabledPlan.RuntimeReference);
+        ExtensionProbe enabled = new(enabledConfig, enabledPlan.RuntimeReference);
+        ExtensionProbe disabled = new(disabledConfig, disabledPlan.RuntimeReference);
 
         await Assert.That(enabled.IsEnabledAsync()).IsTrue();
         await Assert.That(disabled.IsEnabledAsync()).IsFalse();
@@ -33,7 +35,7 @@ public class RuntimeExtensionEnablementTests
     public async Task ShouldThrowWhenRuntimeIsNotInitialized()
     {
         var plan = CreatePlan(new());
-        ExtensionProbe extension = new(plan.RuntimeReference);
+        ExtensionProbe extension = new(new(), plan.RuntimeReference);
 
         await Assert.That(extension.IsEnabledAsync)
             .Throws<InvalidOperationException>()
@@ -49,7 +51,7 @@ public class RuntimeExtensionEnablementTests
         var correlation = new TestingPlatformSessionUidCorrelationStrategy();
         var plan = CreatePlan(config, logger, writer, correlation);
         plan.Build();
-        ExtensionProbe extension = new(plan.RuntimeReference);
+        ExtensionProbe extension = new(config, plan.RuntimeReference);
 
         await Assert.That(extension.GetConfiguration()).IsSameReferenceAs(config);
         await Assert.That(extension.GetLogger()).IsSameReferenceAs(logger);
@@ -105,6 +107,7 @@ public class RuntimeExtensionEnablementTests
     }
 
     sealed class ExtensionProbe(
+        AllureTestingPlatformConfiguration configuration,
         IReadOnlyLateBoundReference<
             IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
         > runtimeReference
@@ -116,6 +119,7 @@ public class RuntimeExtensionEnablementTests
             "extension-probe",
             "Extension probe",
             "Test extension probe",
+            configuration,
             runtimeReference
         )
     {
