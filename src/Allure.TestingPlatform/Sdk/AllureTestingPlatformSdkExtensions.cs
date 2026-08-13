@@ -43,50 +43,29 @@ public static class AllureTestingPlatformSdkExtensions
                 TRuntime
             >
         {
-            var allureRuntimeBuilder = AllureRuntimeBuilder.Create(
+            var runtimeCoordinator = AllureTestingPlatformRuntimeCoordinator.Create(
                 runtimeName,
-                sessionFactory
+                sessionFactory,
+                RegisterIntegration
             );
 
-            IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan = null;
-
-            var allureRuntimeReference = allureRuntimeBuilder.RuntimeReference;
+            var allureRuntimeReference = runtimeCoordinator.RuntimeReference;
 
             builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
 
             var factory =
                 new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
-                    new AllureDataConsumer(
-                        (registrationPlan ??= allureRuntimeBuilder.Prepare(
-                            (ctx) => RegisterIntegration(ctx, serviceProvider)
-                        )).Configuration,
-                        allureRuntimeReference.Select(
-                            static (r) => (IAllureTestingPlatformRuntime<TConfiguration>)r
-                        )
-                    )
-                );
+                {
+                    runtimeCoordinator.BindTestHost(serviceProvider);
+                    return new AllureDataConsumer(runtimeCoordinator);
+                });
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
-                new AllureTestingPlatformHostProcessWatchdog(
-                    (IAllureRuntimeRegistrationPlan<
-                        TConfiguration,
-                        IAllureTestingPlatformRuntime<TConfiguration>
-                    >)(registrationPlan ??= allureRuntimeBuilder.Prepare(
-                        (ctx) => RegisterIntegration(ctx, serviceProvider)
-                    ))
-                )
-            );
+            {
+                runtimeCoordinator.Prepare(serviceProvider);
+                return new AllureTestingPlatformHostProcessWatchdog(runtimeCoordinator);
+            });
 
-            builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-                new AllureTestingPlatformTestHostRuntimeController(
-                    (IAllureRuntimeRegistrationPlan<
-                        TConfiguration,
-                        IAllureTestingPlatformRuntime<TConfiguration>
-                    >)(registrationPlan ??= allureRuntimeBuilder.Prepare(
-                        (ctx) => RegisterIntegration(ctx, serviceProvider)
-                    ))
-                )
-            );
             builder.TestHost.AddDataConsumer(factory);
             builder.TestHost.AddTestSessionLifetimeHandler(factory);
 

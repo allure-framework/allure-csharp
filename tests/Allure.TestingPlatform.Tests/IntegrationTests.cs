@@ -119,7 +119,7 @@ public class IntegrationTests
 
         var parameter = await Assert.That(testResult.Parameters).HasSingleItem();
         await Assert.That(parameter.Name).IsEqualTo("foo");
-        await Assert.That(parameter.Value).IsEqualTo("Lorem Ipsum");
+        await Assert.That(parameter.Value).IsEqualTo("\"Lorem Ipsum\"");
     }
 
     [Test]

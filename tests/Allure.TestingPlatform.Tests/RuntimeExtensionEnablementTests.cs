@@ -51,20 +51,6 @@ public class RuntimeExtensionEnablementTests
         await Assert.That(extension.GetModelApi()).IsNotNull();
     }
 
-    [Test]
-    public async Task ShouldBuildControllerRuntimeOnDemandOnlyOnce()
-    {
-        var plan = CreatePlan(new());
-        RuntimeControllerExtensionProbe extension = new(plan);
-
-        await Assert.That(extension.IsEnabledAsync()).IsTrue();
-        var first = extension.EnsureStarted();
-        var second = extension.EnsureStarted();
-
-        await Assert.That(first).IsSameReferenceAs(second);
-        await Assert.That(plan.RuntimeReference.Value).IsSameReferenceAs(first.Runtime);
-    }
-
     static IAllureRuntimeRegistrationPlan<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
@@ -124,26 +110,5 @@ public class RuntimeExtensionEnablementTests
         public IAllureModelApi GetModelApi() => this.ModelApi;
 
         public IAllureResultsDestination GetResultsDestination() => this.ResultsDestination;
-    }
-
-    sealed class RuntimeControllerExtensionProbe(
-        IAllureRuntimeRegistrationPlan<
-            AllureTestingPlatformConfiguration,
-            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-        > plan
-    ) :
-        AllureTestingPlatformRuntimeControllerExtension<
-            AllureTestingPlatformConfiguration,
-            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-        >(
-            "controller-extension-probe",
-            "Controller extension probe",
-            "Test controller extension probe",
-            plan
-        )
-    {
-        public IAllureRuntimeRegistration<
-            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-        > EnsureStarted() => this.EnsureRuntimeStarted();
     }
 }

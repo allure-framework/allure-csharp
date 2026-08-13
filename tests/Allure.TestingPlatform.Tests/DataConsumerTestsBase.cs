@@ -44,7 +44,7 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
         });
 
         this.runtimeReference = new();
-        this.consumer = new(this.Config, this.runtimeReference);
+        this.consumer = new(new RuntimeCoordinatorSpy(this.Config, this.runtimeReference));
     }
 
     [Before(Test)]

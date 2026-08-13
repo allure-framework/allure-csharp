@@ -17,8 +17,8 @@ using Allure.TestingPlatform.Internal;
 using Allure.TestingPlatform.Configuration;
 using Allure.Model;
 using System.Collections.Immutable;
-using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
+using Allure.TestingPlatform.Internal.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
@@ -32,8 +32,9 @@ public sealed class AllureDataConsumer :
     >,
     IDataConsumer,
     ITestSessionLifetimeHandler
-
 {
+    readonly IAllureTestingPlatformRuntimeHandle runtimeHandle;
+
     readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
 
     readonly Lazy<SessionCorrelationMap> correlationState;
@@ -64,20 +65,16 @@ public sealed class AllureDataConsumer :
     /// <summary>
     /// Creates the Allure data consumer.
     /// </summary>
-    public AllureDataConsumer(
-        AllureTestingPlatformConfiguration configuration,
-        IReadOnlyLateBoundReference<
-            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-        > runtimeReference
-    ) :
+    public AllureDataConsumer(IAllureTestingPlatformRuntimeHandle runtimeHandle) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
             "Creates Allure results from Microsoft Testing Platform messages.",
-            configuration,
-            runtimeReference
+            runtimeHandle.Configuration,
+            runtimeHandle.RuntimeReference
         )
     {
+        this.runtimeHandle = runtimeHandle;
         this.allureLifecycleState = new(() => new(this.ContextApi));
         correlationState = new(() => new(
             this.CorrelationStrategy,
@@ -86,8 +83,11 @@ public sealed class AllureDataConsumer :
     }
 
     /// <inheritdoc />
-    public Task OnTestSessionStartingAsync(ITestSessionContext testSessionContext) =>
-        Task.CompletedTask;
+    public Task OnTestSessionStartingAsync(ITestSessionContext testSessionContext)
+    {
+        this.runtimeHandle.EnsureRuntimeStarted();
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
     public Task OnTestSessionFinishingAsync(ITestSessionContext testSessionContext)

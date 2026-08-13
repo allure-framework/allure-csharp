@@ -138,7 +138,7 @@ public class ConsumeAsyncErrorHandlingTests
         });
         registrationPlan.Build();
         return new(
-            new(registrationPlan.Configuration, registrationPlan.RuntimeReference),
+            new(new RuntimeCoordinatorSpy(registrationPlan.Configuration, registrationPlan.RuntimeReference)),
             logger,
             sink
         );
