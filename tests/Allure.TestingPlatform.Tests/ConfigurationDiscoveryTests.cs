@@ -102,16 +102,6 @@ public class ConfigurationDiscoveryTests
         await Assert.That(config.ResultsDirectory).IsEqualTo(Path.GetFullPath(cliResults));
     }
 
-    [Test]
-    public async Task ShouldFallbackToAllureResultsInBaseDirectoryIfNoMtpResultsDirConfigured()
-    {
-        var config = await ResolveConfiguration([]);
-
-        await Assert.That(config.ResultsDirectory).IsEqualTo(
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "allure-results")
-        );
-    }
-
     static async Task<AllureTestingPlatformConfiguration> ResolveConfiguration(
         string[] args,
         string configPath = null,

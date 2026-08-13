@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
@@ -97,7 +98,7 @@ public static class AllureTestingPlatformSdkExtensions
                         (cfg) => cfg.WithPropertyIfUnset(
                             c => c.ResultsDirectory,
                             mtpResultsDir,
-                            (c, v) => c with { ResultsDirectory = v }
+                            (c, v) => c with { ResultsDirectory = Path.Combine(v, "allure-results") }
                         )
                     );
                 }
