@@ -7,8 +7,6 @@ using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
-using Allure.TestingPlatform.Sdk.Runtime;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
@@ -18,7 +16,7 @@ using Microsoft.Testing.Platform.TestHost;
 
 using DefaultConsumer = Allure.TestingPlatform.Sdk.TestingPlatformExtensions.AllureDataConsumer<
     Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration,
-    Allure.TestingPlatform.Sdk.Runtime.IAllureTestingPlatformRuntime<Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration>
+    Allure.TestingPlatform.Sdk.Runtime.IAllureTestingPlatformRuntime
 >;
 
 namespace Allure.TestingPlatform.Tests;
