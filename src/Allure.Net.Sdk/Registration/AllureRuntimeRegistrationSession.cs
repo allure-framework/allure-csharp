@@ -12,87 +12,21 @@ using Allure.Sdk.Runtime;
 namespace Allure.Sdk.Registration;
 
 /// <summary>
-/// Defines the base contract for a single-use runtime registration session.
-/// </summary>
-/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <typeparam name="TRuntimeIntegrationContext">The integration context type.</typeparam>
-/// <typeparam name="TRuntime">The runtime type.</typeparam>
-public abstract class AllureRuntimeRegistrationSession<
-    TConfiguration,
-    TRuntimeIntegrationContext,
-    TRuntime
->
-    where TConfiguration : AllureConfiguration
-    where TRuntime : IAllureRuntime<TConfiguration>
-{
-    internal abstract IPreparedRuntimeRegistration<TConfiguration, TRuntime> Prepare(
-        string runtimeName,
-        Action<TRuntimeIntegrationContext> registration
-    );
-}
-
-/// <summary>
 /// Provides a single-use registration session for a custom Allure runtime and its
 /// optional in-process endpoint.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <typeparam name="TRuntimeRegistrationContext">The runtime registration context type.</typeparam>
-/// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
-/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
-/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
-/// <typeparam name="TRuntimeIntegrationContext">The integration context type.</typeparam>
-/// <typeparam name="TIntegrationSnapshot">The integration snapshot type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public abstract class AllureRuntimeRegistrationSession<
-    TConfiguration,
-    TRuntimeRegistrationContext,
-    TRuntimeHook,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntimeIntegrationContext,
-    TIntegrationSnapshot,
-    TRuntime
-> :
-    AllureRuntimeRegistrationSession<TConfiguration, TRuntimeIntegrationContext, TRuntime>,
-    IAllureRuntimeIntegrationContext<
-        TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >
+/// <typeparam name="TRegistrationContext">The runtime registration context type.</typeparam>
+/// <typeparam name="TIntegrationContext">The runtime integration context type.</typeparam>
+public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime, TRegistrationContext, TIntegrationContext> :
+    AllureRuntimeRegistrationSessionBase<TConfiguration, TRuntime, TIntegrationContext>,
+    IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
 
     where TConfiguration : AllureConfiguration, new()
-    where TRuntimeRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
-    where TRuntimeHook : IAllureRuntimeRegistrationHook<
-        TConfiguration,
-        TRuntimeRegistrationContext
-    >
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<
-        TConfiguration,
-        TRuntime
-    >
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TRuntime
-    >
-    where TRuntimeIntegrationContext : IAllureRuntimeIntegrationContext<
-        TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >
-    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >
     where TRuntime : IAllureRuntime<TConfiguration>
+    where TRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
+    where TIntegrationContext : IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
 {
     readonly object gate = new();
 
@@ -108,11 +42,10 @@ public abstract class AllureRuntimeRegistrationSession<
         >
     > configurationTransformations = [];
 
-    Func<TConfiguration, IEnumerable<TRuntimeHook?>> currentHooksFactory =
+    Func<TConfiguration, IEnumerable<IAllureRegistrationHook<TRegistrationContext>?>> currentHooksFactory =
         AllureRegistrationDefaults.RuntimeHookProviders<
             TConfiguration,
-            TRuntimeRegistrationContext,
-            TRuntimeHook
+            TRegistrationContext
         >();
 
     Func<
@@ -147,25 +80,22 @@ public abstract class AllureRuntimeRegistrationSession<
         >
     > currentRuleBasedSerializerRegistrations = [];
 
-    AllureInProcessEndpointRegistration<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >? currentEndpointRegistration = null;
+    AllureInProcessEndpointRegistration<TConfiguration, TRuntime>? currentEndpointRegistration = null;
 
     /// <summary>
     /// Initializes a runtime registration session with the default component factories.
     /// </summary>
     public AllureRuntimeRegistrationSession() : base()
     {
-        this.currentSerializerFactory = AllureRegistrationDefaults.ParameterSerializer(
+        this.currentSerializerFactory = AllureRegistrationDefaults.RuntimeParameterSerializer(
             this.currentRuleBasedSerializerRegistrations
         );
     }
 
     /// <inheritdoc/>
-    public void UseRegistrationHooks(Func<TConfiguration, IEnumerable<TRuntimeHook?>> hooksFactory) =>
+    public void UseRegistrationHooks(
+        Func<TConfiguration, IEnumerable<IAllureRegistrationHook<TRegistrationContext>?>> hooksFactory
+    ) =>
         this.Modify(() => this.currentHooksFactory = hooksFactory);
 
     /// <inheritdoc/>
@@ -183,15 +113,7 @@ public abstract class AllureRuntimeRegistrationSession<
     /// <inheritdoc/>
     public void RegisterInProcessEndpoint(
         string endpointId,
-        Action<
-            TRuntime,
-            IAllureInProcessEndpointIntegrationContext<
-                TConfiguration,
-                TEndpointRegistrationContext,
-                TEndpointHook,
-                TRuntime
-            >
-        > endpointRegistration
+        Action<TRuntime, IAllureInProcessEndpointIntegrationContext<TRuntime>> endpointRegistration
     ) =>
         this.Modify(() => this.currentEndpointRegistration = new(endpointId, endpointRegistration));
 
@@ -211,7 +133,7 @@ public abstract class AllureRuntimeRegistrationSession<
         {
             if (!this.useRuleBasedSerializer)
             {
-                this.currentSerializerFactory = AllureRegistrationDefaults.ParameterSerializer(
+                this.currentSerializerFactory = AllureRegistrationDefaults.RuntimeParameterSerializer(
                     this.currentRuleBasedSerializerRegistrations
                 );
                 this.useRuleBasedSerializer = true;
@@ -267,25 +189,25 @@ public abstract class AllureRuntimeRegistrationSession<
     }
 
     /// <summary>
-    /// Gets the integration context passed to the registration action.
+    /// Gets the integration-specific context passed to the registration action.
     /// </summary>
-    protected abstract TRuntimeIntegrationContext IntegrationContext { get; }
+    protected abstract TIntegrationContext IntegrationContext { get; }
 
     /// <summary>
-    /// Gets the integration-specific context passed to runtime registration
-    /// hooks.
+    /// Gets the integration-specific context passed to runtime registration hooks.
     /// </summary>
-    protected abstract TRuntimeRegistrationContext RegistrationContext { get; }
+    protected abstract TRegistrationContext RegistrationContext { get; }
 
     /// <summary>
-    /// Captures the integration-specific factories required after the session closes.
+    /// Creates the runtime from the components resolved by this registration session.
     /// </summary>
-    /// <returns>The immutable integration snapshot.</returns>
-    protected abstract TIntegrationSnapshot CaptureIntegrationSnapshot();
+    /// <param name="args">The resolved runtime components.</param>
+    /// <returns>The constructed runtime.</returns>
+    protected abstract TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args);
 
     internal override IPreparedRuntimeRegistration<TConfiguration, TRuntime> Prepare(
         string runtimeName,
-        Action<TRuntimeIntegrationContext> registration
+        Action<TIntegrationContext> registration
     )
     {
         lock (this.gate)
@@ -303,20 +225,13 @@ public abstract class AllureRuntimeRegistrationSession<
                 this.CloseRegistration();
 
                 var commonSnapshot = this.CaptureCommonSnapshot();
-                var integrationSnapshot = this.CaptureIntegrationSnapshot();
 
 
-                return new PreparedRuntimeRegistration<
-                    TConfiguration,
-                    TEndpointRegistrationContext,
-                    TEndpointHook,
-                    TRuntime,
-                    TIntegrationSnapshot
-                >(
+                return new PreparedRuntimeRegistration<TConfiguration, TRuntime>(
                     runtimeName,
                     finalConfiguration.Configuration,
                     commonSnapshot,
-                    integrationSnapshot
+                    this.CreateRuntime
                 );
             }
             catch
@@ -327,12 +242,7 @@ public abstract class AllureRuntimeRegistrationSession<
         }
     }
 
-    AllureRuntimeRegistrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    > CaptureCommonSnapshot() => new(
+    AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntime> CaptureCommonSnapshot() => new(
         ContextFactory: this.currentContextFactory,
         LifecycleApiFactory: this.currentLifecycleApiFactory,
         ModelApiFactory: this.currentModelApiFactory,
@@ -455,82 +365,109 @@ public abstract class AllureRuntimeRegistrationSession<
 }
 
 /// <summary>
-/// Provides a single-use registration session for a standard Allure runtime with
-/// custom configuration, registration, and endpoint types.
+/// Provides a single-use registration session for a custom Allure runtime with
+/// a custom integration context and the standard runtime registration context.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <typeparam name="TRuntimeRegistrationContext">The runtime registration context type.</typeparam>
-/// <typeparam name="TRuntimeHook">The runtime registration hook type.</typeparam>
-/// <typeparam name="TEndpointRegistrationContext">The endpoint registration context type.</typeparam>
-/// <typeparam name="TEndpointHook">The endpoint registration hook type.</typeparam>
-/// <typeparam name="TRuntimeIntegrationContext">The integration context type.</typeparam>
-/// <typeparam name="TIntegrationSnapshot">The integration snapshot type.</typeparam>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
+/// <typeparam name="TRegistrationContext">The runtime registration context type.</typeparam>
 public abstract class AllureRuntimeRegistrationSession<
     TConfiguration,
-    TRuntimeRegistrationContext,
-    TRuntimeHook,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntimeIntegrationContext,
-    TIntegrationSnapshot
+    TRuntime,
+    TRegistrationContext
 > :
     AllureRuntimeRegistrationSession<
         TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntimeIntegrationContext,
-        TIntegrationSnapshot,
-        IAllureRuntime<TConfiguration>
-    >,
-    IAllureRuntimeIntegrationContext<
-        TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook
+        TRuntime,
+        TRegistrationContext,
+        IAllureRuntimeIntegrationContext<
+            TConfiguration,
+            TRuntime,
+            TRegistrationContext
+        >
     >
 
     where TConfiguration : AllureConfiguration, new()
-    where TRuntimeRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
-    where TRuntimeHook : IAllureRuntimeRegistrationHook<
-        TConfiguration,
-        TRuntimeRegistrationContext
-    >
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<
-        TConfiguration
-    >
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<
-        TConfiguration,
-        TEndpointRegistrationContext
-    >
-    where TRuntimeIntegrationContext : IAllureRuntimeIntegrationContext<
-        TConfiguration,
-        TRuntimeRegistrationContext,
-        TRuntimeHook,
-        TEndpointRegistrationContext,
-        TEndpointHook
-    >
-    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook
-    >;
+    where TRuntime : IAllureRuntime<TConfiguration>
+    where TRegistrationContext : IAllureRuntimeRegistrationContext<TConfiguration>
+{
+    /// <inheritdoc/>
+    protected override IAllureRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext> IntegrationContext =>
+        this;
+}
 
 /// <summary>
-/// Provides a single-use registration session for a standard Allure runtime and its
-/// optional in-process endpoint.
+/// Provides a single-use registration session for a custom Allure runtime using
+/// the standard integration and registration contexts.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
+public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime> :
+    AllureRuntimeRegistrationSession<
+        TConfiguration,
+        TRuntime,
+        IAllureRuntimeRegistrationContext<TConfiguration>,
+        IAllureRuntimeIntegrationContext<TConfiguration, TRuntime>
+    >,
+    IAllureRuntimeIntegrationContext<TConfiguration, TRuntime>
+
+    where TConfiguration : AllureConfiguration, new()
+    where TRuntime : IAllureRuntime<TConfiguration>
+{
+    /// <inheritdoc/>
+    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
+        new RegistrationContextFacade<TConfiguration, TRuntime>(this);
+
+    /// <inheritdoc/>
+    protected override IAllureRuntimeIntegrationContext<TConfiguration, TRuntime> IntegrationContext => this;
+}
+
+/// <summary>
+/// Provides a single-use registration session for a standard Allure runtime
+/// with a custom configuration type.
+/// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+public class AllureRuntimeRegistrationSession<TConfiguration> :
+    AllureRuntimeRegistrationSession<
+        TConfiguration,
+        IAllureRuntime<TConfiguration>,
+        IAllureRuntimeRegistrationContext<TConfiguration>,
+        IAllureRuntimeIntegrationContext<TConfiguration>
+    >,
+    IAllureRuntimeIntegrationContext<TConfiguration>
+
+    where TConfiguration : AllureConfiguration, new()
+{
+    /// <inheritdoc/>
+    protected override IAllureRuntimeIntegrationContext<TConfiguration> IntegrationContext => this;
+
+    /// <inheritdoc/>
+    protected override IAllureRuntimeRegistrationContext<TConfiguration> RegistrationContext =>
+        new RegistrationContextFacade<TConfiguration, IAllureRuntime<TConfiguration>>(this);
+
+    /// <inheritdoc/>
+    protected override IAllureRuntime<TConfiguration> CreateRuntime(
+        RuntimeCreationArguments<TConfiguration> args
+    ) =>
+        new AllureRuntime<TConfiguration>(
+            args.Configuration,
+            args.ParameterSerializer,
+            args.Destination,
+            args.Context,
+            args.LifecycleApi,
+            args.ModelApi
+        );
+}
+
+/// <summary>
+/// Provides a single-use registration session for a standard Allure runtime.
 /// </summary>
 public class AllureRuntimeRegistrationSession :
     AllureRuntimeRegistrationSession<
         AllureConfiguration,
+        IAllureRuntime,
         IAllureRuntimeRegistrationContext,
-        IAllureRuntimeRegistrationHook,
-        IAllureInProcessEndpointRegistrationContext,
-        IAllureInProcessEndpointRegistrationHook,
-        IAllureRuntimeIntegrationContext,
-        IAllureRuntimeIntegrationSnapshot
+        IAllureRuntimeIntegrationContext
     >,
     IAllureRuntimeIntegrationContext
 {
@@ -538,9 +475,19 @@ public class AllureRuntimeRegistrationSession :
     protected override IAllureRuntimeIntegrationContext IntegrationContext => this;
 
     /// <inheritdoc/>
-    protected override IAllureRuntimeRegistrationContext RegistrationContext => this;
+    protected override IAllureRuntimeRegistrationContext RegistrationContext =>
+        new RegistrationContextFacade(this);
 
     /// <inheritdoc/>
-    protected override IAllureRuntimeIntegrationSnapshot CaptureIntegrationSnapshot() =>
-        new AllureRuntimeIntegrationSnapshot();
+    protected override IAllureRuntime CreateRuntime(
+        RuntimeCreationArguments<AllureConfiguration> args
+    ) =>
+        new AllureRuntime(
+            args.Configuration,
+            args.ParameterSerializer,
+            args.Destination,
+            args.Context,
+            args.LifecycleApi,
+            args.ModelApi
+        );
 }

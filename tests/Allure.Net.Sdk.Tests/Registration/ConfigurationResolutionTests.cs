@@ -162,7 +162,7 @@ public class ConfigurationResolutionTests
         }
     }
 
-    static TestRuntimeBuilder<TestConfiguration> CreateBuilder() =>
+    static AllureRuntimeBuilder<TestConfiguration> CreateBuilder() =>
         new("configuration-tests");
 
     sealed record class TestConfiguration : AllureConfiguration

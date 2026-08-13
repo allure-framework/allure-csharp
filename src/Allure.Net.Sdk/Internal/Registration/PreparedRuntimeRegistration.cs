@@ -3,54 +3,27 @@ using System.Collections.Generic;
 using Allure.Runtime;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
-using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
 
-internal class PreparedRuntimeRegistration<
-    TConfiguration,
-    TEndpointRegistrationContext,
-    TEndpointHook,
-    TRuntime,
-    TIntegrationSnapshot
->(
+internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
     string runtimeName,
     TConfiguration configuration,
-    AllureRuntimeRegistrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    > commonSnapshot,
-    TIntegrationSnapshot integrationSnapshot
+    AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntime> registrationSnapshot,
+    Func<RuntimeCreationArguments<TConfiguration>, TRuntime> runtimeFactory
 ) :
     IPreparedRuntimeRegistration<TConfiguration, TRuntime>
 
     where TConfiguration : AllureConfiguration
-    where TEndpointRegistrationContext : IAllureInProcessEndpointRegistrationContext<
-        TConfiguration,
-        TRuntime
-    >
-    where TEndpointHook : IAllureInProcessEndpointRegistrationHook<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TRuntime
-    >
-    where TIntegrationSnapshot : IAllureRuntimeIntegrationSnapshot<
-        TConfiguration,
-        TEndpointRegistrationContext,
-        TEndpointHook,
-        TRuntime
-    >
     where TRuntime : IAllureRuntime<TConfiguration>
 {
     public TConfiguration Configuration => configuration;
 
     public IAllureRuntimeRegistration<TRuntime> Build()
     {
-        var parameterSerializer = commonSnapshot.SerializerFactory(configuration);
-        var destination = commonSnapshot.DestinationFactory(configuration);
+        var parameterSerializer = registrationSnapshot.SerializerFactory(configuration);
+        var destination = registrationSnapshot.DestinationFactory(configuration);
 
         var constructionRuntimeReference =
             new LateBoundReference<IAllureRuntime<TConfiguration>>();
@@ -61,9 +34,9 @@ internal class PreparedRuntimeRegistration<
                 constructionRuntimeReference
             );
 
-        var context = commonSnapshot.ContextFactory(serviceCreationContext);
-        var lifecycleApi = commonSnapshot.LifecycleApiFactory(serviceCreationContext);
-        var modelApi = commonSnapshot.ModelApiFactory(serviceCreationContext);
+        var context = registrationSnapshot.ContextFactory(serviceCreationContext);
+        var lifecycleApi = registrationSnapshot.LifecycleApiFactory(serviceCreationContext);
+        var modelApi = registrationSnapshot.ModelApiFactory(serviceCreationContext);
 
         RuntimeCreationArguments<TConfiguration> runtimeCreationArguments = new(
             Configuration: configuration,
@@ -74,7 +47,7 @@ internal class PreparedRuntimeRegistration<
             ModelApi: modelApi
         );
 
-        var runtime = integrationSnapshot.CreateRuntime(runtimeCreationArguments);
+        var runtime = runtimeFactory(runtimeCreationArguments);
 
         IDisposable? endpointRegistration = null;
 
@@ -82,20 +55,18 @@ internal class PreparedRuntimeRegistration<
         {
             constructionRuntimeReference.Bind(runtime);
 
-            if (commonSnapshot.EndpointRegistration is var (routeId, routeRegistration))
+            if (registrationSnapshot.EndpointRegistration is var (routeId, routeRegistration))
             {
-                AllureRouteBuilderArgs<TConfiguration, TRuntime> endpointBuildArgs = new(
+                var routeBuilder = new AllureInProcessRouteBuilder<TConfiguration, TRuntime>(
                     runtimeName,
                     routeId,
                     runtime,
-                    commonSnapshot.UseRuleBasedSerializer,
-                    commonSnapshot.RuleBasedSerializerRegistrations
+                    registrationSnapshot.UseRuleBasedSerializer,
+                    registrationSnapshot.RuleBasedSerializerRegistrations,
+                    routeRegistration
                 );
-                var endpointRouteBuilder = integrationSnapshot.CreateRouteBuilder(endpointBuildArgs);
+                var route = routeBuilder.Build();
 
-                routeRegistration(runtime, endpointRouteBuilder);
-
-                var route = endpointRouteBuilder.Build();
                 endpointRegistration = AllureRuntimeRouter.Install(route);
             }
 

@@ -12,7 +12,7 @@ public interface IAllureExecutionContext
     /// <summary>
     /// Gets the Allure runtime associated with this context.
     /// </summary>
-    IAllureRuntime Runtime { get; }
+    IAllureRuntimeBase Runtime { get; }
 
     /// <summary>
     /// Gets the current execution state for the current execution flow.
@@ -47,7 +47,7 @@ public interface IAllureExecutionContext
     /// </remarks>
     AllureExecutionState RunWithState(
         AllureExecutionState state,
-        Action<IAllureRuntime> action
+        Action<IAllureRuntimeBase> action
     );
 
     /// <summary>
@@ -68,15 +68,15 @@ public interface IAllureExecutionContext
     /// The execution state that was current before the call is restored after
     /// the returned task completes, including when the action throws an
     /// exception. Unlike
-    /// <see cref="RunWithState(AllureExecutionState, Action{IAllureRuntime})"/>,
+    /// <see cref="RunWithState(AllureExecutionState, Action{IAllureRuntimeBase})"/>,
     /// this method does not return the new state with the changes made within
     /// the asynchronous action. Use
-    /// <see cref="GetWithStateAsync{T}(AllureExecutionState, Func{IAllureRuntime, Task{T}})"/>
+    /// <see cref="GetWithStateAsync{T}(AllureExecutionState, Func{IAllureRuntimeBase, Task{T}})"/>
     /// to capture the state from the asynchronous flow explicitly.
     /// </remarks>
     Task RunWithStateAsync(
         AllureExecutionState state,
-        Func<IAllureRuntime, Task> asyncAction
+        Func<IAllureRuntimeBase, Task> asyncAction
     );
 
     /// <summary>
@@ -103,7 +103,7 @@ public interface IAllureExecutionContext
     /// </remarks>
     T GetWithState<T>(
         AllureExecutionState state,
-        Func<IAllureRuntime, T> function
+        Func<IAllureRuntimeBase, T> function
     );
 
     /// <summary>
@@ -131,6 +131,6 @@ public interface IAllureExecutionContext
     /// </remarks>
     Task<T> GetWithStateAsync<T>(
         AllureExecutionState state,
-        Func<IAllureRuntime, Task<T>> asyncFunction
+        Func<IAllureRuntimeBase, Task<T>> asyncFunction
     );
 }

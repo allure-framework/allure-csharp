@@ -4,7 +4,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Registration;
 
-internal interface IPreparedRuntimeRegistration<TConfiguration, TRuntime>
+internal interface IPreparedRuntimeRegistration<out TConfiguration, out TRuntime>
     where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>
 {

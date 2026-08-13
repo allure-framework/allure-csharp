@@ -14,18 +14,18 @@ namespace Allure.Sdk.Runtime;
 /// A reference to the Allure runtime associated with this context.
 /// </param>
 public abstract class AllureExecutionContext(
-    IReadOnlyLateBoundReference<IAllureRuntime> runtimeReference
+    IReadOnlyLateBoundReference<IAllureRuntimeBase> runtimeReference
 ) :
     IAllureExecutionContext
 {
     /// <inheritdoc/>
-    public IAllureRuntime Runtime => runtimeReference.Value;
+    public IAllureRuntimeBase Runtime => runtimeReference.Value;
 
     /// <inheritdoc/>
     public abstract AllureExecutionState CurrentState { get; protected set; }
 
     /// <inheritdoc/>
-    public T GetWithState<T>(AllureExecutionState state, Func<IAllureRuntime, T> function)
+    public T GetWithState<T>(AllureExecutionState state, Func<IAllureRuntimeBase, T> function)
     {
         using ExecutionStateScope _ = new(this, state);
         return function(this.Runtime);
@@ -34,7 +34,7 @@ public abstract class AllureExecutionContext(
     /// <inheritdoc/>
     public async Task<T> GetWithStateAsync<T>(
         AllureExecutionState state,
-        Func<IAllureRuntime, Task<T>> asyncFunction
+        Func<IAllureRuntimeBase, Task<T>> asyncFunction
     )
     {
         using ExecutionStateScope _ = new(this, state);
@@ -44,7 +44,7 @@ public abstract class AllureExecutionContext(
     /// <inheritdoc/>
     public AllureExecutionState RunWithState(
         AllureExecutionState state,
-        Action<IAllureRuntime> action
+        Action<IAllureRuntimeBase> action
     )
     {
         using ExecutionStateScope _ = new(this, state);
@@ -55,7 +55,7 @@ public abstract class AllureExecutionContext(
     /// <inheritdoc/>
     public async Task RunWithStateAsync(
         AllureExecutionState state,
-        Func<IAllureRuntime, Task> asyncAction
+        Func<IAllureRuntimeBase, Task> asyncAction
     )
     {
         using ExecutionStateScope _ = new(this, state);

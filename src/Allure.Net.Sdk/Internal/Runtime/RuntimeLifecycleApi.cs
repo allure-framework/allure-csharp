@@ -6,7 +6,7 @@ using Allure.Sdk.Runtime;
 namespace Allure.Sdk.Internal.Runtime;
 
 class RuntimeLifecycleApi(
-    IReadOnlyLateBoundReference<IAllureRuntime> runtimeReference
+    IReadOnlyLateBoundReference<IAllureRuntimeBase> runtimeReference
 ) :
     IAllureLifecycleApi
 {

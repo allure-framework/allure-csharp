@@ -6,7 +6,7 @@ using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Internal.Runtime;
 
-abstract class StepOperationContext(IAllureRuntime runtime, int level) :
+abstract class StepOperationContext(IAllureRuntimeBase runtime, int level) :
     OperationContext(runtime),
     IAllureOperationContext
 {

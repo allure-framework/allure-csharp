@@ -39,7 +39,7 @@ public static class ReflectionHooks
             ignoreCase: false
         );
 
-        if (!type.GetInterfaces().Any(static (iFace) => iFace == typeof(THook)))
+        if (!type.GetInterfaces().Any(static (iFace) => typeof(THook).IsAssignableFrom(iFace)))
         {
             throw new InvalidOperationException(
                 $"Type '{type}' must implement '{typeof(THook)}' to be an "

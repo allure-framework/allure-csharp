@@ -11,7 +11,7 @@ sealed class AllureRuntimeRegistration<TRuntime>(
     IDisposable? routeRegistration
 ) :
     IAllureRuntimeRegistration<TRuntime>
-    where TRuntime : IAllureRuntime
+    where TRuntime : IAllureRuntimeBase
 {
     int disposed = 0;
 
