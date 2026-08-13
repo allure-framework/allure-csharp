@@ -42,7 +42,7 @@ public static class AllureTestingPlatformSdkExtensions
                 TRuntime
             >
         {
-            var allureRuntimeBuilder = AllureTestingPlatformRuntimeBuilder.Create(
+            var allureRuntimeBuilder = AllureRuntimeBuilder.Create(
                 runtimeName,
                 sessionFactory
             );
