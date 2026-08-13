@@ -10,7 +10,7 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 /// <summary>
 /// Starts the Allure.TestingPlatform runtime inside the test host process.
 /// </summary>
-public class AllureTestingPlatformInProcessRuntimeController<TConfiguration, TRuntime>(
+public class AllureTestingPlatformTestHostRuntimeController<TConfiguration, TRuntime>(
     IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> runtimeRegistrationPlan
 ) :
     AllureTestingPlatformRuntimeControllerExtension<TConfiguration, TRuntime>(

@@ -68,7 +68,7 @@ public static class AllureTestingPlatformSdkExtensions
             );
 
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-                new AllureTestingPlatformInProcessRuntimeController<TConfiguration, TRuntime>(
+                new AllureTestingPlatformTestHostRuntimeController<TConfiguration, TRuntime>(
                     registrationPlan ??= allureRuntimeBuilder.Prepare(
                         (ctx) => RegisterIntegration(ctx, serviceProvider)
                     )

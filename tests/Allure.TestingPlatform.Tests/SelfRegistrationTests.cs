@@ -8,7 +8,7 @@ using DefaultConsumer = Allure.TestingPlatform.Sdk.TestingPlatformExtensions.All
     Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration,
     Allure.TestingPlatform.Sdk.Runtime.IAllureTestingPlatformRuntime<Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration>
 >;
-using DefaultController = Allure.TestingPlatform.Sdk.TestingPlatformExtensions.AllureTestingPlatformInProcessRuntimeController<
+using DefaultController = Allure.TestingPlatform.Sdk.TestingPlatformExtensions.AllureTestingPlatformTestHostRuntimeController<
     Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration,
     Allure.TestingPlatform.Sdk.Runtime.IAllureTestingPlatformRuntime<Allure.TestingPlatform.Configuration.AllureTestingPlatformConfiguration>
 >;

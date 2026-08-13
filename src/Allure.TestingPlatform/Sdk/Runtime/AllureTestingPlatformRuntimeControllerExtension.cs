@@ -8,7 +8,7 @@ namespace Allure.TestingPlatform.Sdk.Runtime;
 /// Base class for extensions that configure or start the Allure.TestingPlatform runtime.
 /// It is expected to have exactly one such extension per process.
 /// The runtime of the test host process is managed by
-/// <see cref="TestingPlatformExtensions.AllureTestingPlatformInProcessRuntimeController{TConfiguration, TRuntime}"/>
+/// <see cref="TestingPlatformExtensions.AllureTestingPlatformTestHostRuntimeController{TConfiguration, TRuntime}"/>
 /// by default.
 /// </summary>
 public abstract class AllureTestingPlatformRuntimeControllerExtension<TConfiguration, TRuntime>(
