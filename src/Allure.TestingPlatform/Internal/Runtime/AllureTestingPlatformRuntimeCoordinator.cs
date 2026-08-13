@@ -64,7 +64,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         {
             lock (this.gate)
             {
-                this.EnsurePrepared();
+                this.ThrowIfUnprepared();
                 return this.registrationPlan!.Configuration;
             }
         }
@@ -79,9 +79,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
         >)this.RuntimeReference;
 
-    public void Prepare(
-        IServiceProvider initialServiceProvider
-    )
+    public void BindController(IServiceProvider initialServiceProvider)
     {
         if (initialServiceProvider is null)
         {
@@ -92,26 +90,14 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         {
             this.ThrowIfUnavailable();
 
-            if (this.registrationPlan is not null)
+            // Preparation may already have happened through BindTestHost.
+            // Never replace a test-host provider with a controller provider.
+            if (this.state is not CoordinatorState.Created)
             {
                 return;
             }
 
-            this.serviceProvider.BindInitial(initialServiceProvider);
-
-            try
-            {
-                this.registrationPlan = this.runtimeBuilder.Prepare(
-                    context => this.registration(context, this.serviceProvider)
-                );
-                this.state = CoordinatorState.Prepared;
-            }
-            catch (Exception exception)
-            {
-                this.failure = exception;
-                this.state = CoordinatorState.Failed;
-                throw;
-            }
+            this.PrepareCore(initialServiceProvider);
         }
     }
 
@@ -124,29 +110,46 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
         lock (this.gate)
         {
-            this.EnsurePrepared();
+            this.ThrowIfUnprepared();
 
-            if (this.state is CoordinatorState.Built)
+            switch (this.state)
             {
-                throw new InvalidOperationException(
-                    "The Allure.TestingPlatform runtime has already been constructed."
-                );
-            }
-
-            if (this.state is CoordinatorState.TestHostBound)
-            {
-                if (this.serviceProvider.IsBoundTo(testHostServiceProvider))
-                {
+                case CoordinatorState.Created:
+                    // The test host was created before the watchdog. Prepare directly
+                    // against its provider; no subsequent rebind is necessary.
+                    this.PrepareCore(testHostServiceProvider);
+                    this.state = CoordinatorState.TestHostBound;
                     return;
-                }
 
-                throw new InvalidOperationException(
-                    "The Allure.TestingPlatform test-host service provider is already bound."
-                );
+                case CoordinatorState.Prepared:
+                    // The watchdog prepared against the test host controller clone of
+                    // the service provider. Promote the proxy to the real test-host
+                    // service provider.
+                    this.serviceProvider.Rebind(testHostServiceProvider);
+                    this.state = CoordinatorState.TestHostBound;
+                    return;
+
+                case CoordinatorState.TestHostBound:
+                    if (this.serviceProvider.IsBoundTo(testHostServiceProvider))
+                    {
+                        return;
+                    }
+
+                    throw new InvalidOperationException(
+                        "The Allure.TestingPlatform test-host service provider is already bound."
+                    );
+
+                case CoordinatorState.Built:
+                    throw new InvalidOperationException(
+                        "The Allure.TestingPlatform runtime has already been constructed."
+                    );
+
+                default:
+                    // Failed and Disposed were handled by ThrowIfUnavailable.
+                    throw new InvalidOperationException(
+                        $"Unexpected runtime coordinator state: {this.state}."
+                    );
             }
-
-            this.serviceProvider.Rebind(testHostServiceProvider);
-            this.state = CoordinatorState.TestHostBound;
         }
     }
 
@@ -154,7 +157,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
     {
         lock (this.gate)
         {
-            this.EnsurePrepared();
+            this.ThrowIfUnprepared();
 
             if (this.runtimeRegistration is not null)
             {
@@ -217,7 +220,27 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
-    void EnsurePrepared()
+    void PrepareCore(IServiceProvider initialServiceProvider)
+    {
+        try
+        {
+            this.serviceProvider.BindInitial(initialServiceProvider);
+
+            this.registrationPlan = this.runtimeBuilder.Prepare(
+                (context) => this.registration(context, this.serviceProvider)
+            );
+
+            this.state = CoordinatorState.Prepared;
+        }
+        catch (Exception exception)
+        {
+            this.failure = exception;
+            this.state = CoordinatorState.Failed;
+            throw;
+        }
+    }
+
+    void ThrowIfUnprepared()
     {
         this.ThrowIfUnavailable();
 

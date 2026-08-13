@@ -62,7 +62,7 @@ public static class AllureTestingPlatformSdkExtensions
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
             {
-                runtimeCoordinator.Prepare(serviceProvider);
+                runtimeCoordinator.BindController(serviceProvider);
                 return new AllureTestingPlatformHostProcessWatchdog(runtimeCoordinator);
             });
 
