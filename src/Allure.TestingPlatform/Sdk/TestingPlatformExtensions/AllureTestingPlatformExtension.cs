@@ -12,7 +12,7 @@ using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Logging;
 using Microsoft.Testing.Platform.Messages;
 
-namespace Allure.TestingPlatform.Sdk;
+namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 /// <summary>
 /// Base class for Allure.TestingPlatform extensions.

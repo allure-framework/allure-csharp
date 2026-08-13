@@ -1,14 +1,15 @@
 using System.Threading.Tasks;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.Runtime;
 
-namespace Allure.TestingPlatform.Sdk.Runtime;
+namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 /// <summary>
 /// Base class for extensions that configure or start the Allure.TestingPlatform runtime.
 /// It is expected to have exactly one such extension per process.
 /// The runtime of the test host process is managed by
-/// <see cref="TestingPlatformExtensions.AllureTestingPlatformTestHostRuntimeController{TConfiguration, TRuntime}"/>
+/// <see cref="AllureTestingPlatformTestHostRuntimeController"/>
 /// by default.
 /// </summary>
 public abstract class AllureTestingPlatformRuntimeControllerExtension<TConfiguration, TRuntime>(

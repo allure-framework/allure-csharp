@@ -10,7 +10,7 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 /// <summary>
 /// Provides Allure command-line options for Microsoft Testing Platform.
 /// </summary>
-public class AllureCliOptionsProvider : ICommandLineOptionsProvider
+public sealed class AllureCliOptionsProvider : ICommandLineOptionsProvider
 {
     /// <inheritdoc />
     public string Uid => "07e2cc0c-5cc5-4d7e-aaf6-eb623676fb0b";

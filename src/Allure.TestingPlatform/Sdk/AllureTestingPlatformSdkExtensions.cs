@@ -67,10 +67,13 @@ public static class AllureTestingPlatformSdkExtensions
                 );
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
-                new AllureTestingPlatformHostProcessWatchdog<TConfiguration, TRuntime>(
-                    registrationPlan ??= allureRuntimeBuilder.Prepare(
+                new AllureTestingPlatformHostProcessWatchdog(
+                    (IAllureRuntimeRegistrationPlan<
+                        TConfiguration,
+                        IAllureTestingPlatformRuntime<TConfiguration>
+                    >)(registrationPlan ??= allureRuntimeBuilder.Prepare(
                         (ctx) => RegisterIntegration(ctx, serviceProvider)
-                    )
+                    ))
                 )
             );
 

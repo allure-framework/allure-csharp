@@ -8,19 +8,22 @@ using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
-public class AllureTestingPlatformHostProcessWatchdog<TConfiguration, TRuntime>(
-    IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime> runtimeRegistrationPlan
+public sealed class AllureTestingPlatformHostProcessWatchdog(
+    IAllureRuntimeRegistrationPlan<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    > runtimeRegistrationPlan
 ) :
-    AllureTestingPlatformRuntimeControllerExtension<TConfiguration, TRuntime>(
+    AllureTestingPlatformRuntimeControllerExtension<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    >(
         "939b0d5f-517d-4abb-968e-593bc4f67f0c",
         "Allure.TestingPlatform crash watcher",
         "Emits an Allure global error if the test host crashes.",
         runtimeRegistrationPlan
     ),
     ITestHostProcessLifetimeHandler
-
-    where TConfiguration : AllureTestingPlatformConfiguration
-    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     /// <inheritdoc />
     public override Task<bool> IsEnabledAsync()
