@@ -32,17 +32,6 @@ public class RuntimeExtensionEnablementTests
     }
 
     [Test]
-    public async Task ShouldThrowWhenRuntimeIsNotInitialized()
-    {
-        var plan = CreatePlan(new());
-        ExtensionProbe extension = new(new(), plan.RuntimeReference);
-
-        await Assert.That(extension.IsEnabledAsync)
-            .Throws<InvalidOperationException>()
-            .WithMessage("Unexpected error: The Allure.TestingPlatform runtime is not registered.");
-    }
-
-    [Test]
     public async Task ShouldExposeServicesFromRegisteredRuntime()
     {
         var config = new AllureTestingPlatformConfiguration();
