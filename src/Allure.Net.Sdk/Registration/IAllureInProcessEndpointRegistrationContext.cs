@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Allure.Abstractions;
-using Allure.Sdk.Configuration;
 using Allure.Sdk.Runtime;
 
 namespace Allure.Sdk.Registration;
@@ -9,49 +8,43 @@ namespace Allure.Sdk.Registration;
 /// <summary>
 /// Configures an in-process endpoint for an Allure runtime.
 /// </summary>
-/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public interface IAllureInProcessEndpointRegistrationContext<TConfiguration, TRuntime> :
+public interface IAllureInProcessEndpointRegistrationContext<out TRuntime> :
     IAllureEndpointRegistrationContext
 
-    where TConfiguration : AllureConfiguration
-    where TRuntime : IAllureRuntime<TConfiguration>
+    where TRuntime : IAllureRuntimeBase
 {
     /// <summary>
     /// Configures the parameter serializer used by the endpoint.
     /// </summary>
+    /// <param name="serializerFactory">
+    /// A factory that creates the serializer from the constructed runtime.
+    /// </param>
     void UseParameterSerializer(
         Func<TRuntime, IAllureParameterSerializer> serializerFactory
     );
 
     /// <summary>
-    /// Configures parameter serialization rules using the resolved runtime configuration.
+    /// Configures parameter serialization rules used by the endpoint.
     /// </summary>
-    void ConfigureSerialization(Action<TConfiguration, IParameterSerializationRulesContext> registration);
+    /// <param name="registration">
+    /// An action that configures the serialization rules using the constructed runtime.
+    /// </param>
+    void ConfigureSerialization(Action<TRuntime, IParameterSerializationRulesContext> registration);
 
     /// <summary>
     /// Configures endpoint availability using the constructed runtime.
     /// </summary>
+    /// <param name="isAvailable">
+    /// A function that determines whether the endpoint is available.
+    /// </param>
     void SetAvailabilityPredicate(Func<TRuntime, bool> isAvailable);
 
     /// <summary>
     /// Configures suppressed route IDs using the constructed runtime.
     /// </summary>
+    /// <param name="routeIdsFactory">
+    /// A factory that returns the route IDs suppressed by this endpoint.
+    /// </param>
     void SuppressRoutes(Func<TRuntime, IEnumerable<string>> routeIdsFactory);
 }
-
-/// <summary>
-/// Configures an in-process endpoint for a standard Allure runtime.
-/// </summary>
-/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public interface IAllureInProcessEndpointRegistrationContext<TConfiguration> :
-    IAllureInProcessEndpointRegistrationContext<TConfiguration, IAllureRuntime<TConfiguration>>
-
-    where TConfiguration : AllureConfiguration;
-
-/// <summary>
-/// Configures an in-process endpoint for an Allure runtime that uses the
-/// standard <see cref="AllureConfiguration"/>.
-/// </summary>
-public interface IAllureInProcessEndpointRegistrationContext :
-    IAllureInProcessEndpointRegistrationContext<AllureConfiguration>;

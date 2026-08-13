@@ -3,6 +3,7 @@ using Allure.Sdk.Registration;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
 using Allure.Net.Sdk.Tests.Infrastructure;
+using Allure.Sdk.Runtime;
 
 namespace Allure.Net.Sdk.Tests.Registration;
 
@@ -218,8 +219,8 @@ public class RegistrationHookTests
         var original = new TestConfiguration { Value = "original" };
         var final = new TestConfiguration { Value = "final" };
         var calls = new List<string>();
-        var first = new RecordingEndpointHook<TestConfiguration>(_ => calls.Add("first"));
-        var second = new RecordingEndpointHook<TestConfiguration>(_ => calls.Add("second"));
+        var first = new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>(_ => calls.Add("first"));
+        var second = new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>(_ => calls.Add("second"));
         var builder = CreateBuilder();
         var plan = builder.Prepare((ctx) =>
         {
@@ -234,9 +235,9 @@ public class RegistrationHookTests
                 {
                     context.UseCurrentScopePredicate(_ => false);
                     context.UseGlobalScopePredicate(_ => false);
-                    context.UseRegistrationHooks(received =>
+                    context.UseRegistrationHooks(runtime =>
                     {
-                        calls.Add(ReferenceEquals(received, final) ? "configuration" : "unexpected");
+                        calls.Add(ReferenceEquals(runtime.Configuration, final) ? "configuration" : "unexpected");
                         return [first, null, second];
                     });
                 }
@@ -257,7 +258,7 @@ public class RegistrationHookTests
     [Test]
     public async Task ShouldPropagateEndpointHookExceptions()
     {
-        var laterHook = new RecordingEndpointHook<TestConfiguration>();
+        var laterHook = new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>();
         var builder = CreateBuilder();
         var plan = builder.Prepare((ctx) =>
         {
@@ -266,7 +267,7 @@ public class RegistrationHookTests
                 $"endpoint-hook-failure-{Guid.NewGuid():N}",
                 (_, context) => context.UseRegistrationHooks(_ =>
                 [
-                    new RecordingEndpointHook<TestConfiguration>(_ =>
+                    new RecordingEndpointHook<TestConfiguration, IAllureRuntime<TestConfiguration>>(_ =>
                         throw new InvalidOperationException("endpoint hook failed")
                     ),
                     laterHook,
@@ -375,7 +376,7 @@ public class RegistrationHookTests
         )).Throws<FileNotFoundException>();
     }
 
-    static TestRuntimeBuilder<TestConfiguration> CreateBuilder() =>
+    static AllureRuntimeBuilder<TestConfiguration> CreateBuilder() =>
         new("hook-tests");
 
     static AllureRuntimeBuilder CreateReflectionBuilder() => new("reflection-hook-tests");

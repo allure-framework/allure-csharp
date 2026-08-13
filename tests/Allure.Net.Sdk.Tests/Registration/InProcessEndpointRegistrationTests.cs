@@ -134,32 +134,29 @@ public class InProcessEndpointRegistrationTests
     }
 
     [Test]
-    public async Task ShouldExposeIntegrationSpecificRuntimeToRouteBuilder()
+    public async Task ShouldExposeIntegrationSpecificRuntimeToEndpointRegistration()
     {
         var service = new object();
-        var builder = new RuntimeWithServiceBuilder(
-            "endpoint-registration-tests",
-            service
-        );
+        var observedService = default(object);
+        var builder = new RuntimeWithServiceBuilder("test", service);
 
-        var plan = builder.Prepare((ctx) =>
-        {
-            ctx.RegisterInProcessEndpoint(NewRouteId(), (_, ctx) =>
-            {
-                ctx.SetAvailabilityPredicate((_) => false);
-                ctx.UseCurrentScopePredicate((_) => false);
-                ctx.UseGlobalScopePredicate((_) => false);
-            });
-        });
+        using var _ = builder.Prepare(ctx =>
+            ctx.RegisterInProcessEndpoint(
+                NewRouteId(),
+                (runtime, endpoint) =>
+                {
+                    endpoint.UseCurrentScopePredicate(_ => false);
+                    endpoint.UseGlobalScopePredicate(_ => false);
+                    endpoint.SetAvailabilityPredicate(_ => false);
+                    observedService = runtime.Service;
+                }
+            )
+        ).Build();
 
-
-        using var _ = plan.Build();
-
-        await Assert.That(builder.ServiceObservedByRouteBuilder)
-            .IsSameReferenceAs(service);
+        await Assert.That(observedService).IsSameReferenceAs(service);
     }
 
-    static TestRuntimeBuilder<AllureConfiguration> CreateBuilder() =>
+    static AllureRuntimeBuilder<AllureConfiguration> CreateBuilder() =>
         new("endpoint-registration-tests");
 
     static string NewRouteId() => $"endpoint-registration-{Guid.NewGuid():N}";
@@ -184,114 +181,21 @@ public class InProcessEndpointRegistrationTests
         public object Service { get; } = service;
     }
 
-    sealed class RuntimeWithServiceRegistrationSnapshot(object service, Action<object> notifyRouteBuilderService) :
-        IAllureRuntimeIntegrationSnapshot<
-            AllureConfiguration,
-            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
-            RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-            RuntimeWithService
-        >
+    sealed class RuntimeWithServiceRegistrationSession(object service) :
+        AllureRuntimeRegistrationSession<AllureConfiguration, RuntimeWithService>
     {
-        public AllureInProcessRouteBuilder<AllureConfiguration, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>, RecordingEndpointHook<AllureConfiguration, RuntimeWithService>, RuntimeWithService> CreateRouteBuilder(AllureRouteBuilderArgs<AllureConfiguration, RuntimeWithService> args)
-        {
-            var builder = new RuntimeWithServiceRouteBuilder(args);
-            notifyRouteBuilderService(service);
-            return builder;
-        }
-
-        public RuntimeWithService CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
+        protected override RuntimeWithService CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
         {
             return new (args.Configuration, args.ParameterSerializer, args.Destination, args.Context, args.LifecycleApi, args.ModelApi, service);
         }
     }
 
-    sealed class RuntimeWithServiceRegistrationSession(
-        object service,
-        Action<object> notifyRouteBuilderService
-    ) : AllureRuntimeRegistrationSession<
-        AllureConfiguration,
-        IAllureRuntimeRegistrationContext<AllureConfiguration>,
-        RecordingRuntimeHook<AllureConfiguration>,
-        IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
-        RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-        IAllureRuntimeIntegrationContext<
-            AllureConfiguration,
-            IAllureRuntimeRegistrationContext<AllureConfiguration>,
-            RecordingRuntimeHook<AllureConfiguration>,
-            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
-            RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-            RuntimeWithService
-        >,
-        RuntimeWithServiceRegistrationSnapshot,
-        RuntimeWithService
-    >
-    {
-        protected override IAllureRuntimeIntegrationContext<AllureConfiguration, IAllureRuntimeRegistrationContext<AllureConfiguration>, RecordingRuntimeHook<AllureConfiguration>, IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>, RecordingEndpointHook<AllureConfiguration, RuntimeWithService>, RuntimeWithService> IntegrationContext => this;
-
-        protected override IAllureRuntimeRegistrationContext<AllureConfiguration> RegistrationContext => this;
-
-        protected override RuntimeWithServiceRegistrationSnapshot CaptureIntegrationSnapshot()
-        {
-            return new(service, notifyRouteBuilderService);
-        }
-    }
-
     sealed class RuntimeWithServiceBuilder(
         string runtimeName,
-        object service,
-        RuntimeWithServiceBuilder.ObjectBox observedServiceBox
+        object service
     ) :
-        AllureRuntimeBuilder<
-            AllureConfiguration,
-            IAllureRuntimeRegistrationContext<AllureConfiguration>,
-            RecordingRuntimeHook<AllureConfiguration>,
-            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
-            RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-            IAllureRuntimeIntegrationContext<
-                AllureConfiguration,
-                IAllureRuntimeRegistrationContext<AllureConfiguration>,
-                RecordingRuntimeHook<AllureConfiguration>,
-                IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
-                RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-                RuntimeWithService
-            >,
-            RuntimeWithServiceRegistrationSnapshot,
-            RuntimeWithService
-        >(runtimeName, () => new RuntimeWithServiceRegistrationSession(service, observedServiceBox.SetValue))
-    {
-        public RuntimeWithServiceBuilder(string runtimeName, object service) : this(runtimeName, service, new())
-        {
-
-        }
-
-        public object? ServiceObservedByRouteBuilder => observedServiceBox.Value;
-
-        internal class ObjectBox()
-        {
-            public object? Value { get; private set; } = null;
-
-            public void SetValue(object value) => this.Value = value;
-        }
-    }
-
-    sealed class RuntimeWithServiceRouteBuilder(
-        AllureRouteBuilderArgs<
-            AllureConfiguration,
-            RuntimeWithService
-        > args
-    ) :
-        AllureInProcessRouteBuilder<
-            AllureConfiguration,
-            IAllureInProcessEndpointRegistrationContext<AllureConfiguration, RuntimeWithService>,
-            RecordingEndpointHook<AllureConfiguration, RuntimeWithService>,
-            RuntimeWithService
-        >(args)
-    {
-        public object Service => this.Runtime.Service;
-
-        protected override IAllureInProcessEndpointRegistrationContext<
-            AllureConfiguration,
-            RuntimeWithService
-        > RegistrationContext => this;
-    }
+        AllureRuntimeBuilder<AllureConfiguration, RuntimeWithService>(
+            runtimeName,
+            () => new RuntimeWithServiceRegistrationSession(service)
+        );
 }

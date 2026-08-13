@@ -165,7 +165,7 @@ public class RuntimeComponentRegistrationTests
         await Assert.That(registration.Runtime.ModelApi).IsSameReferenceAs(model);
     }
 
-    static TestRuntimeBuilder<TestConfiguration> CreateBuilder() =>
+    static AllureRuntimeBuilder<TestConfiguration> CreateBuilder() =>
         new("component-tests");
 
     static string NewDirectoryPath() =>

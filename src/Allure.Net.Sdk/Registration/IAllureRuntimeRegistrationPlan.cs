@@ -13,7 +13,7 @@ namespace Allure.Sdk.Registration;
 /// </remarks>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public interface IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>
+public interface IAllureRuntimeRegistrationPlan<out TConfiguration, out TRuntime>
     where TConfiguration : AllureConfiguration
     where TRuntime : IAllureRuntime<TConfiguration>
 {
