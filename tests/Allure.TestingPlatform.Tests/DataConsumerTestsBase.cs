@@ -2,6 +2,7 @@ using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
 using Allure.Sdk.Results;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
@@ -44,7 +45,13 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
         });
 
         this.runtimeReference = new();
-        this.consumer = new(new RuntimeCoordinatorSpy(builder.ConfigurationReference, this.runtimeReference));
+        this.consumer = new(
+            new RuntimeCoordinatorSpy(
+                builder.ConfigurationReference,
+                this.runtimeReference
+            ),
+            IRequestRuntimeBinding.Mock()
+        );
     }
 
     [Before(Test)]

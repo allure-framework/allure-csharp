@@ -7,6 +7,7 @@ using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
+using Microsoft.Testing.Platform.Services;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
@@ -51,9 +52,15 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
     IAllureRuntimeRegistration<TRuntime>? runtimeRegistration = null;
 
-    CoordinatorState state = CoordinatorState.Created;
+    RuntimeState runtimeState = RuntimeState.Created;
+
+    BoundRole role = BoundRole.None;
+
+    RequestBindingState requestState = RequestBindingState.Unbound;
 
     Exception? failure = null;
+
+    IRequestRuntimeBinding? currentRequest = null;
 
     public IReadOnlyLateBoundReference<TConfiguration> ConfigurationReference =>
         this.runtimeBuilder.ConfigurationReference;
@@ -64,6 +71,8 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
     public IMessageBus MessageBus => this.messageBus;
 
     public IServiceProvider ServiceProvider => this.serviceProvider;
+
+    public bool CanPublish => this.messageBus.IsBound;
 
     public TConfiguration Configuration
     {
@@ -103,79 +112,8 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         this.serviceProvider = new(this.messageBus);
     }
 
-    public void BindController(IServiceProvider initialServiceProvider)
-    {
-        if (initialServiceProvider is null)
-        {
-            throw new ArgumentNullException(nameof(initialServiceProvider));
-        }
-
-        lock (this.gate)
-        {
-            this.ThrowIfUnavailable();
-
-            // Preparation may already have happened through BindTestHost.
-            // Never replace a test-host provider with a controller provider.
-            if (this.state is not CoordinatorState.Created)
-            {
-                return;
-            }
-
-            this.PrepareCore(initialServiceProvider);
-        }
-    }
-
-    public void BindTestHost(IServiceProvider testHostServiceProvider)
-    {
-        if (testHostServiceProvider is null)
-        {
-            throw new ArgumentNullException(nameof(testHostServiceProvider));
-        }
-
-        lock (this.gate)
-        {
-            this.ThrowIfUnavailable();
-
-            switch (this.state)
-            {
-                case CoordinatorState.Created:
-                    // The test host was created before the watchdog. Prepare directly
-                    // against its provider; no subsequent rebind is necessary.
-                    this.PrepareCore(testHostServiceProvider);
-                    this.state = CoordinatorState.TestHostBound;
-                    return;
-
-                case CoordinatorState.Prepared:
-                    // The watchdog prepared against the test host controller clone of
-                    // the service provider. Promote the proxy to the real test-host
-                    // service provider.
-                    this.serviceProvider.Rebind(testHostServiceProvider);
-                    this.state = CoordinatorState.TestHostBound;
-                    return;
-
-                case CoordinatorState.TestHostBound:
-                    if (this.serviceProvider.IsBoundTo(testHostServiceProvider))
-                    {
-                        return;
-                    }
-
-                    throw new InvalidOperationException(
-                        "The Allure.TestingPlatform test-host service provider is already bound."
-                    );
-
-                case CoordinatorState.Built:
-                    throw new InvalidOperationException(
-                        "The Allure.TestingPlatform runtime has already been constructed."
-                    );
-
-                default:
-                    // Failed and Disposed were handled by ThrowIfUnavailable.
-                    throw new InvalidOperationException(
-                        $"Unexpected runtime coordinator state: {this.state}."
-                    );
-            }
-        }
-    }
+    public Task PublishAsync(IDataProducer dataProducer, IData data) =>
+        this.messageBus.PublishAsync(dataProducer, data);
 
     public void EnsureRuntimeStarted()
     {
@@ -191,21 +129,208 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             try
             {
                 this.runtimeRegistration = this.registrationPlan!.Build();
-                this.state = CoordinatorState.Built;
+                this.runtimeState = RuntimeState.Built;
                 return;
             }
             catch (Exception exception)
             {
                 this.failure = exception;
-                this.state = CoordinatorState.Failed;
+                this.runtimeState = RuntimeState.Failed;
                 throw;
             }
         }
     }
 
-    public Task PublishAsync(IDataProducer dataProducer, IData data)
+    public void BindController(IServiceProvider serviceProvider)
     {
-        return this.MessageBus.PublishAsync(dataProducer, data);
+        if (serviceProvider is null)
+        {
+            throw new ArgumentNullException(nameof(serviceProvider));
+        }
+
+        lock (this.gate)
+        {
+            this.ThrowIfUnavailable();
+
+            if (this.role is not BoundRole.None)
+            {
+                if (this.role is BoundRole.Controller && !this.serviceProvider.IsBoundTo(serviceProvider))
+                {
+                    throw new InvalidOperationException(
+                        "The Allure.TestingPlatform runtime has already been bound to another controller."
+                    );
+                }
+
+                return;
+            }
+
+            this.PrepareCore(serviceProvider, BoundRole.Controller);
+        }
+    }
+
+    public void BindTestHost(IServiceProvider serviceProvider)
+    {
+        if (serviceProvider is null)
+        {
+            throw new ArgumentNullException(nameof(serviceProvider));
+        }
+
+        lock (this.gate)
+        {
+            this.ThrowIfUnavailable();
+
+            if (this.role is BoundRole.Consumer)
+            {
+                return;
+            }
+
+            if (this.role is BoundRole.TestHost)
+            {
+                if (!this.serviceProvider.IsBoundTo(serviceProvider))
+                {
+                    throw new InvalidOperationException(
+                        "The Allure.TestingPlatform runtime has already been bound to another test host."
+                    );
+                }
+
+                return;
+            }
+
+            switch (this.runtimeState)
+            {
+                case RuntimeState.Created:
+                    this.PrepareCore(serviceProvider, BoundRole.TestHost);
+                    return;
+                case RuntimeState.Prepared:
+                    this.role = BoundRole.TestHost;
+                    this.serviceProvider.SetTarget(serviceProvider);
+                    return;
+                case RuntimeState.Built:
+                    throw new InvalidOperationException(
+                        "The Allure.TestingPlatform runtime has already been constructed."
+                    );
+                default:
+                    // Failed and Disposed were handled by ThrowIfUnavailable.
+                    throw new InvalidOperationException(
+                        $"Unexpected runtime coordinator state: {this.runtimeState}."
+                    );
+            }
+        }
+    }
+
+    public IRequestRuntimeBinding BindConsumer(IServiceProvider serviceProvider)
+    {
+        if (serviceProvider is null)
+        {
+            throw new ArgumentNullException(nameof(serviceProvider));
+        }
+
+        lock (this.gate)
+        {
+            this.ThrowIfUnavailable();
+
+            if (this.requestState is RequestBindingState.Active)
+            {
+                throw new InvalidOperationException(
+                    "Another Microsoft Testing Platform request is active. "
+                        + "Parallel requests are not supported."
+                );
+            }
+
+            switch (this.runtimeState)
+            {
+                case RuntimeState.Created:
+                    this.PrepareCore(serviceProvider, BoundRole.Consumer);
+                    return new RequestRuntimeBinding(this, serviceProvider);
+                case RuntimeState.Prepared or RuntimeState.Built:
+                    this.role = BoundRole.Consumer;
+                    this.serviceProvider.SetTarget(serviceProvider);
+                    return new RequestRuntimeBinding(this, serviceProvider);
+                default:
+                    // Failed and Disposed were handled by ThrowIfUnavailable.
+                    throw new InvalidOperationException(
+                        $"Unexpected runtime coordinator state: {this.runtimeState}."
+                    );
+            }
+        }
+    }
+
+    void ActivateRequest(RequestRuntimeBinding binding)
+    {
+        lock (this.gate)
+        {
+            this.ThrowIfUnavailable();
+
+            if (!this.serviceProvider.IsBoundTo(binding.ServiceProvider))
+            {
+                throw new InvalidOperationException(
+                    "The request binding no longer owns the test-host service provider."
+                );
+            }
+
+            switch (this.requestState)
+            {
+                case RequestBindingState.Unbound or RequestBindingState.Completed:
+                    this.messageBus.SetTarget(binding.ServiceProvider.GetMessageBus());
+                    this.currentRequest = binding;
+                    this.requestState = RequestBindingState.Active;
+                    return;
+
+                case RequestBindingState.Active:
+                    if (!ReferenceEquals(this.currentRequest, binding))
+                    {
+                        throw new InvalidOperationException(
+                            "Another Microsoft Testing Platform request is already active. "
+                                + "Parallel requests are not supported."
+                        );
+                    }
+                    return;
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Unexpected request binding state {this.requestState}"
+                    );
+            }
+        }
+    }
+
+    public void ReleaseRequest(IRequestRuntimeBinding binding)
+    {
+        lock (this.gate)
+        {
+            // Can do even after the coordinator is disposed.
+            if (!ReferenceEquals(this.currentRequest, binding))
+            {
+                return;
+            }
+
+            switch (this.requestState)
+            {
+                case RequestBindingState.Active:
+                    this.messageBus.ClearTarget();
+                    this.requestState = RequestBindingState.Completed;
+                    return;
+
+                case RequestBindingState.Completed:
+                case RequestBindingState.Unbound:
+                    return;
+            }
+        }
+    }
+
+    public void DisposeRequestBinding(IRequestRuntimeBinding binding)
+    {
+        lock (this.gate)
+        {
+            if (!ReferenceEquals(this.currentRequest, binding))
+            {
+                return;
+            }
+
+            this.messageBus.ClearTarget();
+            this.currentRequest = null;
+            this.requestState = RequestBindingState.Unbound;
+        }
     }
 
     public void Dispose()
@@ -214,17 +339,30 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
         lock (this.gate)
         {
-            if (this.state is CoordinatorState.Disposed)
+            if (this.runtimeState is RuntimeState.Disposed)
             {
                 return;
             }
 
+            this.messageBus.ClearTarget();
+
+            this.currentRequest = null;
+            this.requestState = RequestBindingState.Unbound;
+
             registration = this.runtimeRegistration;
             this.runtimeRegistration = null;
-            this.state = CoordinatorState.Disposed;
+            this.runtimeState = RuntimeState.Disposed;
         }
 
-        registration?.Dispose();
+        try
+        {
+            registration?.Dispose();
+        }
+        finally
+        {
+            this.messageBus.Dispose();
+            this.serviceProvider.Dispose();
+        }
     }
 
     public async ValueTask DisposeAsync()
@@ -233,38 +371,50 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
         lock (this.gate)
         {
-            if (this.state is CoordinatorState.Disposed)
+            if (this.runtimeState is RuntimeState.Disposed)
             {
                 return;
             }
 
+            this.messageBus.ClearTarget();
+
+            this.currentRequest = null;
+            this.requestState = RequestBindingState.Unbound;
+
             registration = this.runtimeRegistration;
             this.runtimeRegistration = null;
-            this.state = CoordinatorState.Disposed;
+            this.runtimeState = RuntimeState.Disposed;
         }
 
-        if (registration is not null)
+        try
         {
-            await registration.DisposeAsync().ConfigureAwait(false);
+            if (registration is not null)
+            {
+                await registration.DisposeAsync().ConfigureAwait(false);
+            }
+        }
+        finally
+        {
+            this.messageBus.Dispose();
+            this.serviceProvider.Dispose();
         }
     }
 
-    void PrepareCore(IServiceProvider initialServiceProvider)
+    void PrepareCore(IServiceProvider serviceProvider, BoundRole role)
     {
         try
         {
-            this.serviceProvider.BindInitial(initialServiceProvider);
-
+            this.serviceProvider.SetTarget(serviceProvider);
             this.registrationPlan = this.runtimeBuilder.Prepare(
                 (context) => this.registration(context, this)
             );
-
-            this.state = CoordinatorState.Prepared;
+            this.runtimeState = RuntimeState.Prepared;
+            this.role = role;
         }
         catch (Exception exception)
         {
             this.failure = exception;
-            this.state = CoordinatorState.Failed;
+            this.runtimeState = RuntimeState.Failed;
             throw;
         }
     }
@@ -283,12 +433,12 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
     void ThrowIfUnavailable()
     {
-        if (this.state is CoordinatorState.Disposed)
+        if (this.runtimeState is RuntimeState.Disposed)
         {
             throw new ObjectDisposedException(this.GetType().FullName);
         }
 
-        if (this.state is CoordinatorState.Failed)
+        if (this.runtimeState is RuntimeState.Failed)
         {
             throw new InvalidOperationException(
                 "The Allure.TestingPlatform runtime registration has failed.",
@@ -297,13 +447,22 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
-    enum CoordinatorState
+    enum BoundRole
+    {
+        None,
+
+        Controller,
+
+        TestHost,
+
+        Consumer,
+    }
+
+    enum RuntimeState
     {
         Created,
 
         Prepared,
-
-        TestHostBound,
 
         Built,
 
@@ -312,12 +471,103 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         Disposed,
     }
 
-    sealed class ServiceProviderProxy(MessageBusProxy messageBusProxy) : IServiceProvider
+    enum RequestBindingState
+    {
+        Unbound,
+
+        Active,
+
+        Completed,
+    }
+
+    sealed class RequestRuntimeBinding(
+        AllureTestingPlatformRuntimeCoordinator<
+            TConfiguration,
+            TRuntime,
+            TIntegrationContext
+        > coordinator,
+        IServiceProvider serviceProvider
+    ) :
+        IRequestRuntimeBinding
+    {
+        int released = 0;
+        int disposed = 0;
+
+        public IServiceProvider ServiceProvider => serviceProvider;
+
+        public void Activate()
+        {
+            this.EnsureNotDisposed();
+
+            if (Volatile.Read(ref this.released) != 0)
+            {
+                throw new InvalidOperationException(
+                    "The request runtime binding has already been released."
+                );
+            }
+
+            coordinator.ActivateRequest(this);
+        }
+
+        public void Release()
+        {
+            if (Interlocked.Exchange(ref this.released, 1) == 0)
+            {
+                coordinator.ReleaseRequest(this);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref this.disposed, 1) != 0)
+            {
+                return;
+            }
+
+            this.Release();
+            coordinator.DisposeRequestBinding(this);
+        }
+
+        void EnsureNotDisposed()
+        {
+            if (Volatile.Read(ref this.disposed) != 0)
+            {
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
+        }
+    }
+
+    sealed class ServiceProviderProxy(MessageBusProxy messageBusProxy) :
+        IServiceProvider,
+        IDisposable
     {
         IServiceProvider? target;
 
+        int disposed = 0;
+
+        public void SetTarget(IServiceProvider serviceProvider)
+        {
+            this.EnsureNotDisposed();
+            Volatile.Write(ref this.target, serviceProvider);
+        }
+
+        internal void ClearTarget()
+        {
+            this.EnsureNotDisposed();
+            Volatile.Write(ref this.target, null);
+        }
+
+        internal bool IsBoundTo(IServiceProvider provider)
+        {
+            this.EnsureNotDisposed();
+
+            return ReferenceEquals(Volatile.Read(ref this.target), provider);
+        }
+
         public object? GetService(Type serviceType)
         {
+            this.EnsureNotDisposed();
+
             if (serviceType == typeof (IMessageBus))
             {
                 return messageBusProxy;
@@ -331,58 +581,70 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             return provider.GetService(serviceType);
         }
 
-        internal void BindInitial(IServiceProvider provider)
+        public void Dispose()
         {
-            if (this.target is not null)
+            if (Interlocked.Exchange(ref this.disposed, 1) == 0)
             {
-                throw new InvalidOperationException(
-                    "The initial target of the service provider proxy is already established."
-                );
+                Volatile.Write(ref this.target, null);
             }
-
-            Volatile.Write(ref this.target, provider);
         }
 
-        internal void Rebind(IServiceProvider provider) =>
-            Volatile.Write(ref this.target, provider);
-
-        internal bool IsBoundTo(IServiceProvider provider) =>
-            ReferenceEquals(Volatile.Read(ref this.target), provider);
+        void EnsureNotDisposed()
+        {
+            if (Volatile.Read(ref this.disposed) != 0)
+            {
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
+        }
     }
 
-    sealed class MessageBusProxy : IMessageBus
+    sealed class MessageBusProxy : IMessageBus, IDisposable
     {
+        int disposed = 0;
+
         IMessageBus? target;
 
-        public void Bind(IMessageBus messageBus)
+        public bool IsBound => Volatile.Read(ref this.target) is not null;
+
+        public void SetTarget(IMessageBus messageBus)
         {
-            if (this.target is not null)
-            {
-                throw new InvalidOperationException(
-                    "Cannot bind the message bus proxy because is is already bound. "
-                        + "Parallel MTP requests are not supported yet."
-                );
-            }
-            this.target = messageBus;
+            this.EnsureNotDisposed();
+            Volatile.Write(ref this.target, messageBus);
         }
 
-        public void Unbind()
+        public void ClearTarget()
         {
-            if (this.target is null)
-            {
-                throw new InvalidOperationException(
-                    "Cannot unbind the message bus proxy because is is not bound. "
-                        + "Parallel MTP requests are not supported yet."
-                );
-            }
-            this.target = null;
+            this.EnsureNotDisposed();
+            Volatile.Write(ref this.target, null);
         }
 
-        public Task PublishAsync(IDataProducer dataProducer, IData data) =>
-            this.target?.PublishAsync(dataProducer, data)
+        public Task PublishAsync(IDataProducer dataProducer, IData data)
+        {
+            this.EnsureNotDisposed();
+
+            var target = Volatile.Read(ref this.target)
                 ?? throw new InvalidOperationException(
-                    "The message bus proxy is not bound."
+                    "No Microsoft Testing Platform request is currently active."
                 );
+
+            return target.PublishAsync(dataProducer, data);
+        }
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref this.disposed, 1) == 0)
+            {
+                Volatile.Write(ref this.target, null);
+            }
+        }
+
+        void EnsureNotDisposed()
+        {
+            if (Volatile.Read(ref this.disposed) != 0)
+            {
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
+        }
     }
 }
 

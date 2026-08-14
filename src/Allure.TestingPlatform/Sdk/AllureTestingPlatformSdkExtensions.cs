@@ -69,8 +69,8 @@ public static class AllureTestingPlatformSdkExtensions
             var factory =
                 new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
                 {
-                    runtimeCoordinator.BindTestHost(serviceProvider);
-                    return new AllureDataConsumer(runtimeControl);
+                    var binding = runtimeCoordinator.BindConsumer(serviceProvider);
+                    return new AllureDataConsumer(runtimeControl, binding);
                 });
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
@@ -83,6 +83,7 @@ public static class AllureTestingPlatformSdkExtensions
             builder.TestHost.AddTestSessionLifetimeHandler(factory);
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
             {
+                runtimeCoordinator.BindTestHost(serviceProvider);
                 return new AllureTestingPlatformRuntimeRegistrationOwner(runtimeControl);
             });
 

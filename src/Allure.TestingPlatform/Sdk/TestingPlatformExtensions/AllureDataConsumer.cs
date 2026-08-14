@@ -37,9 +37,12 @@ public sealed class AllureDataConsumer :
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     >,
     IDataConsumer,
-    ITestSessionLifetimeHandler
+    ITestSessionLifetimeHandler,
+    IAsyncDisposable
 {
     readonly IAllureTestingPlatformRuntimeControl runtimeControl;
+
+    readonly IRequestRuntimeBinding requestBinding;
 
     readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
 
@@ -71,7 +74,10 @@ public sealed class AllureDataConsumer :
     /// <summary>
     /// Creates the Allure data consumer.
     /// </summary>
-    public AllureDataConsumer(IAllureTestingPlatformRuntimeControl runtimeControl) :
+    public AllureDataConsumer(
+        IAllureTestingPlatformRuntimeControl runtimeControl,
+        IRequestRuntimeBinding requestBinding
+    ) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
@@ -80,6 +86,7 @@ public sealed class AllureDataConsumer :
         )
     {
         this.runtimeControl = runtimeControl;
+        this.requestBinding = requestBinding;
         this.allureLifecycleState = new(() => new(this.ContextApi));
         correlationState = new(() => new(
             this.CorrelationStrategy,
@@ -90,16 +97,37 @@ public sealed class AllureDataConsumer :
     /// <inheritdoc />
     public Task OnTestSessionStartingAsync(ITestSessionContext testSessionContext)
     {
-        this.runtimeControl.EnsureRuntimeStarted();
+
+        try
+        {
+            this.requestBinding.Activate();
+            this.runtimeControl.EnsureRuntimeStarted();
+        }
+        catch
+        {
+            this.requestBinding.Release();
+            throw;
+        }
+
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
     public Task OnTestSessionFinishingAsync(ITestSessionContext testSessionContext)
     {
-        if (this.CorrelationState.RemoveSessionData(testSessionContext.SessionUid) is CorrelationUid correlationUid)
+        try
         {
-            this.AllureLifecycleState.RemoveSession(correlationUid);
+            if (
+                this.CorrelationState.RemoveSessionData(testSessionContext.SessionUid)
+                    is CorrelationUid correlationUid
+            )
+            {
+                this.AllureLifecycleState.RemoveSession(correlationUid);
+            }
+        }
+        finally
+        {
+            this.requestBinding.Release();
         }
         return Task.CompletedTask;
     }
@@ -120,6 +148,12 @@ public sealed class AllureDataConsumer :
 
             await this.Logger.LogErrorAsync($"Error while processing {value}", e);
         }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        this.requestBinding.Dispose();
+        return default;
     }
 
     async Task ConsumeAsyncUnsafe(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)

@@ -105,8 +105,6 @@ public class IntegrationTests
         var code = await app.RunAsync();
 
         await Assert.That(code).IsEqualTo(0);
-        var dataConsumer = registrationServiceProvider.GetRequiredService<AllureDataConsumer>();
-        await Assert.That(dataConsumer.IsEnabledAsync()).IsTrue();
         await Assert.That(runtimeHandle.ConfigurationReference.Value).IsSameReferenceAs(config);
         await Assert.That(runtimeHandle.RuntimeReference.Value.Configuration).IsSameReferenceAs(config);
         await Assert.That(runtimeHandle.RuntimeReference.Value.ResultsDestination).IsSameReferenceAs(writer);

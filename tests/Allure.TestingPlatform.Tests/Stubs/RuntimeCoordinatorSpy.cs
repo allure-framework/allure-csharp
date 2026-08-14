@@ -21,6 +21,8 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
 
     public IReadOnlyLateBoundReference<TRuntime> RuntimeReference => runtimeReference;
 
+    public bool CanPublish => true;
+
     public ValueTask DisposeAsync() => default;
 
     public void EnsureRuntimeStarted()
