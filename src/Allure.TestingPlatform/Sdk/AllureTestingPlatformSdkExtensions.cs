@@ -187,13 +187,15 @@ public static class AllureTestingPlatformSdkExtensions
                 {
                     context.RegisterInProcessEndpoint(runtimeName, (runtime, endpointContext) =>
                     {
-                        endpointContext.UseCurrentScopePredicate((runtime) => runtime is
-                        {
-                            Configuration.IsEnabled: true,
-                            ExecutionStateContext: { CurrentTestUid: not null } or { CurrentFixtureUid: not null},
-                        });
-                        endpointContext.UseGlobalScopePredicate((_) => runtime.Configuration.IsEnabled);
-                        endpointContext.SetAvailabilityPredicate((_) => runtime.Configuration.IsEnabled);
+                        endpointContext.UseCurrentScopePredicate(
+                            (runtime) => coordinator.CanPublish && runtime.ExecutionStateContext is
+                                { CurrentTestUid: not null }
+                                    or { CurrentFixtureUid: not null}
+                        );
+                        endpointContext.UseGlobalScopePredicate((_) => coordinator.CanPublish);
+                        endpointContext.SetAvailabilityPredicate(
+                            (_) => runtime.Configuration.IsEnabled && coordinator.CanPublish
+                        );
                         endpointContext.UseOperations((runtime) =>
                         {
                             var asyncOperations = new AllureTestingPlatformAsyncOperations(

@@ -14,5 +14,7 @@ public interface IAllureTestingPlatformRuntimeHandle<out TConfiguration, out TRu
 
     IReadOnlyLateBoundReference<TRuntime> RuntimeReference { get; }
 
+    bool CanPublish { get; }
+
     Task PublishAsync(IDataProducer dataProducer, IData data);
 }
