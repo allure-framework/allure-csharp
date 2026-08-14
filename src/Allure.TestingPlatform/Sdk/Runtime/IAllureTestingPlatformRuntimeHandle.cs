@@ -1,15 +1,11 @@
-using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
-using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
-namespace Allure.TestingPlatform.Internal.Runtime;
+namespace Allure.TestingPlatform.Sdk.Runtime;
 
-public interface IAllureTestingPlatformRuntimeHandle<out TConfiguration, out TRuntime> :
-    IAsyncDisposable
+public interface IAllureTestingPlatformRuntimeHandle<out TConfiguration, out TRuntime>
 
     where TConfiguration : AllureTestingPlatformConfiguration
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>

@@ -5,7 +5,6 @@ using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Functions;
-using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;

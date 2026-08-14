@@ -3,7 +3,6 @@ using Allure.Sdk.Registration;
 using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
 using Allure.TestingPlatform.Configuration;
-using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Registration;
