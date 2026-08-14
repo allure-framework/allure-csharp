@@ -5,7 +5,6 @@ using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Microsoft.Testing.Platform.Logging;
-using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Runtime;
 
@@ -17,7 +16,6 @@ public class AllureTestingPlatformRuntime<TConfiguration>(
     IAllureLifecycleApi lifecycleApi,
     IAllureModelApi modelApi,
     ILogger logger,
-    IMessageBus messageBus,
     ICorrelationStrategy correlationStrategy,
     ICorrelationContext correlationContext,
     ExecutionStateContext executionStateContext
@@ -36,8 +34,6 @@ public class AllureTestingPlatformRuntime<TConfiguration>(
 {
     public ILogger Logger => logger;
 
-    public IMessageBus MessageBus { get; } = messageBus;
-
     public ICorrelationStrategy CorrelationStrategy => correlationStrategy;
 
     public ICorrelationContext CorrelationContext => correlationContext;
@@ -53,7 +49,6 @@ public class AllureTestingPlatformRuntime(
     IAllureLifecycleApi lifecycleApi,
     IAllureModelApi modelApi,
     ILogger logger,
-    IMessageBus messageBus,
     ICorrelationStrategy correlationStrategy,
     ICorrelationContext correlationContext,
     ExecutionStateContext executionStateContext
@@ -66,7 +61,6 @@ public class AllureTestingPlatformRuntime(
         lifecycleApi,
         modelApi,
         logger,
-        messageBus,
         correlationStrategy,
         correlationContext,
         executionStateContext

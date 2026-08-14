@@ -75,11 +75,6 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
     protected ILogger Logger => this.Runtime.Logger;
 
     /// <summary>
-    /// Gets the Mictosoft Testing Platform message bus.
-    /// </summary>
-    protected IMessageBus MessageBus => this.Runtime.MessageBus;
-
-    /// <summary>
     /// Gets the resolved Allure object model API.
     /// </summary>
     protected IAllureModelApi ModelApi => this.Runtime.ModelApi;

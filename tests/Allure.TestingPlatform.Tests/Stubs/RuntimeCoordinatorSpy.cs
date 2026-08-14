@@ -2,6 +2,7 @@ using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime;
+using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Tests.Stubs;
 
@@ -26,6 +27,9 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
     {
         this.EnsureRuntimeStartedCalls++;
     }
+
+    public Task PublishAsync(IDataProducer dataProducer, IData data) =>
+        Task.CompletedTask;
 }
 
 class RuntimeCoordinatorSpy(

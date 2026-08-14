@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Allure.Abstractions;
 using Allure.Model;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
@@ -12,8 +13,13 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
+using IAllureTestingPlatformRuntimeHandle = IAllureTestingPlatformRuntimeHandle<
+    AllureTestingPlatformConfiguration,
+    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+>;
+
 class AllureTestingPlatformAsyncStepContext(
-    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> runtime,
+    IAllureTestingPlatformRuntimeHandle runtimeHandle,
     StepExecutionStateUid stepUid
 ) :
     IAllureInProcessAsyncStepContext,
@@ -22,9 +28,14 @@ class AllureTestingPlatformAsyncStepContext(
 {
     int disposed = 0;
 
-    readonly IDisposable scope = runtime.ExecutionStateContext.EnterApiStepScope(stepUid);
+    readonly ICorrelationContext correlationContext =
+        runtimeHandle.RuntimeReference.Value.CorrelationContext;
 
-    public IAllureParameterSerializer ParameterSerializer => runtime.ParameterSerializer;
+    readonly IDisposable scope =
+        runtimeHandle.RuntimeReference.Value.ExecutionStateContext.EnterApiStepScope(stepUid);
+
+    public IAllureParameterSerializer ParameterSerializer =>
+        runtimeHandle.RuntimeReference.Value.ParameterSerializer;
 
     public Type[] DataTypesProduced => [typeof(AllureStepUpdateMessage)];
 
@@ -38,20 +49,20 @@ class AllureTestingPlatformAsyncStepContext(
 
     public async Task AddParameterAsync(Parameter parameter, CancellationToken _)
     {
-        AllureStepUpdateMessage message = new(runtime.CorrelationContext.CurrentCorrelationUid, stepUid)
+        AllureStepUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, stepUid)
         {
             Properties = [new AllureParametersProperty<StepResult>([parameter])],
         };
-        await runtime.MessageBus.PublishAsync(this, message);
+        await runtimeHandle.PublishAsync(this, message);
     }
 
     public async Task SetNameAsync(string newName, CancellationToken _)
     {
-        AllureStepUpdateMessage message = new(runtime.CorrelationContext.CurrentCorrelationUid, stepUid)
+        AllureStepUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, stepUid)
         {
             Properties = [new AllureNameProperty<StepResult>(newName)],
         };
-        await runtime.MessageBus.PublishAsync(this, message);
+        await runtimeHandle.PublishAsync(this, message);
     }
 
     public bool TryReadStepResult<TResult>(Func<StepResult, TResult> read, out TResult value)

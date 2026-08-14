@@ -14,17 +14,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
     TConfiguration,
     TRuntime,
     TIntegrationContext
->(
-    string runtimeName,
-    Func<
-        AllureRuntimeRegistrationSessionBase<
-            TConfiguration,
-            TRuntime,
-            TIntegrationContext
-        >
-    > sessionFactory,
-    Action<TIntegrationContext, IServiceProvider> registration
-) :
+> :
     IAllureTestingPlatformRuntimeControl<TConfiguration, TRuntime>,
     IDisposable,
     IAsyncDisposable
@@ -42,26 +32,38 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         TConfiguration,
         TRuntime,
         TIntegrationContext
-    > runtimeBuilder = AllureRuntimeBuilder.Create(runtimeName, sessionFactory);
+    > runtimeBuilder;
 
-    readonly Action<TIntegrationContext, IServiceProvider> registration = registration
-            ?? throw new ArgumentNullException(nameof(registration));
+    readonly Action<
+        TIntegrationContext,
+        AllureTestingPlatformRuntimeCoordinator<
+            TConfiguration,
+            TRuntime,
+            TIntegrationContext
+        >
+    > registration;
 
-    readonly ServiceProviderProxy serviceProvider = new();
+    readonly ServiceProviderProxy serviceProvider;
 
-    IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan;
+    readonly MessageBusProxy messageBus;
 
-    IAllureRuntimeRegistration<TRuntime>? runtimeRegistration;
+    IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan = null;
+
+    IAllureRuntimeRegistration<TRuntime>? runtimeRegistration = null;
 
     CoordinatorState state = CoordinatorState.Created;
 
-    Exception? failure;
+    Exception? failure = null;
 
     public IReadOnlyLateBoundReference<TConfiguration> ConfigurationReference =>
         this.runtimeBuilder.ConfigurationReference;
 
     public IReadOnlyLateBoundReference<TRuntime> RuntimeReference =>
         this.runtimeBuilder.RuntimeReference;
+
+    public IMessageBus MessageBus => this.messageBus;
+
+    public IServiceProvider ServiceProvider => this.serviceProvider;
 
     public TConfiguration Configuration
     {
@@ -73,6 +75,32 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
                 return this.registrationPlan!.Configuration;
             }
         }
+    }
+
+    public AllureTestingPlatformRuntimeCoordinator(
+        string runtimeName,
+        Func<
+            AllureRuntimeRegistrationSessionBase<
+                TConfiguration,
+                TRuntime,
+                TIntegrationContext
+            >
+        > sessionFactory,
+        Action<
+            TIntegrationContext,
+            AllureTestingPlatformRuntimeCoordinator<
+                TConfiguration,
+                TRuntime,
+                TIntegrationContext
+            >
+        > registration
+    )
+    {
+        this.runtimeBuilder = AllureRuntimeBuilder.Create(runtimeName, sessionFactory);
+        this.registration = registration
+            ?? throw new ArgumentNullException(nameof(registration));
+        this.messageBus = new();
+        this.serviceProvider = new(this.messageBus);
     }
 
     public void BindController(IServiceProvider initialServiceProvider)
@@ -175,6 +203,11 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
+    public Task PublishAsync(IDataProducer dataProducer, IData data)
+    {
+        return this.MessageBus.PublishAsync(dataProducer, data);
+    }
+
     public void Dispose()
     {
         IAllureRuntimeRegistration<TRuntime>? registration;
@@ -223,7 +256,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             this.serviceProvider.BindInitial(initialServiceProvider);
 
             this.registrationPlan = this.runtimeBuilder.Prepare(
-                (context) => this.registration(context, this.serviceProvider)
+                (context) => this.registration(context, this)
             );
 
             this.state = CoordinatorState.Prepared;
@@ -279,12 +312,17 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         Disposed,
     }
 
-    sealed class ServiceProviderProxy : IServiceProvider
+    sealed class ServiceProviderProxy(MessageBusProxy messageBusProxy) : IServiceProvider
     {
         IServiceProvider? target;
 
         public object? GetService(Type serviceType)
         {
+            if (serviceType == typeof (IMessageBus))
+            {
+                return messageBusProxy;
+            }
+
             var provider = Volatile.Read(ref this.target)
                 ?? throw new InvalidOperationException(
                     "The service provider proxy has not been bound to its target."
@@ -363,7 +401,14 @@ internal static class AllureTestingPlatformRuntimeCoordinator
                 TIntegrationContext
             >
         > sessionFactory,
-        Action<TIntegrationContext, IServiceProvider> registration
+        Action<
+            TIntegrationContext,
+            AllureTestingPlatformRuntimeCoordinator<
+                TConfiguration,
+                TRuntime,
+                TIntegrationContext
+            >
+        > registration
     )
         where TConfiguration : AllureTestingPlatformConfiguration, new()
         where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>

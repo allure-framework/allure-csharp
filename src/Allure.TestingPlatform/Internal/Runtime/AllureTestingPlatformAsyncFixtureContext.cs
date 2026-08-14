@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Allure.Abstractions;
 using Allure.Model;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
@@ -12,8 +13,13 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
+using IAllureTestingPlatformRuntimeHandle = IAllureTestingPlatformRuntimeHandle<
+    AllureTestingPlatformConfiguration,
+    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+>;
+
 class AllureTestingPlatformAsyncFixtureContext(
-    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> runtime,
+    IAllureTestingPlatformRuntimeHandle runtimeHandle,
     FixtureExecutionStateUid fixtureUid
 ) :
     IAllureInProcessAsyncFixtureContext,
@@ -22,9 +28,14 @@ class AllureTestingPlatformAsyncFixtureContext(
 {
     int disposed = 0;
 
-    readonly IDisposable scope = runtime.ExecutionStateContext.EnterApiFixtureScope(fixtureUid);
+    readonly IDisposable scope =
+        runtimeHandle.RuntimeReference.Value.ExecutionStateContext.EnterApiFixtureScope(fixtureUid);
 
-    public IAllureParameterSerializer ParameterSerializer => runtime.ParameterSerializer;
+    readonly ICorrelationContext correlationContext =
+        runtimeHandle.RuntimeReference.Value.CorrelationContext;
+
+    public IAllureParameterSerializer ParameterSerializer =>
+        runtimeHandle.RuntimeReference.Value.ParameterSerializer;
 
     public Type[] DataTypesProduced => [typeof(AllureStepUpdateMessage)];
 
@@ -38,20 +49,20 @@ class AllureTestingPlatformAsyncFixtureContext(
 
     public async Task AddParameterAsync(Parameter parameter, CancellationToken _)
     {
-        AllureFixtureUpdateMessage message = new(runtime.CorrelationContext.CurrentCorrelationUid, fixtureUid)
+        AllureFixtureUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, fixtureUid)
         {
             Properties = [new AllureParametersProperty<FixtureResult>([parameter])],
         };
-        await runtime.MessageBus.PublishAsync(this, message);
+        await runtimeHandle.PublishAsync(this, message);
     }
 
     public async Task SetNameAsync(string newName, CancellationToken _)
     {
-        AllureFixtureUpdateMessage message = new(runtime.CorrelationContext.CurrentCorrelationUid, fixtureUid)
+        AllureFixtureUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, fixtureUid)
         {
             Properties = [new AllureNameProperty<FixtureResult>(newName)],
         };
-        await runtime.MessageBus.PublishAsync(this, message);
+        await runtimeHandle.PublishAsync(this, message);
     }
 
     public bool TryReadFixtureResult<TResult>(Func<FixtureResult, TResult> read, out TResult value)

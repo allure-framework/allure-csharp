@@ -35,7 +35,14 @@ public static class AllureTestingPlatformSdkExtensions
                     TIntegrationContext
                 >
             > sessionFactory,
-            Action<TIntegrationContext, IServiceProvider> registration
+            Action<
+                TIntegrationContext,
+                AllureTestingPlatformRuntimeCoordinator<
+                    TConfiguration,
+                    TRuntime,
+                    TIntegrationContext
+                >
+            > registration
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
             where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
@@ -83,16 +90,20 @@ public static class AllureTestingPlatformSdkExtensions
 
             void RegisterIntegration(
                 TIntegrationContext context,
-                IServiceProvider serviceProvider
+                AllureTestingPlatformRuntimeCoordinator<
+                    TConfiguration,
+                    TRuntime,
+                    TIntegrationContext
+                > coordinator
             )
             {
+                var serviceProvider = coordinator.ServiceProvider;
+
                 context.UseLogger(
                     (_) => serviceProvider
                         .GetLoggerFactory()
                         .CreateLogger("Allure")
                 );
-
-                context.UseMessageBus((_) => serviceProvider.GetMessageBus());
 
                 if (serviceProvider.GetConfiguration()["platformOptions:resultDirectory"] is { } mtpResultsDir)
                 {
@@ -137,7 +148,7 @@ public static class AllureTestingPlatformSdkExtensions
                     );
                 }
 
-                registration(context, serviceProvider);
+                registration(context, coordinator);
             }
         }
 
@@ -172,7 +183,7 @@ public static class AllureTestingPlatformSdkExtensions
                 builder,
                 runtimeName,
                 sessionFactory,
-                (context, serviceProvider) =>
+                (context, coordinator) =>
                 {
                     context.RegisterInProcessEndpoint(runtimeName, (runtime, endpointContext) =>
                     {
@@ -185,17 +196,24 @@ public static class AllureTestingPlatformSdkExtensions
                         endpointContext.SetAvailabilityPredicate((_) => runtime.Configuration.IsEnabled);
                         endpointContext.UseOperations((runtime) =>
                         {
-                            var asyncOperations = new AllureTestingPlatformAsyncOperations(runtime);
+                            var asyncOperations = new AllureTestingPlatformAsyncOperations(
+                                (IAllureTestingPlatformRuntimeHandle<
+                                    AllureTestingPlatformConfiguration,
+                                    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+                                >)
+                                (IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime>)
+                                coordinator
+                            );
                             return new AllureInProcessOperations(
                                 new AllureTestingPlatformSyncOperations(asyncOperations),
                                 asyncOperations
                             );
                         });
 
-                        endpointRegistration(endpointContext, serviceProvider, runtime);
+                        endpointRegistration(endpointContext, coordinator.ServiceProvider, runtime);
                     });
 
-                    runtimeRegistration(context, serviceProvider);
+                    runtimeRegistration(context, coordinator.ServiceProvider);
                 }
             );
 

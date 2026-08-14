@@ -8,7 +8,6 @@ using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Logging;
-using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 
@@ -50,9 +49,6 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 
     Func<TConfiguration, ILogger> currentLoggerFactory =
         (_) => NullLogger.Instance;
-
-    Func<TConfiguration, IMessageBus> currentMessageBusFactory =
-        (_) => NullMessageBus.Instance;
 
     public void Disable()
     {
@@ -96,11 +92,6 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
         this.Modify(() => this.currentLoggerFactory = loggerFactory);
     }
 
-    public void UseMessageBus(Func<TConfiguration, IMessageBus> messageBusFactory)
-    {
-        this.Modify(() => this.currentMessageBusFactory = messageBusFactory);
-    }
-
     protected override sealed TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args)
     {
         var configuration = args.Configuration;
@@ -108,7 +99,6 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
             args,
             new(
                 Logger: this.currentLoggerFactory(configuration),
-                MessageBus: this.currentMessageBusFactory(configuration),
                 CorrelationStrategy: this.currentCorrelationStrategyFactory(configuration),
                 CorrelationContext: this.currentCorrelationContextFactory(configuration),
                 ExecutionStateContext: this.currentExecutionStateContextFactory(configuration)
@@ -186,7 +176,6 @@ public class AllureTestingPlatformRuntimeRegistrationSession<TConfiguration> :
             commonArgs.LifecycleApi,
             commonArgs.ModelApi,
             testingPlatformArgs.Logger,
-            testingPlatformArgs.MessageBus,
             testingPlatformArgs.CorrelationStrategy,
             testingPlatformArgs.CorrelationContext,
             testingPlatformArgs.ExecutionStateContext
@@ -218,7 +207,6 @@ public class AllureTestingPlatformRuntimeRegistrationSession :
             commonArgs.LifecycleApi,
             commonArgs.ModelApi,
             testingPlatformArgs.Logger,
-            testingPlatformArgs.MessageBus,
             testingPlatformArgs.CorrelationStrategy,
             testingPlatformArgs.CorrelationContext,
             testingPlatformArgs.ExecutionStateContext

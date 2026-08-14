@@ -14,25 +14,30 @@ using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.Messages;
-using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
+using IAllureTestingPlatformRuntimeHandle = IAllureTestingPlatformRuntimeHandle<
+    AllureTestingPlatformConfiguration,
+    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+>;
+
 class AllureTestingPlatformAsyncOperations(
-    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> runtime
+    IAllureTestingPlatformRuntimeHandle runtimeHandle
 ) :
     IDataProducer,
     IAllureInProcessAsyncOperations
 {
-    IMessageBus MessageBus => runtime.MessageBus;
+    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> Runtime =>
+        runtimeHandle.RuntimeReference.Value;
 
-    ExecutionStateContext ExecutionStateContext => runtime.ExecutionStateContext;
+    ExecutionStateContext ExecutionStateContext => this.Runtime.ExecutionStateContext;
 
-    IAllureResultsDestination ResultsDestination => runtime.ResultsDestination;
+    IAllureResultsDestination ResultsDestination => this.Runtime.ResultsDestination;
 
-    ICorrelationContext CorrelationContext => runtime.CorrelationContext;
+    ICorrelationContext CorrelationContext => this.Runtime.CorrelationContext;
 
-    AllureTestingPlatformConfiguration Configuration => runtime.Configuration;
+    AllureTestingPlatformConfiguration Configuration => this.Runtime.Configuration;
 
     public Type[] DataTypesProduced => [
         typeof(AllureFixtureUpdateMessage),
@@ -248,7 +253,7 @@ class AllureTestingPlatformAsyncOperations(
 
         var fixtureUid = new FixtureExecutionStateUid(Ids.NewUuid());
 
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureBeforeFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -263,7 +268,7 @@ class AllureTestingPlatformAsyncOperations(
 
         try
         {
-            using AllureTestingPlatformAsyncFixtureContext context = new(runtime, fixtureUid);
+            using AllureTestingPlatformAsyncFixtureContext context = new(runtimeHandle, fixtureUid);
             await body(context, cancellationToken);
         }
         catch (Exception e)
@@ -280,7 +285,7 @@ class AllureTestingPlatformAsyncOperations(
                 properties.Add(new AllureStatusDetailsProperty<FixtureResult>(statusDetails));
             }
 
-            await this.MessageBus.PublishAsync(
+            await runtimeHandle.PublishAsync(
                 this,
                 new AllureFixtureStopMessage(
                     this.CorrelationContext.CurrentCorrelationUid,
@@ -300,7 +305,7 @@ class AllureTestingPlatformAsyncOperations(
 
         var fixtureUid = new FixtureExecutionStateUid(Ids.NewUuid());
 
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureBeforeFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -315,7 +320,7 @@ class AllureTestingPlatformAsyncOperations(
 
         try
         {
-            using AllureTestingPlatformAsyncFixtureContext context = new(runtime, fixtureUid);
+            using AllureTestingPlatformAsyncFixtureContext context = new(runtimeHandle, fixtureUid);
             return await body(context, cancellationToken);
         }
         catch (Exception e)
@@ -332,7 +337,7 @@ class AllureTestingPlatformAsyncOperations(
                 properties.Add(new AllureStatusDetailsProperty<FixtureResult>(statusDetails));
             }
 
-            await this.MessageBus.PublishAsync(
+            await runtimeHandle.PublishAsync(
                 this,
                 new AllureFixtureStopMessage(
                     this.CorrelationContext.CurrentCorrelationUid,
@@ -357,7 +362,7 @@ class AllureTestingPlatformAsyncOperations(
             properties.Add(new AllureStatusDetailsProperty<StepResult>(statusDetails));
         }
 
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureStepStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -369,7 +374,7 @@ class AllureTestingPlatformAsyncOperations(
                 Properties = properties,
             }
         );
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureStepStopMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -385,7 +390,7 @@ class AllureTestingPlatformAsyncOperations(
 
         var stepUid = new StepExecutionStateUid(Ids.NewUuid());
 
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureStepStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -400,7 +405,7 @@ class AllureTestingPlatformAsyncOperations(
 
         try
         {
-            using AllureTestingPlatformAsyncStepContext context = new(runtime, stepUid);
+            using AllureTestingPlatformAsyncStepContext context = new(runtimeHandle, stepUid);
             await body(context, cancellationToken);
         }
         catch (Exception e)
@@ -417,7 +422,7 @@ class AllureTestingPlatformAsyncOperations(
                 properties.Add(new AllureStatusDetailsProperty<StepResult>(statusDetails));
             }
 
-            await this.MessageBus.PublishAsync(
+            await runtimeHandle.PublishAsync(
                 this,
                 new AllureStepStopMessage(
                     this.CorrelationContext.CurrentCorrelationUid,
@@ -437,7 +442,7 @@ class AllureTestingPlatformAsyncOperations(
 
         var stepUid = new StepExecutionStateUid(Ids.NewUuid());
 
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureStepStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -452,7 +457,7 @@ class AllureTestingPlatformAsyncOperations(
 
         try
         {
-            using AllureTestingPlatformAsyncStepContext context = new(runtime, stepUid);
+            using AllureTestingPlatformAsyncStepContext context = new(runtimeHandle, stepUid);
             return await body(context, cancellationToken);
         }
         catch (Exception e)
@@ -469,7 +474,7 @@ class AllureTestingPlatformAsyncOperations(
                 properties.Add(new AllureStatusDetailsProperty<StepResult>(statusDetails));
             }
 
-            await this.MessageBus.PublishAsync(
+            await runtimeHandle.PublishAsync(
                 this,
                 new AllureStepStopMessage(
                     this.CorrelationContext.CurrentCorrelationUid,
@@ -489,7 +494,7 @@ class AllureTestingPlatformAsyncOperations(
 
         var fixtureUid = new FixtureExecutionStateUid(Ids.NewUuid());
 
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureAfterFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -504,7 +509,7 @@ class AllureTestingPlatformAsyncOperations(
 
         try
         {
-            using AllureTestingPlatformAsyncFixtureContext context = new(runtime, fixtureUid);
+            using AllureTestingPlatformAsyncFixtureContext context = new(runtimeHandle, fixtureUid);
             await body(context, cancellationToken);
         }
         catch (Exception e)
@@ -521,7 +526,7 @@ class AllureTestingPlatformAsyncOperations(
                 properties.Add(new AllureStatusDetailsProperty<FixtureResult>(statusDetails));
             }
 
-            await this.MessageBus.PublishAsync(
+            await runtimeHandle.PublishAsync(
                 this,
                 new AllureFixtureStopMessage(
                     this.CorrelationContext.CurrentCorrelationUid,
@@ -541,7 +546,7 @@ class AllureTestingPlatformAsyncOperations(
 
         var fixtureUid = new FixtureExecutionStateUid(Ids.NewUuid());
 
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureAfterFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -556,7 +561,7 @@ class AllureTestingPlatformAsyncOperations(
 
         try
         {
-            using AllureTestingPlatformAsyncFixtureContext context = new(runtime, fixtureUid);
+            using AllureTestingPlatformAsyncFixtureContext context = new(runtimeHandle, fixtureUid);
             return await body(context, cancellationToken);
         }
         catch (Exception e)
@@ -573,7 +578,7 @@ class AllureTestingPlatformAsyncOperations(
                 properties.Add(new AllureStatusDetailsProperty<FixtureResult>(statusDetails));
             }
 
-            await this.MessageBus.PublishAsync(
+            await runtimeHandle.PublishAsync(
                 this,
                 new AllureFixtureStopMessage(
                     this.CorrelationContext.CurrentCorrelationUid,
@@ -588,7 +593,7 @@ class AllureTestingPlatformAsyncOperations(
 
     async Task SendExecutionItemUpdateAsync(params IEnumerable<IAllureProperty<ExecutableItem>> properties)
     {
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureExecutableItemUpdateMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -602,7 +607,7 @@ class AllureTestingPlatformAsyncOperations(
 
     async Task SendTestUpdateAsync(params IEnumerable<IAllureProperty<TestResult>> properties)
     {
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureTestUpdateMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -616,7 +621,7 @@ class AllureTestingPlatformAsyncOperations(
 
     async Task SendFixtureUpdateAsync(params IEnumerable<IAllureProperty<FixtureResult>> properties)
     {
-        await this.MessageBus.PublishAsync(
+        await runtimeHandle.PublishAsync(
             this,
             new AllureFixtureUpdateMessage(
                 this.CorrelationContext.CurrentCorrelationUid,

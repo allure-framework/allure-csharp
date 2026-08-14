@@ -5,7 +5,6 @@ using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Logging;
-using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 
@@ -20,8 +19,6 @@ public interface IAllureTestingPlatformRuntimeIntegrationContextBase<TConfigurat
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     void UseLogger(Func<TConfiguration, ILogger> loggerFactory);
-
-    void UseMessageBus(Func<TConfiguration, IMessageBus> messageBusFactory);
 
     void UseCorrelationStrategy(Func<TConfiguration, ICorrelationStrategy> correlationStrategyFactory);
 
