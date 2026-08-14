@@ -11,6 +11,7 @@ using Allure.TestingPlatform.Configuration;
 using Allure.Sdk.Registration;
 using Allure.Abstractions;
 using Allure.TestingPlatform.Internal.Runtime;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
 namespace Allure.TestingPlatform.Sdk;
 
@@ -68,6 +69,9 @@ public static class AllureTestingPlatformSdkExtensions
 
             builder.TestHost.AddDataConsumer(factory);
             builder.TestHost.AddTestSessionLifetimeHandler(factory);
+            builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
+                new AllureTestingPlatformRuntimeRegistrationOwner(runtimeCoordinator)
+            );
 
             return allureRuntimeReference;
 

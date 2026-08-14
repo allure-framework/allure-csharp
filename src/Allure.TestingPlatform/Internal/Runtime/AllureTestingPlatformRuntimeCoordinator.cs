@@ -110,7 +110,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
         lock (this.gate)
         {
-            this.ThrowIfUnprepared();
+            this.ThrowIfUnavailable();
 
             switch (this.state)
             {

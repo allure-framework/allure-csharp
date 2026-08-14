@@ -1,10 +1,11 @@
+using System;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
-public interface IAllureTestingPlatformRuntimeHandle
+public interface IAllureTestingPlatformRuntimeHandle : IAsyncDisposable
 {
     AllureTestingPlatformConfiguration Configuration { get; }
 

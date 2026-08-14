@@ -21,6 +21,8 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
 
     public AllureTestingPlatformConfiguration Configuration => configuration;
 
+    public ValueTask DisposeAsync() => default;
+
     public void EnsureRuntimeStarted()
     {
         this.EnsureRuntimeStartedCalls++;

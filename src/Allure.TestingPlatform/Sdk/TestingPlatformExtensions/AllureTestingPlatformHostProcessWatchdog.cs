@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Model;
@@ -21,7 +22,8 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
         runtimeHandle.Configuration,
         runtimeHandle.RuntimeReference
     ),
-    ITestHostProcessLifetimeHandler
+    ITestHostProcessLifetimeHandler,
+    IAsyncDisposable
 {
     /// <inheritdoc />
     public override Task<bool> IsEnabledAsync()
@@ -61,4 +63,9 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
         CancellationToken cancellationToken
     ) =>
         Task.CompletedTask;
+
+    public ValueTask DisposeAsync()
+    {
+        return runtimeHandle.DisposeAsync();
+    }
 }
