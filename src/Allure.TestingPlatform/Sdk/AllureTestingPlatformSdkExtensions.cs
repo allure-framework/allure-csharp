@@ -22,7 +22,7 @@ public static class AllureTestingPlatformSdkExtensions
 {
     extension (ITestApplicationBuilder builder)
     {
-        internal IReadOnlyLateBoundReference<TRuntime> RegisterAllureTestingPlatform<
+        internal IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> RegisterAllureTestingPlatform<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -49,8 +49,13 @@ public static class AllureTestingPlatformSdkExtensions
                 sessionFactory,
                 RegisterIntegration
             );
-
-            var allureRuntimeReference = runtimeCoordinator.RuntimeReference;
+            var runtimeControl =
+                (IAllureTestingPlatformRuntimeControl<
+                    AllureTestingPlatformConfiguration,
+                    IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+                >)
+                (IAllureTestingPlatformRuntimeControl<TConfiguration, TRuntime>)
+                runtimeCoordinator;
 
             builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
 
@@ -58,22 +63,23 @@ public static class AllureTestingPlatformSdkExtensions
                 new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
                 {
                     runtimeCoordinator.BindTestHost(serviceProvider);
-                    return new AllureDataConsumer(runtimeCoordinator);
+                    return new AllureDataConsumer(runtimeControl);
                 });
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
             {
                 runtimeCoordinator.BindController(serviceProvider);
-                return new AllureTestingPlatformHostProcessWatchdog(runtimeCoordinator);
+                return new AllureTestingPlatformHostProcessWatchdog(runtimeControl);
             });
 
             builder.TestHost.AddDataConsumer(factory);
             builder.TestHost.AddTestSessionLifetimeHandler(factory);
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
-                new AllureTestingPlatformRuntimeRegistrationOwner(runtimeCoordinator)
-            );
+            {
+                return new AllureTestingPlatformRuntimeRegistrationOwner(runtimeControl);
+            });
 
-            return allureRuntimeReference;
+            return runtimeCoordinator;
 
             void RegisterIntegration(
                 TIntegrationContext context,
@@ -135,7 +141,7 @@ public static class AllureTestingPlatformSdkExtensions
             }
         }
 
-        public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
+        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -161,9 +167,8 @@ public static class AllureTestingPlatformSdkExtensions
                 TConfiguration,
                 TRuntime
             >
-        {
-            IReadOnlyLateBoundReference<TRuntime>? runtimeReference = null;
-            return runtimeReference = RegisterAllureTestingPlatform(
+        =>
+            RegisterAllureTestingPlatform(
                 builder,
                 runtimeName,
                 sessionFactory,
@@ -171,11 +176,13 @@ public static class AllureTestingPlatformSdkExtensions
                 {
                     context.RegisterInProcessEndpoint(runtimeName, (runtime, endpointContext) =>
                     {
-                        endpointContext.UseCurrentScopePredicate((runtime) =>
-                            runtime.ExecutionStateContext is { CurrentTestUid: not null } or { CurrentFixtureUid: not null});
-
-                        endpointContext.UseGlobalScopePredicate((_) => runtimeReference?.IsBound == true);
-                        endpointContext.SetAvailabilityPredicate((_) => runtimeReference?.IsBound == true);
+                        endpointContext.UseCurrentScopePredicate((runtime) => runtime is
+                        {
+                            Configuration.IsEnabled: true,
+                            ExecutionStateContext: { CurrentTestUid: not null } or { CurrentFixtureUid: not null},
+                        });
+                        endpointContext.UseGlobalScopePredicate((_) => runtime.Configuration.IsEnabled);
+                        endpointContext.SetAvailabilityPredicate((_) => runtime.Configuration.IsEnabled);
                         endpointContext.UseOperations((runtime) =>
                         {
                             var asyncOperations = new AllureTestingPlatformAsyncOperations(runtime);
@@ -191,9 +198,8 @@ public static class AllureTestingPlatformSdkExtensions
                     runtimeRegistration(context, serviceProvider);
                 }
             );
-        }
 
-        public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
+        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -217,7 +223,7 @@ public static class AllureTestingPlatformSdkExtensions
         =>
             AddEmbeddedAllure(builder, runtimeName, sessionFactory, registration, (_, _, _) => { });
 
-        public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
+        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime
         >(
@@ -254,7 +260,7 @@ public static class AllureTestingPlatformSdkExtensions
                 endpointRegistration
             );
 
-        public IReadOnlyLateBoundReference<TRuntime> AddEmbeddedAllure<
+        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime
         >(
@@ -282,7 +288,10 @@ public static class AllureTestingPlatformSdkExtensions
                 (_, _, _) => { }
             );
 
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<TConfiguration>> AddEmbeddedAllure<TConfiguration>(
+        public IAllureTestingPlatformRuntimeHandle<
+            TConfiguration,
+            IAllureTestingPlatformRuntime<TConfiguration>
+        > AddEmbeddedAllure<TConfiguration>(
             string runtimeName,
             Action<
                 IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>,
@@ -304,7 +313,10 @@ public static class AllureTestingPlatformSdkExtensions
                 endpointRegistration
             );
 
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime<TConfiguration>> AddEmbeddedAllure<TConfiguration>(
+        public IAllureTestingPlatformRuntimeHandle<
+            TConfiguration,
+            IAllureTestingPlatformRuntime<TConfiguration>
+        > AddEmbeddedAllure<TConfiguration>(
             string runtimeName,
             Action<
                 IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>,
@@ -320,7 +332,10 @@ public static class AllureTestingPlatformSdkExtensions
                 (_, _, _) => { }
             );
 
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime> AddEmbeddedAllure(
+        public IAllureTestingPlatformRuntimeHandle<
+            AllureTestingPlatformConfiguration,
+            IAllureTestingPlatformRuntime
+        > AddEmbeddedAllure(
             string runtimeName,
             Action<
                 IAllureTestingPlatformRuntimeIntegrationContext,
@@ -340,7 +355,10 @@ public static class AllureTestingPlatformSdkExtensions
                 endpointRegistration
             );
 
-        public IReadOnlyLateBoundReference<IAllureTestingPlatformRuntime> AddEmbeddedAllure(
+        public IAllureTestingPlatformRuntimeHandle<
+            AllureTestingPlatformConfiguration,
+            IAllureTestingPlatformRuntime
+        > AddEmbeddedAllure(
             string runtimeName,
             Action<
                 IAllureTestingPlatformRuntimeIntegrationContext,

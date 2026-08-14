@@ -1,14 +1,22 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Internal.Runtime;
+using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.TestHost;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
+using IAllureTestingPlatformRuntimeControl =
+    IAllureTestingPlatformRuntimeControl<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    >;
+
 class AllureTestingPlatformRuntimeRegistrationOwner(
-    IAllureTestingPlatformRuntimeHandle runtimeHandle
+    IAllureTestingPlatformRuntimeControl runtimeControl
 ) :
     ITestHostApplicationLifetime,
     IAsyncDisposable
@@ -32,5 +40,5 @@ class AllureTestingPlatformRuntimeRegistrationOwner(
     public Task AfterRunAsync(int exitCode, CancellationToken cancellationToken) =>
         Task.CompletedTask;
 
-    public ValueTask DisposeAsync() => runtimeHandle.DisposeAsync();
+    public ValueTask DisposeAsync() => runtimeControl.DisposeAsync();
 }

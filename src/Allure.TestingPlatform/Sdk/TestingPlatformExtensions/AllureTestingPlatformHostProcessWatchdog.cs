@@ -9,8 +9,14 @@ using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
+using IAllureTestingPlatformRuntimeControl =
+    IAllureTestingPlatformRuntimeControl<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    >;
+
 public sealed class AllureTestingPlatformHostProcessWatchdog(
-    IAllureTestingPlatformRuntimeHandle runtimeHandle
+    IAllureTestingPlatformRuntimeControl runtimeControl
 ) :
     AllureTestingPlatformExtension<
         AllureTestingPlatformConfiguration,
@@ -19,8 +25,7 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
         "939b0d5f-517d-4abb-968e-593bc4f67f0c",
         "Allure.TestingPlatform crash watcher",
         "Emits an Allure global error if the test host crashes.",
-        runtimeHandle.Configuration,
-        runtimeHandle.RuntimeReference
+        runtimeControl
     ),
     ITestHostProcessLifetimeHandler,
     IAsyncDisposable
@@ -49,7 +54,7 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
         if (testHostProcessInformation is { HasExitedGracefully: false, ExitCode: var exitCode, PID: var pid })
         {
             var message = $"Test host application process (PID={pid}) has crashed. Exit code: {exitCode}";
-            runtimeHandle.EnsureRuntimeStarted();
+            runtimeControl.EnsureRuntimeStarted();
             await this.Runtime.ResultsDestination.WriteGlobalsAsync(
                 new Globals { Errors = [ new(){ Message = message } ] },
                 cancellationToken
@@ -66,6 +71,6 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
 
     public ValueTask DisposeAsync()
     {
-        return runtimeHandle.DisposeAsync();
+        return runtimeControl.DisposeAsync();
     }
 }

@@ -32,7 +32,16 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime, TIntegrationContext>
 {
     int state = 0;
 
+    readonly LateBoundReference<TConfiguration> configurationReference = new();
+
     readonly LateBoundReference<TRuntime> runtimeReference = new();
+
+    /// <summary>
+    /// Gets a late-bound reference to the configuration that becomes available after
+    /// <see cref="Prepare"/> is called.
+    /// </summary>
+    public IReadOnlyLateBoundReference<TConfiguration> ConfigurationReference =>
+        this.configurationReference;
 
     /// <summary>
     /// Gets a late-bound reference to the runtime that becomes available after
@@ -67,6 +76,8 @@ public class AllureRuntimeBuilder<TConfiguration, TRuntime, TIntegrationContext>
 
         var session = sessionFactory();
         var preparedRegistration = session.Prepare(runtimeName, registration);
+
+        this.configurationReference.Bind(preparedRegistration.Configuration);
 
         return new AllureRuntimeRegistrationPlan<TConfiguration, TRuntime>(
             preparedRegistration,

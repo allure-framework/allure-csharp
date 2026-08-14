@@ -22,6 +22,12 @@ using Allure.TestingPlatform.Internal.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
+using IAllureTestingPlatformRuntimeControl =
+    IAllureTestingPlatformRuntimeControl<
+        AllureTestingPlatformConfiguration,
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
+    >;
+
 /// <summary>
 /// Consumes Microsoft Testing Platform messages and writes Allure results.
 /// </summary>
@@ -33,7 +39,7 @@ public sealed class AllureDataConsumer :
     IDataConsumer,
     ITestSessionLifetimeHandler
 {
-    readonly IAllureTestingPlatformRuntimeHandle runtimeHandle;
+    readonly IAllureTestingPlatformRuntimeControl runtimeControl;
 
     readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
 
@@ -65,16 +71,15 @@ public sealed class AllureDataConsumer :
     /// <summary>
     /// Creates the Allure data consumer.
     /// </summary>
-    public AllureDataConsumer(IAllureTestingPlatformRuntimeHandle runtimeHandle) :
+    public AllureDataConsumer(IAllureTestingPlatformRuntimeControl runtimeControl) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",
             "Allure.TestingPlatform data consumer",
             "Creates Allure results from Microsoft Testing Platform messages.",
-            runtimeHandle.Configuration,
-            runtimeHandle.RuntimeReference
+            runtimeControl
         )
     {
-        this.runtimeHandle = runtimeHandle;
+        this.runtimeControl = runtimeControl;
         this.allureLifecycleState = new(() => new(this.ContextApi));
         correlationState = new(() => new(
             this.CorrelationStrategy,
@@ -85,7 +90,7 @@ public sealed class AllureDataConsumer :
     /// <inheritdoc />
     public Task OnTestSessionStartingAsync(ITestSessionContext testSessionContext)
     {
-        this.runtimeHandle.EnsureRuntimeStarted();
+        this.runtimeControl.EnsureRuntimeStarted();
         return Task.CompletedTask;
     }
 

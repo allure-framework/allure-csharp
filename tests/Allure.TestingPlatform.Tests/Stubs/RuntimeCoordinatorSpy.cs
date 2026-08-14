@@ -6,20 +6,19 @@ using Allure.TestingPlatform.Sdk.Runtime;
 namespace Allure.TestingPlatform.Tests.Stubs;
 
 class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
-    AllureTestingPlatformConfiguration configuration,
-    IReadOnlyLateBoundReference<
-        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-    > runtimeReference
+    IReadOnlyLateBoundReference<TConfiguration> configurationReference,
+    IReadOnlyLateBoundReference<TRuntime> runtimeReference
 ) :
-    IAllureTestingPlatformRuntimeHandle
+    IAllureTestingPlatformRuntimeControl<TConfiguration, TRuntime>
+
+    where TConfiguration : AllureTestingPlatformConfiguration
+    where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     public int EnsureRuntimeStartedCalls { get; private set; } = 0;
 
-    public IReadOnlyLateBoundReference<
-        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-    > RuntimeReference => runtimeReference;
+    public IReadOnlyLateBoundReference<TConfiguration> ConfigurationReference => configurationReference;
 
-    public AllureTestingPlatformConfiguration Configuration => configuration;
+    public IReadOnlyLateBoundReference<TRuntime> RuntimeReference => runtimeReference;
 
     public ValueTask DisposeAsync() => default;
 
@@ -30,7 +29,7 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
 }
 
 class RuntimeCoordinatorSpy(
-    AllureTestingPlatformConfiguration configuration,
+    IReadOnlyLateBoundReference<AllureTestingPlatformConfiguration> configurationReference,
     IReadOnlyLateBoundReference<
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     > runtimeReference
@@ -38,6 +37,6 @@ class RuntimeCoordinatorSpy(
     RuntimeCoordinatorSpy<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-    >(configuration, runtimeReference)
+    >(configurationReference, runtimeReference)
 {
 }

@@ -5,6 +5,7 @@ using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;
@@ -22,6 +23,7 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     readonly IReadOnlyLateBoundReference<TRuntime> runtimeReference;
+    readonly IReadOnlyLateBoundReference<TConfiguration> configurationReference;
 
     /// <inheritdoc />
     public string Uid { get; }
@@ -40,7 +42,7 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
     /// <summary>
     /// Gets the resolved Allure configuration.
     /// </summary>
-    protected TConfiguration Configuration { get; }
+    protected TConfiguration Configuration => this.configurationReference.Value;
 
     /// <summary>
     /// Gets the resolved Allure context.
@@ -96,16 +98,15 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
         string uid,
         string displayName,
         string description,
-        TConfiguration configuration,
-        IReadOnlyLateBoundReference<TRuntime> runtimeReference
+        IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> runtimeHandle
     )
     {
         this.Uid = uid;
         this.DisplayName = displayName;
         this.Description = description;
-        this.Configuration = configuration;
         this.Version = TestingPlatformFunctions.GetPackageVersion(this.GetType());
-        this.runtimeReference = runtimeReference;
+        this.runtimeReference = runtimeHandle.RuntimeReference;
+        this.configurationReference = runtimeHandle.ConfigurationReference;
     }
 
     /// <inheritdoc />

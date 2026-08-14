@@ -5,6 +5,8 @@ using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
+using Microsoft.Testing.Platform.Extensions.Messages;
+using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
@@ -23,7 +25,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
     > sessionFactory,
     Action<TIntegrationContext, IServiceProvider> registration
 ) :
-    IAllureTestingPlatformRuntimeHandle,
+    IAllureTestingPlatformRuntimeControl<TConfiguration, TRuntime>,
     IDisposable,
     IAsyncDisposable
 
@@ -55,6 +57,9 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
     Exception? failure;
 
+    public IReadOnlyLateBoundReference<TConfiguration> ConfigurationReference =>
+        this.runtimeBuilder.ConfigurationReference;
+
     public IReadOnlyLateBoundReference<TRuntime> RuntimeReference =>
         this.runtimeBuilder.RuntimeReference;
 
@@ -69,15 +74,6 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             }
         }
     }
-
-    AllureTestingPlatformConfiguration IAllureTestingPlatformRuntimeHandle.Configuration => Configuration;
-
-    IReadOnlyLateBoundReference<
-        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-    > IAllureTestingPlatformRuntimeHandle.RuntimeReference =>
-        (IReadOnlyLateBoundReference<
-            IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
-        >)this.RuntimeReference;
 
     public void BindController(IServiceProvider initialServiceProvider)
     {
@@ -314,6 +310,41 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
         internal bool IsBoundTo(IServiceProvider provider) =>
             ReferenceEquals(Volatile.Read(ref this.target), provider);
+    }
+
+    sealed class MessageBusProxy : IMessageBus
+    {
+        IMessageBus? target;
+
+        public void Bind(IMessageBus messageBus)
+        {
+            if (this.target is not null)
+            {
+                throw new InvalidOperationException(
+                    "Cannot bind the message bus proxy because is is already bound. "
+                        + "Parallel MTP requests are not supported yet."
+                );
+            }
+            this.target = messageBus;
+        }
+
+        public void Unbind()
+        {
+            if (this.target is null)
+            {
+                throw new InvalidOperationException(
+                    "Cannot unbind the message bus proxy because is is not bound. "
+                        + "Parallel MTP requests are not supported yet."
+                );
+            }
+            this.target = null;
+        }
+
+        public Task PublishAsync(IDataProducer dataProducer, IData data) =>
+            this.target?.PublishAsync(dataProducer, data)
+                ?? throw new InvalidOperationException(
+                    "The message bus proxy is not bound."
+                );
     }
 }
 

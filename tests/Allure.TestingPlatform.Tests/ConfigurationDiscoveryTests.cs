@@ -118,7 +118,7 @@ public class ConfigurationDiscoveryTests
                 )
             );
         }
-        var runtimeReference = builder.AddEmbeddedAllure(
+        var runtimeHandle = builder.AddEmbeddedAllure(
             "configuration-test",
             (context, _) =>
             {
@@ -137,7 +137,7 @@ public class ConfigurationDiscoveryTests
 
         using var app = await builder.BuildAsync();
         await app.RunAsync();
-        return runtimeReference.Value.Configuration;
+        return runtimeHandle.ConfigurationReference.Value;
     }
 
     sealed class ConfigurationSourceStub(string key, string value) : IConfigurationSource

@@ -85,7 +85,7 @@ public class IntegrationTests
         IServiceProvider registrationServiceProvider = null;
 
         var builder = await TestApplication.CreateBuilderAsync(DefaultArgs);
-        var runtimeReference = builder.AddEmbeddedAllure(
+        var runtimeHandle = builder.AddEmbeddedAllure(
             "integration-test",
             (context, serviceProvider) =>
             {
@@ -107,9 +107,10 @@ public class IntegrationTests
         await Assert.That(code).IsEqualTo(0);
         var dataConsumer = registrationServiceProvider.GetRequiredService<AllureDataConsumer>();
         await Assert.That(dataConsumer.IsEnabledAsync()).IsTrue();
-        await Assert.That(runtimeReference.Value.Configuration).IsSameReferenceAs(config);
-        await Assert.That(runtimeReference.Value.ResultsDestination).IsSameReferenceAs(writer);
-        await Assert.That(runtimeReference.Value.CorrelationStrategy).IsSameReferenceAs(correlation);
+        await Assert.That(runtimeHandle.ConfigurationReference.Value).IsSameReferenceAs(config);
+        await Assert.That(runtimeHandle.RuntimeReference.Value.Configuration).IsSameReferenceAs(config);
+        await Assert.That(runtimeHandle.RuntimeReference.Value.ResultsDestination).IsSameReferenceAs(writer);
+        await Assert.That(runtimeHandle.RuntimeReference.Value.CorrelationStrategy).IsSameReferenceAs(correlation);
 
         var testResult = await Assert.That(writer.TestResults).HasSingleItem();
         var link = await Assert.That(testResult.Links).HasSingleItem();
