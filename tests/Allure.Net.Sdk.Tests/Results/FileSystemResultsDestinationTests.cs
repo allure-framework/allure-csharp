@@ -36,6 +36,7 @@ public class FileSystemResultsDestinationTests
     public async Task ShouldWriteContainer()
     {
         var container = NewContainer();
+        container.Afters.Add(new(){ Name = "Foo" });
 
         await VerifyObjectWrite(
             "-container.json",
@@ -48,6 +49,7 @@ public class FileSystemResultsDestinationTests
     public async Task ShouldWriteContainerAsync()
     {
         var container = NewContainer();
+        container.Afters.Add(new(){ Name = "Foo" });
 
         await VerifyObjectWriteAsync(
             "-container.json",
@@ -218,8 +220,10 @@ public class FileSystemResultsDestinationTests
         await VerifyConcurrentObjectWrites((destination, index) =>
             Task.Run(() =>
             {
+                var container = NewContainer($"container-{index:D2}");
+                container.Afters.Add(new() { Name = "Foo" });
                 destination.WriteTestResult(NewTestResult($"result-{index:D2}"));
-                destination.WriteContainer(NewContainer($"container-{index:D2}"));
+                destination.WriteContainer(container);
                 destination.WriteGlobals(NewGlobals($"global-{index:D2}"));
             })
         );
@@ -230,14 +234,13 @@ public class FileSystemResultsDestinationTests
     {
         await VerifyConcurrentObjectWrites(async (destination, index) =>
         {
+            var container = NewContainer($"container-{index:D2}");
+            container.Afters.Add(new() { Name = "Foo" });
             await destination.WriteTestResultAsync(
                 NewTestResult($"result-{index:D2}"),
                 CancellationToken.None
             );
-            await destination.WriteContainerAsync(
-                NewContainer($"container-{index:D2}"),
-                CancellationToken.None
-            );
+            await destination.WriteContainerAsync(container, CancellationToken.None);
             await destination.WriteGlobalsAsync(
                 NewGlobals($"global-{index:D2}"),
                 CancellationToken.None
