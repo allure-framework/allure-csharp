@@ -3,7 +3,7 @@
 [![NuGet release](https://img.shields.io/nuget/v/Allure.TestingPlatform?style=flat)](https://www.nuget.org/packages/Allure.TestingPlatform)
 [![NuGet downloads](https://img.shields.io/nuget/dt/Allure.TestingPlatform?label=downloads&style=flat)](https://www.nuget.org/packages/Allure.TestingPlatform)
 
-> An Allure adapter for [Microsoft Testing Platform](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro) frameworks.
+> Allure integration for test frameworks based on [Microsoft Testing Platform](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro).
 
 [<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
 
@@ -12,53 +12,48 @@
 - ❓ [Questions and Support](https://github.com/orgs/allure-framework/discussions/categories/questions-support) – get help from the team and community
 - 📢 [Official announcements](https://github.com/orgs/allure-framework/discussions/categories/announcements) – stay updated with our latest news and updates
 - 💬 [General Discussion](https://github.com/orgs/allure-framework/discussions/categories/general-discussion) – engage in casual conversations, share insights and ideas with the community
-- 🖥️ [Live Demo](https://demo.allurereport.org/) — explore a live example of Allure Report in action
+- 🖥️ [Live Demo](https://demo.allurereport.org/) – explore a live example of Allure Report in action
 
 ---
 
-## Overview
+## Choose the right integration
 
-`Allure.TestingPlatform` integrates [Allure Report](https://allurereport.org/) with test frameworks based on
-[Microsoft Testing Platform](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro).
+Prefer an Allure adapter built specifically for your test framework whenever
+one is available. A framework-specific adapter can understand the framework's
+test methods, parameters, fixtures, metadata, and execution context, and can
+support the Allure runtime and attribute APIs.
 
-The package can be used in two ways:
+Use `Allure.TestingPlatform` directly in a test project only as a last-resort fallback when no framework-specific adapter exists.
 
-- as a standalone adapter in an MTP test project;
-- as an embedded runtime for framework-specific Allure adapters built on top of MTP.
+| Use case | Recommendation |
+| --- | --- |
+| Run tests with a supported framework | Install that framework's Allure adapter. |
+| Run tests with an MTP-based framework that has no Allure adapter | Use `Allure.TestingPlatform` in standalone mode as a limited fallback. |
+| Build an Allure adapter for an MTP-based framework | Build the adapter on top of the `Allure.TestingPlatform` SDK. |
 
-Test projects should use standalone mode. Embedded mode is intended for adapter authors who need to produce
-Allure results from their own MTP extensions.
+Standalone mode observes the generic events exposed by Microsoft Testing Platform. It does **not** provide:
 
-## Installation
+- Allure runtime API support, including calls made through `AllureApi` or `AllureInProcessApi`;
+- Allure attribute API support;
+- framework-specific metadata such as reflected test methods, declared parameters, framework fixture semantics, or framework-specific labels and hierarchy.
 
-Install the package in your test project:
+A specialized framework adapter can provide these capabilities by connecting the framework lifecycle and execution context to `Allure.TestingPlatform`.
+
+## Use standalone mode
+
+### Install the package
+
+Add `Allure.TestingPlatform` to the test project:
 
 ```xml
 <PackageReference Include="Allure.TestingPlatform" Version="..." />
 ```
 
-The package uses Microsoft Testing Platform self-registration by default, so no additional code is required for the
-default standalone setup.
+The package registers itself with Microsoft Testing Platform by default. No application code is required for the default standalone setup.
 
-## Standalone Mode
+### Configure registration
 
-Standalone mode registers `Allure.TestingPlatform` as the Allure adapter for the test project. This is the default mode
-used by package self-registration and by `builder.AddAllure()`.
-
-### Automatic registration
-
-`Allure.TestingPlatform` ships a Microsoft.Testing.Platform.MSBuild self-registration hook:
-
-- `Allure.TestingPlatform.AllureTestingPlatformBuilderHook`
-- registered through `TestingPlatformBuilderHook` metadata in `buildTransitive`
-- enabled by default with `Allure_TestingPlatformEnableSelfRegistration=true`
-
-When the hook is enabled, Microsoft.Testing.Platform.MSBuild calls `AllureTestingPlatformBuilderHook.AddExtensions`.
-The method registers `Allure.TestingPlatform` in standalone mode with default options.
-
-### Disable automatic registration
-
-Set this property in the test project to disable the self-registration hook:
+To replace automatic registration with explicit registration, disable the package's MSBuild hook:
 
 ```xml
 <PropertyGroup>
@@ -66,121 +61,88 @@ Set this property in the test project to disable the self-registration hook:
 </PropertyGroup>
 ```
 
-You can then register the adapter explicitly from your Microsoft Testing Platform builder setup:
+Then register Allure from the Microsoft Testing Platform builder setup:
 
 ```csharp
-builder.AddAllure();
-```
+using Allure.Sdk.Registration;
+using Allure.TestingPlatform;
+using Allure.TestingPlatform.Configuration;
 
-or configure it:
-
-```csharp
 builder.AddAllure(allure =>
 {
-    allure.UseConfigurationFile("allureConfig.json");
-});
-```
-
-To disable the self-registration for a single test run, pass the same MSBuild property to `dotnet run` or `dotnet test`:
-
-```bash
-dotnet run --project "./<test-project-path>" -p:Allure_TestingPlatformEnableSelfRegistration=false
-```
-
-## Standalone Registration
-
-Standalone registration is performed through `IStandaloneAllureRegistrationContext`.
-
-```csharp
-builder.AddAllure(allure =>
-{
-    allure.UseConfiguration(new AllureConfiguration
+    allure.UseConfiguration(new AllureTestingPlatformConfiguration
     {
-        Directory = "allure-results",
-        Title = "My test report"
+        ResultsDirectory = "allure-results",
     });
 });
 ```
 
-Available standalone registration methods:
+The following registration methods are available in standalone mode:
 
-| API | Description |
-| --- | --- |
-| `UseConfiguration(...)` | Sets the factory used to create `AllureConfiguration`. |
-| `UseConfigurationFile(...)` | Reads `AllureConfiguration` from the specified JSON file. |
-| `SetIsEnabled(...)` | Decides whether the Allure runtime is enabled. |
-| `UseWriter(...)` | Sets the `IAllureResultsWriter` factory. |
-| `UseTypeFormatters(...)` | Sets type formatters used to serialize parameter values. |
-| `DisableHostProcessWatchdog()` | Disables the crash watchdog for this registration. |
+- `UseConfiguration`, `UseConfigurationSource`, `UseConfigurationFile`, and `UseConfigurationPathEnvironmentVariable` select configuration sources;
+- `TransformConfiguration` adjusts the resolved configuration;
+- `ConfigureSerialization` customizes parameter serialization rules;
+- `UseParameterSerializer` replaces parameter serialization;
+- `UseDestination` replaces the results destination;
+- `Disable` disables the runtime;
+- `DisableHostProcessWatchdog` disables the test-host crash watchdog.
 
-### Configuration discovery
+Do not call `AddAllure` while automatic registration is enabled, because that would register the standalone integration twice.
 
-The built-in registration resolves the configuration in the following order:
+### Configure Allure
 
-1. a configuration object or factory passed to `UseConfiguration(...)`, or an explicit path passed to `UseConfigurationFile(...)`;
-2. the path from the `ALLURE_CONFIG` environment variable;
-3. `allureConfig.json` from the application base directory;
-4. default configuration values.
+Without explicit registration, configuration is loaded from the first available source:
 
-Configuration may be stored directly at the root of the JSON file:
+1. the file identified by the `ALLURE_CONFIG` environment variable;
+2. `allureConfig.json` in the application base directory;
+3. default values.
+
+An explicit configuration source registered through `AddAllure` replaces that default source list.
+
+The canonical JSON format is:
 
 ```json
 {
-  "directory": "allure-results",
-  "title": "My test report",
-  "links": [
-    "https://example.org/{issue}"
+  "resultsDirectory": "allure-results",
+  "hostname": "test-host",
+  "linkTemplates": {
+    "issue": {
+      "urlTemplate": "https://issues.example.org/{0}",
+      "nameTemplate": "Issue {0}"
+    }
+  },
+  "failExceptions": [
+    "MyAssertions.AssertionException"
   ],
-  "indentOutput": true
+  "indentOutput": true,
+  "globalLabels": {
+    "owner": "quality-team"
+  },
+  "isEnabled": true,
+  "isProcessWatchdogEnabled": true
 }
 ```
 
-For backward compatibility, the configuration can also be placed under the `"allure"` property:
+For compatibility with older Allure .NET configuration files, the reader also accepts configuration under a top-level `"allure"` property and the legacy `directory`, `title`, and `links` properties. New configuration should use the canonical properties above.
 
-```json
-{
-  "allure": {
-    "directory": "allure-results",
-    "title": "My test report",
-    "links": [
-      "https://example.org/{issue}"
-    ],
-    "indentOutput": true
-  }
-}
-```
+If `resultsDirectory` is unset, Allure writes to an `allure-results`
+subdirectory of the MTP results directory. MTP defaults that directory to
+`TestResults`, resolved relative to the current working directory, so the usual result path there is
+`TestResults/allure-results`. When the
+test project is run through `dotnet run` or `dotnet test`, the working directory
+is the build output directory.
 
-If Microsoft Testing Platform provides a result directory and the Allure configuration does not set one, the default
-Allure output directory is placed under the MTP result directory as `allure-results`.
+### Command-line options
 
-### Custom configuration types
-
-Use `ConfigurationFunctions.ReadConfiguration<TConfiguration>(...)` when an adapter needs a subclass of
-`AllureConfiguration` with additional properties:
-
-```csharp
-builder.AddAllure(allure =>
-{
-    allure.UseConfiguration(serviceProvider =>
-        ConfigurationFunctions.ReadConfiguration<MyAllureConfiguration>(
-            serviceProvider,
-            "allureConfig.json"
-        )
-    );
-});
-```
-
-## CLI Options
-
-`Allure.TestingPlatform` registers these Microsoft Testing Platform command-line options:
+`Allure.TestingPlatform` adds these Microsoft Testing Platform options:
 
 | Option | Values | Default | Description |
 | --- | --- | --- | --- |
-| `--allure` | `on`, `off` | `on` | Enables or disables the Allure runtime. |
-| `--allure-watchdog` | `on`, `off` | `on` | Enables or disables the crash watchdog. |
-| `--allure-results-directory` | path | automatic | Sets the directory where Allure result files are written. |
+| `--allure` | `on`, `off` | `on` | Enables or disables Allure. |
+| `--allure-watchdog` | `on`, `off` | `on` | Enables or disables the test-host crash watchdog. |
+| `--allure-results-directory` | path | automatic | Overrides the Allure results directory. |
 
-Examples:
+For example:
 
 ```bash
 dotnet test -- --allure off
@@ -188,198 +150,502 @@ dotnet test -- --allure-watchdog off
 dotnet test -- --allure-results-directory ./artifacts/allure-results
 ```
 
-`--allure-results-directory` is honored by the built-in configuration reader, including configurations loaded via `UseConfigurationFile(...)`. If you replace the configuration factory, the custom factory is responsible for honoring this CLI option.
+Command-line values override values loaded from configuration sources.
 
-## Embedded Mode
+To disable automatic registration for a single invocation, pass the MSBuild property separately from MTP options:
 
-Embedded mode is for framework-specific adapters that want to reuse the Allure.TestingPlatform runtime, lifecycle,
-writer, configuration, and message-processing pipeline.
-
-```csharp
-var runtimeReferences = builder.AddEmbeddedAllure(allure =>
-{
-    allure.UseConfigurationFile<MyAllureConfiguration>("allureConfig.json");
-    allure.UseMtpSessionCorrelation();
-});
+```bash
+dotnet test -p:Allure_TestingPlatformEnableSelfRegistration=false
 ```
 
-Embedded mode uses `IEmbeddedAllureRegistrationContext`. It includes the standalone configuration hooks and adds
-SDK-focused hooks:
+## Build a framework adapter
 
-| API | Description |
-| --- | --- |
-| `UseCorrelation(...)` | Sets the strategy used to correlate SDK messages with MTP sessions. |
-| `UseLogger(...)` | Sets the Allure logger factory. |
-| `UseLifecycle(...)` | Sets the `AllureLifecycle` factory. |
-| `SetSdkEventHandlers(...)` | Registers handlers for runtime lifecycle events. |
-| `UseConfigurationFile<TConfiguration>(...)` | Reads a custom `AllureConfiguration` subtype from JSON. |
-| `UseConfiguration<TConfiguration>(...)` | Sets the configuration instance factory. |
-| `UseMtpSessionCorrelation()` | Uses the MTP session UID as the correlation identifier. |
-| `UseTestNodeMetadataCorrelation()` | Reads the correlation identifier from test node metadata. |
+`Allure.TestingPlatform` provides the Microsoft Testing Platform registration,
+message, correlation, and execution-state bridge needed by a framework adapter.
+The adapter remains responsible for translating its framework's lifecycle and
+metadata into Allure messages.
 
-`AddEmbeddedAllure(...)` returns `IAllureTestingPlatformRuntimeReferenceRegistry`. Use it to resolve the runtime
-associated with an MTP test application by `IServiceProvider`.
+Reference `Allure.TestingPlatform` from the adapter project. Test projects
+should install the completed framework-specific adapter.
 
-## Messages And Properties
+### Register an embedded runtime
 
-Embedded adapters communicate with the Allure runtime by publishing Microsoft Testing Platform data messages. These
-messages describe Allure lifecycle operations without requiring the adapter to mutate the Allure lifecycle directly.
-
-Available message groups:
-
-- scopes: `AllureScopeStartMessage`, `AllureScopeStopMessage`, `AllureScopeTestsMessage`;
-- fixtures: `AllureBeforeFixtureStartMessage`, `AllureAfterFixtureStartMessage`,
-  `AllureFixtureUpdateMessage`, `AllureFixtureStopMessage`;
-- tests: `AllureTestUpdateMessage`;
-- base operation messages for creating, updating, and removing Allure model contexts.
-
-Messages carry a `CorrelationUid` and context identifiers such as `ScopeContextUid`, `FixtureContextUid`, and
-`TestContextUid`. The data consumer uses these identifiers to buffer, route, and apply operations to the correct
-Allure lifecycle context.
-
-Messages can be customized with Allure properties. The SDK includes properties for:
-
-- names, full names, descriptions, and HTML descriptions;
-- status, status details, and exception-derived status;
-- start, stop, and duration updates;
-- labels, links, parameters, title path, and default suite labels;
-- byte-array and file attachments;
-- reflected test method metadata and argument serialization.
-
-## Identifiers
-
-Allure.TestingPlatform does not manage the model objects directly. Instead, it stores their associated contexts and uses the context identifiers provided with the messages:
-
-  - `ScopeContextUid` for scopes (i.e., containers),
-  - `FixtureContextUid` for fixtures,
-  - `TestContextUid` for tests,
-  - `StepContextUid` for steps.
-
-Prefer issuing a unique identifier for each context. If that is hard to achieve, make sure no two contexts of the same type share the same ID at the same time.
-
-Unlike other identifiers, test context UIDs are created from the `TestNode.Uid` property, which is provided by the test framework via `TestNodeUpdateMessage`. You must create `TestContextUid` from exactly the same value when producing test-context-bound messages like `AllureTestUpdateMessage`. MTP requires `TestNode.Uid` values to be stable between runs, so frameworks usually assign stable test identifiers that are available via the public API. Refer to the documentation and the source code of the framework you're integrating with for more details.
-
-## Correlation
-
-Not all testing frameworks provide access to the current `SessionUid` value through the public API, which makes associating Allure messages with MTP messages like `TestNodeUpdateMessage` not a trivial task. `CorrelationUid` is an alternative session identifier that is expected to have a one-to-one relationship with `SessionUid` and be accessible to integration code.
-
-It's up to the adapter how to construct `CorrelationUid`, as long as the value can be associated with an MTP message, or the message producer. The rules for achieving this are represented by the `ICorrelationStrategy` interface:
-
+Call `AddEmbeddedAllure` while configuring the framework's Microsoft Testing
+Platform test application:
 
 ```csharp
-public interface ICorrelationStrategy
+using Allure.TestingPlatform.Sdk;
+
+var allure = builder.AddEmbeddedAllure(
+    "My Framework",
+    (context, _) =>
+    {
+        context.UseCorrelationContext(
+            _ => new MyFrameworkCorrelationContext()
+        );
+        context.UseExecutionStateContext(
+            _ => new MyFrameworkExecutionStateContext()
+        );
+    }
+);
+```
+
+Use a stable, adapter-specific runtime name. It identifies both the runtime
+registration and its in-process Allure endpoint that connects `AllureApi` calls with the runtime.
+
+`AddEmbeddedAllure` returns a registration object that exposes `ConfigurationReference`, `RuntimeReference`,
+and `MessageChannel`. The references and the channel are bound when Microsoft Testing Platform
+starts the associated request. Check `MessageChannel.CanPublish` before using
+the channel outside a framework callback whose request lifetime is known.
+
+### Endpoint configuration
+
+Every `AddEmbeddedAllure` overload shown in this README also has a form with a
+final endpoint-registration callback. The callback receives the endpoint
+context, the MTP service provider, and the constructed runtime. In the next example, the embedded endpoint suppresses the route whose ID is
+`general-adapter`, so this adapter takes precedence when both routes match.
+
+```csharp
+var allure = builder.AddEmbeddedAllure(
+    "My Framework",
+    (context, _) =>
+    {
+        // ...
+    },
+    (endpoint, _, _) =>
+    {
+        // Prefer this endpoint over a more general adapter.
+        endpoint.SuppressRoutes(_ => ["general-adapter"]);
+    }
+);
+```
+
+Use the exact route ID registered by the other integration.
+
+`Allure.TestingPlatform` supplies the endpoint defaults needed for runtime API
+routing. The callback can further configure route suppression, availability
+and scope predicates, endpoint operations, parameter serialization, and
+registration hooks. See the
+[Allure.Net routing documentation](https://github.com/allure-framework/allure-csharp/blob/main/src/Allure.Net/README.md#creating-an-integration)
+and the
+[Allure.Net.Sdk endpoint documentation](https://github.com/allure-framework/allure-csharp/blob/main/src/Allure.Net.Sdk/README.md#expose-the-public-allure-api)
+for more details.
+
+### Connect correlation and execution state
+
+Every Allure message has a `CorrelationUid` that associates it with an MTP test
+session. Use the default session correlation when the framework exposes the
+current MTP `SessionUid`; return the same value from the adapter's
+`ICorrelationContext`.
+
+If the framework does not expose `SessionUid`, call
+`UseTestNodeMetadataCorrelation()` and add a `TestMetadataProperty` named
+`Allure.TestingPlatform.CorrelationUid` to an early `TestNodeUpdateMessage` in
+each session. Use that value in every Allure message for the session.
+
+A custom
+`ICorrelationStrategy` can be registered with `UseCorrelationStrategy` when
+neither built-in strategy fits.
+
+The adapter's `ExecutionStateContext` maps the framework's current scope,
+fixture, test, and step to the matching Allure execution-state UID. Both
+contexts must follow asynchronous callbacks and isolate concurrent executions.
+Together, they route runtime API calls to the correct session and lifecycle
+item.
+
+### Map the framework lifecycle
+
+MTP `TestNodeUpdateMessage` events drive the basic test lifecycle. Publish additional messages through the framework's `IMessageBus`, or through
+the registration's `MessageChannel` when the framework does not expose the
+message bus:
+
+```csharp
+await allure.MessageChannel.PublishAsync(
+    this,
+    new AllureTestUpdateMessage(
+        correlationUid,
+        new TestExecutionStateUid(testNodeUid)
+    )
+);
+```
+
+The `TestExecutionStateUid` value must match the corresponding `TestNode.Uid`.
+
+Map framework events to the appropriate message group:
+
+- scopes: `AllureScopeStartMessage`, `AllureScopeTestsMessage`, and `AllureScopeStopMessage`;
+- fixtures: `AllureBeforeFixtureStartMessage`, `AllureAfterFixtureStartMessage`, `AllureFixtureUpdateMessage`, and `AllureFixtureStopMessage`;
+- tests: `AllureTestUpdateMessage`;
+- steps: `AllureStepStartMessage`, `AllureStepUpdateMessage`, and `AllureStepStopMessage`;
+- the active test, fixture, or step: `AllureExecutableItemUpdateMessage`.
+
+Use `ScopeExecutionStateUid`, `FixtureExecutionStateUid`,
+`TestExecutionStateUid`, and `StepExecutionStateUid` for their respective
+items. Start parents before children, stop children before parents, and keep
+identifiers unique among concurrently active items of the same kind.
+
+### Add metadata, status, and attachments
+
+Add Allure data through the message's `Properties` collection. Each property
+targets a specific Allure model:
+
+| Message | Property target |
+| --- | --- |
+| `AllureTestUpdateMessage` | `TestResult` |
+| Fixture start, update, and stop messages | `FixtureResult` |
+| Step start, update, and stop messages | `StepResult` |
+| `AllureExecutableItemUpdateMessage` | `ExecutableItem` |
+| Scope messages | No `Properties` support |
+
+Generic properties must use the message's exact target type; properties for a
+non-matching model type are ignored.
+
+| Data | Any executable item | Tests only |
+| --- | --- | --- |
+| Identity and hierarchy | `AllureNameProperty<TModel>` | `AllureFullNameProperty`, `AllureTitlePathProperty`, `AllureDefaultSuitesProperty`, `AllureTestMethodProperty` |
+| Descriptions | `AllureDescriptionProperty<TModel>`, `AllureDescriptionHtmlProperty<TModel>` | — |
+| Status and errors | `AllureStatusProperty<TModel>`, `AllureStatusDetailsProperty<TModel>`, `AllureExceptionProperty<TModel>` | — |
+| Labels and links | — | `AllureLabelsProperty`, `AllureSetLabelProperty`, `AllureLinksProperty` |
+| Parameters | `AllureParametersProperty<TModel>`, `AllureTestMethodArgumentsProperty<TModel>` | — |
+| Timing | `AllureStartProperty<TModel>`, `AllureStopProperty<TModel>`, `AllureDurationProperty<TModel>` | — |
+| Attachments | `AllureAttachmentProperty<TModel>`, `AllureAttachmentFileProperty<TModel>`, `AllureScreenDiffProperty<TModel>`, `AllureScreenDiffFileProperty<TModel>` | — |
+
+For example:
+
+```csharp
+using Allure.Model;
+
+new AllureTestUpdateMessage(correlationUid, testUid)
 {
-    Task<CorrelationUid?> GetCorrelationAsync(
-        IDataProducer dataProducer,
-        DataWithSessionUid message,
-        CancellationToken cancellationToken);
+    Properties =
+    [
+        new AllureTestMethodProperty(testMethod)
+        {
+            Arguments = [.. arguments],
+        },
+        new AllureStatusProperty<TestResult>(Status.Passed),
+        new AllureAttachmentFileProperty<TestResult>("log", logPath)
+        {
+            MediaType = "text/plain",
+        },
+    ],
+};
+```
+
+Properties are applied in the same order they are provided to the message.
+
+### Support runtime APIs and attributes
+
+`AddEmbeddedAllure` registers an in-process endpoint for `AllureApi` and
+`AllureInProcessApi`. The endpoint is available while the registration is
+active, Allure is enabled, and its message channel can publish. Operations on
+the current test or fixture additionally require the corresponding value from
+`ExecutionStateContext`; global operations do not.
+
+Runtime routing uses `ICorrelationContext` to select the session and
+`ExecutionStateContext` to select the active lifecycle item. Attribute support
+is separate: obtain the reflected test method and publish
+`AllureTestMethodProperty`, or translate the framework's metadata into the
+corresponding properties.
+
+### Customize the integration
+
+Use the smallest extension point that meets the adapter's needs.
+
+#### Custom configuration
+
+Derive from `AllureTestingPlatformConfiguration` and register the derived type
+with `AddEmbeddedAllure<TConfiguration>`:
+
+```csharp
+public sealed record MyFrameworkAllureConfiguration
+    : AllureTestingPlatformConfiguration
+{
+    public bool CaptureFrameworkOutput { get; init; } = true;
+}
+
+var allure = builder.AddEmbeddedAllure<MyFrameworkAllureConfiguration>(
+    "My Framework",
+    (context, _) =>
+    {
+        context.UseCorrelationContext(
+            _ => new MyFrameworkCorrelationContext()
+        );
+        context.UseExecutionStateContext(
+            _ => new MyFrameworkExecutionStateContext()
+        );
+    }
+);
+```
+
+The derived configuration is available from the registration's
+`ConfigurationReference` after the MTP request has started.
+
+#### Custom components
+
+The registration callback can replace or configure individual components. For
+example:
+
+```csharp
+context.UseDestination(configuration => new MyResultsDestination(configuration));
+context.ConfigureSerialization(rules => rules.UseNullRepresentation("<null>"));
+```
+
+The available component APIs cover configuration sources and transforms,
+results destinations, serialization, the Allure context and APIs, logging,
+correlation, execution state, registration-hook discovery, enablement, and the
+host-process watchdog. Prefer replacing an individual component when the
+adapter does not need an additional runtime service.
+
+#### Registration hooks
+
+Registration hooks allow users of the adapter to configure Allure without
+modifying the adapter's code.
+
+With the default configuration and the non-generic `AddEmbeddedAllure`
+overload, an application defines a hook by implementing
+`IAllureTestingPlatformRegistrationHook`. Its `SetUp` method can configure
+serialization, configuration sources and transformations, parameter
+serialization, the results destination, enablement, and the process watchdog:
+
+```csharp
+public sealed class MyAllureRegistrationHook
+    : IAllureTestingPlatformRegistrationHook
+{
+    public void SetUp(IAllureTestingPlatformRegistrationContext context)
+    {
+        context.ConfigureSerialization(
+            rules => rules.UseNullRepresentation("<null>")
+        );
+    }
 }
 ```
 
-Built-in strategies:
+Adapters that use custom configuration or runtime services should define a branded hook interface, as described under **Custom
+registration context**.
 
-- `TestingPlatformSessionUidCorrelationStrategy` uses the MTP `SessionUid`. Suitable for test frameworks that publish the `SessionUid` via their public API.
-- `TestNodeMetadataCorrelationStrategy` reads a value from `TestMetadataProperty` with key `Allure.TestingPlatform.CorrelationUid`. Suitable for adapters that can include custom metadata in a `TestNodeUpdateMessage` sent by the test framework.
+Users select the hook through the `ALLURE_RUNTIME_REGISTRATION_HOOK` environment
+variable or the `runtimeRegistrationHook` configuration property. Specify its
+assembly-qualified type name; the type must implement the matching hook
+interface and have a public parameterless constructor.
 
-## Watchdog
+Use `UseRegistrationHooks` when the adapter needs a different hook
+discovery mechanism.
 
-`AllureTestingPlatformHostProcessWatchdog` records a global Allure error if the test host process crashes.
+#### Custom runtime services
 
-The watchdog is enabled by default.
-
-In nested MTP runs, the watchdog may cause the application to hang. If that happens, disable the watchdog via the registration API:
-
-```csharp
-builder.AddAllure(allure =>
-{
-    allure.DisableHostProcessWatchdog();
-});
-```
-
-or from the command line:
-
-```bash
-dotnet run --project "./<path-to-project>" -- --allure-watchdog off
-```
-
-## Runtime Extension Base Classes
-
-Integration authors can build MTP extensions on top of the Allure runtime base classes.
-
-`AllureTestingPlatformExtension` implements the common MTP `IExtension` members and exposes protected runtime services:
-
-- `Logger`
-- `Configuration`
-- `Writer`
-- `TypeFormatters`
-- `Lifecycle`
-- `CorrelationStrategy`
-- `ConfiguredRuntime`
-- `LiveRuntime`
-
-Use this base class for extensions that consume an already configured or live runtime.
-
-`AllureTestingPlatformRuntimeControllerExtension` is for extensions that configure or start the runtime. It wraps an
-`IAllureTestingPlatformRuntimeController`, configures the runtime from `IsEnabledAsync`, and exposes
-`EnsureRuntimeStarted()` for process-lifetime handlers that may need to write results during late events such as a host
-process crash.
-
-Exactly one extension inheriting from `AllureTestingPlatformRuntimeControllerExtension` is expected to exist in each process that accesses the Allure.TestingPlatform runtime. In the test host process, this is always `AllureTestingPlatformInProcessRuntimeController`, which makes the runtime available for all in-process extensions. If an out-of-process extension requires the runtime, it must either inherit from `AllureTestingPlatformRuntimeControllerExtension` or be accompanied by such an extension.
-
-## Troubleshooting
-
-### No Allure result files are written
-
-If no Allure results are written, check the following in order:
-
-  - The `--allure off` option was not provided.
-  - If `SetIsEnabled` is used, the callback returned `true`.
-  - If self-registration is used, the build hook is called from `SelfRegisteredExtensions.cs` (auto-generated in the `obj` directory by Microsoft.Testing.Platform.MSBuild):
-    - For default Allure.TestingPlatform registration, the `SelfRegisteredExtensions` class must call `global::Allure.TestingPlatform.AllureTestingPlatformBuilderHook.AddExtensions`. If no such call is present, check if the `Allure_TestingPlatformEnableSelfRegistration` MSBuild property is `true`.
-    - If you suppress the default registration and provide your own, ensure you pass it to MSBuild correctly. Consult [this article](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-architecture-extensions#auto-register-your-extension-with-testingplatformbuilderhook) for more details.
-  - If you don't use self-registration, make sure `AddAllure` is called from the entry point of the test application.
-
-### Self-registration runs unexpectedly
-
-Disable the self-registration hook:
-
-```xml
-<PropertyGroup>
-  <Allure_TestingPlatformEnableSelfRegistration>false</Allure_TestingPlatformEnableSelfRegistration>
-</PropertyGroup>
-```
-
-Or pass the MSBuild property on the command line:
-
-```shell
-dotnet run --project "./<path-to-project>" -p:Allure_TestingPlatformEnableSelfRegistration=false
-```
-
-### `--allure-results-directory` is ignored
-
-The option is applied by the built-in configuration reader. If you provide a custom configuration factory with
-`UseConfiguration(...)`, make sure that factory reads the CLI option if you want to support it:
+To add services to the runtime, define a runtime based on
+`AllureTestingPlatformRuntime<TConfiguration>` (or implement
+`IAllureTestingPlatformRuntime<TConfiguration>`) and a registration session
+based on `AllureTestingPlatformRuntimeRegistrationSession<TConfiguration,
+TRuntime>`:
 
 ```csharp
-builder.AddAllure((allure) =>
+public sealed class FrameworkOutputCapture(bool enabled)
 {
-    allure.UseConfiguration((serviceProvider) =>
+    public bool Enabled { get; } = enabled;
+}
+
+sealed class MyFrameworkAllureRuntime(
+    RuntimeCreationArguments<MyFrameworkAllureConfiguration> common,
+    AllureTestingPlatformRuntimeArguments platform,
+    FrameworkOutputCapture? outputCapture = null
+) : AllureTestingPlatformRuntime<MyFrameworkAllureConfiguration>(common, platform)
+{
+    public FrameworkOutputCapture OutputCapture { get; } =
+        outputCapture ?? new(common.Configuration.CaptureFrameworkOutput);
+}
+
+sealed class MyFrameworkAllureRegistrationSession :
+    AllureTestingPlatformRuntimeRegistrationSession<
+        MyFrameworkAllureConfiguration,
+        MyFrameworkAllureRuntime
+    >
+{
+    protected override MyFrameworkAllureRuntime CreateRuntime(
+        RuntimeCreationArguments<MyFrameworkAllureConfiguration> common,
+        AllureTestingPlatformRuntimeArguments platform
+    ) =>
+        new(common, platform);
+}
+```
+
+Register the session with the two-type overload of `AddEmbeddedAllure`:
+
+```csharp
+var allure = builder.AddEmbeddedAllure<
+    MyFrameworkAllureConfiguration,
+    MyFrameworkAllureRuntime
+>(
+    "My Framework",
+    () => new MyFrameworkAllureRegistrationSession(),
+    (context, _) =>
     {
-        var commandLineOptions = serviceProvider.GetCommandLineOptions();
-        var resultsDir =
-            // namespace: Allure.TestingPlatform.Sdk.TestingPlatformExtensions
-            AllureCliOptionsProvider.GetResultsDirectoryValue(commandLineOptions)
-                ?? fallbackLocation;
-
-        return new AllureConfiguration
-        {
-            Directory = resultsDir,
-        };
-    });
-});
+        context.UseCorrelationContext(
+            _ => new MyFrameworkCorrelationContext()
+        );
+        context.UseExecutionStateContext(
+            _ => new MyFrameworkExecutionStateContext()
+        );
+    }
+);
 ```
 
-### Embedded messages are not applied
+#### Custom registration context
 
-Check that the adapter configured a suitable correlation strategy and that SDK messages use the expected `CorrelationUid`.
-Messages that cannot be correlated are buffered until correlation becomes available. If correlation cannot be established from a `TestNodeUpdateMessage` or its producer, no Allure messages will be processed.
+The registration context is the API available to application hooks. Define a
+branded context when an adapter with custom configuration or runtime services
+needs to expose framework-specific settings or operations that are not part of
+the standard context:
+
+```csharp
+public interface IMyFrameworkAllureRegistrationContext :
+    IAllureTestingPlatformRegistrationContext<MyFrameworkAllureConfiguration>
+{
+    void UseOutputCapture(
+        Func<MyFrameworkAllureConfiguration, FrameworkOutputCapture> factory
+    );
+}
+
+public interface IMyFrameworkAllureRegistrationHook :
+    IAllureTestingPlatformRegistrationHook<
+        IMyFrameworkAllureRegistrationContext
+    >
+{
+}
+```
+
+Replace the two-type registration session from the previous section with one
+that implements the branded context and its operations. Use the branded
+interface as `TRegistrationContext` and
+`IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime,
+TRegistrationContext>` as `TIntegrationContext`:
+
+```csharp
+sealed class MyFrameworkAllureRegistrationSession :
+    AllureTestingPlatformRuntimeRegistrationSession<
+        MyFrameworkAllureConfiguration,
+        MyFrameworkAllureRuntime,
+        IMyFrameworkAllureRegistrationContext,
+        IAllureTestingPlatformIntegrationContext<
+            MyFrameworkAllureConfiguration,
+            MyFrameworkAllureRuntime,
+            IMyFrameworkAllureRegistrationContext
+        >
+    >,
+    IMyFrameworkAllureRegistrationContext
+{
+    private Func<
+        MyFrameworkAllureConfiguration,
+        FrameworkOutputCapture
+    > outputCaptureFactory = configuration =>
+        new(configuration.CaptureFrameworkOutput);
+
+    public void UseOutputCapture(
+        Func<MyFrameworkAllureConfiguration, FrameworkOutputCapture> factory
+    ) =>
+        this.Modify(() => this.outputCaptureFactory = factory);
+
+    protected override IMyFrameworkAllureRegistrationContext
+        RegistrationContext => this;
+
+    protected override IAllureTestingPlatformIntegrationContext<
+        MyFrameworkAllureConfiguration,
+        MyFrameworkAllureRuntime,
+        IMyFrameworkAllureRegistrationContext
+    > IntegrationContext => this;
+
+    protected override MyFrameworkAllureRuntime CreateRuntime(
+        RuntimeCreationArguments<MyFrameworkAllureConfiguration> common,
+        AllureTestingPlatformRuntimeArguments platform
+    ) =>
+        new(
+            common,
+            platform,
+            this.outputCaptureFactory(common.Configuration)
+        );
+}
+```
+
+Replace the preceding two-type registration call with the three-type
+`AddEmbeddedAllure` overload. Its `TIntegrationContext` must be the same type
+used by the session:
+
+```csharp
+var allure = builder.AddEmbeddedAllure<
+    MyFrameworkAllureConfiguration,
+    MyFrameworkAllureRuntime,
+    IAllureTestingPlatformIntegrationContext<
+        MyFrameworkAllureConfiguration,
+        MyFrameworkAllureRuntime,
+        IMyFrameworkAllureRegistrationContext
+    >
+>(
+    "My Framework",
+    () => new MyFrameworkAllureRegistrationSession(),
+    (context, _) =>
+    {
+        context.UseCorrelationContext(
+            _ => new MyFrameworkCorrelationContext()
+        );
+        context.UseExecutionStateContext(
+            _ => new MyFrameworkExecutionStateContext()
+        );
+    }
+);
+```
+
+The `AddEmbeddedAllure` callback receives the integration context for adapter
+setup. Application hooks receive the narrower branded registration context.
+
+Application users implement the adapter's hook interface and call the exposed
+operations in `SetUp`:
+
+```csharp
+public sealed class MyFrameworkAllureRegistrationHook :
+    IMyFrameworkAllureRegistrationHook
+{
+    public void SetUp(IMyFrameworkAllureRegistrationContext context)
+    {
+        context.UseOutputCapture(
+            _ => new FrameworkOutputCapture(enabled: false)
+        );
+    }
+}
+```
+
+The hook is selected through the same environment variable or configuration
+property as a standard hook.
+
+### Adapter checklist
+
+- Register one embedded runtime under a stable, adapter-specific name.
+- Use the exact MTP test-node UID in Allure test updates.
+- Choose a correlation strategy and provide a matching `ICorrelationContext`.
+- Map the framework context through `ExecutionStateContext`, including parallel execution.
+- Publish balanced lifecycle messages and preserve parent-child ordering.
+- Apply properties to the correct Allure model before its lifecycle item stops.
+- Expose runtime APIs only while the adapter owns an active execution.
+- Use the default configuration and runtime unless the adapter needs additional settings or services.
+- Expose registration hooks for user-facing customization.
+- Test passing, failing, broken, skipped, parameterized, fixture, step, attachment, and parallel scenarios with `InMemoryResultsDestination`.
+
+## Troubleshooting standalone mode
+
+If standalone mode writes no results:
+
+- make sure `--allure off` was not passed and `isEnabled` is not `false`;
+- if explicit registration is used, make sure automatic registration is disabled and `AddAllure` is called once from the test application builder;
+- if automatic registration is used, make sure `Allure_TestingPlatformEnableSelfRegistration` is not `false`;
+- check `--allure-results-directory`, `resultsDirectory`, and the MTP results directory for the generated files.
+
+If you see the following error:
+
+```
+Option '--allure' is declared by multiple providers: ...
+```
+
+- make sure Allure registered only once;
+- if the test application calls `AddAllure` or `AddEmbeddedAllure`, make sure the `Allure_TestingPlatformEnableSelfRegistration` MSBuild property is set to `false`.
+
+If standalone mode lacks framework metadata, attributes, or runtime API behavior, install a framework-specific adapter. Those capabilities cannot be inferred reliably from generic Microsoft Testing Platform events.
