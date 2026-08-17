@@ -18,7 +18,7 @@ using IAllureTestingPlatformRuntimeHandle = IAllureTestingPlatformRuntimeHandle<
     IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
 >;
 
-class AllureTestingPlatformAsyncStepContext(
+sealed class AllureTestingPlatformAsyncStepContext(
     IAllureTestingPlatformRuntimeHandle runtimeHandle,
     StepExecutionStateUid stepUid
 ) :
@@ -87,16 +87,6 @@ class AllureTestingPlatformAsyncStepContext(
         }
 
         this.scope.Dispose();
-    }
-
-    protected void EnsureInScope()
-    {
-        if (this.disposed != 0)
-        {
-            throw new InvalidOperationException(
-                "The fixture associated with this context has already finished."
-            );
-        }
     }
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);

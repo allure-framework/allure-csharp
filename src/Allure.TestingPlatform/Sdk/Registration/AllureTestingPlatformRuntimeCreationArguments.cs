@@ -4,7 +4,7 @@ using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Sdk.Registration;
 
-public record class AllureTestingPlatformRuntimeCreationArguments(
+public sealed record class AllureTestingPlatformRuntimeCreationArguments(
     ILogger Logger,
     ICorrelationStrategy CorrelationStrategy,
     ICorrelationContext CorrelationContext,

@@ -5,7 +5,7 @@ using Allure.Model;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
-class AllureTestingPlatformSyncFixtureContext(
+sealed class AllureTestingPlatformSyncFixtureContext(
     IAllureInProcessAsyncFixtureContext asyncContext
 ) :
     IAllureInProcessSyncFixtureContext

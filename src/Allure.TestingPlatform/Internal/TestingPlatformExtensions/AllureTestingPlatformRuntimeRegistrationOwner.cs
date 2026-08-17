@@ -15,7 +15,7 @@ using IAllureTestingPlatformRuntimeControl =
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     >;
 
-class AllureTestingPlatformRuntimeRegistrationOwner(
+sealed class AllureTestingPlatformRuntimeRegistrationOwner(
     IAllureTestingPlatformRuntimeControl runtimeControl
 ) :
     ITestHostApplicationLifetime,

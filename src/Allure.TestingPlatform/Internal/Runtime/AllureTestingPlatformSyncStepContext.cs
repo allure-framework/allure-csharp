@@ -5,7 +5,7 @@ using Allure.Model;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
-class AllureTestingPlatformSyncStepContext(
+sealed class AllureTestingPlatformSyncStepContext(
     IAllureInProcessAsyncStepContext asyncContext
 ) :
     IAllureInProcessSyncStepContext

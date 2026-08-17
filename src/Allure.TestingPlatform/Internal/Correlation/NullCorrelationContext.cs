@@ -2,7 +2,7 @@ using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Internal.Correlation;
 
-class NullCorrelationContext : ICorrelationContext
+sealed class NullCorrelationContext : ICorrelationContext
 {
     public CorrelationUid CurrentCorrelationUid =>
         throw new System.InvalidOperationException(

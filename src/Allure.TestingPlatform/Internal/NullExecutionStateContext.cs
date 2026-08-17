@@ -2,7 +2,7 @@ using Allure.TestingPlatform.Sdk.ExecutionState;
 
 namespace Allure.TestingPlatform.Internal;
 
-class NullExecutionStateContext : ExecutionStateContext
+sealed class NullExecutionStateContext : ExecutionStateContext
 {
     public override ScopeExecutionStateUid? CurrentScopeUid => throw new System.NotImplementedException(
         "This integration does not support Allure API."

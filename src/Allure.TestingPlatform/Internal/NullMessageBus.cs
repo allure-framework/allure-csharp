@@ -4,7 +4,7 @@ using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Internal;
 
-class NullMessageBus : IMessageBus
+sealed class NullMessageBus : IMessageBus
 {
     public Task PublishAsync(IDataProducer dataProducer, IData data) =>
         Task.CompletedTask;

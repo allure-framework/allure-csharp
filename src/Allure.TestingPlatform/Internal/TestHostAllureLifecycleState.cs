@@ -4,7 +4,7 @@ using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Internal;
 
-internal class TestHostAllureLifecycleState(IAllureExecutionContext context)
+sealed class TestHostAllureLifecycleState(IAllureExecutionContext context)
 {
     readonly Dictionary<CorrelationUid, SessionLifecycleState> sessions = [];
 

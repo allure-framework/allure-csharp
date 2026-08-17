@@ -18,7 +18,7 @@ using IAllureTestingPlatformRuntimeHandle = IAllureTestingPlatformRuntimeHandle<
     IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
 >;
 
-class AllureTestingPlatformAsyncFixtureContext(
+sealed class AllureTestingPlatformAsyncFixtureContext(
     IAllureTestingPlatformRuntimeHandle runtimeHandle,
     FixtureExecutionStateUid fixtureUid
 ) :
@@ -87,16 +87,6 @@ class AllureTestingPlatformAsyncFixtureContext(
         }
 
         this.scope.Dispose();
-    }
-
-    protected void EnsureInScope()
-    {
-        if (this.disposed != 0)
-        {
-            throw new InvalidOperationException(
-                "The fixture associated with this context has already finished."
-            );
-        }
     }
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);

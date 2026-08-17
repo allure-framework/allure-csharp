@@ -7,7 +7,7 @@ using Allure.Model;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
-class AllureTestingPlatformSyncOperations(
+sealed class AllureTestingPlatformSyncOperations(
     AllureTestingPlatformAsyncOperations asyncOperations
 ) :
     IAllureInProcessSyncOperations

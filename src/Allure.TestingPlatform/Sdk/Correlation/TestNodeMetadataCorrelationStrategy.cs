@@ -12,7 +12,7 @@ namespace Allure.TestingPlatform.Sdk.Correlation;
 /// current session UID, but can attach metadata to <see cref="TestNodeUpdateMessage"/>
 /// sent by the test framework.
 /// </summary>
-public class TestNodeMetadataCorrelationStrategy : ICorrelationStrategy
+public sealed class TestNodeMetadataCorrelationStrategy : ICorrelationStrategy
 {
     /// <summary>
     /// The metadata key that stores the correlation identifier.

@@ -22,7 +22,7 @@ using IAllureTestingPlatformRuntimeHandle = IAllureTestingPlatformRuntimeHandle<
     IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
 >;
 
-class AllureTestingPlatformAsyncOperations(
+sealed class AllureTestingPlatformAsyncOperations(
     IAllureTestingPlatformRuntimeHandle runtimeHandle
 ) :
     IDataProducer,

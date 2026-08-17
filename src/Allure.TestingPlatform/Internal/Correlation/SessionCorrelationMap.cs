@@ -11,7 +11,7 @@ using Microsoft.Testing.Platform.TestHost;
 
 namespace Allure.TestingPlatform.Internal.Correlation;
 
-class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger logger)
+sealed class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILogger logger)
 {
     readonly Dictionary<SessionUid, CorrelationUid> correlatedSessions = [];
 

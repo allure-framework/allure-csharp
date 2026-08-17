@@ -8,7 +8,7 @@ using Allure.TestingPlatform.Sdk.ExecutionState;
 
 namespace Allure.TestingPlatform.Internal;
 
-internal class SessionLifecycleState(IAllureExecutionContext context)
+sealed class SessionLifecycleState(IAllureExecutionContext context)
 {
     readonly Dictionary<IAllureExecutionStateUid, AllureExecutionState> states = [];
     readonly Dictionary<TestExecutionStateUid, AllureExecutionState> testScopeStates = [];

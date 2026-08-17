@@ -4,7 +4,7 @@ using Microsoft.Testing.Platform.Logging;
 
 namespace Allure.TestingPlatform.Internal;
 
-class NullLogger : ILogger
+sealed class NullLogger : ILogger
 {
     public bool IsEnabled(LogLevel logLevel) => false;
 

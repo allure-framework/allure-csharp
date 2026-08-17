@@ -4,7 +4,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Internal.Correlation;
 
-record class CorrelationResult
+abstract record class CorrelationResult
 {
     public static CorrelationSuccess Success(
         CorrelationUid correlationUid,
