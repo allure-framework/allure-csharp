@@ -212,16 +212,8 @@ public class AllureTestingPlatformRegistrationSession<TConfiguration> :
         AllureTestingPlatformRuntimeArguments testingPlatformArgs
     ) =>
         new AllureTestingPlatformRuntime<TConfiguration>(
-            commonArgs.Configuration,
-            commonArgs.ParameterSerializer,
-            commonArgs.Destination,
-            commonArgs.Context,
-            commonArgs.LifecycleApi,
-            commonArgs.ModelApi,
-            testingPlatformArgs.Logger,
-            testingPlatformArgs.CorrelationStrategy,
-            testingPlatformArgs.CorrelationContext,
-            testingPlatformArgs.ExecutionStateContext
+            commonArgs,
+            testingPlatformArgs
         );
 }
 
@@ -248,16 +240,5 @@ public class AllureTestingPlatformRegistrationSession :
         RuntimeCreationArguments<AllureTestingPlatformConfiguration> commonArgs,
         AllureTestingPlatformRuntimeArguments testingPlatformArgs
     ) =>
-        new AllureTestingPlatformRuntime(
-            commonArgs.Configuration,
-            commonArgs.ParameterSerializer,
-            commonArgs.Destination,
-            commonArgs.Context,
-            commonArgs.LifecycleApi,
-            commonArgs.ModelApi,
-            testingPlatformArgs.Logger,
-            testingPlatformArgs.CorrelationStrategy,
-            testingPlatformArgs.CorrelationContext,
-            testingPlatformArgs.ExecutionStateContext
-        );
+        new AllureTestingPlatformRuntime(commonArgs, testingPlatformArgs);
 }
