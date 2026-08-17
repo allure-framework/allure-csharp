@@ -9,6 +9,9 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Attaches data to an Allure step, test, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to which the attachment is added.</typeparam>
+/// <param name="name">The attachment name.</param>
+/// <param name="content">The stream containing the attachment data.</param>
 public sealed class AllureAttachmentProperty<TModel>(string name, Stream content) :
     IAllureProperty<TModel>
 

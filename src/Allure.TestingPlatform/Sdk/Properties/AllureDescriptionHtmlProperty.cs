@@ -7,6 +7,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets or appends the HTML description of an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="descriptionHtml">The HTML description.</param>
 public sealed class AllureDescriptionHtmlProperty<TModel>(string descriptionHtml) :
     IAllureProperty<TModel>
 

@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Adds parameters to an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="parameters">The parameters to add.</param>
 public sealed class AllureParametersProperty<TModel>(IEnumerable<Parameter> parameters) :
     IAllureProperty<TModel>
 

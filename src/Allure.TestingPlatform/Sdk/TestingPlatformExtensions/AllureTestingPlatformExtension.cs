@@ -16,6 +16,8 @@ namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 /// <summary>
 /// Base class for Allure.TestingPlatform extensions.
 /// </summary>
+/// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+/// <typeparam name="TRuntime">The runtime type.</typeparam>
 public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> : IExtension
     where TConfiguration : AllureTestingPlatformConfiguration
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
@@ -35,6 +37,9 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
     /// <inheritdoc />
     public string Description { get; }
 
+    /// <summary>
+    /// Gets the resolved Allure runtime.
+    /// </summary>
     protected TRuntime Runtime => this.runtimeReference.Value;
 
     /// <summary>
@@ -87,6 +92,13 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
     /// </summary>
     protected IAllureResultsDestination ResultsDestination => this.Runtime.ResultsDestination;
 
+    /// <summary>
+    /// Initializes a new Allure Microsoft Testing Platform extension.
+    /// </summary>
+    /// <param name="uid">The stable extension identifier.</param>
+    /// <param name="displayName">The extension display name.</param>
+    /// <param name="description">The extension description.</param>
+    /// <param name="runtimeHandle">The handle used to access the runtime and its configuration.</param>
     public AllureTestingPlatformExtension(
         string uid,
         string displayName,

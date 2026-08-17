@@ -8,6 +8,7 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Adds links to an Allure test result.
 /// </summary>
+/// <param name="links">The links to add.</param>
 public sealed class AllureLinksProperty(IEnumerable<Link> links) : IAllureProperty<TestResult>
 {
     /// <summary>

@@ -8,6 +8,10 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports that an Allure after-fixture has started.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="fixtureUid">The identifier of the fixture context to create.</param>
+/// <param name="scopeUid">The identifier of the scope that owns the fixture.</param>
+/// <param name="fixtureName">The fixture name.</param>
 public sealed class AllureAfterFixtureStartMessage(
     CorrelationUid correlationUid,
     FixtureExecutionStateUid fixtureUid,

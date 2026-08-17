@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the duration of an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="duration">The duration in milliseconds.</param>
 public sealed class AllureDurationProperty<TModel>(long duration) :
     IAllureProperty<TModel>
 
@@ -21,6 +23,7 @@ public sealed class AllureDurationProperty<TModel>(long duration) :
     /// <summary>
     /// Creates a duration property from a time span.
     /// </summary>
+    /// <param name="duration">The duration, rounded to the nearest whole millisecond.</param>
     public AllureDurationProperty(TimeSpan duration) :
         this((long)Math.Round(duration.TotalMilliseconds))
     {

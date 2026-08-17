@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports that an Allure step has stopped.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="stepUid">The identifier of the step context to stop.</param>
 public sealed class AllureStepStopMessage(
     CorrelationUid correlationUid,
     StepExecutionStateUid stepUid

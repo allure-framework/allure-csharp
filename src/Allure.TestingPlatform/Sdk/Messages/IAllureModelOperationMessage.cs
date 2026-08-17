@@ -17,5 +17,6 @@ public interface IAllureModelOperationMessage
     /// <summary>
     /// Applies the message to the live Allure runtime.
     /// </summary>
+    /// <param name="allureRuntime">The runtime to update.</param>
     void ApplyTo(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime);
 }

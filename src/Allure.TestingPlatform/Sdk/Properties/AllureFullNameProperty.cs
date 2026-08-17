@@ -7,6 +7,7 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the full name of an Allure test result.
 /// </summary>
+/// <param name="fullName">The full name to set.</param>
 public sealed class AllureFullNameProperty(string fullName) : IAllureProperty<TestResult>
 {
     /// <summary>

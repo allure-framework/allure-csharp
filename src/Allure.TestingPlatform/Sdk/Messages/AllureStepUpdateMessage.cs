@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports updates for an active Allure step.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="stepUid">The identifier of the step context to update.</param>
 public sealed class AllureStepUpdateMessage(
     CorrelationUid correlationUid,
     StepExecutionStateUid stepUid

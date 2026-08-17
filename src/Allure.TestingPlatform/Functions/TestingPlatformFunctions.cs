@@ -10,8 +10,14 @@ namespace Allure.TestingPlatform.Functions;
 public static class TestingPlatformFunctions
 {
     /// <summary>
-    /// Gets the current Allure.TestingPlatform package version.
+    /// Gets the informational version of the assembly containing the specified type,
+    /// without build metadata.
     /// </summary>
+    /// <param name="anchorType">A type from the assembly whose version is requested.</param>
+    /// <returns>The assembly informational version without build metadata.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The assembly does not define an informational version.
+    /// </exception>
     public static string GetPackageVersion(Type anchorType) =>
         anchorType.Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()

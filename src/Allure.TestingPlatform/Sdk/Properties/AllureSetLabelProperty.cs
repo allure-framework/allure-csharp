@@ -5,8 +5,10 @@ using Allure.TestingPlatform.Sdk.Runtime;
 namespace Allure.TestingPlatform.Sdk.Properties;
 
 /// <summary>
-/// Adds a label to an Allure test result removing all labels with the same name.
+/// Adds a label to an Allure test result, replacing all labels with the same name.
 /// </summary>
+/// <param name="name">The label name.</param>
+/// <param name="value">The label value.</param>
 public sealed class AllureSetLabelProperty(string name, string value) : IAllureProperty<TestResult>
 {
     /// <summary>

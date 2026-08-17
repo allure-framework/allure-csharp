@@ -3,5 +3,8 @@ using Allure.TestingPlatform.Sdk.Registration;
 
 namespace Allure.TestingPlatform.Registration;
 
+/// <summary>
+/// Provides configuration operations for the default Allure.TestingPlatform runtime.
+/// </summary>
 public interface IAllureTestingPlatformRuntimeRegistrationContext :
     IAllureTestingPlatformRuntimeRegistrationContext<AllureTestingPlatformConfiguration>;

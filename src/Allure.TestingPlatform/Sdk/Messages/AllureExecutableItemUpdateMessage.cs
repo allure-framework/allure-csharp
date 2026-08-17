@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// A message that updates an Allure execution item.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="contextUid">The identifier of the execution-item context to update.</param>
 public sealed class AllureExecutableItemUpdateMessage(
     CorrelationUid correlationUid,
     IAllureExecutionStateUid contextUid

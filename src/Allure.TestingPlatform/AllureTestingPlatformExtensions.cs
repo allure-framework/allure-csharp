@@ -11,11 +11,16 @@ namespace Allure.TestingPlatform;
 /// </summary>
 public static class AllureTestingPlatformExtensions
 {
+    /// <summary>
+    /// Provides standalone Allure registration methods for a test application builder.
+    /// </summary>
+    /// <param name="builder">The test application builder.</param>
     extension (ITestApplicationBuilder builder)
     {
         /// <summary>
         /// Adds Allure.TestingPlatform to the test application and configures it.
         /// </summary>
+        /// <param name="registration">A callback that configures the Allure runtime.</param>
         public void AddAllure(Action<IAllureTestingPlatformRuntimeRegistrationContext> registration) =>
             AllureTestingPlatformSdkExtensions.RegisterAllureTestingPlatform(
                 builder,

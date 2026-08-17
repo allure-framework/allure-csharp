@@ -7,6 +7,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the display name of an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="name">The display name to set.</param>
 public sealed class AllureNameProperty<TModel>(string name) : IAllureProperty<TModel>
     where TModel : ExecutableItem
 {

@@ -4,6 +4,14 @@ using System.Threading;
 
 namespace Allure.TestingPlatform.Sdk.ExecutionState;
 
+/// <summary>
+/// Tracks the Allure execution-state identifiers associated with the current asynchronous
+/// control flow.
+/// </summary>
+/// <remarks>
+/// Framework integrations provide the current framework-managed scope, test, fixture, and step.
+/// Allure API-managed fixture and step scopes are tracked by the base class.
+/// </remarks>
 public abstract class ExecutionStateContext
 {
     readonly AsyncLocal<ImmutableStack<StepExecutionStateUid>> substeps = new()
@@ -16,17 +24,40 @@ public abstract class ExecutionStateContext
         Value = default,
     };
 
+    /// <summary>
+    /// Gets the identifier of the current test scope, or <see langword="null"/> when no scope
+    /// is active.
+    /// </summary>
     public abstract ScopeExecutionStateUid? CurrentScopeUid { get; }
 
+    /// <summary>
+    /// Gets the identifier of the current test, or <see langword="null"/> when no test is active.
+    /// </summary>
     public abstract TestExecutionStateUid? CurrentTestUid { get; }
 
+    /// <summary>
+    /// Gets the identifier of the current framework-managed fixture, or
+    /// <see langword="null"/> when no framework fixture is active.
+    /// </summary>
     protected abstract FixtureExecutionStateUid? CurrentFrameworkFixtureUid { get; }
 
+    /// <summary>
+    /// Gets the identifier of the current framework-managed step, or
+    /// <see langword="null"/> when no framework step is active.
+    /// </summary>
     protected abstract StepExecutionStateUid? CurrentFrameworkStepUid { get; }
 
+    /// <summary>
+    /// Gets the identifier of the current fixture, including fixtures started through the
+    /// Allure API, or <see langword="null"/> when no fixture is active.
+    /// </summary>
     public FixtureExecutionStateUid? CurrentFixtureUid =>
         this.fixture.Value ?? this.CurrentFrameworkFixtureUid;
 
+    /// <summary>
+    /// Gets the identifier of the innermost current step, including steps started through the
+    /// Allure API, or <see langword="null"/> when no step is active.
+    /// </summary>
     public StepExecutionStateUid? CurrentStepUid =>
         this.substeps.Value.IsEmpty
             ? this.CurrentFrameworkStepUid

@@ -9,6 +9,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets test, step, or fixture status and status details from an exception.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="exception">The exception from which status information is derived.</param>
 public sealed class AllureExceptionProperty<TModel>(Exception exception) :
     IAllureProperty<TModel>
 

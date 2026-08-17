@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports that an Allure fixture has stopped.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="fixtureUid">The identifier of the fixture context to stop.</param>
 public sealed class AllureFixtureStopMessage(
     CorrelationUid correlationUid,
     FixtureExecutionStateUid fixtureUid

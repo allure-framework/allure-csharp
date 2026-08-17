@@ -19,6 +19,10 @@ namespace Allure.TestingPlatform.Sdk;
 /// </summary>
 public static class AllureTestingPlatformSdkExtensions
 {
+    /// <summary>
+    /// Provides embedded Allure runtime registration methods for a test application builder.
+    /// </summary>
+    /// <param name="builder">The test application builder.</param>
     extension (ITestApplicationBuilder builder)
     {
         internal IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> RegisterAllureTestingPlatform<
@@ -152,6 +156,17 @@ public static class AllureTestingPlatformSdkExtensions
             }
         }
 
+        /// <summary>
+        /// Adds and configures an embedded Allure runtime and its in-process endpoint.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+        /// <typeparam name="TRuntime">The runtime type.</typeparam>
+        /// <typeparam name="TIntegrationContext">The integration context type.</typeparam>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
+        /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
+        /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime,
@@ -219,6 +234,16 @@ public static class AllureTestingPlatformSdkExtensions
                 }
             );
 
+        /// <summary>
+        /// Adds and configures an embedded Allure runtime.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+        /// <typeparam name="TRuntime">The runtime type.</typeparam>
+        /// <typeparam name="TIntegrationContext">The integration context type.</typeparam>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
+        /// <param name="registration">A callback that configures the runtime.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime,
@@ -243,6 +268,17 @@ public static class AllureTestingPlatformSdkExtensions
         =>
             AddEmbeddedAllure(builder, runtimeName, sessionFactory, registration, (_, _, _) => { });
 
+        /// <summary>
+        /// Adds and configures an embedded Allure runtime and its in-process endpoint using the
+        /// default integration context.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+        /// <typeparam name="TRuntime">The runtime type.</typeparam>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
+        /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
+        /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime
@@ -280,6 +316,15 @@ public static class AllureTestingPlatformSdkExtensions
                 endpointRegistration
             );
 
+        /// <summary>
+        /// Adds and configures an embedded Allure runtime using the default integration context.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+        /// <typeparam name="TRuntime">The runtime type.</typeparam>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
+        /// <param name="registration">A callback that configures the runtime.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime
@@ -308,6 +353,15 @@ public static class AllureTestingPlatformSdkExtensions
                 (_, _, _) => { }
             );
 
+        /// <summary>
+        /// Adds and configures the default embedded Allure runtime for a specific configuration
+        /// type and configures its in-process endpoint.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
+        /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<
             TConfiguration,
             IAllureTestingPlatformRuntime<TConfiguration>
@@ -333,6 +387,13 @@ public static class AllureTestingPlatformSdkExtensions
                 endpointRegistration
             );
 
+        /// <summary>
+        /// Adds and configures the default embedded Allure runtime for a specific configuration type.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="registration">A callback that configures the runtime.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<
             TConfiguration,
             IAllureTestingPlatformRuntime<TConfiguration>
@@ -352,6 +413,13 @@ public static class AllureTestingPlatformSdkExtensions
                 (_, _, _) => { }
             );
 
+        /// <summary>
+        /// Adds and configures the default embedded Allure runtime and its in-process endpoint.
+        /// </summary>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
+        /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<
             AllureTestingPlatformConfiguration,
             IAllureTestingPlatformRuntime
@@ -375,6 +443,12 @@ public static class AllureTestingPlatformSdkExtensions
                 endpointRegistration
             );
 
+        /// <summary>
+        /// Adds and configures the default embedded Allure runtime.
+        /// </summary>
+        /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
+        /// <param name="registration">A callback that configures the runtime.</param>
+        /// <returns>A handle that provides access to the registered runtime.</returns>
         public IAllureTestingPlatformRuntimeHandle<
             AllureTestingPlatformConfiguration,
             IAllureTestingPlatformRuntime
@@ -393,6 +467,13 @@ public static class AllureTestingPlatformSdkExtensions
             );
     }
 
+    /// <summary>
+    /// Provides correlation-strategy configuration methods for an Allure Microsoft Testing
+    /// Platform integration context.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
+    /// <typeparam name="TRuntime">The runtime type.</typeparam>
+    /// <param name="context">The runtime integration context.</param>
     extension<TConfiguration, TRuntime> (
         IAllureTestingPlatformRuntimeIntegrationContextBase<
             TConfiguration,

@@ -9,6 +9,10 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports that an Allure step has started.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="parentUid">The identifier of the context that owns the step.</param>
+/// <param name="stepUid">The identifier of the step context to create.</param>
+/// <param name="stepName">The step name.</param>
 public sealed class AllureStepStartMessage(
     CorrelationUid correlationUid,
     IAllureExecutionStateUid parentUid,

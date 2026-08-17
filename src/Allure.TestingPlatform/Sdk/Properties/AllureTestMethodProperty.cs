@@ -12,6 +12,7 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Updates an Allure test result from a reflected test method.
 /// </summary>
+/// <param name="testMethod">The reflected test method.</param>
 public sealed class AllureTestMethodProperty(MethodInfo testMethod) :
     IAllureProperty<TestResult>
 {

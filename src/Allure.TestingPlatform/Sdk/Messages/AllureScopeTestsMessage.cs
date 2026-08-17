@@ -8,6 +8,9 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports which tests belong to an Allure scope.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="scopeUid">The identifier of the scope context.</param>
+/// <param name="testUids">The identifiers of the test contexts in the scope.</param>
 public sealed class AllureScopeTestsMessage(
     CorrelationUid correlationUid,
     ScopeExecutionStateUid scopeUid,

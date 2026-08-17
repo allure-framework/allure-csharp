@@ -11,6 +11,10 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Attaches a screen diff to an Allure step, test, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to which the screen diff is added.</typeparam>
+/// <param name="expected">A stream containing the expected PNG image.</param>
+/// <param name="actual">A stream containing the actual PNG image.</param>
+/// <param name="diff">A stream containing the PNG image that visualizes the differences.</param>
 public sealed class AllureScreenDiffProperty<TModel>(
     Stream expected,
     Stream actual,
@@ -21,7 +25,7 @@ public sealed class AllureScreenDiffProperty<TModel>(
     where TModel : ExecutableItem
 {
     /// <summary>
-    /// Gets the attachment name.
+    /// Gets or sets the attachment name.
     /// </summary>
     public string? Name { get; init; }
 

@@ -8,6 +8,7 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the title path of an Allure test result.
 /// </summary>
+/// <param name="titlePath">The title path to set.</param>
 public sealed class AllureTitlePathProperty(IEnumerable<string> titlePath) :
     IAllureProperty<TestResult>
 {

@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports updates for an active Allure fixture.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="fixtureUid">The identifier of the fixture context to update.</param>
 public sealed class AllureFixtureUpdateMessage(
     CorrelationUid correlationUid,
     FixtureExecutionStateUid fixtureUid

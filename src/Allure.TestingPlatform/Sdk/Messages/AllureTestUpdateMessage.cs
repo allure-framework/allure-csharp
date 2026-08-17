@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports updates for an Allure test result.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="testUid">The identifier of the test context to update.</param>
 public sealed class AllureTestUpdateMessage(
     CorrelationUid correlationUid,
     TestExecutionStateUid testUid

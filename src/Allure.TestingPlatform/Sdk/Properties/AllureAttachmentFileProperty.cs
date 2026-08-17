@@ -8,6 +8,9 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Attaches a file to an Allure step, test, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to which the attachment is added.</typeparam>
+/// <param name="name">The attachment name.</param>
+/// <param name="path">The path of the file to attach.</param>
 public sealed class AllureAttachmentFileProperty<TModel>(string name, string path) :
     IAllureProperty<TModel>
 

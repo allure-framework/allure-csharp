@@ -8,6 +8,10 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Attaches a screen diff to an Allure step, test, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to which the screen diff is added.</typeparam>
+/// <param name="expectedPath">The path of the expected PNG image.</param>
+/// <param name="actualPath">The path of the actual PNG image.</param>
+/// <param name="diffPath">The path of the PNG image that visualizes the differences.</param>
 public sealed class AllureScreenDiffFileProperty<TModel>(
     string expectedPath,
     string actualPath,
@@ -18,7 +22,7 @@ public sealed class AllureScreenDiffFileProperty<TModel>(
     where TModel : ExecutableItem
 {
     /// <summary>
-    /// Gets the attachment name.
+    /// Gets or sets the attachment name.
     /// </summary>
     public string? Name { get; init; }
 

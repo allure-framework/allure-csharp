@@ -7,6 +7,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the status of an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="status">The status to set.</param>
 public sealed class AllureStatusProperty<TModel>(Status status) : IAllureProperty<TModel>
     where TModel : ExecutableItem
 {

@@ -8,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports that an Allure scope has stopped.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="scopeUid">The identifier of the scope context to stop.</param>
 public sealed class AllureScopeStopMessage(
     CorrelationUid correlationUid,
     ScopeExecutionStateUid scopeUid

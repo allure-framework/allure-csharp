@@ -9,6 +9,9 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports that an Allure scope has started.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="scopeUid">The identifier of the scope context to create.</param>
+/// <param name="parentScopeUid">The parent scope identifier, if one exists.</param>
 public sealed class AllureScopeStartMessage(
     CorrelationUid correlationUid,
     ScopeExecutionStateUid scopeUid,

@@ -7,6 +7,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets or appends the Markdown description of an Allure step, test, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="description">The Markdown description.</param>
 public sealed class AllureDescriptionProperty<TModel>(string description) :
     IAllureProperty<TModel>
 

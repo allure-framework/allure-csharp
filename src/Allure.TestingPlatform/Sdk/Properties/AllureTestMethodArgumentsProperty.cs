@@ -10,6 +10,9 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Adds Allure test parameters from test method arguments.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="testMethod">The test method that declares the parameters.</param>
+/// <param name="arguments">The test method argument values.</param>
 public sealed class AllureTestMethodArgumentsProperty<TModel>(
     MethodInfo testMethod,
     IEnumerable<object> arguments
