@@ -4,12 +4,12 @@ using Allure.Model;
 using Allure.Sdk.Functions;
 using Allure.Sdk.Results;
 
-namespace Allure.TestingPlatform.Functions;
+namespace Allure.TestingPlatform.Internal.Functions;
 
 static class TestAttachments
 {
     public static void SaveText(
-        IAllureResultsDestination writer,
+        IAllureResultsDestination resultsDestination,
         TestResult testResult,
         string name,
         string content
@@ -25,11 +25,11 @@ static class TestAttachments
             Type = "text/plain",
             Source = outputFileName,
         });
-        writer.WriteAttachment(outputFileName, stream);
+        resultsDestination.WriteAttachment(outputFileName, stream);
     }
 
     public static void SaveFile(
-        IAllureResultsDestination writer,
+        IAllureResultsDestination resultsDestination,
         TestResult testResult,
         string? name,
         FileInfo file
@@ -44,7 +44,7 @@ static class TestAttachments
             Source = outputFileName,
         };
 
-        writer.CopyAttachment(outputFileName, inputPath);
+        resultsDestination.CopyAttachment(outputFileName, inputPath);
         testResult.Attachments.Add(attachment);
     }
 }

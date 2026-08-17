@@ -28,7 +28,7 @@ sealed class AllureTestingPlatformRuntimeRegistrationOwner(
     public string Description => "Owns the test-host runtime registration.";
 
     public string Version { get; } =
-        TestingPlatformFunctions.GetPackageVersion(
+        PackageVersions.For(
             typeof(AllureTestingPlatformRuntimeRegistrationOwner)
         );
 

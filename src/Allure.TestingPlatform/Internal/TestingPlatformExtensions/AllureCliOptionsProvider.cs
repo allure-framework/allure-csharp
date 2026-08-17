@@ -19,7 +19,7 @@ sealed class AllureCliOptionsProvider : ICommandLineOptionsProvider
 
     public AllureCliOptionsProvider()
     {
-        this.Version = TestingPlatformFunctions.GetPackageVersion(this.GetType());
+        this.Version = PackageVersions.For(this.GetType());
     }
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);

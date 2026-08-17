@@ -109,7 +109,7 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
         this.Uid = uid;
         this.DisplayName = displayName;
         this.Description = description;
-        this.Version = TestingPlatformFunctions.GetPackageVersion(this.GetType());
+        this.Version = PackageVersions.For(this.GetType());
         this.runtimeReference = runtimeHandle.RuntimeReference;
         this.configurationReference = runtimeHandle.ConfigurationReference;
     }

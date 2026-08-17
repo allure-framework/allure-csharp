@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Allure.Sdk.Runtime;
-using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Internal.Functions;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 
 namespace Allure.TestingPlatform.Internal;
@@ -104,7 +104,7 @@ sealed class SessionLifecycleState(IAllureExecutionContext context)
 
     public void ReleaseState(IAllureExecutionStateUid stateUid, Action<IAllureRuntimeBase> commit)
     {
-        if (CollectionAlgorithms.TryRemoveAndGet(this.states, stateUid, out var state))
+        if (Dictionaries.TryRemoveAndGet(this.states, stateUid, out var state))
         {
             context.RunWithState(state, commit);
         }
@@ -112,7 +112,7 @@ sealed class SessionLifecycleState(IAllureExecutionContext context)
 
     public void ReleaseScopeState(ScopeExecutionStateUid scopeUid, Action<IAllureRuntimeBase> commit)
     {
-        if (CollectionAlgorithms.TryRemoveAndGet(this.scopeTests, scopeUid, out var testUids))
+        if (Dictionaries.TryRemoveAndGet(this.scopeTests, scopeUid, out var testUids))
         {
             foreach (var testUid in testUids)
             {
@@ -138,7 +138,7 @@ sealed class SessionLifecycleState(IAllureExecutionContext context)
 
     AllureExecutionState ApplyPendingUpdates(IAllureExecutionStateUid stateUid, AllureExecutionState state)
     {
-        if (CollectionAlgorithms.TryRemoveAndGet(this.pendingUpdates, stateUid, out var updates))
+        if (Dictionaries.TryRemoveAndGet(this.pendingUpdates, stateUid, out var updates))
         {
             foreach (var update in updates)
             {

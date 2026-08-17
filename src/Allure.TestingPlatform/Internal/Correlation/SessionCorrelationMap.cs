@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Internal.Functions;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Messages;
 using Microsoft.Testing.Platform.Extensions.Messages;
@@ -41,7 +41,7 @@ sealed class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILo
 
     public CorrelationUid? RemoveSessionData(SessionUid sessionUid)
     {
-        if (CollectionAlgorithms.TryRemoveAndGet(this.correlatedSessions, sessionUid, out CorrelationUid correlationUid))
+        if (Dictionaries.TryRemoveAndGet(this.correlatedSessions, sessionUid, out CorrelationUid correlationUid))
         {
             this.activeCorrelations.Remove(correlationUid);
         }
@@ -159,9 +159,9 @@ sealed class SessionCorrelationMap(ICorrelationStrategy correlationStrategy, ILo
         SessionUid sessionUid,
         CorrelationUid correlationUid
     ) =>
-        CollectionAlgorithms.MergeSortedByItem1<DataWithSessionUid, AllureCorrelatedMessage, IData>(
-            CollectionAlgorithms.RemoveAndGet(this.sessionUidBuffers, sessionUid, []),
-            CollectionAlgorithms.RemoveAndGet(this.correlationUidBuffers, correlationUid, [])
+        SortedSequences.MergeByKey<DataWithSessionUid, AllureCorrelatedMessage, IData>(
+            Dictionaries.RemoveAndGet(this.sessionUidBuffers, sessionUid, []),
+            Dictionaries.RemoveAndGet(this.correlationUidBuffers, correlationUid, [])
         );
 
     int GetSequenceNumber() => this.sequenceNumber++;

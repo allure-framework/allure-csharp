@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Allure.TestingPlatform.Sdk.Messages;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.Messages;
-using Allure.TestingPlatform.Functions;
+using Allure.TestingPlatform.Internal.Functions;
 using Microsoft.Testing.Platform.Extensions.TestHost;
 using Microsoft.Testing.Platform.Services;
 using System.Collections.Generic;
