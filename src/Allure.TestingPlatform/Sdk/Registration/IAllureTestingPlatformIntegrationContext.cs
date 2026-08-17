@@ -12,12 +12,12 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
 /// <typeparam name="TContext">The registration context type.</typeparam>
-public interface IAllureTestingPlatformRuntimeIntegrationContext<
+public interface IAllureTestingPlatformIntegrationContext<
     TConfiguration,
     out TRuntime,
     out TContext
 > :
-    IAllureTestingPlatformRuntimeIntegrationContextBase<TConfiguration, TRuntime>,
+    IAllureTestingPlatformIntegrationContextBase<TConfiguration, TRuntime>,
     IAllureRuntimeIntegrationContext<
         TConfiguration,
         TRuntime,
@@ -26,7 +26,7 @@ public interface IAllureTestingPlatformRuntimeIntegrationContext<
 
     where TConfiguration : AllureTestingPlatformConfiguration
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-    where TContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>;
+    where TContext : IAllureTestingPlatformRegistrationContext<TConfiguration>;
 
 /// <summary>
 /// Provides integration operations for an Allure Microsoft Testing Platform runtime with
@@ -34,14 +34,14 @@ public interface IAllureTestingPlatformRuntimeIntegrationContext<
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public interface IAllureTestingPlatformRuntimeIntegrationContext<
+public interface IAllureTestingPlatformIntegrationContext<
     TConfiguration,
     out TRuntime
 > :
-    IAllureTestingPlatformRuntimeIntegrationContext<
+    IAllureTestingPlatformIntegrationContext<
         TConfiguration,
         TRuntime,
-        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+        IAllureTestingPlatformRegistrationContext<TConfiguration>
     >
 
     where TConfiguration : AllureTestingPlatformConfiguration
@@ -51,11 +51,11 @@ public interface IAllureTestingPlatformRuntimeIntegrationContext<
 /// Provides integration operations for the default runtime with a specific configuration type.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public interface IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration> :
-    IAllureTestingPlatformRuntimeIntegrationContext<
+public interface IAllureTestingPlatformIntegrationContext<TConfiguration> :
+    IAllureTestingPlatformIntegrationContext<
         TConfiguration,
         IAllureTestingPlatformRuntime<TConfiguration>,
-        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+        IAllureTestingPlatformRegistrationContext<TConfiguration>
     >
 
     where TConfiguration : AllureTestingPlatformConfiguration;
@@ -64,10 +64,10 @@ public interface IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>
 /// Provides integration and registration operations for the default Allure Microsoft Testing
 /// Platform runtime.
 /// </summary>
-public interface IAllureTestingPlatformRuntimeIntegrationContext :
-    IAllureTestingPlatformRuntimeIntegrationContext<
+public interface IAllureTestingPlatformIntegrationContext :
+    IAllureTestingPlatformIntegrationContext<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime,
-        IAllureTestingPlatformRuntimeRegistrationContext
+        IAllureTestingPlatformRegistrationContext
     >,
-    IAllureTestingPlatformRuntimeRegistrationContext;
+    IAllureTestingPlatformRegistrationContext;

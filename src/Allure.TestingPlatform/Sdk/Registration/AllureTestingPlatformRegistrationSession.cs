@@ -31,7 +31,7 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
         TRegistrationContext,
         TIntegrationContext
     >,
-    IAllureTestingPlatformRuntimeIntegrationContext<
+    IAllureTestingPlatformIntegrationContext<
         TConfiguration,
         TRuntime,
         TRegistrationContext
@@ -39,15 +39,15 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-    where TRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
-    where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContext<
+    where TRegistrationContext : IAllureTestingPlatformRegistrationContext<TConfiguration>
+    where TIntegrationContext : IAllureTestingPlatformIntegrationContext<
         TConfiguration,
         TRuntime,
         TRegistrationContext
     >
 {
     Func<TConfiguration, ICorrelationStrategy> currentCorrelationStrategyFactory =
-        (_) => new TestingPlatformSessionUidCorrelationStrategy();
+        (_) => new SessionUidCorrelationStrategy();
 
     Func<TConfiguration, ICorrelationContext> currentCorrelationContextFactory =
         (_) => NullCorrelationContext.Instance;
@@ -129,7 +129,7 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
     /// <returns>The created runtime.</returns>
     protected abstract TRuntime CreateRuntime(
         RuntimeCreationArguments<TConfiguration> commonArgs,
-        AllureTestingPlatformRuntimeCreationArguments testingPlatformArgs
+        AllureTestingPlatformRuntimeArguments testingPlatformArgs
     );
 }
 
@@ -149,15 +149,15 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
         TConfiguration,
         TRuntime,
         TRegistrationContext,
-        IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
+        IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime, TRegistrationContext>
     >
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-    where TRegistrationContext : IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+    where TRegistrationContext : IAllureTestingPlatformRegistrationContext<TConfiguration>
 {
     /// <inheritdoc />
-    protected override IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime, TRegistrationContext> IntegrationContext => this;
+    protected override IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime, TRegistrationContext> IntegrationContext => this;
 }
 
 /// <summary>
@@ -173,43 +173,43 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
     AllureTestingPlatformRuntimeRegistrationSession<
         TConfiguration,
         TRuntime,
-        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>,
-        IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+        IAllureTestingPlatformRegistrationContext<TConfiguration>,
+        IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime>
     >,
-    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+    IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime>
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     /// <inheritdoc />
-    protected override IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+    protected override IAllureTestingPlatformRegistrationContext<TConfiguration> RegistrationContext => this;
 }
 
 /// <summary>
 /// Provides the default runtime registration session for a specific configuration type.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public class AllureTestingPlatformRuntimeRegistrationSession<TConfiguration> :
+public class AllureTestingPlatformRegistrationSession<TConfiguration> :
     AllureTestingPlatformRuntimeRegistrationSession<
         TConfiguration,
         IAllureTestingPlatformRuntime<TConfiguration>,
-        IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>,
-        IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>
+        IAllureTestingPlatformRegistrationContext<TConfiguration>,
+        IAllureTestingPlatformIntegrationContext<TConfiguration>
     >,
-    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>
+    IAllureTestingPlatformIntegrationContext<TConfiguration>
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
 {
     /// <inheritdoc />
-    protected override IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration> IntegrationContext => this;
+    protected override IAllureTestingPlatformIntegrationContext<TConfiguration> IntegrationContext => this;
 
     /// <inheritdoc />
-    protected override IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration> RegistrationContext => this;
+    protected override IAllureTestingPlatformRegistrationContext<TConfiguration> RegistrationContext => this;
 
     /// <inheritdoc />
     protected override IAllureTestingPlatformRuntime<TConfiguration> CreateRuntime(
         RuntimeCreationArguments<TConfiguration> commonArgs,
-        AllureTestingPlatformRuntimeCreationArguments testingPlatformArgs
+        AllureTestingPlatformRuntimeArguments testingPlatformArgs
     ) =>
         new AllureTestingPlatformRuntime<TConfiguration>(
             commonArgs.Configuration,
@@ -228,25 +228,25 @@ public class AllureTestingPlatformRuntimeRegistrationSession<TConfiguration> :
 /// <summary>
 /// Provides the registration session for the default Allure Microsoft Testing Platform runtime.
 /// </summary>
-public class AllureTestingPlatformRuntimeRegistrationSession :
+public class AllureTestingPlatformRegistrationSession :
     AllureTestingPlatformRuntimeRegistrationSession<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime,
-        IAllureTestingPlatformRuntimeRegistrationContext,
-        IAllureTestingPlatformRuntimeIntegrationContext
+        IAllureTestingPlatformRegistrationContext,
+        IAllureTestingPlatformIntegrationContext
     >,
-    IAllureTestingPlatformRuntimeIntegrationContext
+    IAllureTestingPlatformIntegrationContext
 {
     /// <inheritdoc />
-    protected override IAllureTestingPlatformRuntimeIntegrationContext IntegrationContext => this;
+    protected override IAllureTestingPlatformIntegrationContext IntegrationContext => this;
 
     /// <inheritdoc />
-    protected override IAllureTestingPlatformRuntimeRegistrationContext RegistrationContext => this;
+    protected override IAllureTestingPlatformRegistrationContext RegistrationContext => this;
 
     /// <inheritdoc />
     protected override IAllureTestingPlatformRuntime CreateRuntime(
         RuntimeCreationArguments<AllureTestingPlatformConfiguration> commonArgs,
-        AllureTestingPlatformRuntimeCreationArguments testingPlatformArgs
+        AllureTestingPlatformRuntimeArguments testingPlatformArgs
     ) =>
         new AllureTestingPlatformRuntime(
             commonArgs.Configuration,

@@ -21,11 +21,11 @@ public static class AllureTestingPlatformExtensions
         /// Adds Allure.TestingPlatform to the test application and configures it.
         /// </summary>
         /// <param name="registration">A callback that configures the Allure runtime.</param>
-        public void AddAllure(Action<IAllureTestingPlatformRuntimeRegistrationContext> registration) =>
+        public void AddAllure(Action<IAllureTestingPlatformRegistrationContext> registration) =>
             AllureTestingPlatformSdkExtensions.RegisterAllureTestingPlatform(
                 builder,
                 "Allure.TestingPlatform",
-                () => new AllureTestingPlatformRuntimeRegistrationSession(),
+                () => new AllureTestingPlatformRegistrationSession(),
                 (context, serviceProvider) =>
                 {
                     registration(context);

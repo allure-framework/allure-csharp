@@ -6,7 +6,7 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// Represents a registration hook for an Allure Microsoft Testing Platform runtime.
 /// </summary>
 /// <typeparam name="TContext">The registration context type.</typeparam>
-public interface IAllureTestingPlatformRuntimeRegistrationHook<TContext> :
+public interface IAllureTestingPlatformRegistrationHook<TContext> :
     IAllureRegistrationHook<TContext>
 
-    where TContext : IAllureTestingPlatformRuntimeRegistrationContextBase;
+    where TContext : IAllureTestingPlatformRegistrationContextBase;

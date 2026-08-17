@@ -1,8 +1,8 @@
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
-using Allure.TestingPlatform.Internal.Runtime;
+using Allure.TestingPlatform.Internal.Registration;
+using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Tests.Stubs;
 
@@ -10,7 +10,7 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
     IReadOnlyLateBoundReference<TConfiguration> configurationReference,
     IReadOnlyLateBoundReference<TRuntime> runtimeReference
 ) :
-    IAllureTestingPlatformRuntimeControl<TConfiguration, TRuntime>
+    IAllureTestingPlatformRegistrationControl<TConfiguration, TRuntime>
 
     where TConfiguration : AllureTestingPlatformConfiguration
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
@@ -21,7 +21,7 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
 
     public IReadOnlyLateBoundReference<TRuntime> RuntimeReference => runtimeReference;
 
-    public bool CanPublish => true;
+    public IAllureTestingPlatformMessageChannel MessageChannel => IAllureTestingPlatformMessageChannel.Mock();
 
     public ValueTask DisposeAsync() => default;
 
@@ -29,9 +29,6 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
     {
         this.EnsureRuntimeStartedCalls++;
     }
-
-    public Task PublishAsync(IDataProducer dataProducer, IData data) =>
-        Task.CompletedTask;
 }
 
 class RuntimeCoordinatorSpy(

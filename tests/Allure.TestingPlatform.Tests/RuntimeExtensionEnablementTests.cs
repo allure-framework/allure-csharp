@@ -48,7 +48,7 @@ public class RuntimeExtensionEnablementTests
         var config = new AllureTestingPlatformConfiguration();
         var logger = new LoggerSpy();
         var writer = new InMemoryResultsDestination();
-        var correlation = new TestingPlatformSessionUidCorrelationStrategy();
+        var correlation = new SessionUidCorrelationStrategy();
         var plan = CreatePlan(config, logger, writer, correlation);
         plan.Build();
         ExtensionProbe extension = new(new RuntimeCoordinatorSpy(
@@ -74,7 +74,7 @@ public class RuntimeExtensionEnablementTests
         ICorrelationStrategy correlation = null
     )
     {
-        var builder = new AllureTestingPlatformRuntimeBuilder("extension-test");
+        var builder = new AllureTestingPlatformBuilder("extension-test");
         return builder.Prepare(context =>
         {
             context.UseConfigurationSource(
@@ -96,7 +96,7 @@ public class RuntimeExtensionEnablementTests
     }
 
     sealed class ExtensionProbe(
-        IAllureTestingPlatformRuntimeHandle<
+        IAllureTestingPlatformRegistration<
             AllureTestingPlatformConfiguration,
             IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
         > runtimeHandle

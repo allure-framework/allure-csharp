@@ -11,6 +11,7 @@ using Allure.Sdk.Registration;
 using Allure.Abstractions;
 using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
+using Allure.TestingPlatform.Internal.Registration;
 
 namespace Allure.TestingPlatform.Sdk;
 
@@ -25,7 +26,7 @@ public static class AllureTestingPlatformSdkExtensions
     /// <param name="builder">The test application builder.</param>
     extension (ITestApplicationBuilder builder)
     {
-        internal IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> RegisterAllureTestingPlatform<
+        internal IAllureTestingPlatformRegistration<TConfiguration, TRuntime> RegisterAllureTestingPlatform<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -40,31 +41,31 @@ public static class AllureTestingPlatformSdkExtensions
             > sessionFactory,
             Action<
                 TIntegrationContext,
-                AllureTestingPlatformRuntimeCoordinator<
+                AllureTestingPlatformRuntimeRegistration<
                     TConfiguration,
                     TRuntime,
                     TIntegrationContext
                 >
-            > registration
+            > registrationCallback
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
             where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-            where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
+            where TIntegrationContext : IAllureTestingPlatformIntegrationContextBase<
                 TConfiguration,
                 TRuntime
             >
         {
-            var runtimeCoordinator = AllureTestingPlatformRuntimeCoordinator.Create(
+            var runtimeCoordinator = AllureTestingPlatformRuntimeRegistration.Create(
                 runtimeName,
                 sessionFactory,
                 RegisterIntegration
             );
-            var runtimeControl =
-                (IAllureTestingPlatformRuntimeControl<
+            var registrationControl =
+                (IAllureTestingPlatformRegistrationControl<
                     AllureTestingPlatformConfiguration,
                     IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
                 >)
-                (IAllureTestingPlatformRuntimeControl<TConfiguration, TRuntime>)
+                (IAllureTestingPlatformRegistrationControl<TConfiguration, TRuntime>)
                 runtimeCoordinator;
 
             builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
@@ -73,13 +74,13 @@ public static class AllureTestingPlatformSdkExtensions
                 new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
                 {
                     var binding = runtimeCoordinator.BindConsumer(serviceProvider);
-                    return new AllureDataConsumer(runtimeControl, binding);
+                    return new AllureDataConsumer(registrationControl, binding);
                 });
 
             builder.TestHostControllers.AddProcessLifetimeHandler((serviceProvider) =>
             {
                 runtimeCoordinator.BindController(serviceProvider);
-                return new AllureTestingPlatformHostProcessWatchdog(runtimeControl);
+                return new AllureTestingPlatformHostProcessWatchdog(registrationControl);
             });
 
             builder.TestHost.AddDataConsumer(factory);
@@ -87,14 +88,14 @@ public static class AllureTestingPlatformSdkExtensions
             builder.TestHost.AddTestHostApplicationLifetime((serviceProvider) =>
             {
                 runtimeCoordinator.BindTestHost(serviceProvider);
-                return new AllureTestingPlatformRuntimeRegistrationOwner(runtimeControl);
+                return new AllureTestingPlatformRegistrationOwner(registrationControl);
             });
 
             return runtimeCoordinator;
 
             void RegisterIntegration(
                 TIntegrationContext context,
-                AllureTestingPlatformRuntimeCoordinator<
+                AllureTestingPlatformRuntimeRegistration<
                     TConfiguration,
                     TRuntime,
                     TIntegrationContext
@@ -152,7 +153,7 @@ public static class AllureTestingPlatformSdkExtensions
                     );
                 }
 
-                registration(context, coordinator);
+                registrationCallback(context, coordinator);
             }
         }
 
@@ -166,8 +167,11 @@ public static class AllureTestingPlatformSdkExtensions
         /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
         /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
         /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -189,7 +193,7 @@ public static class AllureTestingPlatformSdkExtensions
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
             where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-            where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
+            where TIntegrationContext : IAllureTestingPlatformIntegrationContextBase<
                 TConfiguration,
                 TRuntime
             >
@@ -203,22 +207,22 @@ public static class AllureTestingPlatformSdkExtensions
                     context.RegisterInProcessEndpoint(runtimeName, (runtime, endpointContext) =>
                     {
                         endpointContext.UseCurrentScopePredicate(
-                            (runtime) => coordinator.CanPublish && runtime.ExecutionStateContext is
+                            (runtime) => coordinator.MessageChannel.CanPublish && runtime.ExecutionStateContext is
                                 { CurrentTestUid: not null }
                                     or { CurrentFixtureUid: not null}
                         );
-                        endpointContext.UseGlobalScopePredicate((_) => coordinator.CanPublish);
+                        endpointContext.UseGlobalScopePredicate((_) => coordinator.MessageChannel.CanPublish);
                         endpointContext.SetAvailabilityPredicate(
-                            (_) => runtime.Configuration.IsEnabled && coordinator.CanPublish
+                            (_) => runtime.Configuration.IsEnabled && coordinator.MessageChannel.CanPublish
                         );
                         endpointContext.UseOperations((runtime) =>
                         {
                             var asyncOperations = new AllureTestingPlatformAsyncOperations(
-                                (IAllureTestingPlatformRuntimeHandle<
+                                (IAllureTestingPlatformRegistration<
                                     AllureTestingPlatformConfiguration,
                                     IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
                                 >)
-                                (IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime>)
+                                (IAllureTestingPlatformRegistration<TConfiguration, TRuntime>)
                                 coordinator
                             );
                             return new AllureInProcessOperations(
@@ -243,8 +247,11 @@ public static class AllureTestingPlatformSdkExtensions
         /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
         /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
         /// <param name="registration">A callback that configures the runtime.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -261,7 +268,7 @@ public static class AllureTestingPlatformSdkExtensions
         )
             where TConfiguration : AllureTestingPlatformConfiguration, new()
             where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-            where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
+            where TIntegrationContext : IAllureTestingPlatformIntegrationContextBase<
                 TConfiguration,
                 TRuntime
             >
@@ -278,8 +285,11 @@ public static class AllureTestingPlatformSdkExtensions
         /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
         /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
         /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime
         >(
@@ -288,11 +298,11 @@ public static class AllureTestingPlatformSdkExtensions
                 AllureRuntimeRegistrationSessionBase<
                     TConfiguration,
                     TRuntime,
-                    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+                    IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime>
                 >
             > sessionFactory,
             Action<
-                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>,
+                IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime>,
                 IServiceProvider
             > runtimeRegistration,
             Action<
@@ -307,7 +317,7 @@ public static class AllureTestingPlatformSdkExtensions
             AddEmbeddedAllure<
                 TConfiguration,
                 TRuntime,
-                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+                IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime>
             >(
                 builder,
                 runtimeName,
@@ -324,8 +334,11 @@ public static class AllureTestingPlatformSdkExtensions
         /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
         /// <param name="sessionFactory">A factory that creates a runtime registration session.</param>
         /// <param name="registration">A callback that configures the runtime.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> AddEmbeddedAllure<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<TConfiguration, TRuntime> AddEmbeddedAllure<
             TConfiguration,
             TRuntime
         >(
@@ -334,11 +347,11 @@ public static class AllureTestingPlatformSdkExtensions
                 AllureRuntimeRegistrationSessionBase<
                     TConfiguration,
                     TRuntime,
-                    IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>
+                    IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime>
                 >
             > sessionFactory,
             Action<
-                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration, TRuntime>,
+                IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime>,
                 IServiceProvider
             > registration
         )
@@ -361,14 +374,17 @@ public static class AllureTestingPlatformSdkExtensions
         /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
         /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
         /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<
             TConfiguration,
             IAllureTestingPlatformRuntime<TConfiguration>
         > AddEmbeddedAllure<TConfiguration>(
             string runtimeName,
             Action<
-                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>,
+                IAllureTestingPlatformIntegrationContext<TConfiguration>,
                 IServiceProvider
             > runtimeRegistration,
             Action<
@@ -382,7 +398,7 @@ public static class AllureTestingPlatformSdkExtensions
             AddEmbeddedAllure(
                 builder,
                 runtimeName,
-                () => new AllureTestingPlatformRuntimeRegistrationSession<TConfiguration>(),
+                () => new AllureTestingPlatformRegistrationSession<TConfiguration>(),
                 runtimeRegistration,
                 endpointRegistration
             );
@@ -393,14 +409,17 @@ public static class AllureTestingPlatformSdkExtensions
         /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
         /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
         /// <param name="registration">A callback that configures the runtime.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<
             TConfiguration,
             IAllureTestingPlatformRuntime<TConfiguration>
         > AddEmbeddedAllure<TConfiguration>(
             string runtimeName,
             Action<
-                IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>,
+                IAllureTestingPlatformIntegrationContext<TConfiguration>,
                 IServiceProvider
             > registration
         )
@@ -419,14 +438,17 @@ public static class AllureTestingPlatformSdkExtensions
         /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
         /// <param name="runtimeRegistration">A callback that configures the runtime.</param>
         /// <param name="endpointRegistration">A callback that configures the in-process endpoint.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<
             AllureTestingPlatformConfiguration,
             IAllureTestingPlatformRuntime
         > AddEmbeddedAllure(
             string runtimeName,
             Action<
-                IAllureTestingPlatformRuntimeIntegrationContext,
+                IAllureTestingPlatformIntegrationContext,
                 IServiceProvider
             > runtimeRegistration,
             Action<
@@ -438,7 +460,7 @@ public static class AllureTestingPlatformSdkExtensions
             AddEmbeddedAllure(
                 builder,
                 runtimeName,
-                () => new AllureTestingPlatformRuntimeRegistrationSession(),
+                () => new AllureTestingPlatformRegistrationSession(),
                 runtimeRegistration,
                 endpointRegistration
             );
@@ -448,14 +470,17 @@ public static class AllureTestingPlatformSdkExtensions
         /// </summary>
         /// <param name="runtimeName">The name used to identify the runtime and endpoint.</param>
         /// <param name="registration">A callback that configures the runtime.</param>
-        /// <returns>A handle that provides access to the registered runtime.</returns>
-        public IAllureTestingPlatformRuntimeHandle<
+        /// <returns>
+        /// The registration that provides access to the runtime, its configuration, and its
+        /// message channel.
+        /// </returns>
+        public IAllureTestingPlatformRegistration<
             AllureTestingPlatformConfiguration,
             IAllureTestingPlatformRuntime
         > AddEmbeddedAllure(
             string runtimeName,
             Action<
-                IAllureTestingPlatformRuntimeIntegrationContext,
+                IAllureTestingPlatformIntegrationContext,
                 IServiceProvider
             > registration
         ) =>
@@ -475,7 +500,7 @@ public static class AllureTestingPlatformSdkExtensions
     /// <typeparam name="TRuntime">The runtime type.</typeparam>
     /// <param name="context">The runtime integration context.</param>
     extension<TConfiguration, TRuntime> (
-        IAllureTestingPlatformRuntimeIntegrationContextBase<
+        IAllureTestingPlatformIntegrationContextBase<
             TConfiguration,
             TRuntime
         > context
@@ -487,7 +512,7 @@ public static class AllureTestingPlatformSdkExtensions
         /// Correlates SDK messages by Microsoft Testing Platform session UID.
         /// </summary>
         public void UseTestingPlatformSessionCorrelation() =>
-            context.UseCorrelationStrategy((_) => new TestingPlatformSessionUidCorrelationStrategy());
+            context.UseCorrelationStrategy((_) => new SessionUidCorrelationStrategy());
 
         /// <summary>
         /// Correlates SDK messages by <see cref="Microsoft.Testing.Platform.Extensions.Messages.TestMetadataProperty"/>

@@ -3,21 +3,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allure.Model;
 using Allure.TestingPlatform.Configuration;
-using Allure.TestingPlatform.Internal.Runtime;
+using Allure.TestingPlatform.Internal.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
-using IAllureTestingPlatformRuntimeControl =
-    IAllureTestingPlatformRuntimeControl<
+using IAllureTestingPlatformRegistrationControl =
+    IAllureTestingPlatformRegistrationControl<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     >;
 
 sealed class AllureTestingPlatformHostProcessWatchdog(
-    IAllureTestingPlatformRuntimeControl runtimeControl
+    IAllureTestingPlatformRegistrationControl runtimeControl
 ) :
     AllureTestingPlatformExtension<
         AllureTestingPlatformConfiguration,

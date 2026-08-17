@@ -2,17 +2,17 @@ using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
 using Allure.Sdk.Results;
 using Allure.TestingPlatform.Configuration;
-using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Logging;
+using Allure.TestingPlatform.Internal.Registration;
 
 namespace Allure.TestingPlatform.Tests;
 
-public abstract class DataConsumerTestsBase : DataConsumerTestsBase<TestingPlatformSessionUidCorrelationStrategy, ThrowingLoggerStub>;
+public abstract class DataConsumerTestsBase : DataConsumerTestsBase<SessionUidCorrelationStrategy, ThrowingLoggerStub>;
 
 public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService>
     where TCorrelationStrategy : ICorrelationStrategy, new()
@@ -35,7 +35,7 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
         this.writer = new();
         this.correlationStrategy = new TCorrelationStrategy();
 
-        var builder = new AllureTestingPlatformRuntimeBuilder("test");
+        var builder = new AllureTestingPlatformBuilder("test");
         this.registrationPlan = builder.Prepare((context) =>
         {
             context.UseConfigurationSource(() => DelegateConfigurationSource.Create("test", () => this.Config));
@@ -50,7 +50,7 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
                 builder.ConfigurationReference,
                 this.runtimeReference
             ),
-            IRequestRuntimeBinding.Mock()
+            ITestingPlatformRequestBinding.Mock()
         );
     }
 

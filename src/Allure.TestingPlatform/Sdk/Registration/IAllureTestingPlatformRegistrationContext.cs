@@ -7,8 +7,8 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// Provides configuration operations for an Allure Microsoft Testing Platform runtime.
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-public interface IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration> :
-    IAllureTestingPlatformRuntimeRegistrationContextBase,
+public interface IAllureTestingPlatformRegistrationContext<TConfiguration> :
+    IAllureTestingPlatformRegistrationContextBase,
     IAllureRuntimeRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureTestingPlatformConfiguration

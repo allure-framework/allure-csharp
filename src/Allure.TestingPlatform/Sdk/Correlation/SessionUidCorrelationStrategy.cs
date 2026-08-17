@@ -8,7 +8,7 @@ namespace Allure.TestingPlatform.Sdk.Correlation;
 /// Uses the Microsoft Testing Platform session UID as the Allure correlation identifier.
 /// Use this strategy for integrations that have access to the current session UID.
 /// </summary>
-public sealed class TestingPlatformSessionUidCorrelationStrategy : ICorrelationStrategy
+public sealed class SessionUidCorrelationStrategy : ICorrelationStrategy
 {
     /// <inheritdoc />
     public Task<CorrelationUid?> GetCorrelationAsync(

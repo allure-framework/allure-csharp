@@ -9,14 +9,14 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <param name="runtimeName">The name used to identify the runtime registration.</param>
-public class AllureTestingPlatformRuntimeBuilder<TConfiguration>(string runtimeName) :
+public class AllureTestingPlatformBuilder<TConfiguration>(string runtimeName) :
     AllureRuntimeBuilder<
         TConfiguration,
         IAllureTestingPlatformRuntime<TConfiguration>,
-        IAllureTestingPlatformRuntimeIntegrationContext<TConfiguration>
+        IAllureTestingPlatformIntegrationContext<TConfiguration>
     >(
         runtimeName,
-        () => new AllureTestingPlatformRuntimeRegistrationSession<TConfiguration>()
+        () => new AllureTestingPlatformRegistrationSession<TConfiguration>()
     )
 
     where TConfiguration : AllureTestingPlatformConfiguration, new();
@@ -25,12 +25,12 @@ public class AllureTestingPlatformRuntimeBuilder<TConfiguration>(string runtimeN
 /// Builds the default Allure Microsoft Testing Platform runtime.
 /// </summary>
 /// <param name="runtimeName">The name used to identify the runtime registration.</param>
-public class AllureTestingPlatformRuntimeBuilder(string runtimeName) :
+public class AllureTestingPlatformBuilder(string runtimeName) :
     AllureRuntimeBuilder<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime,
-        IAllureTestingPlatformRuntimeIntegrationContext
+        IAllureTestingPlatformIntegrationContext
     >(
         runtimeName,
-        () => new AllureTestingPlatformRuntimeRegistrationSession()
+        () => new AllureTestingPlatformRegistrationSession()
     );

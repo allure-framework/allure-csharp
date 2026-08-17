@@ -3,20 +3,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Functions;
-using Allure.TestingPlatform.Internal.Runtime;
+using Allure.TestingPlatform.Internal.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.TestHost;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
-using IAllureTestingPlatformRuntimeControl =
-    IAllureTestingPlatformRuntimeControl<
+using IAllureTestingPlatformRegistrationControl =
+    IAllureTestingPlatformRegistrationControl<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     >;
 
-sealed class AllureTestingPlatformRuntimeRegistrationOwner(
-    IAllureTestingPlatformRuntimeControl runtimeControl
+sealed class AllureTestingPlatformRegistrationOwner(
+    IAllureTestingPlatformRegistrationControl runtimeControl
 ) :
     ITestHostApplicationLifetime,
     IAsyncDisposable
@@ -29,7 +29,7 @@ sealed class AllureTestingPlatformRuntimeRegistrationOwner(
 
     public string Version { get; } =
         PackageVersions.For(
-            typeof(AllureTestingPlatformRuntimeRegistrationOwner)
+            typeof(AllureTestingPlatformRegistrationOwner)
         );
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);

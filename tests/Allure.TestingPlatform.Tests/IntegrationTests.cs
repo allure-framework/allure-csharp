@@ -80,7 +80,7 @@ public class IntegrationTests
         {
             IsProcessWatchdogEnabled = false,
         };
-        var correlation = new TestingPlatformSessionUidCorrelationStrategy();
+        var correlation = new SessionUidCorrelationStrategy();
         var writer = new InMemoryResultsDestination();
         IServiceProvider registrationServiceProvider = null;
 

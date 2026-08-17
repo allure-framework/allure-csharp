@@ -11,7 +11,7 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// <param name="CorrelationStrategy">The strategy used to correlate incoming messages.</param>
 /// <param name="CorrelationContext">The context that provides the current correlation identifier.</param>
 /// <param name="ExecutionStateContext">The context that tracks the current execution state.</param>
-public sealed record class AllureTestingPlatformRuntimeCreationArguments(
+public sealed record class AllureTestingPlatformRuntimeArguments(
     ILogger Logger,
     ICorrelationStrategy CorrelationStrategy,
     ICorrelationContext CorrelationContext,

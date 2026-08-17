@@ -13,12 +13,12 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public interface IAllureTestingPlatformRuntimeIntegrationContextBase<TConfiguration, out TRuntime> :
+public interface IAllureTestingPlatformIntegrationContextBase<TConfiguration, out TRuntime> :
     IAllureRuntimeIntegrationContextBase<
         TConfiguration,
         TRuntime
     >,
-    IAllureTestingPlatformRuntimeRegistrationContext<TConfiguration>
+    IAllureTestingPlatformRegistrationContext<TConfiguration>
 
     where TConfiguration : AllureTestingPlatformConfiguration
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>

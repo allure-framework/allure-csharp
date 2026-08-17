@@ -1,28 +1,26 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Microsoft.Testing.Platform.Extensions.Messages;
-using Microsoft.Testing.Platform.Messages;
 using Microsoft.Testing.Platform.Services;
 
-namespace Allure.TestingPlatform.Internal.Runtime;
+namespace Allure.TestingPlatform.Internal.Registration;
 
-internal sealed class AllureTestingPlatformRuntimeCoordinator<
+sealed class AllureTestingPlatformRuntimeRegistration<
     TConfiguration,
     TRuntime,
     TIntegrationContext
 > :
-    IAllureTestingPlatformRuntimeControl<TConfiguration, TRuntime>,
+    IAllureTestingPlatformRegistrationControl<TConfiguration, TRuntime>,
+    IAllureTestingPlatformRequestCoordinator,
     IDisposable,
     IAsyncDisposable
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-    where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
+    where TIntegrationContext : IAllureTestingPlatformIntegrationContextBase<
         TConfiguration,
         TRuntime
     >
@@ -37,7 +35,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
     readonly Action<
         TIntegrationContext,
-        AllureTestingPlatformRuntimeCoordinator<
+        AllureTestingPlatformRuntimeRegistration<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -46,7 +44,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
     readonly ServiceProviderProxy serviceProvider;
 
-    readonly MessageBusProxy messageBus;
+    readonly MessageBusProxy messageChannel;
 
     IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan = null;
 
@@ -60,7 +58,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
     Exception? failure = null;
 
-    IRequestRuntimeBinding? currentRequest = null;
+    ITestingPlatformRequestBinding? currentRequest = null;
 
     public IReadOnlyLateBoundReference<TConfiguration> ConfigurationReference =>
         this.runtimeBuilder.ConfigurationReference;
@@ -68,11 +66,9 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
     public IReadOnlyLateBoundReference<TRuntime> RuntimeReference =>
         this.runtimeBuilder.RuntimeReference;
 
-    public IMessageBus MessageBus => this.messageBus;
+    public IAllureTestingPlatformMessageChannel MessageChannel => this.messageChannel;
 
     public IServiceProvider ServiceProvider => this.serviceProvider;
-
-    public bool CanPublish => this.messageBus.IsBound;
 
     public TConfiguration Configuration
     {
@@ -86,7 +82,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
-    public AllureTestingPlatformRuntimeCoordinator(
+    public AllureTestingPlatformRuntimeRegistration(
         string runtimeName,
         Func<
             AllureRuntimeRegistrationSessionBase<
@@ -97,7 +93,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         > sessionFactory,
         Action<
             TIntegrationContext,
-            AllureTestingPlatformRuntimeCoordinator<
+            AllureTestingPlatformRuntimeRegistration<
                 TConfiguration,
                 TRuntime,
                 TIntegrationContext
@@ -108,12 +104,9 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         this.runtimeBuilder = AllureRuntimeBuilder.Create(runtimeName, sessionFactory);
         this.registration = registration
             ?? throw new ArgumentNullException(nameof(registration));
-        this.messageBus = new();
-        this.serviceProvider = new(this.messageBus);
+        this.messageChannel = new();
+        this.serviceProvider = new(this.messageChannel);
     }
-
-    public Task PublishAsync(IDataProducer dataProducer, IData data) =>
-        this.messageBus.PublishAsync(dataProducer, data);
 
     public void EnsureRuntimeStarted()
     {
@@ -218,7 +211,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
-    public IRequestRuntimeBinding BindConsumer(IServiceProvider serviceProvider)
+    public ITestingPlatformRequestBinding BindConsumer(IServiceProvider serviceProvider)
     {
         if (serviceProvider is null)
         {
@@ -241,11 +234,11 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             {
                 case RuntimeState.Created:
                     this.PrepareCore(serviceProvider, BoundRole.Consumer);
-                    return new RequestRuntimeBinding(this, serviceProvider);
+                    return new TestingPlatformRequestBinding(this, serviceProvider);
                 case RuntimeState.Prepared or RuntimeState.Built:
                     this.role = BoundRole.Consumer;
                     this.serviceProvider.SetTarget(serviceProvider);
-                    return new RequestRuntimeBinding(this, serviceProvider);
+                    return new TestingPlatformRequestBinding(this, serviceProvider);
                 default:
                     // Failed and Disposed were handled by ThrowIfUnavailable.
                     throw new InvalidOperationException(
@@ -255,7 +248,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
-    void ActivateRequest(RequestRuntimeBinding binding)
+    public void ActivateRequest(TestingPlatformRequestBinding binding)
     {
         lock (this.gate)
         {
@@ -271,7 +264,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             switch (this.requestState)
             {
                 case RequestBindingState.Unbound or RequestBindingState.Completed:
-                    this.messageBus.SetTarget(binding.ServiceProvider.GetMessageBus());
+                    this.messageChannel.SetTarget(binding.ServiceProvider.GetMessageBus());
                     this.currentRequest = binding;
                     this.requestState = RequestBindingState.Active;
                     return;
@@ -294,7 +287,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
-    public void ReleaseRequest(IRequestRuntimeBinding binding)
+    public void ReleaseRequest(ITestingPlatformRequestBinding binding)
     {
         lock (this.gate)
         {
@@ -307,7 +300,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
             switch (this.requestState)
             {
                 case RequestBindingState.Active:
-                    this.messageBus.ClearTarget();
+                    this.messageChannel.ClearTarget();
                     this.requestState = RequestBindingState.Completed;
                     return;
 
@@ -318,7 +311,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
     }
 
-    public void DisposeRequestBinding(IRequestRuntimeBinding binding)
+    public void DisposeRequestBinding(ITestingPlatformRequestBinding binding)
     {
         lock (this.gate)
         {
@@ -327,7 +320,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
                 return;
             }
 
-            this.messageBus.ClearTarget();
+            this.messageChannel.ClearTarget();
             this.currentRequest = null;
             this.requestState = RequestBindingState.Unbound;
         }
@@ -344,7 +337,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
                 return;
             }
 
-            this.messageBus.ClearTarget();
+            this.messageChannel.ClearTarget();
 
             this.currentRequest = null;
             this.requestState = RequestBindingState.Unbound;
@@ -360,7 +353,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
         finally
         {
-            this.messageBus.Dispose();
+            this.messageChannel.Dispose();
             this.serviceProvider.Dispose();
         }
     }
@@ -376,7 +369,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
                 return;
             }
 
-            this.messageBus.ClearTarget();
+            this.messageChannel.ClearTarget();
 
             this.currentRequest = null;
             this.requestState = RequestBindingState.Unbound;
@@ -395,7 +388,7 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
         }
         finally
         {
-            this.messageBus.Dispose();
+            this.messageChannel.Dispose();
             this.serviceProvider.Dispose();
         }
     }
@@ -479,178 +472,11 @@ internal sealed class AllureTestingPlatformRuntimeCoordinator<
 
         Completed,
     }
-
-    sealed class RequestRuntimeBinding(
-        AllureTestingPlatformRuntimeCoordinator<
-            TConfiguration,
-            TRuntime,
-            TIntegrationContext
-        > coordinator,
-        IServiceProvider serviceProvider
-    ) :
-        IRequestRuntimeBinding
-    {
-        int released = 0;
-        int disposed = 0;
-
-        public IServiceProvider ServiceProvider => serviceProvider;
-
-        public void Activate()
-        {
-            this.EnsureNotDisposed();
-
-            if (Volatile.Read(ref this.released) != 0)
-            {
-                throw new InvalidOperationException(
-                    "The request runtime binding has already been released."
-                );
-            }
-
-            coordinator.ActivateRequest(this);
-        }
-
-        public void Release()
-        {
-            if (Interlocked.Exchange(ref this.released, 1) == 0)
-            {
-                coordinator.ReleaseRequest(this);
-            }
-        }
-
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref this.disposed, 1) != 0)
-            {
-                return;
-            }
-
-            this.Release();
-            coordinator.DisposeRequestBinding(this);
-        }
-
-        void EnsureNotDisposed()
-        {
-            if (Volatile.Read(ref this.disposed) != 0)
-            {
-                throw new ObjectDisposedException(this.GetType().FullName);
-            }
-        }
-    }
-
-    sealed class ServiceProviderProxy(MessageBusProxy messageBusProxy) :
-        IServiceProvider,
-        IDisposable
-    {
-        IServiceProvider? target;
-
-        int disposed = 0;
-
-        public void SetTarget(IServiceProvider serviceProvider)
-        {
-            this.EnsureNotDisposed();
-            Volatile.Write(ref this.target, serviceProvider);
-        }
-
-        internal void ClearTarget()
-        {
-            this.EnsureNotDisposed();
-            Volatile.Write(ref this.target, null);
-        }
-
-        internal bool IsBoundTo(IServiceProvider provider)
-        {
-            this.EnsureNotDisposed();
-
-            return ReferenceEquals(Volatile.Read(ref this.target), provider);
-        }
-
-        public object? GetService(Type serviceType)
-        {
-            this.EnsureNotDisposed();
-
-            if (serviceType == typeof (IMessageBus))
-            {
-                return messageBusProxy;
-            }
-
-            var provider = Volatile.Read(ref this.target)
-                ?? throw new InvalidOperationException(
-                    "The service provider proxy has not been bound to its target."
-                );
-
-            return provider.GetService(serviceType);
-        }
-
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref this.disposed, 1) == 0)
-            {
-                Volatile.Write(ref this.target, null);
-            }
-        }
-
-        void EnsureNotDisposed()
-        {
-            if (Volatile.Read(ref this.disposed) != 0)
-            {
-                throw new ObjectDisposedException(this.GetType().FullName);
-            }
-        }
-    }
-
-    sealed class MessageBusProxy : IMessageBus, IDisposable
-    {
-        int disposed = 0;
-
-        IMessageBus? target;
-
-        public bool IsBound => Volatile.Read(ref this.target) is not null;
-
-        public void SetTarget(IMessageBus messageBus)
-        {
-            this.EnsureNotDisposed();
-            Volatile.Write(ref this.target, messageBus);
-        }
-
-        public void ClearTarget()
-        {
-            this.EnsureNotDisposed();
-            Volatile.Write(ref this.target, null);
-        }
-
-        public Task PublishAsync(IDataProducer dataProducer, IData data)
-        {
-            this.EnsureNotDisposed();
-
-            var target = Volatile.Read(ref this.target)
-                ?? throw new InvalidOperationException(
-                    "No Microsoft Testing Platform request is currently active."
-                );
-
-            return target.PublishAsync(dataProducer, data);
-        }
-
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref this.disposed, 1) == 0)
-            {
-                Volatile.Write(ref this.target, null);
-            }
-        }
-
-        void EnsureNotDisposed()
-        {
-            if (Volatile.Read(ref this.disposed) != 0)
-            {
-                throw new ObjectDisposedException(this.GetType().FullName);
-            }
-        }
-    }
 }
 
-internal static class AllureTestingPlatformRuntimeCoordinator
+internal static class AllureTestingPlatformRuntimeRegistration
 {
-    public static AllureTestingPlatformRuntimeCoordinator<
+    public static AllureTestingPlatformRuntimeRegistration<
         TConfiguration,
         TRuntime,
         TIntegrationContext
@@ -665,7 +491,7 @@ internal static class AllureTestingPlatformRuntimeCoordinator
         > sessionFactory,
         Action<
             TIntegrationContext,
-            AllureTestingPlatformRuntimeCoordinator<
+            AllureTestingPlatformRuntimeRegistration<
                 TConfiguration,
                 TRuntime,
                 TIntegrationContext
@@ -674,7 +500,7 @@ internal static class AllureTestingPlatformRuntimeCoordinator
     )
         where TConfiguration : AllureTestingPlatformConfiguration, new()
         where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
-        where TIntegrationContext : IAllureTestingPlatformRuntimeIntegrationContextBase<
+        where TIntegrationContext : IAllureTestingPlatformIntegrationContextBase<
             TConfiguration,
             TRuntime
         >

@@ -7,6 +7,7 @@ using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
+using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Logging;
@@ -98,20 +99,22 @@ public abstract class AllureTestingPlatformExtension<TConfiguration, TRuntime> :
     /// <param name="uid">The stable extension identifier.</param>
     /// <param name="displayName">The extension display name.</param>
     /// <param name="description">The extension description.</param>
-    /// <param name="runtimeHandle">The handle used to access the runtime and its configuration.</param>
+    /// <param name="registration">
+    /// The registration that provides late-bound access to the runtime and its configuration.
+    /// </param>
     public AllureTestingPlatformExtension(
         string uid,
         string displayName,
         string description,
-        IAllureTestingPlatformRuntimeHandle<TConfiguration, TRuntime> runtimeHandle
+        IAllureTestingPlatformRegistration<TConfiguration, TRuntime> registration
     )
     {
         this.Uid = uid;
         this.DisplayName = displayName;
         this.Description = description;
         this.Version = PackageVersions.For(this.GetType());
-        this.runtimeReference = runtimeHandle.RuntimeReference;
-        this.configurationReference = runtimeHandle.ConfigurationReference;
+        this.runtimeReference = registration.RuntimeReference;
+        this.configurationReference = registration.ConfigurationReference;
     }
 
     /// <inheritdoc />

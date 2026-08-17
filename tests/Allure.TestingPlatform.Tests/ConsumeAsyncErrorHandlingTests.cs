@@ -11,6 +11,7 @@ using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Logging;
 using AllureTestResult = Allure.Model.TestResult;
+using Allure.TestingPlatform.Internal.Registration;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -59,7 +60,7 @@ public class ConsumeAsyncErrorHandlingTests
         var exception = new InvalidOperationException("write failed");
         InMemoryResultsDestination sink = new();
         var fixture = CreateFixture(
-            new TestingPlatformSessionUidCorrelationStrategy(),
+            new SessionUidCorrelationStrategy(),
             new ThrowingOnceResultsWriter(sink, exception),
             sink
         );
@@ -92,7 +93,7 @@ public class ConsumeAsyncErrorHandlingTests
         var exception = new InvalidOperationException("test result write failed");
         InMemoryResultsDestination sink = new();
         var fixture = CreateFixture(
-            new TestingPlatformSessionUidCorrelationStrategy(),
+            new SessionUidCorrelationStrategy(),
             new ThrowingOnceTestResultWriter(sink, exception),
             sink
         );
@@ -125,7 +126,7 @@ public class ConsumeAsyncErrorHandlingTests
         sink ??= new();
         writer ??= sink;
         var config = new AllureTestingPlatformConfiguration();
-        var builder = new AllureTestingPlatformRuntimeBuilder("error-handling-test");
+        var builder = new AllureTestingPlatformBuilder("error-handling-test");
         var registrationPlan = builder.Prepare(context =>
         {
             context.UseConfigurationSource(
@@ -142,7 +143,7 @@ public class ConsumeAsyncErrorHandlingTests
                     builder.ConfigurationReference,
                     registrationPlan.RuntimeReference
                 ),
-                IRequestRuntimeBinding.Mock()
+                ITestingPlatformRequestBinding.Mock()
             ),
             logger,
             sink

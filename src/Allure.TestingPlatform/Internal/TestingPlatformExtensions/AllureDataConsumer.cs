@@ -19,11 +19,12 @@ using System.Collections.Immutable;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Allure.TestingPlatform.Internal.Registration;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
-using IAllureTestingPlatformRuntimeControl =
-    IAllureTestingPlatformRuntimeControl<
+using IAllureTestingPlatformRegistrationControl =
+    IAllureTestingPlatformRegistrationControl<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     >;
@@ -37,9 +38,9 @@ sealed class AllureDataConsumer :
     ITestSessionLifetimeHandler,
     IAsyncDisposable
 {
-    readonly IAllureTestingPlatformRuntimeControl runtimeControl;
+    readonly IAllureTestingPlatformRegistrationControl runtimeControl;
 
-    readonly IRequestRuntimeBinding requestBinding;
+    readonly ITestingPlatformRequestBinding requestBinding;
 
     readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
 
@@ -68,8 +69,8 @@ sealed class AllureDataConsumer :
     ];
 
     public AllureDataConsumer(
-        IAllureTestingPlatformRuntimeControl runtimeControl,
-        IRequestRuntimeBinding requestBinding
+        IAllureTestingPlatformRegistrationControl runtimeControl,
+        ITestingPlatformRequestBinding requestBinding
     ) :
         base(
             "dd4f3277-5786-4010-8908-e70f07656ebc",

@@ -8,18 +8,19 @@ using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
+using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace Allure.TestingPlatform.Internal.Runtime;
 
-using IAllureTestingPlatformRuntimeHandle = IAllureTestingPlatformRuntimeHandle<
+using IAllureTestingPlatformRegistration = IAllureTestingPlatformRegistration<
     AllureTestingPlatformConfiguration,
     IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
 >;
 
 sealed class AllureTestingPlatformAsyncStepContext(
-    IAllureTestingPlatformRuntimeHandle runtimeHandle,
+    IAllureTestingPlatformRegistration registration,
     StepExecutionStateUid stepUid
 ) :
     IAllureInProcessAsyncStepContext,
@@ -28,14 +29,16 @@ sealed class AllureTestingPlatformAsyncStepContext(
 {
     int disposed = 0;
 
+    readonly IAllureTestingPlatformMessageChannel channel = registration.MessageChannel;
+
     readonly ICorrelationContext correlationContext =
-        runtimeHandle.RuntimeReference.Value.CorrelationContext;
+        registration.RuntimeReference.Value.CorrelationContext;
 
     readonly IDisposable scope =
-        runtimeHandle.RuntimeReference.Value.ExecutionStateContext.EnterApiStepScope(stepUid);
+        registration.RuntimeReference.Value.ExecutionStateContext.EnterApiStepScope(stepUid);
 
     public IAllureParameterSerializer ParameterSerializer =>
-        runtimeHandle.RuntimeReference.Value.ParameterSerializer;
+        registration.RuntimeReference.Value.ParameterSerializer;
 
     public Type[] DataTypesProduced => [typeof(AllureStepUpdateMessage)];
 
@@ -53,7 +56,7 @@ sealed class AllureTestingPlatformAsyncStepContext(
         {
             Properties = [new AllureParametersProperty<StepResult>([parameter])],
         };
-        await runtimeHandle.PublishAsync(this, message);
+        await this.channel.PublishAsync(this, message);
     }
 
     public async Task SetNameAsync(string newName, CancellationToken _)
@@ -62,7 +65,7 @@ sealed class AllureTestingPlatformAsyncStepContext(
         {
             Properties = [new AllureNameProperty<StepResult>(newName)],
         };
-        await runtimeHandle.PublishAsync(this, message);
+        await this.channel.PublishAsync(this, message);
     }
 
     public bool TryReadStepResult<TResult>(Func<StepResult, TResult> read, out TResult value)
