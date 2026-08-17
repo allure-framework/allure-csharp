@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Allure.Model;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;

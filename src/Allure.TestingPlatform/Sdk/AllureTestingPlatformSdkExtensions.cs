@@ -5,7 +5,6 @@ using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Extensions;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Microsoft.Testing.Platform.Services;
 using Allure.TestingPlatform.Configuration;
 using Allure.Sdk.Registration;

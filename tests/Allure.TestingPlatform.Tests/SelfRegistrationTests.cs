@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;

@@ -13,14 +13,14 @@ using Microsoft.Testing.Platform.Logging;
 using Allure.TestingPlatform.Internal.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
-using Allure.TestingPlatform.Internal;
 using Allure.TestingPlatform.Configuration;
 using Allure.Model;
 using System.Collections.Immutable;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Internal.Runtime;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
-namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
 using IAllureTestingPlatformRuntimeControl =
     IAllureTestingPlatformRuntimeControl<
@@ -28,10 +28,7 @@ using IAllureTestingPlatformRuntimeControl =
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     >;
 
-/// <summary>
-/// Consumes Microsoft Testing Platform messages and writes Allure results.
-/// </summary>
-public sealed class AllureDataConsumer :
+sealed class AllureDataConsumer :
     AllureTestingPlatformExtension<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
@@ -52,7 +49,6 @@ public sealed class AllureDataConsumer :
 
     SessionCorrelationMap CorrelationState => this.correlationState.Value;
 
-    /// <inheritdoc />
     public Type[] DataTypesConsumed { get; } =
     [
         typeof(TestNodeUpdateMessage),
@@ -71,9 +67,6 @@ public sealed class AllureDataConsumer :
         typeof(AllureTestUpdateMessage),
     ];
 
-    /// <summary>
-    /// Creates the Allure data consumer.
-    /// </summary>
     public AllureDataConsumer(
         IAllureTestingPlatformRuntimeControl runtimeControl,
         IRequestRuntimeBinding requestBinding
@@ -94,7 +87,6 @@ public sealed class AllureDataConsumer :
         ));
     }
 
-    /// <inheritdoc />
     public Task OnTestSessionStartingAsync(ITestSessionContext testSessionContext)
     {
 
@@ -112,7 +104,6 @@ public sealed class AllureDataConsumer :
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc />
     public Task OnTestSessionFinishingAsync(ITestSessionContext testSessionContext)
     {
         try
@@ -132,7 +123,6 @@ public sealed class AllureDataConsumer :
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc />
     public async Task ConsumeAsync(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)
     {
         try

@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Extensions.CommandLine;
 

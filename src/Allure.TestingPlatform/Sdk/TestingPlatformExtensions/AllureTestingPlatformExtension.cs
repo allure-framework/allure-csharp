@@ -10,7 +10,6 @@ using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Logging;
-using Microsoft.Testing.Platform.Messages;
 
 namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 

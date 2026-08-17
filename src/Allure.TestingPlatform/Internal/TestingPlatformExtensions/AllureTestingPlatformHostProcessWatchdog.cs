@@ -5,9 +5,10 @@ using Allure.Model;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Runtime;
+using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Microsoft.Testing.Platform.Extensions.TestHostControllers;
 
-namespace Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
 using IAllureTestingPlatformRuntimeControl =
     IAllureTestingPlatformRuntimeControl<
@@ -15,7 +16,7 @@ using IAllureTestingPlatformRuntimeControl =
         IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>
     >;
 
-public sealed class AllureTestingPlatformHostProcessWatchdog(
+sealed class AllureTestingPlatformHostProcessWatchdog(
     IAllureTestingPlatformRuntimeControl runtimeControl
 ) :
     AllureTestingPlatformExtension<
@@ -30,7 +31,6 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
     ITestHostProcessLifetimeHandler,
     IAsyncDisposable
 {
-    /// <inheritdoc />
     public override Task<bool> IsEnabledAsync()
     {
         if (!this.Configuration.IsProcessWatchdogEnabled)
@@ -41,11 +41,9 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
         return base.IsEnabledAsync();
     }
 
-    /// <inheritdoc />
     public Task BeforeTestHostProcessStartAsync(CancellationToken cancellationToken) =>
         Task.CompletedTask;
 
-    /// <inheritdoc />
     public async Task OnTestHostProcessExitedAsync(
         ITestHostProcessInformation testHostProcessInformation,
         CancellationToken cancellationToken
@@ -62,7 +60,6 @@ public sealed class AllureTestingPlatformHostProcessWatchdog(
         }
     }
 
-    /// <inheritdoc />
     public Task OnTestHostProcessStartedAsync(
         ITestHostProcessInformation testHostProcessInformation,
         CancellationToken cancellationToken

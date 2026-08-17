@@ -6,12 +6,10 @@ using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Registration;
-using Allure.TestingPlatform.Sdk.Runtime;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Logging;
-using Mono.Cecil.Cil;
 using AllureTestResult = Allure.Model.TestResult;
 
 namespace Allure.TestingPlatform.Tests;

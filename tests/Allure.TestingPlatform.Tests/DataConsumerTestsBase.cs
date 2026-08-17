@@ -6,7 +6,7 @@ using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Logging;
 
@@ -26,7 +26,7 @@ public abstract class DataConsumerTestsBase<TCorrelationStrategy, TLoggerService
     protected readonly ServiceProviderStub serviceProvider;
     protected readonly IAllureRuntimeRegistrationPlan<AllureTestingPlatformConfiguration, IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> registrationPlan;
     protected readonly LateBoundReference<IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration>> runtimeReference;
-    protected readonly AllureDataConsumer consumer;
+    internal readonly AllureDataConsumer consumer;
 
     public DataConsumerTestsBase()
     {
