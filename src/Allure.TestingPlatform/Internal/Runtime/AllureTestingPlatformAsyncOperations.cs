@@ -176,6 +176,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
     public async Task AddLinkAsync(Link link, CancellationToken _)
     {
+        LinkTemplates.Apply(this.Configuration.LinkTemplates, link);
         await this.SendTestUpdateAsync(
             new AllureLinksProperty([link])
         );
@@ -183,8 +184,14 @@ sealed class AllureTestingPlatformAsyncOperations(
 
     public async Task AddLinksAsync(IEnumerable<Link> links, CancellationToken _)
     {
+        List<Link> linksToAdd = [.. links];
+        foreach (var link in linksToAdd)
+        {
+            LinkTemplates.Apply(this.Configuration.LinkTemplates, link);
+        }
+
         await this.SendTestUpdateAsync(
-            new AllureLinksProperty(links)
+            new AllureLinksProperty(linksToAdd)
         );
     }
 
