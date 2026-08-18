@@ -17,7 +17,6 @@ using Allure.TestingPlatform.Configuration;
 using Allure.Model;
 using System.Collections.Immutable;
 using Allure.TestingPlatform.Sdk.Runtime;
-using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Internal.Registration;
 
