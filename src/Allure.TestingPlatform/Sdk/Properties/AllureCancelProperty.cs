@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -9,9 +10,12 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 public sealed class AllureCancelProperty() : IAllureProperty<TestResult>
 {
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
+    public void Apply(
+        IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime,
+        TestResult target
+    )
     {
-        target.labels.Add(new(){ name = CANCEL_LABEL_NAME, value = "true" });
+        target.Labels.Add(new(){ Name = CANCEL_LABEL_NAME, Value = "true" });
     }
 
     /// <summary>

@@ -384,7 +384,7 @@ sealed class AllureDataConsumer :
         runtime.ModelApi.UpdateTestResult((testResult) =>
         {
             this.ApplyProperties(testResult, node);
-            if (ModelFunctions.IsCancelled(testResult))
+            if (testResult.IsCancelled)
             {
                 isCancelled = true;
                 return;

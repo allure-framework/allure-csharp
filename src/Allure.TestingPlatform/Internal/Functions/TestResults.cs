@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Allure.Model;
 using Allure.Sdk.Functions;
 using Allure.TestingPlatform.Configuration;
 using Microsoft.Testing.Platform.Extensions.Messages;
+using Allure.TestingPlatform.Sdk.Properties;
 
 namespace Allure.TestingPlatform.Internal.Functions;
 
@@ -69,5 +71,12 @@ static class TestResults
                 identifierProperty.TypeName
             );
         }
+
+        public bool IsCancelled =>
+            testResult.Labels.Any(IsCancellationMarker);
+
     }
+
+    static bool IsCancellationMarker(Label label) =>
+        label.Name == AllureCancelProperty.CANCEL_LABEL_NAME && label.Value == "true";
 }
