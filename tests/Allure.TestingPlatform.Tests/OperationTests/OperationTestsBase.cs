@@ -1,5 +1,7 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using Allure.Model;
+using Allure.Sdk.Configuration;
 using Allure.Sdk.Results;
 
 namespace Allure.TestingPlatform.Tests.OperationTests;
@@ -469,6 +471,30 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldApplyLinkPatternWhenAddingLink()
+    {
+        var linkTemplates = new Dictionary<string, AllureLinkTemplate>
+        {
+            ["issue"] = new("https://issues.example/{0}", "Issue {0}"),
+        }.ToImmutableDictionary();
+
+        var destination = await Run(
+            () => this.AddLink(new()
+            {
+                Type = "issue",
+                Url = "123",
+            }),
+            linkTemplates: linkTemplates
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var link = await Assert.That(testResult.Links).HasSingleItem();
+        await Assert.That(link.Name).IsEqualTo("Issue 123");
+        await Assert.That(link.Type).IsEqualTo("issue");
+        await Assert.That(link.Url).IsEqualTo("https://issues.example/123");
+    }
+
+    [Test]
     public async Task ShouldAddLinks()
     {
         Link[] links =
@@ -497,6 +523,34 @@ public abstract class OperationTestsBase
         await Assert.That(testResult.Links[1].Name).IsEqualTo("second");
         await Assert.That(testResult.Links[1].Type).IsEqualTo("tms");
         await Assert.That(testResult.Links[1].Url).IsEqualTo("https://example.org/2");
+    }
+
+    [Test]
+    public async Task ShouldApplyLinkPatternWhenAddingLinks()
+    {
+        var linkTemplates = new Dictionary<string, AllureLinkTemplate>
+        {
+            ["tms"] = new("https://tms.example/{0}", "TMS {0}"),
+        }.ToImmutableDictionary();
+
+        var destination = await Run(
+            () => this.AddLinks(
+                [
+                    new()
+                    {
+                        Type = "tms",
+                        Url = "456",
+                    },
+                ]
+            ),
+            linkTemplates: linkTemplates
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var link = await Assert.That(testResult.Links).HasSingleItem();
+        await Assert.That(link.Name).IsEqualTo("TMS 456");
+        await Assert.That(link.Type).IsEqualTo("tms");
+        await Assert.That(link.Url).IsEqualTo("https://tms.example/456");
     }
 
     [Test]
@@ -1309,9 +1363,15 @@ public abstract class OperationTestsBase
     static Task<InMemoryResultsDestination> Run(
         Func<Task> operation,
         OperationTarget target = OperationTarget.Test,
-        IEnumerable<string> failExceptions = null
+        IEnumerable<string> failExceptions = null,
+        ImmutableDictionary<string, AllureLinkTemplate> linkTemplates = null
     ) =>
-        OperationTestApplication.RunAsync(operation, target, failExceptions);
+        OperationTestApplication.RunAsync(
+            operation,
+            target,
+            failExceptions,
+            linkTemplates
+        );
 
     static async Task<(InMemoryResultsDestination, Exception)> RunFailedOperation(
         Func<Exception, Task> operation,

@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using Allure.Sdk.Configuration;
 using Allure.Sdk.Results;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
@@ -25,7 +27,8 @@ static class OperationTestApplication
     public static async Task<InMemoryResultsDestination> RunAsync(
         Func<Task> operation,
         OperationTarget target = OperationTarget.Test,
-        IEnumerable<string> failExceptions = null
+        IEnumerable<string> failExceptions = null,
+        ImmutableDictionary<string, AllureLinkTemplate> linkTemplates = null
     )
     {
         var destination = new InMemoryResultsDestination();
@@ -40,6 +43,7 @@ static class OperationTestApplication
                 {
                     IsProcessWatchdogEnabled = false,
                     FailExceptions = [.. failExceptions ?? []],
+                    LinkTemplates = linkTemplates ?? [],
                 });
                 context.UseCorrelationContext(_ => executionContext);
                 context.UseCorrelationStrategy(_ => executionContext);
