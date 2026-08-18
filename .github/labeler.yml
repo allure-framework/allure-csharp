@@ -15,8 +15,12 @@
 "theme:core":
   - changed-files:
     - any-glob-to-any-file:
+      - "src/Allure.Net/**"
       - "src/Allure.Net.Commons/**"
+      - "src/Allure.Net.Sdk/**"
+      - "tests/Allure.Net.Tests/**"
       - "tests/Allure.Net.Commons.Tests/**"
+      - "tests/Allure.Net.Sdk.Tests/**"
 
 "theme:xunit":
   - changed-files:
