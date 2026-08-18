@@ -208,7 +208,13 @@ and `MessageChannel`. The references and the channel are bound when Microsoft Te
 starts the associated request. Check `MessageChannel.CanPublish` before using
 the channel outside a framework callback whose request lifetime is known.
 
-Currently, a registration supports one active MTP request at a time; parallel
+#### Limitations
+
+Corrently, only a single registration is allowed per application. Consequently,
+using multiple test framework adapters is not currently supported. We will
+address that in the future.
+
+Additionally, a registration supports one active MTP request at a time; parallel
 requests are not supported. Sequential requests reuse the runtime, resolved
 configuration, and constructed services from the first request. Keep configuration,
 command-line options, and the results destination stable when reusing the same MTP
