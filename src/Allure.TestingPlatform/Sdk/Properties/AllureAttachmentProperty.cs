@@ -45,7 +45,8 @@ public sealed class AllureAttachmentProperty<TModel>(string name, Stream content
         {
             Name = this.Name,
             Type = this.MediaType,
-            Source = source
+            Source = source,
+            FileExtension = this.FileExtension,
         };
         allureRuntime.ResultsDestination.WriteAttachment(source, this.Content);
         target.Attachments.Add(attachment);

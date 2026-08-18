@@ -121,6 +121,7 @@ sealed class AllureTestingPlatformAsyncOperations(
                     Name = name,
                     Type = mediaType,
                     Source = source,
+                    FileExtension = fileExtension,
                     Timestamp = timestamp,
                 }
             ],
@@ -142,6 +143,7 @@ sealed class AllureTestingPlatformAsyncOperations(
                     Name = name,
                     Type = mediaType,
                     Source = source,
+                    FileExtension = fileExtension,
                     Timestamp = timestamp
                 }
             ]

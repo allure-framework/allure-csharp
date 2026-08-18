@@ -44,7 +44,8 @@ public sealed class AllureAttachmentFileProperty<TModel>(string name, string pat
         {
             Name = this.Name,
             Type = this.MediaType,
-            Source = source
+            Source = source,
+            FileExtension = this.FileExtension,
         };
         allureRuntime.ResultsDestination.CopyAttachment(source, this.Path);
         target.Attachments.Add(attachment);
