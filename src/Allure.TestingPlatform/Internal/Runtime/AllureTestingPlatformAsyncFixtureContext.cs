@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Allure.Abstractions;
 using Allure.Model;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Messages;
@@ -44,7 +45,8 @@ sealed class AllureTestingPlatformAsyncFixtureContext(
 
     public string Uid => "007eda41-53f5-40fe-a442-58eb265f696d";
 
-    public string Version => "1.0.0";
+    public string Version { get; } =
+        PackageVersions.For(typeof(AllureTestingPlatformAsyncStepContext));
 
     public string DisplayName => "Allure fixture context";
 
