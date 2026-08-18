@@ -261,6 +261,27 @@ public class AsyncOperationTests : OperationTestsBase
         );
     }
 
+    protected override Task RunAllureSetUpAttribute(
+        int first,
+        int second,
+        int third
+    ) =>
+        InstrumentedSetUpAsync(first, second, third);
+
+    protected override Task RunAllureTearDownAttribute(
+        int first,
+        int second,
+        int third
+    ) =>
+        InstrumentedTearDownAsync(first, second, third);
+
+    protected override Task RunAllureStepAttribute(
+        int first,
+        int second,
+        int third
+    ) =>
+        InstrumentedStepAsync(first, second, third);
+
     protected override Task TearDownAction(string name, Action body) =>
         AllureApi.TearDownAsync(
             name,
@@ -278,4 +299,28 @@ public class AsyncOperationTests : OperationTestsBase
             (_, _) => Task.FromResult(body()),
             CancellationToken.None
         );
+
+    [AllureSetUp("Set up")]
+    static async Task InstrumentedSetUpAsync(
+        int first,
+        int second,
+        int third
+    ) =>
+        await Task.CompletedTask;
+
+    [AllureTearDown("Tear down")]
+    static async Task InstrumentedTearDownAsync(
+        int first,
+        int second,
+        int third
+    ) =>
+        await Task.CompletedTask;
+
+    [AllureStep("Step")]
+    static async Task InstrumentedStepAsync(
+        int first,
+        int second,
+        int third
+    ) =>
+        await Task.CompletedTask;
 }

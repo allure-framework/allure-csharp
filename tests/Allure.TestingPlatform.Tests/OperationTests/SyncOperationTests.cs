@@ -265,6 +265,36 @@ public class SyncOperationTests : OperationTestsBase
         );
     }
 
+    protected override Task RunAllureSetUpAttribute(
+        int first,
+        int second,
+        int third
+    )
+    {
+        InstrumentedSetUp(first, second, third);
+        return Task.CompletedTask;
+    }
+
+    protected override Task RunAllureTearDownAttribute(
+        int first,
+        int second,
+        int third
+    )
+    {
+        InstrumentedTearDown(first, second, third);
+        return Task.CompletedTask;
+    }
+
+    protected override Task RunAllureStepAttribute(
+        int first,
+        int second,
+        int third
+    )
+    {
+        InstrumentedStep(first, second, third);
+        return Task.CompletedTask;
+    }
+
     protected override Task TearDownAction(string name, Action body)
     {
         AllureApi.TearDown(name, _ => body());
@@ -273,4 +303,13 @@ public class SyncOperationTests : OperationTestsBase
 
     protected override Task<int> TearDownFunction(string name, Func<int> body) =>
         Task.FromResult(AllureApi.TearDown(name, _ => body()));
+
+    [AllureSetUp("Set up")]
+    static void InstrumentedSetUp(int first, int second, int third) { }
+
+    [AllureTearDown("Tear down")]
+    static void InstrumentedTearDown(int first, int second, int third) { }
+
+    [AllureStep("Step")]
+    static void InstrumentedStep(int first, int second, int third) { }
 }

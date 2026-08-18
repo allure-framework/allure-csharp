@@ -92,6 +92,24 @@ public abstract class OperationTestsBase
         IReadOnlyDictionary<string, string[]> stepNames
     );
 
+    protected abstract Task RunAllureSetUpAttribute(
+        int first,
+        int second,
+        int third
+    );
+
+    protected abstract Task RunAllureTearDownAttribute(
+        int first,
+        int second,
+        int third
+    );
+
+    protected abstract Task RunAllureStepAttribute(
+        int first,
+        int second,
+        int third
+    );
+
     protected abstract Task TearDownAction(string name, Action body);
 
     protected abstract Task<int> TearDownFunction(string name, Func<int> body);
@@ -736,6 +754,48 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldRunAllureSetUpAttribute()
+    {
+        var destination = await Run(
+            () => this.RunAllureSetUpAttribute(17, 23, 42)
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Set up");
+        await Assert.That(fixture.Status).IsEqualTo(Status.Passed);
+        await AssertInstrumentationParameters(fixture.Parameters);
+    }
+
+    [Test]
+    public async Task ShouldRunAllureTearDownAttribute()
+    {
+        var destination = await Run(
+            () => this.RunAllureTearDownAttribute(17, 23, 42)
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Afters).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Tear down");
+        await Assert.That(fixture.Status).IsEqualTo(Status.Passed);
+        await AssertInstrumentationParameters(fixture.Parameters);
+    }
+
+    [Test]
+    public async Task ShouldRunAllureStepAttribute()
+    {
+        var destination = await Run(
+            () => this.RunAllureStepAttribute(17, 23, 42)
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await Assert.That(step.Name).IsEqualTo("Step");
+        await Assert.That(step.Status).IsEqualTo(Status.Passed);
+        await AssertInstrumentationParameters(step.Parameters);
+    }
+
+    [Test]
     public async Task ShouldRunTearDownAction()
     {
         var bodyCalled = false;
@@ -809,5 +869,17 @@ public abstract class OperationTestsBase
         await Assert.That(
             descriptor.RootElement.GetProperty("diff").GetString()
         ).IsEqualTo(diff);
+    }
+
+    static async Task AssertInstrumentationParameters(
+        IEnumerable<Parameter> actual
+    )
+    {
+        var parameters = actual.ToArray();
+        await Assert.That(parameters).Count().IsEqualTo(3);
+
+        await Assert.That(
+            parameters.Select(parameter => $"{parameter.Name}:{parameter.Value}")
+        ).IsEquivalentTo(["first:17", "second:23", "third:42"]);
     }
 }
