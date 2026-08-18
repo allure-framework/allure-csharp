@@ -275,6 +275,13 @@ public class SyncOperationTests : OperationTestsBase
         return Task.CompletedTask;
     }
 
+    protected override Task<int> RunAllureSetUpAttributeFunction(
+        int first,
+        int second,
+        int third
+    ) =>
+        Task.FromResult(InstrumentedSetUpFunction(first, second, third));
+
     protected override Task RunAllureTearDownAttribute(
         int first,
         int second,
@@ -285,6 +292,13 @@ public class SyncOperationTests : OperationTestsBase
         return Task.CompletedTask;
     }
 
+    protected override Task<int> RunAllureTearDownAttributeFunction(
+        int first,
+        int second,
+        int third
+    ) =>
+        Task.FromResult(InstrumentedTearDownFunction(first, second, third));
+
     protected override Task RunAllureStepAttribute(
         int first,
         int second,
@@ -294,6 +308,13 @@ public class SyncOperationTests : OperationTestsBase
         InstrumentedStep(first, second, third);
         return Task.CompletedTask;
     }
+
+    protected override Task<int> RunAllureStepAttributeFunction(
+        int first,
+        int second,
+        int third
+    ) =>
+        Task.FromResult(InstrumentedStepFunction(first, second, third));
 
     protected override Task TearDownAction(string name, Action body)
     {
@@ -307,9 +328,21 @@ public class SyncOperationTests : OperationTestsBase
     [AllureSetUp("Set up")]
     static void InstrumentedSetUp(int first, int second, int third) { }
 
+    [AllureSetUp("Set up function")]
+    static int InstrumentedSetUpFunction(int first, int second, int third) =>
+        first + second + third;
+
     [AllureTearDown("Tear down")]
     static void InstrumentedTearDown(int first, int second, int third) { }
 
+    [AllureTearDown("Tear down function")]
+    static int InstrumentedTearDownFunction(int first, int second, int third) =>
+        first + second + third;
+
     [AllureStep("Step")]
     static void InstrumentedStep(int first, int second, int third) { }
+
+    [AllureStep("Step function")]
+    static int InstrumentedStepFunction(int first, int second, int third) =>
+        first + second + third;
 }

@@ -268,6 +268,13 @@ public class AsyncOperationTests : OperationTestsBase
     ) =>
         InstrumentedSetUpAsync(first, second, third);
 
+    protected override Task<int> RunAllureSetUpAttributeFunction(
+        int first,
+        int second,
+        int third
+    ) =>
+        InstrumentedSetUpFunctionAsync(first, second, third);
+
     protected override Task RunAllureTearDownAttribute(
         int first,
         int second,
@@ -275,12 +282,26 @@ public class AsyncOperationTests : OperationTestsBase
     ) =>
         InstrumentedTearDownAsync(first, second, third);
 
+    protected override Task<int> RunAllureTearDownAttributeFunction(
+        int first,
+        int second,
+        int third
+    ) =>
+        InstrumentedTearDownFunctionAsync(first, second, third);
+
     protected override Task RunAllureStepAttribute(
         int first,
         int second,
         int third
     ) =>
         InstrumentedStepAsync(first, second, third);
+
+    protected override Task<int> RunAllureStepAttributeFunction(
+        int first,
+        int second,
+        int third
+    ) =>
+        InstrumentedStepFunctionAsync(first, second, third);
 
     protected override Task TearDownAction(string name, Action body) =>
         AllureApi.TearDownAsync(
@@ -308,6 +329,14 @@ public class AsyncOperationTests : OperationTestsBase
     ) =>
         await Task.CompletedTask;
 
+    [AllureSetUp("Set up function")]
+    static async Task<int> InstrumentedSetUpFunctionAsync(
+        int first,
+        int second,
+        int third
+    ) =>
+        await Task.FromResult(first + second + third);
+
     [AllureTearDown("Tear down")]
     static async Task InstrumentedTearDownAsync(
         int first,
@@ -316,6 +345,14 @@ public class AsyncOperationTests : OperationTestsBase
     ) =>
         await Task.CompletedTask;
 
+    [AllureTearDown("Tear down function")]
+    static async Task<int> InstrumentedTearDownFunctionAsync(
+        int first,
+        int second,
+        int third
+    ) =>
+        await Task.FromResult(first + second + third);
+
     [AllureStep("Step")]
     static async Task InstrumentedStepAsync(
         int first,
@@ -323,4 +360,12 @@ public class AsyncOperationTests : OperationTestsBase
         int third
     ) =>
         await Task.CompletedTask;
+
+    [AllureStep("Step function")]
+    static async Task<int> InstrumentedStepFunctionAsync(
+        int first,
+        int second,
+        int third
+    ) =>
+        await Task.FromResult(first + second + third);
 }

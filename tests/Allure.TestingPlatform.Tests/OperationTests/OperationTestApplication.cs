@@ -1,4 +1,6 @@
 using Allure.Sdk.Results;
+using Allure.Sdk.Registration;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
@@ -22,7 +24,8 @@ static class OperationTestApplication
 
     public static async Task<InMemoryResultsDestination> RunAsync(
         Func<Task> operation,
-        OperationTarget target = OperationTarget.Test
+        OperationTarget target = OperationTarget.Test,
+        IEnumerable<string> failExceptions = null
     )
     {
         var destination = new InMemoryResultsDestination();
@@ -33,7 +36,11 @@ static class OperationTestApplication
             $"operation-test-{Guid.NewGuid():N}",
             (context, _) =>
             {
-                context.DisableHostProcessWatchdog();
+                context.UseConfiguration(new AllureTestingPlatformConfiguration
+                {
+                    IsProcessWatchdogEnabled = false,
+                    FailExceptions = [.. failExceptions ?? []],
+                });
                 context.UseCorrelationContext(_ => executionContext);
                 context.UseCorrelationStrategy(_ => executionContext);
                 context.UseExecutionStateContext(_ => executionContext);

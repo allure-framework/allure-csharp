@@ -98,13 +98,31 @@ public abstract class OperationTestsBase
         int third
     );
 
+    protected abstract Task<int> RunAllureSetUpAttributeFunction(
+        int first,
+        int second,
+        int third
+    );
+
     protected abstract Task RunAllureTearDownAttribute(
         int first,
         int second,
         int third
     );
 
+    protected abstract Task<int> RunAllureTearDownAttributeFunction(
+        int first,
+        int second,
+        int third
+    );
+
     protected abstract Task RunAllureStepAttribute(
+        int first,
+        int second,
+        int third
+    );
+
+    protected abstract Task<int> RunAllureStepAttributeFunction(
         int first,
         int second,
         int third
@@ -605,6 +623,32 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldFailSetUpActionForMatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.SetUpAction("failed setup", () => throw error),
+            true
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await AssertFailedOperation(fixture, "failed setup", Status.Failed, exception);
+    }
+
+    [Test]
+    public async Task ShouldBreakSetUpActionForUnmatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.SetUpAction("broken setup", () => throw error),
+            false
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await AssertFailedOperation(fixture, "broken setup", Status.Broken, exception);
+    }
+
+    [Test]
     public async Task ShouldRunSetUpFunction()
     {
         var result = 0;
@@ -618,6 +662,48 @@ public abstract class OperationTestsBase
         await Assert.That(fixture.Name).IsEqualTo("setup function");
         await Assert.That(fixture.Status).IsEqualTo(Status.Passed);
         await Assert.That(result).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task ShouldFailSetUpFunctionForMatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.SetUpFunction(
+                "failed setup function",
+                () => throw error
+            ),
+            true
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await AssertFailedOperation(
+            fixture,
+            "failed setup function",
+            Status.Failed,
+            exception
+        );
+    }
+
+    [Test]
+    public async Task ShouldBreakSetUpFunctionForUnmatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.SetUpFunction(
+                "broken setup function",
+                () => throw error
+            ),
+            false
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await AssertFailedOperation(
+            fixture,
+            "broken setup function",
+            Status.Broken,
+            exception
+        );
     }
 
     [Test]
@@ -666,6 +752,32 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldFailStepActionForMatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.StepAction("failed step", () => throw error),
+            true
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await AssertFailedOperation(step, "failed step", Status.Failed, exception);
+    }
+
+    [Test]
+    public async Task ShouldBreakStepActionForUnmatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.StepAction("broken step", () => throw error),
+            false
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await AssertFailedOperation(step, "broken step", Status.Broken, exception);
+    }
+
+    [Test]
     public async Task ShouldRunStepFunction()
     {
         var result = 0;
@@ -679,6 +791,48 @@ public abstract class OperationTestsBase
         await Assert.That(step.Name).IsEqualTo("step function");
         await Assert.That(step.Status).IsEqualTo(Status.Passed);
         await Assert.That(result).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task ShouldFailStepFunctionForMatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.StepFunction(
+                "failed step function",
+                () => throw error
+            ),
+            true
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await AssertFailedOperation(
+            step,
+            "failed step function",
+            Status.Failed,
+            exception
+        );
+    }
+
+    [Test]
+    public async Task ShouldBreakStepFunctionForUnmatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.StepFunction(
+                "broken step function",
+                () => throw error
+            ),
+            false
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await AssertFailedOperation(
+            step,
+            "broken step function",
+            Status.Broken,
+            exception
+        );
     }
 
     [Test]
@@ -768,6 +922,23 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldRunAllureSetUpAttributeFunction()
+    {
+        var result = 0;
+        var destination = await Run(async () =>
+        {
+            result = await this.RunAllureSetUpAttributeFunction(17, 23, 42);
+        });
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Set up function");
+        await Assert.That(fixture.Status).IsEqualTo(Status.Passed);
+        await AssertInstrumentationParameters(fixture.Parameters);
+        await Assert.That(result).IsEqualTo(82);
+    }
+
+    [Test]
     public async Task ShouldRunAllureTearDownAttribute()
     {
         var destination = await Run(
@@ -782,6 +953,23 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldRunAllureTearDownAttributeFunction()
+    {
+        var result = 0;
+        var destination = await Run(async () =>
+        {
+            result = await this.RunAllureTearDownAttributeFunction(17, 23, 42);
+        });
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Afters).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Tear down function");
+        await Assert.That(fixture.Status).IsEqualTo(Status.Passed);
+        await AssertInstrumentationParameters(fixture.Parameters);
+        await Assert.That(result).IsEqualTo(82);
+    }
+
+    [Test]
     public async Task ShouldRunAllureStepAttribute()
     {
         var destination = await Run(
@@ -793,6 +981,23 @@ public abstract class OperationTestsBase
         await Assert.That(step.Name).IsEqualTo("Step");
         await Assert.That(step.Status).IsEqualTo(Status.Passed);
         await AssertInstrumentationParameters(step.Parameters);
+    }
+
+    [Test]
+    public async Task ShouldRunAllureStepAttributeFunction()
+    {
+        var result = 0;
+        var destination = await Run(async () =>
+        {
+            result = await this.RunAllureStepAttributeFunction(17, 23, 42);
+        });
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await Assert.That(step.Name).IsEqualTo("Step function");
+        await Assert.That(step.Status).IsEqualTo(Status.Passed);
+        await AssertInstrumentationParameters(step.Parameters);
+        await Assert.That(result).IsEqualTo(82);
     }
 
     [Test]
@@ -814,6 +1019,32 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldFailTearDownActionForMatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.TearDownAction("failed teardown", () => throw error),
+            true
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Afters).HasSingleItem();
+        await AssertFailedOperation(fixture, "failed teardown", Status.Failed, exception);
+    }
+
+    [Test]
+    public async Task ShouldBreakTearDownActionForUnmatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.TearDownAction("broken teardown", () => throw error),
+            false
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Afters).HasSingleItem();
+        await AssertFailedOperation(fixture, "broken teardown", Status.Broken, exception);
+    }
+
+    [Test]
     public async Task ShouldRunTearDownFunction()
     {
         var result = 0;
@@ -829,11 +1060,100 @@ public abstract class OperationTestsBase
         await Assert.That(result).IsEqualTo(42);
     }
 
+    [Test]
+    public async Task ShouldFailTearDownFunctionForMatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.TearDownFunction(
+                "failed teardown function",
+                () => throw error
+            ),
+            true
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Afters).HasSingleItem();
+        await AssertFailedOperation(
+            fixture,
+            "failed teardown function",
+            Status.Failed,
+            exception
+        );
+    }
+
+    [Test]
+    public async Task ShouldBreakTearDownFunctionForUnmatchedException()
+    {
+        var (destination, exception) = await RunFailedOperation(
+            error => this.TearDownFunction(
+                "broken teardown function",
+                () => throw error
+            ),
+            false
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Afters).HasSingleItem();
+        await AssertFailedOperation(
+            fixture,
+            "broken teardown function",
+            Status.Broken,
+            exception
+        );
+    }
+
     static Task<InMemoryResultsDestination> Run(
         Func<Task> operation,
-        OperationTarget target = OperationTarget.Test
+        OperationTarget target = OperationTarget.Test,
+        IEnumerable<string> failExceptions = null
     ) =>
-        OperationTestApplication.RunAsync(operation, target);
+        OperationTestApplication.RunAsync(operation, target, failExceptions);
+
+    static async Task<(InMemoryResultsDestination, Exception)> RunFailedOperation(
+        Func<Exception, Task> operation,
+        bool matchException
+    )
+    {
+        var expected = new InvalidOperationException("operation failed");
+        Exception actual = null;
+        string[] failExceptions = matchException
+            ? [typeof(InvalidOperationException).FullName]
+            : [typeof(ArgumentException).FullName];
+
+        var destination = await Run(
+            async () =>
+            {
+                try
+                {
+                    await operation(expected);
+                }
+                catch (Exception exception)
+                {
+                    actual = exception;
+                }
+            },
+            failExceptions: failExceptions
+        );
+
+        await Assert.That(actual).IsSameReferenceAs(expected);
+        return (destination, expected);
+    }
+
+    static async Task AssertFailedOperation(
+        ExecutableItem result,
+        string name,
+        Status status,
+        Exception exception
+    )
+    {
+        await Assert.That(result.Name).IsEqualTo(name);
+        await Assert.That(result.Status).IsEqualTo(status);
+        await Assert.That(result.StatusDetails).IsNotNull();
+        await Assert.That(result.StatusDetails!.Message)
+            .IsEqualTo(exception.Message);
+        await Assert.That(result.StatusDetails.Trace)
+            .Contains(exception.GetType().FullName!);
+    }
 
     static async Task<string> CreateFile(
         byte[] content,
