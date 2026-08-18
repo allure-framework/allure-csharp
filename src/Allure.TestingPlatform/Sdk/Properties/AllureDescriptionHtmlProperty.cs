@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -6,6 +7,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets or appends the HTML description of an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="descriptionHtml">The HTML description.</param>
 public sealed class AllureDescriptionHtmlProperty<TModel>(string descriptionHtml) :
     IAllureProperty<TModel>
 
@@ -22,15 +25,15 @@ public sealed class AllureDescriptionHtmlProperty<TModel>(string descriptionHtml
     public bool Append { get; init; } = false;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
-        if (this.Append && target.descriptionHtml is { Length: > 0 })
+        if (this.Append && target.DescriptionHtml is { Length: > 0 })
         {
-            target.descriptionHtml += $"{this.DescriptionHtml}";
+            target.DescriptionHtml += $"{this.DescriptionHtml}";
         }
         else
         {
-            target.descriptionHtml = this.DescriptionHtml;
+            target.DescriptionHtml = this.DescriptionHtml;
         }
     }
 }

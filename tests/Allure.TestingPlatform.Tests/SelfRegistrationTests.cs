@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
@@ -47,8 +47,6 @@ public class SelfRegistrationTests
 
         await Assert.That(code).IsEqualTo(8); // test session run zero tests
         await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNotNull();
-        await Assert.That(serviceProvider.GetService<AllureTestingPlatformInProcessRuntimeController>())
-            .IsNotNull();
         await Assert.That(serviceProvider.GetService<AllureDataConsumer>().IsEnabledAsync()).IsTrue();
     }
 
@@ -76,8 +74,6 @@ public class SelfRegistrationTests
 
         await Assert.That(code).IsEqualTo(8); // test session run zero tests
         await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNull();
-        await Assert.That(serviceProvider.GetService<AllureTestingPlatformInProcessRuntimeController>())
-            .IsNull();
     }
 
     [Test]

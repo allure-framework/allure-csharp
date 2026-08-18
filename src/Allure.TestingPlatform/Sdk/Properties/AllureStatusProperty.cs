@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -6,6 +7,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the status of an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="status">The status to set.</param>
 public sealed class AllureStatusProperty<TModel>(Status status) : IAllureProperty<TModel>
     where TModel : ExecutableItem
 {
@@ -21,11 +24,11 @@ public sealed class AllureStatusProperty<TModel>(Status status) : IAllurePropert
     public bool OnlyIfUnset { get; init; } = false;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
-        if (!this.OnlyIfUnset || target.status is Status.none)
+        if (!this.OnlyIfUnset || target.Status is Status.Unknown)
         {
-            target.status = this.Status;
+            target.Status = this.Status;
         }
     }
 }

@@ -2,9 +2,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
 using System.Text.RegularExpressions;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
-using System.Collections;
+using Allure.Model;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -32,7 +30,7 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.uuid).Matches(uuidPattern);
+        await Assert.That(testResult.Uuid).Matches(uuidPattern);
     }
 
     [Test]
@@ -52,7 +50,7 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.stage).IsEqualTo(Stage.finished);
+        await Assert.That(testResult.Stage).IsEqualTo(Stage.Finished);
     }
 
     [Test]
@@ -72,7 +70,7 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.name).IsEqualTo("Foo");
+        await Assert.That(testResult.Name).IsEqualTo("Foo");
     }
 
     [Test]
@@ -92,7 +90,7 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.fullName).IsEqualTo("1");
+        await Assert.That(testResult.FullName).IsEqualTo("1");
     }
 
     [Test]
@@ -114,9 +112,9 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         var after = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.start).IsBetween(before, after);
-        await Assert.That(testResult.stop).IsBetween(before, after);
-        await Assert.That(testResult.stop).IsGreaterThanOrEqualTo(testResult.start);
+        await Assert.That(testResult.Start).IsBetween(before, after);
+        await Assert.That(testResult.Stop).IsBetween(before, after);
+        await Assert.That(testResult.Stop).IsGreaterThanOrEqualTo(testResult.Start);
     }
 
     [Test]
@@ -151,8 +149,8 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         var afterStop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.start).IsBetween(beforeStart, afterStart);
-        await Assert.That(testResult.stop).IsBetween(afterStart, afterStop);
+        await Assert.That(testResult.Start).IsBetween(beforeStart, afterStart);
+        await Assert.That(testResult.Stop).IsBetween(afterStart, afterStop);
     }
 
     [Test]
@@ -172,7 +170,7 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.titlePath).IsEmpty();
+        await Assert.That(testResult.TitlePath).IsEmpty();
     }
 
     [Test]
@@ -192,63 +190,41 @@ public partial class DefaultPropertyTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.labels).Contains(
-            l => l.name == "host" && l.value == Environment.MachineName
+        await Assert.That(testResult.Labels).Contains(
+            l => l.Name == "host" && l.Value == Environment.MachineName
         ).And.Contains(
-            l => l.name == "language" && l.value == "C#"
+            l => l.Name == "language" && l.Value == "C#"
         );
     }
 
     [Test]
+    [NotInParallel]
     public async Task ShouldAddEnvironmentLabelsWhenCreatingTestResult()
     {
-        Dictionary<string, string> env = new()
+        Environment.SetEnvironmentVariable("ALLURE_LABEL_envLabel", "envValue");
+
+        try
         {
-            ["ALLURE_LABEL_envLabel"] = "envValue",
-        };
+            var testNode = new TestNode
+            {
+                DisplayName = "Foo",
+                Uid = "1",
+                Properties = new(
+                    new PassedTestNodeStateProperty()
+                )
+            };
+            var message = new TestNodeUpdateMessage(new SessionUid("Bar"), testNode);
 
-        // Backed by async local; will be reset automatically when the test method exits
-        ModelFunctions.SetGetEnvironmentVariables(() => env);
+            await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
-        var testNode = new TestNode
+            var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
+            await Assert.That(testResult.Labels).Contains(
+                l => l.Name == "envLabel" && l.Value == "envValue"
+            );
+        }
+        finally
         {
-            DisplayName = "Foo",
-            Uid = "1",
-            Properties = new(
-                new PassedTestNodeStateProperty()
-            )
-        };
-        var message = new TestNodeUpdateMessage(new SessionUid("Bar"), testNode);
-
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
-
-        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.labels).Contains(
-            l => l.name == "envLabel" && l.value == "envValue"
-        );
-    }
-
-    [Test]
-    public async Task ShouldAddGlobalLabelsFromConfigurationWhenCreatingTestResult()
-    {
-        this.config.GlobalLabels["globalLabel"] = "globalValue";
-
-        var testNode = new TestNode
-        {
-            DisplayName = "Foo",
-            Uid = "1",
-            Properties = new(
-                new PassedTestNodeStateProperty()
-            )
-        };
-
-        var message = new TestNodeUpdateMessage(new SessionUid("Bar"), testNode);
-
-        await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
-
-        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.labels).Contains(
-            l => l.name == "globalLabel" && l.value == "globalValue"
-        );
+            Environment.SetEnvironmentVariable("ALLURE_LABEL_envLabel", null);
+        }
     }
 }

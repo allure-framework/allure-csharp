@@ -35,7 +35,7 @@ public class TimingTests : DataConsumerTestsBase
 
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(1);
         var testResult = this.writer.TestResults[0];
-        await Assert.That(testResult.start).IsEqualTo(start.ToUnixTimeMilliseconds());
-        await Assert.That(testResult.stop).IsEqualTo(stop.ToUnixTimeMilliseconds());
+        await Assert.That(testResult.Start).IsEqualTo(start.ToUnixTimeMilliseconds());
+        await Assert.That(testResult.Stop).IsEqualTo(stop.ToUnixTimeMilliseconds());
     }
 }

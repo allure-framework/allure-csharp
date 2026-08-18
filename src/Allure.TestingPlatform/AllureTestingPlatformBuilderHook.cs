@@ -11,6 +11,8 @@ public static class AllureTestingPlatformBuilderHook
     /// Implements the Microsoft.Testing.Platform.MSBuild self-registration contract and registers
     /// Allure.TestingPlatform in standalone mode with default options.
     /// </summary>
+    /// <param name="builder">The test application builder.</param>
+    /// <param name="_">The command-line arguments supplied during registration.</param>
     public static void AddExtensions(ITestApplicationBuilder builder, string[] _)
     {
         builder.AddAllure();

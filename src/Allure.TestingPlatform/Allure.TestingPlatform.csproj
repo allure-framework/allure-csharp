@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
+        <ProjectReference Include="..\Allure.Net.Sdk\Allure.Net.Sdk.csproj" />
     </ItemGroup>
 
     <ItemGroup>

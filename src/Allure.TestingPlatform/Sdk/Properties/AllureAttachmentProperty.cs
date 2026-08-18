@@ -1,5 +1,7 @@
-using Allure.Net.Commons;
-using Allure.Net.Commons.Functions;
+using System.IO;
+using Allure.Model;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -7,7 +9,10 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Attaches data to an Allure step, test, or fixture.
 /// </summary>
-public sealed class AllureAttachmentProperty<TModel>(string name, byte[] content) :
+/// <typeparam name="TModel">The type of model object to which the attachment is added.</typeparam>
+/// <param name="name">The attachment name.</param>
+/// <param name="content">The stream containing the attachment data.</param>
+public sealed class AllureAttachmentProperty<TModel>(string name, Stream content) :
     IAllureProperty<TModel>
 
     where TModel : ExecutableItem
@@ -20,12 +25,12 @@ public sealed class AllureAttachmentProperty<TModel>(string name, byte[] content
     /// <summary>
     /// Gets the attachment content.
     /// </summary>
-    public byte[] Content { get; } = content;
+    public Stream Content { get; } = content;
 
     /// <summary>
     /// Gets or sets the attachment content type.
     /// </summary>
-    public string? ContentType { get; init; }
+    public string? MediaType { get; init; }
 
     /// <summary>
     /// Gets or sets the attachment file extension.
@@ -33,16 +38,17 @@ public sealed class AllureAttachmentProperty<TModel>(string name, byte[] content
     public string FileExtension { get; init; } = "";
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime allureRuntime, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime, TModel target)
     {
-        var source = ModelFunctions.GetAttachmentSourceName(this.FileExtension);
+        var source = AttachmentSource.CreateName(this.FileExtension);
         var attachment = new Attachment
         {
-            name = this.Name,
-            type = this.ContentType,
-            source = source
+            Name = this.Name,
+            Type = this.MediaType,
+            Source = source,
+            FileExtension = this.FileExtension,
         };
-        allureRuntime.Writer.Write(source, this.Content);
-        target.attachments.Add(attachment);
+        allureRuntime.ResultsDestination.WriteAttachment(source, this.Content);
+        target.Attachments.Add(attachment);
     }
 }

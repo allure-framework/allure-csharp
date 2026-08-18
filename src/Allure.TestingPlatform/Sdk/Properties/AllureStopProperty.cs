@@ -1,5 +1,6 @@
 using System;
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -7,6 +8,8 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the stop time of an Allure test, step, or fixture.
 /// </summary>
+/// <typeparam name="TModel">The type of model object to update.</typeparam>
+/// <param name="stop">The stop time as Unix time in milliseconds.</param>
 public sealed class AllureStopProperty<TModel>(long stop) : IAllureProperty<TModel>
     where TModel : ExecutableItem
 {
@@ -18,13 +21,14 @@ public sealed class AllureStopProperty<TModel>(long stop) : IAllureProperty<TMod
     /// <summary>
     /// Creates a stop property from a timestamp.
     /// </summary>
+    /// <param name="stop">The stop timestamp.</param>
     public AllureStopProperty(DateTimeOffset stop) : this(stop.ToUnixTimeMilliseconds())
     {
     }
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TModel target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TModel target)
     {
-        target.stop = this.Stop;
+        target.Stop = this.Stop;
     }
 }
