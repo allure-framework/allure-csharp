@@ -89,6 +89,12 @@ The following registration methods are available in standalone mode:
 
 Do not call `AddAllure` while automatic registration is enabled, because that would register the standalone integration twice.
 
+To disable automatic registration for a single invocation, pass the MSBuild property separately from MTP options:
+
+```bash
+dotnet test -p:Allure_TestingPlatformEnableSelfRegistration=false
+```
+
 ### Configure Allure
 
 Without explicit registration, configuration is loaded from the first available source:
@@ -152,11 +158,15 @@ dotnet test -- --allure-results-directory ./artifacts/allure-results
 
 Command-line values override values loaded from configuration sources.
 
-To disable automatic registration for a single invocation, pass the MSBuild property separately from MTP options:
+### Test-host crash watchdog
 
-```bash
-dotnet test -p:Allure_TestingPlatformEnableSelfRegistration=false
-```
+The test-host crash watchdog is enabled by default. It observes the test-host
+process and writes an Allure global error when that process exits unexpectedly.
+
+In nested Microsoft Testing Platform runs, the watchdog may cause the
+application to hang while process lifetimes are being observed. Disable it for
+nested runs if this occurs. Set `isProcessWatchdogEnabled` to `false`, call
+`DisableHostProcessWatchdog` during explicit registration, or add `--allure-watchdog off` to the arguments.
 
 ## Build a framework adapter
 
@@ -197,6 +207,13 @@ registration and its in-process Allure endpoint that connects `AllureApi` calls 
 and `MessageChannel`. The references and the channel are bound when Microsoft Testing Platform
 starts the associated request. Check `MessageChannel.CanPublish` before using
 the channel outside a framework callback whose request lifetime is known.
+
+Currently, a registration supports one active MTP request at a time; parallel
+requests are not supported. Sequential requests reuse the runtime, resolved
+configuration, and constructed services from the first request. Keep configuration,
+command-line options, and the results destination stable when reusing the same MTP
+application process. Start a new application process when a later request needs
+different Allure settings or a different results destination.
 
 ### Endpoint configuration
 
@@ -341,6 +358,13 @@ Properties are applied in the same order they are provided to the message.
 active, Allure is enabled, and its message channel can publish. Operations on
 the current test or fixture additionally require the corresponding value from
 `ExecutionStateContext`; global operations do not.
+
+Direct in-process model reads and arbitrary callback-based model updates are
+not supported yet. This includes the `AllureInProcessApi` `Read*`, `TryRead*`,
+and `Update*` methods and the corresponding fixture and step context methods. MTP
+lifecycle messages are processed asynchronously, so those synchronous APIs
+cannot safely access the model owned by the data consumer. Use message-backed
+`AllureApi` operations or publish Allure messages with properties instead.
 
 Runtime routing uses `ICorrelationContext` to select the session and
 `ExecutionStateContext` to select the active lifecycle item. Attribute support
