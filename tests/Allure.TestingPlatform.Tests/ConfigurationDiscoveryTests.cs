@@ -128,6 +128,11 @@ public class ConfigurationDiscoveryTests
                 {
                     context.UseConfigurationFile(configPath);
                 }
+            },
+            (context, _, _) =>
+            {
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
             }
         );
         builder.RegisterTestFramework(

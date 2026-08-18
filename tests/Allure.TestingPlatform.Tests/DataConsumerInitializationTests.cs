@@ -59,9 +59,14 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
             typeof(AllureFixtureUpdateMessage),
             typeof(AllureFixtureStopMessage),
 
+            typeof(AllureStepStartMessage),
+            typeof(AllureStepUpdateMessage),
+            typeof(AllureStepStopMessage),
+
             typeof(AllureScopeTestsMessage),
 
             typeof(AllureTestUpdateMessage),
+            typeof(AllureExecutableItemUpdateMessage),
         ]);
     }
 }

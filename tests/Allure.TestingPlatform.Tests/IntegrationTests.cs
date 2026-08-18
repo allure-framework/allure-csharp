@@ -93,6 +93,11 @@ public class IntegrationTests
                 context.UseConfiguration(config);
                 context.UseCorrelationStrategy(_ => correlation);
                 context.UseDestination(_ => writer);
+            },
+            (context, _, _) =>
+            {
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
             }
         );
 
@@ -130,7 +135,12 @@ public class IntegrationTests
         );
         builder.AddEmbeddedAllure(
             "integration-test",
-            (context, _) => context.DisableHostProcessWatchdog()
+            (context, _) => context.DisableHostProcessWatchdog(),
+            (context, _, _) =>
+            {
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
+            }
         );
         builder.RegisterTestFramework(
             _ => new TestFrameworkCapabilities(),
@@ -159,6 +169,11 @@ public class IntegrationTests
             {
                 context.DisableHostProcessWatchdog();
                 context.Disable();
+            },
+            (context, _, _) =>
+            {
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
             }
         );
         builder.RegisterTestFramework(
