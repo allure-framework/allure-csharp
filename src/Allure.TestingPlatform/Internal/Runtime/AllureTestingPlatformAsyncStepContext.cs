@@ -54,6 +54,8 @@ sealed class AllureTestingPlatformAsyncStepContext(
 
     public async Task AddParameterAsync(Parameter parameter, CancellationToken _)
     {
+        this.ThrowIfDisposed();
+
         AllureStepUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, stepUid)
         {
             Properties = [new AllureParametersProperty<StepResult>([parameter])],
@@ -63,6 +65,8 @@ sealed class AllureTestingPlatformAsyncStepContext(
 
     public async Task SetNameAsync(string newName, CancellationToken _)
     {
+        this.ThrowIfDisposed();
+
         AllureStepUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, stepUid)
         {
             Properties = [new AllureNameProperty<StepResult>(newName)],
@@ -72,6 +76,8 @@ sealed class AllureTestingPlatformAsyncStepContext(
 
     public bool TryReadStepResult<TResult>(Func<StepResult, TResult> read, out TResult value)
     {
+        this.ThrowIfDisposed();
+
         throw new NotImplementedException(
             "In process model operations are not supported yet."
         );
@@ -79,6 +85,8 @@ sealed class AllureTestingPlatformAsyncStepContext(
 
     public void UpdateStepResult(Action<StepResult> update)
     {
+        this.ThrowIfDisposed();
+
         throw new NotImplementedException(
             "In process model operations are not supported yet."
         );
@@ -92,6 +100,14 @@ sealed class AllureTestingPlatformAsyncStepContext(
         }
 
         this.scope.Dispose();
+    }
+
+    void ThrowIfDisposed()
+    {
+        if (Volatile.Read(ref this.disposed) != 0)
+        {
+            throw new ObjectDisposedException(this.GetType().FullName);
+        }
     }
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);

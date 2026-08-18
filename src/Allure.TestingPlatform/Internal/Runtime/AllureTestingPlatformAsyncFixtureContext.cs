@@ -54,6 +54,8 @@ sealed class AllureTestingPlatformAsyncFixtureContext(
 
     public async Task AddParameterAsync(Parameter parameter, CancellationToken _)
     {
+        this.ThrowIfDisposed();
+
         AllureFixtureUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, fixtureUid)
         {
             Properties = [new AllureParametersProperty<FixtureResult>([parameter])],
@@ -63,6 +65,8 @@ sealed class AllureTestingPlatformAsyncFixtureContext(
 
     public async Task SetNameAsync(string newName, CancellationToken _)
     {
+        this.ThrowIfDisposed();
+
         AllureFixtureUpdateMessage message = new(this.correlationContext.CurrentCorrelationUid, fixtureUid)
         {
             Properties = [new AllureNameProperty<FixtureResult>(newName)],
@@ -72,6 +76,8 @@ sealed class AllureTestingPlatformAsyncFixtureContext(
 
     public bool TryReadFixtureResult<TResult>(Func<FixtureResult, TResult> read, out TResult value)
     {
+        this.ThrowIfDisposed();
+
         throw new NotImplementedException(
             "In process model operations are not supported yet."
         );
@@ -79,6 +85,8 @@ sealed class AllureTestingPlatformAsyncFixtureContext(
 
     public void UpdateFixtureResult(Action<FixtureResult> update)
     {
+        this.ThrowIfDisposed();
+
         throw new NotImplementedException(
             "In process model operations are not supported yet."
         );
@@ -92,6 +100,14 @@ sealed class AllureTestingPlatformAsyncFixtureContext(
         }
 
         this.scope.Dispose();
+    }
+
+    void ThrowIfDisposed()
+    {
+        if (Volatile.Read(ref this.disposed) != 0)
+        {
+            throw new ObjectDisposedException(this.GetType().FullName);
+        }
     }
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);
