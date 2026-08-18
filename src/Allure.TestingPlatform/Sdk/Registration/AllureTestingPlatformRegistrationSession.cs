@@ -182,6 +182,9 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
 {
     /// <inheritdoc />
+    protected override IAllureTestingPlatformIntegrationContext<TConfiguration, TRuntime> IntegrationContext => this;
+
+    /// <inheritdoc />
     protected override IAllureTestingPlatformRegistrationContext<TConfiguration> RegistrationContext => this;
 }
 
