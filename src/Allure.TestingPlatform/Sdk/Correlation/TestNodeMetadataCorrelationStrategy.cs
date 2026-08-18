@@ -8,11 +8,11 @@ namespace Allure.TestingPlatform.Sdk.Correlation;
 
 /// <summary>
 /// Resolves correlation identifiers from test node metadata.
-/// Should be used by integrations that does not have access to the
+/// Use this strategy for integrations that do not have access to the
 /// current session UID, but can attach metadata to <see cref="TestNodeUpdateMessage"/>
 /// sent by the test framework.
 /// </summary>
-public class TestNodeMetadataCorrelationStrategy : ICorrelationStrategy
+public sealed class TestNodeMetadataCorrelationStrategy : ICorrelationStrategy
 {
     /// <summary>
     /// The metadata key that stores the correlation identifier.
@@ -42,5 +42,6 @@ public class TestNodeMetadataCorrelationStrategy : ICorrelationStrategy
     /// <summary>
     /// Creates a new correlation identifier suitable for test node metadata.
     /// </summary>
+    /// <returns>A new correlation identifier.</returns>
     public static string CreateCorrelationUid() => Guid.NewGuid().ToString();
 }

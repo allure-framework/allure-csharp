@@ -3,10 +3,11 @@ using Allure.TestingPlatform.Sdk.Messages;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
 
-using AllureTestResult = Allure.Net.Commons.TestResult;
-using Allure.Net.Commons;
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.Model;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
+
+using AllureTestResult = Allure.Model.TestResult;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -193,9 +194,9 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session1Test3StopPassed, CancellationToken.None);
 
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(3);
-        await Assert.That(this.writer.TestResults[0].name).IsEqualTo("test 1");
-        await Assert.That(this.writer.TestResults[1].name).IsEqualTo("test 2");
-        await Assert.That(this.writer.TestResults[2].name).IsEqualTo("test 3");
+        await Assert.That(this.writer.TestResults[0].Name).IsEqualTo("test 1");
+        await Assert.That(this.writer.TestResults[1].Name).IsEqualTo("test 2");
+        await Assert.That(this.writer.TestResults[2].Name).IsEqualTo("test 3");
     }
 
     [Test]
@@ -230,7 +231,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
 
         await Assert.That(this.writer.TestContainers).HasSingleItem();
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.name).IsEqualTo("test 1");
+        await Assert.That(testResult.Name).IsEqualTo("test 1");
     }
 
     [Test]
@@ -264,7 +265,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2TestStopPassed, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.name).IsEqualTo("test s2");
+        await Assert.That(testResult.Name).IsEqualTo("test s2");
         await Assert.That(this.writer.TestContainers).IsEmpty();
     }
 
@@ -284,7 +285,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.session1Test2StopPassed, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.name).IsEqualTo("test 2");
+        await Assert.That(testResult.Name).IsEqualTo("test 2");
     }
 
     [Test]
@@ -366,7 +367,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
 
         await Assert.That(this.writer.TestContainers).HasSingleItem();
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.name).IsEqualTo("test 1");
+        await Assert.That(testResult.Name).IsEqualTo("test 1");
     }
 
     [Test]
@@ -385,11 +386,11 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         );
 
         var correlationUid = new CorrelationUid("c-mixed-order");
-        var testContextUid = new TestContextUid("test2");
+        var testContextUid = new TestExecutionStateUid("test2");
 
         var updateStatus = new AllureTestUpdateMessage(correlationUid, testContextUid)
         {
-            Properties = [new AllureStatusProperty<AllureTestResult>(Status.skipped)],
+            Properties = [new AllureStatusProperty<AllureTestResult>(Status.Skipped)],
         };
         var updateName = new AllureTestUpdateMessage(correlationUid, testContextUid)
         {
@@ -412,10 +413,10 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, sessionTriggerDiscovered, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.skipped);
-        await Assert.That(testResult.name).IsEqualTo("Foo");
-        var feature = await Assert.That(testResult.labels).HasSingleItem((l) => l.name == "feature");
-        await Assert.That(feature.value).IsEqualTo("Bar");
+        await Assert.That(testResult.Status).IsEqualTo(Status.Skipped);
+        await Assert.That(testResult.Name).IsEqualTo("Foo");
+        var feature = await Assert.That(testResult.Labels).HasSingleItem((l) => l.Name == "feature");
+        await Assert.That(feature.Value).IsEqualTo("Bar");
     }
 
     [Test]
@@ -427,7 +428,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         };
 
         var sharedCorrelationUid = new CorrelationUid("c-shared");
-        var test2ContextUid = new TestContextUid("test2");
+        var test2ContextUid = new TestExecutionStateUid("test2");
         var updateTest2Name = new AllureTestUpdateMessage(sharedCorrelationUid, test2ContextUid)
         {
             Properties = [new AllureNameProperty<AllureTestResult>("Foo")],
@@ -454,13 +455,13 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         await this.consumer.OnTestSessionFinishingAsync(finishedSessionContext);
 
         var testResult1 = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult1.name).IsEqualTo("test 1");
+        await Assert.That(testResult1.Name).IsEqualTo("test 1");
 
         this.correlationStrategy.NextValues.Enqueue(sharedCorrelationUid.Value);
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2Test2StopPassed, CancellationToken.None);
 
         await Assert.That(this.writer.TestResults).Count().IsEqualTo(2);
-        await Assert.That(this.writer.TestResults[1].name).IsEqualTo("test 2");
+        await Assert.That(this.writer.TestResults[1].Name).IsEqualTo("test 2");
     }
 
     [Test]
@@ -486,7 +487,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, session2Test2StopPassed, CancellationToken.None);
 
         var testResult1 = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult1.name).IsEqualTo("test 1");
+        await Assert.That(testResult1.Name).IsEqualTo("test 1");
     }
 
     sealed class UnknownDataMessage : IData

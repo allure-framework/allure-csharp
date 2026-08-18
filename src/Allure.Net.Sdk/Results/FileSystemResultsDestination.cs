@@ -70,12 +70,22 @@ public class FileSystemResultsDestination : IAllureResultsDestination
     /// <inheritdoc/>
     public void WriteContainer(TestResultScope container)
     {
+        if (ShouldIgnoreScope(container))
+        {
+            return;
+        }
+
         this.WriteAllureObject(container, "-container.json");
     }
 
     /// <inheritdoc/>
     public async Task WriteContainerAsync(TestResultScope container, CancellationToken cancellationToken)
     {
+        if (ShouldIgnoreScope(container))
+        {
+            return;
+        }
+
         await this.WriteAllureObjectAsync(container, "-container.json", cancellationToken);
     }
 
@@ -141,6 +151,12 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         writer.Commit();
     }
 
+    static bool ShouldIgnoreScope(TestResultScope scope) => scope is
+    {
+        Befores.Count: 0,
+        Afters.Count: 0,
+    };
+
     void WriteAllureObject(object allureObject, string suffix)
     {
         using var writer = new AtomicFileWriter(this.outputDirectory, CreateResultFileName(suffix));
@@ -157,14 +173,6 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         await JsonSerializer.SerializeAsync(writer.Stream, allureObject, serializerOptions, cancellationToken);
 
         writer.Commit();
-    }
-
-    void EnsureDirectory()
-    {
-        if (!Directory.Exists(this.outputDirectory))
-        {
-            Directory.CreateDirectory(this.outputDirectory);
-        }
     }
 
     static string CreateResultFileName(string suffix) =>

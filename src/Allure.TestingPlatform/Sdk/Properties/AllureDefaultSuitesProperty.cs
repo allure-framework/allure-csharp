@@ -1,18 +1,21 @@
 using System;
 using System.Linq;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Attributes;
-using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.Sdk;
+using Allure.Abstractions;
+using Allure.Model;
+using Allure.Sdk.Functions;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
 
 /// <summary>
 /// Sets default suite labels on an Allure test result.
-/// The labels will be applied after the test stops, but only if
-/// the test has neither parentSuite, nor suite, nor subSuite labels.
+/// The labels are applied only when the result has no <c>parentSuite</c>, <c>suite</c>, or
+/// <c>subSuite</c> label.
 /// </summary>
+/// <param name="parentSuite">The default parent-suite name.</param>
+/// <param name="suite">The default suite name.</param>
+/// <param name="subSuite">The default sub-suite name.</param>
 public sealed class AllureDefaultSuitesProperty(
     string? parentSuite,
     string? suite,
@@ -38,6 +41,7 @@ public sealed class AllureDefaultSuitesProperty(
     /// <summary>
     /// Creates suite labels from the specified test class.
     /// </summary>
+    /// <param name="testClass">The test class from which suite names are derived.</param>
     public AllureDefaultSuitesProperty(Type testClass) : this(
         testClass.Assembly.GetName().Name,
         testClass.Namespace,
@@ -46,9 +50,9 @@ public sealed class AllureDefaultSuitesProperty(
     }
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TestResult target)
     {
-        ModelFunctions.EnsureSuites(target, this.ParentSuite, this.Suite, this.SubSuite);
+        SuiteLabels.Ensure(target, this.ParentSuite, this.Suite, this.SubSuite);
     }
 
     static string? ResolveSubSuite(Type testClass) =>

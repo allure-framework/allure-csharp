@@ -76,3 +76,13 @@ public sealed class LateBoundReference<T> : IReadOnlyLateBoundReference<T>
             new LazyProjectedLateBoundReference<TResult, TNextResult>(this, nextSelector);
     }
 }
+
+public static class LateBoundReference
+{
+    public static LateBoundReference<T> Bound<T>(T value)
+    {
+        LateBoundReference<T> reference = new();
+        reference.Bind(value);
+        return reference;
+    }
+}

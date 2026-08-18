@@ -1,4 +1,5 @@
-using Allure.TestingPlatform.Sdk.ContextIdentifiers;
+using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Runtime;
 
@@ -7,9 +8,11 @@ namespace Allure.TestingPlatform.Sdk.Messages;
 /// <summary>
 /// Reports that an Allure scope has stopped.
 /// </summary>
+/// <param name="correlationUid">The identifier used to correlate the message.</param>
+/// <param name="scopeUid">The identifier of the scope context to stop.</param>
 public sealed class AllureScopeStopMessage(
     CorrelationUid correlationUid,
-    ScopeContextUid scopeUid
+    ScopeExecutionStateUid scopeUid
 ) :
     AllureModelRemoveMessage(
         "Allure scope stop",
@@ -21,13 +24,12 @@ public sealed class AllureScopeStopMessage(
     /// <summary>
     /// Gets the scope context identifier.
     /// </summary>
-    public ScopeContextUid ScopeUid { get; } = scopeUid;
+    public ScopeExecutionStateUid ScopeUid { get; } = scopeUid;
 
     /// <inheritdoc />
-    public override void ApplyTo(LiveAllureTestingPlatformRuntime allureRuntime)
+    public override void ApplyTo(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime)
     {
-        allureRuntime.Lifecycle
-            .StopTestContainer()
-            .WriteTestContainer();
+        var scope = allureRuntime.LifecycleApi.StopTestScope();
+        allureRuntime.ResultsDestination.WriteContainer(scope);
     }
 }

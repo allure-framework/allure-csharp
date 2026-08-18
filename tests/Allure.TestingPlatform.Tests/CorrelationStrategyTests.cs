@@ -9,7 +9,7 @@ public class CorrelationStrategyTests
     [Test]
     public async Task ShouldCorrelateByTestingPlatformSessionUid()
     {
-        TestingPlatformSessionUidCorrelationStrategy strategy = new();
+        SessionUidCorrelationStrategy strategy = new();
         TestNodeUpdateMessage message = new(
             new("session-1"),
             new()

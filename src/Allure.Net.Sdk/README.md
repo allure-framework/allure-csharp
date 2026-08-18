@@ -189,9 +189,7 @@ using Allure.Sdk.Registration;
 using Allure.Sdk.Registration.Hooks;
 
 public interface IMyFrameworkRuntimeRegistrationHook :
-    IAllureRegistrationHook<
-        IAllureRuntimeRegistrationContext<MyFrameworkConfiguration>
-    >;
+    IAllureRuntimeRegistrationHook<MyFrameworkConfiguration>;
 ```
 
 Users can then customize the runtime by implementing that interface:

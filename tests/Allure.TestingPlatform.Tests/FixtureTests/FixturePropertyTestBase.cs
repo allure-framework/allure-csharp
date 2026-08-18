@@ -1,8 +1,7 @@
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Sdk.Messages;
-using Allure.Net.Commons;
+using Allure.Model;
 using Allure.TestingPlatform.Sdk.Properties;
-using Allure.Net.Commons.Attributes;
 using System.Reflection;
 using Allure.TestingPlatform.Sdk.Correlation;
 
@@ -42,7 +41,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, this.StopScopeMessage, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        return await Assert.That(container.befores).HasSingleItem();
+        return await Assert.That(container.Befores).HasSingleItem();
     }
 
     protected abstract List<IAllureProperty> PropertyListSelector { get; }
@@ -52,7 +51,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     {
         var fixture = await this.ArrangeAndAct(new AllureNameProperty<FixtureResult>("Updated name"));
 
-        await Assert.That(fixture.name).IsEqualTo("Updated name");
+        await Assert.That(fixture.Name).IsEqualTo("Updated name");
     }
 
     [Test]
@@ -60,7 +59,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     {
         var fixture = await this.ArrangeAndAct(new AllureDescriptionProperty<FixtureResult>("Lorem Ipsum"));
 
-        await Assert.That(fixture.description).IsEqualTo("Lorem Ipsum");
+        await Assert.That(fixture.Description).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -71,7 +70,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureDescriptionProperty<FixtureResult>("Dolor Sit Amet") { Append = true }
         );
 
-        await Assert.That(fixture.description).IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
+        await Assert.That(fixture.Description).IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
     }
 
     [Test]
@@ -79,7 +78,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     {
         var fixture = await this.ArrangeAndAct(new AllureDescriptionHtmlProperty<FixtureResult>("Lorem Ipsum"));
 
-        await Assert.That(fixture.descriptionHtml).IsEqualTo("Lorem Ipsum");
+        await Assert.That(fixture.DescriptionHtml).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -90,7 +89,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureDescriptionHtmlProperty<FixtureResult>("Dolor Sit Amet") { Append = true }
         );
 
-        await Assert.That(fixture.descriptionHtml).IsEqualTo("Lorem IpsumDolor Sit Amet");
+        await Assert.That(fixture.DescriptionHtml).IsEqualTo("Lorem IpsumDolor Sit Amet");
     }
 
     [Test]
@@ -100,7 +99,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureStartProperty<FixtureResult>(100)
         );
 
-        await Assert.That(fixture.start).IsEqualTo(100);
+        await Assert.That(fixture.Start).IsEqualTo(100);
     }
 
     [Test]
@@ -110,7 +109,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureStartProperty<FixtureResult>(DateTimeOffset.FromUnixTimeMilliseconds(100400))
         );
 
-        await Assert.That(fixture.start).IsEqualTo(100400);
+        await Assert.That(fixture.Start).IsEqualTo(100400);
     }
 
     [Test]
@@ -120,7 +119,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureStopProperty<FixtureResult>(100)
         );
 
-        await Assert.That(fixture.stop).IsEqualTo(100);
+        await Assert.That(fixture.Stop).IsEqualTo(100);
     }
 
     [Test]
@@ -130,7 +129,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureStopProperty<FixtureResult>(DateTimeOffset.FromUnixTimeMilliseconds(100400))
         );
 
-        await Assert.That(fixture.stop).IsEqualTo(100400);
+        await Assert.That(fixture.Stop).IsEqualTo(100400);
     }
 
     [Test]
@@ -141,7 +140,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureDurationProperty<FixtureResult>(100)
         );
 
-        await Assert.That(fixture.stop).IsEqualTo(101);
+        await Assert.That(fixture.Stop).IsEqualTo(101);
     }
 
     [Test]
@@ -152,7 +151,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureDurationProperty<FixtureResult>(TimeSpan.FromMilliseconds(100))
         );
 
-        await Assert.That(fixture.stop).IsEqualTo(101);
+        await Assert.That(fixture.Stop).IsEqualTo(101);
     }
 
     [Test]
@@ -166,7 +165,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(fixture.start).IsEqualTo(1);
+        await Assert.That(fixture.Start).IsEqualTo(1);
     }
 
     [Test]
@@ -180,59 +179,59 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(fixture.start).IsEqualTo(1);
+        await Assert.That(fixture.Start).IsEqualTo(1);
     }
 
     [Test]
-    [Arguments(Status.passed)]
-    [Arguments(Status.failed)]
-    [Arguments(Status.broken)]
-    [Arguments(Status.skipped)]
+    [Arguments(Status.Passed)]
+    [Arguments(Status.Failed)]
+    [Arguments(Status.Broken)]
+    [Arguments(Status.Skipped)]
     public async Task ShouldSetStatus(Status expectedStatus)
     {
         var fixture = await this.ArrangeAndAct(
             new AllureStatusProperty<FixtureResult>(expectedStatus)
         );
 
-        await Assert.That(fixture.status).IsEqualTo(expectedStatus);
+        await Assert.That(fixture.Status).IsEqualTo(expectedStatus);
     }
 
     [Test]
     public async Task ShouldOverwriteStatusByDefault()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureStatusProperty<FixtureResult>(Status.failed),
-            new AllureStatusProperty<FixtureResult>(Status.passed)
+            new AllureStatusProperty<FixtureResult>(Status.Failed),
+            new AllureStatusProperty<FixtureResult>(Status.Passed)
         );
 
-        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+        await Assert.That(testResult.Status).IsEqualTo(Status.Passed);
     }
 
     [Test]
     public async Task ShouldNotOverwriteAlreadySetStatusIfOptedOut()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureStatusProperty<FixtureResult>(Status.failed),
-            new AllureStatusProperty<FixtureResult>(Status.passed)
+            new AllureStatusProperty<FixtureResult>(Status.Failed),
+            new AllureStatusProperty<FixtureResult>(Status.Passed)
             {
                 OnlyIfUnset = true
             }
         );
 
-        await Assert.That(testResult.status).IsEqualTo(Status.failed);
+        await Assert.That(testResult.Status).IsEqualTo(Status.Failed);
     }
 
     [Test]
     public async Task ShouldNotOverwriteDefaultStatusEvenIfOptedOutFromOverwrite()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureStatusProperty<FixtureResult>(Status.passed)
+            new AllureStatusProperty<FixtureResult>(Status.Passed)
             {
                 OnlyIfUnset = true
             }
         );
 
-        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+        await Assert.That(testResult.Status).IsEqualTo(Status.Passed);
     }
 
     [Test]
@@ -241,17 +240,17 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
         var fixture = await this.ArrangeAndAct(
             new AllureStatusDetailsProperty<FixtureResult>(new()
             {
-                message = "Foo",
-                trace = "Bar",
-                known = true,
-                muted = true,
+                Message = "Foo",
+                Trace = "Bar",
+                Known = true,
+                Muted = true,
             })
         );
 
-        await Assert.That(fixture.statusDetails.message).IsEqualTo("Foo");
-        await Assert.That(fixture.statusDetails.trace).IsEqualTo("Bar");
-        await Assert.That(fixture.statusDetails.known).IsTrue();
-        await Assert.That(fixture.statusDetails.muted).IsTrue();
+        await Assert.That(fixture.StatusDetails.Message).IsEqualTo("Foo");
+        await Assert.That(fixture.StatusDetails.Trace).IsEqualTo("Bar");
+        await Assert.That(fixture.StatusDetails.Known).IsTrue();
+        await Assert.That(fixture.StatusDetails.Muted).IsTrue();
     }
 
     [Test]
@@ -261,23 +260,9 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             new AllureExceptionProperty<FixtureResult>(new Exception("Foo"))
         );
 
-        await Assert.That(fixture.status).IsEqualTo(Status.broken);
-        await Assert.That(fixture.statusDetails.message).IsEqualTo("Foo");
-        await Assert.That(fixture.statusDetails.trace).Contains("System.Exception");
-    }
-
-    [Test]
-    public async Task ShouldSetFailedStatusAndDetailsFromError()
-    {
-        this.config.FailExceptions = ["System.Exception"];
-
-        var fixture = await this.ArrangeAndAct(
-            new AllureExceptionProperty<FixtureResult>(new Exception("Foo"))
-        );
-
-        await Assert.That(fixture.status).IsEqualTo(Status.failed);
-        await Assert.That(fixture.statusDetails.message).IsEqualTo("Foo");
-        await Assert.That(fixture.statusDetails.trace).Contains("System.Exception");
+        await Assert.That(fixture.Status).IsEqualTo(Status.Broken);
+        await Assert.That(fixture.StatusDetails.Message).IsEqualTo("Foo");
+        await Assert.That(fixture.StatusDetails.Trace).Contains("System.Exception");
     }
 
     static void TargetMethod(
@@ -308,27 +293,27 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             )
         );
 
-        await Assert.That(fixture.parameters).Count().IsEqualTo(4);
-        var parameter1 = fixture.parameters[0];
-        var parameter2 = fixture.parameters[1];
-        var parameter3 = fixture.parameters[2];
-        var parameter4 = fixture.parameters[3];
+        await Assert.That(fixture.Parameters).Count().IsEqualTo(4);
+        var parameter1 = fixture.Parameters[0];
+        var parameter2 = fixture.Parameters[1];
+        var parameter3 = fixture.Parameters[2];
+        var parameter4 = fixture.Parameters[3];
 
-        await Assert.That(parameter1.name).IsEqualTo("p1");
-        await Assert.That(parameter1.value).IsEqualTo("10");
-        await Assert.That(parameter1.mode).IsNull();
+        await Assert.That(parameter1.Name).IsEqualTo("p1");
+        await Assert.That(parameter1.Value).IsEqualTo("10");
+        await Assert.That(parameter1.Mode).IsNull();
 
-        await Assert.That(parameter2.name).IsEqualTo("Foo");
-        await Assert.That(parameter2.value).IsEqualTo("\"foo\"");
-        await Assert.That(parameter2.mode).IsNull();
+        await Assert.That(parameter2.Name).IsEqualTo("Foo");
+        await Assert.That(parameter2.Value).IsEqualTo("\"foo\"");
+        await Assert.That(parameter2.Mode).IsNull();
 
-        await Assert.That(parameter3.name).IsEqualTo("p3");
-        await Assert.That(parameter3.value).IsEqualTo("20");
-        await Assert.That(parameter3.mode).IsEqualTo(ParameterMode.Masked);
+        await Assert.That(parameter3.Name).IsEqualTo("p3");
+        await Assert.That(parameter3.Value).IsEqualTo("20");
+        await Assert.That(parameter3.Mode).IsEqualTo(ParameterMode.Masked);
 
-        await Assert.That(parameter4.name).IsEqualTo("p4");
-        await Assert.That(parameter4.value).IsEqualTo("30");
-        await Assert.That(parameter4.mode).IsEqualTo(ParameterMode.Hidden);
+        await Assert.That(parameter4.Name).IsEqualTo("p4");
+        await Assert.That(parameter4.Value).IsEqualTo("30");
+        await Assert.That(parameter4.Mode).IsEqualTo(ParameterMode.Hidden);
     }
 
     [Test]
@@ -337,21 +322,21 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
         var fixture = await this.ArrangeAndAct(
             new AllureParametersProperty<FixtureResult>(
                 [
-                    new(){ name = "foo", value = "1" },
-                    new(){ name = "bar", value = "2" },
+                    new(){ Name = "foo", Value = "1" },
+                    new(){ Name = "bar", Value = "2" },
                 ]
             )
         );
 
-        await Assert.That(fixture.parameters).Count().IsEqualTo(2);
-        var parameter1 = fixture.parameters[0];
-        var parameter2 = fixture.parameters[1];
+        await Assert.That(fixture.Parameters).Count().IsEqualTo(2);
+        var parameter1 = fixture.Parameters[0];
+        var parameter2 = fixture.Parameters[1];
 
-        await Assert.That(parameter1.name).IsEqualTo("foo");
-        await Assert.That(parameter1.value).IsEqualTo("1");
+        await Assert.That(parameter1.Name).IsEqualTo("foo");
+        await Assert.That(parameter1.Value).IsEqualTo("1");
 
-        await Assert.That(parameter2.name).IsEqualTo("bar");
-        await Assert.That(parameter2.value).IsEqualTo("2");
+        await Assert.That(parameter2.Name).IsEqualTo("bar");
+        await Assert.That(parameter2.Value).IsEqualTo("2");
     }
 
     [Test]
@@ -360,18 +345,18 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
         var fixture = await this.ArrangeAndAct(
             new AllureAttachmentProperty<FixtureResult>(
                 "Foo",
-                [1, 2, 3, 4]
+                new MemoryStream([1, 2, 3, 4])
             )
         );
 
-        var attachment = await Assert.That(fixture.attachments).HasSingleItem();
-        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.source);
-        await Assert.That(this.writer.ByteAttachments[attachment.source]).IsEquivalentTo(
+        var attachment = await Assert.That(fixture.Attachments).HasSingleItem();
+        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.Source);
+        await Assert.That(this.writer.ByteAttachments[attachment.Source]).IsEquivalentTo(
             new byte[]{ 1, 2, 3, 4 },
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );
-        await Assert.That(attachment.name).IsEqualTo("Foo");
-        await Assert.That(attachment.type).IsNull();
+        await Assert.That(attachment.Name).IsEqualTo("Foo");
+        await Assert.That(attachment.Type).IsNull();
     }
 
     [Test]
@@ -380,15 +365,15 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
         var fixture = await this.ArrangeAndAct(
             new AllureAttachmentProperty<FixtureResult>(
                 "Foo",
-                [1, 2, 3, 4]
+                new MemoryStream([1, 2, 3, 4])
             )
             {
-                ContentType = "application/json"
+                MediaType = "application/json"
             }
         );
 
-        var attachment = await Assert.That(fixture.attachments).HasSingleItem();
-        await Assert.That(attachment.type).IsEqualTo("application/json");
+        var attachment = await Assert.That(fixture.Attachments).HasSingleItem();
+        await Assert.That(attachment.Type).IsEqualTo("application/json");
     }
 
     [Test]
@@ -397,15 +382,15 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
         var fixture = await this.ArrangeAndAct(
             new AllureAttachmentProperty<FixtureResult>(
                 "Foo",
-                [1, 2, 3, 4]
+                new MemoryStream([1, 2, 3, 4])
             )
             {
                 FileExtension = ".txt"
             }
         );
 
-        var attachment = await Assert.That(fixture.attachments).HasSingleItem();
-        await Assert.That(attachment.source).EndsWith(".txt");
+        var attachment = await Assert.That(fixture.Attachments).HasSingleItem();
+        await Assert.That(attachment.Source).EndsWith(".txt");
     }
 
     [Test]
@@ -418,15 +403,15 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             )
         );
 
-        var attachment = await Assert.That(fixture.attachments).HasSingleItem();
-        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.source);
+        var attachment = await Assert.That(fixture.Attachments).HasSingleItem();
+        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.Source);
         var relative = Path.GetRelativePath(
             Environment.CurrentDirectory,
-            this.writer.FileAttachments[attachment.source]
+            this.writer.FileAttachments[attachment.Source]
         );
         await Assert.That(relative).IsEqualTo("filepath");
-        await Assert.That(attachment.name).IsEqualTo("Foo");
-        await Assert.That(attachment.type).IsNull();
+        await Assert.That(attachment.Name).IsEqualTo("Foo");
+        await Assert.That(attachment.Type).IsNull();
     }
 
     [Test]
@@ -438,12 +423,12 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
                 "filepath"
             )
             {
-                ContentType = "application/json"
+                MediaType = "application/json"
             }
         );
 
-        var attachment = await Assert.That(fixture.attachments).HasSingleItem();
-        await Assert.That(attachment.type).IsEqualTo("application/json");
+        var attachment = await Assert.That(fixture.Attachments).HasSingleItem();
+        await Assert.That(attachment.Type).IsEqualTo("application/json");
     }
 
     [Test]
@@ -459,8 +444,8 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             }
         );
 
-        var attachment = await Assert.That(fixture.attachments).HasSingleItem();
-        await Assert.That(attachment.source).EndsWith(".txt");
+        var attachment = await Assert.That(fixture.Attachments).HasSingleItem();
+        await Assert.That(attachment.Source).EndsWith(".txt");
     }
 
     [Test]
@@ -473,7 +458,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
             )
         );
 
-        var attachment = await Assert.That(fixture.attachments).HasSingleItem();
-        await Assert.That(attachment.source).EndsWith(".txt");
+        var attachment = await Assert.That(fixture.Attachments).HasSingleItem();
+        await Assert.That(attachment.Source).EndsWith(".txt");
     }
 }

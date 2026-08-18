@@ -1,289 +1,194 @@
-using System.Collections.Immutable;
 using System.Reflection;
-using Allure.Net.Commons;
-using Allure.Net.Commons.Configuration;
-using Allure.Net.Commons.Sdk;
-using Allure.Net.Commons.Sdk.Writers;
+using Allure.Model;
+using Allure.Sdk.Registration;
+using Allure.Sdk.Results;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk;
+using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
-using Allure.TestingPlatform.Sdk.Correlation;
+using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
-using TUnit.Assertions.Enums;
-using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 
 namespace Allure.TestingPlatform.Tests;
 
 public class IntegrationTests
 {
-    static TestNodeUpdateMessage TestStartMessage(SessionUid session) => new (
+    static readonly string[] DefaultArgs =
+    [
+        "--no-progress",
+        "--no-ansi",
+        "--output",
+        "Normal",
+        "--show-stdout",
+        "None",
+        "--show-stderr",
+        "None",
+    ];
+
+    static TestNodeUpdateMessage TestStartMessage(SessionUid session) => new(
         session,
         new()
         {
             Uid = "1",
             DisplayName = "Foo",
-            Properties = new(
-                new InProgressTestNodeStateProperty()
-            )
+            Properties = new(new InProgressTestNodeStateProperty())
         }
     );
 
     static void TargetMethod(string foo) { }
 
     static AllureTestUpdateMessage TestUpdateMessage(SessionUid session) =>
-        new (new(session.Value), new("1"))
+        new(new(session.Value), new("1"))
         {
-            Properties = [
+            Properties =
+            [
                 new AllureTestMethodProperty(
-                    typeof(IntegrationTests)
-                        .GetMethod(
-                            nameof(TargetMethod),
-                            BindingFlags.Static | BindingFlags.NonPublic
-                        )
+                    typeof(IntegrationTests).GetMethod(
+                        nameof(TargetMethod),
+                        BindingFlags.Static | BindingFlags.NonPublic
+                    )
                 )
                 {
                     Arguments = ["Lorem Ipsum"]
                 },
-                new AllureLinksProperty([new(){ url = "1", name = "bar", type = "issue" }]),
+                new AllureLinksProperty(
+                    [new Link { Url = "https://example.org/1", Name = "bar", Type = "issue" }]
+                ),
             ]
         };
 
-    static TestNodeUpdateMessage TestStopMessage(SessionUid session) => new (
+    static TestNodeUpdateMessage TestStopMessage(SessionUid session) => new(
         session,
         new()
         {
             Uid = "1",
             DisplayName = "Foo",
-            Properties = new(
-                new PassedTestNodeStateProperty()
-            )
+            Properties = new(new PassedTestNodeStateProperty())
         }
     );
 
     [Test]
     public async Task ShouldRunDataConsumerWithAllureInitializedInProcess()
     {
-        AllureConfiguration config = new()
+        AllureTestingPlatformConfiguration config = new()
         {
-            Links = ["foo/{issue}/bar"],
+            IsProcessWatchdogEnabled = false,
         };
-        var correlation = new TestingPlatformSessionUidCorrelationStrategy();
-        var writer = new InMemoryResultsWriter();
-        Dictionary<Type, ITypeFormatter> typeFormatters = new()
-        {
-            { typeof(string), new TypeFormatterStub<string>("stub") },
-        };
-        var lifecycle = new AllureLifecycle(config, writer, typeFormatters);
+        var correlation = new SessionUidCorrelationStrategy();
+        var writer = new InMemoryResultsDestination();
+        IServiceProvider registrationServiceProvider = null;
 
-        IServiceProvider useConfigurationServiceProvider = null;
-
-        IServiceProvider setIsEnabledServiceProvider = null;
-        AllureConfiguration setIsEnabledConfiguration = null;
-
-        IServiceProvider useCorrelationStrategyProvider = null;
-        AllureConfiguration useCorrelationConfiguration = null;
-
-        IServiceProvider useWriterServiceProvider = null;
-        AllureConfiguration useWriterConfig = null;
-
-        IServiceProvider useTypeFormattersServiceProvider = null;
-        AllureConfiguration useTypeFormattersConfig = null;
-
-        IServiceProvider useLifecycleServiceProvider = null;
-        AllureConfiguration useLifecycleConfig = null;
-        IAllureResultsWriter useLifecycleWriter = null;
-        ImmutableDictionary<Type, ITypeFormatter> useLifecycleTypeFormatters = null;
-
-        var builder = await TestApplication.CreateBuilderAsync([
-            "--no-progress",
-            "--no-ansi",
-            "--output",
-            "Normal",
-            "--show-stdout",
-            "None",
-            "--show-stderr",
-            "None",
-        ]);
-        builder.AddEmbeddedAllure(ctx =>
-        {
-            // Can't use watchdog with a nested MTP application
-            ctx.DisableHostProcessWatchdog();
-
-            ctx.UseConfiguration((sp) =>
+        var builder = await TestApplication.CreateBuilderAsync(DefaultArgs);
+        var runtimeHandle = builder.AddEmbeddedAllure(
+            "integration-test",
+            (context, serviceProvider) =>
             {
-                useConfigurationServiceProvider = sp;
-                return config;
-            });
-            ctx.SetIsEnabled((sp, cfg) =>
+                registrationServiceProvider = serviceProvider;
+                context.UseConfiguration(config);
+                context.UseCorrelationStrategy(_ => correlation);
+                context.UseDestination(_ => writer);
+            },
+            (context, _, _) =>
             {
-                setIsEnabledServiceProvider = sp;
-                setIsEnabledConfiguration = cfg;
-                return true;
-            });
-            ctx.UseCorrelation((sp, cfg) =>
-            {
-                useCorrelationStrategyProvider = sp;
-                useCorrelationConfiguration = cfg;
-                return correlation;
-            });
-            ctx.UseWriter((sp, cfg) =>
-            {
-                useWriterServiceProvider = sp;
-                useWriterConfig = cfg;
-                return writer;
-            });
-            ctx.UseTypeFormatters((sp, cfg) =>
-            {
-                useTypeFormattersServiceProvider = sp;
-                useTypeFormattersConfig = cfg;
-                return typeFormatters;
-            });
-            ctx.UseLifecycle((sp, deps) =>
-            {
-                useLifecycleServiceProvider = sp;
-                useLifecycleConfig = deps.Config;
-                useLifecycleWriter = deps.Writer;
-                useLifecycleTypeFormatters = deps.TypeFormatters;
-                return lifecycle;
-            });
-        });
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
+            }
+        );
 
         builder.RegisterTestFramework(
-            serviceProvider => new TestFrameworkCapabilities(),
-            (capabilities, serviceProvider) => new TestFrameworkStub(
-                TestStartMessage,
-                TestUpdateMessage,
-                TestStopMessage
-            )
+            _ => new TestFrameworkCapabilities(),
+            (_, _) => new TestFrameworkStub(TestStartMessage, TestUpdateMessage, TestStopMessage)
         );
 
         using var app = await builder.BuildAsync();
-
         var code = await app.RunAsync();
 
         await Assert.That(code).IsEqualTo(0);
+        await Assert.That(runtimeHandle.ConfigurationReference.Value).IsSameReferenceAs(config);
+        await Assert.That(runtimeHandle.RuntimeReference.Value.Configuration).IsSameReferenceAs(config);
+        await Assert.That(runtimeHandle.RuntimeReference.Value.ResultsDestination).IsSameReferenceAs(writer);
+        await Assert.That(runtimeHandle.RuntimeReference.Value.CorrelationStrategy).IsSameReferenceAs(correlation);
 
-        // Check if registration callbacks received the same service provider used for data consumer registration.
-        var dataConsumer =
-            await Assert.That(useConfigurationServiceProvider.GetRequiredService<AllureDataConsumer>())
-                .IsNotNull();
-        await Assert.That(setIsEnabledServiceProvider.GetRequiredService<AllureDataConsumer>())
-            .IsSameReferenceAs(dataConsumer);
-        await Assert.That(useCorrelationStrategyProvider.GetRequiredService<AllureDataConsumer>())
-            .IsSameReferenceAs(dataConsumer);
-        await Assert.That(useWriterServiceProvider.GetRequiredService<AllureDataConsumer>())
-            .IsSameReferenceAs(dataConsumer);
-        await Assert.That(useTypeFormattersServiceProvider.GetRequiredService<AllureDataConsumer>())
-            .IsSameReferenceAs(dataConsumer);
-        await Assert.That(useLifecycleServiceProvider.GetRequiredService<AllureDataConsumer>())
-            .IsSameReferenceAs(dataConsumer);
-
-        // Check if registration callbacks received the created objects.
-        await Assert.That(setIsEnabledConfiguration).IsSameReferenceAs(config);
-        await Assert.That(useCorrelationConfiguration).IsSameReferenceAs(config);
-        await Assert.That(useWriterConfig).IsSameReferenceAs(config);
-        await Assert.That(useTypeFormattersConfig).IsSameReferenceAs(config);
-        await Assert.That(useLifecycleConfig).IsSameReferenceAs(config);
-        await Assert.That(useLifecycleWriter).IsSameReferenceAs(writer);
-        await Assert.That(useLifecycleTypeFormatters).IsEquivalentTo(
-            typeFormatters,
-            CollectionOrdering.Matching
-        );
-
-        await Assert.That(dataConsumer.IsEnabledAsync()).IsTrue();
-
-        // Check if the writer was actually used
         var testResult = await Assert.That(writer.TestResults).HasSingleItem();
+        var link = await Assert.That(testResult.Links).HasSingleItem();
+        await Assert.That(link.Url).IsEqualTo("https://example.org/1");
+        await Assert.That(link.Name).IsEqualTo("bar");
+        await Assert.That(link.Type).IsEqualTo("issue");
 
-        // Check if the config (Links property) was actually used.
-        var link = await Assert.That(testResult.links).HasSingleItem();
-        await Assert.That(link.url).IsEqualTo("foo/1/bar");
-        await Assert.That(link.name).IsEqualTo("bar");
-        await Assert.That(link.type).IsEqualTo("issue");
-
-        // Check if type formatter was actually used.
-        var parameter = await Assert.That(testResult.parameters).HasSingleItem();
-        await Assert.That(parameter.name).IsEqualTo("foo");
-        await Assert.That(parameter.value).IsEqualTo("stub");
+        var parameter = await Assert.That(testResult.Parameters).HasSingleItem();
+        await Assert.That(parameter.Name).IsEqualTo("foo");
+        await Assert.That(parameter.Value).IsEqualTo("\"Lorem Ipsum\"");
     }
 
     [Test]
     public async Task ShouldDisableDataConsumerIfCliOptionSetToOff()
     {
-        IServiceProvider capturedServiceProvider = null;
-        var builder = await TestApplication.CreateBuilderAsync([
-            "--no-progress",
-            "--no-ansi",
-            "--output",
-            "Normal",
-            "--show-stdout",
-            "None",
-            "--show-stderr",
-            "None",
-            "--allure",
-            "off"
-        ]);
-        builder.AddEmbeddedAllure((ctx) => ctx
-            .DisableHostProcessWatchdog()
-            .UseWriter((_, _) => new InMemoryResultsWriter()));
-
-        builder.RegisterTestFramework(
-            serviceProvider => new TestFrameworkCapabilities(),
-            (capabilities, serviceProvider) =>
+        IServiceProvider serviceProvider = null;
+        var builder = await TestApplication.CreateBuilderAsync(
+            [.. DefaultArgs, "--allure", "off"]
+        );
+        builder.AddEmbeddedAllure(
+            "integration-test",
+            (context, _) => context.DisableHostProcessWatchdog(),
+            (context, _, _) =>
             {
-                capturedServiceProvider = serviceProvider;
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
+            }
+        );
+        builder.RegisterTestFramework(
+            _ => new TestFrameworkCapabilities(),
+            (_, provider) =>
+            {
+                serviceProvider = provider;
                 return new TestFrameworkStub();
             }
         );
 
         using var app = await builder.BuildAsync();
         var code = await app.RunAsync();
-        var dataConsumer = capturedServiceProvider.GetService<AllureDataConsumer>();
-        var applicationLifetime = capturedServiceProvider.GetService<AllureTestingPlatformInProcessRuntimeController>();
 
-        await Assert.That(code).IsEqualTo(8); // test session run zero tests
-        await Assert.That(dataConsumer).IsNull(); // disabled extensions aren't registered
-        await Assert.That(applicationLifetime).IsNull();
+        await Assert.That(code).IsEqualTo(8);
+        await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNull();
     }
 
     [Test]
     public async Task ShouldBeAbleToDisableDataConsumerThroughBuilder()
     {
-        IServiceProvider capturedServiceProvider = null;
-        var builder = await TestApplication.CreateBuilderAsync([
-            "--no-progress",
-            "--no-ansi",
-            "--output",
-            "Normal",
-            "--show-stdout",
-            "None",
-            "--show-stderr",
-            "None"
-        ]);
-        builder.AddEmbeddedAllure((ctx) => ctx
-            .DisableHostProcessWatchdog()
-            .UseWriter((_, _) => new InMemoryResultsWriter())
-            .SetIsEnabled((_, _) => false));
-
-        builder.RegisterTestFramework(
-            serviceProvider => new TestFrameworkCapabilities(),
-            (capabilities, serviceProvider) =>
+        IServiceProvider serviceProvider = null;
+        var builder = await TestApplication.CreateBuilderAsync(DefaultArgs);
+        builder.AddEmbeddedAllure(
+            "integration-test",
+            (context, _) =>
             {
-                capturedServiceProvider = serviceProvider;
+                context.DisableHostProcessWatchdog();
+                context.Disable();
+            },
+            (context, _, _) =>
+            {
+                context.UseCurrentScopePredicate(_ => false);
+                context.UseGlobalScopePredicate(_ => false);
+            }
+        );
+        builder.RegisterTestFramework(
+            _ => new TestFrameworkCapabilities(),
+            (_, provider) =>
+            {
+                serviceProvider = provider;
                 return new TestFrameworkStub();
             }
         );
 
         using var app = await builder.BuildAsync();
         var code = await app.RunAsync();
-        var dataConsumer = capturedServiceProvider.GetService<AllureDataConsumer>();
 
-        await Assert.That(code).IsEqualTo(8); // test session run zero tests
-        await Assert.That(dataConsumer).IsNull();
+        await Assert.That(code).IsEqualTo(8);
+        await Assert.That(serviceProvider.GetService<AllureDataConsumer>()).IsNull();
     }
 }

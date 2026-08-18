@@ -34,7 +34,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.fullName).IsEqualTo("Foo:Bar.Baz.Qux()");
+        await Assert.That(testResult.FullName).IsEqualTo("Foo:Bar.Baz.Qux()");
     }
 
     [Test]
@@ -62,7 +62,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.fullName).IsEqualTo("Foo:Bar.Baz.Qux(Param1,Param2)");
+        await Assert.That(testResult.FullName).IsEqualTo("Foo:Bar.Baz.Qux(Param1,Param2)");
     }
 
     [Test]
@@ -90,7 +90,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.titlePath).IsEquivalentTo(
+        await Assert.That(testResult.TitlePath).IsEquivalentTo(
             ["Foo", "Bar", "Baz"],
             TUnit.Assertions.Enums.CollectionOrdering.Matching);
     }
@@ -120,7 +120,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.titlePath).IsEquivalentTo(
+        await Assert.That(testResult.TitlePath).IsEquivalentTo(
             ["Foo", "Bar", "Baz", "Qux(Param1,Param2)"],
             TUnit.Assertions.Enums.CollectionOrdering.Matching);
     }
@@ -150,12 +150,12 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var parentSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "parentSuite");
-        var suite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "suite");
-        var subSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "subSuite");
-        await Assert.That(parentSuite.value).IsEqualTo("Foo");
-        await Assert.That(suite.value).IsEqualTo("Bar");
-        await Assert.That(subSuite.value).IsEqualTo("Baz");
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "parentSuite");
+        var suite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "suite");
+        var subSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "subSuite");
+        await Assert.That(parentSuite.Value).IsEqualTo("Foo");
+        await Assert.That(suite.Value).IsEqualTo("Bar");
+        await Assert.That(subSuite.Value).IsEqualTo("Baz");
     }
 
     [Test]
@@ -189,7 +189,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         var testUpdate = new AllureTestUpdateMessage(new("Bar"), new("1"))
         {
             Properties = [
-                new AllureLabelsProperty([new (){ name = "parentSuite", value = "foo" }])
+                new AllureLabelsProperty([new (){ Name = "parentSuite", Value = "foo" }])
             ],
         };
         var testStop = new TestNodeUpdateMessage(new SessionUid("Bar"), new ()
@@ -215,12 +215,12 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, testStop, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var parentSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "parentSuite");
-        await Assert.That(parentSuite.value).IsEqualTo("foo");
-        await Assert.That(testResult.labels).DoesNotContain(
-            l => l.name == "suite"
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "parentSuite");
+        await Assert.That(parentSuite.Value).IsEqualTo("foo");
+        await Assert.That(testResult.Labels).DoesNotContain(
+            l => l.Name == "suite"
         ).And.DoesNotContain(
-            l => l.name == "subSuite"
+            l => l.Name == "subSuite"
         );
     }
 
@@ -255,7 +255,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         var testUpdate = new AllureTestUpdateMessage(new("Bar"), new("1"))
         {
             Properties = [
-                new AllureLabelsProperty([new (){ name = "suite", value = "foo" }])
+                new AllureLabelsProperty([new (){ Name = "suite", Value = "foo" }])
             ],
         };
         var testStop = new TestNodeUpdateMessage(new SessionUid("Bar"), new ()
@@ -281,12 +281,12 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, testStop, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var parentSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "suite");
-        await Assert.That(parentSuite.value).IsEqualTo("foo");
-        await Assert.That(testResult.labels).DoesNotContain(
-            l => l.name == "parentSuite"
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "suite");
+        await Assert.That(parentSuite.Value).IsEqualTo("foo");
+        await Assert.That(testResult.Labels).DoesNotContain(
+            l => l.Name == "parentSuite"
         ).And.DoesNotContain(
-            l => l.name == "subSuite"
+            l => l.Name == "subSuite"
         );
     }
 
@@ -321,7 +321,7 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         var testUpdate = new AllureTestUpdateMessage(new("Bar"), new("1"))
         {
             Properties = [
-                new AllureLabelsProperty([new (){ name = "subSuite", value = "foo" }])
+                new AllureLabelsProperty([new (){ Name = "subSuite", Value = "foo" }])
             ],
         };
         var testStop = new TestNodeUpdateMessage(new SessionUid("Bar"), new ()
@@ -347,12 +347,12 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, testStop, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var parentSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "subSuite");
-        await Assert.That(parentSuite.value).IsEqualTo("foo");
-        await Assert.That(testResult.labels).DoesNotContain(
-            l => l.name == "parentSuite"
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "subSuite");
+        await Assert.That(parentSuite.Value).IsEqualTo("foo");
+        await Assert.That(testResult.Labels).DoesNotContain(
+            l => l.Name == "parentSuite"
         ).And.DoesNotContain(
-            l => l.name == "suite"
+            l => l.Name == "suite"
         );
     }
 }

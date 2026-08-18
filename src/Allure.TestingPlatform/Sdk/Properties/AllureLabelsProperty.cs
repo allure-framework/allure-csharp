@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -7,6 +8,7 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Adds labels to an Allure test result.
 /// </summary>
+/// <param name="labels">The labels to add.</param>
 public sealed class AllureLabelsProperty(IEnumerable<Label> labels) : IAllureProperty<TestResult>
 {
     /// <summary>
@@ -15,8 +17,8 @@ public sealed class AllureLabelsProperty(IEnumerable<Label> labels) : IAllurePro
     public List<Label> Labels { get; } = [..labels];
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TestResult target)
     {
-        target.labels.AddRange(this.Labels);
+        target.Labels.AddRange(this.Labels);
     }
 }

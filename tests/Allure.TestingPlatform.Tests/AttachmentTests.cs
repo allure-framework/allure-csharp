@@ -27,12 +27,12 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.name).IsEqualTo("Foo");
-        await Assert.That(attachment.type).IsNull();
-        await Assert.That(attachment.source).IsNotEmpty();
-        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.source);
-        await Assert.That(this.writer.FileAttachments[attachment.source]).IsEqualTo(
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Name).IsEqualTo("Foo");
+        await Assert.That(attachment.Type).IsNull();
+        await Assert.That(attachment.Source).IsNotEmpty();
+        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.Source);
+        await Assert.That(this.writer.FileAttachments[attachment.Source]).IsEqualTo(
             Path.GetFullPath(path)
         );
     }
@@ -54,12 +54,12 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.name).IsEqualTo("Standard output");
-        await Assert.That(attachment.type).IsEqualTo("text/plain");
-        await Assert.That(attachment.source).EndsWith("-attachment.txt");
-        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.source);
-        await Assert.That(this.writer.ByteAttachments[attachment.source]).IsEquivalentTo(
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Name).IsEqualTo("Standard output");
+        await Assert.That(attachment.Type).IsEqualTo("text/plain");
+        await Assert.That(attachment.Source).EndsWith("-attachment.txt");
+        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.Source);
+        await Assert.That(this.writer.ByteAttachments[attachment.Source]).IsEquivalentTo(
             "Lorem Ipsum"u8.ToArray(),
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );
@@ -82,12 +82,12 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.name).IsEqualTo("Standard error");
-        await Assert.That(attachment.type).IsEqualTo("text/plain");
-        await Assert.That(attachment.source).EndsWith("-attachment.txt");
-        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.source);
-        await Assert.That(this.writer.ByteAttachments[attachment.source]).IsEquivalentTo(
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Name).IsEqualTo("Standard error");
+        await Assert.That(attachment.Type).IsEqualTo("text/plain");
+        await Assert.That(attachment.Source).EndsWith("-attachment.txt");
+        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.Source);
+        await Assert.That(this.writer.ByteAttachments[attachment.Source]).IsEquivalentTo(
             "Lorem Ipsum"u8.ToArray(),
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );
@@ -102,12 +102,12 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var global = await Assert.That(this.writer.Globals).HasSingleItem();
-        var attachment = await Assert.That(global.attachments).HasSingleItem();
-        await Assert.That(attachment.name).IsEqualTo("Foo");
-        await Assert.That(attachment.type).IsNull();
-        await Assert.That(attachment.source).IsNotEmpty();
-        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.source);
-        await Assert.That(this.writer.FileAttachments[attachment.source]).IsEqualTo(
+        var attachment = await Assert.That(global.Attachments).HasSingleItem();
+        await Assert.That(attachment.Name).IsEqualTo("Foo");
+        await Assert.That(attachment.Type).IsNull();
+        await Assert.That(attachment.Source).IsNotEmpty();
+        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.Source);
+        await Assert.That(this.writer.FileAttachments[attachment.Source]).IsEqualTo(
             Path.GetFullPath(path)
         );
     }
@@ -130,12 +130,12 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.name).IsEqualTo("artifact.log");
-        await Assert.That(attachment.source).EndsWith(
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Name).IsEqualTo("artifact.log");
+        await Assert.That(attachment.Source).EndsWith(
             $"-attachment.log"
         );
-        await Assert.That(this.writer.FileAttachments[attachment.source]).IsEqualTo(
+        await Assert.That(this.writer.FileAttachments[attachment.Source]).IsEqualTo(
             Path.GetFullPath(path)
         );
     }
@@ -149,13 +149,13 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var global = await Assert.That(this.writer.Globals).HasSingleItem();
-        var attachment = await Assert.That(global.attachments).HasSingleItem();
-        await Assert.That(attachment.name).IsEqualTo("session-output.json");
-        await Assert.That(attachment.source).EndsWith(
+        var attachment = await Assert.That(global.Attachments).HasSingleItem();
+        await Assert.That(attachment.Name).IsEqualTo("session-output.json");
+        await Assert.That(attachment.Source).EndsWith(
             $"-attachment.json"
         );
-        await Assert.That(attachment.timestamp).IsGreaterThanOrEqualTo(0);
-        await Assert.That(this.writer.FileAttachments[attachment.source]).IsEqualTo(
+        await Assert.That(attachment.Timestamp).IsGreaterThanOrEqualTo(0);
+        await Assert.That(this.writer.FileAttachments[attachment.Source]).IsEqualTo(
             Path.GetFullPath(path)
         );
     }
@@ -180,27 +180,27 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var attachments = testResult.attachments;
+        var attachments = testResult.Attachments;
         await Assert.That(attachments).Count().IsEqualTo(3);
-        await Assert.That(attachments.Select(static attachment => attachment.source).Distinct())
+        await Assert.That(attachments.Select(static attachment => attachment.Source).Distinct())
             .Count().IsEqualTo(3);
 
         var stdout = await Assert.That(attachments)
-            .HasSingleItem(static (item) => item.name == "Standard output");
+            .HasSingleItem(static (item) => item.Name == "Standard output");
         var stderr = await Assert.That(attachments)
-            .HasSingleItem(static (item) => item.name == "Standard error");
+            .HasSingleItem(static (item) => item.Name == "Standard error");
         var file = await Assert.That(attachments)
-            .HasSingleItem(static (item) => item.name == "details");
+            .HasSingleItem(static (item) => item.Name == "details");
 
-        await Assert.That(this.writer.ByteAttachments[stdout.source]).IsEquivalentTo(
+        await Assert.That(this.writer.ByteAttachments[stdout.Source]).IsEquivalentTo(
             "out"u8.ToArray(),
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );
-        await Assert.That(this.writer.ByteAttachments[stderr.source]).IsEquivalentTo(
+        await Assert.That(this.writer.ByteAttachments[stderr.Source]).IsEquivalentTo(
             "err"u8.ToArray(),
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );
-        await Assert.That(this.writer.FileAttachments[file.source]).IsEqualTo(
+        await Assert.That(this.writer.FileAttachments[file.Source]).IsEqualTo(
             Path.GetFullPath(path)
         );
     }
@@ -220,16 +220,16 @@ public class AttachmentTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, message, CancellationToken.None);
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        var attachments = testResult.attachments;
+        var attachments = testResult.Attachments;
         await Assert.That(attachments).Count().IsEqualTo(2);
 
         var stdout = await Assert.That(attachments)
-            .HasSingleItem(static (item) => item.name == "Standard output");
+            .HasSingleItem(static (item) => item.Name == "Standard output");
         var stderr = await Assert.That(attachments)
-            .HasSingleItem(static (item) => item.name == "Standard error");
+            .HasSingleItem(static (item) => item.Name == "Standard error");
 
-        await Assert.That(this.writer.ByteAttachments[stdout.source]).IsEmpty();
-        await Assert.That(this.writer.ByteAttachments[stderr.source]).IsEmpty();
+        await Assert.That(this.writer.ByteAttachments[stdout.Source]).IsEmpty();
+        await Assert.That(this.writer.ByteAttachments[stderr.Source]).IsEmpty();
     }
 
     static TestNode TestNodeWith(params IProperty[] properties) => new()

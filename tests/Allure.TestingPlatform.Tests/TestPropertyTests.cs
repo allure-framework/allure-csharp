@@ -1,9 +1,8 @@
 using Microsoft.Testing.Platform.TestHost;
 using Allure.TestingPlatform.Tests.Stubs;
 using Allure.TestingPlatform.Sdk.Messages;
-using Allure.Net.Commons;
+using Allure.Model;
 using Allure.TestingPlatform.Sdk.Properties;
-using Allure.Net.Commons.Attributes;
 using System.Reflection;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Allure.TestingPlatform.Tests.Comparers;
@@ -11,7 +10,7 @@ using Allure.TestingPlatform.Sdk.Correlation;
 
 namespace Allure.TestingPlatform.Tests;
 
-using AllureTestResult = Net.Commons.TestResult;
+using AllureTestResult = Model.TestResult;
 
 public class TestPropertyTests : DataConsumerTestsBase
 {
@@ -57,7 +56,7 @@ public class TestPropertyTests : DataConsumerTestsBase
     {
         var testResult = await this.ArrangeAndAct(new AllureNameProperty<AllureTestResult>("Updated name"));
 
-        await Assert.That(testResult.name).IsEqualTo("Updated name");
+        await Assert.That(testResult.Name).IsEqualTo("Updated name");
     }
 
     [Test]
@@ -65,7 +64,7 @@ public class TestPropertyTests : DataConsumerTestsBase
     {
         var testResult = await this.ArrangeAndAct(new AllureDescriptionProperty<AllureTestResult>("Lorem Ipsum"));
 
-        await Assert.That(testResult.description).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.Description).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -76,7 +75,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureDescriptionProperty<AllureTestResult>("Dolor Sit Amet") { Append = true }
         );
 
-        await Assert.That(testResult.description).IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
+        await Assert.That(testResult.Description).IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
     }
 
     [Test]
@@ -84,7 +83,7 @@ public class TestPropertyTests : DataConsumerTestsBase
     {
         var testResult = await this.ArrangeAndAct(new AllureDescriptionHtmlProperty<AllureTestResult>("Lorem Ipsum"));
 
-        await Assert.That(testResult.descriptionHtml).IsEqualTo("Lorem Ipsum");
+        await Assert.That(testResult.DescriptionHtml).IsEqualTo("Lorem Ipsum");
     }
 
     [Test]
@@ -95,7 +94,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureDescriptionHtmlProperty<AllureTestResult>("Dolor Sit Amet") { Append = true }
         );
 
-        await Assert.That(testResult.descriptionHtml).IsEqualTo("Lorem IpsumDolor Sit Amet");
+        await Assert.That(testResult.DescriptionHtml).IsEqualTo("Lorem IpsumDolor Sit Amet");
     }
 
     [Test]
@@ -105,7 +104,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureStartProperty<AllureTestResult>(100)
         );
 
-        await Assert.That(testResult.start).IsEqualTo(100);
+        await Assert.That(testResult.Start).IsEqualTo(100);
     }
 
     [Test]
@@ -115,7 +114,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureStartProperty<AllureTestResult>(DateTimeOffset.FromUnixTimeMilliseconds(100400))
         );
 
-        await Assert.That(testResult.start).IsEqualTo(100400);
+        await Assert.That(testResult.Start).IsEqualTo(100400);
     }
 
     [Test]
@@ -125,7 +124,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureStopProperty<AllureTestResult>(100)
         );
 
-        await Assert.That(testResult.stop).IsEqualTo(100);
+        await Assert.That(testResult.Stop).IsEqualTo(100);
     }
 
     [Test]
@@ -135,7 +134,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureStopProperty<AllureTestResult>(DateTimeOffset.FromUnixTimeMilliseconds(100400))
         );
 
-        await Assert.That(testResult.stop).IsEqualTo(100400);
+        await Assert.That(testResult.Stop).IsEqualTo(100400);
     }
 
     [Test]
@@ -146,7 +145,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureDurationProperty<AllureTestResult>(100)
         );
 
-        await Assert.That(testResult.stop).IsEqualTo(101);
+        await Assert.That(testResult.Stop).IsEqualTo(101);
     }
 
     [Test]
@@ -157,7 +156,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureDurationProperty<AllureTestResult>(TimeSpan.FromMilliseconds(100))
         );
 
-        await Assert.That(testResult.stop).IsEqualTo(101);
+        await Assert.That(testResult.Stop).IsEqualTo(101);
     }
 
     [Test]
@@ -171,7 +170,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.start).IsEqualTo(1);
+        await Assert.That(testResult.Start).IsEqualTo(1);
     }
 
     [Test]
@@ -185,59 +184,59 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.start).IsEqualTo(1);
+        await Assert.That(testResult.Start).IsEqualTo(1);
     }
 
     [Test]
-    [Arguments(Status.passed)]
-    [Arguments(Status.failed)]
-    [Arguments(Status.broken)]
-    [Arguments(Status.skipped)]
+    [Arguments(Status.Passed)]
+    [Arguments(Status.Failed)]
+    [Arguments(Status.Broken)]
+    [Arguments(Status.Skipped)]
     public async Task ShouldSetStatus(Status expectedStatus)
     {
         var testResult = await this.ArrangeAndAct(
             new AllureStatusProperty<AllureTestResult>(expectedStatus)
         );
 
-        await Assert.That(testResult.status).IsEqualTo(expectedStatus);
+        await Assert.That(testResult.Status).IsEqualTo(expectedStatus);
     }
 
     [Test]
     public async Task ShouldOverwriteStatusByDefault()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureStatusProperty<AllureTestResult>(Status.failed),
-            new AllureStatusProperty<AllureTestResult>(Status.passed)
+            new AllureStatusProperty<AllureTestResult>(Status.Failed),
+            new AllureStatusProperty<AllureTestResult>(Status.Passed)
         );
 
-        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+        await Assert.That(testResult.Status).IsEqualTo(Status.Passed);
     }
 
     [Test]
     public async Task ShouldNotOverwriteAlreadySetStatusIfOptedOut()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureStatusProperty<AllureTestResult>(Status.failed),
-            new AllureStatusProperty<AllureTestResult>(Status.passed)
+            new AllureStatusProperty<AllureTestResult>(Status.Failed),
+            new AllureStatusProperty<AllureTestResult>(Status.Passed)
             {
                 OnlyIfUnset = true
             }
         );
 
-        await Assert.That(testResult.status).IsEqualTo(Status.failed);
+        await Assert.That(testResult.Status).IsEqualTo(Status.Failed);
     }
 
     [Test]
     public async Task ShouldNotOverwriteDefaultStatusEvenIfOptedOutFromOverwrite()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureStatusProperty<AllureTestResult>(Status.passed)
+            new AllureStatusProperty<AllureTestResult>(Status.Passed)
             {
                 OnlyIfUnset = true
             }
         );
 
-        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+        await Assert.That(testResult.Status).IsEqualTo(Status.Passed);
     }
 
     [Test]
@@ -246,17 +245,17 @@ public class TestPropertyTests : DataConsumerTestsBase
         var testResult = await this.ArrangeAndAct(
             new AllureStatusDetailsProperty<AllureTestResult>(new()
             {
-                message = "Foo",
-                trace = "Bar",
-                known = true,
-                muted = true,
+                Message = "Foo",
+                Trace = "Bar",
+                Known = true,
+                Muted = true,
             })
         );
 
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Foo");
-        await Assert.That(testResult.statusDetails.trace).IsEqualTo("Bar");
-        await Assert.That(testResult.statusDetails.known).IsTrue();
-        await Assert.That(testResult.statusDetails.muted).IsTrue();
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Foo");
+        await Assert.That(testResult.StatusDetails.Trace).IsEqualTo("Bar");
+        await Assert.That(testResult.StatusDetails.Known).IsTrue();
+        await Assert.That(testResult.StatusDetails.Muted).IsTrue();
     }
 
     [Test]
@@ -266,23 +265,9 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureExceptionProperty<AllureTestResult>(new Exception("Foo"))
         );
 
-        await Assert.That(testResult.status).IsEqualTo(Status.broken);
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Foo");
-        await Assert.That(testResult.statusDetails.trace).Contains("System.Exception");
-    }
-
-    [Test]
-    public async Task ShouldSetFailedStatusAndDetailsFromError()
-    {
-        this.config.FailExceptions = ["System.Exception"];
-
-        var testResult = await this.ArrangeAndAct(
-            new AllureExceptionProperty<AllureTestResult>(new Exception("Foo"))
-        );
-
-        await Assert.That(testResult.status).IsEqualTo(Status.failed);
-        await Assert.That(testResult.statusDetails.message).IsEqualTo("Foo");
-        await Assert.That(testResult.statusDetails.trace).Contains("System.Exception");
+        await Assert.That(testResult.Status).IsEqualTo(Status.Broken);
+        await Assert.That(testResult.StatusDetails.Message).IsEqualTo("Foo");
+        await Assert.That(testResult.StatusDetails.Trace).Contains("System.Exception");
     }
 
     static void TargetMethod(
@@ -313,27 +298,27 @@ public class TestPropertyTests : DataConsumerTestsBase
             )
         );
 
-        await Assert.That(testResult.parameters).Count().IsEqualTo(4);
-        var parameter1 = testResult.parameters[0];
-        var parameter2 = testResult.parameters[1];
-        var parameter3 = testResult.parameters[2];
-        var parameter4 = testResult.parameters[3];
+        await Assert.That(testResult.Parameters).Count().IsEqualTo(4);
+        var parameter1 = testResult.Parameters[0];
+        var parameter2 = testResult.Parameters[1];
+        var parameter3 = testResult.Parameters[2];
+        var parameter4 = testResult.Parameters[3];
 
-        await Assert.That(parameter1.name).IsEqualTo("p1");
-        await Assert.That(parameter1.value).IsEqualTo("10");
-        await Assert.That(parameter1.mode).IsNull();
+        await Assert.That(parameter1.Name).IsEqualTo("p1");
+        await Assert.That(parameter1.Value).IsEqualTo("10");
+        await Assert.That(parameter1.Mode).IsNull();
 
-        await Assert.That(parameter2.name).IsEqualTo("Foo");
-        await Assert.That(parameter2.value).IsEqualTo("\"foo\"");
-        await Assert.That(parameter2.mode).IsNull();
+        await Assert.That(parameter2.Name).IsEqualTo("Foo");
+        await Assert.That(parameter2.Value).IsEqualTo("\"foo\"");
+        await Assert.That(parameter2.Mode).IsNull();
 
-        await Assert.That(parameter3.name).IsEqualTo("p3");
-        await Assert.That(parameter3.value).IsEqualTo("20");
-        await Assert.That(parameter3.mode).IsEqualTo(ParameterMode.Masked);
+        await Assert.That(parameter3.Name).IsEqualTo("p3");
+        await Assert.That(parameter3.Value).IsEqualTo("20");
+        await Assert.That(parameter3.Mode).IsEqualTo(ParameterMode.Masked);
 
-        await Assert.That(parameter4.name).IsEqualTo("p4");
-        await Assert.That(parameter4.value).IsEqualTo("30");
-        await Assert.That(parameter4.mode).IsEqualTo(ParameterMode.Hidden);
+        await Assert.That(parameter4.Name).IsEqualTo("p4");
+        await Assert.That(parameter4.Value).IsEqualTo("30");
+        await Assert.That(parameter4.Mode).IsEqualTo(ParameterMode.Hidden);
     }
 
     [Test]
@@ -342,21 +327,21 @@ public class TestPropertyTests : DataConsumerTestsBase
         var testResult = await this.ArrangeAndAct(
             new AllureParametersProperty<AllureTestResult>(
                 [
-                    new(){ name = "foo", value = "1" },
-                    new(){ name = "bar", value = "2" },
+                    new(){ Name = "foo", Value = "1" },
+                    new(){ Name = "bar", Value = "2" },
                 ]
             )
         );
 
-        await Assert.That(testResult.parameters).Count().IsEqualTo(2);
-        var parameter1 = testResult.parameters[0];
-        var parameter2 = testResult.parameters[1];
+        await Assert.That(testResult.Parameters).Count().IsEqualTo(2);
+        var parameter1 = testResult.Parameters[0];
+        var parameter2 = testResult.Parameters[1];
 
-        await Assert.That(parameter1.name).IsEqualTo("foo");
-        await Assert.That(parameter1.value).IsEqualTo("1");
+        await Assert.That(parameter1.Name).IsEqualTo("foo");
+        await Assert.That(parameter1.Value).IsEqualTo("1");
 
-        await Assert.That(parameter2.name).IsEqualTo("bar");
-        await Assert.That(parameter2.value).IsEqualTo("2");
+        await Assert.That(parameter2.Name).IsEqualTo("bar");
+        await Assert.That(parameter2.Value).IsEqualTo("2");
     }
 
     [Test]
@@ -365,18 +350,18 @@ public class TestPropertyTests : DataConsumerTestsBase
         var testResult = await this.ArrangeAndAct(
             new AllureAttachmentProperty<AllureTestResult>(
                 "Foo",
-                [1, 2, 3, 4]
+                new MemoryStream([1, 2, 3, 4])
             )
         );
 
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.source);
-        await Assert.That(this.writer.ByteAttachments[attachment.source]).IsEquivalentTo(
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(this.writer.ByteAttachments).ContainsKey(attachment.Source);
+        await Assert.That(this.writer.ByteAttachments[attachment.Source]).IsEquivalentTo(
             new byte[]{ 1, 2, 3, 4 },
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );
-        await Assert.That(attachment.name).IsEqualTo("Foo");
-        await Assert.That(attachment.type).IsNull();
+        await Assert.That(attachment.Name).IsEqualTo("Foo");
+        await Assert.That(attachment.Type).IsNull();
     }
 
     [Test]
@@ -385,15 +370,15 @@ public class TestPropertyTests : DataConsumerTestsBase
         var testResult = await this.ArrangeAndAct(
             new AllureAttachmentProperty<AllureTestResult>(
                 "Foo",
-                [1, 2, 3, 4]
+                new MemoryStream([1, 2, 3, 4])
             )
             {
-                ContentType = "application/json"
+                MediaType = "application/json"
             }
         );
 
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.type).IsEqualTo("application/json");
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Type).IsEqualTo("application/json");
     }
 
     [Test]
@@ -402,15 +387,15 @@ public class TestPropertyTests : DataConsumerTestsBase
         var testResult = await this.ArrangeAndAct(
             new AllureAttachmentProperty<AllureTestResult>(
                 "Foo",
-                [1, 2, 3, 4]
+                new MemoryStream([1, 2, 3, 4])
             )
             {
                 FileExtension = ".txt"
             }
         );
 
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.source).EndsWith(".txt");
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Source).EndsWith(".txt");
     }
 
     [Test]
@@ -423,15 +408,15 @@ public class TestPropertyTests : DataConsumerTestsBase
             )
         );
 
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.source);
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(this.writer.FileAttachments).ContainsKey(attachment.Source);
         var relative = Path.GetRelativePath(
             Environment.CurrentDirectory,
-            this.writer.FileAttachments[attachment.source]
+            this.writer.FileAttachments[attachment.Source]
         );
         await Assert.That(relative).IsEqualTo("filepath");
-        await Assert.That(attachment.name).IsEqualTo("Foo");
-        await Assert.That(attachment.type).IsNull();
+        await Assert.That(attachment.Name).IsEqualTo("Foo");
+        await Assert.That(attachment.Type).IsNull();
     }
 
     [Test]
@@ -443,12 +428,12 @@ public class TestPropertyTests : DataConsumerTestsBase
                 "filepath"
             )
             {
-                ContentType = "application/json"
+                MediaType = "application/json"
             }
         );
 
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.type).IsEqualTo("application/json");
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Type).IsEqualTo("application/json");
     }
 
     [Test]
@@ -464,8 +449,8 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.source).EndsWith(".txt");
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Source).EndsWith(".txt");
     }
 
     [Test]
@@ -478,8 +463,8 @@ public class TestPropertyTests : DataConsumerTestsBase
             )
         );
 
-        var attachment = await Assert.That(testResult.attachments).HasSingleItem();
-        await Assert.That(attachment.source).EndsWith(".txt");
+        var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
+        await Assert.That(attachment.Source).EndsWith(".txt");
     }
 
     [Test]
@@ -487,14 +472,14 @@ public class TestPropertyTests : DataConsumerTestsBase
     {
         var testResult = await this.ArrangeAndAct(
             new AllureLabelsProperty([
-                new(){ name = "foo", value = "bar" },
-                new(){ name = "baz", value = "qux" },
+                new(){ Name = "foo", Value = "bar" },
+                new(){ Name = "baz", Value = "qux" },
             ])
         );
 
-        await Assert.That(testResult.labels)
-            .Contains(l => l.name == "foo" && l.value == "bar")
-            .And.Contains(l => l.name == "baz" && l.value == "qux");
+        await Assert.That(testResult.Labels)
+            .Contains(l => l.Name == "foo" && l.Value == "bar")
+            .And.Contains(l => l.Name == "baz" && l.Value == "qux");
     }
 
     [Test]
@@ -502,14 +487,14 @@ public class TestPropertyTests : DataConsumerTestsBase
     {
         var testResult = await this.ArrangeAndAct(
             new AllureLinksProperty([
-                new(){ name = "foo", url = "bar" },
-                new(){ name = "baz", url = "qux", type = "qut" },
+                new(){ Name = "foo", Url = "bar" },
+                new(){ Name = "baz", Url = "qux", Type = "qut" },
             ])
         );
 
-        await Assert.That(testResult.links)
-            .Contains(l => l.name == "foo" && l.url == "bar" && l.type is null)
-            .And.Contains(l => l.name == "baz" && l.url == "qux" && l.type == "qut");
+        await Assert.That(testResult.Links)
+            .Contains(l => l.Name == "foo" && l.Url == "bar" && l.Type is null)
+            .And.Contains(l => l.Name == "baz" && l.Url == "qux" && l.Type == "qut");
     }
 
     [Test]
@@ -519,12 +504,12 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureDefaultSuitesProperty("foo", "bar", "baz")
         );
 
-        var parentSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "parentSuite");
-        var suite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "suite");
-        var subSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "subSuite");
-        await Assert.That(parentSuite.value).IsEqualTo("foo");
-        await Assert.That(suite.value).IsEqualTo("bar");
-        await Assert.That(subSuite.value).IsEqualTo("baz");
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "parentSuite");
+        var suite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "suite");
+        var subSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "subSuite");
+        await Assert.That(parentSuite.Value).IsEqualTo("foo");
+        await Assert.That(suite.Value).IsEqualTo("bar");
+        await Assert.That(subSuite.Value).IsEqualTo("baz");
     }
 
     [Test]
@@ -534,12 +519,12 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureDefaultSuitesProperty(typeof(TargetClass))
         );
 
-        var parentSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "parentSuite");
-        var suite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "suite");
-        var subSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "subSuite");
-        await Assert.That(parentSuite.value).IsEqualTo("Allure.TestingPlatform.Tests");
-        await Assert.That(suite.value).IsEqualTo("Allure.TestingPlatform.Tests");
-        await Assert.That(subSuite.value).IsEqualTo("TargetClass");
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "parentSuite");
+        var suite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "suite");
+        var subSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "subSuite");
+        await Assert.That(parentSuite.Value).IsEqualTo("Allure.TestingPlatform.Tests");
+        await Assert.That(suite.Value).IsEqualTo("Allure.TestingPlatform.Tests");
+        await Assert.That(subSuite.Value).IsEqualTo("TargetClass");
     }
 
     [Test]
@@ -549,53 +534,53 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureDefaultSuitesProperty(typeof(TargetClassNamed))
         );
 
-        await Assert.That(testResult.labels)
-            .Contains(l => l.name == "subSuite" && l.value == "Foo");
+        await Assert.That(testResult.Labels)
+            .Contains(l => l.Name == "subSuite" && l.Value == "Foo");
     }
 
     [Test]
     public async Task ShouldNotAddDefaultSuitesIfParentSuitePresent()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureLabelsProperty([new(){ name = "parentSuite", value = "qux" }]),
+            new AllureLabelsProperty([new(){ Name = "parentSuite", Value = "qux" }]),
             new AllureDefaultSuitesProperty("foo", "bar", "baz")
         );
 
-        var parentSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "parentSuite");
-        await Assert.That(parentSuite.value).IsEqualTo("qux");
-        await Assert.That(testResult.labels)
-            .DoesNotContain(l => l.name == "suite")
-            .And.DoesNotContain(l => l.name == "subSuite");
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "parentSuite");
+        await Assert.That(parentSuite.Value).IsEqualTo("qux");
+        await Assert.That(testResult.Labels)
+            .DoesNotContain(l => l.Name == "suite")
+            .And.DoesNotContain(l => l.Name == "subSuite");
     }
 
     [Test]
     public async Task ShouldNotAddDefaultSuitesIfSuitePresent()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureLabelsProperty([new(){ name = "suite", value = "qux" }]),
+            new AllureLabelsProperty([new(){ Name = "suite", Value = "qux" }]),
             new AllureDefaultSuitesProperty("foo", "bar", "baz")
         );
 
-        var suite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "suite");
-        await Assert.That(suite.value).IsEqualTo("qux");
-        await Assert.That(testResult.labels)
-            .DoesNotContain(l => l.name == "parentSuite")
-            .And.DoesNotContain(l => l.name == "subSuite");
+        var suite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "suite");
+        await Assert.That(suite.Value).IsEqualTo("qux");
+        await Assert.That(testResult.Labels)
+            .DoesNotContain(l => l.Name == "parentSuite")
+            .And.DoesNotContain(l => l.Name == "subSuite");
     }
 
     [Test]
     public async Task ShouldNotAddDefaultSuitesIfSubSuitePresent()
     {
         var testResult = await this.ArrangeAndAct(
-            new AllureLabelsProperty([new(){ name = "subSuite", value = "qux" }]),
+            new AllureLabelsProperty([new(){ Name = "subSuite", Value = "qux" }]),
             new AllureDefaultSuitesProperty("foo", "bar", "baz")
         );
 
-        var subSuite = await Assert.That(testResult.labels).HasSingleItem(l => l.name == "subSuite");
-        await Assert.That(subSuite.value).IsEqualTo("qux");
-        await Assert.That(testResult.labels)
-            .DoesNotContain(l => l.name == "parentSuite")
-            .And.DoesNotContain(l => l.name == "suite");
+        var subSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "subSuite");
+        await Assert.That(subSuite.Value).IsEqualTo("qux");
+        await Assert.That(testResult.Labels)
+            .DoesNotContain(l => l.Name == "parentSuite")
+            .And.DoesNotContain(l => l.Name == "suite");
     }
 
     [Test]
@@ -614,10 +599,10 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.fullName).IsEqualTo(
+        await Assert.That(testResult.FullName).IsEqualTo(
             "Allure.TestingPlatform.Tests:Allure.TestingPlatform.Tests.TargetClass.TargetMethod(System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32)"
         );
-        await Assert.That(testResult.titlePath).IsEquivalentTo([
+        await Assert.That(testResult.TitlePath).IsEquivalentTo([
             "Allure.TestingPlatform.Tests",
             "Allure",
             "TestingPlatform",
@@ -625,25 +610,25 @@ public class TestPropertyTests : DataConsumerTestsBase
             "TargetClass",
             "TargetMethod(System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32)",
         ]);
-        await Assert.That(testResult.labels)
-            .Contains(l => l.name == "testClass" && l.value == "TargetClass")
-            .And.Contains(l => l.name == "testMethod" && l.value == "TargetMethod")
-            .And.Contains(l => l.name == "package" && l.value == "Allure.TestingPlatform.Tests.TargetClass");
-        await Assert.That(testResult.parameters).IsEquivalentTo(
+        await Assert.That(testResult.Labels)
+            .Contains(l => l.Name == "testClass" && l.Value == "TargetClass")
+            .And.Contains(l => l.Name == "testMethod" && l.Value == "TargetMethod")
+            .And.Contains(l => l.Name == "package" && l.Value == "Allure.TestingPlatform.Tests.TargetClass");
+        await Assert.That(testResult.Parameters).IsEquivalentTo(
             [
-                new Parameter() { name = "p1", value = "1" },
-                new Parameter() { name = "Foo", value = "2" },
-                new Parameter() { name = "p3", value = "\"foo\"", mode = ParameterMode.Masked },
-                new Parameter() { name = "p4", value = "3", mode = ParameterMode.Hidden },
-                new Parameter() { name = "p5", value = "4", excluded = true },
+                new Parameter() { Name = "p1", Value = "1" },
+                new Parameter() { Name = "Foo", Value = "2" },
+                new Parameter() { Name = "p3", Value = "\"foo\"", Mode = ParameterMode.Masked },
+                new Parameter() { Name = "p4", Value = "3", Mode = ParameterMode.Hidden },
+                new Parameter() { Name = "p5", Value = "4", Excluded = true },
             ],
             ParameterComparer.Instance,
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );
 
-        await Assert.That(testResult.labels)
-            .Contains(l => l.name == "epic" && l.value == "foo")
-            .And.Contains(l => l.name == "feature" && l.value == "bar");
+        await Assert.That(testResult.Labels)
+            .Contains(l => l.Name == "epic" && l.Value == "foo")
+            .And.Contains(l => l.Name == "feature" && l.Value == "bar");
     }
 
     [Test]
@@ -659,7 +644,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTestMethodProperty(method)
         );
 
-        await Assert.That(testResult.titlePath).IsEquivalentTo([
+        await Assert.That(testResult.TitlePath).IsEquivalentTo([
             "Allure.TestingPlatform.Tests",
             "Allure",
             "TestingPlatform",
@@ -682,7 +667,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTestMethodProperty(method)
         );
 
-        await Assert.That(testResult.titlePath).IsEquivalentTo([
+        await Assert.That(testResult.TitlePath).IsEquivalentTo([
             "Allure.TestingPlatform.Tests",
             "Allure",
             "TestingPlatform",
@@ -708,7 +693,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.fullName).IsEqualTo("1");
+        await Assert.That(testResult.FullName).IsEqualTo("1");
     }
 
     [Test]
@@ -728,7 +713,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.titlePath).IsEmpty();
+        await Assert.That(testResult.TitlePath).IsEmpty();
     }
 
     [Test]
@@ -748,10 +733,10 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.labels)
-            .DoesNotContain(l => l.name == "testClass")
-            .And.DoesNotContain(l => l.name == "testMethod")
-            .And.DoesNotContain(l => l.name == "package");
+        await Assert.That(testResult.Labels)
+            .DoesNotContain(l => l.Name == "testClass")
+            .And.DoesNotContain(l => l.Name == "testMethod")
+            .And.DoesNotContain(l => l.Name == "package");
     }
 
     [Test]
@@ -771,7 +756,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.parameters).IsEmpty();
+        await Assert.That(testResult.Parameters).IsEmpty();
     }
 
     [Test]
@@ -791,9 +776,9 @@ public class TestPropertyTests : DataConsumerTestsBase
             }
         );
 
-        await Assert.That(testResult.labels)
-            .DoesNotContain(l => l.name == "epic")
-            .And.DoesNotContain(l => l.name == "feature");
+        await Assert.That(testResult.Labels)
+            .DoesNotContain(l => l.Name == "epic")
+            .And.DoesNotContain(l => l.Name == "feature");
     }
 
     [Test]
@@ -811,13 +796,13 @@ public class TestPropertyTests : DataConsumerTestsBase
                 [1, 2, "foo", 3, 4, 5])
         );
 
-        await Assert.That(testResult.parameters).IsEquivalentTo(
+        await Assert.That(testResult.Parameters).IsEquivalentTo(
             [
-                new Parameter() { name = "p1", value = "1" },
-                new Parameter() { name = "Foo", value = "2" },
-                new Parameter() { name = "p3", value = "\"foo\"", mode = ParameterMode.Masked },
-                new Parameter() { name = "p4", value = "3", mode = ParameterMode.Hidden },
-                new Parameter() { name = "p5", value = "4", excluded = true },
+                new Parameter() { Name = "p1", Value = "1" },
+                new Parameter() { Name = "Foo", Value = "2" },
+                new Parameter() { Name = "p3", Value = "\"foo\"", Mode = ParameterMode.Masked },
+                new Parameter() { Name = "p4", Value = "3", Mode = ParameterMode.Hidden },
+                new Parameter() { Name = "p5", Value = "4", Excluded = true },
             ],
             ParameterComparer.Instance,
             TUnit.Assertions.Enums.CollectionOrdering.Matching
@@ -831,7 +816,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureFullNameProperty("foo")
         );
 
-        await Assert.That(testResult.fullName).IsEqualTo("foo");
+        await Assert.That(testResult.FullName).IsEqualTo("foo");
     }
 
     [Test]
@@ -841,7 +826,7 @@ public class TestPropertyTests : DataConsumerTestsBase
             new AllureTitlePathProperty(["foo", "bar"])
         );
 
-        await Assert.That(testResult.titlePath).IsEquivalentTo(
+        await Assert.That(testResult.TitlePath).IsEquivalentTo(
             ["foo", "bar"],
             TUnit.Assertions.Enums.CollectionOrdering.Matching
         );

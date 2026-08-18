@@ -1,4 +1,5 @@
-using Allure.Net.Commons;
+using Allure.Model;
+using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
 namespace Allure.TestingPlatform.Sdk.Properties;
@@ -6,6 +7,7 @@ namespace Allure.TestingPlatform.Sdk.Properties;
 /// <summary>
 /// Sets the full name of an Allure test result.
 /// </summary>
+/// <param name="fullName">The full name to set.</param>
 public sealed class AllureFullNameProperty(string fullName) : IAllureProperty<TestResult>
 {
     /// <summary>
@@ -14,8 +16,8 @@ public sealed class AllureFullNameProperty(string fullName) : IAllureProperty<Te
     public string FullName { get; } = fullName;
 
     /// <inheritdoc />
-    public void Apply(LiveAllureTestingPlatformRuntime _, TestResult target)
+    public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> _, TestResult target)
     {
-        target.fullName = this.FullName;
+        target.FullName = this.FullName;
     }
 }
