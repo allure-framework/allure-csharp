@@ -404,7 +404,7 @@ sealed class AllureTestingPlatformAsyncOperations(
                 name
             )
             {
-                Properties = [new AllureParametersProperty<FixtureResult>(parameters)],
+                Properties = [new AllureParametersProperty<StepResult>(parameters)],
             }
         );
 
@@ -456,7 +456,7 @@ sealed class AllureTestingPlatformAsyncOperations(
                 name
             )
             {
-                Properties = [new AllureParametersProperty<FixtureResult>(parameters)],
+                Properties = [new AllureParametersProperty<StepResult>(parameters)],
             }
         );
 
