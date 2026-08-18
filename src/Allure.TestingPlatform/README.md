@@ -497,10 +497,7 @@ sealed class MyFrameworkAllureRegistrationSession :
 Register the session with the two-type overload of `AddEmbeddedAllure`:
 
 ```csharp
-var allure = builder.AddEmbeddedAllure<
-    MyFrameworkAllureConfiguration,
-    MyFrameworkAllureRuntime
->(
+var allure = builder.AddEmbeddedAllure(
     "My Framework",
     () => new MyFrameworkAllureRegistrationSession(),
     (context, _) =>
@@ -596,15 +593,7 @@ Replace the preceding two-type registration call with the three-type
 used by the session:
 
 ```csharp
-var allure = builder.AddEmbeddedAllure<
-    MyFrameworkAllureConfiguration,
-    MyFrameworkAllureRuntime,
-    IAllureTestingPlatformIntegrationContext<
-        MyFrameworkAllureConfiguration,
-        MyFrameworkAllureRuntime,
-        IMyFrameworkAllureRegistrationContext
-    >
->(
+var allure = builder.AddEmbeddedAllure(
     "My Framework",
     () => new MyFrameworkAllureRegistrationSession(),
     (context, _) =>
