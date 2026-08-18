@@ -1,4 +1,5 @@
 using Allure.Model;
+using Allure.Abstractions;
 
 namespace Allure.TestingPlatform.Tests.OperationTests;
 
@@ -165,6 +166,36 @@ public class SyncOperationTests : OperationTestsBase
         return Task.CompletedTask;
     }
 
+    protected override Task SetNameOnDisposedFixtureContext()
+    {
+        var context = CaptureDisposedFixtureContext();
+        context.SetName("renamed fixture");
+        return Task.CompletedTask;
+    }
+
+    protected override Task AddParameterToDisposedFixtureContext(
+        Parameter parameter
+    )
+    {
+        var context = CaptureDisposedFixtureContext();
+        context.AddParameter(parameter);
+        return Task.CompletedTask;
+    }
+
+    protected override Task ReadDisposedFixtureContext()
+    {
+        var context = CaptureDisposedFixtureContext();
+        context.TryReadFixtureResult(fixture => fixture.Name, out _);
+        return Task.CompletedTask;
+    }
+
+    protected override Task UpdateDisposedFixtureContext()
+    {
+        var context = CaptureDisposedFixtureContext();
+        context.UpdateFixtureResult(fixture => fixture.Name = "renamed fixture");
+        return Task.CompletedTask;
+    }
+
     protected override Task StepCompleted(
         string name,
         Status status,
@@ -197,6 +228,56 @@ public class SyncOperationTests : OperationTestsBase
             context => context.AddParameter(parameter)
         );
         return Task.CompletedTask;
+    }
+
+    protected override Task SetNameOnDisposedStepContext()
+    {
+        var context = CaptureDisposedStepContext();
+        context.SetName("renamed step");
+        return Task.CompletedTask;
+    }
+
+    protected override Task AddParameterToDisposedStepContext(
+        Parameter parameter
+    )
+    {
+        var context = CaptureDisposedStepContext();
+        context.AddParameter(parameter);
+        return Task.CompletedTask;
+    }
+
+    protected override Task ReadDisposedStepContext()
+    {
+        var context = CaptureDisposedStepContext();
+        context.TryReadStepResult(step => step.Name, out _);
+        return Task.CompletedTask;
+    }
+
+    protected override Task UpdateDisposedStepContext()
+    {
+        var context = CaptureDisposedStepContext();
+        context.UpdateStepResult(step => step.Name = "renamed step");
+        return Task.CompletedTask;
+    }
+
+    static IAllureInProcessSyncFixtureContext CaptureDisposedFixtureContext()
+    {
+        IAllureInProcessSyncFixtureContext context = null;
+        AllureInProcessApi.SetUp("fixture", current =>
+        {
+            context = current;
+        });
+        return context;
+    }
+
+    static IAllureInProcessSyncStepContext CaptureDisposedStepContext()
+    {
+        IAllureInProcessSyncStepContext context = null;
+        AllureInProcessApi.Step("step", current =>
+        {
+            context = current;
+        });
+        return context;
     }
 
     protected override Task RunNestedSteps(string outerName, string innerName)

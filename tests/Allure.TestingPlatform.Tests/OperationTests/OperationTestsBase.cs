@@ -78,6 +78,16 @@ public abstract class OperationTestsBase
 
     protected abstract Task AddFixtureContextParameter(Parameter parameter);
 
+    protected abstract Task SetNameOnDisposedFixtureContext();
+
+    protected abstract Task AddParameterToDisposedFixtureContext(
+        Parameter parameter
+    );
+
+    protected abstract Task ReadDisposedFixtureContext();
+
+    protected abstract Task UpdateDisposedFixtureContext();
+
     protected abstract Task StepCompleted(
         string name,
         Status status,
@@ -91,6 +101,16 @@ public abstract class OperationTestsBase
     protected abstract Task SetStepContextName(string newName);
 
     protected abstract Task AddStepContextParameter(Parameter parameter);
+
+    protected abstract Task SetNameOnDisposedStepContext();
+
+    protected abstract Task AddParameterToDisposedStepContext(
+        Parameter parameter
+    );
+
+    protected abstract Task ReadDisposedStepContext();
+
+    protected abstract Task UpdateDisposedStepContext();
 
     protected abstract Task RunNestedSteps(string outerName, string innerName);
 
@@ -750,6 +770,59 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldRejectSetNameOnDisposedFixtureContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.SetNameOnDisposedFixtureContext()
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("fixture");
+    }
+
+    [Test]
+    public async Task ShouldRejectAddParameterToDisposedFixtureContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.AddParameterToDisposedFixtureContext(new()
+            {
+                Name = "parameter",
+                Value = "value",
+                Mode = ParameterMode.Masked,
+                Excluded = true,
+            })
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Parameters).IsEmpty();
+    }
+
+    [Test]
+    public async Task ShouldRejectReadFromDisposedFixtureContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.ReadDisposedFixtureContext()
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        await Assert.That(container.Befores).HasSingleItem();
+    }
+
+    [Test]
+    public async Task ShouldRejectUpdateOnDisposedFixtureContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.UpdateDisposedFixtureContext()
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("fixture");
+    }
+
+    [Test]
     public async Task ShouldAddCompletedStep()
     {
         var destination = await Run(
@@ -911,6 +984,59 @@ public abstract class OperationTestsBase
             "step parameter",
             "step value"
         );
+    }
+
+    [Test]
+    public async Task ShouldRejectSetNameOnDisposedStepContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.SetNameOnDisposedStepContext()
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await Assert.That(step.Name).IsEqualTo("step");
+    }
+
+    [Test]
+    public async Task ShouldRejectAddParameterToDisposedStepContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.AddParameterToDisposedStepContext(new()
+            {
+                Name = "parameter",
+                Value = "value",
+                Mode = ParameterMode.Masked,
+                Excluded = true,
+            })
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await Assert.That(step.Parameters).IsEmpty();
+    }
+
+    [Test]
+    public async Task ShouldRejectReadFromDisposedStepContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.ReadDisposedStepContext()
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        await Assert.That(testResult.Steps).HasSingleItem();
+    }
+
+    [Test]
+    public async Task ShouldRejectUpdateOnDisposedStepContext()
+    {
+        var destination = await RunDisposedContextOperation(
+            () => this.UpdateDisposedStepContext()
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await Assert.That(step.Name).IsEqualTo("step");
     }
 
     [Test]
@@ -1215,6 +1341,27 @@ public abstract class OperationTestsBase
 
         await Assert.That(actual).IsSameReferenceAs(expected);
         return (destination, expected);
+    }
+
+    static async Task<InMemoryResultsDestination> RunDisposedContextOperation(
+        Func<Task> operation
+    )
+    {
+        ObjectDisposedException exception = null;
+        var destination = await Run(async () =>
+        {
+            try
+            {
+                await operation();
+            }
+            catch (ObjectDisposedException e)
+            {
+                exception = e;
+            }
+        });
+
+        await Assert.That(exception).IsNotNull();
+        return destination;
     }
 
     static async Task AssertFailedOperation(

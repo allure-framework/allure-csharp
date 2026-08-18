@@ -1,4 +1,5 @@
 using Allure.Model;
+using Allure.Abstractions;
 
 namespace Allure.TestingPlatform.Tests.OperationTests;
 
@@ -156,6 +157,32 @@ public class AsyncOperationTests : OperationTestsBase
             CancellationToken.None
         );
 
+    protected override async Task SetNameOnDisposedFixtureContext()
+    {
+        var context = await CaptureDisposedFixtureContext();
+        await context.SetNameAsync("renamed fixture", CancellationToken.None);
+    }
+
+    protected override async Task AddParameterToDisposedFixtureContext(
+        Parameter parameter
+    )
+    {
+        var context = await CaptureDisposedFixtureContext();
+        await context.AddParameterAsync(parameter, CancellationToken.None);
+    }
+
+    protected override async Task ReadDisposedFixtureContext()
+    {
+        var context = await CaptureDisposedFixtureContext();
+        context.TryReadFixtureResult(fixture => fixture.Name, out _);
+    }
+
+    protected override async Task UpdateDisposedFixtureContext()
+    {
+        var context = await CaptureDisposedFixtureContext();
+        context.UpdateFixtureResult(fixture => fixture.Name = "renamed fixture");
+    }
+
     protected override Task StepCompleted(
         string name,
         Status status,
@@ -199,6 +226,60 @@ public class AsyncOperationTests : OperationTestsBase
             (context, token) => context.AddParameterAsync(parameter, token),
             CancellationToken.None
         );
+
+    protected override async Task SetNameOnDisposedStepContext()
+    {
+        var context = await CaptureDisposedStepContext();
+        await context.SetNameAsync("renamed step", CancellationToken.None);
+    }
+
+    protected override async Task AddParameterToDisposedStepContext(
+        Parameter parameter
+    )
+    {
+        var context = await CaptureDisposedStepContext();
+        await context.AddParameterAsync(parameter, CancellationToken.None);
+    }
+
+    protected override async Task ReadDisposedStepContext()
+    {
+        var context = await CaptureDisposedStepContext();
+        context.TryReadStepResult(step => step.Name, out _);
+    }
+
+    protected override async Task UpdateDisposedStepContext()
+    {
+        var context = await CaptureDisposedStepContext();
+        context.UpdateStepResult(step => step.Name = "renamed step");
+    }
+
+    static async Task<IAllureInProcessAsyncFixtureContext> CaptureDisposedFixtureContext()
+    {
+        IAllureInProcessAsyncFixtureContext context = null;
+        await AllureInProcessApi.SetUpAsync(
+            "fixture",
+            current =>
+            {
+                context = current;
+                return Task.CompletedTask;
+            }
+        );
+        return context;
+    }
+
+    static async Task<IAllureInProcessAsyncStepContext> CaptureDisposedStepContext()
+    {
+        IAllureInProcessAsyncStepContext context = null;
+        await AllureInProcessApi.StepAsync(
+            "step",
+            current =>
+            {
+                context = current;
+                return Task.CompletedTask;
+            }
+        );
+        return context;
+    }
 
     protected override Task RunNestedSteps(string outerName, string innerName) =>
         AllureApi.StepAsync(
