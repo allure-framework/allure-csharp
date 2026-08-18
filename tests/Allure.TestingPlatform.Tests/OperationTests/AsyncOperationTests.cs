@@ -142,6 +142,20 @@ public class AsyncOperationTests : OperationTestsBase
             CancellationToken.None
         );
 
+    protected override Task SetFixtureContextName(string newName) =>
+        AllureApi.SetUpAsync(
+            "fixture",
+            (context, token) => context.SetNameAsync(newName, token),
+            CancellationToken.None
+        );
+
+    protected override Task AddFixtureContextParameter(Parameter parameter) =>
+        AllureApi.SetUpAsync(
+            "fixture",
+            (context, token) => context.AddParameterAsync(parameter, token),
+            CancellationToken.None
+        );
+
     protected override Task StepCompleted(
         string name,
         Status status,
@@ -169,6 +183,20 @@ public class AsyncOperationTests : OperationTestsBase
         AllureApi.StepAsync(
             name,
             (_, _) => Task.FromResult(body()),
+            CancellationToken.None
+        );
+
+    protected override Task SetStepContextName(string newName) =>
+        AllureApi.StepAsync(
+            "step",
+            (context, token) => context.SetNameAsync(newName, token),
+            CancellationToken.None
+        );
+
+    protected override Task AddStepContextParameter(Parameter parameter) =>
+        AllureApi.StepAsync(
+            "step",
+            (context, token) => context.AddParameterAsync(parameter, token),
             CancellationToken.None
         );
 

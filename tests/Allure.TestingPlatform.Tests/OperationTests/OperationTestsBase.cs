@@ -74,6 +74,10 @@ public abstract class OperationTestsBase
 
     protected abstract Task<int> SetUpFunction(string name, Func<int> body);
 
+    protected abstract Task SetFixtureContextName(string newName);
+
+    protected abstract Task AddFixtureContextParameter(Parameter parameter);
+
     protected abstract Task StepCompleted(
         string name,
         Status status,
@@ -83,6 +87,10 @@ public abstract class OperationTestsBase
     protected abstract Task StepAction(string name, Action body);
 
     protected abstract Task<int> StepFunction(string name, Func<int> body);
+
+    protected abstract Task SetStepContextName(string newName);
+
+    protected abstract Task AddStepContextParameter(Parameter parameter);
 
     protected abstract Task RunNestedSteps(string outerName, string innerName);
 
@@ -707,6 +715,41 @@ public abstract class OperationTestsBase
     }
 
     [Test]
+    public async Task ShouldSetFixtureContextName()
+    {
+        var destination = await Run(
+            () => this.SetFixtureContextName("renamed fixture")
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("renamed fixture");
+    }
+
+    [Test]
+    public async Task ShouldAddFixtureContextParameter()
+    {
+        var destination = await Run(
+            () => this.AddFixtureContextParameter(new()
+            {
+                Name = "fixture parameter",
+                Value = "fixture value",
+                Mode = ParameterMode.Masked,
+                Excluded = true,
+            })
+        );
+
+        var container = await Assert.That(destination.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        var parameter = await Assert.That(fixture.Parameters).HasSingleItem();
+        await AssertContextParameter(
+            parameter,
+            "fixture parameter",
+            "fixture value"
+        );
+    }
+
+    [Test]
     public async Task ShouldAddCompletedStep()
     {
         var destination = await Run(
@@ -832,6 +875,41 @@ public abstract class OperationTestsBase
             "broken step function",
             Status.Broken,
             exception
+        );
+    }
+
+    [Test]
+    public async Task ShouldSetStepContextName()
+    {
+        var destination = await Run(
+            () => this.SetStepContextName("renamed step")
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        await Assert.That(step.Name).IsEqualTo("renamed step");
+    }
+
+    [Test]
+    public async Task ShouldAddStepContextParameter()
+    {
+        var destination = await Run(
+            () => this.AddStepContextParameter(new()
+            {
+                Name = "step parameter",
+                Value = "step value",
+                Mode = ParameterMode.Masked,
+                Excluded = true,
+            })
+        );
+
+        var testResult = await Assert.That(destination.TestResults).HasSingleItem();
+        var step = await Assert.That(testResult.Steps).HasSingleItem();
+        var parameter = await Assert.That(step.Parameters).HasSingleItem();
+        await AssertContextParameter(
+            parameter,
+            "step parameter",
+            "step value"
         );
     }
 
@@ -1153,6 +1231,18 @@ public abstract class OperationTestsBase
             .IsEqualTo(exception.Message);
         await Assert.That(result.StatusDetails.Trace)
             .Contains(exception.GetType().FullName!);
+    }
+
+    static async Task AssertContextParameter(
+        Parameter parameter,
+        string name,
+        string value
+    )
+    {
+        await Assert.That(parameter.Name).IsEqualTo(name);
+        await Assert.That(parameter.Value).IsEqualTo(value);
+        await Assert.That(parameter.Mode).IsEqualTo(ParameterMode.Masked);
+        await Assert.That(parameter.Excluded).IsTrue();
     }
 
     static async Task<string> CreateFile(

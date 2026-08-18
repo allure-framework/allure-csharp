@@ -150,6 +150,21 @@ public class SyncOperationTests : OperationTestsBase
     protected override Task<int> SetUpFunction(string name, Func<int> body) =>
         Task.FromResult(AllureApi.SetUp(name, _ => body()));
 
+    protected override Task SetFixtureContextName(string newName)
+    {
+        AllureApi.SetUp("fixture", context => context.SetName(newName));
+        return Task.CompletedTask;
+    }
+
+    protected override Task AddFixtureContextParameter(Parameter parameter)
+    {
+        AllureApi.SetUp(
+            "fixture",
+            context => context.AddParameter(parameter)
+        );
+        return Task.CompletedTask;
+    }
+
     protected override Task StepCompleted(
         string name,
         Status status,
@@ -168,6 +183,21 @@ public class SyncOperationTests : OperationTestsBase
 
     protected override Task<int> StepFunction(string name, Func<int> body) =>
         Task.FromResult(AllureApi.Step(name, _ => body()));
+
+    protected override Task SetStepContextName(string newName)
+    {
+        AllureApi.Step("step", context => context.SetName(newName));
+        return Task.CompletedTask;
+    }
+
+    protected override Task AddStepContextParameter(Parameter parameter)
+    {
+        AllureApi.Step(
+            "step",
+            context => context.AddParameter(parameter)
+        );
+        return Task.CompletedTask;
+    }
 
     protected override Task RunNestedSteps(string outerName, string innerName)
     {
