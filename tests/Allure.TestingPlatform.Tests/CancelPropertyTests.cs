@@ -1,4 +1,4 @@
-using Allure.Net.Commons;
+using Allure.Model;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
@@ -6,7 +6,7 @@ using Allure.TestingPlatform.Tests.Stubs;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 
-using AllureTestResult = Allure.Net.Commons.TestResult;
+using AllureTestResult = Allure.Model.TestResult;
 
 namespace Allure.TestingPlatform.Tests;
 
@@ -85,8 +85,8 @@ public class CancelPropertyTests : DataConsumerTestsBase
             [
                 new AllureLabelsProperty(
                     [
-                        new(){ name = AllureCancelProperty.CANCEL_LABEL_NAME, value = "false" },
-                        new(){ name = "not-cancelled", value = "true" },
+                        new(){ Name = AllureCancelProperty.CANCEL_LABEL_NAME, Value = "false" },
+                        new(){ Name = "not-cancelled", Value = "true" },
                     ]
                 ),
             ],
@@ -109,7 +109,7 @@ public class CancelPropertyTests : DataConsumerTestsBase
         );
 
         var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
-        await Assert.That(testResult.status).IsEqualTo(Status.passed);
+        await Assert.That(testResult.Status).IsEqualTo(Status.Passed);
     }
 
     [Test]
@@ -184,11 +184,11 @@ public class CancelPropertyTests : DataConsumerTestsBase
         await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
 
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
-        var fixture = await Assert.That(container.befores).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
 
         await Assert.That(this.writer.TestResults).IsEmpty();
-        await Assert.That(fixture.name).IsEqualTo("Scope fixture");
-        await Assert.That(container.children).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Scope fixture");
+        await Assert.That(container.Children).HasSingleItem();
     }
 
     AllureTestUpdateMessage CreateCancelMessage() => new(this.correlationUid, new("test-1"))
