@@ -51,6 +51,10 @@ public static class AllureXunitExtensions
                         ctx.UseTestNodeMetadataCorrelation();
                     }
 
+                    var allureXunitContext = new AllureXunitContext();
+                    ctx.UseCorrelationContext((_) => allureXunitContext);
+                    ctx.UseExecutionStateContext((_) => allureXunitContext);
+
                     registrationCallback(ctx);
                 }
             );
