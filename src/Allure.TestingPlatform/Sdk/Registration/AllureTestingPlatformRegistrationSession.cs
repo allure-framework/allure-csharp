@@ -19,7 +19,7 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
 /// <typeparam name="TRegistrationContext">The registration context type.</typeparam>
 /// <typeparam name="TIntegrationContext">The integration context type.</typeparam>
-public abstract class AllureTestingPlatformRuntimeRegistrationSession<
+public abstract class AllureTestingPlatformRegistrationSession<
     TConfiguration,
     TRuntime,
     TRegistrationContext,
@@ -140,12 +140,12 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
 /// <typeparam name="TRegistrationContext">The registration context type.</typeparam>
-public abstract class AllureTestingPlatformRuntimeRegistrationSession<
+public abstract class AllureTestingPlatformRegistrationSession<
     TConfiguration,
     TRuntime,
     TRegistrationContext
 > :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         TConfiguration,
         TRuntime,
         TRegistrationContext,
@@ -166,11 +166,11 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public abstract class AllureTestingPlatformRuntimeRegistrationSession<
+public abstract class AllureTestingPlatformRegistrationSession<
     TConfiguration,
     TRuntime
 > :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         TConfiguration,
         TRuntime,
         IAllureTestingPlatformRegistrationContext<TConfiguration>,
@@ -193,7 +193,7 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 public class AllureTestingPlatformRegistrationSession<TConfiguration> :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         TConfiguration,
         IAllureTestingPlatformRuntime<TConfiguration>,
         IAllureTestingPlatformRegistrationContext<TConfiguration>,
@@ -224,7 +224,7 @@ public class AllureTestingPlatformRegistrationSession<TConfiguration> :
 /// Provides the registration session for the default Allure Microsoft Testing Platform runtime.
 /// </summary>
 public class AllureTestingPlatformRegistrationSession :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime,
         IAllureTestingPlatformRegistrationContext,

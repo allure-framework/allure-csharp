@@ -467,7 +467,7 @@ discovery mechanism.
 To add services to the runtime, define a runtime based on
 `AllureTestingPlatformRuntime<TConfiguration>` (or implement
 `IAllureTestingPlatformRuntime<TConfiguration>`) and a registration session
-based on `AllureTestingPlatformRuntimeRegistrationSession<TConfiguration,
+based on `AllureTestingPlatformRegistrationSession<TConfiguration,
 TRuntime>`:
 
 ```csharp
@@ -487,7 +487,7 @@ sealed class MyFrameworkAllureRuntime(
 }
 
 sealed class MyFrameworkAllureRegistrationSession :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         MyFrameworkAllureConfiguration,
         MyFrameworkAllureRuntime
     >
@@ -550,7 +550,7 @@ TRegistrationContext>` as `TIntegrationContext`:
 
 ```csharp
 sealed class MyFrameworkAllureRegistrationSession :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         MyFrameworkAllureConfiguration,
         MyFrameworkAllureRuntime,
         IMyFrameworkAllureRegistrationContext,
