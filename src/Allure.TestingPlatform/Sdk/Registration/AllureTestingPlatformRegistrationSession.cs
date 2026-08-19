@@ -53,7 +53,7 @@ public abstract class AllureTestingPlatformRegistrationSession<
         (_) => NullCorrelationContext.Instance;
 
     Func<TConfiguration, ExecutionStateContext> currentExecutionStateContextFactory =
-        (_) => NullExecutionStateContext.Instance;
+        (_) => new NullExecutionStateContext("This integraion");
 
     Func<TConfiguration, ILogger> currentLoggerFactory =
         (_) => NullLogger.Instance;

@@ -12,6 +12,7 @@ using Allure.Abstractions;
 using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Internal.Registration;
+using Allure.TestingPlatform.Internal;
 
 namespace Allure.TestingPlatform.Sdk;
 
@@ -122,6 +123,7 @@ public static class AllureTestingPlatformSdkExtensions
                 }
 
                 var options = serviceProvider.GetCommandLineOptions();
+
                 if (AllureCliOptionsProvider.GetAllureToggleValue(options) is { } isAllureEnabled)
                 {
                     context.TransformConfiguration(
@@ -132,6 +134,7 @@ public static class AllureTestingPlatformSdkExtensions
                         )
                     );
                 }
+
                 if (AllureCliOptionsProvider.GetWatchdogToggleValue(options) is { } isWatchdogEnabled)
                 {
                     context.TransformConfiguration(
@@ -142,6 +145,7 @@ public static class AllureTestingPlatformSdkExtensions
                         )
                     );
                 }
+
                 if (AllureCliOptionsProvider.GetResultsDirectoryValue(options) is { } resultsDirectory)
                 {
                     context.TransformConfiguration(
@@ -152,6 +156,8 @@ public static class AllureTestingPlatformSdkExtensions
                         )
                     );
                 }
+
+                context.UseExecutionStateContext((_) => new NullExecutionStateContext(runtimeName));
 
                 registrationCallback(context, coordinator);
             }
