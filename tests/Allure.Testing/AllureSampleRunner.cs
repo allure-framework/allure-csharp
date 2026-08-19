@@ -194,6 +194,7 @@ public class AllureSampleRunner
             = await ApplyAllureConfig(
                 input.AllureConfiguration,
                 resultsDirGuard.Value.FullName,
+                sample.LegacyCommons,
                 psi,
                 ct
             );
@@ -320,11 +321,12 @@ public class AllureSampleRunner
     static async Task<Guard<string>?> ApplyAllureConfig(
         object? allureConfigInput,
         string resultsDir,
+        bool isLegacy,
         ProcessStartInfo psi,
         CancellationToken ct
     )
     {
-        var allureConfig = ResolveAllureConfig(allureConfigInput, resultsDir);
+        var allureConfig = ResolveAllureConfig(allureConfigInput, resultsDir, isLegacy);
         var configPath = Path.GetTempFileName();
 
         using var fs = new FileStream(configPath, FileMode.Create, FileAccess.Write);
@@ -340,7 +342,7 @@ public class AllureSampleRunner
         return Guard.WrapFile(configPath);
     }
 
-    static JsonObject ResolveAllureConfig(object? config, string resultsDir)
+    static JsonObject ResolveAllureConfig(object? config, string resultsDir, bool isLegacy)
     {
         if (config is null)
         {
@@ -358,9 +360,13 @@ public class AllureSampleRunner
         {
             allure["directory"] = resultsDir;
         }
-        else
+        else if (isLegacy)
         {
             allureConfigJsonObject["allure"] = new JsonObject([new("directory", resultsDir)]);
+        }
+        else
+        {
+            allureConfigJsonObject["resultsDirectory"] = resultsDir;
         }
 
         return allureConfigJsonObject;
