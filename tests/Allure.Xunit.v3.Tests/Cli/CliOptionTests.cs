@@ -4,9 +4,6 @@ namespace Allure.Xunit.v3.Tests.Cli;
 
 class CliOptionTests
 {
-    const string SampleAssembly = "Allure.Xunit.v3.Tests.Samples.Cli.CliOptions";
-    const string SampleType = "Allure.Xunit.v3.Tests.Samples.Cli.CliOptions.TestClass";
-
     [Test]
     public async Task AllureOffShouldNotWriteResults(CancellationToken token)
     {

@@ -10,7 +10,7 @@ static class FqTypes
 
     public const string TestPlatformTestFramework = "global::Xunit.MicrosoftTestingPlatform.TestPlatformTestFramework";
 
-    public const string IStandaloneAllureRegistrationContext = "global::Allure.TestingPlatform.Registration.IStandaloneAllureRegistrationContext";
+    public const string IAllureXunitRegistrationContext = "global::Allure.Xunit.Registration.IAllureXunitRegistrationContext";
 
     public const string Task_Int = "global::System.Threading.Tasks.Task<int>";
 
@@ -32,6 +32,6 @@ static class FqTypes
     public static string Action(string argument1Type, string argument2Type) =>
         $"global::System.Action<{argument1Type}, {argument2Type}>";
 
-    public static string AllureIdAttribute = "global::Allure.Net.Commons.Attributes.AllureIdAttribute";
+    public static string AllureIdAttribute = $"global::{Types.AllureIdAttribute}";
 
 }

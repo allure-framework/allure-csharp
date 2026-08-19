@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Allure.Xunit.Internal;
+using Allure.Xunit.Internal.Registration;
 using Xunit.Sdk;
 
 namespace Allure.Xunit.Functions;
@@ -8,9 +8,9 @@ namespace Allure.Xunit.Functions;
 static class ExceptionFunctions
 {
     public static bool IsConfiguredAssertionFailure(ITestFailed testFailed) =>
-        AllureXunitMtpServices.AllureRuntime is
+        AllureXunitRegistration.Current is
         {
-            Configuration.FailExceptions: { Count: >0 } failExceptions
+            ConfigurationReference.Value.FailExceptions: { Count: >0 } failExceptions
         }
             && testFailed.ExceptionTypes.Any(
                 (e) => failExceptions.Contains(e, StringComparer.OrdinalIgnoreCase)

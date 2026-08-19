@@ -4,7 +4,7 @@ using Xunit.Runner.Common;
 using Xunit.v3;
 using System.Reflection;
 using Allure.TestingPlatform.Sdk.Correlation;
-using Allure.Xunit.Internal;
+using Allure.Xunit.Internal.Registration;
 
 namespace Allure.Xunit;
 
@@ -25,16 +25,23 @@ public class AllureXunitAttribute() :
     public void After(MethodInfo methodUnderTest, IXunitTest test) { }
 
     /// <inheritdoc />
-    public void Before(MethodInfo methodUnderTest, IXunitTest test) =>
-        AllureRunnerReporter.CurrentMessageHandler?.HandleBeforeTest(
+    public void Before(MethodInfo methodUnderTest, IXunitTest test)
+    {
+        if (!AllureXunitRegistration.IsEnabled)
+        {
+            return;
+        }
+
+        AllureXunitRegistration.Current.RuntimeReference.Value.XunitMessageHandler.HandleBeforeTest(
             methodUnderTest,
             test,
             test.TestMethodArguments
         );
+    }
 
     /// <inheritdoc />
     public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits() =>
-        AllureXunitMtpServices.IsAllureAlive
+        AllureXunitRegistration.IsEnabled
             ? [new(TestNodeMetadataCorrelationStrategy.MetadataKey, TestNodeMetadataCorrelationStrategy.CreateCorrelationUid())]
             : [];
 }

@@ -42,7 +42,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allure.Net.Commons\Allure.Net.Commons.csproj" />
         <ProjectReference Include="..\Allure.TestingPlatform\Allure.TestingPlatform.csproj" />
         <ProjectReference
             Include="..\$(_GeneratorProjectName)\$(_GeneratorProjectName).csproj"

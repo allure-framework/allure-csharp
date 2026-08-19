@@ -1,21 +1,21 @@
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Allure.Net.Commons.TestPlan;
+using Allure.Sdk.TestPlan;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Messages;
+using Allure.TestingPlatform.Sdk.Registration;
 using Allure.Xunit.Functions;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using IMtpMessageBus = Microsoft.Testing.Platform.Messages.IMessageBus;
 
 namespace Allure.Xunit.Internal;
 
 sealed class AllureMessageHandler(
     IRunnerLogger logger,
-    IMtpMessageBus mtpMessageBus
+    IAllureTestingPlatformMessageChannel channel
 ) :
     DefaultRunnerReporterMessageHandler(logger),
     IRunnerReporterMessageHandler,
@@ -35,7 +35,7 @@ sealed class AllureMessageHandler(
     public string Description { get; } =
         "A message handler that translates xUnit runner reporter messages for Allure.";
 
-    public string Version { get; } = TestingPlatformFunctions.GetPackageVersion(typeof(AllureMessageHandler));
+    public string Version { get; } = PackageVersions.For(typeof(AllureMessageHandler));
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);
 
@@ -109,7 +109,7 @@ sealed class AllureMessageHandler(
     }
 
     void PublishSync(AllureCorrelatedMessage message) =>
-        mtpMessageBus
+        channel
             .PublishAsync(this, message)
             .SpinWait();
 }

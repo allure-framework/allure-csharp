@@ -482,7 +482,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <param name="args">The command-line arguments passed to the test application.</param>
                     /// <returns>The xUnit.net process exit code.</returns>
                     public static async {{FqTypes.Task_Int}} RunAsync(
-                        {{FqTypes.Action(FqTypes.IStandaloneAllureRegistrationContext)}} allureRegistration,
+                        {{FqTypes.Action(FqTypes.IAllureXunitRegistrationContext)}} allureRegistration,
                         string[] args
                     )
                     {

@@ -1,5 +1,6 @@
+using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Allure.TestingPlatform.Sdk.Registration;
+using Allure.Sdk.Registration;
 using Xunit;
 using Allure.Xunit;
 
@@ -10,12 +11,11 @@ namespace Allure.Xunit.v3.Tests.Samples.Generator.CustomStartupObject
         public static async Task<int> Main(string[] args) =>
             await Allure.Xunit.AllureXunitEntryPoint.RunAsync(allure =>
             {
-                allure.UseConfiguration(serviceProvider =>
-                {
-                    var configuration = AllureRegistrationDefaults.ReadAllureConfiguration(serviceProvider);
-                    configuration.GlobalLabels["startup-object"] = "custom";
-                    return configuration;
-                });
+                allure.TransformConfiguration((cfg) => cfg.WithProperty(
+                    c => c.GlobalLabels,
+                    ImmutableDictionary<string, string>.Empty.Add("startup-object", "custom"),
+                    (cfg, value) => cfg with { GlobalLabels = value }
+                ));
             }, args);
     }
 

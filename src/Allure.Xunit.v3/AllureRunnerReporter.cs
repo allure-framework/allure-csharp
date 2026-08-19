@@ -2,6 +2,8 @@ using System.Threading.Tasks;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Allure.Xunit.Internal;
+using Allure.Sdk.Registration;
+using Allure.Xunit.Internal.Registration;
 
 namespace Allure.Xunit;
 
@@ -11,13 +13,15 @@ namespace Allure.Xunit;
 /// </summary>
 public class AllureRunnerReporter : IRunnerReporter
 {
+    readonly static LateBoundReference<AllureMessageHandler> messageHandlerReference = new();
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AllureRunnerReporter"/> class.
     /// </summary>
     public AllureRunnerReporter() { }
 
     /// <inheritdoc />
-    public bool CanBeEnvironmentallyEnabled => AllureXunitMtpServices.IsAllureAlive;
+    public bool CanBeEnvironmentallyEnabled => AllureXunitRegistration.IsEnabled;
 
     /// <inheritdoc />
     public string Description => "Allure runner reporter for xUnit.net v3";
@@ -26,7 +30,7 @@ public class AllureRunnerReporter : IRunnerReporter
     public bool ForceNoLogo => false;
 
     /// <inheritdoc />
-    public bool IsEnvironmentallyEnabled => this.CanBeEnvironmentallyEnabled;
+    public bool IsEnvironmentallyEnabled => AllureXunitRegistration.IsEnabled;
 
     /// <inheritdoc />
     public string RunnerSwitch => "allure";
@@ -37,17 +41,21 @@ public class AllureRunnerReporter : IRunnerReporter
         IMessageSink? diagnosticMessageSink
     )
     {
-        if (!AllureXunitMtpServices.IsAllureAlive)
+        if (!AllureXunitRegistration.IsEnabled)
         {
             return new DefaultRunnerReporterMessageHandler(logger);
         }
 
-        var allureHandler = new AllureMessageHandler(logger, AllureXunitMtpServices.MessageBus);
+        var allureHandler = new AllureMessageHandler(
+            logger,
+            AllureXunitRegistration.Current.MessageChannel
+        );
 
-        CurrentMessageHandler = allureHandler;
+        messageHandlerReference.Bind(allureHandler);
 
         return allureHandler;
     }
 
-    internal static AllureMessageHandler? CurrentMessageHandler { get; private set; }
+    internal static IReadOnlyLateBoundReference<AllureMessageHandler> MessageHandlerReference =>
+        messageHandlerReference;
 }

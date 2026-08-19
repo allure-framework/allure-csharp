@@ -1,5 +1,5 @@
-using Allure.Net.Commons;
-using Allure.Net.Commons.Attributes;
+using Allure;
+using Allure.Model;
 using Xunit;
 
 #pragma warning disable xUnit1026

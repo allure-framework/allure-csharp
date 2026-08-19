@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <Allure_TestingPlatform>MicrosoftTestingPlatform</Allure_TestingPlatform>
+    <Allure_LegacyCommons>false</Allure_LegacyCommons>
   </PropertyGroup>
 
   <ItemGroup>

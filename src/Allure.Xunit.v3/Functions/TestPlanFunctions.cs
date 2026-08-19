@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Allure.Net.Commons.Attributes;
-using Allure.Net.Commons.Functions;
-using Allure.Net.Commons.TestPlan;
+using Allure.Sdk.Functions;
+using Allure.Sdk.TestPlan;
 
 namespace Allure.Xunit.Functions;
 
@@ -118,7 +117,7 @@ public static class TestPlanFunctions
     /// </returns>
     public static bool IsSelected(MethodInfo testMethod) =>
         TestPlan.IsSelected(
-            fullName: IdFunctions.CreateFullName(testMethod),
+            fullName: ReflectionNames.ForMethod(testMethod),
             allureId: testMethod.GetCustomAttribute<AllureIdAttribute>()?.Value
         );
 

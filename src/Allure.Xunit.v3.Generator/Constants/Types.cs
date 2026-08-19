@@ -6,5 +6,5 @@ static class Types
 
     public const string AllureXunitAttribute = "Allure.Xunit.AllureXunitAttribute";
 
-    public const string AllureIdAttribute = "Allure.Net.Commons.Attributes.AllureIdAttribute";
+    public const string AllureIdAttribute = "Allure.AllureIdAttribute";
 }

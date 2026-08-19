@@ -1,4 +1,4 @@
-using Allure.Net.Commons.Attributes;
+using Allure;
 using Xunit;
 
 namespace Allure.Xunit.v3.Tests.Samples.TestPlans.TestPlan

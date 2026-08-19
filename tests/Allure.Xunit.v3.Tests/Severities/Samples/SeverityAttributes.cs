@@ -1,5 +1,5 @@
-using Allure.Net.Commons;
-using Allure.Net.Commons.Attributes;
+using Allure;
+using Allure.Model;
 using Xunit;
 
 namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityAttributes
@@ -7,18 +7,18 @@ namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityAttributes
     public class OnTestMethod
     {
         [Fact]
-        [AllureSeverity(SeverityLevel.critical)]
+        [AllureSeverity(Severity.Critical)]
         public void TestMethod() { }
     }
 
-    [AllureSeverity(SeverityLevel.critical)]
+    [AllureSeverity(Severity.Critical)]
     public class OnTestClass
     {
         [Fact]
         public void TestMethod() { }
     }
 
-    [AllureSeverity(SeverityLevel.critical)]
+    [AllureSeverity(Severity.Critical)]
     public class BaseClass { }
 
     public class OnBaseClass : BaseClass
@@ -27,7 +27,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityAttributes
         public void TestMethod() { }
     }
 
-    [AllureSeverity(SeverityLevel.critical)]
+    [AllureSeverity(Severity.Critical)]
     public interface IInterface { }
 
     public class OnInterface : IInterface

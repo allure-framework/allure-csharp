@@ -6,5 +6,5 @@ static class SeeCrefs
 
     public const string AddAllureXunit =
         $"{FqMethods.AddAllureXunit}({FqTypes.ITestApplicationBuilder}, "
-            + $"global::System.Action{{{FqTypes.IStandaloneAllureRegistrationContext}}})";
+            + $"global::System.Action{{{FqTypes.IAllureXunitRegistrationContext}}})";
 }

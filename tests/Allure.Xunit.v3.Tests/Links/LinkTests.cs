@@ -11,13 +11,21 @@ class LinkTests
         {
             AllureConfiguration = new
             {
-                allure = new
+                linkTemplates = new Dictionary<string, object>
                 {
-                    links = new[]
+                    ["issue"] = new
                     {
-                        "https://issues.example.org/{issue}",
-                        "https://tms.example.org/{tms}",
-                        "https://custom.example.org/{custom}",
+                        urlTemplate = "https://issues.example.org/{0}",
+                        nameTemplate = "{0}",
+                    },
+                    ["tms"] = new
+                    {
+                        urlTemplate = "https://tms.example.org/{0}",
+                        nameTemplate = "{0}"
+                    },
+                    ["custom"] = new
+                    {
+                        urlTemplate = "https://custom.example.org/{0}"
                     },
                 },
             },
@@ -35,10 +43,10 @@ class LinkTests
             .And.HasLink(link => link.HasUrl("https://issues.example.org/ISSUE-5").And.HasName("Issue 5").And.HasType("issue"))
             .And.HasLink(link => link.HasUrl("https://tms.example.org/TMS-6").And.HasName("TMS 6").And.HasType("tms"))
             .And.HasLink(link => link.HasUrl("https://custom.example.org/url-7").And.HasNoName().And.HasType("custom"))
-            .And.HasLink(link => link.HasUrl("https://issues.example.org/ISSUE-8").And.HasNoName().And.HasType("issue"))
-            .And.HasLink(link => link.HasUrl("https://tms.example.org/TMS-9").And.HasNoName().And.HasType("tms"))
+            .And.HasLink(link => link.HasUrl("https://issues.example.org/ISSUE-8").And.HasName("ISSUE-8").And.HasType("issue"))
+            .And.HasLink(link => link.HasUrl("https://tms.example.org/TMS-9").And.HasName("TMS-9").And.HasType("tms"))
             .And.HasLink(link => link.HasUrl("https://custom.example.org/url-10").And.HasName("Link 10").And.HasType("custom"))
-            .And.HasLink(link => link.HasUrl("https://issues.example.org/ISSUE-11").And.HasNoName().And.HasType("issue"))
-            .And.HasLink(link => link.HasUrl("https://tms.example.org/TMS-12").And.HasNoName().And.HasType("tms"));
+            .And.HasLink(link => link.HasUrl("https://issues.example.org/ISSUE-11").And.HasName("ISSUE-11").And.HasType("issue"))
+            .And.HasLink(link => link.HasUrl("https://tms.example.org/TMS-12").And.HasName("TMS-12").And.HasType("tms"));
     }
 }
