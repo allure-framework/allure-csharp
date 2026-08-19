@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Allure.Abstractions;
 using Allure.Model;
@@ -70,8 +71,13 @@ public sealed class AllureTestMethodProperty(MethodInfo testMethod) :
 
         if (this.ShouldApplyApiAttributes)
         {
+            var linkCountBefore = target.Links.Count;
             AllureApiAttribute.ApplyTypeAttributes(this.TestClass, target);
             AllureApiAttribute.ApplyMethodAttributes(this.TestMethod, target);
+            foreach (var link in target.Links.Skip(linkCountBefore))
+            {
+                LinkTemplates.Apply(allureRuntime.Configuration.LinkTemplates, link);
+            }
         }
     }
 
