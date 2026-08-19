@@ -44,11 +44,14 @@ public static class AllureXunitExtensions
                 () => new AllureXunitRegistrationSession(),
                 (ctx, _) =>
                 {
-                    registrationCallback(ctx);
+                    ctx.UseTestPlan((_) => AllureXunitTestPlan.Current);
+
                     if (IsAllureXunitAttributeApplied)
                     {
                         ctx.UseTestNodeMetadataCorrelation();
                     }
+
+                    registrationCallback(ctx);
                 }
             );
             AllureXunitRegistration.Bind(registration);

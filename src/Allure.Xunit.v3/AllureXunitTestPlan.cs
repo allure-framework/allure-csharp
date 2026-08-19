@@ -6,19 +6,19 @@ using System.Reflection;
 using Allure.Sdk.Functions;
 using Allure.Sdk.TestPlan;
 
-namespace Allure.Xunit.Functions;
+namespace Allure.Xunit;
 
 /// <summary>
 /// Provides helpers used to apply Allure test plans to xUnit.net v3 test runs.
 /// </summary>
-public static class TestPlanFunctions
+public static class AllureXunitTestPlan
 {
     static readonly Lazy<AllureTestPlan> testPlanLazy = new(AllureTestPlan.FromEnvironment);
 
     /// <summary>
     /// Gets the global Allure test plan loaded from the current process environment.
     /// </summary>
-    public static AllureTestPlan TestPlan => testPlanLazy.Value;
+    public static AllureTestPlan Current => testPlanLazy.Value;
 
     /// <summary>
     /// Returns an array consisting of the original CLI arguments plus filter arguments that,
@@ -38,7 +38,7 @@ public static class TestPlanFunctions
     ) =>
         [
             ..originalArguments,
-            ..GetXunitPreExecutionFilter(allureIdRegistry, TestPlan, Assembly.GetEntryAssembly()),
+            ..GetXunitPreExecutionFilter(allureIdRegistry, Current, Assembly.GetEntryAssembly()),
         ];
 
     /// <summary>
@@ -50,7 +50,7 @@ public static class TestPlanFunctions
     /// </param>
     /// <param name="testPlan">
     /// The test plan to enforce. Use <see cref="AllureTestPlan.FromEnvironment"/> to read
-    /// the global test plan, or use <see cref="TestPlan"/> to get the cached instance.
+    /// the global test plan, or use <see cref="Current"/> to get the cached instance.
     /// </param>
     /// <param name="testAssembly">
     /// The test assembly. In the Microsoft Testing Platform flow, this is the entry assembly.
@@ -65,7 +65,7 @@ public static class TestPlanFunctions
         Assembly testAssembly
     )
     {
-        if (ReferenceEquals(testPlan, AllureTestPlan.DEFAULT_TESTPLAN))
+        if (ReferenceEquals(testPlan, AllureTestPlan.Default))
         {
             // No test plan provided.
             yield break;
@@ -116,7 +116,7 @@ public static class TestPlanFunctions
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsSelected(MethodInfo testMethod) =>
-        TestPlan.IsSelected(
+        Current.IsSelected(
             fullName: ReflectionNames.ForMethod(testMethod),
             allureId: testMethod.GetCustomAttribute<AllureIdAttribute>()?.Value
         );

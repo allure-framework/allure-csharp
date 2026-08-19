@@ -94,7 +94,7 @@ sealed class AllureMessageHandler(
 
     void ApplyRuntimeGuard(MethodInfo testMethod, ITest test)
     {
-        var isSelected = TestPlanFunctions.IsSelected(testMethod);
+        var isSelected = AllureXunitTestPlan.IsSelected(testMethod);
         if (isSelected)
         {
             return;

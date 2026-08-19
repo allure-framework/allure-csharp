@@ -48,7 +48,7 @@
          an incorrect entry point. -->
 
         <PropertyGroup>
-            <StartupObject>Allure.Xunit.AllureXunitEntryPoint</StartupObject>
+            <StartupObject>Allure.Xunit.Generated.AllureXunitEntryPoint</StartupObject>
         </PropertyGroup>
 
     </Target>
