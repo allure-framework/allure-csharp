@@ -360,6 +360,7 @@ sealed class AllureDataConsumer :
     static void ApplyFallbacks(TestResult testResult, TestNode node)
     {
         testResult.FullName ??= node.Uid;
+        testResult.ApplyDefaultSuites();
     }
 
     static TestResult ApplyTestNodeStateProperty(

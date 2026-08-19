@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Allure.Model;
 using Allure.Sdk.Functions;
 using Allure.TestingPlatform.Configuration;
@@ -11,6 +12,8 @@ namespace Allure.TestingPlatform.Internal.Functions;
 
 static class TestResults
 {
+    static readonly ConditionalWeakTable<TestResult, TestResultMetadata> metadataByTestResult = new();
+
     public static TestResult Create(
         string name,
         AllureTestingPlatformConfiguration configuration,
@@ -30,6 +33,15 @@ static class TestResults
 
     extension (TestResult testResult)
     {
+        TestResultMetadata GetMetadata() =>
+            metadataByTestResult.GetValue(testResult, static (_) => new TestResultMetadata());
+
+        public void RememberDefaultSuites(string? parentSuite, string? suite, string? subSuite)
+        {
+            var metadata = testResult.GetMetadata();
+            metadata.DefaultSuites = (parentSuite, suite, subSuite);
+        }
+
         public void ApplyTimings(TimingProperty timing)
         {
             // If present, TimingProperty is the source of truth for timing.
@@ -64,8 +76,8 @@ static class TestResults
                 );
             }
 
-            SuiteLabels.Ensure(
-                testResult,
+            var metadata = testResult.GetMetadata();
+            metadata.DefaultSuites ??= (
                 assemblyName,
                 identifierProperty.Namespace,
                 identifierProperty.TypeName
@@ -75,8 +87,29 @@ static class TestResults
         public bool IsCancelled =>
             testResult.Labels.Any(IsCancellationMarker);
 
+        public void ApplyDefaultSuites()
+        {
+            var metadata = testResult.GetMetadata();
+            var defaults = metadata.DefaultSuites;
+            if (defaults is null)
+            {
+                return;
+            }
+
+            SuiteLabels.Ensure(
+                testResult,
+                defaults.Value.ParentSuite,
+                defaults.Value.Suite,
+                defaults.Value.SubSuite
+            );
+        }
     }
 
     static bool IsCancellationMarker(Label label) =>
         label.Name == AllureCancelProperty.CANCEL_LABEL_NAME && label.Value == "true";
+
+    sealed class TestResultMetadata
+    {
+        public (string? ParentSuite, string? Suite, string? SubSuite)? DefaultSuites { get; set; }
+    }
 }
