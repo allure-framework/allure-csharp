@@ -1,9 +1,9 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.FeatureLabels.FeatureAttributes
+namespace Allure.Xunit.v3.Tests.Samples.BddLabels.FeatureApi
 {
-    public class OnTestMethod
+    public class AttributeOnTestMethod
     {
         [Fact]
         [AllureFeature("Foo")]

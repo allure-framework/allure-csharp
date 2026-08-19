@@ -1,9 +1,9 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.SuiteLabels.ParentSuiteAttributes
+namespace Allure.Xunit.v3.Tests.Samples.SuiteLabels.ParentSuiteApi
 {
-    public class OnTestMethod
+    public class AttributeOnTestMethod
     {
         [Fact]
         [AllureParentSuite("Parent Suite")]
@@ -11,7 +11,7 @@ namespace Allure.Xunit.v3.Tests.Samples.SuiteLabels.ParentSuiteAttributes
     }
 
     [AllureParentSuite("Parent Suite")]
-    public class OnTestClass
+    public class AttributeOnTestClass
     {
         [Fact]
         public void TestMethod() { }
@@ -20,7 +20,7 @@ namespace Allure.Xunit.v3.Tests.Samples.SuiteLabels.ParentSuiteAttributes
     [AllureParentSuite("Parent Suite")]
     public class BaseClass { }
 
-    public class OnBaseClass : BaseClass
+    public class AttributeOnBaseClass : BaseClass
     {
         [Fact]
         public void TestMethod() { }
@@ -29,7 +29,7 @@ namespace Allure.Xunit.v3.Tests.Samples.SuiteLabels.ParentSuiteAttributes
     [AllureParentSuite("Parent Suite")]
     public interface IInterface { }
 
-    public class OnInterface : IInterface
+    public class AttributeOnInterface : IInterface
     {
         [Fact]
         public void TestMethod() { }

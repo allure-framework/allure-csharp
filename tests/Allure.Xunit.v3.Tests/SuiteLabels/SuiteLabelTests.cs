@@ -10,9 +10,9 @@ class SuiteLabelTests
     [Before(Class)]
     public static async Task BeforeAll(ClassHookContext context, CancellationToken token)
     {
-        var output = await AllureSampleRunner.RunAsync(AllureSampleRegistry.SuiteAttributes, token);
+        var output = await AllureSampleRunner.RunAsync(AllureSampleRegistry.SuiteApi, token);
 
-        await Assert.That(output.TestResults).Count().IsEqualTo(4);
+        await Assert.That(output.TestResults).Count().IsEqualTo(6);
 
         results.Value = output;
         context.AddAsyncLocalValues();
@@ -21,24 +21,36 @@ class SuiteLabelTests
     [Test]
     public async Task CheckSuiteOnTestMethodWorks() =>
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteAttributes.OnTestMethod.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteApi.AttributeOnTestMethod.TestMethod"
         ).That.HasSingleLabel("suite").With.Value("Suite");
 
     [Test]
     public async Task CheckSuiteOnTestClassWorks() =>
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteAttributes.OnTestClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteApi.AttributeOnTestClass.TestMethod"
         ).That.HasSingleLabel("suite").With.Value("Suite");
 
     [Test]
     public async Task CheckSuiteOnBaseClassWorks() =>
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteAttributes.OnBaseClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteApi.AttributeOnBaseClass.TestMethod"
         ).That.HasSingleLabel("suite").With.Value("Suite");
 
     [Test]
     public async Task CheckSuiteOnInterfaceWorks() =>
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteAttributes.OnInterface.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteApi.AttributeOnInterface.TestMethod"
+        ).That.HasSingleLabel("suite").With.Value("Suite");
+
+    [Test]
+    public async Task CheckSyncSuiteApiCallFromMethod() =>
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteApi.SyncCallFromMethod.TestMethod"
+        ).That.HasSingleLabel("suite").With.Value("Suite");
+
+    [Test]
+    public async Task CheckAsyncSuiteApiCallFromMethod() =>
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.SuiteLabels.SuiteApi.AsyncCallFromMethod.TestMethod"
         ).That.HasSingleLabel("suite").With.Value("Suite");
 }

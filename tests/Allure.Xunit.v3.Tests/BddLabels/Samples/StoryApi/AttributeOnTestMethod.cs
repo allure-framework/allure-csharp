@@ -1,9 +1,9 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.StoryLabels.StoryAttributes
+namespace Allure.Xunit.v3.Tests.Samples.BddLabels.StoryApi
 {
-    public class OnTestMethod
+    public class AttributeOnTestMethod
     {
         [Fact]
         [AllureStory("Foo")]
