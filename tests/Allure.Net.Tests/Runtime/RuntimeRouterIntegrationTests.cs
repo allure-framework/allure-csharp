@@ -43,7 +43,7 @@ public class RuntimeRouterIntegrationTests
         var current = new RuntimeFixture("current");
         var global = new RuntimeFixture("global");
         using var scope = ActivateScope();
-        using var currentRegistration = Install(current, current: true);
+        using var currentRegistration = Install(current, current: true, global: true);
         using var globalRegistration = Install(global, global: true);
 
         AllureApi.SetTestName("test");

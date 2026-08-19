@@ -15,7 +15,7 @@ public class RuntimeRegistryTests
     }
 
     [Test]
-    public async Task ResolvesMatchingCurrentRuntimeForCurrentAndGlobalScopes()
+    public async Task ResolvesMatchingCurrentRuntimeForCurrentScopeOnly()
     {
         var registry = new AllureRuntimeRegistry();
         var runtime = new TestRuntime("current");
@@ -24,7 +24,7 @@ public class RuntimeRegistryTests
         );
 
         await Assert.That(registry.ResolveCurrentScope()).IsSameReferenceAs(runtime);
-        await Assert.That(registry.ResolveGlobalScope()).IsSameReferenceAs(runtime);
+        await Assert.That(registry.ResolveGlobalScope()).IsNull();
     }
 
     [Test]
@@ -41,13 +41,36 @@ public class RuntimeRegistryTests
     }
 
     [Test]
-    public async Task GlobalScopePrefersCurrentRuntimeOverGlobalRuntime()
+    public async Task ResolvesMatchingCurrentAndGlobalRuntimeForCurrentAndGlobalScopes()
     {
         var registry = new AllureRuntimeRegistry();
-        var current = new TestRuntime("current");
+        var runtime = new TestRuntime("current");
+        using var registration = registry.Install(
+            new TestRuntimeRoute(
+                "current",
+                runtime,
+                matchesCurrentScope: () => true,
+                matchesGlobalScope: () => true
+            )
+        );
+
+        await Assert.That(registry.ResolveCurrentScope()).IsSameReferenceAs(runtime);
+        await Assert.That(registry.ResolveGlobalScope()).IsSameReferenceAs(runtime);
+    }
+
+    [Test]
+    public async Task GlobalScopeMultipleMatchesNarrowedByCurrentScope()
+    {
+        var registry = new AllureRuntimeRegistry();
+        var current = new TestRuntime("currentAndGlobal");
         var global = new TestRuntime("global");
         using var currentRegistration = registry.Install(
-            new TestRuntimeRoute("current", current, matchesCurrentScope: () => true)
+            new TestRuntimeRoute(
+                "currentAndGlobal",
+                current,
+                matchesCurrentScope: () => true,
+                matchesGlobalScope: () => true
+            )
         );
         using var globalRegistration = registry.Install(
             new TestRuntimeRoute("global", global, matchesGlobalScope: () => true)
@@ -55,6 +78,47 @@ public class RuntimeRegistryTests
 
         await Assert.That(registry.ResolveCurrentScope()).IsSameReferenceAs(current);
         await Assert.That(registry.ResolveGlobalScope()).IsSameReferenceAs(current);
+    }
+
+    [Test]
+    public async Task GlobalScopeTieBreakingAccountsForAvailibility()
+    {
+        var registry = new AllureRuntimeRegistry();
+        var current = new TestRuntime("currentAndGlobal", isAvailable: false);
+        var global = new TestRuntime("global");
+        using var currentRegistration = registry.Install(
+            new TestRuntimeRoute(
+                "currentAndGlobal",
+                current,
+                matchesCurrentScope: () => true,
+                matchesGlobalScope: () => true
+            )
+        );
+        using var globalRegistration = registry.Install(
+            new TestRuntimeRoute("global", global, matchesGlobalScope: () => true)
+        );
+
+        await Assert.That(registry.ResolveGlobalScope()).IsNull();
+    }
+
+    [Test]
+    public async Task GlobalScopeDoesNotConsiderCurrentScopeForGlobalDisabledRoutes()
+    {
+        var registry = new AllureRuntimeRegistry();
+        var current = new TestRuntime("currentAndGlobal");
+        var global = new TestRuntime("global");
+        using var currentRegistration = registry.Install(
+            new TestRuntimeRoute(
+                "currentAndGlobal",
+                current,
+                matchesCurrentScope: () => true
+            )
+        );
+        using var globalRegistration = registry.Install(
+            new TestRuntimeRoute("global", global, matchesGlobalScope: () => true)
+        );
+
+        await Assert.That(registry.ResolveGlobalScope()).IsSameReferenceAs(global);
     }
 
     [Test]
