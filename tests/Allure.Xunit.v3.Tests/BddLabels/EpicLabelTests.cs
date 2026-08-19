@@ -10,9 +10,9 @@ class EpicLabelTests
     [Before(Class)]
     public static async Task BeforeAll(ClassHookContext context, CancellationToken token)
     {
-        var output = await AllureSampleRunner.RunAsync(AllureSampleRegistry.EpicAttributes, token);
+        var output = await AllureSampleRunner.RunAsync(AllureSampleRegistry.EpicApi, token);
 
-        await Assert.That(output.TestResults).Count().IsEqualTo(4);
+        await Assert.That(output.TestResults).Count().IsEqualTo(6);
 
         results.Value = output;
         context.AddAsyncLocalValues();
@@ -22,7 +22,7 @@ class EpicLabelTests
     public async Task CheckEpicOnTestMethodWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.EpicLabels.EpicAttributes.OnTestMethod.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.EpicApi.AttributeOnTestMethod.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 
@@ -30,7 +30,7 @@ class EpicLabelTests
     public async Task CheckEpicOnTestClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.EpicLabels.EpicAttributes.OnTestClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.EpicApi.AttributeOnTestClass.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 
@@ -38,7 +38,7 @@ class EpicLabelTests
     public async Task CheckEpicOnBaseClassWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.EpicLabels.EpicAttributes.OnBaseClass.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.EpicApi.AttributeOnBaseClass.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 
@@ -46,7 +46,23 @@ class EpicLabelTests
     public async Task CheckEpicOnInterfaceWorks()
     {
         await Assert.That(results.Value).HasSingleTestResult(
-            "Allure.Xunit.v3.Tests.Samples.EpicLabels.EpicAttributes.OnInterface.TestMethod"
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.EpicApi.AttributeOnInterface.TestMethod"
+        ).With.SingleLabel("epic").That.HasValue("Foo");
+    }
+
+    [Test]
+    public async Task CheckSyncEpicApiCallFromMethod()
+    {
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.EpicApi.SyncCallFromMethod.TestMethod"
+        ).With.SingleLabel("epic").That.HasValue("Foo");
+    }
+
+    [Test]
+    public async Task CheckAsyncEpicApiCallFromMethod()
+    {
+        await Assert.That(results.Value).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.BddLabels.EpicApi.AsyncCallFromMethod.TestMethod"
         ).With.SingleLabel("epic").That.HasValue("Foo");
     }
 }

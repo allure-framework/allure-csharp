@@ -1,9 +1,9 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.EpicLabels.EpicAttributes
+namespace Allure.Xunit.v3.Tests.Samples.BddLabels.EpicApi
 {
-    public class OnTestMethod
+    public class AttributeOnTestMethod
     {
         [Fact]
         [AllureEpic("Foo")]
