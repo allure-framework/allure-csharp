@@ -4,7 +4,7 @@ static class Types
 {
     public const string ITestApplicationBuilder = "Microsoft.Testing.Platform.Builder.ITestApplicationBuilder";
 
-    public const string AllureXunitAttribute = "Allure.Xunit.AllureXunitAttribute";
+    public const string AllureXunitAttribute = $"{Namespaces.AllureXunit}.AllureXunitAttribute";
 
-    public const string AllureIdAttribute = "Allure.AllureIdAttribute";
+    public const string AllureIdAttribute = $"{Namespaces.Allure}.AllureIdAttribute";
 }

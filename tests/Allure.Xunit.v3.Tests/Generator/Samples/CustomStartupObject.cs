@@ -9,7 +9,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Generator.CustomStartupObject
     public class Program
     {
         public static async Task<int> Main(string[] args) =>
-            await Allure.Xunit.AllureXunitEntryPoint.RunAsync(allure =>
+            await Allure.Xunit.Generated.AllureXunitEntryPoint.RunAsync(allure =>
             {
                 allure.TransformConfiguration((cfg) => cfg.WithProperty(
                     c => c.GlobalLabels,

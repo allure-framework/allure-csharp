@@ -6,7 +6,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Generator.RunnerHelper
     public class Program
     {
         public static async Task<int> Main(string[] args) =>
-            await Allure.Xunit.AllureXunitRunner.RunAsync(
+            await Allure.Xunit.Generated.AllureXunitRunner.RunAsync(
                 SelfRegisteredExtensions.AddSelfRegisteredExtensions,
                 args
             );

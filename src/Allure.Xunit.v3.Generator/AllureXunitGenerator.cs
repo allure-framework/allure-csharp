@@ -30,7 +30,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(GenerateAllureXunitRunner);
         context.RegisterSourceOutput(options.Combine(hasTestHook), GenerateAllureXunitAssemblyAttribute);
         context.RegisterSourceOutput(options.Combine(selfRegistration), GenerateAllureXunitEntryPoint);
-        context.RegisterSourceOutput(allureIdMethods, GenerateAllureXunitTestPlan);
+        context.RegisterSourceOutput(allureIdMethods, GenerateAllureIdTestMethodRegistry);
     }
 
     static IncrementalValueProvider<string> SetupSelfRegistrationStream(
@@ -142,7 +142,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             return "";
         }
 
-        foreach (var member in selfRegisteredExtensionsType.GetMembers(MethodNames.AddSelfRegisteredExtensions))
+        foreach (var member in selfRegisteredExtensionsType.GetMembers(MemberNames.AddSelfRegisteredExtensions))
         {
             if (ToRegistrationMethod(builderType, member) is { } method)
             {
@@ -266,44 +266,30 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             return;
         }
 
-        ctx.AddSource("AllureXunitEntryPoint.g.cs", GetEntryPointSource(selfRegistrationMethod));
+        ctx.AddSource("AllureXunitEntryPoint.g.cs", GetAllureXunitEntryPointSource(selfRegistrationMethod));
     }
 
-    static void GenerateAllureXunitTestPlan(
+    static void GenerateAllureIdTestMethodRegistry(
         SourceProductionContext ctx,
         ImmutableArray<(int, string)> allureIdMethods
     )
     {
-        ctx.AddSource("AllureXunitTestPlan.g.cs", GetAllureXunitTestPlanSource(allureIdMethods));
+        ctx.AddSource("AllureIdTestMethodRegistry.g.cs", GetAllureIdTestMethodRegistrySource(allureIdMethods));
     }
 
-    static string GetAllureXunitTestPlanSource(ImmutableArray<(int, string)> allureIdMethods)
+    static string GetAllureIdTestMethodRegistrySource(ImmutableArray<(int, string)> allureIdMethods)
     {
         var sb = new StringBuilder(
             $$"""
             {{Preamble}}
-            namespace Allure.Xunit
+            namespace {{Namespaces.AllureXunitGenerated}}
             {
+                /// <summary>
+                /// Owns a registry that maps Allure ID values to test methods.
+                /// </summary>
                 [{{FqTypes.ExcludeFromCodeCoverage}}]
-                internal static class AllureXunitTestPlan
+                internal static class {{TypeNames.AllureIdTestMethodRegistry}}
                 {
-                    /// <summary>
-                    /// Returns a new array that includes the original arguments plus
-                    /// <c>--filter-method</c> xUnit arguments for each test method
-                    /// selected by the current test plan.
-                    /// </summary>
-                    /// <param name="originalArguments">
-                    /// The original command-line arguments passed to the test application.
-                    /// </param>
-                    /// <returns>
-                    /// A new array that contains <paramref name="originalArguments"/> followed by
-                    /// the xUnit.net pre-execution filter arguments for the current Allure test plan.
-                    /// </returns>
-                    public static string[] {{MethodNames.AddXunitPreExecutionFilterArguments}}(string[] originalArguments)
-                    {
-                        return {{FqTypes.TestPlanFunctions}}.{{MethodNames.AddXunitPreExecutionFilterArguments}}(originalArguments, AllureIdRegistry);
-                    }
-
             """
         );
 
@@ -331,11 +317,11 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <remarks>
                     /// Method names include the namespace, containing type name, and method name.
                     /// </remarks>
-                    internal static {{FqTypes.ImmutableDictionary_Int_ImmutableArray_String}} AllureIdRegistry { get; }
+                    internal static {{FqTypes.ImmutableDictionary_Int_ImmutableArray_String}} {{MemberNames.MethodsByAllureId}} { get; }
 
-                    static AllureXunitTestPlan()
+                    static {{TypeNames.AllureIdTestMethodRegistry}}()
                     {
-                        {{FqTypes.ImmutableDictionaryBuilder_Int_ImmutableArray_String}} builder = {{FqMethods.ImmutableDictionary_CreateBuilder_Int_String}}();
+                        {{FqTypes.ImmutableDictionaryBuilder_Int_ImmutableArray_String}} builder = {{FqMembers.ImmutableDictionary_CreateBuilder_Int_String}}();
             """
         );
 
@@ -350,7 +336,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
 
         sb.AppendLine(
             $$"""
-                        AllureIdRegistry = builder.ToImmutable();
+                        {{MemberNames.MethodsByAllureId}} = builder.ToImmutable();
                     }
 
                     static void AddAllureIdMethodEntry({{FqTypes.ImmutableDictionaryBuilder_Int_ImmutableArray_String}} builder, int allureId, string methodName)
@@ -358,7 +344,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                         {{FqTypes.ImmutableArray_String}} value;
                         builder[allureId] = builder.TryGetValue(allureId, out value)
                             ? value.Add(methodName)
-                            : {{FqMethods.ImmutableArray_Create}}(methodName);
+                            : {{FqMembers.ImmutableArray_Create}}(methodName);
                     }
             """
         );
@@ -367,7 +353,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
     static string AllureXunitRunnerSource =>
         $$"""
         {{Preamble}}
-        namespace Allure.Xunit
+        namespace {{Namespaces.AllureXunitGenerated}}
         {
             /// <summary>
             /// Defines a helper for running xUnit.net v3 with Allure from a custom entry point.
@@ -392,7 +378,10 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                 )
                 {
                     return await {{FqTypes.TestPlatformTestFramework}}.RunAsync(
-                        {{FqMethods.AddXunitPreExecutionFilterArguments}}(args),
+                        {{FqMembers.AddXunitPreExecutionFilterArguments}}(
+                            args,
+                            {{FqMembers.AllureIdTestMethodRegistry_AllureIdTestMethodRegistry}}
+                        ),
                         extensionRegistration
                     );
                 }
@@ -400,7 +389,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         }
         """;
 
-    static string GetEntryPointSource(string addSelfRegisteredExtensions)
+    static string GetAllureXunitEntryPointSource(string addSelfRegisteredExtensions)
     {
         var selfRegistrationExists = addSelfRegisteredExtensions is { Length: >0 };
 
@@ -408,7 +397,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             $$"""
             {{Preamble}}
 
-            namespace Allure.Xunit
+            namespace {{Namespaces.AllureXunitGenerated}}
             {
                 /// <summary>
                 /// Defines the functions for running xUnit.net v3 with Allure and other self-registered
@@ -435,8 +424,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <returns>The xUnit.net process exit code.</returns>
                     public static async {{FqTypes.Task_Int}} Main(string[] args)
                     {
-                        if ({{FqMethods.Enumerable_Any}}(args, arg => arg == "-automated" || arg == "@@"))
-                            return await {{FqMethods.ConsoleRunner_Run}}(args);
+                        if ({{FqMembers.Enumerable_Any}}(args, arg => arg == "-automated" || arg == "@@"))
+                            return await {{FqMembers.ConsoleRunner_Run}}(args);
                         else
 
             """
@@ -446,7 +435,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         {
             sb.AppendLine(
                 $$"""
-                                return await {{FqMethods.AllureXunitRunner_RunAsync}}({{addSelfRegisteredExtensions}}, args);
+                                return await {{FqMembers.AllureXunitRunner_RunAsync}}({{addSelfRegisteredExtensions}}, args);
                 """
             );
         }
@@ -455,7 +444,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             sb.AppendLine(
                 $$"""
                             {
-                                {{FqMethods.Error_WriteLine}}("{{Messages.SelfRegistrationNotFound}}");
+                                {{FqMembers.Error_WriteLine}}("{{Messages.SelfRegistrationNotFound}}");
                                 return 1;
                             }
                 """
@@ -493,10 +482,10 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         {
             sb.AppendLine(
                 $$"""
-                            return await {{FqMethods.AllureXunitRunner_RunAsync}}((builder, args) =>
+                            return await {{FqMembers.AllureXunitRunner_RunAsync}}((builder, args) =>
                             {
                                 {{addSelfRegisteredExtensions}}(builder, args);
-                                {{FqMethods.AddAllureXunit}}(builder, allureRegistration);
+                                {{FqMembers.AddAllureXunit}}(builder, allureRegistration);
                             }, args);
                 """
             );
@@ -505,7 +494,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         {
             sb.AppendLine(
                 $$"""
-                            {{FqMethods.Error_WriteLine}}("{{Messages.SelfRegistrationNotFound}}");
+                            {{FqMembers.Error_WriteLine}}("{{Messages.SelfRegistrationNotFound}}");
                             return 1;
                 """
             );

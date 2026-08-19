@@ -10,11 +10,11 @@ static class FqTypes
 
     public const string TestPlatformTestFramework = "global::Xunit.MicrosoftTestingPlatform.TestPlatformTestFramework";
 
-    public const string IAllureXunitRegistrationContext = "global::Allure.Xunit.Registration.IAllureXunitRegistrationContext";
+    public const string IAllureXunitRegistrationContext = $"global::{Namespaces.AllureXunitRegistration}.IAllureXunitRegistrationContext";
 
     public const string Task_Int = "global::System.Threading.Tasks.Task<int>";
 
-    public const string TestPlanFunctions = "global::Allure.Xunit.Functions.TestPlanFunctions";
+    public const string AllureXunitTestPlan = $"global::{Namespaces.AllureXunit}.AllureXunitTestPlan";
 
     public const string ImmutableArray = $"global::System.Collections.Immutable.ImmutableArray";
 
