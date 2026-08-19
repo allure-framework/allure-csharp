@@ -118,7 +118,7 @@ public class BrandedRegistrationHookTests
     }
 
     sealed class MyFrameworkAllureRegistrationSession :
-        AllureTestingPlatformRuntimeRegistrationSession<
+        AllureTestingPlatformRegistrationSession<
             MyFrameworkAllureConfiguration,
             MyFrameworkAllureRuntime,
             IMyFrameworkAllureRegistrationContext,
