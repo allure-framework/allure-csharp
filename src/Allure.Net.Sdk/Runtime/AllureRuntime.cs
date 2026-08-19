@@ -1,6 +1,8 @@
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
+using Allure.Sdk.Registration;
 using Allure.Sdk.Results;
+using Allure.Sdk.TestPlan;
 
 namespace Allure.Sdk.Runtime;
 
@@ -12,19 +14,9 @@ namespace Allure.Sdk.Runtime;
 /// integration-specific services.
 /// </remarks>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
-/// <param name="configuration">The runtime configuration.</param>
-/// <param name="parameterSerializer">The parameter serializer.</param>
-/// <param name="resultsDestination">The destination for generated results.</param>
-/// <param name="context">The execution-context service.</param>
-/// <param name="lifecycleApi">The lifecycle API.</param>
-/// <param name="modelApi">The model API.</param>
+/// <param name="args">The runtime creation arguments.</param>
 public class AllureRuntime<TConfiguration>(
-    TConfiguration configuration,
-    IAllureParameterSerializer parameterSerializer,
-    IAllureResultsDestination resultsDestination,
-    IAllureExecutionContext context,
-    IAllureLifecycleApi lifecycleApi,
-    IAllureModelApi modelApi
+    RuntimeCreationArguments<TConfiguration> args
 ) :
     IAllureRuntime<TConfiguration>
 
@@ -33,48 +25,34 @@ public class AllureRuntime<TConfiguration>(
     AllureConfiguration IAllureRuntimeBase.Configuration => this.Configuration;
 
     /// <inheritdoc/>
-    public TConfiguration Configuration { get; } = configuration;
+    public TConfiguration Configuration { get; } = args.Configuration;
 
     /// <inheritdoc/>
-    public IAllureParameterSerializer ParameterSerializer { get; } = parameterSerializer;
+    public IAllureParameterSerializer ParameterSerializer { get; } = args.ParameterSerializer;
 
     /// <inheritdoc/>
-    public IAllureResultsDestination ResultsDestination { get; } = resultsDestination;
+    public IAllureResultsDestination ResultsDestination { get; } = args.Destination;
 
     /// <inheritdoc/>
-    public IAllureExecutionContext ContextApi { get; } = context;
+    public IAllureExecutionContext ContextApi { get; } = args.Context;
 
     /// <inheritdoc/>
-    public IAllureLifecycleApi LifecycleApi { get; } = lifecycleApi;
+    public IAllureLifecycleApi LifecycleApi { get; } = args.LifecycleApi;
 
     /// <inheritdoc/>
-    public IAllureModelApi ModelApi { get; } = modelApi;
+    public IAllureModelApi ModelApi { get; } = args.ModelApi;
+
+    /// <inheritdoc/>
+    public AllureTestPlan TestPlan { get; } = args.TestPlan;
 }
 
 /// <summary>
 /// Provides the standard implementation of an Allure runtime using
 /// <see cref="AllureConfiguration"/>.
 /// </summary>
-/// <param name="configuration">The runtime configuration.</param>
-/// <param name="parameterSerializer">The parameter serializer.</param>
-/// <param name="resultsDestination">The destination for generated results.</param>
-/// <param name="context">The execution-context service.</param>
-/// <param name="lifecycleApi">The lifecycle API.</param>
-/// <param name="modelApi">The model API.</param>
+/// <param name="args">The runtime creation arguments.</param>
 public class AllureRuntime(
-    AllureConfiguration configuration,
-    IAllureParameterSerializer parameterSerializer,
-    IAllureResultsDestination resultsDestination,
-    IAllureExecutionContext context,
-    IAllureLifecycleApi lifecycleApi,
-    IAllureModelApi modelApi
+    RuntimeCreationArguments<AllureConfiguration> args
 ) :
-    AllureRuntime<AllureConfiguration>(
-        configuration,
-        parameterSerializer,
-        resultsDestination,
-        context,
-        lifecycleApi,
-        modelApi
-    ),
+    AllureRuntime<AllureConfiguration>(args),
     IAllureRuntime;

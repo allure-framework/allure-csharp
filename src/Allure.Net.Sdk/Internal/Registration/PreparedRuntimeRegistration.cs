@@ -37,6 +37,7 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
         var context = registrationSnapshot.ContextFactory(serviceCreationContext);
         var lifecycleApi = registrationSnapshot.LifecycleApiFactory(serviceCreationContext);
         var modelApi = registrationSnapshot.ModelApiFactory(serviceCreationContext);
+        var testPlan = registrationSnapshot.TestPlanFactory(configuration);
 
         RuntimeCreationArguments<TConfiguration> runtimeCreationArguments = new(
             Configuration: configuration,
@@ -44,7 +45,8 @@ internal class PreparedRuntimeRegistration<TConfiguration, TRuntime>(
             Destination: destination,
             Context: context,
             LifecycleApi: lifecycleApi,
-            ModelApi: modelApi
+            ModelApi: modelApi,
+            TestPlan: testPlan
         );
 
         var runtime = runtimeFactory(runtimeCreationArguments);

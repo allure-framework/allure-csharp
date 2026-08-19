@@ -1,6 +1,7 @@
 using Allure.Abstractions;
 using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
+using Allure.Sdk.TestPlan;
 
 namespace Allure.Sdk.Registration;
 
@@ -14,11 +15,13 @@ namespace Allure.Sdk.Registration;
 /// <param name="Context">The execution-context service.</param>
 /// <param name="LifecycleApi">The lifecycle API service.</param>
 /// <param name="ModelApi">The model API service.</param>
+/// <param name="TestPlan">The resolved Allure test plan.</param>
 public record class RuntimeCreationArguments<TConfiguration>(
     TConfiguration Configuration,
     IAllureParameterSerializer ParameterSerializer,
     IAllureResultsDestination Destination,
     IAllureExecutionContext Context,
     IAllureLifecycleApi LifecycleApi,
-    IAllureModelApi ModelApi
+    IAllureModelApi ModelApi,
+    AllureTestPlan TestPlan
 );

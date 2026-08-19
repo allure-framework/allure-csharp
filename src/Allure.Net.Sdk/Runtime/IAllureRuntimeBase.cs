@@ -1,6 +1,7 @@
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Results;
+using Allure.Sdk.TestPlan;
 
 namespace Allure.Sdk.Runtime;
 
@@ -38,4 +39,9 @@ public interface IAllureRuntimeBase
     /// Gets the parameter serializer.
     /// </summary>
     IAllureParameterSerializer ParameterSerializer { get; }
+
+    /// <summary>
+    /// Gets the test plan.
+    /// </summary>
+    AllureTestPlan TestPlan { get; }
 }

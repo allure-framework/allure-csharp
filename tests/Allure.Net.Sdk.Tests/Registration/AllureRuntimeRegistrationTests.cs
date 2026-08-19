@@ -145,36 +145,20 @@ public class AllureRuntimeRegistrationTests
         return (plan.Build(), destination);
     }
 
-    delegate TRuntime RuntimeFactory<out TRuntime>(RuntimeArguments args);
+    delegate TRuntime RuntimeFactory<out TRuntime>(RuntimeCreationArguments<AllureConfiguration> args);
 
-    sealed record RuntimeArguments(
-        AllureConfiguration Configuration,
-        IAllureParameterSerializer ParameterSerializer,
-        IAllureResultsDestination ResultsDestination,
-        IAllureExecutionContext Context,
-        IAllureLifecycleApi LifecycleApi,
-        IAllureModelApi ModelApi
-    );
-
-    abstract class RuntimeStub(RuntimeArguments args) :
-        AllureRuntime<AllureConfiguration>(
-            args.Configuration,
-            args.ParameterSerializer,
-            args.ResultsDestination,
-            args.Context,
-            args.LifecycleApi,
-            args.ModelApi
-        );
+    abstract class RuntimeStub(RuntimeCreationArguments<AllureConfiguration> args) :
+        AllureRuntime<AllureConfiguration>(args);
 
     sealed class SyncDisposableRuntime(
-        RuntimeArguments args,
+        RuntimeCreationArguments<AllureConfiguration> args,
         Action dispose
     ) : RuntimeStub(args), IDisposable
     {
         public void Dispose() => dispose();
     }
 
-    sealed class AsyncDisposableRuntime(RuntimeArguments args) :
+    sealed class AsyncDisposableRuntime(RuntimeCreationArguments<AllureConfiguration> args) :
         RuntimeStub(args),
         IAsyncDisposable
     {
@@ -187,7 +171,7 @@ public class AllureRuntimeRegistrationTests
         }
     }
 
-    sealed class DualDisposableRuntime(RuntimeArguments args) :
+    sealed class DualDisposableRuntime(RuntimeCreationArguments<AllureConfiguration> args) :
         RuntimeStub(args),
         IDisposable,
         IAsyncDisposable
@@ -222,14 +206,7 @@ public class AllureRuntimeRegistrationTests
     {
         protected override TRuntime CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
         {
-            return runtimeFactory(new(
-                args.Configuration,
-                args.ParameterSerializer,
-                args.Destination,
-                args.Context,
-                args.LifecycleApi,
-                args.ModelApi
-            ));
+            return runtimeFactory(args);
         }
     }
 

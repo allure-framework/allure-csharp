@@ -1,6 +1,7 @@
 using System;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Runtime;
+using Allure.Sdk.TestPlan;
 
 namespace Allure.Sdk.Registration;
 
@@ -43,6 +44,16 @@ public interface IAllureRuntimeIntegrationContextBase<TConfiguration, out TRunti
     /// </param>
     void UseModelApi(
         Func<TConfiguration, IAllureModelApi> modelApiFactory
+    );
+
+    /// <summary>
+    /// Configures the test plan.
+    /// </summary>
+    /// <param name="testPlanFactory">
+    /// A factory that resolves the test plan from the resolved configuration.
+    /// </param>
+    public void UseTestPlan(
+        Func<TConfiguration, AllureTestPlan> testPlanFactory
     );
 
     /// <summary>
