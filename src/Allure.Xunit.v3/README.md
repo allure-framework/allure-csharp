@@ -32,10 +32,13 @@ Microsoft Testing Platform.
 
 ## Requirements
 
-Install these packages in the test project:
+Install the `Allure.Xunit.v3` package in your xUnit.net v3 MTP test project.
+If you don't have one, consult
+[this article](https://xunit.net/docs/getting-started/v3/getting-started) on
+how to create it.
 
-- `xunit.v3.mtp-v2`
-- `Allure.Xunit.v3`
+Currently, `Allure.Xunit.v3` only supports the `xunit.v3.mtp-v2` xUnit.net package,
+so make sure you've got this exact package installed.
 
 Enable the Microsoft Testing Platform runner:
 
@@ -78,10 +81,10 @@ A typical default path is:
 ./bin/Debug/net10.0/TestResults/allure-results
 ```
 
-Use attributes from `Allure.Net.Commons.Attributes` to add metadata to tests:
+Use attributes from the `Allure` namespace to add metadata to tests:
 
 ```csharp
-using Allure.Net.Commons.Attributes;
+using Allure;
 using Xunit;
 
 [AllureFeature("Checkout")]
@@ -97,8 +100,10 @@ public class CheckoutTests
 }
 ```
 
-You can also use `Allure.Net.Commons.AllureApi` to add labels, links,
+You can also use `Allure.AllureApi` to add labels, links,
 parameters, steps, and attachments at runtime.
+
+Note, that `Allure.AllureInProcessApi` is not supported yet.
 
 ## Configuration
 
@@ -141,8 +146,8 @@ To support test plans, Allure.Xunit.v3 generates an Allure-aware entry point.
 The entry point adds xUnit.net pre-execution filter arguments for tests
 selected by the current Allure test plan and calls xUnit.net.
 
-If `Allure_GenerateXunitEntryPoint` is set to `false`, the xUnit.net entry point
-will be used. Pre-execution filtering is not generated. In that mode,
+If `Allure_GenerateXunitEntryPoint` is set to `false`, the xUnit.net's native
+entry point will be used. Pre-execution filtering is not generated. In that mode,
 Allure still applies the test plan at runtime, but xUnit.net may construct
 test class instances and run fixtures for tests that are not selected by the plan.
 
@@ -151,8 +156,8 @@ test class instances and run fixtures for tests that are not selected by the pla
 ### Custom Allure registration
 
 Disable the default Allure registration when you need to customize
-`Allure.TestingPlatform`, for example to use a custom configuration object,
-results writer, or enablement rule:
+the `Allure.Xunit` runtime, for example to use a custom configuration object,
+results destination, or enablement rule:
 
 ```xml
 <PropertyGroup>
@@ -163,7 +168,7 @@ results writer, or enablement rule:
 Then define your own Microsoft Testing Platform builder hook:
 
 ```csharp
-using Allure.Net.Commons.Configuration;
+using Allure.Sdk.Configuration;
 using Allure.TestingPlatform;
 using Allure.Xunit;
 using Microsoft.Testing.Platform.Builder;
@@ -178,8 +183,8 @@ public static class MyAllureBuilderHook
         {
             allure.UseConfiguration(new AllureConfiguration
             {
-                Directory = "artifacts/allure-results",
-                Title = "My xUnit.net v3 tests",
+                ResultsDirectory = "artifacts/allure-results",
+                Hostname = "My xUnit.net v3 tests",
             });
         });
     }
@@ -211,7 +216,7 @@ the generated `AllureXunitEntryPoint.RunAsync` overload:
 using System.Threading.Tasks;
 using Allure.Net.Commons.Configuration;
 using Allure.TestingPlatform;
-using Allure.Xunit;
+using Allure.Xunit.Generated;
 
 namespace MyTests;
 
@@ -222,7 +227,7 @@ public static class Program
         {
             allure.UseConfiguration(new AllureConfiguration
             {
-                Directory = "artifacts/allure-results",
+                ResultsDirectory = "artifacts/allure-results",
             });
         }, args);
 }
@@ -246,9 +251,9 @@ instead and pass a registration function to it:
 
 ```csharp
 using System.Threading.Tasks;
-using Allure.Net.Commons.Configuration;
+using Allure.Sdk.Configuration;
 using Allure.TestingPlatform;
-using Allure.Xunit;
+using Allure.Xunit.Generated;
 
 namespace MyTests;
 
@@ -273,7 +278,7 @@ public static class Program
 ```
 
 Point `StartupObject` to the entry point class. You may also disable Allure entry point
-generation:
+generation because you don't need it in this setup:
 
 ```xml
 <PropertyGroup>
@@ -282,7 +287,7 @@ generation:
 </PropertyGroup>
 ```
 
-`StartupObject` is required in this setup because xUnit.net still generates its
+`StartupObject` is still required because xUnit.net still generates its
 own entry point. Omitting it will result in the `Program has more than one entry
 point defined` error or your entry point not being selected.
 
@@ -308,6 +313,7 @@ Check that:
 - `Allure_XunitEnableSelfRegistration` is not set to `false` unless you provide
   a custom registration;
 - the `--allure off` command-line option is not used.
+- the configuration file does not set `isEnabled` to `false`.
 
 ### Warning ALLURE001 is shown
 
