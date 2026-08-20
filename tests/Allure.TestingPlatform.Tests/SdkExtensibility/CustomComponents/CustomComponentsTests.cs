@@ -30,6 +30,11 @@ public class CustomComponentsTests
                 context.ConfigureSerialization(
                     rules => rules.UseNullRepresentation("<null>")
                 );
+            },
+            (context, _, _) =>
+            {
+                context.UseCurrentScopePredicate((_) => false);
+                context.UseGlobalScopePredicate((_) => false);
             }
         );
         ExtensibilityTestApplication.RegisterTestFramework(builder);
