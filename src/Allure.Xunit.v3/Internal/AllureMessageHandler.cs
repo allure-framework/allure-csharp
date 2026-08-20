@@ -80,8 +80,6 @@ sealed class AllureMessageHandler(
 
     protected override void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
     {
-        base.HandleTestCaseFinished(args);
-
         if (XunitMessageMapping.TryConvertToAllureScopeStopMessage(
             args.Message,
             this.MetadataCache,
@@ -90,6 +88,8 @@ sealed class AllureMessageHandler(
         {
             this.PublishSync(allureScopeStop);
         }
+
+        base.HandleTestCaseFinished(args);
     }
 
     void ApplyRuntimeGuard(MethodInfo testMethod, ITest test)
