@@ -12,7 +12,7 @@ using Allure.Abstractions;
 using Allure.TestingPlatform.Internal.Runtime;
 using Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 using Allure.TestingPlatform.Internal.Registration;
-using Allure.TestingPlatform.Internal;
+using Allure.TestingPlatform.Internal.Lifecycle;
 
 namespace Allure.TestingPlatform.Sdk;
 
@@ -56,11 +56,23 @@ public static class AllureTestingPlatformSdkExtensions
                 TRuntime
             >
         {
+            var testExecutionCoordinatorProvider = new TestExecutionCoordinatorProvider<TConfiguration>();
+
             var runtimeCoordinator = AllureTestingPlatformRuntimeRegistration.Create(
                 runtimeName,
-                sessionFactory,
-                RegisterIntegration
+                () =>
+                {
+                    var session = sessionFactory();
+                    ((ITestExecutionCoordinatorProviderBinding<TConfiguration>)session)
+                        .BindTestExecutionCoordinatorProvider(
+                            testExecutionCoordinatorProvider
+                        );
+                    return session;
+                },
+                RegisterIntegration,
+                testExecutionCoordinatorProvider
             );
+
             var registrationControl =
                 (IAllureTestingPlatformRegistrationControl<
                     AllureTestingPlatformConfiguration,
@@ -524,5 +536,32 @@ public static class AllureTestingPlatformSdkExtensions
         /// </summary>
         public void UseTestNodeMetadataCorrelation() =>
             context.UseCorrelationStrategy((_) => new TestNodeMetadataCorrelationStrategy());
+
+        /// <summary>
+        /// Configures direct test execution coordination, where Allure operations and
+        /// Microsoft Testing Platform test nodes use the same test identifier.
+        /// </summary>
+        /// <remarks>
+        /// Use with frameworks whose Microsoft Testing Platform test-node UIDs uniquely
+        /// identify individual test executions. It is also suitable when messages targeting
+        /// reused test-node UIDs are guaranteed to be ordered with the corresponding
+        /// Microsoft Testing Platform lifecycle messages.
+        /// </remarks>
+        public void UseDirectTestExecutionCoordinator() =>
+            context.UseTestExecutionCoordinator((_) => DirectTestExecutionCoordinator.Instance);
+
+        /// <summary>
+        /// Configures binding-based test execution coordination, where Allure execution
+        /// identifiers are bound to corresponding Microsoft Testing Platform test-node
+        /// identifiers.
+        /// </summary>
+        /// <remarks>
+        /// Use when Microsoft Testing Platform test-node UIDs may be reused across multiple
+        /// test executions and Allure operations are not synchronized with test-node
+        /// lifecycle messages. The integration must provide a unique execution UID, bind it
+        /// to the corresponding test-node UID, and signal when the execution has finished.
+        /// </remarks>
+        public void UseBindingTestExecutionCoordinator() =>
+            context.UseTestExecutionCoordinator((_) => new BindingTestExecutionCoordinator());
     }
 }

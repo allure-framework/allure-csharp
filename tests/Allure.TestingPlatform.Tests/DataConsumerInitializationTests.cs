@@ -65,7 +65,10 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
 
             typeof(AllureScopeTestsMessage),
 
+            typeof(AllureTestExecutionBindingMessage),
             typeof(AllureTestUpdateMessage),
+            typeof(AllureTestExecutionFinishMessage),
+
             typeof(AllureExecutableItemUpdateMessage),
         ]);
     }

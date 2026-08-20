@@ -3,6 +3,7 @@ using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Internal;
 using Allure.TestingPlatform.Internal.Correlation;
+using Allure.TestingPlatform.Internal.Registration;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
@@ -35,7 +36,8 @@ public abstract class AllureTestingPlatformRegistrationSession<
         TConfiguration,
         TRuntime,
         TRegistrationContext
-    >
+    >,
+    ITestExecutionCoordinatorProviderBinding<TConfiguration>
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
@@ -57,6 +59,8 @@ public abstract class AllureTestingPlatformRegistrationSession<
 
     Func<TConfiguration, ILogger> currentLoggerFactory =
         (_) => NullLogger.Instance;
+
+    TestExecutionCoordinatorProvider<TConfiguration>? testExecutionCoordinatorFactory = null;
 
     /// <inheritdoc />
     public void Disable()
@@ -106,6 +110,11 @@ public abstract class AllureTestingPlatformRegistrationSession<
         this.Modify(() => this.currentLoggerFactory = loggerFactory);
     }
 
+    public void UseTestExecutionCoordinator(Func<TConfiguration, ITestExecutionCoordinator> testExecutionCoordinatorFactory)
+    {
+        this.Modify(() => this.testExecutionCoordinatorFactory?.Use(testExecutionCoordinatorFactory));
+    }
+
     /// <inheritdoc />
     protected override sealed TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args)
     {
@@ -131,6 +140,13 @@ public abstract class AllureTestingPlatformRegistrationSession<
         RuntimeCreationArguments<TConfiguration> commonArgs,
         AllureTestingPlatformRuntimeArguments testingPlatformArgs
     );
+
+    void ITestExecutionCoordinatorProviderBinding<TConfiguration>.BindTestExecutionCoordinatorProvider(
+        TestExecutionCoordinatorProvider<TConfiguration> provider
+    )
+    {
+        this.testExecutionCoordinatorFactory = provider;
+    }
 }
 
 /// <summary>

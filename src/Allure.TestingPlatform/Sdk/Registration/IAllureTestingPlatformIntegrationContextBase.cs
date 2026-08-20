@@ -35,7 +35,9 @@ public interface IAllureTestingPlatformIntegrationContextBase<TConfiguration, ou
     /// <param name="correlationStrategyFactory">
     /// A factory that receives the resolved configuration.
     /// </param>
-    void UseCorrelationStrategy(Func<TConfiguration, ICorrelationStrategy> correlationStrategyFactory);
+    void UseCorrelationStrategy(
+        Func<TConfiguration, ICorrelationStrategy> correlationStrategyFactory
+    );
 
     /// <summary>
     /// Configures the context that provides the current correlation identifier.
@@ -43,7 +45,9 @@ public interface IAllureTestingPlatformIntegrationContextBase<TConfiguration, ou
     /// <param name="correlationContextFactory">
     /// A factory that receives the resolved configuration.
     /// </param>
-    void UseCorrelationContext(Func<TConfiguration, ICorrelationContext> correlationContextFactory);
+    void UseCorrelationContext(
+        Func<TConfiguration, ICorrelationContext> correlationContextFactory
+    );
 
     /// <summary>
     /// Configures the context that tracks the current execution state.
@@ -51,5 +55,19 @@ public interface IAllureTestingPlatformIntegrationContextBase<TConfiguration, ou
     /// <param name="executionStateContextFactory">
     /// A factory that receives the resolved configuration.
     /// </param>
-    void UseExecutionStateContext(Func<TConfiguration, ExecutionStateContext> executionStateContextFactory);
+    void UseExecutionStateContext(
+        Func<TConfiguration, ExecutionStateContext> executionStateContextFactory
+    );
+
+    /// <summary>
+    /// Configures how test execution operations are coordinated with
+    /// Microsoft Testing Platform test-node lifecycle events.
+    /// </summary>
+    /// <param name="testExecutionCoordinatorFactory">
+    /// A factory invoked with the resolved configuration to create a coordinator
+    /// for each correlated test session.
+    /// </param>
+    void UseTestExecutionCoordinator(
+        Func<TConfiguration, ITestExecutionCoordinator> testExecutionCoordinatorFactory
+    );
 }
