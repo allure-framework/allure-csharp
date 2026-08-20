@@ -1,3 +1,4 @@
+using System;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 
@@ -11,4 +12,15 @@ public interface IAllureTestingPlatformRegistrationContext<TConfiguration> :
     IAllureTestingPlatformRegistrationContextBase,
     IAllureRuntimeRegistrationContext<TConfiguration>
 
-    where TConfiguration : AllureTestingPlatformConfiguration;
+    where TConfiguration : AllureTestingPlatformConfiguration
+{
+    /// <summary>
+    /// Configures the in-process endpoint established by the test framework adapter.
+    /// </summary>
+    /// <param name="endpointConfigurationCallback">
+    /// A callback that receives the resolved configuration and the endpoint registration context.
+    /// </param>
+    void ConfigureEndpoint(
+        Action<TConfiguration, IAllureEndpointRegistrationContext> endpointConfigurationCallback
+    );
+}

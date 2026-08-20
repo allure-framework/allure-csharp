@@ -27,7 +27,7 @@ public static class AllureTestingPlatformSdkExtensions
     /// <param name="builder">The test application builder.</param>
     extension (ITestApplicationBuilder builder)
     {
-        internal IAllureTestingPlatformRegistration<TConfiguration, TRuntime> RegisterAllureTestingPlatform<
+        internal IAllureTestingPlatformRegistrationControl<TConfiguration, TRuntime> RegisterAllureTestingPlatform<
             TConfiguration,
             TRuntime,
             TIntegrationContext
@@ -56,21 +56,21 @@ public static class AllureTestingPlatformSdkExtensions
                 TRuntime
             >
         {
-            var testExecutionCoordinatorProvider = new TestExecutionCoordinatorProvider<TConfiguration>();
+            var allureServiceProvider = new InternalServiceProvider<TConfiguration>();
 
             var runtimeCoordinator = AllureTestingPlatformRuntimeRegistration.Create(
                 runtimeName,
                 () =>
                 {
                     var session = sessionFactory();
-                    ((ITestExecutionCoordinatorProviderBinding<TConfiguration>)session)
-                        .BindTestExecutionCoordinatorProvider(
-                            testExecutionCoordinatorProvider
+                    ((IAllureServiceProviderBinding<TConfiguration>)session)
+                        .BindServiceProvider(
+                            allureServiceProvider
                         );
                     return session;
                 },
                 RegisterIntegration,
-                testExecutionCoordinatorProvider
+                allureServiceProvider
             );
 
             var registrationControl =
@@ -248,6 +248,7 @@ public static class AllureTestingPlatformSdkExtensions
                         });
 
                         endpointRegistration(endpointContext, coordinator.ServiceProvider, runtime);
+                        coordinator.ConfigureEndpoint(endpointContext);
                     });
 
                     runtimeRegistration(context, coordinator.ServiceProvider);

@@ -37,7 +37,7 @@ public abstract class AllureTestingPlatformRegistrationSession<
         TRuntime,
         TRegistrationContext
     >,
-    ITestExecutionCoordinatorProviderBinding<TConfiguration>
+    IAllureServiceProviderBinding<TConfiguration>
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
@@ -60,7 +60,7 @@ public abstract class AllureTestingPlatformRegistrationSession<
     Func<TConfiguration, ILogger> currentLoggerFactory =
         (_) => NullLogger.Instance;
 
-    TestExecutionCoordinatorProvider<TConfiguration>? testExecutionCoordinatorFactory = null;
+    InternalServiceProvider<TConfiguration>? internalServiceProvider = null;
 
     /// <inheritdoc />
     public void Disable()
@@ -112,7 +112,13 @@ public abstract class AllureTestingPlatformRegistrationSession<
 
     public void UseTestExecutionCoordinator(Func<TConfiguration, ITestExecutionCoordinator> testExecutionCoordinatorFactory)
     {
-        this.Modify(() => this.testExecutionCoordinatorFactory?.Use(testExecutionCoordinatorFactory));
+        this.Modify(() => this.internalServiceProvider?.UseTestExecutionCoordinator(testExecutionCoordinatorFactory));
+    }
+
+    /// <inheritdoc />
+    public void ConfigureEndpoint(Action<TConfiguration, IAllureEndpointRegistrationContext> endpointConfigurationCallback)
+    {
+        this.Modify(() => this.internalServiceProvider?.UseEndpointConfigurationCallback(endpointConfigurationCallback));
     }
 
     /// <inheritdoc />
@@ -141,11 +147,11 @@ public abstract class AllureTestingPlatformRegistrationSession<
         AllureTestingPlatformRuntimeArguments testingPlatformArgs
     );
 
-    void ITestExecutionCoordinatorProviderBinding<TConfiguration>.BindTestExecutionCoordinatorProvider(
-        TestExecutionCoordinatorProvider<TConfiguration> provider
+    void IAllureServiceProviderBinding<TConfiguration>.BindServiceProvider(
+        InternalServiceProvider<TConfiguration> provider
     )
     {
-        this.testExecutionCoordinatorFactory = provider;
+        this.internalServiceProvider = provider;
     }
 }
 

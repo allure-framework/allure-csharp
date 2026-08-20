@@ -25,6 +25,10 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
 
     public IAllureTestingPlatformMessageChannel MessageChannel => IAllureTestingPlatformMessageChannel.Mock();
 
+    public void ConfigureEndpoint(IAllureEndpointRegistrationContext context)
+    {
+    }
+
     public ITestExecutionCoordinator CreateTestExecutionCoordinator()
     {
         return DirectTestExecutionCoordinator.Instance;

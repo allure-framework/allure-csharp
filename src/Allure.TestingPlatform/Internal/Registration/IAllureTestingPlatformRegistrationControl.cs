@@ -1,4 +1,5 @@
 using System;
+using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Registration;
@@ -16,4 +17,6 @@ interface IAllureTestingPlatformRegistrationControl<out TConfiguration, out TRun
     void EnsureRuntimeStarted();
 
     ITestExecutionCoordinator CreateTestExecutionCoordinator();
+
+    void ConfigureEndpoint(IAllureEndpointRegistrationContext context);
 }

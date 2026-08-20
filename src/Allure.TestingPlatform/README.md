@@ -468,7 +468,8 @@ With the default configuration and the non-generic `AddEmbeddedAllure`
 overload, an application defines a hook by implementing
 `IAllureTestingPlatformRegistrationHook`. Its `SetUp` method can configure
 serialization, configuration sources and transformations, parameter
-serialization, the results destination, enablement, and the process watchdog:
+serialization, the results destination, endpoint routing, enablement, and the
+process watchdog:
 
 ```csharp
 public sealed class MyAllureRegistrationHook

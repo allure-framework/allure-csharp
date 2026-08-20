@@ -47,7 +47,7 @@ sealed class AllureTestingPlatformRuntimeRegistration<
 
     readonly MessageBusProxy messageChannel;
 
-    readonly TestExecutionCoordinatorProvider<TConfiguration> testExecutionCoordinatorProvider;
+    readonly InternalServiceProvider<TConfiguration> internalServiceProvider;
 
     IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan = null;
 
@@ -102,7 +102,7 @@ sealed class AllureTestingPlatformRuntimeRegistration<
                 TIntegrationContext
             >
         > registration,
-        TestExecutionCoordinatorProvider<TConfiguration> coordinatorProvider
+        InternalServiceProvider<TConfiguration> allureServiceProvider
     )
     {
         this.runtimeBuilder = AllureRuntimeBuilder.Create(runtimeName, sessionFactory);
@@ -110,7 +110,7 @@ sealed class AllureTestingPlatformRuntimeRegistration<
             ?? throw new ArgumentNullException(nameof(registration));
         this.messageChannel = new();
         this.serviceProvider = new(this.messageChannel);
-        this.testExecutionCoordinatorProvider = coordinatorProvider;
+        this.internalServiceProvider = allureServiceProvider;
     }
 
     public void EnsureRuntimeStarted()
@@ -451,8 +451,21 @@ sealed class AllureTestingPlatformRuntimeRegistration<
         {
             this.ThrowIfUnprepared();
 
-            return this.testExecutionCoordinatorProvider.Create(
+            return this.internalServiceProvider.CreateTestExecutionCoordinator(
                 this.registrationPlan!.Configuration
+            );
+        }
+    }
+
+    public void ConfigureEndpoint(IAllureEndpointRegistrationContext context)
+    {
+        lock (this.gate)
+        {
+            this.ThrowIfUnprepared();
+
+            this.internalServiceProvider.ConfigureEndpoint(
+                this.registrationPlan!.Configuration,
+                context
             );
         }
     }
@@ -514,7 +527,7 @@ internal static class AllureTestingPlatformRuntimeRegistration
                 TIntegrationContext
             >
         > registration,
-        TestExecutionCoordinatorProvider<TConfiguration> coordinatorProvider
+        InternalServiceProvider<TConfiguration> coordinatorProvider
     )
         where TConfiguration : AllureTestingPlatformConfiguration, new()
         where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
