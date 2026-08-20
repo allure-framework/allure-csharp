@@ -276,6 +276,35 @@ contexts must follow asynchronous callbacks and isolate concurrent executions.
 Together, they route runtime API calls to the correct session and lifecycle
 item.
 
+### Coordinate test executions
+
+`Allure.TestingPlatform` provides two test execution coordinators. Select one
+during embedded runtime registration:
+
+```csharp
+// The default.
+context.UseDirectTestExecutionCoordinator();
+
+// For frameworks that need separate execution UIDs.
+context.UseBindingTestExecutionCoordinator();
+```
+
+Use the direct coordinator when each `TestNode.Uid` uniquely identifies a test
+execution. It is also suitable when reused test-node UIDs are safe because the
+framework keeps Allure operations synchronized with the corresponding MTP
+lifecycle messages.
+
+Use the binding coordinator when the framework may reuse a `TestNode.Uid` for
+multiple executions and Allure operations can arrive independently of MTP
+lifecycle messages. Give each execution a unique UID and publish an
+`AllureTestExecutionBindingMessage` to associate it with its MTP test-node UID.
+After publishing all operations for that execution, publish an
+`AllureTestExecutionFinishMessage`.
+
+If none of the built-in coordinators suit your needs, implement
+ `Allure.TestingPlatform.Sdk.ExecutionState.ITestExecutionCoordinator` and set up
+the factory using `context.UseTestExecutionCoordinator(...)`.
+
 ### Map the framework lifecycle
 
 MTP `TestNodeUpdateMessage` events drive the basic test lifecycle. Publish additional messages through the framework's `IMessageBus`, or through
@@ -292,13 +321,16 @@ await allure.MessageChannel.PublishAsync(
 );
 ```
 
-The `TestExecutionStateUid` value must match the corresponding `TestNode.Uid`.
+With the direct test execution coordinator, the `TestExecutionStateUid` value
+must match the corresponding `TestNode.Uid`. With the binding coordinator, use
+the unique execution UID instead.
 
 Map framework events to the appropriate message group:
 
 - scopes: `AllureScopeStartMessage`, `AllureScopeTestsMessage`, and `AllureScopeStopMessage`;
 - fixtures: `AllureBeforeFixtureStartMessage`, `AllureAfterFixtureStartMessage`, `AllureFixtureUpdateMessage`, and `AllureFixtureStopMessage`;
-- tests: `AllureTestUpdateMessage`;
+- tests: `AllureTestExecutionBindingMessage`, `AllureTestUpdateMessage`, and
+  `AllureTestExecutionFinishMessage`;
 - steps: `AllureStepStartMessage`, `AllureStepUpdateMessage`, and `AllureStepStopMessage`;
 - the active test, fixture, or step: `AllureExecutableItemUpdateMessage`.
 
@@ -639,7 +671,11 @@ property as a standard hook.
 ### Adapter checklist
 
 - Register one embedded runtime under a stable, adapter-specific name.
-- Use the exact MTP test-node UID in Allure test updates.
+- Choose the direct or binding test execution coordinator to match the
+  framework's UID and message-ordering behavior.
+- With direct coordination, use the exact MTP test-node UID in Allure test
+  updates. With binding coordination, use a unique execution UID and publish
+  its binding and finish messages.
 - Choose a correlation strategy and provide a matching `ICorrelationContext`.
 - Map the framework context through `ExecutionStateContext`, including parallel execution.
 - Publish balanced lifecycle messages and preserve parent-child ordering.
