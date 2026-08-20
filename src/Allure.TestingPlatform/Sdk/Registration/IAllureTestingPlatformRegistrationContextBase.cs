@@ -6,4 +6,15 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// Represents the common registration context for an Allure Microsoft Testing Platform runtime.
 /// </summary>
 public interface IAllureTestingPlatformRegistrationContextBase :
-    IAllureRegistrationContext;
+    IAllureRegistrationContext
+{
+    /// <summary>
+    /// Disables Allure.
+    /// </summary>
+    void Disable();
+
+    /// <summary>
+    /// Disables the process watchdog that writes a global error when the test host crashes.
+    /// </summary>
+    void DisableHostProcessWatchdog();
+}

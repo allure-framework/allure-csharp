@@ -11,15 +11,4 @@ public interface IAllureTestingPlatformRegistrationContext<TConfiguration> :
     IAllureTestingPlatformRegistrationContextBase,
     IAllureRuntimeRegistrationContext<TConfiguration>
 
-    where TConfiguration : AllureTestingPlatformConfiguration
-{
-    /// <summary>
-    /// Disables Allure.
-    /// </summary>
-    void Disable();
-
-    /// <summary>
-    /// Disables the process watchdog that writes a global error when the test host crashes.
-    /// </summary>
-    void DisableHostProcessWatchdog();
-}
+    where TConfiguration : AllureTestingPlatformConfiguration;
