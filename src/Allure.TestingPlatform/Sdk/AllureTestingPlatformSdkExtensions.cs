@@ -157,8 +157,6 @@ public static class AllureTestingPlatformSdkExtensions
                     );
                 }
 
-                context.UseExecutionStateContext((_) => new NullExecutionStateContext(runtimeName));
-
                 registrationCallback(context, coordinator);
             }
         }
