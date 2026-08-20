@@ -1,9 +1,9 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.Tags.TagAttributes
+namespace Allure.Xunit.v3.Tests.Samples.Tags.TagApi
 {
-    public class OnTestMethod
+    public class AttributeOnTestMethod
     {
         [Fact]
         [AllureTag("foo", "bar")]
@@ -13,7 +13,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Tags.TagAttributes
 
     [AllureTag("foo", "bar")]
     [AllureTag("baz")]
-    public class OnTestClass
+    public class AttributeOnTestClass
     {
         [Fact]
         public void TestMethod() { }
@@ -23,7 +23,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Tags.TagAttributes
     [AllureTag("baz")]
     public class BaseClass { }
 
-    public class OnBaseClass : BaseClass
+    public class AttributeOnBaseClass : BaseClass
     {
         [Fact]
         public void TestMethod() { }
@@ -33,7 +33,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Tags.TagAttributes
     [AllureTag("baz")]
     public interface IInterface { }
 
-    public class OnInterface : IInterface
+    public class AttributeOnInterface : IInterface
     {
         [Fact]
         public void TestMethod() { }

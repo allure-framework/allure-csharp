@@ -1,10 +1,10 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.CustomLabels.LabelAttributes
+namespace Allure.Xunit.v3.Tests.Samples.CustomLabels.LabelApi
 {
     [AllureLabel("foo", "bar")]
-    public class OnTestClass
+    public class AttributeOnTestClass
     {
         [Fact]
         public void TestMethod() { }

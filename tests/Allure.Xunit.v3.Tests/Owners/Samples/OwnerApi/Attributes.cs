@@ -1,9 +1,9 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.Owners.OwnerAttributes
+namespace Allure.Xunit.v3.Tests.Samples.Owners.OwnerApi
 {
-    public class OnTestMethod
+    public class AttributeOnTestMethod
     {
         [Fact]
         [AllureOwner("John Doe")]
@@ -11,7 +11,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Owners.OwnerAttributes
     }
 
     [AllureOwner("John Doe")]
-    public class OnTestClass
+    public class AttributeOnTestClass
     {
         [Fact]
         public void TestMethod() { }
@@ -20,7 +20,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Owners.OwnerAttributes
     [AllureOwner("John Doe")]
     public class BaseClass { }
 
-    public class OnBaseClass : BaseClass
+    public class AttributeOnBaseClass : BaseClass
     {
         [Fact]
         public void TestMethod() { }
@@ -29,7 +29,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Owners.OwnerAttributes
     [AllureOwner("John Doe")]
     public interface IInterface { }
 
-    public class OnInterface : IInterface
+    public class AttributeOnInterface : IInterface
     {
         [Fact]
         public void TestMethod() { }

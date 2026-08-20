@@ -1,7 +1,7 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.Descriptions.DescriptionAttributes
+namespace Allure.Xunit.v3.Tests.Samples.Descriptions.DescriptionApi
 {
     [AllureDescription("Interface description", Append = true)]
     [AllureDescriptionHtml("<p>Interface HTML</p>", Append = true)]
@@ -13,7 +13,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Descriptions.DescriptionAttributes
 
     [AllureDescription("Test class description", Append = true)]
     [AllureDescriptionHtml("<p>Test class HTML</p>", Append = true)]
-    public class TestClass : BaseClass, IInterface
+    public class AttributeTestClass : BaseClass, IInterface
     {
         [Fact]
         [AllureDescription("Test method description", Append = true)]

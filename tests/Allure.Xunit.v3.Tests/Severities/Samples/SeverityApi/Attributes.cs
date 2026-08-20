@@ -2,9 +2,9 @@ using Allure;
 using Allure.Model;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityAttributes
+namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityApi
 {
-    public class OnTestMethod
+    public class AttributeOnTestMethod
     {
         [Fact]
         [AllureSeverity(Severity.Critical)]
@@ -12,7 +12,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityAttributes
     }
 
     [AllureSeverity(Severity.Critical)]
-    public class OnTestClass
+    public class AttributeOnTestClass
     {
         [Fact]
         public void TestMethod() { }
@@ -21,7 +21,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityAttributes
     [AllureSeverity(Severity.Critical)]
     public class BaseClass { }
 
-    public class OnBaseClass : BaseClass
+    public class AttributeOnBaseClass : BaseClass
     {
         [Fact]
         public void TestMethod() { }
@@ -30,7 +30,7 @@ namespace Allure.Xunit.v3.Tests.Samples.Severities.SeverityAttributes
     [AllureSeverity(Severity.Critical)]
     public interface IInterface { }
 
-    public class OnInterface : IInterface
+    public class AttributeOnInterface : IInterface
     {
         [Fact]
         public void TestMethod() { }
