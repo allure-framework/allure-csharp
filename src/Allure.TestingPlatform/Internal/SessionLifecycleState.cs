@@ -14,6 +14,7 @@ sealed class SessionLifecycleState(IAllureExecutionContext context)
     readonly Dictionary<TestExecutionStateUid, AllureExecutionState> testScopeStates = [];
     readonly Dictionary<ScopeExecutionStateUid, ImmutableHashSet<TestExecutionStateUid>> scopeTests = [];
     readonly Dictionary<IAllureExecutionStateUid, Queue<Action>> pendingUpdates = [];
+    readonly HashSet<IAllureExecutionStateUid> pendingReleases = [];
 
     public bool TryGetState(
         IAllureExecutionStateUid stateUid,
@@ -23,7 +24,11 @@ sealed class SessionLifecycleState(IAllureExecutionContext context)
 
     public void SetState(IAllureExecutionStateUid stateUid, AllureExecutionState state)
     {
-        this.states[stateUid] = this.ApplyPendingUpdates(stateUid, state);
+        var updatedState = this.ApplyPendingUpdates(stateUid, state);
+        if (!this.pendingReleases.Remove(stateUid))
+        {
+            this.states[stateUid] = updatedState;
+        }
     }
 
     public AllureExecutionState GetNewTestState(TestExecutionStateUid testStateUid) =>
@@ -107,6 +112,11 @@ sealed class SessionLifecycleState(IAllureExecutionContext context)
         if (Dictionaries.TryRemoveAndGet(this.states, stateUid, out var state))
         {
             context.RunWithState(state, commit);
+        }
+        else
+        {
+            this.AddPendingUpdate(stateUid, () => commit(context.Runtime));
+            this.pendingReleases.Add(stateUid);
         }
     }
 

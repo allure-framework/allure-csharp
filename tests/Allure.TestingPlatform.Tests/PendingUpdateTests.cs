@@ -146,7 +146,10 @@ public class PendingUpdateTests : DataConsumerTestsBase
             new("scope-1"),
             "Initial fixture"
         );
-        var stopFixture = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"));
+        var stopFixture = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"))
+        {
+            Properties = [new AllureStatusProperty<FixtureResult>(Status.Failed)],
+        };
         var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
         var stopScope = new AllureScopeStopMessage(this.correlationUid, new("scope-1"));
 
@@ -162,6 +165,38 @@ public class PendingUpdateTests : DataConsumerTestsBase
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         var fixture = await Assert.That(container.Befores).HasSingleItem();
         await Assert.That(fixture.Name).IsEqualTo("Updated pending fixture");
+        await Assert.That(fixture.Status).IsEqualTo(Status.Failed);
+    }
+
+    [Test]
+    public async Task ShouldRemovedStateWithPendingRelease()
+    {
+        var startFixture = new AllureBeforeFixtureStartMessage(
+            this.correlationUid,
+            new("fixture-1"),
+            new("scope-1"),
+            "Original name"
+        );
+        var stopFixture = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"));
+        var stopFixtureWithRename = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"))
+        {
+            Properties = [new AllureNameProperty<FixtureResult>("Pending release didn't work")],
+        };
+        var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
+        var stopScope = new AllureScopeStopMessage(this.correlationUid, new("scope-1"));
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, startFixture, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopFixture, CancellationToken.None);
+
+        await Assert.That(this.writer.TestContainers).IsEmpty();
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, startScope, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopFixtureWithRename, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
+
+        var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Original name");
     }
 
     [Test]
