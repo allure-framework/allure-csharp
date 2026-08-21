@@ -14,7 +14,7 @@ class FixtureTests
     {
         var output = await AllureSampleRunner.RunAsync(AllureSampleRegistry.FixtureApi, token);
 
-        await Assert.That(output.TestResults).Count().IsEqualTo(11);
+        await Assert.That(output.TestResults).Count().IsEqualTo(13);
 
         results.Value = output;
         context.AddAsyncLocalValues();
@@ -128,6 +128,29 @@ class FixtureTests
             "NestedAllureInProcessApiAsyncFixtures",
             "Outer AllureInProcessApi async fixture"
         );
+
+    [Test]
+    public async Task CtorDisposeFixturesAreTestScoped()
+    {
+        var test1Uuid = await Assert.That(results.Value).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.Fixtures.FixtureApi.TheoryFixture.TestMethod(_: 1)"
+        ).With.Uuid();
+        var test2Uuid = await Assert.That(results.Value).HasSingleTestResult(
+            "Allure.Xunit.v3.Tests.Samples.Fixtures.FixtureApi.TheoryFixture.TestMethod(_: 2)"
+        ).With.Uuid();
+
+        var test1Container = await Assert.That(results.Value).HasSingleContainer(
+            (tc) => tc.HasSingleChild().That.IsEqualTo(test1Uuid)
+        );
+        await Assert.That(test1Container).HasSingleBeforeFixture().That.HasName("Set up");
+        await Assert.That(test1Container).HasSingleAfterFixture().That.HasName("Tear down");
+
+        var test2Container = await Assert.That(results.Value).HasSingleContainer(
+            (tc) => tc.HasSingleChild().That.IsEqualTo(test2Uuid)
+        );
+        await Assert.That(test2Container).HasSingleBeforeFixture().That.HasName("Set up");
+        await Assert.That(test2Container).HasSingleAfterFixture().That.HasName("Tear down");
+    }
 
     static async Task AssertPassedRuntimeFixtures(
         string className,

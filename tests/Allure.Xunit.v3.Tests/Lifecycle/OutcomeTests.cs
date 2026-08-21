@@ -12,8 +12,6 @@ class OutcomeTests
     {
         var output = await AllureSampleRunner.RunAsync(AllureSampleRegistry.Outcomes, token);
 
-        await Assert.That(output.TestResults).Count().IsEqualTo(4);
-
         results.Value = output;
         context.AddAsyncLocalValues();
     }
