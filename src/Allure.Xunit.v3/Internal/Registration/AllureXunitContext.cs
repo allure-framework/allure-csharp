@@ -17,12 +17,12 @@ class AllureXunitContext : ExecutionStateContext, ICorrelationContext
                 );
 
     public override ScopeExecutionStateUid? CurrentScopeUid =>
-        TestContext.Current.TestCase is { UniqueID: var testCaseId }
+        TestContext.Current.Test is { UniqueID: var testCaseId }
             ? new(testCaseId)
             : null;
 
     public override TestExecutionStateUid? CurrentTestUid =>
-        TestContext.Current.Test is { TestCase.UniqueID: var uid }
+        TestContext.Current.Test is { UniqueID: var uid }
             ? new(uid)
             : null;
 

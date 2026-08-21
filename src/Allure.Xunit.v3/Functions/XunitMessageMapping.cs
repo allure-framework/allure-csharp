@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Allure.Model;
 using Allure.TestingPlatform.Sdk.Correlation;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Properties;
 using Xunit.Runner.Common;
@@ -20,8 +21,11 @@ static class XunitMessageMapping
         [MaybeNullWhen(false)] out CorrelationUid correlationUid
     )
     {
-        if (xunitTraits.TryGetValue(TestNodeMetadataCorrelationStrategy.MetadataKey, out var metadataValue)
-            && metadataValue.Count == 1
+        if (xunitTraits.TryGetValue(
+                TestNodeMetadataCorrelationStrategy.MetadataKey,
+                out var metadataValue
+            )
+                && metadataValue.Count == 1
         )
         {
             correlationUid = new(metadataValue.First());
@@ -32,50 +36,52 @@ static class XunitMessageMapping
         return false;
     }
 
-    public static bool TryConvertToAllureScopeStartMessage(
-        ITestCaseStarting testCaseStarting,
-        [NotNullWhen(true)] out AllureScopeStartMessage? allureScopeStart
+    public static IEnumerable<AllureCorrelatedMessage> GetMessagesForTestStartingSinkEvent(
+        ITestStarting testStarting
     )
     {
-        if (testCaseStarting is { Traits: { } traits, TestCaseUniqueID: { } scopeUid }
+        if (testStarting is
+            {
+                Traits: { } traits,
+                TestUniqueID: { } testUniqueId,
+                TestCaseUniqueID: { } testCaseUniqueId,
+            }
             && TryGetCorrelationUid(traits, out var correlationUid)
         )
         {
-            allureScopeStart = new(correlationUid, new(scopeUid));
-            return true;
+            ScopeExecutionStateUid scopeUid = new(testUniqueId);
+            TestExecutionStateUid executionUid = new(testUniqueId);
+            yield return new AllureTestExecutionBindingMessage(correlationUid, new(testCaseUniqueId), executionUid);
+            yield return new AllureScopeStartMessage(correlationUid, scopeUid);
+            yield return new AllureScopeTestsMessage(correlationUid, scopeUid, [executionUid]);
         }
-        allureScopeStart = null;
-        return false;
     }
 
-    public static bool TryConvertToAllureScopeStopMessage(
-        ITestCaseFinished testCaseFinished,
-        MessageMetadataCache metadataCache,
-        [NotNullWhen(true)] out AllureScopeStopMessage? allureScopeStop
+    public static IEnumerable<AllureCorrelatedMessage> GetMessagesForTestFinishedSinkEvent(
+        ITestFinished testFinished,
+        MessageMetadataCache metadataCache
     )
     {
-        if (testCaseFinished is { TestCaseUniqueID: { } scopeUid }
-            && metadataCache.TryGetTestCaseMetadata(scopeUid) is { Traits: { } traits }
+        if (testFinished is { TestUniqueID: { } testUniqueId }
+            && metadataCache.TryGetTestMetadata(testUniqueId) is { Traits: { } traits }
             && TryGetCorrelationUid(traits, out var correlationUid)
         )
         {
-            allureScopeStop = new(correlationUid, new(scopeUid));
-            return true;
+            yield return new AllureScopeStopMessage(correlationUid, new(testUniqueId));
+            yield return new AllureTestExecutionFinishMessage(correlationUid, new(testUniqueId));
         }
-        allureScopeStop = null;
-        return false;
     }
 
-    public static bool TryConvertToTestUpdateWithMethod(
+    public static IEnumerable<AllureCorrelatedMessage> GetMessagesForTestStartingAttributeEvent(
         MethodInfo testMethod,
         ITest test,
-        object?[]? arguments,
-        [NotNullWhen(true)] out AllureTestUpdateMessage? allureTestUpdate
+        object?[]? arguments
     )
     {
         if (TryGetCorrelationUid(test.Traits, out var correlationUid))
         {
-            allureTestUpdate = new AllureTestUpdateMessage(correlationUid, new(test.TestCase.UniqueID))
+            TestExecutionStateUid executionUid = new(test.UniqueID);
+            yield return new AllureTestUpdateMessage(correlationUid, executionUid)
             {
                 Properties = [
                     new AllureTestMethodProperty(testMethod) { Arguments = [.. arguments ?? []] },
@@ -83,11 +89,7 @@ static class XunitMessageMapping
                     new AllureLabelsProperty([Label.Thread()]),
                 ]
             };
-            return true;
         }
-
-        allureTestUpdate = null;
-        return false;
     }
 
     public static bool TryConvertToCancellation(
@@ -97,7 +99,7 @@ static class XunitMessageMapping
     {
         if (TryGetCorrelationUid(test.Traits, out var correlationUid))
         {
-            cancellation = new AllureTestUpdateMessage(correlationUid, new(test.TestCase.UniqueID))
+            cancellation = new AllureTestUpdateMessage(correlationUid, new(test.UniqueID))
             {
                 Properties = [new AllureCancelProperty()],
             };
@@ -115,12 +117,12 @@ static class XunitMessageMapping
     )
     {
         if (ExceptionFunctions.IsConfiguredAssertionFailure(testFailed)
-            && testFailed is { TestCaseUniqueID: { } testCaseUniqueId }
-            && metadataCache.TryGetTestCaseMetadata(testFailed.TestCaseUniqueID) is { Traits: { } traits }
+            && testFailed is { TestUniqueID: { } testUniqueUid }
+            && metadataCache.TryGetTestMetadata(testUniqueUid) is { Traits: { } traits }
             && TryGetCorrelationUid(traits, out var correlationUid)
         )
         {
-            allureTestUpdate = new AllureTestUpdateMessage(correlationUid, new(testCaseUniqueId))
+            allureTestUpdate = new AllureTestUpdateMessage(correlationUid, new(testUniqueUid))
             {
                 Properties = [
                     new AllureStatusProperty<AllureTestResult>(Status.Failed),

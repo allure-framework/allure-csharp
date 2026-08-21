@@ -23,8 +23,12 @@ sealed class AllureMessageHandler(
 {
     public Type[] DataTypesProduced => [
         typeof(AllureScopeStartMessage),
+        typeof(AllureScopeTestsMessage),
         typeof(AllureScopeStopMessage),
+
+        typeof(AllureTestExecutionBindingMessage),
         typeof(AllureTestUpdateMessage),
+        typeof(AllureTestExecutionFinishMessage),
     ];
 
     public string Uid { get; } = "30b8fdc2-68a8-49be-b0f8-b6bed05d07bd";
@@ -39,13 +43,13 @@ sealed class AllureMessageHandler(
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);
 
-    protected override void HandleTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
+    protected override void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
     {
-        base.HandleTestCaseStarting(args);
+        base.HandleTestStarting(args);
 
-        if (XunitMessageMapping.TryConvertToAllureScopeStartMessage(args.Message, out var allureScopeStart))
+        foreach (var message in XunitMessageMapping.GetMessagesForTestStartingSinkEvent(args.Message))
         {
-            this.PublishSync(allureScopeStart);
+            this.PublishSync(message);
         }
     }
 
@@ -53,14 +57,9 @@ sealed class AllureMessageHandler(
     {
         this.ApplyRuntimeGuard(testMethod, test);
 
-        if (XunitMessageMapping.TryConvertToTestUpdateWithMethod(
-            testMethod,
-            test,
-            arguments,
-            out var allureTestUpdate
-        ))
+        foreach (var message in XunitMessageMapping.GetMessagesForTestStartingAttributeEvent(testMethod, test, arguments))
         {
-            this.PublishSync(allureTestUpdate);
+            this.PublishSync(message);
         }
     }
 
@@ -78,18 +77,17 @@ sealed class AllureMessageHandler(
         }
     }
 
-    protected override void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
+    protected override void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
     {
-        if (XunitMessageMapping.TryConvertToAllureScopeStopMessage(
+        foreach (var message in XunitMessageMapping.GetMessagesForTestFinishedSinkEvent(
             args.Message,
-            this.MetadataCache,
-            out var allureScopeStop
+            this.MetadataCache
         ))
         {
-            this.PublishSync(allureScopeStop);
+            this.PublishSync(message);
         }
 
-        base.HandleTestCaseFinished(args);
+        base.HandleTestFinished(args);
     }
 
     void ApplyRuntimeGuard(MethodInfo testMethod, ITest test)

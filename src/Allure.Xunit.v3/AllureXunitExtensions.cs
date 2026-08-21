@@ -49,6 +49,7 @@ public static class AllureXunitExtensions
                     if (IsAllureXunitAttributeApplied)
                     {
                         ctx.UseTestNodeMetadataCorrelation();
+                        ctx.UseBindingTestExecutionCoordinator();
                     }
 
                     var allureXunitContext = new AllureXunitContext();
@@ -69,7 +70,7 @@ public static class AllureXunitExtensions
             AddAllureXunit(builder, static (_) => { });
     }
 
-    static bool IsAllureXunitAttributeApplied =>
+    static bool IsAllureXunitAttributeApplied { get; } =
         Assembly.GetEntryAssembly()
             .GetCustomAttribute<AllureXunitAttribute>() is not null;
 }
