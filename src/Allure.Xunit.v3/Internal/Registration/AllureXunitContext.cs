@@ -1,7 +1,7 @@
 using System;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
-using Allure.Xunit.Functions;
+using Allure.Xunit.Internal.Functions;
 using Xunit;
 
 namespace Allure.Xunit.Internal.Registration;
@@ -10,7 +10,7 @@ class AllureXunitContext : ExecutionStateContext, ICorrelationContext
 {
     public CorrelationUid CurrentCorrelationUid =>
         TestContext.Current is { TestAssembly.Traits: { } traits }
-            && XunitMessageMapping.TryGetCorrelationUid(traits, out var correlationUid)
+            && XunitTraits.TryGetCorrelationUid(traits, out var correlationUid)
                 ? correlationUid
                 : throw new InvalidOperationException(
                     "Cannot get the current correlation UID."

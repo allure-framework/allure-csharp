@@ -46,9 +46,11 @@ public class AllureRunnerReporter : IRunnerReporter
             return new DefaultRunnerReporterMessageHandler(logger);
         }
 
+        var registration = AllureXunitRegistration.Current;
         var allureHandler = new AllureMessageHandler(
             logger,
-            AllureXunitRegistration.Current.MessageChannel
+            registration.MessageChannel,
+            registration.ConfigurationReference.Value.FailExceptions
         );
 
         messageHandlerReference.Bind(allureHandler);

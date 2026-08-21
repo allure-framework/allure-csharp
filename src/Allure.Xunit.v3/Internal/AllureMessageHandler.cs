@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Allure.Sdk.TestPlan;
 using Allure.TestingPlatform.Functions;
 using Allure.TestingPlatform.Sdk.Messages;
 using Allure.TestingPlatform.Sdk.Registration;
-using Allure.Xunit.Functions;
+using Allure.Xunit.Internal.Functions;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Xunit;
 using Xunit.Runner.Common;
@@ -15,7 +16,8 @@ namespace Allure.Xunit.Internal;
 
 sealed class AllureMessageHandler(
     IRunnerLogger logger,
-    IAllureTestingPlatformMessageChannel channel
+    IAllureTestingPlatformMessageChannel channel,
+    IEnumerable<string> failExceptions
 ) :
     DefaultRunnerReporterMessageHandler(logger),
     IRunnerReporterMessageHandler,
@@ -47,7 +49,7 @@ sealed class AllureMessageHandler(
     {
         base.HandleTestStarting(args);
 
-        foreach (var message in XunitMessageMapping.GetMessagesForTestStartingSinkEvent(args.Message))
+        foreach (var message in AllureMessages.ForTestStarting(args.Message))
         {
             this.PublishSync(message);
         }
@@ -57,7 +59,7 @@ sealed class AllureMessageHandler(
     {
         this.ApplyRuntimeGuard(testMethod, test);
 
-        foreach (var message in XunitMessageMapping.GetMessagesForTestStartingAttributeEvent(testMethod, test, arguments))
+        foreach (var message in AllureMessages.ForBeforeTest(testMethod, test, arguments))
         {
             this.PublishSync(message);
         }
@@ -67,19 +69,15 @@ sealed class AllureMessageHandler(
     {
         base.HandleTestFailed(args);
 
-        if (XunitMessageMapping.TryConvertToTestUpdateWithFailedStatus(
-            args.Message,
-            this.MetadataCache,
-            out var allureTestUpdate
-        ))
+        foreach (var message in AllureMessages.ForTestFailed(failExceptions, args.Message, this.MetadataCache))
         {
-            this.PublishSync(allureTestUpdate);
+            this.PublishSync(message);
         }
     }
 
     protected override void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
     {
-        foreach (var message in XunitMessageMapping.GetMessagesForTestFinishedSinkEvent(
+        foreach (var message in AllureMessages.ForTestFinished(
             args.Message,
             this.MetadataCache
         ))
@@ -98,9 +96,9 @@ sealed class AllureMessageHandler(
             return;
         }
 
-        if (XunitMessageMapping.TryConvertToCancellation(test, out var cancellation))
+        foreach (var message in AllureMessages.ForCancellation(test))
         {
-            this.PublishSync(cancellation);
+            this.PublishSync(message);
         }
 
         Assert.Skip(AllureTestPlan.SkipReason);
