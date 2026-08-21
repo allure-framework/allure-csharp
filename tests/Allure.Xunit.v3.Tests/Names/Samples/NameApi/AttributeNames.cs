@@ -1,16 +1,16 @@
 using Allure;
 using Xunit;
 
-namespace Allure.Xunit.v3.Tests.Samples.Names.RenamedTestsAndClasses
+namespace Allure.Xunit.v3.Tests.Samples.Names.NameApi
 {
     [AllureName("Lorem Ipsum on NamedClass")]
-    public class NamedClass
+    public class AttributeNamedClass
     {
         [Fact]
         public void TestMethod() { }
     }
 
-    public class TestClass
+    public class AttributeTestClass
     {
         [Fact]
         [AllureName("Lorem Ipsum on FactMethodRenamedInAllure")]
