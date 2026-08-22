@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AllureSample Update="Attachments/Samples/AttachmentApi/AttachmentAttributes.cs" Properties="AspectInjector_Enabled=true" />
     <AllureSample Update="Fixtures/Samples/FixtureApi/AttributeOnAsyncDisposable.cs" Properties="AspectInjector_Enabled=true" />
     <AllureSample Update="Fixtures/Samples/FixtureApi/AttributeOnAsyncLifetime.cs" Properties="AspectInjector_Enabled=true" />
     <AllureSample Update="Fixtures/Samples/FixtureApi/AttributeOnConstructorAndDispose.cs" Properties="AspectInjector_Enabled=true" />
