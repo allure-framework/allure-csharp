@@ -107,9 +107,9 @@ class AttachmentTests
             .With.Status(AllureStatus.Passed);
 
         await Assert.That(testResult).HasAttachmentsMatching([
-            (a) => a.HasName("diff-1")
+            (a) => a.HasName("Screen diff 1")
                 .And.HasMediaType("application/vnd.allure.image.diff"),
-            (a) => a.HasName("diff-2")
+            (a) => a.HasName("Screen diff 2")
                 .And.HasMediaType("application/vnd.allure.image.diff"),
         ]);
 
@@ -146,9 +146,9 @@ class AttachmentTests
             .With.Status(AllureStatus.Passed);
 
         await Assert.That(testResult).HasAttachmentsMatching([
-            (a) => a.HasName("diff-1")
+            (a) => a.HasName("Screen diff 1")
                 .And.HasMediaType("application/vnd.allure.image.diff"),
-            (a) => a.HasName("diff-2")
+            (a) => a.HasName("Screen diff 2")
                 .And.HasMediaType("application/vnd.allure.image.diff"),
         ]);
 

@@ -73,7 +73,7 @@ public sealed class AllureScreenDiffProperty<TModel>(
     }
 
     const int DefaultCopyBufferSize = 81920;
-    const string DIFF_NAME_PATTERN = "diff-{0}";
+    const string DIFF_NAME_PATTERN = "Screen diff {0}";
     const string DIFF_MEDIA_TYPE = "application/vnd.allure.image.diff";
     const string DIFF_ENTRY_PREFIX = "data:image/png;base64,";
 
