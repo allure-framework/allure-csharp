@@ -23,9 +23,4 @@ public class Attachment
     /// report generator.
     /// </remarks>
     public string? Type { get; set; }
-
-    /// <summary>
-    /// Gets or sets the attachment file extension, including the leading dot.
-    /// </summary>
-    public string FileExtension { get; set; } = "";
 }

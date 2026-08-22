@@ -28,17 +28,13 @@ class AttachmentTests
 
         await Assert.That(testResult).HasAttachmentsMatching([
             (a) => a.HasName("Sync stream")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".bin"),
+                .And.HasMediaType("application/octet-stream"),
             (a) => a.HasName("Sync memory")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".dat"),
+                .And.HasMediaType("application/octet-stream"),
             (a) => a.HasName("Sync text")
-                .And.HasMediaType("text/plain")
-                .And.HasFileExtension(".txt"),
+                .And.HasMediaType("text/plain"),
             (a) => a.HasName("Sync file")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".raw"),
+                .And.HasMediaType("application/octet-stream"),
         ]);
 
         var stream = await Assert.That(testResult).HasAttachmentAt(0).That.HasSource();
@@ -72,17 +68,13 @@ class AttachmentTests
 
         await Assert.That(testResult).HasAttachmentsMatching([
             (a) => a.HasName("Async stream")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".bin"),
+                .And.HasMediaType("application/octet-stream"),
             (a) => a.HasName("Async memory")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".dat"),
+                .And.HasMediaType("application/octet-stream"),
             (a) => a.HasName("Async text")
-                .And.HasMediaType("text/plain")
-                .And.HasFileExtension(".txt"),
+                .And.HasMediaType("text/plain"),
             (a) => a.HasName("Async file")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".raw"),
+                .And.HasMediaType("application/octet-stream"),
         ]);
 
         var stream = await Assert.That(testResult).HasAttachmentAt(0).That.HasSource();
@@ -116,11 +108,9 @@ class AttachmentTests
 
         await Assert.That(testResult).HasAttachmentsMatching([
             (a) => a.HasName("diff-1")
-                .And.HasMediaType("application/vnd.allure.image.diff")
-                .And.HasFileExtension(".json"),
+                .And.HasMediaType("application/vnd.allure.image.diff"),
             (a) => a.HasName("diff-2")
-                .And.HasMediaType("application/vnd.allure.image.diff")
-                .And.HasFileExtension(".json"),
+                .And.HasMediaType("application/vnd.allure.image.diff"),
         ]);
 
         var diff1 = await Assert.That(testResult).HasAttachmentAt(0).That.HasSource();
@@ -157,11 +147,9 @@ class AttachmentTests
 
         await Assert.That(testResult).HasAttachmentsMatching([
             (a) => a.HasName("diff-1")
-                .And.HasMediaType("application/vnd.allure.image.diff")
-                .And.HasFileExtension(".json"),
+                .And.HasMediaType("application/vnd.allure.image.diff"),
             (a) => a.HasName("diff-2")
-                .And.HasMediaType("application/vnd.allure.image.diff")
-                .And.HasFileExtension(".json"),
+                .And.HasMediaType("application/vnd.allure.image.diff"),
         ]);
 
         var diff1 = await Assert.That(testResult).HasAttachmentAt(0).That.HasSource();
@@ -198,11 +186,9 @@ class AttachmentTests
 
         await Assert.That(testResult).HasAttachmentsMatching([
             (a) => a.HasName("Attribute text")
-                .And.HasMediaType("text/plain")
-                .And.HasFileExtension(".txt"),
+                .And.HasMediaType("text/plain"),
             (a) => a.HasName("Async attribute bytes")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".bin"),
+                .And.HasMediaType("application/octet-stream"),
         ]);
 
         var stream = await Assert.That(testResult).HasAttachmentAt(0).That.HasSource();
@@ -226,11 +212,9 @@ class AttachmentTests
 
         await Assert.That(testResult).HasAttachmentsMatching([
             (a) => a.HasName("Attribute file")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".bin"),
+                .And.HasMediaType("application/octet-stream"),
             (a) => a.HasName("Async attribute file")
-                .And.HasMediaType("application/octet-stream")
-                .And.HasFileExtension(".dat"),
+                .And.HasMediaType("application/octet-stream"),
         ]);
 
         var stream = await Assert.That(testResult).HasAttachmentAt(0).That.HasSource();

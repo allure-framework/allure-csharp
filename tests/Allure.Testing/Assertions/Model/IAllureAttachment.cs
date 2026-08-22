@@ -6,7 +6,6 @@ public interface IAllureAttachment<TSelf> :
     IAllureModelObject<TSelf>,
     IAllureNameProperty<TSelf>,
     IAllureMediaTypeProperty<TSelf>,
-    IAllureFileExtensionProperty<TSelf>,
     IAllureAttachmentSourceProperty<TSelf>
 
     where TSelf : IAllureAttachment<TSelf>, IAllureModelObject<TSelf>;
