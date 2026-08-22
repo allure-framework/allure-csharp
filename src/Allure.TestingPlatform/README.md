@@ -363,7 +363,7 @@ non-matching model type are ignored.
 | Labels and links | — | `AllureLabelsProperty`, `AllureSetLabelProperty`, `AllureLinksProperty` |
 | Parameters | `AllureParametersProperty<TModel>`, `AllureTestMethodArgumentsProperty<TModel>` | — |
 | Timing | `AllureStartProperty<TModel>`, `AllureStopProperty<TModel>`, `AllureDurationProperty<TModel>` | — |
-| Attachments | `AllureAttachmentProperty<TModel>`, `AllureAttachmentFileProperty<TModel>`, `AllureScreenDiffProperty<TModel>`, `AllureScreenDiffFileProperty<TModel>` | — |
+| Attachments | `AllureAttachmentProperty<TModel>`, `AllureAttachmentFileProperty<TModel>`, `AllureScreenDiffProperty<TModel>`, `AllureScreenDiffFileProperty<TModel>`, `AllureAttachmentReferenceProperty<TModel>`, `AllureScreenDiffReferenceProperty<TModel>` | — |
 
 For example:
 
@@ -388,6 +388,29 @@ new AllureTestUpdateMessage(correlationUid, testUid)
 ```
 
 Properties are applied in the same order they are provided to the message.
+
+#### Attachments and attachment references
+
+Attachment properties fall into two groups:
+
+| Property kind | What it does | Required source lifetime |
+| --- | --- | --- |
+| `AllureAttachmentProperty<TModel>`, `AllureAttachmentFileProperty<TModel>`, `AllureScreenDiffProperty<TModel>`, and `AllureScreenDiffFileProperty<TModel>` | Write or copy the attachment to the configured results destination, then link the resulting file to the target object. | The streams must remain open and the files must remain available until the property is applied. Because messages are processed asynchronously, integration authors should normally keep them available until the test run ends. |
+| `AllureAttachmentReferenceProperty<TModel>` and `AllureScreenDiffReferenceProperty<TModel>` | Link an attachment that has already been written to the results destination. They perform no attachment I/O. | No source stream or file is retained by the property. It may be disposed or deleted as soon as the preceding write or copy operation completes. |
+
+Use an attachment property when the attachment source can remain available for
+deferred processing.
+
+Use an attachment reference property when the integration needs to release the
+source earlier. First write or copy the attachment through the configured
+`IAllureResultsDestination`, then pass the file name returned by
+`WriteAttachment`, `WriteAttachmentAsync`, `CopyAttachment`, or
+`CopyAttachmentAsync` as the reference property's `source` value. Do not pass
+the original input path: `source` is the destination-assigned file name.
+
+Once the write or copy operation has completed, the input stream may be
+disposed or the input file deleted. Publishing the reference property only
+adds the corresponding attachment entry to the target test, fixture, or step.
 
 ### Support runtime APIs and attributes
 
