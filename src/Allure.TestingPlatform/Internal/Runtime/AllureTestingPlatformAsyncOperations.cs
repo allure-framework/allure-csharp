@@ -8,6 +8,7 @@ using Allure.Model;
 using Allure.Sdk.Functions;
 using Allure.Sdk.Results;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Internal.Functions;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Messages;
@@ -87,33 +88,67 @@ sealed class AllureTestingPlatformAsyncOperations(
 
     public string Description => "An implementation of Allure operations that publishes messages to the MTP message bus.";
 
-    public async Task AddAttachmentAsync(string name, Stream content, string? mediaType, string fileExtension, CancellationToken _)
+    public async Task AddAttachmentAsync(
+        string name,
+        Stream content,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
+        var source = await this.ResultsDestination.WriteAttachmentAsync(
+            content,
+            fileExtension,
+            cancellationToken
+        );
+
         await this.SendExecutionItemUpdateAsync(
-            new AllureAttachmentProperty<ExecutableItem>(name, content)
-            {
-                MediaType = mediaType,
-                FileExtension = fileExtension,
-            }
+            new AllureAttachmentReferenceProperty<ExecutableItem>(
+                name,
+                source,
+                mediaType
+            )
         );
     }
 
-    public async Task AddAttachmentFromFileAsync(string name, string path, string? mediaType, string fileExtension, CancellationToken _)
+    public async Task AddAttachmentFromFileAsync(
+        string name,
+        string path,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
+        var source = await this.ResultsDestination.CopyAttachmentAsync(
+            path,
+            fileExtension,
+            cancellationToken
+        );
+
         await this.SendExecutionItemUpdateAsync(
-            new AllureAttachmentFileProperty<ExecutableItem>(name, path)
-            {
-                MediaType = mediaType,
-                FileExtension = fileExtension,
-            }
+            new AllureAttachmentReferenceProperty<ExecutableItem>(
+                name,
+                source,
+                mediaType
+            )
         );
     }
 
-    public async Task AddGlobalAttachmentAsync(string name, Stream content, string? mediaType, string fileExtension, CancellationToken cancellationToken)
+    public async Task AddGlobalAttachmentAsync(
+        string name,
+        Stream content,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = await this.ResultsDestination.WriteAttachmentAsync(
+            content,
+            fileExtension,
+            cancellationToken
+        );
+
+        await this.ResultsDestination.WriteGlobalsAsync(new()
         {
             Attachments = [
                 new GlobalAttachment
@@ -121,20 +156,27 @@ sealed class AllureTestingPlatformAsyncOperations(
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    FileExtension = fileExtension,
-                    Timestamp = timestamp,
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 }
             ],
-        };
-        await this.ResultsDestination.WriteAttachmentAsync(source, content, cancellationToken);
-        await this.ResultsDestination.WriteGlobalsAsync(globals, cancellationToken);
+        }, cancellationToken);
     }
 
-    public async Task AddGlobalAttachmentFromFileAsync(string name, string path, string? mediaType, string fileExtension, CancellationToken cancellationToken)
+    public async Task AddGlobalAttachmentFromFileAsync(
+        string name,
+        string path,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = await this.ResultsDestination.CopyAttachmentAsync(
+            path,
+            fileExtension,
+            cancellationToken
+        );
+
+        await this.ResultsDestination.WriteGlobalsAsync( new()
         {
             Attachments =
             [
@@ -143,13 +185,10 @@ sealed class AllureTestingPlatformAsyncOperations(
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    FileExtension = fileExtension,
-                    Timestamp = timestamp
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
                 }
             ]
-        };
-        await this.ResultsDestination.CopyAttachmentAsync(source, path, cancellationToken);
-        await this.ResultsDestination.WriteGlobalsAsync(globals, cancellationToken);
+        }, cancellationToken);
     }
 
     public async Task AddGlobalErrorAsync(GlobalError error, CancellationToken cancellationToken)
@@ -195,18 +234,31 @@ sealed class AllureTestingPlatformAsyncOperations(
         );
     }
 
-    public async Task AddScreenDiffAsync(Stream expected, Stream actual, Stream diff, CancellationToken _)
+    public async Task AddScreenDiffAsync(Stream expected, Stream actual, Stream diff, CancellationToken cancellationToken)
     {
+        var fileName = await ScreenDiffContent.ConsumeAsync(
+            expected,
+            actual,
+            diff,
+            async (content, ct) => await this.ResultsDestination.WriteAttachmentAsync(
+                content,
+                ".json",
+                cancellationToken: ct
+            ),
+            cancellationToken
+        );
+
         await this.SendExecutionItemUpdateAsync(
-            new AllureScreenDiffProperty<ExecutableItem>(expected, actual, diff)
+            new AllureScreenDiffReferenceProperty<ExecutableItem>(fileName)
         );
     }
 
     public async Task AddScreenDiffFromFilesAsync(string expectedPath, string actualPath, string diffPath, CancellationToken cancellationToken)
     {
-        await this.SendExecutionItemUpdateAsync(
-            new AllureScreenDiffFileProperty<ExecutableItem>(expectedPath, actualPath, diffPath)
-        );
+        using var expected = File.OpenRead(expectedPath);
+        using var actual = File.OpenRead(actualPath);
+        using var diff = File.OpenRead(diffPath);
+        await this.AddScreenDiffAsync(expected, actual, diff, cancellationToken);
     }
 
     public async Task AddTestParameterAsync(Parameter parameter, CancellationToken cancellationToken)
