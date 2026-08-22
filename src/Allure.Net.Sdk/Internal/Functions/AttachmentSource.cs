@@ -1,15 +1,17 @@
-﻿namespace Allure.Sdk.Functions;
+﻿using Allure.Sdk.Functions;
+
+namespace Allure.Sdk.Internal.Functions;
 
 /// <summary>
 /// Generates source file names for Allure attachments.
 /// </summary>
-public static class AttachmentSource
+static class AttachmentSource
 {
     /// <summary>
     /// Returns a name for an attachment file.
     /// </summary>
     /// <param name="fileExtension">An optional file extension.</param>
-    public static string CreateName(string fileExtension = "")
+    internal static string CreateName(string fileExtension = "")
     {
         fileExtension ??= "";
         var suffix = "-attachment";

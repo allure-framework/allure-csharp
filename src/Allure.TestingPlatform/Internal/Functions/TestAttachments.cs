@@ -1,7 +1,6 @@
 using System.IO;
 using System.Text;
 using Allure.Model;
-using Allure.Sdk.Functions;
 using Allure.Sdk.Results;
 
 namespace Allure.TestingPlatform.Internal.Functions;
@@ -15,9 +14,9 @@ static class TestAttachments
         string content
     )
     {
-        var outputFileName = AttachmentSource.CreateName(".txt");
         var contentBytes = Encoding.UTF8.GetBytes(content);
         using MemoryStream stream = new(contentBytes);
+        var outputFileName = resultsDestination.WriteAttachment(stream, ".txt");
 
         testResult.Attachments.Add(new()
         {
@@ -25,7 +24,6 @@ static class TestAttachments
             Type = "text/plain",
             Source = outputFileName,
         });
-        resultsDestination.WriteAttachment(outputFileName, stream);
     }
 
     public static void SaveFile(
@@ -36,7 +34,7 @@ static class TestAttachments
     )
     {
         var inputPath = file.FullName;
-        var outputFileName = AttachmentSource.CreateName(file.Extension);
+        var outputFileName = resultsDestination.CopyAttachment(inputPath);
 
         var attachment = new Attachment
         {
@@ -44,7 +42,6 @@ static class TestAttachments
             Source = outputFileName,
         };
 
-        resultsDestination.CopyAttachment(outputFileName, inputPath);
         testResult.Attachments.Add(attachment);
     }
 }

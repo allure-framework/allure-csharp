@@ -14,8 +14,8 @@ public class NullResultsDestinationTests
         destination.WriteTestResult(NewTestResult());
         destination.WriteContainer(NewContainer());
         destination.WriteGlobals(new Globals());
-        destination.WriteAttachment("attachment.bin", Stream.Null);
-        destination.CopyAttachment("attachment.bin", "does-not-need-to-exist.bin");
+        destination.WriteAttachment(Stream.Null, ".bin");
+        destination.CopyAttachment("does-not-need-to-exist.bin", ".bin");
 
         await Assert.That(destination).IsSameReferenceAs(NullResultsDestination.Instance);
     }
@@ -30,10 +30,10 @@ public class NullResultsDestinationTests
         await destination.WriteTestResultAsync(NewTestResult(), cancellation.Token);
         await destination.WriteContainerAsync(NewContainer(), cancellation.Token);
         await destination.WriteGlobalsAsync(new Globals(), cancellation.Token);
-        await destination.WriteAttachmentAsync("attachment.bin", Stream.Null, cancellation.Token);
+        await destination.WriteAttachmentAsync(Stream.Null, ".bin", cancellation.Token);
         await destination.CopyAttachmentAsync(
-            "attachment.bin",
             "does-not-need-to-exist.bin",
+            ".bin",
             cancellation.Token
         );
 

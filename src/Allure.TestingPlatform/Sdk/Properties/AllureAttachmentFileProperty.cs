@@ -1,5 +1,4 @@
 using Allure.Model;
-using Allure.Sdk.Functions;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
@@ -39,15 +38,16 @@ public sealed class AllureAttachmentFileProperty<TModel>(string name, string pat
     /// <inheritdoc />
     public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime, TModel target)
     {
-        var source = AttachmentSource.CreateName(this.FileExtension);
-        var attachment = new Attachment
+        var source = allureRuntime.ResultsDestination.CopyAttachment(
+            this.Path,
+            this.FileExtension
+        );
+
+        target.Attachments.Add(new Attachment
         {
             Name = this.Name,
             Type = this.MediaType,
             Source = source,
-            FileExtension = this.FileExtension,
-        };
-        allureRuntime.ResultsDestination.CopyAttachment(source, this.Path);
-        target.Attachments.Add(attachment);
+        });
     }
 }

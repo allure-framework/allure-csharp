@@ -43,38 +43,50 @@ public interface IAllureResultsDestination
     /// <summary>
     /// Writes an attachment file to the destination.
     /// </summary>
-    /// <param name="outputFileName">The attachment file name in the output location.</param>
     /// <param name="content">The stream containing the attachment data.</param>
-    void WriteAttachment(string outputFileName, Stream content);
+    /// <param name="fileExtension">
+    /// The file extension of the attachment file in the output location.
+    /// </param>
+    /// <returns>The attachment file name in the output location.</returns>
+    string WriteAttachment(Stream content, string fileExtension);
 
     /// <summary>
     /// Writes an attachment file to the destination.
     /// </summary>
-    /// <param name="outputFileName">The attachment file name in the output location.</param>
     /// <param name="content">The stream containing the attachment data.</param>
+    /// <param name="fileExtension">
+    /// The file extension of the attachment file in the output location.
+    /// </param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    Task WriteAttachmentAsync(
-        string outputFileName,
+    /// <returns>The attachment file name in the output location.</returns>
+    Task<string> WriteAttachmentAsync(
         Stream content,
+        string fileExtension,
         CancellationToken cancellationToken
     );
 
     /// <summary>
     /// Copies an attachment file from an existing file to the destination.
     /// </summary>
-    /// <param name="destinationFileName">The file name in the output location.</param>
     /// <param name="sourceFilePath">The source file path.</param>
-    void CopyAttachment(string destinationFileName, string sourceFilePath);
+    /// <param name="fileExtension">
+    /// The file extension of the attachment file in the output location.
+    /// </param>
+    /// <returns>The attachment file name in the output location.</returns>
+    string CopyAttachment(string sourceFilePath, string fileExtension);
 
     /// <summary>
     /// Copies an attachment file from an existing file to the destination.
     /// </summary>
-    /// <param name="destinationFileName">The file name in the output location.</param>
     /// <param name="sourceFilePath">The source file path.</param>
+    /// <param name="fileExtension">
+    /// The file extension of the attachment file in the output location.
+    /// </param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    Task CopyAttachmentAsync(
-        string destinationFileName,
+    /// <returns>The attachment file name in the output location.</returns>
+    Task<string> CopyAttachmentAsync(
         string sourceFilePath,
+        string fileExtension,
         CancellationToken cancellationToken
     );
 }
