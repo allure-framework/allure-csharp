@@ -228,4 +228,34 @@ class AttachmentTests
         await Assert.That(results.Value.Attachments[memory].ToArray())
             .IsEquivalentTo(new byte[] { 33, 34 }, CollectionOrdering.Matching);
     }
+
+    [Test]
+    public async Task XunitAttachmentsWork()
+    {
+        var testResult = await Assert.That(results.Value)
+            .HasSingleTestResult(tr => tr.HasName().That.EndsWith(".XunitAttachments.TestMethod"))
+            .With.Status(AllureStatus.Passed);
+
+        await Assert.That(testResult).HasAttachmentsMatching([
+            (a) => a.HasName("xUnit binary"),
+            (a) => a.HasName("xUnit text"),
+            (a) => a.HasName("Standard output"),
+        ]);
+
+        var binary = await Assert.That(testResult).HasAttachmentAt(0).That.HasSource();
+        var text = await Assert.That(testResult).HasAttachmentAt(1).That.HasSource();
+        var stdout = await Assert.That(testResult).HasAttachmentAt(2).That.HasSource();
+
+        await Assert.That(results.Value.Attachments).ContainsKey(text);
+        await Assert.That(results.Value.Attachments[text].ToArray())
+            .IsEquivalentTo("xUnit text body"u8.ToArray(), CollectionOrdering.Matching);
+
+        await Assert.That(results.Value.Attachments).ContainsKey(binary);
+        await Assert.That(results.Value.Attachments[binary].ToArray())
+            .IsEquivalentTo(new byte[] { 41, 42, 43 }, CollectionOrdering.Matching);
+
+        await Assert.That(results.Value.Attachments).ContainsKey(stdout);
+        await Assert.That(results.Value.Attachments[stdout].ToArray())
+            .IsEquivalentTo("stdout content"u8.ToArray(), CollectionOrdering.Matching);
+    }
 }
