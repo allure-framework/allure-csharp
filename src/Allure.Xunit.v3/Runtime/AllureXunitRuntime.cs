@@ -6,7 +6,7 @@ using Allure.Xunit.Internal;
 
 namespace Allure.Xunit.Runtime;
 
-public class AllureXunitRuntime : AllureTestingPlatformRuntime<AllureXunitConfiguration>
+public sealed class AllureXunitRuntime : AllureTestingPlatformRuntime<AllureXunitConfiguration>
 {
     readonly IReadOnlyLateBoundReference<AllureMessageHandler> messageHandlerReference;
 
