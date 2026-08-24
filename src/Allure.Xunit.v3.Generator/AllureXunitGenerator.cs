@@ -55,68 +55,37 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         IncrementalGeneratorInitializationContext context
     ) =>
         context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: IsMethodWithAttributes,
+            .ForAttributeWithMetadataName(
+                Types.AllureIdAttribute,
+                predicate: static (node, _) => node is MethodDeclarationSyntax,
                 transform: ToAllureIdMethodKeyValuePair
             )
             .Where(static (kv) => kv is not null)
             .Select(static (kv, _) => kv!.Value)
             .Collect();
 
-    static bool IsMethodWithAttributes(SyntaxNode node, CancellationToken _) =>
-        node is MethodDeclarationSyntax methodDeclaration
-            && methodDeclaration.AttributeLists.Count > 0;
-
-    static (int, string)? ToAllureIdMethodKeyValuePair(GeneratorSyntaxContext ctx, CancellationToken _)
+    static (int, string)? ToAllureIdMethodKeyValuePair(
+        GeneratorAttributeSyntaxContext ctx,
+        CancellationToken token
+    )
     {
-        var semanticModel = ctx.SemanticModel;
-        var methodDeclaration = (MethodDeclarationSyntax)ctx.Node;
+        token.ThrowIfCancellationRequested();
 
-        var allureIdAttributeType = semanticModel.Compilation.GetTypeByMetadataName(Types.AllureIdAttribute);
-        if (allureIdAttributeType is null)
+        if (ctx.TargetSymbol is not IMethodSymbol method)
         {
             return null;
         }
 
-        foreach (var attributeList in methodDeclaration.AttributeLists)
+        var arguments = ctx.Attributes[0].ConstructorArguments;
+        if (arguments.Length != 1 || arguments[0].Value is not int allureId)
         {
-            foreach (var attributeApplicationSyntax in attributeList.Attributes)
-            {
-                if (semanticModel.GetSymbolInfo(attributeApplicationSyntax).Symbol is not IMethodSymbol attributeApplication)
-                {
-                    continue;
-                }
-
-                var attributeType = attributeApplication.ContainingType;
-
-                if (SymbolEqualityComparer.Default.Equals(attributeType, allureIdAttributeType))
-                {
-                    var method = semanticModel.GetDeclaredSymbol(methodDeclaration);
-                    if (method is not null)
-                    {
-                        foreach (var attributeData in method.GetAttributes())
-                        {
-                            if (!SymbolEqualityComparer.Default.Equals(attributeData.AttributeClass, allureIdAttributeType))
-                            {
-                                continue;
-                            }
-
-                            var allureIdObj = attributeData.ConstructorArguments[0].Value;
-                            if (allureIdObj is int allureId)
-                            {
-                                var typeFullName = method.ContainingType.ToDisplayString(FullyQualifiedNoTypeParameters);
-                                var methodName = method.Name;
-                                return (allureId, $"{typeFullName}.{methodName}");
-                            }
-                        }
-                    }
-
-                    return null;
-                }
-            }
+            return null;
         }
 
-        return null;
+        var typeFullName =
+            method.ContainingType.ToDisplayString(FullyQualifiedNoTypeParameters);
+
+        return (allureId, $"{typeFullName}.{method.Name}");
     }
 
     static string VerifySelfRegistration(
@@ -144,6 +113,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
 
         foreach (var member in selfRegisteredExtensionsType.GetMembers(MemberNames.AddSelfRegisteredExtensions))
         {
+            token.ThrowIfCancellationRequested();
+
             if (ToRegistrationMethod(builderType, member) is { } method)
             {
                 return GetMethodGroupExpression(method);
@@ -205,7 +176,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
     static string GetMethodGroupExpression(IMethodSymbol method) =>
         $"{method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}";
 
-    static bool HasAllureXunitAttribute(Compilation compilation, CancellationToken _)
+    static bool HasAllureXunitAttribute(Compilation compilation, CancellationToken token)
     {
         var attributeType =
             compilation.GetTypeByMetadataName(Types.AllureXunitAttribute);
@@ -217,6 +188,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
 
         foreach (var attr in compilation.Assembly.GetAttributes())
         {
+            token.ThrowIfCancellationRequested();
+
             if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType))
             {
                 return true;
@@ -274,10 +247,18 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         ImmutableArray<(int, string)> allureIdMethods
     )
     {
-        ctx.AddSource("AllureIdTestMethodRegistry.g.cs", GetAllureIdTestMethodRegistrySource(allureIdMethods));
+        ctx.CancellationToken.ThrowIfCancellationRequested();
+
+        ctx.AddSource(
+            "AllureIdTestMethodRegistry.g.cs",
+            GetAllureIdTestMethodRegistrySource(allureIdMethods, ctx.CancellationToken)
+        );
     }
 
-    static string GetAllureIdTestMethodRegistrySource(ImmutableArray<(int, string)> allureIdMethods)
+    static string GetAllureIdTestMethodRegistrySource(
+        ImmutableArray<(int, string)> allureIdMethods,
+        CancellationToken token
+    )
     {
         var sb = new StringBuilder(
             $$"""
@@ -293,7 +274,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
             """
         );
 
-        AddAllureIdRegistry(sb, allureIdMethods);
+        AddAllureIdRegistry(sb, allureIdMethods, token);
 
         sb.AppendLine(
             """
@@ -305,7 +286,11 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
-    static void AddAllureIdRegistry(StringBuilder sb, ImmutableArray<(int, string)> entries)
+    static void AddAllureIdRegistry(
+        StringBuilder sb,
+        ImmutableArray<(int, string)> entries,
+        CancellationToken token
+    )
     {
         sb.AppendLine(
             $$"""
@@ -327,6 +312,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
 
         foreach (var (allureId, methodName) in entries)
         {
+            token.ThrowIfCancellationRequested();
+
             sb.AppendLine(
                 $$"""
                             AddAllureIdMethodEntry(builder, {{allureId}}, {{SymbolDisplay.FormatLiteral(methodName, quote: true)}});
