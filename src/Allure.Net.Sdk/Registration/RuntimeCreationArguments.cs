@@ -23,5 +23,5 @@ public record class RuntimeCreationArguments<TConfiguration>(
     IAllureExecutionContext Context,
     IAllureLifecycleApi LifecycleApi,
     IAllureModelApi ModelApi,
-    AllureTestPlan TestPlan
+    AllureTestPlan? TestPlan
 );

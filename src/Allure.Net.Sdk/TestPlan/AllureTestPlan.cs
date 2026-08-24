@@ -49,23 +49,29 @@ public record class AllureTestPlan
     }
 
     /// <summary>
-    /// Used by integrations to check if a test is selected by the test plan.
+    /// Checks if a test is selected by the test plan.
     /// </summary>
     /// <param name="fullName">A fullName of the test.</param>
     /// <param name="allureId">
     /// An identifier of the test case (if any).
     /// Use <see cref="GetAllureId"/> to get it from the test result.
     /// </param>
-    /// <returns>true if the test should be executed. false otherwise.</returns>
+    /// <returns>
+    /// <see langword="true"/> if the test case should be executed.
+    /// <see langword="false"/> otherwise.
+    /// </returns>
     public bool IsSelected(string? fullName, string? allureId) =>
-        this.IsDefaultTestplanMatch()
-            || this.IsFullNameMatch(fullName)
+        this.IsFullNameMatch(fullName)
             || this.IsAllureIdMatch(allureId);
 
     /// <summary>
     /// A shorthand for <see cref="IsSelected(string, string?)"/> with the
     /// fullName and the allure id taken from the provided test result.
     /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if the test case should be executed.
+    /// <see langword="false"/> otherwise.
+    /// </returns>
     public bool IsSelected(TestResult testResult) =>
         this.IsSelected(
             testResult.FullName,
@@ -79,12 +85,20 @@ public record class AllureTestPlan
         JsonSerializer.Deserialize<AllureTestPlan>(
             jsonContent,
             jsonOptions
-        ) ?? Default;
+        )
+            ?? throw new InvalidOperationException(
+                "Could not parse the test plan."
+            );
 
     /// <summary>
-    /// Loads the test plan from the file pointed by the environment variable.
+    /// Loads the test plan from the file pointed by the
+    /// <c>ALLURE_TESTPLAN_PATH</c> environment variable.
     /// </summary>
-    public static AllureTestPlan FromEnvironment()
+    /// <returns>
+    /// The loaded test plan or <see langword="null"/> if
+    /// the environment variable is not set or the file does not exist.
+    /// </returns>
+    public static AllureTestPlan? FromEnvironment()
     {
         var testPlanPath = ResolveTestPlanPath();
         return GetTestPlanByPath(testPlanPath);
@@ -97,11 +111,6 @@ public record class AllureTestPlan
     public static string? GetAllureId(IEnumerable<Label> labels) =>
         FindLabel(labels, "ALLURE_ID")
             ?? FindLabel(labels, "AS_ID");
-
-    /// <summary>
-    /// Gets a default test plan that doesn't filter out any test.
-    /// </summary>
-    public static AllureTestPlan Default { get; } = new();
 
     /// <summary>
     /// Returns the path of the current test plan file, if any.
@@ -122,8 +131,6 @@ public record class AllureTestPlan
     public const string SkipReason =
         "The test case is not in the test plan.";
 
-    bool IsDefaultTestplanMatch() => ReferenceEquals(this, Default);
-
     bool IsAllureIdMatch(string? allureId) =>
         allureId is not null && this.ids.Contains(allureId);
 
@@ -131,10 +138,10 @@ public record class AllureTestPlan
         fullName is { Length: >0 }
             && this.selectors.Contains(fullName);
 
-    static AllureTestPlan GetTestPlanByPath(string? testPlanPath) =>
-        testPlanPath is null || !File.Exists(testPlanPath)
-            ? Default
-            : ReadTestPlanFromFile(testPlanPath);
+    static AllureTestPlan? GetTestPlanByPath(string? testPlanPath) =>
+        testPlanPath is not null && File.Exists(testPlanPath)
+            ? ReadTestPlanFromFile(testPlanPath)
+            : null;
 
     static AllureTestPlan ReadTestPlanFromFile(string testPlanPath) =>
         FromJson(

@@ -41,7 +41,12 @@ public interface IAllureRuntimeBase
     IAllureParameterSerializer ParameterSerializer { get; }
 
     /// <summary>
-    /// Gets the test plan.
+    /// Gets the test plan associated with this runtime.
     /// </summary>
-    AllureTestPlan TestPlan { get; }
+    /// <remarks>
+    /// A <see langword="null"/> value means that no test plan was provided.
+    /// Integrations must treat this as no test-plan filtering and allow all tests
+    /// to run.
+    /// </remarks>
+    AllureTestPlan? TestPlan { get; }
 }

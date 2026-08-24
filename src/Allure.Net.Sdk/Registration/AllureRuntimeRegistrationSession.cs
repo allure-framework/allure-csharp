@@ -67,7 +67,7 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
     > currentModelApiFactory =
         (ctx) => new RuntimeModelApi(ctx.RuntimeReference);
 
-    Func<TConfiguration, AllureTestPlan> currentTestPlanFactory =
+    Func<TConfiguration, AllureTestPlan?> currentTestPlanFactory =
         (_) => AllureTestPlan.FromEnvironment();
 
     bool useRuleBasedSerializer = true;
@@ -115,7 +115,7 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
         this.Modify(() => this.currentModelApiFactory = (ctx) => modelApiFactory(ctx.Configuration));
 
     /// <inheritdoc/>
-    public void UseTestPlan(Func<TConfiguration, AllureTestPlan> testPlanFactory) =>
+    public void UseTestPlan(Func<TConfiguration, AllureTestPlan?> testPlanFactory) =>
         this.Modify(() => this.currentTestPlanFactory = testPlanFactory);
 
     /// <inheritdoc/>

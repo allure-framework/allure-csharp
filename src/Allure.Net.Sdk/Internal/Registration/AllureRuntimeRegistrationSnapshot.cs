@@ -13,7 +13,7 @@ internal sealed record AllureRuntimeRegistrationSnapshot<TConfiguration, TRuntim
     Func<RuntimeServiceCreationContext<TConfiguration>, IAllureExecutionContext> ContextFactory,
     Func<RuntimeServiceCreationContext<TConfiguration>, IAllureLifecycleApi> LifecycleApiFactory,
     Func<RuntimeServiceCreationContext<TConfiguration>, IAllureModelApi> ModelApiFactory,
-    Func<TConfiguration, AllureTestPlan> TestPlanFactory,
+    Func<TConfiguration, AllureTestPlan?> TestPlanFactory,
     bool UseRuleBasedSerializer,
     Func<TConfiguration, IAllureParameterSerializer> SerializerFactory,
     Func<TConfiguration, IAllureResultsDestination> DestinationFactory,

@@ -14,13 +14,21 @@ namespace Allure.Xunit;
 /// </summary>
 public static class AllureXunitTestPlan
 {
-    static AllureTestPlan? testPlan = null;
+    class TestPlanHolder(AllureTestPlan? value)
+    {
+        public AllureTestPlan? Value => value;
+    }
+
+    static TestPlanHolder? testPlan = null;
 
     /// <summary>
     /// Gets the most recently loaded test plan. If no test plan is loaded,
     /// loads it first by calling <see cref="Reload"/>.
     /// </summary>
-    public static AllureTestPlan Current => Volatile.Read(ref testPlan) ?? Reload();
+    public static AllureTestPlan? Current =>
+        testPlan is { Value: var value }
+            ? value
+            : Reload();
 
     /// <summary>
     /// Loads a fresh test plan from the file pointed by the
@@ -28,10 +36,10 @@ public static class AllureXunitTestPlan
     /// environment variable.
     /// </summary>
     /// <returns>The loaded test plan.</returns>
-    public static AllureTestPlan Reload()
+    public static AllureTestPlan? Reload()
     {
         var value = AllureTestPlan.FromEnvironment();
-        Volatile.Write(ref testPlan, value);
+        Volatile.Write(ref testPlan, new(value));
         return value;
     }
 
@@ -60,7 +68,9 @@ public static class AllureXunitTestPlan
                 allureIdRegistry,
                 Reload(),
                 Assembly.GetEntryAssembly()
-                    ?? throw new InvalidOperationException("Could not get the entry assembly.")
+                    ?? throw new InvalidOperationException(
+                        "Could not get the entry assembly."
+                    )
             ),
         ];
 
@@ -72,7 +82,7 @@ public static class AllureXunitTestPlan
     /// A mapping from Allure ID to test method names.
     /// </param>
     /// <param name="testPlan">
-    /// The test plan to enforce. Use <see cref="AllureTestPlan.FromEnvironment"/> to read
+    /// The test plan to enforce. Use <see cref="Reload"/> to read and cache
     /// the global test plan, or use <see cref="Current"/> to get the cached instance.
     /// </param>
     /// <param name="testAssembly">
@@ -84,13 +94,12 @@ public static class AllureXunitTestPlan
     /// </returns>
     public static IEnumerable<string> GetXunitPreExecutionFilter(
         ImmutableDictionary<int, ImmutableArray<string>> allureIdRegistry,
-        AllureTestPlan testPlan,
+        AllureTestPlan? testPlan,
         Assembly testAssembly
     )
     {
-        if (ReferenceEquals(testPlan, AllureTestPlan.Default))
+        if (testPlan is null)
         {
-            // No test plan provided.
             yield break;
         }
 
@@ -135,14 +144,15 @@ public static class AllureXunitTestPlan
     /// </summary>
     /// <param name="testMethod">A test method to check.</param>
     /// <returns>
-    /// <see langword="true"/> if the method is selected by the current test plan;
+    /// <see langword="true"/> if the method is selected by the current test plan
+    /// or no test plan is defined;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsSelected(MethodInfo testMethod) =>
-        Current.IsSelected(
+        Current?.IsSelected(
             fullName: ReflectionNames.ForMethod(testMethod),
             allureId: testMethod.GetCustomAttribute<AllureIdAttribute>()?.Value
-        );
+        ) ?? true;
 
     static bool TryMatchByFullName(
         string testAssemblyName,

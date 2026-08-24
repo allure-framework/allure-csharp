@@ -47,13 +47,16 @@ public interface IAllureRuntimeIntegrationContextBase<TConfiguration, out TRunti
     );
 
     /// <summary>
-    /// Configures the test plan.
+    /// Configures the factory used to resolve the test plan when the runtime is
+    /// created.
     /// </summary>
     /// <param name="testPlanFactory">
-    /// A factory that resolves the test plan from the resolved configuration.
+    /// A factory that resolves the test plan from the runtime configuration.
+    /// The factory may return <see langword="null"/> when no test plan is
+    /// available; in that case, no test-plan filtering is applied.
     /// </param>
     public void UseTestPlan(
-        Func<TConfiguration, AllureTestPlan> testPlanFactory
+        Func<TConfiguration, AllureTestPlan?> testPlanFactory
     );
 
     /// <summary>

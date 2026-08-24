@@ -43,7 +43,7 @@ public class AllureRuntime<TConfiguration>(
     public IAllureModelApi ModelApi { get; } = args.ModelApi;
 
     /// <inheritdoc/>
-    public AllureTestPlan TestPlan { get; } = args.TestPlan;
+    public AllureTestPlan? TestPlan { get; } = args.TestPlan;
 }
 
 /// <summary>
