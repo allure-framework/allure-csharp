@@ -7,6 +7,43 @@ namespace Allure.Net.Sdk.Tests.Results;
 public class NullResultsDestinationTests
 {
     [Test]
+    [Arguments("", "-attachment")]
+    [Arguments("bin", "-attachment.bin")]
+    [Arguments(".bin", "-attachment.bin")]
+    public async Task ShouldNormalizeAttachmentFileExtension(
+        string fileExtension,
+        string expectedSuffix
+    )
+    {
+        var source = NullResultsDestination.Instance.WriteAttachment(
+            Stream.Null,
+            fileExtension
+        );
+
+        await Assert.That(source).EndsWith(expectedSuffix);
+    }
+
+    [Test]
+    public async Task ShouldRejectNullAttachmentFileExtension()
+    {
+        await Assert.That(() =>
+            NullResultsDestination.Instance.WriteAttachment(Stream.Null, null!)
+        ).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    [Arguments("foo/bar")]
+    [Arguments("foo\\bar")]
+    public async Task ShouldRejectPathSeparatorsInAttachmentFileExtension(
+        string fileExtension
+    )
+    {
+        await Assert.That(() =>
+            NullResultsDestination.Instance.WriteAttachment(Stream.Null, fileExtension)
+        ).Throws<ArgumentException>();
+    }
+
+    [Test]
     public async Task ShouldIgnoreAllSynchronousWrites()
     {
         var destination = NullResultsDestination.Instance;

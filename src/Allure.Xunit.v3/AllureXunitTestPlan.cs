@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Threading;
 using Allure.Sdk.Functions;
 using Allure.Sdk.TestPlan;
 
@@ -13,17 +14,34 @@ namespace Allure.Xunit;
 /// </summary>
 public static class AllureXunitTestPlan
 {
-    static readonly Lazy<AllureTestPlan> testPlanLazy = new(AllureTestPlan.FromEnvironment);
+    static AllureTestPlan? testPlan = null;
 
     /// <summary>
-    /// Gets the global Allure test plan loaded from the current process environment.
+    /// Gets the most recently loaded test plan. If no test plan is loaded,
+    /// loads it first by calling <see cref="Reload"/>.
     /// </summary>
-    public static AllureTestPlan Current => testPlanLazy.Value;
+    public static AllureTestPlan Current => Volatile.Read(ref testPlan) ?? Reload();
+
+    /// <summary>
+    /// Loads a fresh test plan from the file pointed by the
+    /// <c>ALLURE_TESTPLAN_PATH</c>
+    /// environment variable.
+    /// </summary>
+    /// <returns>The loaded test plan.</returns>
+    public static AllureTestPlan Reload()
+    {
+        var value = AllureTestPlan.FromEnvironment();
+        Volatile.Write(ref testPlan, value);
+        return value;
+    }
 
     /// <summary>
     /// Returns an array consisting of the original CLI arguments plus filter arguments that,
-    /// when passed to xUnit.net v3, enforces the global test plan for the entry point assembly.
+    /// when passed to xUnit.net v3, enforces the test plan for the entry point assembly.
     /// </summary>
+    /// <remarks>
+    /// This function always loads a fresh test plan.
+    /// </remarks>
     /// <param name="originalArguments">An array of command-line arguments passed to the test application.</param>
     /// <param name="allureIdRegistry">
     /// A mapping from Allure ID to test method names.
@@ -38,7 +56,12 @@ public static class AllureXunitTestPlan
     ) =>
         [
             ..originalArguments,
-            ..GetXunitPreExecutionFilter(allureIdRegistry, Current, Assembly.GetEntryAssembly()),
+            ..GetXunitPreExecutionFilter(
+                allureIdRegistry,
+                Reload(),
+                Assembly.GetEntryAssembly()
+                    ?? throw new InvalidOperationException("Could not get the entry assembly.")
+            ),
         ];
 
     /// <summary>

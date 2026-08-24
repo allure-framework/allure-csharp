@@ -72,5 +72,5 @@ public static class AllureXunitExtensions
 
     static bool IsAllureXunitAttributeApplied { get; } =
         Assembly.GetEntryAssembly()
-            .GetCustomAttribute<AllureXunitAttribute>() is not null;
+            ?.GetCustomAttribute<AllureXunitAttribute>() is not null;
 }

@@ -20,28 +20,33 @@ public record class AllureTestPlan
         PropertyNameCaseInsensitive = false,
     };
 
-    readonly Lazy<ImmutableHashSet<string>> ids;
+    readonly ImmutableArray<AllureTestPlanEntry> tests = [];
 
-    readonly Lazy<ImmutableHashSet<string>> selectors;
+    readonly ImmutableHashSet<string> ids = [];
 
-    public AllureTestPlan()
-    {
-        this.ids = new(() =>[
-            .. from entry in this.Tests
-            where entry.Id is not null
-            select entry.Id
-        ]);
-        this.selectors = new(() => [
-            .. from entry in this.Tests
-            where entry.Selector is not null
-            select entry.Selector,
-        ]);
-    }
+    readonly ImmutableHashSet<string> selectors = [];
 
     /// <summary>
     /// Gets the test plan entries.
     /// </summary>
-    public ImmutableArray<AllureTestPlanEntry> Tests { get; init; } = [];
+    public ImmutableArray<AllureTestPlanEntry> Tests
+    {
+        get => this.tests;
+        init
+        {
+            this.tests = value;
+            this.ids = [
+                .. from entry in this.Tests
+                where entry.Id is not null
+                select entry.Id
+            ];
+            this.selectors = [
+                .. from entry in this.Tests
+                where entry.Selector is not null
+                select entry.Selector,
+            ];
+        }
+    }
 
     /// <summary>
     /// Used by integrations to check if a test is selected by the test plan.
@@ -114,8 +119,17 @@ public record class AllureTestPlan
     /// A short message that can be used to report an ignored test to the test
     /// framework.
     /// </summary>
-    public static string SkipReason =>
-        "Not in the test plan " + (ResolveTestPlanPath() ?? "");
+    public const string SkipReason =
+        "The test case is not in the test plan.";
+
+    bool IsDefaultTestplanMatch() => ReferenceEquals(this, Default);
+
+    bool IsAllureIdMatch(string? allureId) =>
+        allureId is not null && this.ids.Contains(allureId);
+
+    bool IsFullNameMatch(string? fullName) =>
+        fullName is { Length: >0 }
+            && this.selectors.Contains(fullName);
 
     static AllureTestPlan GetTestPlanByPath(string? testPlanPath) =>
         testPlanPath is null || !File.Exists(testPlanPath)
@@ -131,13 +145,4 @@ public record class AllureTestPlan
         labels.FirstOrDefault(
             l => labelName.Equals(l.Name, StringComparison.OrdinalIgnoreCase)
         )?.Value;
-
-    bool IsDefaultTestplanMatch() => ReferenceEquals(this, Default);
-
-    bool IsAllureIdMatch(string? allureId) =>
-        allureId is not null && this.ids.Value.Contains(allureId);
-
-    bool IsFullNameMatch(string? fullName) =>
-        fullName is { Length: >0 }
-            && this.selectors.Value.Contains(fullName);
 }

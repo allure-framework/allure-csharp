@@ -231,29 +231,24 @@ public class FileSystemResultsDestinationAttachmentTests
     }
 
     [Test]
-    public async Task ShouldRejectExistingCopyDestination()
+    public async Task ShouldGenerateDistinctCopyDestinations()
     {
         var directory = NewDirectoryPath();
         var source = NewSourceFile();
         try
         {
-            Directory.CreateDirectory(directory);
-            await File.WriteAllTextAsync(Path.Combine(directory, "copied.bin"), "existing");
             var destination = new FileSystemResultsDestination(directory, false);
 
-            await Assert.That(() =>
-                destination.CopyAttachment("copied.bin", source)
-            ).Throws<IOException>();
-            await Assert.That(async () =>
-                await destination.CopyAttachmentAsync(
-                    "copied.bin",
-                    source,
-                    CancellationToken.None
-                )
-            ).Throws<IOException>();
-            await Assert.That(
-                await File.ReadAllTextAsync(Path.Combine(directory, "copied.bin"))
-            ).IsEqualTo("existing");
+            var first = destination.CopyAttachment(source, ".bin");
+            var second = await destination.CopyAttachmentAsync(
+                source,
+                ".bin",
+                CancellationToken.None
+            );
+
+            await Assert.That(first).IsNotEqualTo(second);
+            await Assert.That(File.Exists(Path.Combine(directory, first))).IsTrue();
+            await Assert.That(File.Exists(Path.Combine(directory, second))).IsTrue();
         }
         finally
         {
@@ -273,12 +268,12 @@ public class FileSystemResultsDestinationAttachmentTests
         var destination = new FileSystemResultsDestination(directory, false);
 
         await Assert.That(() =>
-            destination.CopyAttachment("copied.bin", missingSource)
+            destination.CopyAttachment(missingSource, ".bin")
         ).Throws<FileNotFoundException>();
         await Assert.That(async () =>
             await destination.CopyAttachmentAsync(
-                "copied.bin",
                 missingSource,
+                ".bin",
                 CancellationToken.None
             )
         ).Throws<FileNotFoundException>();
@@ -300,8 +295,8 @@ public class FileSystemResultsDestinationAttachmentTests
 
             await Assert.That(async () =>
                 await destination.CopyAttachmentAsync(
-                    "copied.bin",
                     missingSource,
+                    ".bin",
                     cancellation.Token
                 )
             ).Throws<OperationCanceledException>();
