@@ -38,7 +38,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             content,
             fileExtension,
             cancellationToken
-        );
+        ).ConfigureAwait(false);
         var attachment = new Attachment
         {
             Name = name,
@@ -62,7 +62,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             content,
             fileExtension,
             cancellationToken
-        );
+        ).ConfigureAwait(false);
         await runtime.ResultsDestination.WriteGlobalsAsync(new()
         {
             Attachments =
@@ -75,7 +75,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
                     Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 }
             ],
-        }, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task AddAttachmentFromFileAsync(
@@ -90,7 +90,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             path,
             fileExtension,
             cancellationToken
-        );
+        ).ConfigureAwait(false);
         var attachment = new Attachment
         {
             Name = name,
@@ -114,7 +114,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
             path,
             fileExtension,
             cancellationToken
-        );
+        ).ConfigureAwait(false);
 
         await runtime.ResultsDestination.WriteGlobalsAsync(new()
         {
@@ -128,7 +128,7 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
                     Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
                 }
             ]
-        }, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     public Task AddLabelsAsync(IEnumerable<Label> labels, CancellationToken cancellationToken)

@@ -36,14 +36,14 @@ public class AllureRunnerReporter : IRunnerReporter
     public string RunnerSwitch => "allure";
 
     /// <inheritdoc />
-    public async ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
+    public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
         IRunnerLogger logger,
         IMessageSink? diagnosticMessageSink
     )
     {
         if (!AllureXunitRegistration.IsEnabled)
         {
-            return new DefaultRunnerReporterMessageHandler(logger);
+            return new(new DefaultRunnerReporterMessageHandler(logger));
         }
 
         var registration = AllureXunitRegistration.Current;
@@ -55,7 +55,7 @@ public class AllureRunnerReporter : IRunnerReporter
 
         messageHandlerReference.Bind(allureHandler);
 
-        return allureHandler;
+        return new(allureHandler);
     }
 
     internal static IReadOnlyLateBoundReference<AllureMessageHandler> MessageHandlerReference =>

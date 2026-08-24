@@ -42,10 +42,10 @@ public static class AllureXunitExtensions
 
             var registration = builder.AddEmbeddedAllure(
                 "Allure.Xunit.v3",
-                () => new AllureXunitRegistrationSession(),
+                static () => new AllureXunitRegistrationSession(),
                 (ctx, _) =>
                 {
-                    ctx.UseTestPlan((_) => AllureXunitTestPlan.Current);
+                    ctx.UseTestPlan(static (_) => AllureXunitTestPlan.Current);
 
                     if (IsAllureXunitAttributeApplied)
                     {

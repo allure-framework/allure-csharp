@@ -53,22 +53,22 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
         RuntimeServiceCreationContext<TConfiguration>,
         IAllureExecutionContext
     > currentContextFactory =
-        (ctx) => new AsyncLocalExecutionContext(ctx.RuntimeReference);
+        static (ctx) => new AsyncLocalExecutionContext(ctx.RuntimeReference);
 
     Func<
         RuntimeServiceCreationContext<TConfiguration>,
         IAllureLifecycleApi
     > currentLifecycleApiFactory =
-        (ctx) => new RuntimeLifecycleApi(ctx.RuntimeReference);
+        static (ctx) => new RuntimeLifecycleApi(ctx.RuntimeReference);
 
     Func<
         RuntimeServiceCreationContext<TConfiguration>,
         IAllureModelApi
     > currentModelApiFactory =
-        (ctx) => new RuntimeModelApi(ctx.RuntimeReference);
+        static (ctx) => new RuntimeModelApi(ctx.RuntimeReference);
 
     Func<TConfiguration, AllureTestPlan?> currentTestPlanFactory =
-        (_) => AllureTestPlan.FromEnvironment();
+        static (_) => AllureTestPlan.FromEnvironment();
 
     bool useRuleBasedSerializer = true;
 

@@ -81,7 +81,7 @@ public static class AllureTestingPlatformSdkExtensions
                 (IAllureTestingPlatformRegistrationControl<TConfiguration, TRuntime>)
                 runtimeCoordinator;
 
-            builder.CommandLine.AddProvider(() => new AllureCliOptionsProvider());
+            builder.CommandLine.AddProvider(static () => new AllureCliOptionsProvider());
 
             var factory =
                 new CompositeExtensionFactory<AllureDataConsumer>((serviceProvider) =>
@@ -127,9 +127,9 @@ public static class AllureTestingPlatformSdkExtensions
                 {
                     context.TransformConfiguration(
                         (cfg) => cfg.WithPropertyIfUnset(
-                            c => c.ResultsDirectory,
+                            static (c) => c.ResultsDirectory,
                             mtpResultsDir,
-                            (c, v) => c with { ResultsDirectory = Path.Combine(v, "allure-results") }
+                            static (c, v) => c with { ResultsDirectory = Path.Combine(v, "allure-results") }
                         )
                     );
                 }
@@ -140,9 +140,9 @@ public static class AllureTestingPlatformSdkExtensions
                 {
                     context.TransformConfiguration(
                         (cfg) => cfg.WithProperty(
-                            c => c.IsEnabled,
+                            static (c) => c.IsEnabled,
                             isAllureEnabled,
-                            (c, v) => c with { IsEnabled = v }
+                            static (c, v) => c with { IsEnabled = v }
                         )
                     );
                 }
@@ -151,9 +151,9 @@ public static class AllureTestingPlatformSdkExtensions
                 {
                     context.TransformConfiguration(
                         (cfg) => cfg.WithProperty(
-                            c => c.IsProcessWatchdogEnabled,
+                            static (c) => c.IsProcessWatchdogEnabled,
                             isWatchdogEnabled,
-                            (c, v) => c with { IsProcessWatchdogEnabled = v }
+                            static (c, v) => c with { IsProcessWatchdogEnabled = v }
                         )
                     );
                 }
@@ -162,9 +162,9 @@ public static class AllureTestingPlatformSdkExtensions
                 {
                     context.TransformConfiguration(
                         (cfg) => cfg.WithProperty(
-                            c => c.ResultsDirectory,
+                            static (c) => c.ResultsDirectory,
                             resultsDirectory,
-                            (c, v) => c with { ResultsDirectory = v }
+                            static (c, v) => c with { ResultsDirectory = v }
                         )
                     );
                 }
@@ -290,7 +290,13 @@ public static class AllureTestingPlatformSdkExtensions
                 TRuntime
             >
         =>
-            AddEmbeddedAllure(builder, runtimeName, sessionFactory, registration, (_, _, _) => { });
+            AddEmbeddedAllure(
+                builder,
+                runtimeName,
+                sessionFactory,
+                registration,
+                static (_, _, _) => { }
+            );
 
         /// <summary>
         /// Adds and configures an embedded Allure runtime and its in-process endpoint using the
@@ -380,7 +386,7 @@ public static class AllureTestingPlatformSdkExtensions
                 runtimeName,
                 sessionFactory,
                 registration,
-                (_, _, _) => { }
+                static (_, _, _) => { }
             );
 
         /// <summary>
@@ -415,7 +421,7 @@ public static class AllureTestingPlatformSdkExtensions
             AddEmbeddedAllure(
                 builder,
                 runtimeName,
-                () => new AllureTestingPlatformRegistrationSession<TConfiguration>(),
+                static () => new AllureTestingPlatformRegistrationSession<TConfiguration>(),
                 runtimeRegistration,
                 endpointRegistration
             );
@@ -446,7 +452,7 @@ public static class AllureTestingPlatformSdkExtensions
                 builder,
                 runtimeName,
                 registration,
-                (_, _, _) => { }
+                static (_, _, _) => { }
             );
 
         /// <summary>
@@ -477,7 +483,7 @@ public static class AllureTestingPlatformSdkExtensions
             AddEmbeddedAllure(
                 builder,
                 runtimeName,
-                () => new AllureTestingPlatformRegistrationSession(),
+                static () => new AllureTestingPlatformRegistrationSession(),
                 runtimeRegistration,
                 endpointRegistration
             );
@@ -505,7 +511,7 @@ public static class AllureTestingPlatformSdkExtensions
                 builder,
                 runtimeName,
                 registration,
-                (_, _, _) => { }
+                static (_, _, _) => { }
             );
     }
 
@@ -529,14 +535,14 @@ public static class AllureTestingPlatformSdkExtensions
         /// Correlates SDK messages by Microsoft Testing Platform session UID.
         /// </summary>
         public void UseTestingPlatformSessionCorrelation() =>
-            context.UseCorrelationStrategy((_) => new SessionUidCorrelationStrategy());
+            context.UseCorrelationStrategy(static (_) => new SessionUidCorrelationStrategy());
 
         /// <summary>
         /// Correlates SDK messages by <see cref="Microsoft.Testing.Platform.Extensions.Messages.TestMetadataProperty"/>
         /// with key <see cref="TestNodeMetadataCorrelationStrategy.MetadataKey"/>.
         /// </summary>
         public void UseTestNodeMetadataCorrelation() =>
-            context.UseCorrelationStrategy((_) => new TestNodeMetadataCorrelationStrategy());
+            context.UseCorrelationStrategy(static (_) => new TestNodeMetadataCorrelationStrategy());
 
         /// <summary>
         /// Configures direct test execution coordination, where Allure operations and
@@ -549,7 +555,7 @@ public static class AllureTestingPlatformSdkExtensions
         /// Microsoft Testing Platform lifecycle messages.
         /// </remarks>
         public void UseDirectTestExecutionCoordinator() =>
-            context.UseTestExecutionCoordinator((_) => DirectTestExecutionCoordinator.Instance);
+            context.UseTestExecutionCoordinator(static (_) => DirectTestExecutionCoordinator.Instance);
 
         /// <summary>
         /// Configures binding-based test execution coordination, where Allure execution
@@ -563,6 +569,6 @@ public static class AllureTestingPlatformSdkExtensions
         /// to the corresponding test-node UID, and signal when the execution has finished.
         /// </remarks>
         public void UseBindingTestExecutionCoordinator() =>
-            context.UseTestExecutionCoordinator((_) => new BindingTestExecutionCoordinator());
+            context.UseTestExecutionCoordinator(static (_) => new BindingTestExecutionCoordinator());
     }
 }

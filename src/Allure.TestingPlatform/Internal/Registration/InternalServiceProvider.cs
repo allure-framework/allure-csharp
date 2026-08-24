@@ -8,7 +8,7 @@ namespace Allure.TestingPlatform.Internal.Registration;
 sealed class InternalServiceProvider<TConfiguration>
 {
     Func<TConfiguration, ITestExecutionCoordinator> currentTestExecutionCoordinatorFactory =
-        (_) => DirectTestExecutionCoordinator.Instance;
+        static (_) => DirectTestExecutionCoordinator.Instance;
 
     Action<TConfiguration, IAllureEndpointRegistrationContext>? currentEndpointConfigurationCallback = null;
 

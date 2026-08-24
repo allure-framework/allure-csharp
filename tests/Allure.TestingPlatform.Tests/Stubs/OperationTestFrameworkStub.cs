@@ -21,7 +21,7 @@ sealed class OperationTestFrameworkStub(
 
     public string Description => "Invokes one Allure API operation inside a test framework scope.";
 
-    public Type[] DataTypesProduced =>
+    public Type[] DataTypesProduced { get; } =
     [
         typeof(TestNodeUpdateMessage),
         typeof(AllureScopeStartMessage),

@@ -13,7 +13,7 @@ public class TestFrameworkStub(params Func<SessionUid, IData>[] messageFactories
     public string DisplayName => "";
     public string Description => "";
 
-    public Type[] DataTypesProduced => [
+    public Type[] DataTypesProduced { get; } = [
         typeof(TestNodeUpdateMessage),
         typeof(SessionFileArtifact),
 

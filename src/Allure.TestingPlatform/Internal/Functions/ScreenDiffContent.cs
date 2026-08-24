@@ -88,13 +88,17 @@ sealed class ScreenDiffContent
         try
         {
             writer.Write("{\"expected\":\"data:image/png;base64,"u8);
-            await WriteStream(writer, expected, buffer, cancellationToken);
+            await WriteStream(writer, expected, buffer, cancellationToken)
+                .ConfigureAwait(false);
             writer.Write("\",\"actual\":\"data:image/png;base64,"u8);
-            await WriteStream(writer, actual, buffer, cancellationToken);
+            await WriteStream(writer, actual, buffer, cancellationToken)
+                .ConfigureAwait(false);
             writer.Write("\",\"diff\":\"data:image/png;base64,"u8);
-            await WriteStream(writer, diff, buffer, cancellationToken);
+            await WriteStream(writer, diff, buffer, cancellationToken)
+                .ConfigureAwait(false);
             writer.Write("\"}"u8);
-            await FlushAsync(writer, cancellationToken);
+            await FlushAsync(writer, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception exception)
         {
@@ -137,7 +141,7 @@ sealed class ScreenDiffContent
                         isFinalBlock: true
                     );
 
-                    if (!await FlushAsync(writer, cancellationToken))
+                    if (!await FlushAsync(writer, cancellationToken).ConfigureAwait(false))
                     {
                         return;
                     }
@@ -168,7 +172,7 @@ sealed class ScreenDiffContent
                     .CopyTo(buffer);
             }
 
-            if (!await FlushAsync(writer, cancellationToken))
+            if (!await FlushAsync(writer, cancellationToken).ConfigureAwait(false))
             {
                 return;
             }

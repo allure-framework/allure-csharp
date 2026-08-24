@@ -32,6 +32,6 @@ static class FqTypes
     public static string Action(string argument1Type, string argument2Type) =>
         $"global::System.Action<{argument1Type}, {argument2Type}>";
 
-    public static string AllureIdAttribute = $"global::{Types.AllureIdAttribute}";
+    public const string AllureIdAttribute = $"global::{Types.AllureIdAttribute}";
 
 }

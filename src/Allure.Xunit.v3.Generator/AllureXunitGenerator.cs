@@ -383,7 +383,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                             {{FqMembers.AllureIdTestMethodRegistry_AllureIdTestMethodRegistry}}
                         ),
                         extensionRegistration
-                    );
+                    ).ConfigureAwait(false);
                 }
             }
         }
@@ -424,8 +424,9 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                     /// <returns>The xUnit.net process exit code.</returns>
                     public static async {{FqTypes.Task_Int}} Main(string[] args)
                     {
-                        if ({{FqMembers.Enumerable_Any}}(args, arg => arg == "-automated" || arg == "@@"))
-                            return await {{FqMembers.ConsoleRunner_Run}}(args);
+                        if ({{FqMembers.Enumerable_Any}}(args, static (arg) => arg == "-automated" || arg == "@@"))
+                            return await {{FqMembers.ConsoleRunner_Run}}(args)
+                                .ConfigureAwait(false);
                         else
 
             """
@@ -435,7 +436,8 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
         {
             sb.AppendLine(
                 $$"""
-                                return await {{FqMembers.AllureXunitRunner_RunAsync}}({{addSelfRegisteredExtensions}}, args);
+                                return await {{FqMembers.AllureXunitRunner_RunAsync}}({{addSelfRegisteredExtensions}}, args)
+                                    .ConfigureAwait(false);
                 """
             );
         }
@@ -486,7 +488,7 @@ public sealed class AllureXunitGenerator : IIncrementalGenerator
                             {
                                 {{addSelfRegisteredExtensions}}(builder, args);
                                 {{FqMembers.AddAllureXunit}}(builder, allureRegistration);
-                            }, args);
+                            }, args).ConfigureAwait(false);
                 """
             );
         }

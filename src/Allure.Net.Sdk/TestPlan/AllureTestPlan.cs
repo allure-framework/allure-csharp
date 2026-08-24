@@ -116,13 +116,11 @@ public record class AllureTestPlan
     /// Returns the path of the current test plan file, if any.
     /// </summary>
     public static string? ResolveTestPlanPath() =>
-        new[]
-        {
-            "ALLURE_TESTPLAN_PATH",
-            "AS_TESTPLAN_PATH",
-        }.Select(Environment.GetEnvironmentVariable).FirstOrDefault(
-            ev => !string.IsNullOrWhiteSpace(ev)
-        );
+        Environment.GetEnvironmentVariable("ALLURE_TESTPLAN_PATH") is { Length: > 0 } path
+            ? path
+            : Environment.GetEnvironmentVariable("AS_TESTPLAN_PATH") is { Length: > 0 } legacyPath
+                ? legacyPath
+                : null;
 
     /// <summary>
     /// A short message that can be used to report an ignored test to the test

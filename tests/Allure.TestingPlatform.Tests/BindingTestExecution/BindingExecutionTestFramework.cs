@@ -19,7 +19,7 @@ sealed class BindingExecutionTestFramework(
     public string Description =>
         "Publishes test-node and execution-binding messages in a configured order.";
 
-    public Type[] DataTypesProduced =>
+    public Type[] DataTypesProduced { get; } =
     [
         typeof(TestNodeUpdateMessage),
         typeof(AllureTestExecutionBindingMessage),

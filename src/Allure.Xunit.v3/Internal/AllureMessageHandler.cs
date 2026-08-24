@@ -23,7 +23,7 @@ sealed class AllureMessageHandler(
     IRunnerReporterMessageHandler,
     IDataProducer
 {
-    public Type[] DataTypesProduced => [
+    public Type[] DataTypesProduced { get; } = [
         typeof(AllureScopeStartMessage),
         typeof(AllureScopeTestsMessage),
         typeof(AllureScopeStopMessage),
