@@ -7,6 +7,7 @@ using Allure.Xunit.Internal.Registration;
 using Allure.Xunit.Runtime;
 using Allure.Xunit.Registration;
 using Microsoft.Testing.Platform.Builder;
+using Allure.Sdk.Registration.Hooks;
 
 namespace Allure.Xunit;
 
@@ -55,6 +56,16 @@ public static class AllureXunitExtensions
                     var allureXunitContext = new AllureXunitContext();
                     ctx.UseCorrelationContext((_) => allureXunitContext);
                     ctx.UseExecutionStateContext((_) => allureXunitContext);
+
+                    ctx.UseRegistrationHooks(static (configuration) => [
+                        ReflectionHooks.FromEnvironmentVariable<IAllureXunitRegistrationHook>(
+                            "ALLURE_XUNIT_REGISTRATION_HOOK"
+                        ),
+                        ReflectionHooks.FromConfiguration<AllureXunitConfiguration, IAllureXunitRegistrationHook>(
+                            configuration
+                        ),
+                        AllureXunitRegistrationHook.Current,
+                    ]);
 
                     registrationCallback(ctx);
                 }

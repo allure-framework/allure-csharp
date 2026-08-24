@@ -194,7 +194,7 @@ A custom entry point can retain pre-execution filtering by delegating to
 A registration hook provides a reusable way to customize an `Allure.Xunit.v3`
 registration.
 
-Define a public class that implements `IAllureXunitRegistrationHook`:
+Define a class that implements `IAllureXunitRegistrationHook`:
 
 ```csharp
 using System;
@@ -220,7 +220,26 @@ public sealed class ProjectAllureRegistration : IAllureXunitRegistrationHook
 The hook above instructs `Allure.Xunit.v3` to use a custom rule when
 serializing `DateTime` arguments of tests, steps, and fixtures.
 
-Select the hook through the `runtimeRegistrationHook` property in
+To register a hook programmatically, assign an instance to
+`AllureXunitRegistrationHook.Current` before Allure registration begins:
+
+```csharp
+using System.Runtime.CompilerServices;
+using Allure.Xunit.Registration;
+
+namespace MyTests;
+
+internal static class AllureSetup
+{
+    [ModuleInitializer]
+    internal static void Initialize()
+    {
+        AllureXunitRegistrationHook.Current = new ProjectAllureRegistration();
+    }
+}
+```
+
+Alternatively, select the hook through the `runtimeRegistrationHook` property in
 `allureConfig.json`. Specify the hook type followed by the name of its assembly:
 
 ```json
@@ -230,28 +249,29 @@ Select the hook through the `runtimeRegistrationHook` property in
 }
 ```
 
-Only the simple assembly name is required. Assembly version, culture, and public
-key token may be omitted.
+Only the simple assembly name is required. Assembly version, culture, and
+public key token may be omitted. If the hook type is not declared in the
+test assembly, the test project must reference the project or package that
+contains it.
 
-Alternatively, set the `ALLURE_RUNTIME_REGISTRATION_HOOK` environment variable:
+Alternatively, set the `ALLURE_XUNIT_REGISTRATION_HOOK` environment variable:
 
 ```bash
-export ALLURE_RUNTIME_REGISTRATION_HOOK="MyTests.ProjectAllureRegistration, MyTests"
+export ALLURE_XUNIT_REGISTRATION_HOOK="MyTests.ProjectAllureRegistration, MyTests"
 ```
 
 Or, on Windows:
 
 ```powershell
-$Env:ALLURE_RUNTIME_REGISTRATION_HOOK = "MyTests.ProjectAllureRegistration, MyTests"
+$Env:ALLURE_XUNIT_REGISTRATION_HOOK = "MyTests.ProjectAllureRegistration, MyTests"
 ```
 
-The hook type must implement `IAllureXunitRegistrationHook` and have a public
-parameterless constructor. Its `SetUp` method runs during Allure
-registration and receives the same registration context used by
-`AddAllureXunit`.
+Hooks selected through configuration or an environment variable must have a
+public parameterless constructor.
 
-When both the environment variable and configuration property specify hooks,
-both hooks run, with the environment hook running first.
+If multiple hooks are provided, they all run in sequence with
+the environment hook running first, followed by the configuration hook,
+followed by `AllureXunitRegistrationHook.Current`.
 
 ### Manual Allure registration
 
