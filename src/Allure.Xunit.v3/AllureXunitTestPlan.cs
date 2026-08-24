@@ -103,13 +103,15 @@ public static class AllureXunitTestPlan
             yield break;
         }
 
+        HashSet<string> seenMethods = new(StringComparer.Ordinal);
         bool emitted = false;
 
         var testAssemblyName = testAssembly.GetName().Name;
         foreach (var entry in testPlan.Tests)
         {
             if (entry.Selector is not null
-                && TryMatchByFullName(testAssemblyName, entry.Selector, out var fullNameFilter))
+                && TryMatchByFullName(testAssemblyName, entry.Selector, out var fullNameFilter)
+                && seenMethods.Add(fullNameFilter))
             {
                 emitted = true;
                 yield return "--filter-method";
@@ -122,9 +124,12 @@ public static class AllureXunitTestPlan
             {
                 foreach (var allureIdFilter in allureIdFilters)
                 {
-                    emitted = true;
-                    yield return "--filter-method";
-                    yield return allureIdFilter;
+                    if (seenMethods.Add(allureIdFilter))
+                    {
+                        emitted = true;
+                        yield return "--filter-method";
+                        yield return allureIdFilter;
+                    }
                 }
             }
         }
