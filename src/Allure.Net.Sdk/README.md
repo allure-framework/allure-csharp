@@ -248,7 +248,7 @@ sealed class MyFrameworkRuntimeRegistrationSession :
     ) => new(
         baseArgs,
         new FrameworkOutputCapture(
-            args.Configuration.CaptureFrameworkOutput
+            baseArgs.Configuration.CaptureFrameworkOutput
         )
     );
 }
@@ -332,7 +332,7 @@ sealed class MyFrameworkRuntimeRegistrationSession :
         RuntimeCreationArguments<MyFrameworkConfiguration> baseArgs
     ) => new(
         baseArgs,
-        this.outputCaptureFactory(args.Configuration)
+        this.outputCaptureFactory(baseArgs.Configuration)
     );
 }
 ```
@@ -446,7 +446,7 @@ sealed class MyFrameworkRuntimeRegistrationSession :
 
         return new(
             baseArgs,
-            this.outputCaptureFactory(args.Configuration)
+            this.outputCaptureFactory(baseArgs.Configuration)
         );
     }
 }
