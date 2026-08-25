@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Allure.Internal;
 using AspectInjector.Broker;
 

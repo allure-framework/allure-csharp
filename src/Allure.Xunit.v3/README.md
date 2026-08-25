@@ -30,6 +30,13 @@ files.
 `Allure.Xunit.v3` supports only xUnit.net v3 projects that run through
 Microsoft Testing Platform.
 
+## Migrating from Allure.Xunit?
+
+`Allure.Xunit` targets xUnit.net v2 and uses an older Allure API. See the
+[migration guide](https://github.com/allure-framework/allure-csharp/blob/main/src/Allure.Xunit.v3/MIGRATION.md)
+for the package, attribute, runtime API, configuration, and model changes
+required when moving to `Allure.Xunit.v3`.
+
 ## Requirements
 
 Install the `Allure.Xunit.v3` package in your xUnit.net v3 MTP test project.
@@ -56,6 +63,20 @@ Enable the Microsoft Testing Platform runner:
 If `UseMicrosoftTestingPlatformRunner` is not set to `true`, the adapter is not
 registered and the project will not produce Allure results through this package.
 
+## Limitations
+
+`Allure.Xunit.v3` currently has the following limitations:
+
+- Unlike `Allure.Xunit`, it cannot delegate to or run alongside a second xUnit
+  runner reporter.
+- It cannot be used in the same test process with another integration based on
+  `Allure.TestingPlatform`.
+- Model read and update operations through `AllureInProcessApi` are not
+  supported yet.
+- Instrumentation attributes such as `AllureStep`, `AllureSetUp`,
+  `AllureTearDown`, and attachment attributes use AspectInjector. On Apple
+  silicon Macs, using these attributes may require Rosetta 2.
+
 ## Quick Start
 
 After the packages and MSBuild property are added, run the tests with `dotnet run`:
@@ -81,7 +102,8 @@ A typical default path is:
 ./bin/Debug/net10.0/TestResults/allure-results
 ```
 
-Use attributes from the `Allure` namespace to add metadata to tests:
+Use attributes and the `Allure.AllureApi` facade from the `Allure` namespace
+to add metadata to tests:
 
 ```csharp
 using Allure;
@@ -95,13 +117,11 @@ public class CheckoutTests
     [AllureDescription("Checks that a valid promo code changes the order total.")]
     public void AppliesPromoCode()
     {
+        AllureApi.Step("Create order", () => { /* ... */ });
         // ...
     }
 }
 ```
-
-You can also use `Allure.AllureApi` and `Allure.AllureInProcessApi` to add
-labels, links, parameters, steps, and attachments at runtime.
 
 Note, that model read and update operations from `Allure.AllureInProcessApi`
 are not supported yet.
@@ -134,14 +154,32 @@ Example configuration:
 
 ```json
 {
-  "directory": "allure-results",
-  "title": "My xUnit.net v3 tests"
+  "resultsDirectory": "allure-results",
+  "hostname": "build-agent"
 }
 ```
 
-The result directory can also be set for a single run:
+All properties are optional. JSON property names are case-sensitive.
+
+| Property | Default | Description |
+| --- | --- | --- |
+| `hostname` | Current machine name | Host name recorded in generated test results. |
+| `resultsDirectory` | `<MTP results directory>/allure-results` | Directory where Allure result files are written. Relative paths are resolved against the test process working directory. |
+| `linkTemplates` | `{}` | Map of link types to template objects. Each object contains a `urlTemplate` and may contain a `nameTemplate`; both use `{0}` for the original link value. Values that are already valid URLs are not affected. |
+| `failExceptions` | `[]` | Exception type names that should produce a `failed` status instead of `broken`. |
+| `indentOutput` | `false` | Whether generated JSON files are indented. |
+| `globalLabels` | `{}` | Map of label names to values applied to every test result. |
+| `runtimeRegistrationHook` | Not set | Assembly-qualified name of an [`IAllureXunitRegistrationHook`](#registration-hook) implementation that is invoked during Allure registration. |
+| `isEnabled` | `true` | Whether the Allure integration is enabled. |
+| `isProcessWatchdogEnabled` | `true` | Whether an Allure global error is written when the test host process exits unexpectedly. |
+
+The `--allure`, `--allure-watchdog`, and `--allure-results-directory`
+command-line options override their corresponding configuration properties for
+the current run:
 
 ```bash
+dotnet test -- --allure off
+dotnet test -- --allure-watchdog off
 dotnet test -- --allure-results-directory ./artifacts/allure-results
 ```
 
@@ -438,13 +476,22 @@ point defined` error or the wrong entry point being selected.
 
 ### No Allure results are generated
 
-Check that:
+First, check `resultsDirectory` in the selected configuration and the
+`--allure-results-directory` option. If neither is set, Allure writes to
+`<MTP results directory>/allure-results`. With the default Microsoft Testing
+Platform location, a typical path is something like
+`./bin/Debug/net10.0/TestResults/allure-results`. This differs from `Allure.Xunit`,
+which used `<build-output>/allure-results`.
+
+If the path is correct but the directory is still empty, check that:
 
 - the project references both `xunit.v3.mtp-v2` and `Allure.Xunit.v3`;
 - `UseMicrosoftTestingPlatformRunner` is set to `true`;
+- the Allure runner reporter is active: automatic reporter activation is enabled
+  and no other reporter is explicitly selected;
 - `Allure_XunitEnableSelfRegistration` is not set to `false` unless you provide
   a custom registration;
-- the `--allure off` command-line option is not used.
+- the `--allure off` command-line option is not used;
 - the configuration file does not set `isEnabled` to `false`.
 
 ### Warning ALLURE001 is shown
@@ -452,6 +499,27 @@ Check that:
 `Allure.Xunit.v3` was referenced by a project that does not enable the
 Microsoft Testing Platform runner. Set `UseMicrosoftTestingPlatformRunner` to
 `true`, or set `Allure_WarnIfMtpDisabled` to `false` if the warning is expected.
+
+### Allure runner reporter is disabled
+
+`Allure.Xunit.v3` relies on `AllureRunnerReporter` to correlate xUnit test
+lifecycle messages with Allure API calls. xUnit.net can activate only one runner
+reporter at a time, so activating another reporter prevents
+`AllureRunnerReporter` from being activated.
+
+The Allure runtime can still be registered when `AllureRunnerReporter` is
+inactive. This partial state is not supported: results may be missing or
+incomplete, and API calls that require test correlation may throw
+`Could not correlate Allure messages: AllureRunnerReporter was disabled.`
+
+To use Allure, leave `--auto-reporters` unset or set it to `on`, remove reporter
+switches such as `--report-junit`, and ensure no other environmentally enabled
+reporter is registered.
+
+To use another reporter, disable Allure with `--allure off` or set `isEnabled`
+to `false`. If you use default self-registration, you can instead set the
+`Allure_XunitEnableSelfRegistration` MSBuild property to false. The same value
+can be supplied as an environment variable when building the project.
 
 ### A custom entry point does not produce Allure results
 

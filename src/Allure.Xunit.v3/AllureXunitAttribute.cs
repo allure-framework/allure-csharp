@@ -27,8 +27,9 @@ public class AllureXunitAttribute() :
     /// <inheritdoc />
     public void Before(MethodInfo methodUnderTest, IXunitTest test)
     {
-        if (!AllureXunitRegistration.IsEnabled)
+        if (!AllureXunitRegistration.IsAvailable)
         {
+            // Allure or the runner reporter is disabled.
             return;
         }
 
@@ -41,7 +42,7 @@ public class AllureXunitAttribute() :
 
     /// <inheritdoc />
     public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits() =>
-        AllureXunitRegistration.IsEnabled
+        AllureXunitRegistration.IsAvailable
             ? [new(TestNodeMetadataCorrelationStrategy.MetadataKey, TestNodeMetadataCorrelationStrategy.CreateCorrelationUid())]
             : [];
 }

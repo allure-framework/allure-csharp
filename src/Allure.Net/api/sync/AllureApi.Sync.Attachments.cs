@@ -94,8 +94,14 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     public static void AddAttachment(string name, ReadOnlyMemory<byte> content)
     {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        endpoint.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: null,
@@ -111,8 +117,14 @@ public static partial class AllureApi
     /// <param name="content">The content of the attachment.</param>
     public static void AddAttachment(string name, string content)
     {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        endpoint.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: null,
@@ -154,8 +166,14 @@ public static partial class AllureApi
         string? mediaType
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        endpoint.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -176,8 +194,14 @@ public static partial class AllureApi
         string? mediaType
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        endpoint.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -200,7 +224,13 @@ public static partial class AllureApi
         string fileExtension
     )
     {
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
+        endpoint.Operations.Sync.AddAttachment(
             name: name,
             content: content,
             mediaType: mediaType,
@@ -223,8 +253,14 @@ public static partial class AllureApi
         string fileExtension
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        endpoint.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -247,8 +283,14 @@ public static partial class AllureApi
         string fileExtension
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = ToStream(content);
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddAttachment(
+        endpoint.Operations.Sync.AddAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -303,11 +345,17 @@ public static partial class AllureApi
         ReadOnlyMemory<byte> diff
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveCurrentScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var expectedStream = expected.AsStream();
         using var actualStream = actual.AsStream();
         using var diffStream = diff.AsStream();
 
-        AllureRuntimeRouter.ResolveCurrentScope()?.Operations.Sync.AddScreenDiff(
+        endpoint.Operations.Sync.AddScreenDiff(
             expectedStream,
             actualStream,
             diffStream

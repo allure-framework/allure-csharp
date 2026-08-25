@@ -19,6 +19,9 @@ static class AllureXunitRegistration
             && Current.ConfigurationReference is { IsBound: true } configurationReference
             && configurationReference.Value.IsEnabled;
 
+    public static bool IsAvailable =>
+        IsEnabled && AllureRunnerReporter.MessageHandlerReference.IsBound;
+
     public static IAllureXunitRegistration Current => registrationReference.Value;
 
     internal static void Bind(IAllureXunitRegistration registration)

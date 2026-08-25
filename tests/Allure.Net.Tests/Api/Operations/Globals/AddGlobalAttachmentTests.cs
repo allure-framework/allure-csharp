@@ -216,6 +216,37 @@ public class AddGlobalAttachmentTests : AllureApiTestsBase
     }
 
     [Test]
+    public async Task AddGlobalAttachmentTextRoutedToGlobalEndpoint()
+    {
+        const string content = "attachment body";
+        string? actualText = null;
+        using var endpoint = InstallEndpoint(InstallationScope.Global);
+        endpoint.SyncApi.AddGlobalAttachment(Any(), Any(), Any(), Any()).Callback(
+            (_, stream, _, _) => actualText = GetString(stream)
+        );
+
+        AllureApi.AddGlobalAttachment("Attachment name", content);
+
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachment(
+            "Attachment name",
+            IsNotNull<Stream>(),
+            IsNull<string?>(),
+            ""
+        )).WasCalled(Times.Once);
+        await Assert.That(actualText).IsEqualTo(content);
+        endpoint.SyncApi.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void AddGlobalAttachmentTextDoesNotThrowWithoutEndpoint()
+    {
+        const string content = "attachment body";
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddGlobalAttachment("Attachment name", content);
+    }
+
+    [Test]
     public async Task AddGlobalAttachmentTextAsyncRoutedToGlobalEndpoint()
     {
         const string content = "attachment body";
@@ -491,6 +522,37 @@ public class AddGlobalAttachmentTests : AllureApiTestsBase
         using var _ = InstallNoEndpoint();
 
         await AllureApi.AddGlobalAttachmentAsync("Attachment name", content, "text/example", CancellationToken.None);
+    }
+
+    [Test]
+    public async Task AddGlobalAttachmentTextWithMediaTypeRoutedToGlobalEndpoint()
+    {
+        const string content = "attachment body";
+        string? actualText = null;
+        using var endpoint = InstallEndpoint(InstallationScope.Global);
+        endpoint.SyncApi.AddGlobalAttachment(Any(), Any(), Any(), Any()).Callback(
+            (_, stream, _, _) => actualText = GetString(stream)
+        );
+
+        AllureApi.AddGlobalAttachment("Attachment name", content, "text/example");
+
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachment(
+            "Attachment name",
+            IsNotNull<Stream>(),
+            "text/example",
+            ""
+        )).WasCalled(Times.Once);
+        await Assert.That(actualText).IsEqualTo(content);
+        endpoint.SyncApi.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void AddGlobalAttachmentTextWithMediaTypeDoesNotThrowWithoutEndpoint()
+    {
+        const string content = "attachment body";
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddGlobalAttachment("Attachment name", content, "text/example");
     }
 
     [Test]
@@ -782,6 +844,37 @@ public class AddGlobalAttachmentTests : AllureApiTestsBase
             ".example",
             CancellationToken.None
         );
+    }
+
+    [Test]
+    public async Task AddGlobalAttachmentTextWithMetadataRoutedToGlobalEndpoint()
+    {
+        const string content = "attachment body";
+        string? actualText = null;
+        using var endpoint = InstallEndpoint(InstallationScope.Global);
+        endpoint.SyncApi.AddGlobalAttachment(Any(), Any(), Any(), Any()).Callback(
+            (_, stream, _, _) => actualText = GetString(stream)
+        );
+
+        AllureApi.AddGlobalAttachment("Attachment name", content, "text/example", ".example");
+
+        await Assert.That(endpoint.SyncApi.AddGlobalAttachment(
+            "Attachment name",
+            IsNotNull<Stream>(),
+            "text/example",
+            ".example"
+        )).WasCalled(Times.Once);
+        await Assert.That(actualText).IsEqualTo(content);
+        endpoint.SyncApi.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void AddGlobalAttachmentTextWithMetadataDoesNotThrowWithoutEndpoint()
+    {
+        const string content = "attachment body";
+        using var _ = InstallNoEndpoint();
+
+        AllureApi.AddGlobalAttachment("Attachment name", content, "text/example", ".example");
     }
 
     [Test]

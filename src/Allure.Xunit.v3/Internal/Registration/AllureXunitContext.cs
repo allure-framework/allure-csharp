@@ -13,7 +13,7 @@ class AllureXunitContext : ExecutionStateContext, ICorrelationContext
             && XunitTraits.TryGetCorrelationUid(traits, out var correlationUid)
                 ? correlationUid
                 : throw new InvalidOperationException(
-                    "Cannot get the current correlation UID."
+                    "Could not correlate Allure messages: AllureRunnerReporter was disabled."
                 );
 
     public override ScopeExecutionStateUid? CurrentScopeUid =>
