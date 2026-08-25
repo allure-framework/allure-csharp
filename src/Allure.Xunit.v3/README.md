@@ -311,6 +311,39 @@ If multiple hooks are provided, they all run in sequence with
 the environment hook running first, followed by the configuration hook,
 followed by `AllureXunitRegistrationHook.Current`.
 
+### Parameter serialization
+
+Allure uses ordered serialization rules to convert CLR parameter values to
+text. Configure these rules during runtime registration with
+`ConfigureSerialization`; rules cannot be added after the Allure runtime has
+been registered.
+
+Use `AddDelegateRule<T>` for simple conversions. For reusable rules, implement
+`IParameterSerializationRule` or derive from
+`TypedParameterSerializationRule<T>`. Typed rules accept subclasses and
+interface implementations. If multiple rules accept a value, the last added
+matching rule has priority.
+
+Allure automatically applies the configured rules to:
+
+- test method arguments;
+- values passed to `AddTestParameterFromObject` and
+  `AddTestParameterFromObjectAsync`;
+- values passed to `AddParameterFromObject` and
+  `AddParameterFromObjectAsync` on step and fixture contexts;
+- arguments of methods marked with `[AllureStep]`, `[AllureSetUp]`, or
+  `[AllureTearDown]`.
+
+The serialized values are also used for argument placeholders in instrumented
+step and fixture names.
+
+`AddTestParameter`, `AddTestParameterAsync`, `AddParameter`, and
+`AddParameterAsync` accept already-formatted strings and bypass the parameter
+serializer.
+
+When migrating from `Allure.Net.Commons`, see
+[Migrate type formatters](https://github.com/allure-framework/allure-csharp/blob/main/src/Allure.Xunit.v3/MIGRATION.md#migrate-type-formatters).
+
 ### Manual Allure registration
 
 Register `Allure.Xunit.v3` manually when the project already configures

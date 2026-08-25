@@ -442,6 +442,66 @@ AllureApi.AddTestParameter(new Parameter
 });
 ```
 
+## Migrate type formatters
+
+Replace `TypeFormatter<T>` implementations with parameter serialization rules.
+For a direct conversion, derive the new rule from
+`TypedParameterSerializationRule<T>`:
+
+```diff
+-using Allure.Net.Commons;
++using Allure.Sdk.Serialization;
+
+-public sealed class AccountFormatter : TypeFormatter<Account>
++public sealed class AccountSerializationRule :
++    TypedParameterSerializationRule<Account>
+ {
+-    public override string Format(Account value) => value.Id;
++    protected override string Serialize(Account value) => value.Id;
+ }
+```
+
+Unlike `AllureLifecycle.AddTypeFormatter`, serialization rules cannot be added
+after the Allure runtime has been registered. They can only be configured as
+part of runtime registration. For `Allure.Xunit.v3`, add the rule from an
+`IAllureXunitRegistrationHook`:
+
+```csharp
+using Allure.Sdk.Registration;
+using Allure.Xunit.Registration;
+
+public sealed class ProjectAllureRegistration : IAllureXunitRegistrationHook
+{
+    public void SetUp(IAllureXunitRegistrationContext context)
+    {
+        context.ConfigureSerialization(
+            rules => rules.AddRule(new AccountSerializationRule())
+        );
+    }
+}
+```
+
+For a formatter that does not need a dedicated class, add a delegate rule
+instead:
+
+```csharp
+context.ConfigureSerialization(
+    rules => rules.AddDelegateRule<Account>(account => account.Id)
+);
+```
+
+Select the hook before Allure registration begins. See
+[Registration hook](README.md#registration-hook) for the available registration
+mechanisms.
+
+The old type formatter API matched only the exact runtime type. A rule derived
+from `TypedParameterSerializationRule<T>` accepts any value compatible with
+`T`. A rule for a base class therefore also handles its subclasses, and a rule
+for an interface handles implementations of that interface. Delegate rules
+created by `AddDelegateRule<T>` derive from the same typed rule and have the
+same behavior. If multiple rules accept a value, the last added matching rule
+has priority.
+
 ## Replace ExtendedApi
 
 Replace `ExtendedApi.Before` and `ExtendedApi.After` with setup and teardown
@@ -597,13 +657,13 @@ Before removing the old packages or compatibility suppressions, search the
 solution for remaining legacy APIs:
 
 ```bash
-rg 'Allure\.Xunit\.Attributes|Allure\.Net\.Commons|AllureLifecycle|ExtendedApi'
+rg 'Allure\.Xunit\.Attributes|Allure\.Net\.Commons|AllureLifecycle|TypeFormatter|ExtendedApi'
 ```
 
 Or, on Windows with no `ripgrep` installed:
 
 ```powershell
-Get-ChildItem -Filter "*.cs" -Recurse | Select-String 'Allure\.Xunit\.Attributes|Allure\.Net\.Commons|AllureLifecycle|ExtendedApi'
+Get-ChildItem -Filter "*.cs" -Recurse | Select-String 'Allure\.Xunit\.Attributes|Allure\.Net\.Commons|AllureLifecycle|TypeFormatter|ExtendedApi'
 ```
 
 Then:
