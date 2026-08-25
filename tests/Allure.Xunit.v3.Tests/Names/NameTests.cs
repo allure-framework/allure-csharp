@@ -118,7 +118,7 @@ class NameTests
 
         await Assert.That(results.Value).HasSingleContainer(container => container
             .HasChildrenMatching([child => child.IsEqualTo(uuid)]))
-            .With.OnlyOneBeforeFixture(fixture => fixture
+            .With.OnlyOneSetUpFixture(fixture => fixture
                 .HasName("Original fixture")
                 .And.HasStatus(AllureStatus.Passed)
                 .And.HasStepsMatching([
@@ -148,7 +148,7 @@ class NameTests
 
         await Assert.That(results.Value).HasSingleContainer(container => container
             .HasChildrenMatching([child => child.IsEqualTo(uuid)]))
-            .With.OnlyOneBeforeFixture(fixture => fixture
+            .With.OnlyOneSetUpFixture(fixture => fixture
                 .HasName(fixtureName)
                 .And.HasStatus(AllureStatus.Passed))
             .With.AftersMatching([])

@@ -59,8 +59,8 @@ sealed class AllureDataConsumer :
         typeof(AllureScopeStartMessage),
         typeof(AllureScopeStopMessage),
 
-        typeof(AllureBeforeFixtureStartMessage),
-        typeof(AllureAfterFixtureStartMessage),
+        typeof(AllureSetUpFixtureStartMessage),
+        typeof(AllureTearDownFixtureStartMessage),
         typeof(AllureFixtureUpdateMessage),
         typeof(AllureFixtureStopMessage),
 

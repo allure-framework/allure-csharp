@@ -54,8 +54,8 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
             typeof(AllureScopeStartMessage),
             typeof(AllureScopeStopMessage),
 
-            typeof(AllureBeforeFixtureStartMessage),
-            typeof(AllureAfterFixtureStartMessage),
+            typeof(AllureSetUpFixtureStartMessage),
+            typeof(AllureTearDownFixtureStartMessage),
             typeof(AllureFixtureUpdateMessage),
             typeof(AllureFixtureStopMessage),
 

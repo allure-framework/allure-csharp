@@ -46,8 +46,8 @@ sealed class AllureTestingPlatformAsyncOperations(
     public Type[] DataTypesProduced { get; } = [
         typeof(AllureFixtureUpdateMessage),
         typeof(AllureTestUpdateMessage),
-        typeof(AllureBeforeFixtureStartMessage),
-        typeof(AllureAfterFixtureStartMessage),
+        typeof(AllureSetUpFixtureStartMessage),
+        typeof(AllureTearDownFixtureStartMessage),
         typeof(AllureFixtureStopMessage),
         typeof(AllureStepStartMessage),
         typeof(AllureStepStopMessage),
@@ -321,7 +321,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureBeforeFixtureStartMessage(
+            new AllureSetUpFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,
@@ -379,7 +379,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureBeforeFixtureStartMessage(
+            new AllureSetUpFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,
@@ -592,7 +592,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureAfterFixtureStartMessage(
+            new AllureTearDownFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,
@@ -650,7 +650,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureAfterFixtureStartMessage(
+            new AllureTearDownFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,

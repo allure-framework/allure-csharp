@@ -49,7 +49,7 @@ public class FailExceptionsTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldSetBeforeFixtureFailedStatusAndDetailsFromError()
+    public async Task ShouldSetSetUpFixtureFailedStatusAndDetailsFromError()
     {
         var fixture = await this.ArrangeAndAct(
             new AllureExceptionProperty<FixtureResult>(new Exception("Foo"))
@@ -97,7 +97,7 @@ public class FailExceptionsTests : DataConsumerTestsBase
     async Task<FixtureResult> ArrangeAndAct(params IAllureProperty[] properties)
     {
         var startScopeMessage = new AllureScopeStartMessage(correlationUid, new("1"));
-        var startFixtureMessage = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixtureMessage = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var updateFixtureMessage = new AllureFixtureUpdateMessage(correlationUid, new("2"))
         {
             Properties = [.. properties],

@@ -153,7 +153,7 @@ public class CancelPropertyTests : DataConsumerTestsBase
             new("scope-1"),
             [new("test-1")]
         );
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),

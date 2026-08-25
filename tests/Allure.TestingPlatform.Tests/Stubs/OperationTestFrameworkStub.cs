@@ -27,7 +27,7 @@ sealed class OperationTestFrameworkStub(
         typeof(AllureScopeStartMessage),
         typeof(AllureScopeTestsMessage),
         typeof(AllureScopeStopMessage),
-        typeof(AllureBeforeFixtureStartMessage),
+        typeof(AllureSetUpFixtureStartMessage),
         typeof(AllureFixtureStopMessage),
         typeof(AllureStepStartMessage),
         typeof(AllureStepStopMessage),
@@ -105,7 +105,7 @@ sealed class OperationTestFrameworkStub(
     {
         await context.MessageBus.PublishAsync(
             this,
-            new AllureBeforeFixtureStartMessage(
+            new AllureSetUpFixtureStartMessage(
                 executionContext.CurrentCorrelationUid,
                 executionContext.FixtureUid,
                 executionContext.ScopeUid,

@@ -328,7 +328,7 @@ the unique execution UID instead.
 Map framework events to the appropriate message group:
 
 - scopes: `AllureScopeStartMessage`, `AllureScopeTestsMessage`, and `AllureScopeStopMessage`;
-- fixtures: `AllureBeforeFixtureStartMessage`, `AllureAfterFixtureStartMessage`, `AllureFixtureUpdateMessage`, and `AllureFixtureStopMessage`;
+- fixtures: `AllureSetUpFixtureStartMessage`, `AllureTearDownFixtureStartMessage`, `AllureFixtureUpdateMessage`, and `AllureFixtureStopMessage`;
 - tests: `AllureTestExecutionBindingMessage`, `AllureTestUpdateMessage`, and
   `AllureTestExecutionFinishMessage`;
 - steps: `AllureStepStartMessage`, `AllureStepUpdateMessage`, and `AllureStepStopMessage`;

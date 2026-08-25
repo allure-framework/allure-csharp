@@ -28,10 +28,10 @@ class FixtureTests
 
         await Assert.That(results.Value).HasSingleContainer(container => container
             .HasChildrenMatching([child => child.IsEqualTo(uuid)]))
-            .With.OnlyOneBeforeFixture(fixture => fixture
+            .With.OnlyOneSetUpFixture(fixture => fixture
                 .HasName("Constructor setup")
                 .And.HasStatus(AllureStatus.Passed))
-            .With.OnlyOneAfterFixture(fixture => fixture
+            .With.OnlyOneTearDownFixture(fixture => fixture
                 .HasName("Dispose teardown")
                 .And.HasStatus(AllureStatus.Passed))
             .With.SingleChild().That.IsEqualTo(uuid);
@@ -45,10 +45,10 @@ class FixtureTests
 
         await Assert.That(results.Value).HasSingleContainer(container => container
             .HasChildrenMatching([child => child.IsEqualTo(uuid)]))
-            .With.OnlyOneBeforeFixture(fixture => fixture
+            .With.OnlyOneSetUpFixture(fixture => fixture
                 .HasName("InitializeAsync setup")
                 .And.HasStatus(AllureStatus.Passed))
-            .With.OnlyOneAfterFixture(fixture => fixture
+            .With.OnlyOneTearDownFixture(fixture => fixture
                 .HasName("IAsyncLifetime teardown")
                 .And.HasStatus(AllureStatus.Passed))
             .With.SingleChild().That.IsEqualTo(uuid);
@@ -63,7 +63,7 @@ class FixtureTests
         await Assert.That(results.Value).HasSingleContainer(container => container
             .HasChildrenMatching([child => child.IsEqualTo(uuid)]))
             .With.BeforesMatching([])
-            .With.OnlyOneAfterFixture(fixture => fixture
+            .With.OnlyOneTearDownFixture(fixture => fixture
                 .HasName("IAsyncDisposable teardown")
                 .And.HasStatus(AllureStatus.Passed))
             .With.SingleChild().That.IsEqualTo(uuid);
@@ -142,14 +142,14 @@ class FixtureTests
         var test1Container = await Assert.That(results.Value).HasSingleContainer(
             (tc) => tc.HasSingleChild().That.IsEqualTo(test1Uuid)
         );
-        await Assert.That(test1Container).HasSingleBeforeFixture().That.HasName("Set up");
-        await Assert.That(test1Container).HasSingleAfterFixture().That.HasName("Tear down");
+        await Assert.That(test1Container).HasSingleSetUpFixture().That.HasName("Set up");
+        await Assert.That(test1Container).HasSingleTearDownFixture().That.HasName("Tear down");
 
         var test2Container = await Assert.That(results.Value).HasSingleContainer(
             (tc) => tc.HasSingleChild().That.IsEqualTo(test2Uuid)
         );
-        await Assert.That(test2Container).HasSingleBeforeFixture().That.HasName("Set up");
-        await Assert.That(test2Container).HasSingleAfterFixture().That.HasName("Tear down");
+        await Assert.That(test2Container).HasSingleSetUpFixture().That.HasName("Set up");
+        await Assert.That(test2Container).HasSingleTearDownFixture().That.HasName("Tear down");
     }
 
     static async Task AssertPassedRuntimeFixtures(
@@ -163,13 +163,13 @@ class FixtureTests
 
         await Assert.That(results.Value).HasSingleContainer(container => container
             .HasChildrenMatching([child => child.IsEqualTo(uuid)]))
-            .With.OnlyOneBeforeFixture(fixture => fixture
+            .With.OnlyOneSetUpFixture(fixture => fixture
                 .HasName(setUpName)
                 .And.HasStatus(AllureStatus.Passed)
                 .And.HasParametersMatching([
                     parameter => parameter.HasName("context").And.HasValue("works"),
                 ]))
-            .With.OnlyOneAfterFixture(fixture => fixture
+            .With.OnlyOneTearDownFixture(fixture => fixture
                 .HasName(tearDownName)
                 .And.HasStatus(AllureStatus.Passed)
                 .And.HasParametersMatching([
