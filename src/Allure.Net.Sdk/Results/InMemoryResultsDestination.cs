@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Model;
+using Allure.Sdk.Internal.Functions;
 
 namespace Allure.Sdk.Results;
 
@@ -39,24 +40,31 @@ public class InMemoryResultsDestination : IAllureResultsDestination
     public Dictionary<string, string> FileAttachments { get; } = [];
 
     /// <inheritdoc/>
-    public void CopyAttachment(string destinationFileName, string sourceFilePath)
+    public string CopyAttachment(string sourceFilePath, string fileExtension)
     {
+        var destinationFileName = AttachmentSource.CreateName(fileExtension);
         lock (this.monitor)
         {
             this.FileAttachments.Add(destinationFileName, sourceFilePath);
         }
+        return destinationFileName;
     }
 
     /// <inheritdoc/>
-    public Task CopyAttachmentAsync(string destinationFileName, string sourceFilePath, CancellationToken cancellationToken)
-    {
-        this.CopyAttachment(destinationFileName, sourceFilePath);
-        return Task.CompletedTask;
-    }
+    public Task<string> CopyAttachmentAsync(
+        string sourceFilePath,
+        string fileExtension,
+        CancellationToken cancellationToken
+    ) =>
+        Task.FromResult(
+            this.CopyAttachment(sourceFilePath, fileExtension)
+        );
 
     /// <inheritdoc/>
-    public void WriteAttachment(string outputFileName, Stream content)
+    public string WriteAttachment(Stream content, string fileExtension)
     {
+        var outputFileName = AttachmentSource.CreateName(fileExtension);
+
         using MemoryStream memoryStream = new();
         content.CopyTo(memoryStream);
         var data = memoryStream.ToArray();
@@ -65,14 +73,19 @@ public class InMemoryResultsDestination : IAllureResultsDestination
         {
             this.ByteAttachments.Add(outputFileName, data);
         }
+
+        return outputFileName;
     }
 
     /// <inheritdoc/>
-    public Task WriteAttachmentAsync(string outputFileName, Stream content, CancellationToken cancellationToken)
-    {
-        this.WriteAttachment(outputFileName, content);
-        return Task.CompletedTask;
-    }
+    public Task<string> WriteAttachmentAsync(
+        Stream content,
+        string fileExtension,
+        CancellationToken cancellationToken
+    ) =>
+        Task.FromResult(
+            this.WriteAttachment(content, fileExtension)
+        );
 
     /// <inheritdoc/>
     public void WriteGlobals(Globals globals)

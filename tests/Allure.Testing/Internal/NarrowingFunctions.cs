@@ -168,7 +168,7 @@ internal static class NarrowingFunctions
             Environment.NewLine,
             failures.Select(e => FormatMismatchLine(itemDescription, e)));
 
-    public static (string? expected, string? actual) ExtractExpectedAndActual(string message, int ident)
+    public static (string? expected, string? actual) ExtractExpectedAndActual(string message, int indent)
     {
         var lines = message
             .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
@@ -177,7 +177,7 @@ internal static class NarrowingFunctions
             .Where(l => l.Length > 0)
             .ToArray();
 
-        var expectedIdentPrefix = new string(' ', ident * 2);
+        var expectedIdentPrefix = new string(' ', indent * 2);
         var expected = lines.TakeWhile(l => !l.StartsWith("but ")).ToList() switch
         {
             [] => null,
@@ -198,7 +198,7 @@ internal static class NarrowingFunctions
             .TakeWhile(l => !l.StartsWith("at Assert.That("))
             .ToList();
 
-        var actualIdentPrefix = new string(' ', ident * 2 + 4);
+        var actualIdentPrefix = new string(' ', indent * 2 + 4);
         var actual = actualLines switch
         {
             [] => message,

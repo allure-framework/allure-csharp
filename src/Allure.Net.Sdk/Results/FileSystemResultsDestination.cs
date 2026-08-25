@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Allure.Model;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Allure.Sdk.Internal.Functions;
 
 
 namespace Allure.Sdk.Results;
@@ -102,53 +103,78 @@ public class FileSystemResultsDestination : IAllureResultsDestination
     }
 
     /// <inheritdoc/>
-    public void WriteAttachment(string outputFileName, Stream content)
+    public string WriteAttachment(Stream content, string fileExtension)
     {
+        var outputFileName = AttachmentSource.CreateName(fileExtension);
+
         using var writer = new AtomicFileWriter(this.outputDirectory, outputFileName);
+
         content.CopyTo(writer.Stream);
         writer.Commit();
+
+        return outputFileName;
     }
 
     /// <inheritdoc/>
-    public async Task WriteAttachmentAsync(
-        string outputFileName,
+    public async Task<string> WriteAttachmentAsync(
         Stream content,
+        string fileExtension,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var writer = new AtomicFileWriter(this.outputDirectory, outputFileName, FileOptions.Asynchronous);
+        var outputFileName = AttachmentSource.CreateName(fileExtension);
+
+        using var writer = new AtomicFileWriter(
+            this.outputDirectory,
+            outputFileName,
+            FileOptions.Asynchronous
+        );
+
         await content.CopyToAsync(writer.Stream, DefaultCopyBufferSize, cancellationToken);
         writer.Commit();
+
+        return outputFileName;
     }
 
     /// <inheritdoc/>
-    public void CopyAttachment(string destinationFileName, string sourceFilePath)
+    public string CopyAttachment(string sourceFilePath, string fileExtension)
     {
-        using var writer = new AtomicFileWriter(this.outputDirectory, destinationFileName);
+        var outputFileName = AttachmentSource.CreateName(fileExtension);
+
+        using var writer = new AtomicFileWriter(this.outputDirectory, outputFileName);
         using var source = File.OpenRead(sourceFilePath);
 
         source.CopyTo(writer.Stream);
-
         writer.Commit();
+
+        return outputFileName;
     }
 
     /// <inheritdoc/>
-    public async Task CopyAttachmentAsync(
-        string destinationFileName,
+    public async Task<string> CopyAttachmentAsync(
         string sourceFilePath,
+        string fileExtension,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var writer = new AtomicFileWriter(this.outputDirectory, destinationFileName, FileOptions.Asynchronous);
+        var outputFileName = AttachmentSource.CreateName(fileExtension);
+
+        using var writer = new AtomicFileWriter(
+            this.outputDirectory,
+            outputFileName,
+            FileOptions.Asynchronous
+        );
         using var source = File.OpenRead(sourceFilePath);
 
         await source.CopyToAsync(writer.Stream, DefaultCopyBufferSize, cancellationToken);
 
         writer.Commit();
+
+        return outputFileName;
     }
 
     static bool ShouldIgnoreScope(TestResultScope scope) => scope is

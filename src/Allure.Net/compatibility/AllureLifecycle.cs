@@ -4,7 +4,8 @@ using Allure.Model;
 namespace Allure.Net.Commons;
 
 /// <summary>
-/// This class is a part of the legacy API and will be removed in a future update.
+/// This class is a part of the legacy API compatibility layer and will be
+/// removed in a future update.
 /// Please, switch to <see cref="AllureInProcessApi"/>.
 /// </summary>
 [Obsolete("Use Allure.AllureInProcessApi instead.")]
@@ -14,6 +15,8 @@ public class AllureLifecycle
 
     /// <summary>
     /// Please, switch to <see cref="AllureInProcessApi.UpdateFixtureResult(Action{FixtureResult})"/>.
+    /// If the callback produces the output data, use
+    /// <see cref="AllureInProcessApi.ReadFixtureResult{TResult}(Func{FixtureResult, TResult})"/> instead.
     /// </summary>
     public AllureLifecycle UpdateFixture(Action<FixtureResult> update)
     {
@@ -23,6 +26,8 @@ public class AllureLifecycle
 
     /// <summary>
     /// Please, switch to <see cref="AllureInProcessApi.UpdateTestResult(Action{TestResult})"/>.
+    /// If the callback produces the output data, use
+    /// <see cref="AllureInProcessApi.ReadTestResult{TResult}(Func{TestResult, TResult})"/> instead.
     /// </summary>
     public AllureLifecycle UpdateTestCase(Action<TestResult> update)
     {
@@ -32,6 +37,8 @@ public class AllureLifecycle
 
     /// <summary>
     /// Please, switch to <see cref="AllureInProcessApi.UpdateStepResult(Action{StepResult})"/>.
+    /// If the callback produces the output data, use
+    /// <see cref="AllureInProcessApi.ReadStepResult{TResult}(Func{StepResult, TResult})"/> instead.
     /// </summary>
     public AllureLifecycle UpdateStep(Action<StepResult> update)
     {

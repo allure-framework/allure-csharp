@@ -19,6 +19,8 @@ using System.Collections.Immutable;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Allure.TestingPlatform.Sdk.TestingPlatformExtensions;
 using Allure.TestingPlatform.Internal.Registration;
+using Allure.Sdk.Runtime;
+using Allure.TestingPlatform.Internal.Lifecycle;
 
 namespace Allure.TestingPlatform.Internal.TestingPlatformExtensions;
 
@@ -41,11 +43,11 @@ sealed class AllureDataConsumer :
 
     readonly ITestingPlatformRequestBinding requestBinding;
 
-    readonly Lazy<TestHostAllureLifecycleState> allureLifecycleState;
+    readonly Lazy<SessionLifecycleRegistry> allureLifecycleState;
 
     readonly Lazy<SessionCorrelationMap> correlationState;
 
-    TestHostAllureLifecycleState AllureLifecycleState => this.allureLifecycleState.Value;
+    SessionLifecycleRegistry AllureLifecycleState => this.allureLifecycleState.Value;
 
     SessionCorrelationMap CorrelationState => this.correlationState.Value;
 
@@ -57,8 +59,8 @@ sealed class AllureDataConsumer :
         typeof(AllureScopeStartMessage),
         typeof(AllureScopeStopMessage),
 
-        typeof(AllureBeforeFixtureStartMessage),
-        typeof(AllureAfterFixtureStartMessage),
+        typeof(AllureSetUpFixtureStartMessage),
+        typeof(AllureTearDownFixtureStartMessage),
         typeof(AllureFixtureUpdateMessage),
         typeof(AllureFixtureStopMessage),
 
@@ -68,7 +70,10 @@ sealed class AllureDataConsumer :
 
         typeof(AllureScopeTestsMessage),
 
+        typeof(AllureTestExecutionBindingMessage),
         typeof(AllureTestUpdateMessage),
+        typeof(AllureTestExecutionFinishMessage),
+
         typeof(AllureExecutableItemUpdateMessage),
     ];
 
@@ -85,7 +90,10 @@ sealed class AllureDataConsumer :
     {
         this.runtimeControl = runtimeControl;
         this.requestBinding = requestBinding;
-        this.allureLifecycleState = new(() => new(this.ContextApi));
+        this.allureLifecycleState = new(() => new(
+            this.ContextApi,
+            runtimeControl.CreateTestExecutionCoordinator
+        ));
         correlationState = new(() => new(
             this.CorrelationStrategy,
             this.Logger
@@ -118,7 +126,7 @@ sealed class AllureDataConsumer :
                     is CorrelationUid correlationUid
             )
             {
-                this.AllureLifecycleState.RemoveSession(correlationUid);
+                this.AllureLifecycleState.Remove(correlationUid);
             }
         }
         finally
@@ -193,6 +201,12 @@ sealed class AllureDataConsumer :
                 AllureScopeTestsMessage allureScopeTestsMessage =>
                     this.ConsumeTestsInScopeMessage(allureScopeTestsMessage),
 
+                AllureTestExecutionBindingMessage allureTestExecutionBindingMessage =>
+                    this.ConsumeTestExecutionBindingMessage(allureTestExecutionBindingMessage),
+
+                AllureTestExecutionFinishMessage allureTestExecutionFinishMessage =>
+                    this.ConsumeTestExecutionFinishMessage(allureTestExecutionFinishMessage),
+
                 _ => Task.CompletedTask,
             });
         }
@@ -212,36 +226,18 @@ sealed class AllureDataConsumer :
             return;
         }
 
-        var state = this.AllureLifecycleState.GetOrCreateSessionState(correlationUid);
+        var coordinator = this.AllureLifecycleState.GetOrCreate(correlationUid);
 
         if (stateProperty is InProgressTestNodeStateProperty)
         {
-            state.ForkNewTestState(testContextUid, () => this.StartTest(node.DisplayName));
+            coordinator.StartTestState(testContextUid, () => this.StartTest(node.DisplayName));
             return;
         }
 
-        var runningTestContext = state.GetRunningTestState(testContextUid);
-
-        if (!runningTestContext.HasTest)
-        {
-            // InProgressTestNodeStateProperty is missing. Normally, this should not happen.
-            // If it does, create a new test context and pass the context through the state
-            // to apply pending updates.
-            runningTestContext = state.ForkState(testContextUid, runningTestContext, () => this.StartTest(node.DisplayName));
-        }
-
-        state.ReleaseState(
+        coordinator.FinishTestState(
             testContextUid,
-            (runtime) =>
-            {
-                runtime.ModelApi.UpdateTestResult((testResult) =>
-                {
-                    this.ApplyProperties(testResult, node);
-                    ApplyFallbacks(testResult, node);
-                });
-                var testResult = this.LifecycleApi.StopTest();
-                runtime.ResultsDestination.WriteTestResult(testResult);
-            }
+            startTestIfMissing: () => this.StartTest(node.DisplayName),
+            finishTest: (runtime) => this.FinalizeTestResult(runtime, node)
         );
     }
 
@@ -255,7 +251,7 @@ sealed class AllureDataConsumer :
     async Task ConsumeAllureModelCreateMessage(AllureModelCreateMessage message)
     {
         var parentContextUid = message.ParentContextUid;
-        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
+        this.AllureLifecycleState.GetOrCreate(message.CorrelationUid)
             .InheritState(
                 message.ContextUid,
                 message.ParentContextUid,
@@ -266,30 +262,48 @@ sealed class AllureDataConsumer :
     async Task ConsumeAllureModelUpdateMessage(AllureModelUpdateMessage message)
     {
         var contextUid = message.ContextUid;
-        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
+        this.AllureLifecycleState.GetOrCreate(message.CorrelationUid)
             .UpdateState(
                 message.ContextUid,
                 () => message.ApplyTo(this.Runtime)
             );
     }
 
-    async Task ConsumeAllureModelRemoveMessage(AllureModelRemoveMessage message) =>
-        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
+    async Task ConsumeAllureModelRemoveMessage(AllureModelRemoveMessage message)
+    {
+        this.AllureLifecycleState.GetOrCreate(message.CorrelationUid)
             .ReleaseState(
                 message.ContextUid,
                 (_) => message.ApplyTo(this.Runtime)
             );
+    }
 
-    async Task ConsumeScopeStopMessage(AllureScopeStopMessage message) =>
-        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
+    async Task ConsumeScopeStopMessage(AllureScopeStopMessage message)
+    {
+        this.AllureLifecycleState.GetOrCreate(message.CorrelationUid)
             .ReleaseScopeState(
                 message.ScopeUid,
                 (_) => message.ApplyTo(this.Runtime)
             );
+    }
 
-    async Task ConsumeTestsInScopeMessage(AllureScopeTestsMessage message) =>
-        this.AllureLifecycleState.GetOrCreateSessionState(message.CorrelationUid)
+    async Task ConsumeTestsInScopeMessage(AllureScopeTestsMessage message)
+    {
+        this.AllureLifecycleState.GetOrCreate(message.CorrelationUid)
             .AssociateTestsWithScope(message.ScopeUid, message.TestUids);
+    }
+
+    async Task ConsumeTestExecutionBindingMessage(AllureTestExecutionBindingMessage message)
+    {
+        this.AllureLifecycleState.GetOrCreate(message.CorrelationUid)
+            .BindTestExecution(message.TestNodeUid, message.ExecutionUid);
+    }
+
+    async Task ConsumeTestExecutionFinishMessage(AllureTestExecutionFinishMessage message)
+    {
+        this.AllureLifecycleState.GetOrCreate(message.CorrelationUid)
+            .FinishTestExecution(message.ExecutionUid);
+    }
 
     void StartTest(string name)
     {
@@ -371,6 +385,7 @@ sealed class AllureDataConsumer :
     static void ApplyFallbacks(TestResult testResult, TestNode node)
     {
         testResult.FullName ??= node.Uid;
+        testResult.ApplyDefaultSuites();
     }
 
     static TestResult ApplyTestNodeStateProperty(
@@ -387,5 +402,27 @@ sealed class AllureDataConsumer :
     {
         testResult.ApplyIdentityAsFallback(identifierProperty);
         return testResult;
+    }
+
+    void FinalizeTestResult(IAllureRuntimeBase runtime, TestNode node)
+    {
+        bool isCancelled = false;
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+        {
+            this.ApplyProperties(testResult, node);
+            if (testResult.IsCancelled)
+            {
+                isCancelled = true;
+                return;
+            }
+            ApplyFallbacks(testResult, node);
+        });
+
+        var testResult = runtime.LifecycleApi.StopTest();
+
+        if (!isCancelled)
+        {
+            runtime.ResultsDestination.WriteTestResult(testResult);
+        }
     }
 }

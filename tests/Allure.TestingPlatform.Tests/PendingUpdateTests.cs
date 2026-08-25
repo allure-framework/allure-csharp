@@ -18,7 +18,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
     [Test]
     public async Task ShouldApplyPendingFixtureStartWhenScopeBecomesAvailable()
     {
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -49,7 +49,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
         {
             Properties = [new AllureNameProperty<FixtureResult>("Updated fixture")],
         };
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -81,7 +81,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
         {
             Properties = [ new AllureDescriptionProperty<FixtureResult>("Second") { Append = true } ],
         };
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -109,7 +109,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
         {
             Properties = [new AllureNameProperty<FixtureResult>("Updated pending fixture")],
         };
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -140,13 +140,16 @@ public class PendingUpdateTests : DataConsumerTestsBase
         {
             Properties = [new AllureNameProperty<FixtureResult>("Updated pending fixture")],
         };
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
             "Initial fixture"
         );
-        var stopFixture = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"));
+        var stopFixture = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"))
+        {
+            Properties = [new AllureStatusProperty<FixtureResult>(Status.Failed)],
+        };
         var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
         var stopScope = new AllureScopeStopMessage(this.correlationUid, new("scope-1"));
 
@@ -162,6 +165,38 @@ public class PendingUpdateTests : DataConsumerTestsBase
         var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
         var fixture = await Assert.That(container.Befores).HasSingleItem();
         await Assert.That(fixture.Name).IsEqualTo("Updated pending fixture");
+        await Assert.That(fixture.Status).IsEqualTo(Status.Failed);
+    }
+
+    [Test]
+    public async Task ShouldRemovedStateWithPendingRelease()
+    {
+        var startFixture = new AllureSetUpFixtureStartMessage(
+            this.correlationUid,
+            new("fixture-1"),
+            new("scope-1"),
+            "Original name"
+        );
+        var stopFixture = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"));
+        var stopFixtureWithRename = new AllureFixtureStopMessage(this.correlationUid, new("fixture-1"))
+        {
+            Properties = [new AllureNameProperty<FixtureResult>("Pending release didn't work")],
+        };
+        var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
+        var stopScope = new AllureScopeStopMessage(this.correlationUid, new("scope-1"));
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, startFixture, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopFixture, CancellationToken.None);
+
+        await Assert.That(this.writer.TestContainers).IsEmpty();
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, startScope, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopFixtureWithRename, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, stopScope, CancellationToken.None);
+
+        var container = await Assert.That(this.writer.TestContainers).HasSingleItem();
+        var fixture = await Assert.That(container.Befores).HasSingleItem();
+        await Assert.That(fixture.Name).IsEqualTo("Original name");
     }
 
     [Test]
@@ -172,14 +207,14 @@ public class PendingUpdateTests : DataConsumerTestsBase
             new("child-scope"),
             new("parent-scope")
         );
-        var startChildFixture = new AllureBeforeFixtureStartMessage(
+        var startChildFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("child-fixture"),
             new("child-scope"),
             "Child fixture"
         );
         var startParentScope = new AllureScopeStartMessage(this.correlationUid, new("parent-scope"));
-        var startParentFixture = new AllureBeforeFixtureStartMessage(
+        var startParentFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("parent-fixture"),
             new("parent-scope"),
@@ -223,7 +258,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             [new("test-1")]
         );
         var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -294,7 +329,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             new("child-scope"),
             new("parent-scope")
         );
-        var startChildFixture = new AllureBeforeFixtureStartMessage(
+        var startChildFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("child-fixture"),
             new("child-scope"),
@@ -312,7 +347,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             }
         );
         var stopChildScope = new AllureScopeStopMessage(this.correlationUid, new("child-scope"));
-        var startParentFixture = new AllureBeforeFixtureStartMessage(
+        var startParentFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("parent-fixture"),
             new("parent-scope"),
@@ -386,7 +421,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             [new("test-2")]
         );
         var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -443,7 +478,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             new("child-scope-1"),
             new("parent-scope")
         );
-        var startChildFixture1 = new AllureBeforeFixtureStartMessage(
+        var startChildFixture1 = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("child-fixture-1"),
             new("child-scope-1"),
@@ -454,14 +489,14 @@ public class PendingUpdateTests : DataConsumerTestsBase
             new("child-scope-2"),
             new("parent-scope")
         );
-        var startChildFixture2 = new AllureBeforeFixtureStartMessage(
+        var startChildFixture2 = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("child-fixture-2"),
             new("child-scope-2"),
             "Child fixture 2"
         );
         var startParentScope = new AllureScopeStartMessage(this.correlationUid, new("parent-scope"));
-        var startParentFixture = new AllureBeforeFixtureStartMessage(
+        var startParentFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("parent-fixture"),
             new("parent-scope"),
@@ -514,7 +549,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             new("child-scope"),
             new("parent-scope")
         );
-        var startChildFixture = new AllureBeforeFixtureStartMessage(
+        var startChildFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("child-fixture"),
             new("child-scope"),
@@ -525,14 +560,14 @@ public class PendingUpdateTests : DataConsumerTestsBase
             new("parent-scope"),
             new("grandparent-scope")
         );
-        var startParentFixture = new AllureBeforeFixtureStartMessage(
+        var startParentFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("parent-fixture"),
             new("parent-scope"),
             "Parent fixture"
         );
         var startGrandparentScope = new AllureScopeStartMessage(this.correlationUid, new("grandparent-scope"));
-        var startGrandparentFixture = new AllureBeforeFixtureStartMessage(
+        var startGrandparentFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("grandparent-fixture"),
             new("grandparent-scope"),
@@ -586,7 +621,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             [new("test-1"), new("test-2")]
         );
         var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -637,7 +672,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             [new("test-1")]
         );
         var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),
@@ -693,7 +728,7 @@ public class PendingUpdateTests : DataConsumerTestsBase
             [new("test-2")]
         );
         var startScope = new AllureScopeStartMessage(this.correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(
+        var startFixture = new AllureSetUpFixtureStartMessage(
             this.correlationUid,
             new("fixture-1"),
             new("scope-1"),

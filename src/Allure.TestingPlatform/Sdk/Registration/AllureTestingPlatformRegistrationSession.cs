@@ -3,6 +3,7 @@ using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 using Allure.TestingPlatform.Internal;
 using Allure.TestingPlatform.Internal.Correlation;
+using Allure.TestingPlatform.Internal.Registration;
 using Allure.TestingPlatform.Registration;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
@@ -19,7 +20,7 @@ namespace Allure.TestingPlatform.Sdk.Registration;
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
 /// <typeparam name="TRegistrationContext">The registration context type.</typeparam>
 /// <typeparam name="TIntegrationContext">The integration context type.</typeparam>
-public abstract class AllureTestingPlatformRuntimeRegistrationSession<
+public abstract class AllureTestingPlatformRegistrationSession<
     TConfiguration,
     TRuntime,
     TRegistrationContext,
@@ -35,7 +36,8 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
         TConfiguration,
         TRuntime,
         TRegistrationContext
-    >
+    >,
+    IAllureServiceProviderBinding<TConfiguration>
 
     where TConfiguration : AllureTestingPlatformConfiguration, new()
     where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
@@ -57,6 +59,8 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 
     Func<TConfiguration, ILogger> currentLoggerFactory =
         (_) => NullLogger.Instance;
+
+    InternalServiceProvider<TConfiguration>? internalServiceProvider = null;
 
     /// <inheritdoc />
     public void Disable()
@@ -106,6 +110,17 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
         this.Modify(() => this.currentLoggerFactory = loggerFactory);
     }
 
+    public void UseTestExecutionCoordinator(Func<TConfiguration, ITestExecutionCoordinator> testExecutionCoordinatorFactory)
+    {
+        this.Modify(() => this.internalServiceProvider?.UseTestExecutionCoordinator(testExecutionCoordinatorFactory));
+    }
+
+    /// <inheritdoc />
+    public void ConfigureEndpoint(Action<TConfiguration, IAllureEndpointRegistrationContext> endpointConfigurationCallback)
+    {
+        this.Modify(() => this.internalServiceProvider?.UseEndpointConfigurationCallback(endpointConfigurationCallback));
+    }
+
     /// <inheritdoc />
     protected override sealed TRuntime CreateRuntime(RuntimeCreationArguments<TConfiguration> args)
     {
@@ -131,6 +146,13 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
         RuntimeCreationArguments<TConfiguration> commonArgs,
         AllureTestingPlatformRuntimeArguments testingPlatformArgs
     );
+
+    void IAllureServiceProviderBinding<TConfiguration>.BindServiceProvider(
+        InternalServiceProvider<TConfiguration> provider
+    )
+    {
+        this.internalServiceProvider = provider;
+    }
 }
 
 /// <summary>
@@ -140,12 +162,12 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
 /// <typeparam name="TRegistrationContext">The registration context type.</typeparam>
-public abstract class AllureTestingPlatformRuntimeRegistrationSession<
+public abstract class AllureTestingPlatformRegistrationSession<
     TConfiguration,
     TRuntime,
     TRegistrationContext
 > :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         TConfiguration,
         TRuntime,
         TRegistrationContext,
@@ -166,11 +188,11 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 /// <typeparam name="TRuntime">The runtime type.</typeparam>
-public abstract class AllureTestingPlatformRuntimeRegistrationSession<
+public abstract class AllureTestingPlatformRegistrationSession<
     TConfiguration,
     TRuntime
 > :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         TConfiguration,
         TRuntime,
         IAllureTestingPlatformRegistrationContext<TConfiguration>,
@@ -193,7 +215,7 @@ public abstract class AllureTestingPlatformRuntimeRegistrationSession<
 /// </summary>
 /// <typeparam name="TConfiguration">The runtime configuration type.</typeparam>
 public class AllureTestingPlatformRegistrationSession<TConfiguration> :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         TConfiguration,
         IAllureTestingPlatformRuntime<TConfiguration>,
         IAllureTestingPlatformRegistrationContext<TConfiguration>,
@@ -224,7 +246,7 @@ public class AllureTestingPlatformRegistrationSession<TConfiguration> :
 /// Provides the registration session for the default Allure Microsoft Testing Platform runtime.
 /// </summary>
 public class AllureTestingPlatformRegistrationSession :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         AllureTestingPlatformConfiguration,
         IAllureTestingPlatformRuntime,
         IAllureTestingPlatformRegistrationContext,

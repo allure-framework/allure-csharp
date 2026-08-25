@@ -33,6 +33,32 @@ public class RegistrationHookTests
             .IsEqualTo("<null>");
     }
 
+    [Test]
+    public async Task ShouldConfigureEndpointFromRegistrationHook()
+    {
+        EndpointConfiguringRegistrationHook.SuppressedRouteIdsFactoryCalls = 0;
+        var configuration = new AllureTestingPlatformConfiguration
+        {
+            IsProcessWatchdogEnabled = false,
+            RuntimeRegistrationHook =
+                typeof(EndpointConfiguringRegistrationHook).AssemblyQualifiedName,
+        };
+        var builder = await ExtensibilityTestApplication.CreateBuilderAsync();
+
+        builder.AddEmbeddedAllure(
+            "endpoint-configuring-registration-hook",
+            (context, _) => context.UseConfiguration(configuration)
+        );
+        ExtensibilityTestApplication.RegisterTestFramework(builder);
+
+        using var app = await builder.BuildAsync();
+        var exitCode = await app.RunAsync();
+
+        await Assert.That(exitCode).IsEqualTo(8);
+        await Assert.That(EndpointConfiguringRegistrationHook.SuppressedRouteIdsFactoryCalls)
+            .IsEqualTo(1);
+    }
+
     public sealed class MyAllureRegistrationHook :
         IAllureTestingPlatformRegistrationHook
     {
@@ -43,6 +69,23 @@ public class RegistrationHookTests
             Calls++;
             context.ConfigureSerialization(
                 rules => rules.UseNullRepresentation("<null>")
+            );
+        }
+    }
+
+    public sealed class EndpointConfiguringRegistrationHook :
+        IAllureTestingPlatformRegistrationHook
+    {
+        public static int SuppressedRouteIdsFactoryCalls { get; set; }
+
+        public void SetUp(IAllureTestingPlatformRegistrationContext context)
+        {
+            context.ConfigureEndpoint((_, endpoint) =>
+                endpoint.SuppressRoutes(() =>
+                {
+                    SuppressedRouteIdsFactoryCalls++;
+                    return ["general-adapter"];
+                })
             );
         }
     }

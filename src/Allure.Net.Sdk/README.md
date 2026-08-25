@@ -233,21 +233,9 @@ public sealed class FrameworkOutputCapture(bool enabled)
 }
 
 public sealed class MyFrameworkRuntime(
-    MyFrameworkConfiguration configuration,
-    IAllureParameterSerializer parameterSerializer,
-    IAllureResultsDestination resultsDestination,
-    IAllureExecutionContext context,
-    IAllureLifecycleApi lifecycleApi,
-    IAllureModelApi modelApi,
+    RuntimeCreationArguments<MyFrameworkConfiguration> baseArgs,
     FrameworkOutputCapture outputCapture
-) : AllureRuntime<MyFrameworkConfiguration>(
-    configuration,
-    parameterSerializer,
-    resultsDestination,
-    context,
-    lifecycleApi,
-    modelApi
-)
+) : AllureRuntime<MyFrameworkConfiguration>(baseArgs)
 {
     public FrameworkOutputCapture OutputCapture { get; } = outputCapture;
 }
@@ -256,16 +244,11 @@ sealed class MyFrameworkRuntimeRegistrationSession :
     AllureRuntimeRegistrationSession<MyFrameworkConfiguration, MyFrameworkRuntime>
 {
     protected override MyFrameworkRuntime CreateRuntime(
-        RuntimeCreationArguments<MyFrameworkConfiguration> args
+        RuntimeCreationArguments<MyFrameworkConfiguration> baseArgs
     ) => new(
-        args.Configuration,
-        args.ParameterSerializer,
-        args.Destination,
-        args.Context,
-        args.LifecycleApi,
-        args.ModelApi,
+        baseArgs,
         new FrameworkOutputCapture(
-            args.Configuration.CaptureFrameworkOutput
+            baseArgs.Configuration.CaptureFrameworkOutput
         )
     );
 }
@@ -346,15 +329,10 @@ sealed class MyFrameworkRuntimeRegistrationSession :
         RegistrationContext => this;
 
     protected override MyFrameworkRuntime CreateRuntime(
-        RuntimeCreationArguments<MyFrameworkConfiguration> args
+        RuntimeCreationArguments<MyFrameworkConfiguration> baseArgs
     ) => new(
-        args.Configuration,
-        args.ParameterSerializer,
-        args.Destination,
-        args.Context,
-        args.LifecycleApi,
-        args.ModelApi,
-        this.outputCaptureFactory(args.Configuration)
+        baseArgs,
+        this.outputCaptureFactory(baseArgs.Configuration)
     );
 }
 ```
@@ -461,19 +439,14 @@ sealed class MyFrameworkRuntimeRegistrationSession :
         IntegrationContext => this;
 
     protected override MyFrameworkRuntime CreateRuntime(
-        RuntimeCreationArguments<MyFrameworkConfiguration> args
+        RuntimeCreationArguments<MyFrameworkConfiguration> baseArgs
     )
     {
         this.logger("Creating the Allure runtime.");
 
         return new(
-            args.Configuration,
-            args.ParameterSerializer,
-            args.Destination,
-            args.Context,
-            args.LifecycleApi,
-            args.ModelApi,
-            this.outputCaptureFactory(args.Configuration)
+            baseArgs,
+            this.outputCaptureFactory(baseArgs.Configuration)
         );
     }
 }
@@ -766,6 +739,7 @@ individual runtime components:
 - `UseParameterSerializer` to replace rule-based serialization completely.
 - `UseContext`, `UseLifecycleApi`, and `UseModelApi` for integrations that need
   a different state transport or lifecycle implementation.
+- `UseTestPlan` for integrations that load test plans in a non-standard way.
 - `UseRegistrationHooks` to replace the default hook provider. See
   [Let framework users customize registration](#let-framework-users-customize-registration).
 

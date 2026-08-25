@@ -251,11 +251,11 @@ public class FileSystemResultsDestinationTests
     [Test]
     public async Task ShouldWriteDistinctAttachmentsConcurrentlyFromSynchronousCalls()
     {
-        await VerifyConcurrentAttachmentWrites((destination, fileName, content) =>
+        await VerifyConcurrentAttachmentWrites((destination, fileExtension, content) =>
             Task.Run(() =>
             {
                 using var stream = new MemoryStream(content);
-                destination.WriteAttachment(fileName, stream);
+                return destination.WriteAttachment(stream, fileExtension);
             })
         );
     }
@@ -263,12 +263,12 @@ public class FileSystemResultsDestinationTests
     [Test]
     public async Task ShouldWriteDistinctAttachmentsConcurrentlyFromAsynchronousCalls()
     {
-        await VerifyConcurrentAttachmentWrites(async (destination, fileName, content) =>
+        await VerifyConcurrentAttachmentWrites(async (destination, fileExtension, content) =>
         {
             using var stream = new MemoryStream(content);
-            await destination.WriteAttachmentAsync(
-                fileName,
+            return await destination.WriteAttachmentAsync(
                 stream,
+                fileExtension,
                 CancellationToken.None
             );
         });
@@ -320,7 +320,7 @@ public class FileSystemResultsDestinationTests
     }
 
     static async Task VerifyConcurrentAttachmentWrites(
-        Func<FileSystemResultsDestination, string, byte[], Task> write
+        Func<FileSystemResultsDestination, string, byte[], Task<string>> write
     )
     {
         const int writeCount = 20;
@@ -330,16 +330,17 @@ public class FileSystemResultsDestinationTests
             var destination = new FileSystemResultsDestination(directory, false);
             var attachments = Enumerable.Range(0, writeCount)
                 .Select(index => (
-                    FileName: $"attachment-{index}.bin",
+                    Index: index,
+                    FileExtension: $".{index}",
                     Content: Enumerable.Range(0, index + 1)
                         .Select(value => (byte)(value + index))
                         .ToArray()
                 ))
                 .ToArray();
 
-            await Task.WhenAll(
+            var names = await Task.WhenAll(
                 attachments.Select(attachment =>
-                    write(destination, attachment.FileName, attachment.Content)
+                    write(destination, attachment.FileExtension, attachment.Content)
                 )
             );
 
@@ -347,10 +348,10 @@ public class FileSystemResultsDestinationTests
                 .IsEqualTo(writeCount);
             foreach (var attachment in attachments)
             {
+                var attachmentFileName = names.Single((n) => n.EndsWith($".{attachment.Index}"));
+                var attachmentFilePath = Path.Combine(directory, attachmentFileName);
                 await Assert.That(
-                    await File.ReadAllBytesAsync(
-                        Path.Combine(directory, attachment.FileName)
-                    )
+                    await File.ReadAllBytesAsync(attachmentFilePath)
                 ).IsEquivalentTo(attachment.Content);
             }
         }

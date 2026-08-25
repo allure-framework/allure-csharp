@@ -16,7 +16,6 @@ public class ModelContractTests
         {
             Name = "attachment",
             Source = "source",
-            FileExtension = ".txt",
         });
         first.Parameters.Add(new() { Name = "parameter", Value = "value" });
 
@@ -74,7 +73,6 @@ public class ModelContractTests
         {
             Name = "attachment",
             Source = "source",
-            FileExtension = ".txt",
         });
 
         await Assert.That(second.Attachments).IsEmpty();

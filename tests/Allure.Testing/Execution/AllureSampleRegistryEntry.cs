@@ -34,6 +34,10 @@ namespace Allure.Testing.Execution;
 /// <paramref name="DefaultResultsPath"/>.
 /// These results are typically prepared by <c>dotnet msbuild -t:Allure_RunTestSamples</c>.
 /// </param>
+/// <param name="LegacyCommons">
+/// Setting this flag to <see langword="true"/> enables compatibility with the legacy
+/// <c>Allure.Net.Commons</c> library.
+/// </param>
 public record struct AllureSampleRegistryEntry(
     TestingPlatform TestingPlatform,
     string RegistryId,
@@ -42,5 +46,6 @@ public record struct AllureSampleRegistryEntry(
     string DefaultResultsPath,
     string TargetFramework,
     string BuildConfiguration,
-    bool IsPreRunFlow
+    bool IsPreRunFlow,
+    bool LegacyCommons
 );

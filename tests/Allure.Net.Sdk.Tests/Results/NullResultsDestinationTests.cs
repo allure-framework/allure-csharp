@@ -7,6 +7,43 @@ namespace Allure.Net.Sdk.Tests.Results;
 public class NullResultsDestinationTests
 {
     [Test]
+    [Arguments("", "-attachment")]
+    [Arguments("bin", "-attachment.bin")]
+    [Arguments(".bin", "-attachment.bin")]
+    public async Task ShouldNormalizeAttachmentFileExtension(
+        string fileExtension,
+        string expectedSuffix
+    )
+    {
+        var source = NullResultsDestination.Instance.WriteAttachment(
+            Stream.Null,
+            fileExtension
+        );
+
+        await Assert.That(source).EndsWith(expectedSuffix);
+    }
+
+    [Test]
+    public async Task ShouldRejectNullAttachmentFileExtension()
+    {
+        await Assert.That(() =>
+            NullResultsDestination.Instance.WriteAttachment(Stream.Null, null!)
+        ).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    [Arguments("foo/bar")]
+    [Arguments("foo\\bar")]
+    public async Task ShouldRejectPathSeparatorsInAttachmentFileExtension(
+        string fileExtension
+    )
+    {
+        await Assert.That(() =>
+            NullResultsDestination.Instance.WriteAttachment(Stream.Null, fileExtension)
+        ).Throws<ArgumentException>();
+    }
+
+    [Test]
     public async Task ShouldIgnoreAllSynchronousWrites()
     {
         var destination = NullResultsDestination.Instance;
@@ -14,8 +51,8 @@ public class NullResultsDestinationTests
         destination.WriteTestResult(NewTestResult());
         destination.WriteContainer(NewContainer());
         destination.WriteGlobals(new Globals());
-        destination.WriteAttachment("attachment.bin", Stream.Null);
-        destination.CopyAttachment("attachment.bin", "does-not-need-to-exist.bin");
+        destination.WriteAttachment(Stream.Null, ".bin");
+        destination.CopyAttachment("does-not-need-to-exist.bin", ".bin");
 
         await Assert.That(destination).IsSameReferenceAs(NullResultsDestination.Instance);
     }
@@ -30,10 +67,10 @@ public class NullResultsDestinationTests
         await destination.WriteTestResultAsync(NewTestResult(), cancellation.Token);
         await destination.WriteContainerAsync(NewContainer(), cancellation.Token);
         await destination.WriteGlobalsAsync(new Globals(), cancellation.Token);
-        await destination.WriteAttachmentAsync("attachment.bin", Stream.Null, cancellation.Token);
+        await destination.WriteAttachmentAsync(Stream.Null, ".bin", cancellation.Token);
         await destination.CopyAttachmentAsync(
-            "attachment.bin",
             "does-not-need-to-exist.bin",
+            ".bin",
             cancellation.Token
         );
 

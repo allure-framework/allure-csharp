@@ -59,9 +59,9 @@ public abstract class ExecutionStateContext
     /// Allure API, or <see langword="null"/> when no step is active.
     /// </summary>
     public StepExecutionStateUid? CurrentStepUid =>
-        this.substeps.Value.IsEmpty
-            ? this.CurrentFrameworkStepUid
-            : this.substeps.Value.Peek();
+        this.substeps.Value is { IsEmpty: false } apiSteps
+            ? apiSteps.Peek()
+            : this.CurrentFrameworkStepUid;
 
     internal IDisposable EnterApiFixtureScope(FixtureExecutionStateUid fixtureUid)
     {
@@ -91,14 +91,14 @@ public abstract class ExecutionStateContext
             );
         }
 
-        this.substeps.Value = this.substeps.Value.Push(stepUid);
+        this.substeps.Value = (this.substeps.Value ?? []).Push(stepUid);
         return new StepScope(this, stepUid);
     }
 
     internal void ExitApiStepScope(StepExecutionStateUid stepUid)
     {
         var apiSteps = this.substeps.Value;
-        if (apiSteps.IsEmpty)
+        if (apiSteps is null || apiSteps.IsEmpty)
         {
             throw new InvalidOperationException(
                 "The step is not running."

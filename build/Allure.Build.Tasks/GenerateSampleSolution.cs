@@ -23,6 +23,9 @@ public class GenerateSampleSolution : Task
     public ITaskItem[] SampleProjectReferences { get; set; }
 
     [Required]
+    public ITaskItem[] SampleProperties { get; set; }
+
+    [Required]
     public string ProjectDirectory { get; set; }
 
     [Required]
@@ -49,6 +52,8 @@ public class GenerateSampleSolution : Task
     public string PackageCacheDirectory { get; set; }
 
     IEnumerable<ITaskItem2> SampleSources2 => this.SampleSources.Cast<ITaskItem2>();
+
+    IEnumerable<ITaskItem2> SampleProperties2 => this.SampleProperties.Cast<ITaskItem2>();
 
     IEnumerable<ITaskItem2> SamplePackageReferences2 =>
         this.SamplePackageReferences.Cast<ITaskItem2>();
@@ -125,6 +130,9 @@ public class GenerateSampleSolution : Task
             solutionDir: this.SampleSolutionDir,
             targetFrameworks: this.SampleTargetFrameworks,
             outputType: Projects.ResolveOutputType(this.TestingPlatform),
+            properties: this.SampleProperties2.Select(
+                (item) => (item.EvaluatedIncludeEscaped, item.GetMetadataValueEscaped("Value"))
+            ),
             imports.PropsFiles,
             packages: this.CommonPackageNames,
             projects: this.SampleProjectReferences.Select((item) =>

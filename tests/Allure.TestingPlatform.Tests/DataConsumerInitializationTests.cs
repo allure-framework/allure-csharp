@@ -54,8 +54,8 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
             typeof(AllureScopeStartMessage),
             typeof(AllureScopeStopMessage),
 
-            typeof(AllureBeforeFixtureStartMessage),
-            typeof(AllureAfterFixtureStartMessage),
+            typeof(AllureSetUpFixtureStartMessage),
+            typeof(AllureTearDownFixtureStartMessage),
             typeof(AllureFixtureUpdateMessage),
             typeof(AllureFixtureStopMessage),
 
@@ -65,7 +65,10 @@ public class DataConsumerInitializationTests : DataConsumerTestsBase
 
             typeof(AllureScopeTestsMessage),
 
+            typeof(AllureTestExecutionBindingMessage),
             typeof(AllureTestUpdateMessage),
+            typeof(AllureTestExecutionFinishMessage),
+
             typeof(AllureExecutableItemUpdateMessage),
         ]);
     }

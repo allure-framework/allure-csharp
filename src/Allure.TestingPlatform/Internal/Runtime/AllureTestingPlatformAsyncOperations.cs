@@ -8,6 +8,7 @@ using Allure.Model;
 using Allure.Sdk.Functions;
 using Allure.Sdk.Results;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Internal.Functions;
 using Allure.TestingPlatform.Sdk.Correlation;
 using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Messages;
@@ -42,11 +43,11 @@ sealed class AllureTestingPlatformAsyncOperations(
 
     AllureTestingPlatformConfiguration Configuration => this.Runtime.Configuration;
 
-    public Type[] DataTypesProduced => [
+    public Type[] DataTypesProduced { get; } = [
         typeof(AllureFixtureUpdateMessage),
         typeof(AllureTestUpdateMessage),
-        typeof(AllureBeforeFixtureStartMessage),
-        typeof(AllureAfterFixtureStartMessage),
+        typeof(AllureSetUpFixtureStartMessage),
+        typeof(AllureTearDownFixtureStartMessage),
         typeof(AllureFixtureStopMessage),
         typeof(AllureStepStartMessage),
         typeof(AllureStepStopMessage),
@@ -87,33 +88,67 @@ sealed class AllureTestingPlatformAsyncOperations(
 
     public string Description => "An implementation of Allure operations that publishes messages to the MTP message bus.";
 
-    public async Task AddAttachmentAsync(string name, Stream content, string? mediaType, string fileExtension, CancellationToken _)
+    public async Task AddAttachmentAsync(
+        string name,
+        Stream content,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
+        var source = await this.ResultsDestination.WriteAttachmentAsync(
+            content,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
+
         await this.SendExecutionItemUpdateAsync(
-            new AllureAttachmentProperty<ExecutableItem>(name, content)
-            {
-                MediaType = mediaType,
-                FileExtension = fileExtension,
-            }
-        );
+            new AllureAttachmentReferenceProperty<ExecutableItem>(
+                name,
+                source,
+                mediaType
+            )
+        ).ConfigureAwait(false);
     }
 
-    public async Task AddAttachmentFromFileAsync(string name, string path, string? mediaType, string fileExtension, CancellationToken _)
+    public async Task AddAttachmentFromFileAsync(
+        string name,
+        string path,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
+        var source = await this.ResultsDestination.CopyAttachmentAsync(
+            path,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
+
         await this.SendExecutionItemUpdateAsync(
-            new AllureAttachmentFileProperty<ExecutableItem>(name, path)
-            {
-                MediaType = mediaType,
-                FileExtension = fileExtension,
-            }
-        );
+            new AllureAttachmentReferenceProperty<ExecutableItem>(
+                name,
+                source,
+                mediaType
+            )
+        ).ConfigureAwait(false);
     }
 
-    public async Task AddGlobalAttachmentAsync(string name, Stream content, string? mediaType, string fileExtension, CancellationToken cancellationToken)
+    public async Task AddGlobalAttachmentAsync(
+        string name,
+        Stream content,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = await this.ResultsDestination.WriteAttachmentAsync(
+            content,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
+
+        await this.ResultsDestination.WriteGlobalsAsync(new()
         {
             Attachments = [
                 new GlobalAttachment
@@ -121,20 +156,27 @@ sealed class AllureTestingPlatformAsyncOperations(
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    FileExtension = fileExtension,
-                    Timestamp = timestamp,
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 }
             ],
-        };
-        await this.ResultsDestination.WriteAttachmentAsync(source, content, cancellationToken);
-        await this.ResultsDestination.WriteGlobalsAsync(globals, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task AddGlobalAttachmentFromFileAsync(string name, string path, string? mediaType, string fileExtension, CancellationToken cancellationToken)
+    public async Task AddGlobalAttachmentFromFileAsync(
+        string name,
+        string path,
+        string? mediaType,
+        string fileExtension,
+        CancellationToken cancellationToken
+    )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = await this.ResultsDestination.CopyAttachmentAsync(
+            path,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
+
+        await this.ResultsDestination.WriteGlobalsAsync( new()
         {
             Attachments =
             [
@@ -143,46 +185,40 @@ sealed class AllureTestingPlatformAsyncOperations(
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    FileExtension = fileExtension,
-                    Timestamp = timestamp
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
                 }
             ]
-        };
-        await this.ResultsDestination.CopyAttachmentAsync(source, path, cancellationToken);
-        await this.ResultsDestination.WriteGlobalsAsync(globals, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task AddGlobalErrorAsync(GlobalError error, CancellationToken cancellationToken)
-    {
-        await this.ResultsDestination.WriteGlobalsAsync(new()
+    public Task AddGlobalErrorAsync(
+        GlobalError error,
+        CancellationToken cancellationToken
+    ) =>
+        this.ResultsDestination.WriteGlobalsAsync(new()
         {
             Errors = [error],
         }, cancellationToken);
-    }
 
-    public async Task AddLabelAsync(Label label, CancellationToken _)
-    {
-        await this.SendTestUpdateAsync(
+    public Task AddLabelAsync(Label label, CancellationToken _) =>
+        this.SendTestUpdateAsync(
             new AllureLabelsProperty([label])
         );
-    }
 
-    public async Task AddLabelsAsync(IEnumerable<Label> labels, CancellationToken _)
-    {
-        await this.SendTestUpdateAsync(
+    public Task AddLabelsAsync(IEnumerable<Label> labels, CancellationToken _) =>
+        this.SendTestUpdateAsync(
             new AllureLabelsProperty(labels)
         );
-    }
 
-    public async Task AddLinkAsync(Link link, CancellationToken _)
+    public Task AddLinkAsync(Link link, CancellationToken _)
     {
         LinkTemplates.Apply(this.Configuration.LinkTemplates, link);
-        await this.SendTestUpdateAsync(
+        return this.SendTestUpdateAsync(
             new AllureLinksProperty([link])
         );
     }
 
-    public async Task AddLinksAsync(IEnumerable<Link> links, CancellationToken _)
+    public Task AddLinksAsync(IEnumerable<Link> links, CancellationToken _)
     {
         List<Link> linksToAdd = [.. links];
         foreach (var link in linksToAdd)
@@ -190,75 +226,93 @@ sealed class AllureTestingPlatformAsyncOperations(
             LinkTemplates.Apply(this.Configuration.LinkTemplates, link);
         }
 
-        await this.SendTestUpdateAsync(
+        return this.SendTestUpdateAsync(
             new AllureLinksProperty(linksToAdd)
         );
     }
 
-    public async Task AddScreenDiffAsync(Stream expected, Stream actual, Stream diff, CancellationToken _)
+    public async Task AddScreenDiffAsync(
+        Stream expected,
+        Stream actual,
+        Stream diff,
+        CancellationToken cancellationToken
+    )
     {
+        var fileName = await ScreenDiffContent.ConsumeAsync(
+            expected,
+            actual,
+            diff,
+            ConsumeScreenDiff,
+            cancellationToken
+        ).ConfigureAwait(false);
+
         await this.SendExecutionItemUpdateAsync(
-            new AllureScreenDiffProperty<ExecutableItem>(expected, actual, diff)
-        );
+            new AllureScreenDiffReferenceProperty<ExecutableItem>(fileName)
+        ).ConfigureAwait(false);
+
+        Task<string> ConsumeScreenDiff(Stream content, CancellationToken cancellationToken) =>
+            this.ResultsDestination.WriteAttachmentAsync(
+                content,
+                ".json",
+                cancellationToken
+            );
     }
 
-    public async Task AddScreenDiffFromFilesAsync(string expectedPath, string actualPath, string diffPath, CancellationToken cancellationToken)
+    public async Task AddScreenDiffFromFilesAsync(
+        string expectedPath,
+        string actualPath,
+        string diffPath,
+        CancellationToken cancellationToken
+    )
     {
-        await this.SendExecutionItemUpdateAsync(
-            new AllureScreenDiffFileProperty<ExecutableItem>(expectedPath, actualPath, diffPath)
-        );
+        using var expected = File.OpenRead(expectedPath);
+        using var actual = File.OpenRead(actualPath);
+        using var diff = File.OpenRead(diffPath);
+        await this.AddScreenDiffAsync(expected, actual, diff, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task AddTestParameterAsync(Parameter parameter, CancellationToken cancellationToken)
-    {
-        await this.SendTestUpdateAsync(
+    public Task AddTestParameterAsync(Parameter parameter, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
             new AllureParametersProperty<TestResult>([parameter])
         );
-    }
 
-    public async Task SetDescriptionAsync(string description, CancellationToken cancellationToken)
-    {
-        await this.SendTestUpdateAsync(
+    public Task SetDescriptionAsync(string description, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
             new AllureDescriptionProperty<TestResult>(description)
         );
-    }
 
-    public async Task SetDescriptionHtmlAsync(string descriptionHtml, CancellationToken cancellationToken)
-    {
-        await this.SendTestUpdateAsync(
+    public Task SetDescriptionHtmlAsync(string descriptionHtml, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
             new AllureDescriptionHtmlProperty<TestResult>(descriptionHtml)
         );
-    }
 
-    public async Task SetFixtureNameAsync(string newName, CancellationToken cancellationToken)
-    {
-        await this.SendFixtureUpdateAsync(
+    public Task SetFixtureNameAsync(string newName, CancellationToken cancellationToken) =>
+        this.SendFixtureUpdateAsync(
             new AllureNameProperty<FixtureResult>(newName)
         );
-    }
 
-    public async Task SetLabelAsync(string name, string value, CancellationToken cancellationToken)
-    {
-        await this.SendTestUpdateAsync(
+    public Task SetLabelAsync(string name, string value, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
             new AllureSetLabelProperty(name, value)
         );
-    }
 
-    public async Task SetNameAsync(string newName, CancellationToken cancellationToken)
-    {
-        await this.SendExecutionItemUpdateAsync(
+    public Task SetNameAsync(string newName, CancellationToken cancellationToken) =>
+        this.SendExecutionItemUpdateAsync(
             new AllureNameProperty<ExecutableItem>(newName)
         );
-    }
 
-    public async Task SetTestNameAsync(string newName, CancellationToken cancellationToken)
-    {
-        await this.SendTestUpdateAsync(
+    public Task SetTestNameAsync(string newName, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
             new AllureNameProperty<TestResult>(newName)
         );
-    }
 
-    public async Task SetUpAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body, CancellationToken cancellationToken)
+    public async Task SetUpAsync(
+        string name,
+        IEnumerable<Parameter> parameters,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body,
+        CancellationToken cancellationToken
+    )
     {
         Status status = Status.Passed;
         StatusDetails? statusDetails = null;
@@ -267,7 +321,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureBeforeFixtureStartMessage(
+            new AllureSetUpFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,
@@ -276,12 +330,13 @@ sealed class AllureTestingPlatformAsyncOperations(
             {
                 Properties = [new AllureParametersProperty<FixtureResult>(parameters)],
             }
-        );
+        ).ConfigureAwait(false);
 
         try
         {
             using AllureTestingPlatformAsyncFixtureContext context = new(registration, fixtureUid);
-            await body(context, cancellationToken);
+            await body(context, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -306,11 +361,16 @@ sealed class AllureTestingPlatformAsyncOperations(
                 {
                     Properties = properties,
                 }
-            );
+            ).ConfigureAwait(false);
         }
     }
 
-    public async Task<TResult> SetUpAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken)
+    public async Task<TResult> SetUpAsync<TResult>(
+        string name,
+        IEnumerable<Parameter> parameters,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body,
+        CancellationToken cancellationToken
+    )
     {
         Status status = Status.Passed;
         StatusDetails? statusDetails = null;
@@ -319,7 +379,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureBeforeFixtureStartMessage(
+            new AllureSetUpFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,
@@ -328,12 +388,13 @@ sealed class AllureTestingPlatformAsyncOperations(
             {
                 Properties = [new AllureParametersProperty<FixtureResult>(parameters)],
             }
-        );
+        ).ConfigureAwait(false);
 
         try
         {
             using AllureTestingPlatformAsyncFixtureContext context = new(registration, fixtureUid);
-            return await body(context, cancellationToken);
+            return await body(context, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -358,11 +419,17 @@ sealed class AllureTestingPlatformAsyncOperations(
                 {
                     Properties = properties,
                 }
-            );
+            ).ConfigureAwait(false);
         }
     }
 
-    public async Task StepAsync(string name, IEnumerable<Parameter> parameters, Status status, StatusDetails? statusDetails, CancellationToken cancellationToken)
+    public async Task StepAsync(
+        string name,
+        IEnumerable<Parameter> parameters,
+        Status status,
+        StatusDetails? statusDetails,
+        CancellationToken cancellationToken
+    )
     {
         var stepUid = new StepExecutionStateUid(Ids.NewUuid());
         List<IAllureProperty> properties = [
@@ -385,17 +452,22 @@ sealed class AllureTestingPlatformAsyncOperations(
             {
                 Properties = properties,
             }
-        );
+        ).ConfigureAwait(false);
         await this.channel.PublishAsync(
             this,
             new AllureStepStopMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 stepUid
             )
-        );
+        ).ConfigureAwait(false);
     }
 
-    public async Task StepAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncStepContext, CancellationToken, Task> body, CancellationToken cancellationToken)
+    public async Task StepAsync(
+        string name,
+        IEnumerable<Parameter> parameters,
+        Func<IAllureInProcessAsyncStepContext, CancellationToken, Task> body,
+        CancellationToken cancellationToken
+    )
     {
         Status status = Status.Passed;
         StatusDetails? statusDetails = null;
@@ -413,12 +485,13 @@ sealed class AllureTestingPlatformAsyncOperations(
             {
                 Properties = [new AllureParametersProperty<StepResult>(parameters)],
             }
-        );
+        ).ConfigureAwait(false);
 
         try
         {
             using AllureTestingPlatformAsyncStepContext context = new(registration, stepUid);
-            await body(context, cancellationToken);
+            await body(context, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -443,11 +516,16 @@ sealed class AllureTestingPlatformAsyncOperations(
                 {
                     Properties = properties,
                 }
-            );
+            ).ConfigureAwait(false);
         }
     }
 
-    public async Task<TResult> StepAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncStepContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken)
+    public async Task<TResult> StepAsync<TResult>(
+        string name,
+        IEnumerable<Parameter> parameters,
+        Func<IAllureInProcessAsyncStepContext, CancellationToken, Task<TResult>> body,
+        CancellationToken cancellationToken
+    )
     {
         Status status = Status.Passed;
         StatusDetails? statusDetails = null;
@@ -465,12 +543,13 @@ sealed class AllureTestingPlatformAsyncOperations(
             {
                 Properties = [new AllureParametersProperty<StepResult>(parameters)],
             }
-        );
+        ).ConfigureAwait(false);
 
         try
         {
             using AllureTestingPlatformAsyncStepContext context = new(registration, stepUid);
-            return await body(context, cancellationToken);
+            return await body(context, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -495,11 +574,16 @@ sealed class AllureTestingPlatformAsyncOperations(
                 {
                     Properties = properties,
                 }
-            );
+            ).ConfigureAwait(false);
         }
     }
 
-    public async Task TearDownAsync(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body, CancellationToken cancellationToken)
+    public async Task TearDownAsync(
+        string name,
+        IEnumerable<Parameter> parameters,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task> body,
+        CancellationToken cancellationToken
+    )
     {
         Status status = Status.Passed;
         StatusDetails? statusDetails = null;
@@ -508,7 +592,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureAfterFixtureStartMessage(
+            new AllureTearDownFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,
@@ -517,12 +601,13 @@ sealed class AllureTestingPlatformAsyncOperations(
             {
                 Properties = [new AllureParametersProperty<FixtureResult>(parameters)],
             }
-        );
+        ).ConfigureAwait(false);
 
         try
         {
             using AllureTestingPlatformAsyncFixtureContext context = new(registration, fixtureUid);
-            await body(context, cancellationToken);
+            await body(context, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -547,11 +632,16 @@ sealed class AllureTestingPlatformAsyncOperations(
                 {
                     Properties = properties,
                 }
-            );
+            ).ConfigureAwait(false);
         }
     }
 
-    public async Task<TResult> TearDownAsync<TResult>(string name, IEnumerable<Parameter> parameters, Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body, CancellationToken cancellationToken)
+    public async Task<TResult> TearDownAsync<TResult>(
+        string name,
+        IEnumerable<Parameter> parameters,
+        Func<IAllureInProcessAsyncFixtureContext, CancellationToken, Task<TResult>> body,
+        CancellationToken cancellationToken
+    )
     {
         Status status = Status.Passed;
         StatusDetails? statusDetails = null;
@@ -560,7 +650,7 @@ sealed class AllureTestingPlatformAsyncOperations(
 
         await this.channel.PublishAsync(
             this,
-            new AllureAfterFixtureStartMessage(
+            new AllureTearDownFixtureStartMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
                 fixtureUid,
                 this.CurrentScopeUid,
@@ -569,12 +659,13 @@ sealed class AllureTestingPlatformAsyncOperations(
             {
                 Properties = [new AllureParametersProperty<FixtureResult>(parameters)],
             }
-        );
+        ).ConfigureAwait(false);
 
         try
         {
             using AllureTestingPlatformAsyncFixtureContext context = new(registration, fixtureUid);
-            return await body(context, cancellationToken);
+            return await body(context, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -599,13 +690,14 @@ sealed class AllureTestingPlatformAsyncOperations(
                 {
                     Properties = properties,
                 }
-            );
+            ).ConfigureAwait(false);
         }
     }
 
-    async Task SendExecutionItemUpdateAsync(params IEnumerable<IAllureProperty<ExecutableItem>> properties)
-    {
-        await this.channel.PublishAsync(
+    Task SendExecutionItemUpdateAsync(
+        params IEnumerable<IAllureProperty<ExecutableItem>> properties
+    ) =>
+        this.channel.PublishAsync(
             this,
             new AllureExecutableItemUpdateMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -615,11 +707,11 @@ sealed class AllureTestingPlatformAsyncOperations(
                 Properties = [.. properties],
             }
         );
-    }
 
-    async Task SendTestUpdateAsync(params IEnumerable<IAllureProperty<TestResult>> properties)
-    {
-        await this.channel.PublishAsync(
+    Task SendTestUpdateAsync(
+        params IEnumerable<IAllureProperty<TestResult>> properties
+    ) =>
+        this.channel.PublishAsync(
             this,
             new AllureTestUpdateMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -629,11 +721,11 @@ sealed class AllureTestingPlatformAsyncOperations(
                 Properties = [.. properties],
             }
         );
-    }
 
-    async Task SendFixtureUpdateAsync(params IEnumerable<IAllureProperty<FixtureResult>> properties)
-    {
-        await this.channel.PublishAsync(
+    Task SendFixtureUpdateAsync(
+        params IEnumerable<IAllureProperty<FixtureResult>> properties
+    ) =>
+        this.channel.PublishAsync(
             this,
             new AllureFixtureUpdateMessage(
                 this.CorrelationContext.CurrentCorrelationUid,
@@ -643,7 +735,6 @@ sealed class AllureTestingPlatformAsyncOperations(
                 Properties = [.. properties],
             }
         );
-    }
 
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);
 }

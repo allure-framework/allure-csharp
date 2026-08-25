@@ -162,21 +162,9 @@ public class InProcessEndpointRegistrationTests
     static string NewRouteId() => $"endpoint-registration-{Guid.NewGuid():N}";
 
     sealed class RuntimeWithService(
-        AllureConfiguration configuration,
-        IAllureParameterSerializer parameterSerializer,
-        IAllureResultsDestination resultsDestination,
-        IAllureExecutionContext context,
-        IAllureLifecycleApi lifecycleApi,
-        IAllureModelApi modelApi,
+        RuntimeCreationArguments<AllureConfiguration> args,
         object service
-    ) : AllureRuntime<AllureConfiguration>(
-        configuration,
-        parameterSerializer,
-        resultsDestination,
-        context,
-        lifecycleApi,
-        modelApi
-    )
+    ) : AllureRuntime<AllureConfiguration>(args)
     {
         public object Service { get; } = service;
     }
@@ -186,7 +174,7 @@ public class InProcessEndpointRegistrationTests
     {
         protected override RuntimeWithService CreateRuntime(RuntimeCreationArguments<AllureConfiguration> args)
         {
-            return new (args.Configuration, args.ParameterSerializer, args.Destination, args.Context, args.LifecycleApi, args.ModelApi, service);
+            return new (args, service);
         }
     }
 

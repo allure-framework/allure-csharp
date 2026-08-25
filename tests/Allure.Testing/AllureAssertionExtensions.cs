@@ -17,8 +17,8 @@ public static partial class AllureAssertionExtensions
     extension (IAssertionSource<AllureResults> source)
     {
         /// <summary>
-        /// Checks if the exact number of test results were written to the output and each result satisfies the corresponding
-        /// constraints.
+        /// Checks if the exact number of test results were written to the output and
+        /// there is a perfect match between the test results and the provided constraints.
         /// </summary>
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
@@ -35,7 +35,7 @@ public static partial class AllureAssertionExtensions
 
             var assertion = source.Member(
                 s => s.TestResults,
-                tr => new CollectionItemConstraintsAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
+                tr => new CollectionItemConstraintsPerfectMatchAssertion<ImmutableArray<AllureTestResult>, AllureTestResult>(
                     tr.Context,
                     constraints,
                     "test result"));
@@ -353,8 +353,8 @@ public static partial class AllureAssertionExtensions
         }
 
         /// <summary>
-        /// Checks if the exact number of containers were written to the output and each container satisfies
-        /// the corresponding constraints.
+        /// Checks if the exact number of containers were written to the output and
+        /// there is a perfect match between the containers and the provided constraints.
         /// </summary>
         /// <remarks>
         /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
@@ -371,7 +371,7 @@ public static partial class AllureAssertionExtensions
 
             var assertion = source.Member(
                 s => s.Containers,
-                ca => new CollectionItemConstraintsAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
+                ca => new CollectionItemConstraintsPerfectMatchAssertion<ImmutableArray<AllureContainer>, AllureContainer>(
                     ca.Context,
                     constraints,
                     "container"));
@@ -686,6 +686,147 @@ public static partial class AllureAssertionExtensions
             source.Context.ExpressionBuilder.Append($".{nameof(HasContainerAt)}({expression ?? "..."})");
 
             return new(source.Context.Map(ctx => ctx!.Containers), index, "container");
+        }
+
+        /// <summary>
+        /// Checks if the exact number of globals were written to the output and
+        /// there is a perfect match between the globals and the provided constraints.
+        /// </summary>
+        /// <remarks>
+        /// Pass <c>null</c> or a function returning <c>null</c> for a no-op constraint.
+        /// </remarks>
+        public MemberAssertionResult<AllureResults> HasGlobals(
+            Func<IAssertionSource<AllureGlobals>, IAssertion?>?[] constraints,
+            [CallerArgumentExpression(nameof(constraints))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasGlobals)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Globals,
+                globs => new CollectionItemConstraintsPerfectMatchAssertion<ImmutableArray<AllureGlobals>, AllureGlobals>(
+                    globs.Context,
+                    constraints,
+                    "globals"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains exactly one globals that matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults> HasOnlyOneGlobals(
+            Func<IAssertionSource<AllureGlobals>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasOnlyOneGlobals)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Globals,
+                globs => new HasOneItemByCriteriaAssertion<ImmutableArray<AllureGlobals>, AllureGlobals>(
+                    globs.Context,
+                    criteria,
+                    "globals"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if the output contains at least one globals that matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults> HasGlobals(
+            Func<IAssertionSource<AllureGlobals>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasGlobals)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Globals,
+                globs => new HasItemByCriteriaAssertion<ImmutableArray<AllureGlobals>, AllureGlobals>(
+                    globs.Context,
+                    criteria,
+                    "globals"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Passes if no globals matches the provided criteria.
+        /// </summary>
+        public MemberAssertionResult<AllureResults> HasNoGlobals(
+            Func<IAssertionSource<AllureGlobals>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            var ctx = source.Context;
+            var expressionBuilder = ctx.ExpressionBuilder;
+            expressionBuilder.Append($".{nameof(HasNoGlobals)}({expression ?? "..."})");
+            var length = expressionBuilder.Length;
+
+            var assertion = source.Member(
+                s => s.Globals,
+                globs => new HasNoItemByCriteriaAssertion<ImmutableArray<AllureGlobals>, AllureGlobals>(
+                    globs.Context,
+                    criteria,
+                    "globals"));
+
+            expressionBuilder.Length = length;
+
+            return assertion;
+        }
+
+        /// <summary>
+        /// Checks if exactly one globals was written to the output and narrows the assertion chain to that result.
+        /// </summary>
+        public NarrowCollectionAssertion<ImmutableArray<AllureGlobals>, AllureGlobals> HasSingleGlobals()
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleGlobals)}()");
+
+            return new(source.Context.Map(ctx => ctx!.Globals), "globals");
+        }
+
+        /// <summary>
+        /// Checks if exactly one globals matches the provided criteria and narrows the assertion chain to that result.
+        /// </summary>
+        public NarrowCollectionByCriteriaAssertion<ImmutableArray<AllureGlobals>, AllureGlobals> HasSingleGlobals(
+            Func<IAssertionSource<AllureGlobals>, IAssertion> criteria,
+            [CallerArgumentExpression(nameof(criteria))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasSingleGlobals)}({expression ?? "..."})");
+
+            return new(source.Context.Map(ctx => ctx!.Globals), criteria, "globals");
+        }
+
+        /// <summary>
+        /// Checks if enough globals were written to the output and narrows the assertion chain to the result
+        /// at the specified index.
+        /// </summary>
+        public NarrowCollectionByIndexAssertion<ImmutableArray<AllureGlobals>, AllureGlobals> HasGlobalsAt(
+            int index,
+            [CallerArgumentExpression(nameof(index))] string? expression = null
+        )
+        {
+            source.Context.ExpressionBuilder.Append($".{nameof(HasGlobalsAt)}({expression ?? "..."})");
+
+            return new(source.Context.Map(ctx => ctx!.Globals), index, "globals");
         }
     }
 

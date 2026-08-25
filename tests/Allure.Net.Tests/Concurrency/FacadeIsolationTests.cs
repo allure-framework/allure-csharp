@@ -7,7 +7,7 @@ namespace Allure.Net.Tests.Concurrency;
 public class FacadeIsolationTests
 {
     [Test]
-    public async Task ParallelLogicalScopesPreferTheirCurrentEndpointsForGlobalCalls()
+    public async Task ParallelLogicalScopesAreIsolated()
     {
         var executions = Enumerable.Range(0, 24).Select(index => Task.Run(async () =>
         {
@@ -43,20 +43,26 @@ public class FacadeIsolationTests
 
         foreach (var result in results)
         {
-            await Assert.That(result.CurrentSync.Count).IsEqualTo(2);
+            await Assert.That(result.CurrentSync.Count).IsEqualTo(1);
             await Assert.That(result.CurrentSync[0].Arguments[0]).IsEqualTo($"sync-{result.Index}");
-            await Assert.That(result.CurrentSync[1].Method.Name).IsEqualTo("AddGlobalError");
-            await Assert.That(((GlobalError)result.CurrentSync[1].Arguments[0]!).Message)
-                .IsEqualTo($"global-sync-{result.Index}");
-            await Assert.That(result.CurrentAsync.Count).IsEqualTo(2);
+            await Assert.That(result.CurrentSync[0].Method.Name).IsEqualTo("SetName");
+
+            await Assert.That(result.CurrentAsync).Count().IsEqualTo(1);
             await Assert.That(result.CurrentAsync[0].Arguments[0]).IsEqualTo($"async-{result.Index}");
-            await Assert.That(result.CurrentAsync[1].Method.Name).IsEqualTo("AddGlobalErrorAsync");
-            await Assert.That(((GlobalError)result.CurrentAsync[1].Arguments[0]!).Message)
+            await Assert.That(result.CurrentAsync[0].Method.Name).IsEqualTo("SetNameAsync");
+
+            await Assert.That(result.GlobalSync.Count).IsEqualTo(1);
+            await Assert.That(((GlobalError)result.GlobalSync[0].Arguments[0]!).Message)
+                .IsEqualTo($"global-sync-{result.Index}");
+            await Assert.That(result.GlobalSync[0].Method.Name).IsEqualTo("AddGlobalError");
+
+            await Assert.That(result.GlobalAsync.Count).IsEqualTo(1);
+            await Assert.That(((GlobalError)result.GlobalAsync[0].Arguments[0]!).Message)
                 .IsEqualTo($"global-async-{result.Index}");
-            await Assert.That(result.GlobalSync).IsEmpty();
-            await Assert.That(result.GlobalAsync).IsEmpty();
-            await Assert.That(result.CurrentResolutionCount).IsEqualTo(4);
-            await Assert.That(result.GlobalResolutionCount).IsEqualTo(0);
+            await Assert.That(result.GlobalAsync[0].Method.Name).IsEqualTo("AddGlobalErrorAsync");
+
+            await Assert.That(result.CurrentResolutionCount).IsEqualTo(2);
+            await Assert.That(result.GlobalResolutionCount).IsEqualTo(2);
         }
     }
 

@@ -11,11 +11,9 @@ public class FileSystemResultsDestinationAttachmentTests
     public async Task ShouldWriteAttachment()
     {
         await VerifyStreamWrite(
-            (destination, stream) =>
-            {
-                destination.WriteAttachment("attachment.bin", stream);
-                return Task.CompletedTask;
-            }
+            (destination, stream) => Task.FromResult(
+                destination.WriteAttachment(stream, ".bin")
+            )
         );
     }
 
@@ -25,8 +23,8 @@ public class FileSystemResultsDestinationAttachmentTests
         await VerifyStreamWrite(
             (destination, stream) =>
                 destination.WriteAttachmentAsync(
-                    "attachment.bin",
                     stream,
+                    ".bin",
                     CancellationToken.None
                 )
         );
@@ -40,10 +38,11 @@ public class FileSystemResultsDestinationAttachmentTests
         {
             using var content = new MemoryStream();
 
-            new FileSystemResultsDestination(directory, false)
-                .WriteAttachment("empty.bin", content);
+            var source = new FileSystemResultsDestination(directory, false)
+                .WriteAttachment(content, ".bin");
 
-            await Assert.That(new FileInfo(Path.Combine(directory, "empty.bin")).Length)
+            await Assert.That(source).EndsWith(".bin");
+            await Assert.That(new FileInfo(Path.Combine(directory, source)).Length)
                 .IsEqualTo(0);
         }
         finally
@@ -61,45 +60,12 @@ public class FileSystemResultsDestinationAttachmentTests
             using var content = new MemoryStream(AttachmentContent);
             content.Position = 3;
 
-            new FileSystemResultsDestination(directory, false)
-                .WriteAttachment("attachment.bin", content);
+            var fileName = new FileSystemResultsDestination(directory, false)
+                .WriteAttachment(content, ".bin");
 
             await Assert.That(
-                await File.ReadAllBytesAsync(Path.Combine(directory, "attachment.bin"))
+                await File.ReadAllBytesAsync(Path.Combine(directory, fileName))
             ).IsEquivalentTo(AttachmentContent[3..]);
-        }
-        finally
-        {
-            DeleteDirectory(directory);
-        }
-    }
-
-    [Test]
-    public async Task ShouldRejectExistingAttachmentDestination()
-    {
-        var directory = NewDirectoryPath();
-        try
-        {
-            Directory.CreateDirectory(directory);
-            var outputPath = Path.Combine(directory, "attachment.txt");
-            await File.WriteAllTextAsync(outputPath, "long existing content");
-            using var syncContent = new MemoryStream(Encoding.UTF8.GetBytes("sync"));
-            using var asyncContent = new MemoryStream(Encoding.UTF8.GetBytes("async"));
-            var destination = new FileSystemResultsDestination(directory, false);
-
-            await Assert.That(() =>
-                destination.WriteAttachment("attachment.txt", syncContent)
-            ).Throws<IOException>();
-            await Assert.That(async () =>
-                await destination.WriteAttachmentAsync(
-                    "attachment.txt",
-                    asyncContent,
-                    CancellationToken.None
-                )
-            ).Throws<IOException>();
-
-            await Assert.That(await File.ReadAllTextAsync(outputPath))
-                .IsEqualTo("long existing content");
         }
         finally
         {
@@ -120,8 +86,8 @@ public class FileSystemResultsDestinationAttachmentTests
 
             await Assert.That(async () =>
                 await destination.WriteAttachmentAsync(
-                    "attachment.bin",
                     content,
+                    ".bin",
                     cancellation.Token
                 )
             ).Throws<OperationCanceledException>();
@@ -141,21 +107,23 @@ public class FileSystemResultsDestinationAttachmentTests
         try
         {
             using var content = new PausingReadStream(AttachmentContent);
-            var outputPath = Path.Combine(directory, "attachment.bin");
+
             var write = new FileSystemResultsDestination(directory, false)
                 .WriteAttachmentAsync(
-                    "attachment.bin",
                     content,
+                    ".bin",
                     CancellationToken.None
                 );
 
             await content.WaitUntilPaused();
 
-            await Assert.That(File.Exists(outputPath)).IsFalse();
-            await Assert.That(GetTemporaryFiles(directory).Count()).IsEqualTo(1);
+            await Assert.That(GetNonTemporaryFiles(directory)).IsEmpty();
+            await Assert.That(GetTemporaryFiles(directory)).Count().IsEqualTo(1);
 
             content.Resume();
-            await write;
+
+            var source = await write;
+            var outputPath = Path.Combine(directory, source);
 
             await Assert.That(await File.ReadAllBytesAsync(outputPath))
                 .IsEquivalentTo(
@@ -180,23 +148,23 @@ public class FileSystemResultsDestinationAttachmentTests
                 AttachmentContent,
                 throwAfterPause: true
             );
-            var outputPath = Path.Combine(directory, "attachment.bin");
+
             var write = new FileSystemResultsDestination(directory, false)
                 .WriteAttachmentAsync(
-                    "attachment.bin",
                     content,
+                    ".bin",
                     CancellationToken.None
                 );
 
             await content.WaitUntilPaused();
 
-            await Assert.That(File.Exists(outputPath)).IsFalse();
-            await Assert.That(GetTemporaryFiles(directory).Count()).IsEqualTo(1);
+            await Assert.That(GetNonTemporaryFiles(directory)).IsEmpty();
+            await Assert.That(GetTemporaryFiles(directory)).Count().IsEqualTo(1);
 
             content.Resume();
             await Assert.That(async () => await write).Throws<IOException>();
 
-            await Assert.That(File.Exists(outputPath)).IsFalse();
+            await Assert.That(GetNonTemporaryFiles(directory)).IsEmpty();
             await Assert.That(GetTemporaryFiles(directory)).IsEmpty();
         }
         finally
@@ -213,24 +181,24 @@ public class FileSystemResultsDestinationAttachmentTests
         {
             using var content = new PausingReadStream(AttachmentContent);
             using var cancellation = new CancellationTokenSource();
-            var outputPath = Path.Combine(directory, "attachment.bin");
+
             var write = new FileSystemResultsDestination(directory, false)
                 .WriteAttachmentAsync(
-                    "attachment.bin",
                     content,
+                    ".bin",
                     cancellation.Token
                 );
 
             await content.WaitUntilPaused();
 
-            await Assert.That(File.Exists(outputPath)).IsFalse();
-            await Assert.That(GetTemporaryFiles(directory).Count()).IsEqualTo(1);
+            await Assert.That(GetNonTemporaryFiles(directory)).IsEmpty();
+            await Assert.That(GetTemporaryFiles(directory)).Count().IsEqualTo(1);
 
             cancellation.Cancel();
             await Assert.That(async () => await write)
                 .Throws<OperationCanceledException>();
 
-            await Assert.That(File.Exists(outputPath)).IsFalse();
+            await Assert.That(GetNonTemporaryFiles(directory)).IsEmpty();
             await Assert.That(GetTemporaryFiles(directory)).IsEmpty();
         }
         finally
@@ -243,11 +211,9 @@ public class FileSystemResultsDestinationAttachmentTests
     public async Task ShouldCopyAttachment()
     {
         await VerifyFileCopy(
-            (destination, source) =>
-            {
-                destination.CopyAttachment("copied.bin", source);
-                return Task.CompletedTask;
-            }
+            (destination, sourcePath) => Task.FromResult(
+                destination.CopyAttachment(sourcePath, ".bin")
+            )
         );
     }
 
@@ -255,39 +221,34 @@ public class FileSystemResultsDestinationAttachmentTests
     public async Task ShouldCopyAttachmentAsync()
     {
         await VerifyFileCopy(
-            (destination, source) =>
+            (destination, sourcePath) =>
                 destination.CopyAttachmentAsync(
-                    "copied.bin",
-                    source,
+                    sourcePath,
+                    ".bin",
                     CancellationToken.None
                 )
         );
     }
 
     [Test]
-    public async Task ShouldRejectExistingCopyDestination()
+    public async Task ShouldGenerateDistinctCopyDestinations()
     {
         var directory = NewDirectoryPath();
         var source = NewSourceFile();
         try
         {
-            Directory.CreateDirectory(directory);
-            await File.WriteAllTextAsync(Path.Combine(directory, "copied.bin"), "existing");
             var destination = new FileSystemResultsDestination(directory, false);
 
-            await Assert.That(() =>
-                destination.CopyAttachment("copied.bin", source)
-            ).Throws<IOException>();
-            await Assert.That(async () =>
-                await destination.CopyAttachmentAsync(
-                    "copied.bin",
-                    source,
-                    CancellationToken.None
-                )
-            ).Throws<IOException>();
-            await Assert.That(
-                await File.ReadAllTextAsync(Path.Combine(directory, "copied.bin"))
-            ).IsEqualTo("existing");
+            var first = destination.CopyAttachment(source, ".bin");
+            var second = await destination.CopyAttachmentAsync(
+                source,
+                ".bin",
+                CancellationToken.None
+            );
+
+            await Assert.That(first).IsNotEqualTo(second);
+            await Assert.That(File.Exists(Path.Combine(directory, first))).IsTrue();
+            await Assert.That(File.Exists(Path.Combine(directory, second))).IsTrue();
         }
         finally
         {
@@ -307,12 +268,12 @@ public class FileSystemResultsDestinationAttachmentTests
         var destination = new FileSystemResultsDestination(directory, false);
 
         await Assert.That(() =>
-            destination.CopyAttachment("copied.bin", missingSource)
+            destination.CopyAttachment(missingSource, ".bin")
         ).Throws<FileNotFoundException>();
         await Assert.That(async () =>
             await destination.CopyAttachmentAsync(
-                "copied.bin",
                 missingSource,
+                ".bin",
                 CancellationToken.None
             )
         ).Throws<FileNotFoundException>();
@@ -334,8 +295,8 @@ public class FileSystemResultsDestinationAttachmentTests
 
             await Assert.That(async () =>
                 await destination.CopyAttachmentAsync(
-                    "copied.bin",
                     missingSource,
+                    ".bin",
                     cancellation.Token
                 )
             ).Throws<OperationCanceledException>();
@@ -349,7 +310,7 @@ public class FileSystemResultsDestinationAttachmentTests
     }
 
     static async Task VerifyStreamWrite(
-        Func<FileSystemResultsDestination, Stream, Task> write
+        Func<FileSystemResultsDestination, Stream, Task<string>> write
     )
     {
         var directory = NewDirectoryPath();
@@ -357,11 +318,12 @@ public class FileSystemResultsDestinationAttachmentTests
         {
             using var content = new MemoryStream(AttachmentContent);
 
-            await write(new FileSystemResultsDestination(directory, false), content);
+            var source = await write(new FileSystemResultsDestination(directory, false), content);
 
+            await Assert.That(source).EndsWith(".bin");
             await Assert.That(Directory.Exists(directory)).IsTrue();
             await Assert.That(
-                await File.ReadAllBytesAsync(Path.Combine(directory, "attachment.bin"))
+                await File.ReadAllBytesAsync(Path.Combine(directory, source))
             ).IsEquivalentTo(AttachmentContent, TUnit.Assertions.Enums.CollectionOrdering.Matching);
         }
         finally
@@ -371,7 +333,7 @@ public class FileSystemResultsDestinationAttachmentTests
     }
 
     static async Task VerifyFileCopy(
-        Func<FileSystemResultsDestination, string, Task> copy
+        Func<FileSystemResultsDestination, string, Task<string>> copy
     )
     {
         var directory = NewDirectoryPath();
@@ -380,11 +342,11 @@ public class FileSystemResultsDestinationAttachmentTests
         {
             var originalSource = await File.ReadAllBytesAsync(source);
 
-            await copy(new FileSystemResultsDestination(directory, false), source);
+            var fileName = await copy(new FileSystemResultsDestination(directory, false), source);
 
             await Assert.That(Directory.Exists(directory)).IsTrue();
             await Assert.That(
-                await File.ReadAllBytesAsync(Path.Combine(directory, "copied.bin"))
+                await File.ReadAllBytesAsync(Path.Combine(directory, fileName))
             ).IsEquivalentTo(originalSource, TUnit.Assertions.Enums.CollectionOrdering.Matching);
         }
         finally
@@ -410,6 +372,13 @@ public class FileSystemResultsDestinationAttachmentTests
     static IEnumerable<string> GetTemporaryFiles(string directory) =>
         Directory.Exists(directory)
             ? Directory.EnumerateFiles(directory, ".allure-write-*.tmp")
+            : [];
+
+    static IEnumerable<string> GetNonTemporaryFiles(string directory) =>
+        Directory.Exists(directory)
+            ? Directory.EnumerateFiles(directory).Where(
+                static (n) => !Path.GetFileName(n).StartsWith('.')
+            )
             : [];
 
     static void DeleteDirectory(string path)

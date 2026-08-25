@@ -101,8 +101,39 @@ public static partial class AllureApi
         ReadOnlyMemory<byte> content
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        endpoint.Operations.Sync.AddGlobalAttachment(
+            name: name,
+            content: stream,
+            mediaType: null,
+            fileExtension: ""
+        );
+    }
+
+    /// <summary>
+    /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    public static void AddGlobalAttachment(
+        string name,
+        string content
+    )
+    {
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
+        using var stream = ToStream(content);
+        endpoint.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: null,
@@ -142,8 +173,41 @@ public static partial class AllureApi
         string? mediaType
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        endpoint.Operations.Sync.AddGlobalAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: ""
+        );
+    }
+
+    /// <summary>
+    /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="mediaType">The media type of the attachment.</param>
+    public static void AddGlobalAttachment(
+        string name,
+        string content,
+        string? mediaType
+    )
+    {
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
+        using var stream = ToStream(content);
+        endpoint.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,
@@ -187,8 +251,43 @@ public static partial class AllureApi
         string fileExtension
     )
     {
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
         using var stream = content.AsStream();
-        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalAttachment(
+        endpoint.Operations.Sync.AddGlobalAttachment(
+            name: name,
+            content: stream,
+            mediaType: mediaType,
+            fileExtension: fileExtension
+        );
+    }
+
+    /// <summary>
+    /// Adds a global attachment not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="mediaType">The media type of the attachment.</param>
+    /// <param name="content">The content of the attachment.</param>
+    /// <param name="fileExtension">An extension of the attachment file.</param>
+    public static void AddGlobalAttachment(
+        string name,
+        string content,
+        string? mediaType,
+        string fileExtension
+    )
+    {
+        var endpoint = AllureRuntimeRouter.ResolveGlobalScope();
+        if (endpoint is null)
+        {
+            return;
+        }
+
+        using var stream = ToStream(content);
+        endpoint.Operations.Sync.AddGlobalAttachment(
             name: name,
             content: stream,
             mediaType: mediaType,

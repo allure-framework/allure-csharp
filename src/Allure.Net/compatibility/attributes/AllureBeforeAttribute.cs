@@ -7,7 +7,9 @@ using AspectInjector.Broker;
 namespace Allure.Net.Commons.Attributes;
 
 /// <summary>
-/// This is a part of the legacy API. Please, switch to <see cref="AllureSetUpAttribute"/>.
+/// This class is a part of the legacy API compatibility layer and will be
+/// removed in a future update.
+/// Please, switch to <see cref="AllureSetUpAttribute"/>.
 /// </summary>
 [Obsolete("Use Allure.AllureSetUpAttribute instead.")]
 [EditorBrowsable(EditorBrowsableState.Never)]

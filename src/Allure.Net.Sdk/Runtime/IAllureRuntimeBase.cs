@@ -1,6 +1,7 @@
 using Allure.Abstractions;
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Results;
+using Allure.Sdk.TestPlan;
 
 namespace Allure.Sdk.Runtime;
 
@@ -38,4 +39,14 @@ public interface IAllureRuntimeBase
     /// Gets the parameter serializer.
     /// </summary>
     IAllureParameterSerializer ParameterSerializer { get; }
+
+    /// <summary>
+    /// Gets the test plan associated with this runtime.
+    /// </summary>
+    /// <remarks>
+    /// A <see langword="null"/> value means that no test plan was provided.
+    /// Integrations must treat this as no test-plan filtering and allow all tests
+    /// to run.
+    /// </remarks>
+    AllureTestPlan? TestPlan { get; }
 }

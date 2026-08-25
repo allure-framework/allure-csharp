@@ -34,14 +34,17 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         CancellationToken cancellationToken
     )
     {
-        var source = AttachmentSource.CreateName(fileExtension);
+        var source = await runtime.ResultsDestination.WriteAttachmentAsync(
+            content,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
         var attachment = new Attachment
         {
             Name = name,
             Type = mediaType,
             Source = source,
         };
-        await runtime.ResultsDestination.WriteAttachmentAsync(source, content, cancellationToken);
         runtime.ModelApi.UpdateCurrentExecutableItem(
             (obj) => obj.Attachments.Add(attachment)
         );
@@ -55,9 +58,12 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         CancellationToken cancellationToken
     )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = await runtime.ResultsDestination.WriteAttachmentAsync(
+            content,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
+        await runtime.ResultsDestination.WriteGlobalsAsync(new()
         {
             Attachments =
             [
@@ -66,12 +72,10 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    Timestamp = timestamp,
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 }
             ],
-        };
-        await runtime.ResultsDestination.WriteAttachmentAsync(source, content, cancellationToken);
-        await runtime.ResultsDestination.WriteGlobalsAsync(globals, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task AddAttachmentFromFileAsync(
@@ -82,14 +86,17 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         CancellationToken cancellationToken
     )
     {
-        var source = AttachmentSource.CreateName(fileExtension);
+        var source = await runtime.ResultsDestination.CopyAttachmentAsync(
+            path,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
         var attachment = new Attachment
         {
             Name = name,
             Type = mediaType,
             Source = source
         };
-        await runtime.ResultsDestination.CopyAttachmentAsync(source, path, cancellationToken);
         runtime.ModelApi.UpdateCurrentExecutableItem(
             (obj) => obj.Attachments.Add(attachment)
         );
@@ -103,9 +110,13 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         CancellationToken cancellationToken
     )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = await runtime.ResultsDestination.CopyAttachmentAsync(
+            path,
+            fileExtension,
+            cancellationToken
+        ).ConfigureAwait(false);
+
+        await runtime.ResultsDestination.WriteGlobalsAsync(new()
         {
             Attachments =
             [
@@ -114,12 +125,10 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    Timestamp = timestamp
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
                 }
             ]
-        };
-        await runtime.ResultsDestination.CopyAttachmentAsync(source, path, cancellationToken);
-        await runtime.ResultsDestination.WriteGlobalsAsync(globals, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     public Task AddLabelsAsync(IEnumerable<Label> labels, CancellationToken cancellationToken)

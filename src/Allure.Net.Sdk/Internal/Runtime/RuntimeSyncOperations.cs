@@ -32,14 +32,14 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         string fileExtension
     )
     {
-        var source = AttachmentSource.CreateName(fileExtension);
+        var source = runtime.ResultsDestination.WriteAttachment(content, fileExtension);
         var attachment = new Attachment
         {
             Name = name,
             Type = mediaType,
             Source = source
         };
-        runtime.ResultsDestination.WriteAttachment(source, content);
+
         runtime.ModelApi.UpdateCurrentExecutableItem(
             (obj) => obj.Attachments.Add(attachment)
         );
@@ -52,9 +52,8 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         string fileExtension
     )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = runtime.ResultsDestination.WriteAttachment(content, fileExtension);
+        runtime.ResultsDestination.WriteGlobals(new()
         {
             Attachments = [
                 new GlobalAttachment
@@ -62,12 +61,10 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    Timestamp = timestamp,
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 }
             ],
-        };
-        runtime.ResultsDestination.WriteAttachment(source, content);
-        runtime.ResultsDestination.WriteGlobals(globals);
+        });
     }
 
     public void AddAttachmentFromFile(
@@ -77,14 +74,15 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         string fileExtension
     )
     {
-        var source = AttachmentSource.CreateName(fileExtension);
+        var source = runtime.ResultsDestination.CopyAttachment(path, fileExtension);
+
         var attachment = new Attachment
         {
             Name = name,
             Type = mediaType,
             Source = source
         };
-        runtime.ResultsDestination.CopyAttachment(source, path);
+
         runtime.ModelApi.UpdateCurrentExecutableItem(
             (obj) => obj.Attachments.Add(attachment)
         );
@@ -97,9 +95,9 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
         string fileExtension
     )
     {
-        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        var source = AttachmentSource.CreateName(fileExtension);
-        Globals globals = new()
+        var source = runtime.ResultsDestination.CopyAttachment(path, fileExtension);
+
+        runtime.ResultsDestination.WriteGlobals(new()
         {
             Attachments =
             [
@@ -108,12 +106,10 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
                     Name = name,
                     Type = mediaType,
                     Source = source,
-                    Timestamp = timestamp
+                    Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 }
             ]
-        };
-        runtime.ResultsDestination.CopyAttachment(source, path);
-        runtime.ResultsDestination.WriteGlobals(globals);
+        });
     }
 
     public void AddLabels(params IEnumerable<Label> labels) =>

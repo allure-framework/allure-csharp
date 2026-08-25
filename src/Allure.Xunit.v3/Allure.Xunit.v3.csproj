@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <RootNamespace>Allure.Xunit</RootNamespace>
+        <Nullable>enable</Nullable>
+        <Authors>Qameta Software Inc</Authors>
+        <Description>Create beautiful reports from your xUnit.net v3 tests.</Description>
+        <PackageIcon>Allure-X-Color.png</PackageIcon>
+        <PackageTags>$(PackageTags) xunit xunit3 xunit.v3</PackageTags>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <_GeneratorTargetFramework>netstandard2.0</_GeneratorTargetFramework>
+        <_GeneratorProjectName>Allure.Xunit.v3.Generator</_GeneratorProjectName>
+        <_GeneratorOutputPath>$(
+            [MSBuild]::NormalizePath(
+                '$(ArtifactsPath)',
+                'bin',
+                '$(_GeneratorProjectName)',
+                '$(Configuration.ToLower())_$(_GeneratorTargetFramework)',
+                '$(_GeneratorProjectName).dll'
+            )
+        )</_GeneratorOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="/" />
+        <None Include="MIGRATION.md" Pack="true" PackagePath="/" />
+        <None Include="..\..\img\Allure-X-Color.png" Pack="true" PackagePath="\" />
+        <None Include="package\**\*" Pack="true" PackagePath="\" />
+        <None Include="$(_GeneratorOutputPath)" Pack="true" PackagePath="analyzers\dotnet\cs\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="package\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2" />
+        <PackageReference Include="xunit.v3.runner.common" Version="3.2.2" />
+        <PackageReference Include="xunit.v3.assert" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allure.TestingPlatform\Allure.TestingPlatform.csproj" />
+        <ProjectReference
+            Include="..\$(_GeneratorProjectName)\$(_GeneratorProjectName).csproj"
+            ReferenceOutputAssembly="false"
+            OutputItemType="None"
+            PrivateAssets="all"/>
+    </ItemGroup>
+
+</Project>

@@ -77,7 +77,7 @@ public class CustomRuntimeServicesTests
     }
 
     sealed class MyFrameworkAllureRegistrationSession :
-        AllureTestingPlatformRuntimeRegistrationSession<
+        AllureTestingPlatformRegistrationSession<
             MyFrameworkAllureConfiguration,
             MyFrameworkAllureRuntime
         >

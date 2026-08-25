@@ -40,15 +40,18 @@ public sealed class AllureAttachmentProperty<TModel>(string name, Stream content
     /// <inheritdoc />
     public void Apply(IAllureTestingPlatformRuntime<AllureTestingPlatformConfiguration> allureRuntime, TModel target)
     {
-        var source = AttachmentSource.CreateName(this.FileExtension);
+        var source = allureRuntime.ResultsDestination.WriteAttachment(
+            this.Content,
+            this.FileExtension
+        );
+
         var attachment = new Attachment
         {
             Name = this.Name,
             Type = this.MediaType,
             Source = source,
-            FileExtension = this.FileExtension,
         };
-        allureRuntime.ResultsDestination.WriteAttachment(source, this.Content);
+
         target.Attachments.Add(attachment);
     }
 }

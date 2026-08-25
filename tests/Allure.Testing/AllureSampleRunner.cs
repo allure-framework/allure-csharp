@@ -94,31 +94,89 @@ public class AllureSampleRunner
         return allureResults;
     }
 
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    public static async Task<AllureResults> ReadAllureResults(string resultsDirectory) =>
+        await ReadAllureResults(new DirectoryInfo(resultsDirectory), CancellationToken.None);
+
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    /// <param name="ct">A cancellation token.</param>
+    public static async Task<AllureResults> ReadAllureResults(
+        string resultsDirectory,
+        CancellationToken ct
+    ) =>
+        await ReadAllureResults(new DirectoryInfo(resultsDirectory), ct);
+
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    public static async Task<AllureResults> ReadAllureResults(DirectoryInfo resultsDirectory) =>
+        await ReadAllureResults(resultsDirectory, CancellationToken.None);
+
+    /// <summary>
+    /// Reads the Allure result files in the provided directory.
+    /// </summary>
+    /// <param name="resultsDirectory">A directory to read the files from.</param>
+    /// <param name="ct">A cancellation token.</param>
+    public static async Task<AllureResults> ReadAllureResults(
+        DirectoryInfo resultsDirectory,
+        CancellationToken ct
+    )
+    {
+        var resultFiles = resultsDirectory.Exists
+            ? resultsDirectory.GetFiles()
+            : [];
+
+        var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
+        var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
+        var globals = await ReadJsonObjectResults2<AllureGlobals>(resultFiles, "-globals.json", ct);
+
+        return (testResults, containers, globals) switch
+        {
+            ({IsPassed: true, Value: var trs}, {IsPassed: true, Value: var conts}, { IsPassed: true, Value: var globs }) => new(
+                TestResults: trs,
+                Containers: conts,
+                Attachments: await ReadAttachments(resultFiles, ct),
+                Globals: globs
+            ),
+
+            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, { IsPassed: false, Message: var err3 }) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}{Environment.NewLine}{err3}"),
+
+            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}, _) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            ({IsPassed: false, Message: var err1}, _, {IsPassed: false, Message: var err2}) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            (_, {IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}) =>
+                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
+
+            ({IsPassed: false, Message: var error}, _, _) =>
+                throw new AssertionException(error),
+
+            (_, {IsPassed: false, Message: var error}, _) =>
+                throw new AssertionException(error),
+
+            (_, _, {IsPassed: false, Message: var error}) =>
+                throw new AssertionException(error),
+        };
+    }
+
     static async Task<Guard<DirectoryInfo>> EnsureSampleResults(
         AllureSampleRegistryEntry sample,
         AllureSampleRunInput input,
         CancellationToken ct
     ) =>
-        sample.IsPreRunFlow
-            ? EnsureExistingAllureResultsDirectory(sample)
+        sample.IsPreRunFlow && input.IsPreRunCompatible
+            ? new DirectoryInfo(sample.DefaultResultsPath)
             : await ProduceSampleResults(sample, input, ct);
-
-    static DirectoryInfo EnsureExistingAllureResultsDirectory(AllureSampleRegistryEntry sample)
-    {
-        var path = sample.DefaultResultsPath;
-        var dInfo = new DirectoryInfo(path);
-        if (!dInfo.Exists || !dInfo.EnumerateFiles().Any())
-        {
-            throw new FileNotFoundException(
-                $"Can't read Allure results of '{sample.RegistryId}.{sample.SampleId}'. "
-                    + $"Please, make sure the sample's been run and the results are "
-                    + $"available at '{path}'. Run "
-                    + "'dotnet msbuild -t:Allure_RunTestSamples' to execute all the samples of "
-                    + "the solution/project."
-            );
-        }
-        return dInfo;
-    }
 
     static async Task<Guard<DirectoryInfo>> ProduceSampleResults(
         AllureSampleRegistryEntry sample,
@@ -136,6 +194,7 @@ public class AllureSampleRunner
             = await ApplyAllureConfig(
                 input.AllureConfiguration,
                 resultsDirGuard.Value.FullName,
+                sample.LegacyCommons,
                 psi,
                 ct
             );
@@ -158,7 +217,9 @@ public class AllureSampleRunner
 
         LogStdStreams(stdout, stderr);
 
-        return resultsDirGuard.Transfer();
+        return resultsDirGuard.Own
+            ? resultsDirGuard.Transfer()
+            : resultsDirGuard.Value;
     }
 
     static void LogProcessStart(ProcessStartInfo psi, AllureSampleRunInput input)
@@ -166,7 +227,7 @@ public class AllureSampleRunner
         Console.WriteLine(
             "Running {0} {1}",
             psi.FileName,
-            string.Join(" ", psi.Arguments.Select(a => $"'{a}'"))
+            string.Join(" ", psi.ArgumentList.Select(a => $"'{a}'"))
         );
 
         Console.WriteLine("  Working directory: {0}", psi.WorkingDirectory);
@@ -260,11 +321,12 @@ public class AllureSampleRunner
     static async Task<Guard<string>?> ApplyAllureConfig(
         object? allureConfigInput,
         string resultsDir,
+        bool isLegacy,
         ProcessStartInfo psi,
         CancellationToken ct
     )
     {
-        var allureConfig = ResolveAllureConfig(allureConfigInput, resultsDir);
+        var allureConfig = ResolveAllureConfig(allureConfigInput, resultsDir, isLegacy);
         var configPath = Path.GetTempFileName();
 
         using var fs = new FileStream(configPath, FileMode.Create, FileAccess.Write);
@@ -280,7 +342,7 @@ public class AllureSampleRunner
         return Guard.WrapFile(configPath);
     }
 
-    static JsonObject ResolveAllureConfig(object? config, string resultsDir)
+    static JsonObject ResolveAllureConfig(object? config, string resultsDir, bool isLegacy)
     {
         if (config is null)
         {
@@ -298,9 +360,13 @@ public class AllureSampleRunner
         {
             allure["directory"] = resultsDir;
         }
-        else
+        else if (isLegacy)
         {
             allureConfigJsonObject["allure"] = new JsonObject([new("directory", resultsDir)]);
+        }
+        else
+        {
+            allureConfigJsonObject["resultsDirectory"] = resultsDir;
         }
 
         return allureConfigJsonObject;
@@ -369,35 +435,6 @@ public class AllureSampleRunner
             () => reader.ReadToEndAsync(ct).Result,
             TaskCreationOptions.LongRunning
         );
-
-    static async Task<AllureResults> ReadAllureResults(
-        DirectoryInfo resultsDirectory,
-        CancellationToken ct
-    )
-    {
-        var resultFiles = resultsDirectory.GetFiles();
-
-        var testResults = await ReadJsonObjectResults2<AllureTestResult>(resultFiles, "-result.json", ct);
-        var containers = await ReadJsonObjectResults2<AllureContainer>(resultFiles, "-container.json", ct);
-
-        return (testResults, containers) switch
-        {
-            ({IsPassed: true, Value: var trs}, {IsPassed: true, Value: var conts}) => new(
-                TestResults: trs,
-                Containers: conts,
-                Attachments: await ReadAttachments(resultFiles, ct)
-            ),
-
-            ({IsPassed: false, Message: var err1}, {IsPassed: false, Message: var err2}) =>
-                throw new AssertionException($"{err1}{Environment.NewLine}{err2}"),
-
-            ({IsPassed: false, Message: var error}, _) =>
-                throw new AssertionException(error),
-
-            (_, {IsPassed: false, Message: var error}) =>
-                throw new AssertionException(error),
-        };
-    }
 
     static async Task<AssertionResult<ImmutableArray<T>>> ReadJsonObjectResults2<T>(
         IEnumerable<FileInfo> allOutputFiles,
