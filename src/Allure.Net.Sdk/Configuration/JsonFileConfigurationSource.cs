@@ -269,7 +269,7 @@ public static class JsonFileConfigurationSource
         FromPathEnvironmentVariable<TConfiguration>("ALLURE_CONFIG");
 
     /// <summary>
-    /// Creates a source for <c>allureConfig.json</c> in the application base directory.
+    /// Creates a source for <c>allure.config.json</c> in the application base directory.
     /// </summary>
     /// <typeparam name="TConfiguration">The configuration type.</typeparam>
     /// <param name="isOptional">
@@ -279,5 +279,22 @@ public static class JsonFileConfigurationSource
     public static JsonFileConfigurationSource<TConfiguration> FromBaseDirectory<TConfiguration>(bool isOptional)
         where TConfiguration : AllureConfiguration, new()
     =>
-        new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "allureConfig.json"), isOptional);
+        FromBaseDirectory<TConfiguration>("allureConfig.json", isOptional);
+
+    /// <summary>
+    /// Creates a source for the configuration file in the application base directory.
+    /// </summary>
+    /// <typeparam name="TConfiguration">The configuration type.</typeparam>
+    /// <param name="fileName">The name of the configuration file.</param>
+    /// <param name="isOptional">
+    /// Whether the source should be skipped when the file does not exist.
+    /// </param>
+    /// <returns>The configuration source.</returns>
+    public static JsonFileConfigurationSource<TConfiguration> FromBaseDirectory<TConfiguration>(
+        string fileName,
+        bool isOptional
+    )
+        where TConfiguration : AllureConfiguration, new()
+    =>
+        new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName), isOptional);
 }

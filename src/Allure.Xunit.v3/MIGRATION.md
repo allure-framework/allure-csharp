@@ -112,6 +112,9 @@ The following `Allure.Xunit` properties are not supported: `useLegacyIds`,
 Make sure `allureConfig.json` is copied to the test application's output
 directory, or set `ALLURE_CONFIG` to its path.
 
+You may also rename the file to `allure.config.json`: both names are supported
+with `allureConfig.json` taking precedence.
+
 ## Update namespaces
 
 The current attributes and runtime APIs are in the `Allure` namespace. Model

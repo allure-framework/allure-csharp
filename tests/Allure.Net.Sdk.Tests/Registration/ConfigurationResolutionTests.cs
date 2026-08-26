@@ -1,6 +1,6 @@
 using Allure.Sdk.Configuration;
 using Allure.Sdk.Registration;
-using Allure.Net.Sdk.Tests.Infrastructure;
+using Allure.Sdk.Results;
 
 namespace Allure.Net.Sdk.Tests.Registration;
 
@@ -162,12 +162,157 @@ public class ConfigurationResolutionTests
         }
     }
 
+    [Test]
+    [NotInParallel]
+    public async Task ShouldLoadLegacyDefaultConfigurationFile()
+    {
+        using var state = new DefaultConfigurationState();
+        await state.WriteLegacyConfiguration("legacy");
+
+        var configuration = ResolveDefaultConfiguration();
+
+        await Assert.That(configuration.Value).IsEqualTo("legacy");
+    }
+
+    [Test]
+    [NotInParallel]
+    public async Task ShouldLoadDottedDefaultConfigurationFile()
+    {
+        using var state = new DefaultConfigurationState();
+        await state.WriteDottedConfiguration("dotted");
+
+        var configuration = ResolveDefaultConfiguration();
+
+        await Assert.That(configuration.Value).IsEqualTo("dotted");
+    }
+
+    [Test]
+    [NotInParallel]
+    public async Task ShouldPreferLegacyDefaultConfigurationFile()
+    {
+        using var state = new DefaultConfigurationState();
+        await state.WriteLegacyConfiguration("legacy");
+        await state.WriteDottedConfiguration("dotted");
+
+        var configuration = ResolveDefaultConfiguration();
+
+        await Assert.That(configuration.Value).IsEqualTo("legacy");
+    }
+
+    [Test]
+    [NotInParallel]
+    public async Task ShouldPreferEnvironmentConfigurationFile()
+    {
+        using var state = new DefaultConfigurationState();
+        await state.WriteLegacyConfiguration("legacy");
+        await state.WriteDottedConfiguration("dotted");
+        await state.WriteEnvironmentConfiguration("environment");
+
+        var configuration = ResolveDefaultConfiguration();
+
+        await Assert.That(configuration.Value).IsEqualTo("environment");
+    }
+
+    static TestConfiguration ResolveDefaultConfiguration()
+    {
+        var builder = CreateBuilder();
+        var plan = builder.Prepare((ctx) =>
+        {
+            ctx.UseDestination(_ => new InMemoryResultsDestination());
+        });
+
+        using var runtime = plan.Build();
+        return runtime.Runtime.Configuration;
+    }
+
     static AllureRuntimeBuilder<TestConfiguration> CreateBuilder() =>
         new("configuration-tests");
 
     sealed record class TestConfiguration : AllureConfiguration
     {
         public string? Value { get; init; }
+    }
+
+    sealed class DefaultConfigurationState : IDisposable
+    {
+        const string EnvironmentVariableName = "ALLURE_CONFIG";
+
+        static readonly string LegacyConfigurationPath = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "allureConfig.json"
+        );
+
+        static readonly string DottedConfigurationPath = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "allure.config.json"
+        );
+
+        readonly string? previousEnvironmentConfigurationPath =
+            Environment.GetEnvironmentVariable(EnvironmentVariableName);
+        readonly byte[]? previousLegacyConfiguration = ReadIfExists(
+            LegacyConfigurationPath
+        );
+        readonly byte[]? previousDottedConfiguration = ReadIfExists(
+            DottedConfigurationPath
+        );
+        string? environmentConfigurationPath;
+
+        public DefaultConfigurationState()
+        {
+            Environment.SetEnvironmentVariable(EnvironmentVariableName, null);
+            File.Delete(LegacyConfigurationPath);
+            File.Delete(DottedConfigurationPath);
+        }
+
+        public Task WriteLegacyConfiguration(string value) =>
+            WriteConfiguration(LegacyConfigurationPath, value);
+
+        public Task WriteDottedConfiguration(string value) =>
+            WriteConfiguration(DottedConfigurationPath, value);
+
+        public async Task WriteEnvironmentConfiguration(string value)
+        {
+            this.environmentConfigurationPath = Path.Combine(
+                Path.GetTempPath(),
+                $"allure-sdk-config-{Guid.NewGuid():N}.json"
+            );
+            await WriteConfiguration(this.environmentConfigurationPath, value);
+            Environment.SetEnvironmentVariable(
+                EnvironmentVariableName,
+                this.environmentConfigurationPath
+            );
+        }
+
+        public void Dispose()
+        {
+            Environment.SetEnvironmentVariable(
+                EnvironmentVariableName,
+                this.previousEnvironmentConfigurationPath
+            );
+            File.Delete(LegacyConfigurationPath);
+            File.Delete(DottedConfigurationPath);
+            Restore(LegacyConfigurationPath, this.previousLegacyConfiguration);
+            Restore(DottedConfigurationPath, this.previousDottedConfiguration);
+
+            if (this.environmentConfigurationPath is not null)
+            {
+                File.Delete(this.environmentConfigurationPath);
+            }
+        }
+
+        static byte[]? ReadIfExists(string path) =>
+            File.Exists(path) ? File.ReadAllBytes(path) : null;
+
+        static Task WriteConfiguration(string path, string value) =>
+            File.WriteAllTextAsync(path, $$"""{"value":"{{value}}"}""");
+
+        static void Restore(string path, byte[]? contents)
+        {
+            if (contents is not null)
+            {
+                File.WriteAllBytes(path, contents);
+            }
+        }
     }
 
     sealed class RecordingConfigurationSource : IAllureConfigurationSource<TestConfiguration>

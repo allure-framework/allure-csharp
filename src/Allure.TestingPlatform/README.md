@@ -101,7 +101,8 @@ Without explicit registration, configuration is loaded from the first available 
 
 1. the file identified by the `ALLURE_CONFIG` environment variable;
 2. `allureConfig.json` in the application base directory;
-3. default values.
+3. `allure.config.json` in the application base directory;
+4. default values.
 
 An explicit configuration source registered through `AddAllure` replaces that default source list.
 
