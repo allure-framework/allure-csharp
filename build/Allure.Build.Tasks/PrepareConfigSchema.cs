@@ -23,6 +23,12 @@ public class PrepareConfigSchema : Task
     [Required]
     public string PackageName { get; set; } = "";
 
+    [Output]
+    public string VersionedSchemaPath { get; set; } = "";
+
+    [Output]
+    public string LatestSchemaPath { get; set; } = "";
+
     public override bool Execute()
     {
         try
@@ -49,14 +55,14 @@ public class PrepareConfigSchema : Task
 
             RewriteReferences(versionedSchema, sourceId, schemaRoot, version);
 
-            Write(
+            this.LatestSchemaPath = Write(
                 latestSchema,
-                Path.Combine(this.OutputDirectory, packageName, fileName)
+                Path.Combine(this.OutputDirectory, "schemas", packageName, fileName)
             );
 
-            Write(
+            this.VersionedSchemaPath = Write(
                 versionedSchema,
-                Path.Combine(this.OutputDirectory, version, packageName, fileName)
+                Path.Combine(this.OutputDirectory, "schemas", version, packageName, fileName)
             );
 
             return true;
@@ -162,7 +168,7 @@ public class PrepareConfigSchema : Task
         }
     }
 
-    static void Write(JsonNode schema, string path)
+    static string Write(JsonNode schema, string path)
     {
         var source = GeneratedFileSource.FromJsonSourceObject(schema, path);
 
@@ -170,5 +176,7 @@ public class PrepareConfigSchema : Task
         {
             source.Write();
         }
+
+        return source.Destination.FullName;
     }
 }
