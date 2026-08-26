@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JsonSchema.Net" Version="9.4.0" />
+    <PackageReference Include="TUnit" Version="1.61.29" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../src/Allure.Net.Sdk/schemas/allure.config.schema.json"
+             Link="schemas/allure.net.sdk/allure.config.schema.json"
+             CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../src/Allure.TestingPlatform/schemas/allure.config.schema.json"
+             Link="schemas/allure.testingplatform/allure.config.schema.json"
+             CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../src/Allure.Xunit.v3/schemas/allure.config.schema.json"
+             Link="schemas/allure.xunit.v3/allure.config.schema.json"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
