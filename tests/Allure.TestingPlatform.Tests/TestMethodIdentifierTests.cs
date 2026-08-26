@@ -159,6 +159,52 @@ public class TestMethodIdentifierTests : DataConsumerTestsBase
     }
 
     [Test]
+    public async Task ShouldPreferProvidedDefaultSuitesToIdentifierFallbacks()
+    {
+        var testStart = new TestNodeUpdateMessage(new SessionUid("Bar"), new()
+        {
+            DisplayName = "Foo",
+            Uid = "1",
+            Properties = new(InProgressTestNodeStateProperty.CachedInstance)
+        });
+        var testUpdate = new AllureTestUpdateMessage(new("Bar"), new("1"))
+        {
+            Properties = [
+                new AllureDefaultSuitesProperty("Provided Parent", "Provided Suite", "Provided Sub Suite")
+            ],
+        };
+        var testStop = new TestNodeUpdateMessage(new SessionUid("Bar"), new()
+        {
+            DisplayName = "Foo",
+            Uid = "1",
+            Properties = new(
+                new PassedTestNodeStateProperty(),
+                new TestMethodIdentifierProperty(
+                    assemblyFullName: "Fallback Parent",
+                    @namespace: "Fallback Suite",
+                    typeName: "Fallback Sub Suite",
+                    methodName: "Qux",
+                    methodArity: 0,
+                    parameterTypeFullNames: [],
+                    returnTypeFullName: "Qut"
+                )
+            )
+        });
+
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, testStart, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, testUpdate, CancellationToken.None);
+        await this.consumer.ConsumeAsync(DataProducerStub.Instance, testStop, CancellationToken.None);
+
+        var testResult = await Assert.That(this.writer.TestResults).HasSingleItem();
+        var parentSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "parentSuite");
+        var suite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "suite");
+        var subSuite = await Assert.That(testResult.Labels).HasSingleItem(l => l.Name == "subSuite");
+        await Assert.That(parentSuite.Value).IsEqualTo("Provided Parent");
+        await Assert.That(suite.Value).IsEqualTo("Provided Suite");
+        await Assert.That(subSuite.Value).IsEqualTo("Provided Sub Suite");
+    }
+
+    [Test]
     public async Task ShouldNotSetDefaultSuiteLabelsIfParentSuiteAlreadyProvided()
     {
         var testNode = new TestNode

@@ -83,7 +83,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
     {
         var correlationUid = new CorrelationUid("c1");
         var startScope = new AllureScopeStartMessage(correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("fixture-1"), new("scope-1"), "fixture");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("fixture-1"), new("scope-1"), "fixture");
         var stopFixture = new AllureFixtureStopMessage(correlationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(correlationUid, new("scope-1"));
 
@@ -100,7 +100,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
     {
         var correlationUid = new CorrelationUid("c-pending");
         var startScope = new AllureScopeStartMessage(correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("fixture-1"), new("scope-1"), "fixture");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("fixture-1"), new("scope-1"), "fixture");
         var stopFixture = new AllureFixtureStopMessage(correlationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(correlationUid, new("scope-1"));
 
@@ -118,7 +118,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
     {
         var correlationUid = new CorrelationUid("c-flush");
         var startScope = new AllureScopeStartMessage(correlationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("fixture-1"), new("scope-1"), "fixture");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("fixture-1"), new("scope-1"), "fixture");
         var stopFixture = new AllureFixtureStopMessage(correlationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(correlationUid, new("scope-1"));
 
@@ -216,7 +216,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
 
         var knownCorrelationUid = new CorrelationUid("c-known");
         var startScope = new AllureScopeStartMessage(knownCorrelationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(knownCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
+        var startFixture = new AllureSetUpFixtureStartMessage(knownCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
         var stopFixture = new AllureFixtureStopMessage(knownCorrelationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(knownCorrelationUid, new("scope-1"));
 
@@ -251,7 +251,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
 
         var unrelatedCorrelationUid = new CorrelationUid("c-unrelated");
         var startScope = new AllureScopeStartMessage(unrelatedCorrelationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(unrelatedCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
+        var startFixture = new AllureSetUpFixtureStartMessage(unrelatedCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
         var stopFixture = new AllureFixtureStopMessage(unrelatedCorrelationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(unrelatedCorrelationUid, new("scope-1"));
 
@@ -310,7 +310,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
 
         var oldCorrelationUid = new CorrelationUid("c1");
         var startScope = new AllureScopeStartMessage(oldCorrelationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(oldCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
+        var startFixture = new AllureSetUpFixtureStartMessage(oldCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
         var stopFixture = new AllureFixtureStopMessage(oldCorrelationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(oldCorrelationUid, new("scope-1"));
 
@@ -350,7 +350,7 @@ public class CorrelationTests : DataConsumerTestsBase<CorrelationStrategyStub, T
 
         var knownCorrelationUid = new CorrelationUid("c-known");
         var startScope = new AllureScopeStartMessage(knownCorrelationUid, new("scope-1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(knownCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
+        var startFixture = new AllureSetUpFixtureStartMessage(knownCorrelationUid, new("fixture-1"), new("scope-1"), "fixture");
         var stopFixture = new AllureFixtureStopMessage(knownCorrelationUid, new("fixture-1"));
         var stopScope = new AllureScopeStopMessage(knownCorrelationUid, new("scope-1"));
 

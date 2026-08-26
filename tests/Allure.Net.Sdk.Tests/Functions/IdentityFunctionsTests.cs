@@ -6,16 +6,6 @@ namespace Allure.Net.Sdk.Tests.Functions;
 public class IdentityFunctionsTests
 {
     [Test]
-    public async Task ShouldCreateAttachmentNameWithUuidAndExtension()
-    {
-        var name = AttachmentSource.CreateName(".txt");
-
-        await Assert.That(Guid.TryParse(name[..36], out _)).IsTrue();
-        await Assert.That(name[36..]).IsEqualTo("-attachment.txt");
-        await Assert.That(AttachmentSource.CreateName(null!)).Contains("-attachment");
-    }
-
-    [Test]
     public async Task ShouldCalculateMd5Hashes()
     {
         await Assert.That(Md5.FromString("hello")).IsEqualTo("5d41402abc4b2a76b9719d911017c592");

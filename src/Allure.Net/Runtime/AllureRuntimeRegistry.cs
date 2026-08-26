@@ -31,15 +31,40 @@ public sealed class AllureRuntimeRegistry
     /// Resolves the runtime endpoint matching the current test or fixture scope.
     /// </summary>
     public IAllureRuntimeEndpoint? ResolveCurrentScope() =>
-        this.GetEndpoint(static (r) => r.MatchesCurrentScope);
+        this.MatchRuntime(static (r) => r.MatchesCurrentScope) switch
+        {
+            MatchSuccess { Route: var route } => route.Endpoint,
+
+            MultipleMatches { Routes: var routes } =>
+                throw CreateMultipleMatchesException(routes),
+
+            _ => null,
+        };
 
     /// <summary>
-    /// Resolves the current-scope runtime endpoint when one is available;
-    /// otherwise, resolves an endpoint capable of accepting global result data.
+    /// Resolves an available runtime endpoint whose route matches the global scope.
+    /// When multiple routes match and suppression does not select a single route,
+    /// prefers the sole route that also matches the current scope.
     /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Global-scope routing remains ambiguous after applying route suppression and
+    /// current-scope preference.
+    /// </exception>
     public IAllureRuntimeEndpoint? ResolveGlobalScope() =>
-        ResolveCurrentScope()
-            ?? this.GetEndpoint(static (r) => r.MatchesGlobalScope);
+        this.MatchRuntime(static (r) => r.MatchesGlobalScope) switch
+        {
+            MatchSuccess { Route: var route } => route.Endpoint,
+
+            MultipleMatches { Routes: var routes } =>
+                routes.Where(static (r) => r.MatchesCurrentScope)
+                    .ToImmutableArray() is { Length: 1 } currentScopeMatches
+                        ? currentScopeMatches[0].Endpoint is { IsAvailable: true } endpoint
+                            ? endpoint
+                            : null
+                        : throw CreateMultipleMatchesException(routes),
+
+            _ => null,
+        };
 
     /// <summary>
     /// Installs a runtime route.
@@ -74,26 +99,18 @@ public sealed class AllureRuntimeRegistry
         });
     }
 
-    IAllureRuntimeEndpoint? GetEndpoint(Func<IAllureRuntimeRoute, bool> predicate) =>
-        this.MatchRuntime(predicate) switch
-        {
-            MatchSuccess { Runtime: var runtime } => runtime,
-
-            MultipleMatches { Ids: var ids } =>
-                throw CreateMultipleMatchesException(ids),
-
-            _ => null,
-        };
-
     static InvalidOperationException CreateMultipleMatchesException(
-        IEnumerable<string> ids
-    ) =>
-        new (
+        IEnumerable<IAllureRuntimeRoute> routes
+    )
+    {
+        IEnumerable<string> ids = [.. routes.Select(static (r) => $"{r.Endpoint.Name} ({r.Id})")];
+        return new (
             $"Unable to route an API call to an Allure runtime: "
                 + $"more than one routes matched the requested Allure scope: "
                 + $"{string.Join(", ", ids)}. "
                 + "Configure the route suppression rules and try again."
         );
+    }
 
     RuntimeMatchResult MatchRuntime(Func<IAllureRuntimeRoute, bool> predicate)
     {
@@ -108,7 +125,7 @@ public sealed class AllureRuntimeRegistry
 
         if (candidates.Length == 1)
         {
-            return EvaluateAvailability(candidates[0].Endpoint);
+            return EvaluateAvailability(candidates[0]);
         }
 
         var winners = FindDominatingRoutes(candidates);
@@ -118,12 +135,12 @@ public sealed class AllureRuntimeRegistry
             return RuntimeMatchResult.Multiple(candidates);
         }
 
-        return EvaluateAvailability(winners[0].Endpoint);
+        return EvaluateAvailability(winners[0]);
 
-        static RuntimeMatchResult EvaluateAvailability(IAllureRuntimeEndpoint runtime) =>
-            runtime.IsAvailable
-                ? RuntimeMatchResult.Success(runtime)
-                : RuntimeMatchResult.Disabled(runtime);
+        static RuntimeMatchResult EvaluateAvailability(IAllureRuntimeRoute route) =>
+            route.Endpoint.IsAvailable
+                ? RuntimeMatchResult.Success(route)
+                : RuntimeMatchResult.Disabled(route);
 
         static ImmutableArray<IAllureRuntimeRoute> FindDominatingRoutes(
             IEnumerable<IAllureRuntimeRoute> matches
@@ -139,23 +156,23 @@ public sealed class AllureRuntimeRegistry
 
     record class RuntimeMatchResult
     {
-        public static MatchSuccess Success(IAllureRuntimeEndpoint runtime) => new(runtime);
+        public static MatchSuccess Success(IAllureRuntimeRoute route) => new(route);
 
-        public static RuntimeDisabled Disabled(IAllureRuntimeEndpoint runtime) => new(runtime);
+        public static RuntimeDisabled Disabled(IAllureRuntimeRoute route) => new(route);
 
-        public static MultipleMatches Multiple(IEnumerable<IAllureRuntimeRoute> matches) => new(
-            [..matches.Select(static (d) => $"{d.Endpoint.Name} ({d.Id})")]
+        public static MultipleMatches Multiple(IEnumerable<IAllureRuntimeRoute> routes) => new(
+            [..routes]
         );
 
         public static NoMatch NoMatch { get; } = new();
 
     }
 
-    sealed record class MatchSuccess(IAllureRuntimeEndpoint Runtime) : RuntimeMatchResult;
+    sealed record class MatchSuccess(IAllureRuntimeRoute Route) : RuntimeMatchResult;
 
-    sealed record class RuntimeDisabled(IAllureRuntimeEndpoint Runtime) : RuntimeMatchResult;
+    sealed record class RuntimeDisabled(IAllureRuntimeRoute Route) : RuntimeMatchResult;
 
     sealed record class NoMatch() : RuntimeMatchResult;
 
-    sealed record class MultipleMatches(ImmutableArray<string> Ids) : RuntimeMatchResult;
+    sealed record class MultipleMatches(ImmutableArray<IAllureRuntimeRoute> Routes) : RuntimeMatchResult;
 }

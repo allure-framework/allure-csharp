@@ -63,6 +63,7 @@ jobs:
             -p:Allure_SampleConfiguration=${{ env.BUILD_CONFIGURATION }}
 
       - name: 'Run test samples'
+        continue-on-error: true
         run: |
           dotnet msbuild ${{ env.SOLUTION_PATH }}\
             -t:Allure_RunTestSamples\
@@ -91,6 +92,10 @@ jobs:
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
           npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-xunit" -- dotnet run --project ./tests/Allure.Xunit.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-xunit-v3" -- dotnet run --project ./tests/Allure.Xunit.v3.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}

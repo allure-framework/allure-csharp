@@ -1,0 +1,56 @@
+<Project>
+
+    <PropertyGroup Condition=" '$(UseMicrosoftTestingPlatformRunner)' == 'true' ">
+        <Allure_GenerateXunitEntryPoint Condition=" '$(Allure_GenerateXunitEntryPoint)' == '' ">$(GenerateSelfRegisteredExtensions)</Allure_GenerateXunitEntryPoint>
+        <Allure_ApplyXunitAttribute Condition=" '$(Allure_ApplyXunitAttribute)' == '' ">true</Allure_ApplyXunitAttribute>
+        <Allure_XunitEnableSelfRegistration Condition=" '$(Allure_XunitEnableSelfRegistration)' == '' ">true</Allure_XunitEnableSelfRegistration>
+    </PropertyGroup>
+
+    <ItemGroup Condition="
+        '$(UseMicrosoftTestingPlatformRunner)' == 'true'
+            And
+        '$(Allure_XunitEnableSelfRegistration)' == 'true' ">
+        <TestingPlatformBuilderHook Include="955bb133-5c11-493a-9d10-5c66e17b11e5">
+            <DisplayName>Allure.Xunit.v3</DisplayName>
+            <TypeFullName>Allure.Xunit.AllureXunitBuilderHook</TypeFullName>
+        </TestingPlatformBuilderHook>
+    </ItemGroup>
+
+    <Target
+        Name="Allure_ShowMtpDisabledWarning"
+        BeforeTargets="CoreCompile"
+        Condition="
+            '$(UseMicrosoftTestingPlatformRunner)' != 'true'
+                And
+            '$(Allure_WarnIfMtpDisabled)' == 'true'
+                And
+            '$(IsCrossTargetingBuild)' != 'true'
+                And
+            '$(DesignTimeBuild)' != 'true' ">
+
+        <Warning
+            Code="ALLURE001"
+            Text="Allure.Xunit.v3 requires xUnit.net v3 to run with Microsoft Testing Platform. Set the UseMicrosoftTestingPlatformRunner MSBuild property to true, or set Allure_WarnIfMtpDisabled to false to suppress this warning."/>
+
+    </Target>
+
+    <Target
+        Name="Allure_SetStartupObject"
+        BeforeTargets="CoreCompile"
+        Condition="
+            '$(Allure_GenerateXunitEntryPoint)' == 'true'
+                And
+            '$(StartupObject)' == ''
+        ">
+
+        <!-- We don't suppress XunitGenerateEntryPoint, which means at least two entry points
+         will exist in the project. Without explicit StartupObject, the compiler may fail or choose
+         an incorrect entry point. -->
+
+        <PropertyGroup>
+            <StartupObject>Allure.Xunit.Generated.AllureXunitEntryPoint</StartupObject>
+        </PropertyGroup>
+
+    </Target>
+
+</Project>

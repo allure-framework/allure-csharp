@@ -41,7 +41,7 @@ sealed class AllureTestingPlatformAsyncStepContext(
     public IAllureParameterSerializer ParameterSerializer =>
         registration.RuntimeReference.Value.ParameterSerializer;
 
-    public Type[] DataTypesProduced => [typeof(AllureStepUpdateMessage)];
+    public Type[] DataTypesProduced { get; } = [typeof(AllureStepUpdateMessage)];
 
     public string Uid => "90b49fbd-4c57-48c9-b196-849881e43199";
 

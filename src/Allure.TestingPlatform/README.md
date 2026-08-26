@@ -276,6 +276,35 @@ contexts must follow asynchronous callbacks and isolate concurrent executions.
 Together, they route runtime API calls to the correct session and lifecycle
 item.
 
+### Coordinate test executions
+
+`Allure.TestingPlatform` provides two test execution coordinators. Select one
+during embedded runtime registration:
+
+```csharp
+// The default.
+context.UseDirectTestExecutionCoordinator();
+
+// For frameworks that need separate execution UIDs.
+context.UseBindingTestExecutionCoordinator();
+```
+
+Use the direct coordinator when each `TestNode.Uid` uniquely identifies a test
+execution. It is also suitable when reused test-node UIDs are safe because the
+framework keeps Allure operations synchronized with the corresponding MTP
+lifecycle messages.
+
+Use the binding coordinator when the framework may reuse a `TestNode.Uid` for
+multiple executions and Allure operations can arrive independently of MTP
+lifecycle messages. Give each execution a unique UID and publish an
+`AllureTestExecutionBindingMessage` to associate it with its MTP test-node UID.
+After publishing all operations for that execution, publish an
+`AllureTestExecutionFinishMessage`.
+
+If none of the built-in coordinators suit your needs, implement
+ `Allure.TestingPlatform.Sdk.ExecutionState.ITestExecutionCoordinator` and set up
+the factory using `context.UseTestExecutionCoordinator(...)`.
+
 ### Map the framework lifecycle
 
 MTP `TestNodeUpdateMessage` events drive the basic test lifecycle. Publish additional messages through the framework's `IMessageBus`, or through
@@ -292,13 +321,16 @@ await allure.MessageChannel.PublishAsync(
 );
 ```
 
-The `TestExecutionStateUid` value must match the corresponding `TestNode.Uid`.
+With the direct test execution coordinator, the `TestExecutionStateUid` value
+must match the corresponding `TestNode.Uid`. With the binding coordinator, use
+the unique execution UID instead.
 
 Map framework events to the appropriate message group:
 
 - scopes: `AllureScopeStartMessage`, `AllureScopeTestsMessage`, and `AllureScopeStopMessage`;
-- fixtures: `AllureBeforeFixtureStartMessage`, `AllureAfterFixtureStartMessage`, `AllureFixtureUpdateMessage`, and `AllureFixtureStopMessage`;
-- tests: `AllureTestUpdateMessage`;
+- fixtures: `AllureSetUpFixtureStartMessage`, `AllureTearDownFixtureStartMessage`, `AllureFixtureUpdateMessage`, and `AllureFixtureStopMessage`;
+- tests: `AllureTestExecutionBindingMessage`, `AllureTestUpdateMessage`, and
+  `AllureTestExecutionFinishMessage`;
 - steps: `AllureStepStartMessage`, `AllureStepUpdateMessage`, and `AllureStepStopMessage`;
 - the active test, fixture, or step: `AllureExecutableItemUpdateMessage`.
 
@@ -331,7 +363,7 @@ non-matching model type are ignored.
 | Labels and links | — | `AllureLabelsProperty`, `AllureSetLabelProperty`, `AllureLinksProperty` |
 | Parameters | `AllureParametersProperty<TModel>`, `AllureTestMethodArgumentsProperty<TModel>` | — |
 | Timing | `AllureStartProperty<TModel>`, `AllureStopProperty<TModel>`, `AllureDurationProperty<TModel>` | — |
-| Attachments | `AllureAttachmentProperty<TModel>`, `AllureAttachmentFileProperty<TModel>`, `AllureScreenDiffProperty<TModel>`, `AllureScreenDiffFileProperty<TModel>` | — |
+| Attachments | `AllureAttachmentProperty<TModel>`, `AllureAttachmentFileProperty<TModel>`, `AllureScreenDiffProperty<TModel>`, `AllureScreenDiffFileProperty<TModel>`, `AllureAttachmentReferenceProperty<TModel>`, `AllureScreenDiffReferenceProperty<TModel>` | — |
 
 For example:
 
@@ -356,6 +388,29 @@ new AllureTestUpdateMessage(correlationUid, testUid)
 ```
 
 Properties are applied in the same order they are provided to the message.
+
+#### Attachments and attachment references
+
+Attachment properties fall into two groups:
+
+| Property kind | What it does | Required source lifetime |
+| --- | --- | --- |
+| `AllureAttachmentProperty<TModel>`, `AllureAttachmentFileProperty<TModel>`, `AllureScreenDiffProperty<TModel>`, and `AllureScreenDiffFileProperty<TModel>` | Write or copy the attachment to the configured results destination, then link the resulting file to the target object. | The streams must remain open and the files must remain available until the property is applied. Because messages are processed asynchronously, integration authors should normally keep them available until the test run ends. |
+| `AllureAttachmentReferenceProperty<TModel>` and `AllureScreenDiffReferenceProperty<TModel>` | Link an attachment that has already been written to the results destination. They perform no attachment I/O. | No source stream or file is retained by the property. It may be disposed or deleted as soon as the preceding write or copy operation completes. |
+
+Use an attachment property when the attachment source can remain available for
+deferred processing.
+
+Use an attachment reference property when the integration needs to release the
+source earlier. First write or copy the attachment through the configured
+`IAllureResultsDestination`, then pass the file name returned by
+`WriteAttachment`, `WriteAttachmentAsync`, `CopyAttachment`, or
+`CopyAttachmentAsync` as the reference property's `source` value. Do not pass
+the original input path: `source` is the destination-assigned file name.
+
+Once the write or copy operation has completed, the input stream may be
+disposed or the input file deleted. Publishing the reference property only
+adds the corresponding attachment entry to the target test, fixture, or step.
 
 ### Support runtime APIs and attributes
 
@@ -436,7 +491,8 @@ With the default configuration and the non-generic `AddEmbeddedAllure`
 overload, an application defines a hook by implementing
 `IAllureTestingPlatformRegistrationHook`. Its `SetUp` method can configure
 serialization, configuration sources and transformations, parameter
-serialization, the results destination, enablement, and the process watchdog:
+serialization, the results destination, endpoint routing, enablement, and the
+process watchdog:
 
 ```csharp
 public sealed class MyAllureRegistrationHook
@@ -467,7 +523,7 @@ discovery mechanism.
 To add services to the runtime, define a runtime based on
 `AllureTestingPlatformRuntime<TConfiguration>` (or implement
 `IAllureTestingPlatformRuntime<TConfiguration>`) and a registration session
-based on `AllureTestingPlatformRuntimeRegistrationSession<TConfiguration,
+based on `AllureTestingPlatformRegistrationSession<TConfiguration,
 TRuntime>`:
 
 ```csharp
@@ -487,7 +543,7 @@ sealed class MyFrameworkAllureRuntime(
 }
 
 sealed class MyFrameworkAllureRegistrationSession :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         MyFrameworkAllureConfiguration,
         MyFrameworkAllureRuntime
     >
@@ -550,7 +606,7 @@ TRegistrationContext>` as `TIntegrationContext`:
 
 ```csharp
 sealed class MyFrameworkAllureRegistrationSession :
-    AllureTestingPlatformRuntimeRegistrationSession<
+    AllureTestingPlatformRegistrationSession<
         MyFrameworkAllureConfiguration,
         MyFrameworkAllureRuntime,
         IMyFrameworkAllureRegistrationContext,
@@ -639,7 +695,11 @@ property as a standard hook.
 ### Adapter checklist
 
 - Register one embedded runtime under a stable, adapter-specific name.
-- Use the exact MTP test-node UID in Allure test updates.
+- Choose the direct or binding test execution coordinator to match the
+  framework's UID and message-ordering behavior.
+- With direct coordination, use the exact MTP test-node UID in Allure test
+  updates. With binding coordination, use a unique execution UID and publish
+  its binding and finish messages.
 - Choose a correlation strategy and provide a matching `ICorrelationContext`.
 - Map the framework context through `ExecutionStateContext`, including parallel execution.
 - Publish balanced lifecycle messages and preserve parent-child ordering.

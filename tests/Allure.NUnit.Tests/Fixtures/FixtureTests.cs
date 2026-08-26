@@ -21,10 +21,10 @@ class FixtureTests
 
         await Assert.That(results)
             .HasSingleContainer("Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass.TestMethod")
-            .With.OnlyOneBeforeFixture(
+            .With.OnlyOneSetUpFixture(
                 fixture => fixture.HasName("Foo")
                     .And.HasStatus(AllureStatus.Passed))
-            .With.OnlyOneAfterFixture(
+            .With.OnlyOneTearDownFixture(
                 fixture => fixture.HasName("TearDown")
                     .And.HasStatus(AllureStatus.Passed))
             .With.SingleChild().That.IsEqualTo(uuid);
@@ -39,19 +39,19 @@ class FixtureTests
         await Assert.That(results.Containers).Count().IsEqualTo(2);
         await Assert.That(results)
             .HasSingleContainer("Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass")
-            .With.OnlyOneBeforeFixture(
+            .With.OnlyOneSetUpFixture(
                 fixture => fixture.HasName("OneTimeSetUp")
                     .And.HasStatus(AllureStatus.Passed))
-            .With.OnlyOneAfterFixture(
+            .With.OnlyOneTearDownFixture(
                 fixture => fixture.HasName("Bar")
                     .And.HasStatus(AllureStatus.Passed))
             .With.SingleChild().That.IsEqualTo(uuid);
         await Assert.That(results)
             .HasSingleContainer("Allure.NUnit.Tests.Fixtures.Samples.LegacyFixtureAttributes.TestsClass.TestMethod")
-            .With.OnlyOneBeforeFixture(
+            .With.OnlyOneSetUpFixture(
                 fixture => fixture.HasName("Foo")
                     .And.HasStatus(AllureStatus.Passed))
-            .With.OnlyOneAfterFixture(
+            .With.OnlyOneTearDownFixture(
                 fixture => fixture.HasName("TearDown")
                     .And.HasStatus(AllureStatus.Passed))
             .With.SingleChild().That.IsEqualTo(uuid);

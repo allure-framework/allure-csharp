@@ -10,10 +10,10 @@ public class FixtureContextTests : DataConsumerTestsBase
     readonly CorrelationUid correlationUid = new("Bar");
 
     [Test]
-    public async Task ShouldEmitContainerWithBeforeFixture()
+    public async Task ShouldEmitContainerWithSetUpFixture()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var stopFixture = new AllureFixtureStopMessage(correlationUid, new("2"));
         var stopScope = new AllureScopeStopMessage(correlationUid, new("1"));
 
@@ -30,10 +30,10 @@ public class FixtureContextTests : DataConsumerTestsBase
     }
 
     [Test]
-    public async Task ShouldEmitContainerWithAfterFixture()
+    public async Task ShouldEmitContainerWithTearDownFixture()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var startFixture = new AllureAfterFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureTearDownFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var stopFixture = new AllureFixtureStopMessage(correlationUid, new("2"));
         var stopScope = new AllureScopeStopMessage(correlationUid, new("1"));
 

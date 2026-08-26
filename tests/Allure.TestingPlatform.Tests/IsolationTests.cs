@@ -158,8 +158,8 @@ public partial class IsolationTests : DataConsumerTestsBase
 
         var session1ScopeStart = new AllureScopeStartMessage(correlationUid1, new("1"));
         var session2ScopeStart = new AllureScopeStartMessage(correlationUid2, new("1"));
-        var session1FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid1, new("3"), new("1"), "Foo");
-        var session2FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid2, new("3"), new("1"), "Foo");
+        var session1FixtureStart = new AllureSetUpFixtureStartMessage(correlationUid1, new("3"), new("1"), "Foo");
+        var session2FixtureStart = new AllureSetUpFixtureStartMessage(correlationUid2, new("3"), new("1"), "Foo");
         var session1FixtureStop = new AllureFixtureStopMessage(correlationUid1, new("3"));
         var session2FixtureStop = new AllureFixtureStopMessage(correlationUid2, new("3"));
         var session1TestStart = new TestNodeUpdateMessage(session1, testNodeInProgress);
@@ -228,8 +228,8 @@ public partial class IsolationTests : DataConsumerTestsBase
 
         var session1ScopeStart = new AllureScopeStartMessage(correlationUid1, new("2"));
         var session2ScopeStart = new AllureScopeStartMessage(correlationUid2, new("2"));
-        var session1FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid1, new("3"), new("2"), "Foo");
-        var session2FixtureStart = new AllureBeforeFixtureStartMessage(correlationUid2, new("3"), new("2"), "Foo");
+        var session1FixtureStart = new AllureSetUpFixtureStartMessage(correlationUid1, new("3"), new("2"), "Foo");
+        var session2FixtureStart = new AllureSetUpFixtureStartMessage(correlationUid2, new("3"), new("2"), "Foo");
         var session1FixtureStop = new AllureFixtureStopMessage(correlationUid1, new("3"));
         var session2FixtureStop = new AllureFixtureStopMessage(correlationUid2, new("3"));
         var session1TestsInScope = new AllureScopeTestsMessage(correlationUid1, new("2"), [new("1")]);

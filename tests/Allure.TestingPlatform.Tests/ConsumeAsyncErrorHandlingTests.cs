@@ -189,17 +189,17 @@ public class ConsumeAsyncErrorHandlingTests
     {
         bool shouldThrow = true;
 
-        public void CopyAttachment(string destinationFileName, string sourceFilePath) =>
-            inner.CopyAttachment(destinationFileName, sourceFilePath);
+        public string CopyAttachment(string sourceFilePath, string fileExtension) =>
+            inner.CopyAttachment(sourceFilePath, fileExtension);
 
-        public Task CopyAttachmentAsync(string destinationFileName, string sourceFilePath, CancellationToken cancellationToken) =>
-            inner.CopyAttachmentAsync(destinationFileName, sourceFilePath, cancellationToken);
+        public Task<string> CopyAttachmentAsync(string sourceFilePath, string fileExtension, CancellationToken cancellationToken) =>
+            inner.CopyAttachmentAsync(sourceFilePath, fileExtension, cancellationToken);
 
-        public void WriteAttachment(string outputFileName, Stream content) =>
-            inner.WriteAttachment(outputFileName, content);
+        public string WriteAttachment(Stream content, string fileExtension) =>
+            inner.WriteAttachment(content, fileExtension);
 
-        public Task WriteAttachmentAsync(string outputFileName, Stream content, CancellationToken cancellationToken) =>
-            inner.WriteAttachmentAsync(outputFileName, content, cancellationToken);
+        public Task<string> WriteAttachmentAsync(Stream content, string fileExtension, CancellationToken cancellationToken) =>
+            inner.WriteAttachmentAsync(content, fileExtension, cancellationToken);
 
         public void WriteContainer(TestResultScope scope) =>
             inner.WriteContainer(scope);
@@ -235,17 +235,17 @@ public class ConsumeAsyncErrorHandlingTests
     {
         bool shouldThrow = true;
 
-        public void CopyAttachment(string destinationFileName, string sourceFilePath) =>
-            inner.CopyAttachment(destinationFileName, sourceFilePath);
+        public string CopyAttachment(string sourceFilePath, string fileExtension) =>
+            inner.CopyAttachment(sourceFilePath, fileExtension);
 
-        public Task CopyAttachmentAsync(string destinationFileName, string sourceFilePath, CancellationToken cancellationToken) =>
-            inner.CopyAttachmentAsync(destinationFileName, sourceFilePath, cancellationToken);
+        public Task<string> CopyAttachmentAsync(string sourceFilePath, string fileExtension, CancellationToken cancellationToken) =>
+            inner.CopyAttachmentAsync(sourceFilePath, fileExtension, cancellationToken);
 
-        public void WriteAttachment(string outputFileName, Stream content) =>
-            inner.WriteAttachment(outputFileName, content);
+        public string WriteAttachment(Stream content, string fileExtension) =>
+            inner.WriteAttachment(content, fileExtension);
 
-        public Task WriteAttachmentAsync(string outputFileName, Stream content, CancellationToken cancellationToken) =>
-            inner.WriteAttachmentAsync(outputFileName, content, cancellationToken);
+        public Task<string> WriteAttachmentAsync(Stream content, string fileExtension, CancellationToken cancellationToken) =>
+            inner.WriteAttachmentAsync(content, fileExtension, cancellationToken);
 
         public void WriteContainer(TestResultScope scope) =>
             inner.WriteContainer(scope);

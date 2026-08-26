@@ -99,7 +99,7 @@ public class CustomRegistrationContextTests
     }
 
     sealed class MyFrameworkAllureRegistrationSession :
-        AllureTestingPlatformRuntimeRegistrationSession<
+        AllureTestingPlatformRegistrationSession<
             MyFrameworkAllureConfiguration,
             MyFrameworkAllureRuntime,
             IMyFrameworkAllureRegistrationContext,

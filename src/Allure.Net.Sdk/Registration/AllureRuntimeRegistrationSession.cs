@@ -8,6 +8,7 @@ using Allure.Sdk.Internal.Runtime;
 using Allure.Sdk.Registration.Hooks;
 using Allure.Sdk.Results;
 using Allure.Sdk.Runtime;
+using Allure.Sdk.TestPlan;
 
 namespace Allure.Sdk.Registration;
 
@@ -52,19 +53,22 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
         RuntimeServiceCreationContext<TConfiguration>,
         IAllureExecutionContext
     > currentContextFactory =
-        (ctx) => new AsyncLocalExecutionContext(ctx.RuntimeReference);
+        static (ctx) => new AsyncLocalExecutionContext(ctx.RuntimeReference);
 
     Func<
         RuntimeServiceCreationContext<TConfiguration>,
         IAllureLifecycleApi
     > currentLifecycleApiFactory =
-        (ctx) => new RuntimeLifecycleApi(ctx.RuntimeReference);
+        static (ctx) => new RuntimeLifecycleApi(ctx.RuntimeReference);
 
     Func<
         RuntimeServiceCreationContext<TConfiguration>,
         IAllureModelApi
     > currentModelApiFactory =
-        (ctx) => new RuntimeModelApi(ctx.RuntimeReference);
+        static (ctx) => new RuntimeModelApi(ctx.RuntimeReference);
+
+    Func<TConfiguration, AllureTestPlan?> currentTestPlanFactory =
+        static (_) => AllureTestPlan.FromEnvironment();
 
     bool useRuleBasedSerializer = true;
 
@@ -109,6 +113,10 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
     /// <inheritdoc/>
     public void UseModelApi(Func<TConfiguration, IAllureModelApi> modelApiFactory) =>
         this.Modify(() => this.currentModelApiFactory = (ctx) => modelApiFactory(ctx.Configuration));
+
+    /// <inheritdoc/>
+    public void UseTestPlan(Func<TConfiguration, AllureTestPlan?> testPlanFactory) =>
+        this.Modify(() => this.currentTestPlanFactory = testPlanFactory);
 
     /// <inheritdoc/>
     public void RegisterInProcessEndpoint(
@@ -246,6 +254,7 @@ public abstract class AllureRuntimeRegistrationSession<TConfiguration, TRuntime,
         ContextFactory: this.currentContextFactory,
         LifecycleApiFactory: this.currentLifecycleApiFactory,
         ModelApiFactory: this.currentModelApiFactory,
+        TestPlanFactory: this.currentTestPlanFactory,
         UseRuleBasedSerializer: this.useRuleBasedSerializer,
         SerializerFactory: this.currentSerializerFactory,
         DestinationFactory: this.currentDestinationFactory,
@@ -449,14 +458,7 @@ public class AllureRuntimeRegistrationSession<TConfiguration> :
     protected override IAllureRuntime<TConfiguration> CreateRuntime(
         RuntimeCreationArguments<TConfiguration> args
     ) =>
-        new AllureRuntime<TConfiguration>(
-            args.Configuration,
-            args.ParameterSerializer,
-            args.Destination,
-            args.Context,
-            args.LifecycleApi,
-            args.ModelApi
-        );
+        new AllureRuntime<TConfiguration>(args);
 }
 
 /// <summary>
@@ -482,12 +484,5 @@ public class AllureRuntimeRegistrationSession :
     protected override IAllureRuntime CreateRuntime(
         RuntimeCreationArguments<AllureConfiguration> args
     ) =>
-        new AllureRuntime(
-            args.Configuration,
-            args.ParameterSerializer,
-            args.Destination,
-            args.Context,
-            args.LifecycleApi,
-            args.ModelApi
-        );
+        new AllureRuntime(args);
 }

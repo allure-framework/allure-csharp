@@ -81,6 +81,11 @@
          ProjectReference items. -->
         <Allure_TestTargetVersion
             Condition=" '$(Allure_TestTargetVersion)' == '' "></Allure_TestTargetVersion>
+
+        <!-- Set to true to enable the Allure.Net.Commons compatibility mode.
+         Set to false to disable it. -->
+        <Allure_LegacyCommons
+            Condition=" '$(Allure_LegacyCommons)' == '' ">true</Allure_LegacyCommons>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -92,6 +97,7 @@
             Allure_SampleSolutionDir;
             Allure_SampleSolutionName;
             Allure_SampleSelectedTargetFramework;
+            Allure_LegacyCommons;
         </Allure_CompilerVisibleProperties>
 
         <!-- Put Allure properties on a single line and replace the separator with ':'.

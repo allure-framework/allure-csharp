@@ -21,13 +21,13 @@ sealed class OperationTestFrameworkStub(
 
     public string Description => "Invokes one Allure API operation inside a test framework scope.";
 
-    public Type[] DataTypesProduced =>
+    public Type[] DataTypesProduced { get; } =
     [
         typeof(TestNodeUpdateMessage),
         typeof(AllureScopeStartMessage),
         typeof(AllureScopeTestsMessage),
         typeof(AllureScopeStopMessage),
-        typeof(AllureBeforeFixtureStartMessage),
+        typeof(AllureSetUpFixtureStartMessage),
         typeof(AllureFixtureStopMessage),
         typeof(AllureStepStartMessage),
         typeof(AllureStepStopMessage),
@@ -105,7 +105,7 @@ sealed class OperationTestFrameworkStub(
     {
         await context.MessageBus.PublishAsync(
             this,
-            new AllureBeforeFixtureStartMessage(
+            new AllureSetUpFixtureStartMessage(
                 executionContext.CurrentCorrelationUid,
                 executionContext.FixtureUid,
                 executionContext.ScopeUid,

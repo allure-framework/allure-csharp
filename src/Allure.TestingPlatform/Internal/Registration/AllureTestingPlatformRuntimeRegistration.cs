@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 using Microsoft.Testing.Platform.Services;
@@ -45,6 +46,8 @@ sealed class AllureTestingPlatformRuntimeRegistration<
     readonly ServiceProviderProxy serviceProvider;
 
     readonly MessageBusProxy messageChannel;
+
+    readonly InternalServiceProvider<TConfiguration> internalServiceProvider;
 
     IAllureRuntimeRegistrationPlan<TConfiguration, TRuntime>? registrationPlan = null;
 
@@ -98,7 +101,8 @@ sealed class AllureTestingPlatformRuntimeRegistration<
                 TRuntime,
                 TIntegrationContext
             >
-        > registration
+        > registration,
+        InternalServiceProvider<TConfiguration> allureServiceProvider
     )
     {
         this.runtimeBuilder = AllureRuntimeBuilder.Create(runtimeName, sessionFactory);
@@ -106,6 +110,7 @@ sealed class AllureTestingPlatformRuntimeRegistration<
             ?? throw new ArgumentNullException(nameof(registration));
         this.messageChannel = new();
         this.serviceProvider = new(this.messageChannel);
+        this.internalServiceProvider = allureServiceProvider;
     }
 
     public void EnsureRuntimeStarted()
@@ -440,6 +445,31 @@ sealed class AllureTestingPlatformRuntimeRegistration<
         }
     }
 
+    public ITestExecutionCoordinator CreateTestExecutionCoordinator()
+    {
+        lock (this.gate)
+        {
+            this.ThrowIfUnprepared();
+
+            return this.internalServiceProvider.CreateTestExecutionCoordinator(
+                this.registrationPlan!.Configuration
+            );
+        }
+    }
+
+    public void ConfigureEndpoint(IAllureEndpointRegistrationContext context)
+    {
+        lock (this.gate)
+        {
+            this.ThrowIfUnprepared();
+
+            this.internalServiceProvider.ConfigureEndpoint(
+                this.registrationPlan!.Configuration,
+                context
+            );
+        }
+    }
+
     enum BoundRole
     {
         None,
@@ -496,7 +526,8 @@ internal static class AllureTestingPlatformRuntimeRegistration
                 TRuntime,
                 TIntegrationContext
             >
-        > registration
+        > registration,
+        InternalServiceProvider<TConfiguration> coordinatorProvider
     )
         where TConfiguration : AllureTestingPlatformConfiguration, new()
         where TRuntime : IAllureTestingPlatformRuntime<TConfiguration>
@@ -505,5 +536,5 @@ internal static class AllureTestingPlatformRuntimeRegistration
             TRuntime
         >
     =>
-        new(runtimeName, sessionFactory, registration);
+        new(runtimeName, sessionFactory, registration, coordinatorProvider);
 }

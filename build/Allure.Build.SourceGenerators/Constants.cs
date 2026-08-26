@@ -28,6 +28,7 @@ internal static class Constants
     public const string PROP_TESTING_PLATFORM = "Allure_TestingPlatform";
     public const string PROP_TARGET_FRAMEWORK = "Allure_SampleSelectedTargetFramework";
     public const string PROP_CONFIGURATION = "Allure_SampleConfiguration";
+    public const string PROP_LEGACY_COMMONS = "Allure_LegacyCommons";
     public const string PROP_PRERUN_FLOW = "Allure_PreRunTestingFlow";
     public const string EDITOR_PROP_PROPERTY_NAMES = "build_property.Allure_PropertyNames";
 }

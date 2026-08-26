@@ -20,14 +20,7 @@ public class AllureTestingPlatformRuntime<TConfiguration>(
     RuntimeCreationArguments<TConfiguration> commonArgs,
     AllureTestingPlatformRuntimeArguments testingPlatformArgs
 ) :
-    AllureRuntime<TConfiguration>(
-        commonArgs.Configuration,
-        commonArgs.ParameterSerializer,
-        commonArgs.Destination,
-        commonArgs.Context,
-        commonArgs.LifecycleApi,
-        commonArgs.ModelApi
-    ),
+    AllureRuntime<TConfiguration>(commonArgs),
     IAllureTestingPlatformRuntime<TConfiguration>
 
     where TConfiguration : AllureTestingPlatformConfiguration

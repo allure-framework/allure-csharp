@@ -4,6 +4,7 @@ namespace Allure.Testing.Assertions.Model;
 
 public interface IAllureExecutableItem<TSelf> :
     IAllureModelObject<TSelf>,
+    IAllureAttachmentsProperty<TSelf>,
     IAllureDescriptionProperty<TSelf>,
     IAllureDescriptionHtmlProperty<TSelf>,
     IAllureNameProperty<TSelf>,

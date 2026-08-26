@@ -1,5 +1,6 @@
 using System;
 using Allure.Model;
+using Allure.Sdk.Functions;
 using Allure.Sdk.Registration;
 using Allure.Sdk.Runtime;
 
@@ -82,7 +83,7 @@ class RuntimeLifecycleApi(
 
     public TestResult StopTest()
     {
-        this.ModelApi.UpdateTestResult(stopExecutableItem);
+        this.ModelApi.UpdateTestResult(stopTestResult);
 
         var testResult = this.CurrentState.CurrentTest;
         this.ContextApi.Update((state) => state.ClearTestResult());
@@ -113,6 +114,17 @@ class RuntimeLifecycleApi(
             if (item.Stop == default)
             {
                 item.Stop = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            }
+        };
+
+    static readonly Action<TestResult> stopTestResult =
+        static testResult =>
+        {
+            stopExecutableItem(testResult);
+            if (testResult is { FullName: { } fullName, Parameters: var parameters})
+            {
+                testResult.TestCaseId ??= Ids.ForTestCase(fullName);
+                testResult.HistoryId ??= Ids.ForTest(fullName, parameters);
             }
         };
 }

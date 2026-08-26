@@ -173,7 +173,6 @@ public abstract class OperationTestsBase
         var attachment = await Assert.That(testResult.Attachments).HasSingleItem();
         await Assert.That(attachment.Name).IsEqualTo("text");
         await Assert.That(attachment.Type).IsEqualTo("text/plain");
-        await Assert.That(attachment.FileExtension).IsEqualTo(".txt");
         await Assert.That(destination.ByteAttachments).ContainsKey(attachment.Source);
         await Assert.That(destination.ByteAttachments[attachment.Source])
             .IsEquivalentTo(new byte[] { 1, 2, 3 });
@@ -200,7 +199,6 @@ public abstract class OperationTestsBase
             await Assert.That(attachment.Name).IsEqualTo("file attachment");
             await Assert.That(attachment.Type)
                 .IsEqualTo("application/octet-stream");
-            await Assert.That(attachment.FileExtension).IsEqualTo(".bin");
             await Assert.That(destination.FileAttachments).ContainsKey(attachment.Source);
             await Assert.That(destination.FileAttachments[attachment.Source])
                 .IsEqualTo(path);
@@ -233,7 +231,6 @@ public abstract class OperationTestsBase
         await Assert.That(attachment.Name).IsEqualTo("step attachment");
         await Assert.That(attachment.Type)
             .IsEqualTo("application/octet-stream");
-        await Assert.That(attachment.FileExtension).IsEqualTo(".bin");
         await Assert.That(destination.ByteAttachments).ContainsKey(attachment.Source);
         await Assert.That(destination.ByteAttachments[attachment.Source])
             .IsEquivalentTo(new byte[] { 1, 2, 3 });
@@ -263,7 +260,6 @@ public abstract class OperationTestsBase
             await Assert.That(attachment.Name).IsEqualTo("step file attachment");
             await Assert.That(attachment.Type)
                 .IsEqualTo("application/octet-stream");
-            await Assert.That(attachment.FileExtension).IsEqualTo(".bin");
             await Assert.That(destination.FileAttachments).ContainsKey(attachment.Source);
             await Assert.That(destination.FileAttachments[attachment.Source])
                 .IsEqualTo(path);
@@ -297,7 +293,6 @@ public abstract class OperationTestsBase
         await Assert.That(attachment.Name).IsEqualTo("fixture attachment");
         await Assert.That(attachment.Type)
             .IsEqualTo("application/octet-stream");
-        await Assert.That(attachment.FileExtension).IsEqualTo(".bin");
         await Assert.That(destination.ByteAttachments).ContainsKey(attachment.Source);
         await Assert.That(destination.ByteAttachments[attachment.Source])
             .IsEquivalentTo(new byte[] { 1, 2, 3 });
@@ -328,7 +323,6 @@ public abstract class OperationTestsBase
             await Assert.That(attachment.Name).IsEqualTo("fixture file attachment");
             await Assert.That(attachment.Type)
                 .IsEqualTo("application/octet-stream");
-            await Assert.That(attachment.FileExtension).IsEqualTo(".bin");
             await Assert.That(destination.FileAttachments).ContainsKey(attachment.Source);
             await Assert.That(destination.FileAttachments[attachment.Source])
                 .IsEqualTo(path);
@@ -358,7 +352,6 @@ public abstract class OperationTestsBase
         await Assert.That(attachment.Name).IsEqualTo("global attachment");
         await Assert.That(attachment.Type)
             .IsEqualTo("application/octet-stream");
-        await Assert.That(attachment.FileExtension).IsEqualTo(".bin");
         await Assert.That(destination.ByteAttachments).ContainsKey(attachment.Source);
         await Assert.That(destination.ByteAttachments[attachment.Source])
             .IsEquivalentTo(new byte[] { 1, 2, 3 });
@@ -385,7 +378,6 @@ public abstract class OperationTestsBase
             await Assert.That(attachment.Name).IsEqualTo("global file attachment");
             await Assert.That(attachment.Type)
                 .IsEqualTo("application/octet-stream");
-            await Assert.That(attachment.FileExtension).IsEqualTo(".bin");
             await Assert.That(destination.FileAttachments).ContainsKey(attachment.Source);
             await Assert.That(destination.FileAttachments[attachment.Source])
                 .IsEqualTo(path);

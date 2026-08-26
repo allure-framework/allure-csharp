@@ -15,8 +15,12 @@
 "theme:core":
   - changed-files:
     - any-glob-to-any-file:
+      - "src/Allure.Net/**"
       - "src/Allure.Net.Commons/**"
+      - "src/Allure.Net.Sdk/**"
+      - "tests/Allure.Net.Tests/**"
       - "tests/Allure.Net.Commons.Tests/**"
+      - "tests/Allure.Net.Sdk.Tests/**"
 
 "theme:xunit":
   - changed-files:
@@ -51,3 +55,10 @@
     - any-glob-to-any-file:
       - "src/Allure.TestingPlatform/**"
       - "tests/Allure.TestingPlatform.Tests/**"
+
+"theme:xunit.v3":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/Allure.Xunit.v3/**"
+      - "src/Allure.Xunit.v3.Generator/**"
+      - "tests/Allure.Xunit.v3.Tests/**"

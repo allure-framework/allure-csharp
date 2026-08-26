@@ -1,6 +1,8 @@
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
+using Allure.TestingPlatform.Internal.Lifecycle;
 using Allure.TestingPlatform.Internal.Registration;
+using Allure.TestingPlatform.Sdk.ExecutionState;
 using Allure.TestingPlatform.Sdk.Registration;
 using Allure.TestingPlatform.Sdk.Runtime;
 
@@ -22,6 +24,15 @@ class RuntimeCoordinatorSpy<TConfiguration, TRuntime>(
     public IReadOnlyLateBoundReference<TRuntime> RuntimeReference => runtimeReference;
 
     public IAllureTestingPlatformMessageChannel MessageChannel => IAllureTestingPlatformMessageChannel.Mock();
+
+    public void ConfigureEndpoint(IAllureEndpointRegistrationContext context)
+    {
+    }
+
+    public ITestExecutionCoordinator CreateTestExecutionCoordinator()
+    {
+        return DirectTestExecutionCoordinator.Instance;
+    }
 
     public ValueTask DisposeAsync() => default;
 

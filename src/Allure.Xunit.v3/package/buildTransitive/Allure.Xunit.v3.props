@@ -1,0 +1,13 @@
+<Project>
+
+    <PropertyGroup>
+        <Allure_TestingPlatformEnableSelfRegistration>false</Allure_TestingPlatformEnableSelfRegistration>
+        <Allure_WarnIfMtpDisabled>true</Allure_WarnIfMtpDisabled>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <CompilerVisibleProperty Include="Allure_GenerateXunitEntryPoint" />
+        <CompilerVisibleProperty Include="Allure_ApplyXunitAttribute" />
+    </ItemGroup>
+
+</Project>

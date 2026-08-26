@@ -1,3 +1,4 @@
+using System;
 using Allure.Sdk.Registration;
 using Allure.TestingPlatform.Configuration;
 
@@ -14,12 +15,12 @@ public interface IAllureTestingPlatformRegistrationContext<TConfiguration> :
     where TConfiguration : AllureTestingPlatformConfiguration
 {
     /// <summary>
-    /// Disables Allure.
+    /// Configures the in-process endpoint established by the test framework adapter.
     /// </summary>
-    void Disable();
-
-    /// <summary>
-    /// Disables the process watchdog that writes a global error when the test host crashes.
-    /// </summary>
-    void DisableHostProcessWatchdog();
+    /// <param name="endpointConfigurationCallback">
+    /// A callback that receives the resolved configuration and the endpoint registration context.
+    /// </param>
+    void ConfigureEndpoint(
+        Action<TConfiguration, IAllureEndpointRegistrationContext> endpointConfigurationCallback
+    );
 }

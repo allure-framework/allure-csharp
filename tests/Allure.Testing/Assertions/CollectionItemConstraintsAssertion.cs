@@ -44,8 +44,8 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
     protected override string GetExpectation() =>
         this.lastExpectation is var (index, expectation)
             ? expectation is not null
-                ? $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} at {index} {expectation}"
-                : $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} at {index} satisfying the corresponding constraints"
+                ? $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} #{index + 1} {expectation}"
+                : $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} and {this.itemDescription} #{index + 1} satisfying the corresponding constraints"
             : $"to have {this.itemConstraints.Length} {this.itemDescriptionPlural} each satisfying the corresponding constraints";
 
     async Task<AssertionResult> ApplyItemConstraints(IEnumerable<TItem> items)
@@ -80,7 +80,7 @@ public class CollectionItemConstraintsAssertion<TCollection, TItem>(
 
                 this.lastExpectation = (i, expected);
                 return AssertionResult.Failed(
-                    $"{this.itemDescription} at {i} {actual}"
+                    $"{this.itemDescription} #{i + 1} {actual}"
                 );
             }
         }

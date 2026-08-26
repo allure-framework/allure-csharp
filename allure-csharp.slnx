@@ -73,6 +73,12 @@
     <Project Path="src/Allure.Xunit/Allure.Xunit.csproj">
       <BuildType Solution="Publish|*" Project="Release" />
     </Project>
+    <Project Path="src/Allure.Xunit.v3/Allure.Xunit.v3.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
+    <Project Path="src/Allure.Xunit.v3.Generator/Allure.Xunit.v3.Generator.csproj">
+      <BuildType Solution="Publish|*" Project="Release" />
+    </Project>
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj">
@@ -106,6 +112,9 @@
       <Build Solution="Publish|*" Project="false" />
     </Project>
     <Project Path="tests/Allure.Xunit.Tests/Allure.Xunit.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
+    <Project Path="tests/Allure.Xunit.v3.Tests/Allure.Xunit.v3.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>
   </Folder>

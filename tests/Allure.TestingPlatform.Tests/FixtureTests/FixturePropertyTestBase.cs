@@ -12,7 +12,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     readonly CorrelationUid correlationUid = new("Bar");
 
     protected AllureScopeStartMessage StartScopeMessage { get; }
-    protected AllureBeforeFixtureStartMessage StartFixtureMessage { get; }
+    protected AllureSetUpFixtureStartMessage StartFixtureMessage { get; }
     protected AllureFixtureUpdateMessage UpdateFixtureMessage { get; }
     protected AllureFixtureStopMessage StopFixtureMessage { get; }
 
@@ -21,7 +21,7 @@ public abstract class FixturePropertyTestBase : DataConsumerTestsBase
     public FixturePropertyTestBase()
     {
         this.StartScopeMessage = new AllureScopeStartMessage(correlationUid, new("1"));
-        this.StartFixtureMessage = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        this.StartFixtureMessage = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         this.UpdateFixtureMessage = new AllureFixtureUpdateMessage(correlationUid, new("2"));
         this.StopFixtureMessage = new AllureFixtureStopMessage(correlationUid, new("2"));
         this.StopScopeMessage = new AllureScopeStopMessage(correlationUid, new("1"));

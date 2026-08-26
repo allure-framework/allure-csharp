@@ -15,7 +15,7 @@ public class ScopeTests : DataConsumerTestsBase
     public async Task ShouldEmitContainerOnScopeStop()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var stopFixture = new AllureFixtureStopMessage(correlationUid, new("2"));
         var stopScope = new AllureScopeStopMessage(correlationUid, new("1"));
 
@@ -31,7 +31,7 @@ public class ScopeTests : DataConsumerTestsBase
     public async Task ShouldAssociateSingleTestMessageTestWithScopeByUid()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
             Uid = "1",
@@ -59,7 +59,7 @@ public class ScopeTests : DataConsumerTestsBase
     public async Task ShouldAssociateTestMessagePairWithScopeByUid()
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeInProgressMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
             Uid = "1",
@@ -97,7 +97,7 @@ public class ScopeTests : DataConsumerTestsBase
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
         var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
             Uid = "3",
@@ -127,7 +127,7 @@ public class ScopeTests : DataConsumerTestsBase
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
         var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeInProgressMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
             Uid = "1",
@@ -166,7 +166,7 @@ public class ScopeTests : DataConsumerTestsBase
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
         var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
             Uid = "3",
@@ -198,7 +198,7 @@ public class ScopeTests : DataConsumerTestsBase
     {
         var startScope = new AllureScopeStartMessage(correlationUid, new("1"));
         var testsInScope = new AllureScopeTestsMessage(correlationUid, new("1"), [new("3"), new("4"), new("5")]);
-        var startFixture = new AllureBeforeFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
+        var startFixture = new AllureSetUpFixtureStartMessage(correlationUid, new("2"), new("1"), "Foo");
         var testNodeMessage = new TestNodeUpdateMessage(sessionUid, new()
         {
             Uid = "3",

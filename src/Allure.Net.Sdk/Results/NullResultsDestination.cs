@@ -2,6 +2,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Allure.Model;
+using Allure.Sdk.Internal.Functions;
 
 namespace Allure.Sdk.Results;
 
@@ -11,30 +12,32 @@ namespace Allure.Sdk.Results;
 public class NullResultsDestination : IAllureResultsDestination
 {
     /// <inheritdoc/>
-    public void CopyAttachment(string destinationFileName, string sourceFilePath)
-    {
-    }
+    public string CopyAttachment(string sourceFilePath, string fileExtension) =>
+        AttachmentSource.CreateName(fileExtension);
 
     /// <inheritdoc/>
-    public Task CopyAttachmentAsync(
-        string destinationFileName,
+    public Task<string> CopyAttachmentAsync(
         string sourceFilePath,
+        string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        Task.CompletedTask;
+        Task.FromResult(
+            AttachmentSource.CreateName(fileExtension)
+        );
 
     /// <inheritdoc/>
-    public void WriteAttachment(string outputFileName, Stream content)
-    {
-    }
+    public string WriteAttachment(Stream content, string fileExtension) =>
+        AttachmentSource.CreateName(fileExtension);
 
     /// <inheritdoc/>
-    public Task WriteAttachmentAsync(
-        string outputFileName,
+    public Task<string> WriteAttachmentAsync(
         Stream content,
+        string fileExtension,
         CancellationToken cancellationToken
     ) =>
-        Task.CompletedTask;
+        Task.FromResult(
+            AttachmentSource.CreateName(fileExtension)
+        );
 
     /// <inheritdoc/>
     public void WriteGlobals(Globals globals)

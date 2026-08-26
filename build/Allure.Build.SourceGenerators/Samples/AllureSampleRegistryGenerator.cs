@@ -194,6 +194,10 @@ public sealed class AllureSampleRegistryGenerator : IIncrementalGenerator
                         IsPreRunFlow: global::System.StringComparer.OrdinalIgnoreCase.Equals(
                             {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_PRERUN_FLOW }},
                             "true"
+                        ),
+                        LegacyCommons: global::System.StringComparer.OrdinalIgnoreCase.Equals(
+                            {{ Constants.MSBUILD_PROPS_CLASSNAME_FULL }}.{{ Constants.PROP_LEGACY_COMMONS }},
+                            "true"
                         )
                     );
 

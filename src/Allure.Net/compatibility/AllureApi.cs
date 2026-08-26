@@ -8,8 +8,9 @@ using NewAllureApi = Allure.AllureApi;
 namespace Allure.Net.Commons;
 
 /// <summary>
-/// A legacy facade that provides the API for test authors to enhance the Allure
-/// report. Please, switch to <see cref="Allure.AllureApi"/>
+/// This class is a part of the legacy API compatibility layer and will be
+/// removed in a future update.
+/// Please, switch to <see cref="Allure.AllureApi"/>.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 [Obsolete("Allure.Net.Commons.AllureApi is a legacy API and will be removed in a future update. Please, switch to Allure.AllureApi.")]
@@ -48,10 +49,7 @@ public static class AllureApi
     [Obsolete("Use Allure.AllureApi.SetName or the SetName method of a step context instead.")]
     public static void SetStepName(string newName)
     {
-        AllureInProcessApi.UpdateStepResult((step) =>
-        {
-            step.Name = newName;
-        });
+        NewAllureApi.SetName(newName);
     }
 
     /// <summary>
@@ -634,7 +632,7 @@ public static class AllureApi
         bool excluded
     )
     {
-        NewAllureApi.AddTestParameterFromObject(name, value, excluded);
+        NewAllureApi.AddTestParameterFromObject(name, value, mode, excluded);
     }
 
     /// <summary>

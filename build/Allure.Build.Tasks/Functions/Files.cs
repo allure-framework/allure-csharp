@@ -60,6 +60,7 @@ public static class Files
         string solutionDir,
         string targetFrameworks,
         string outputType,
+        IEnumerable<(string name, string value)> properties,
         IEnumerable<string> imports,
         IEnumerable<string> packages,
         IEnumerable<string> projects,
@@ -70,6 +71,7 @@ public static class Files
                 imports: imports,
                 targetFrameworks: targetFrameworks,
                 outputType: outputType,
+                properties: properties,
                 packages: packages,
                 projects: projects,
                 analyzerProjects: analyzerProjects

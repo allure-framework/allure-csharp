@@ -44,6 +44,22 @@ public record class AllureSampleRunInput
         ResolveTestTimeoutSeconds()
     );
 
+    /// <summary>
+    /// Returns <see langword="true"/> if the input is compatible with the pre-run flow.
+    /// </summary>
+    /// <remarks>
+    /// An input is compatible with the pre-run flow if and only of all of the following are true:
+    /// <list type="number">
+    /// <item>The input doesn't define a custom configuration.</item>
+    /// <item>The input doesn't define environment variables.</item>
+    /// <item>The input doesn't define extra process arguments.</item>
+    /// </list>
+    /// </remarks>
+    public bool IsPreRunCompatible =>
+        this.AllureConfiguration is null
+            && this.EnvironmentVariables.Count == 0
+            && this.ProcessArguments.Count == 0;
+
     public static AllureSampleRunInput Default { get; } = new();
 
     static int ResolveTestTimeoutSeconds()

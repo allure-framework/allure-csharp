@@ -106,6 +106,7 @@ public static class XmlDefinitions
         IEnumerable<string> imports,
         string targetFrameworks,
         string outputType,
+        IEnumerable<(string name, string value)> properties,
         IEnumerable<string> packages,
         IEnumerable<string> projects,
         IEnumerable<string> analyzerProjects
@@ -120,7 +121,8 @@ public static class XmlDefinitions
                     ("OutputType", outputType),
                     ("EnableDefaultItems", "false"),
                     ("IsTestProject", "true"),
-                    ("AspectInjector_Enabled", "false")
+                    ("AspectInjector_Enabled", "false"),
+                    ..properties,
                 ]),
                 MsBuild.GetItemGroup("Compile", [("Include", Path.Combine("**", "*.cs"))]),
                 MsBuild.GetItemGroup("Clean", [
