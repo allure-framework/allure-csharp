@@ -15,6 +15,10 @@
         <NuGetPackInput Include="$(Allure_TransformReadmeSource)" />
     </ItemGroup>
 
+    <UsingTask
+        TaskName="Allure.Build.Tasks.PrepareConfigSchema"
+        AssemblyFile="$(_Allure_BuildTaskAssemblyPath)"/>
+
     <UsingTask TaskName="Allure_TransformReadmeForNuget"
             TaskFactory="RoslynCodeTaskFactory"
             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -58,4 +62,31 @@
             </_PackageFiles>
         </ItemGroup>
     </Target>
+
+    <PropertyGroup>
+        <_Allure_ConfigurationSchema>$(
+            [MSBuild]::NormalizePath(
+                '$(MSBuildProjectDirectory)',
+                './schemas/allure.config.schema.json'
+            )
+        )</_Allure_ConfigurationSchema>
+
+        <_Allure_SchemaSitePath>$(
+            [MSBuild]::NormalizeDirectory(
+                '$(ArtifactsPath)',
+                'schema-site'
+            )
+        )</_Allure_SchemaSitePath>
+    </PropertyGroup>
+
+    <Target Name="Allure_PrepareSchemas"
+            Condition=" Exists('$(_Allure_ConfigurationSchema)') And '$(IsPackable)' == 'true' "
+            DependsOnTargets="_Allure_CompileBuildTasks">
+        <Allure.Build.Tasks.PrepareConfigSchema
+            InputPath="$(_Allure_ConfigurationSchema)"
+            OutputDirectory="$(_Allure_SchemaSitePath)"
+            Version="$(Version)"
+            PackageName="$(PackageId)"/>
+    </Target>
+
 </Project>

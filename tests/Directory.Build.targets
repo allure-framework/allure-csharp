@@ -2,44 +2,6 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
             Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 
-    <PropertyGroup>
-        <_Allure_RepoRoot>$(
-            [MSBuild]::NormalizePath(
-                '$(MSBuildThisFileDirectory)',
-                '..',
-            )
-        )</_Allure_RepoRoot>
-        <_Allure_BuildTaskProjectName>Allure.Build.Tasks</_Allure_BuildTaskProjectName>
-        <_Allure_BuildTaskProjectDir>$(
-            [MSBuild]::NormalizeDirectory(
-                '$(_Allure_RepoRoot)',
-                'build',
-                '$(_Allure_BuildTaskProjectName)'
-            )
-        )</_Allure_BuildTaskProjectDir>
-        <_Allure_BuildTaskAssemblyPath>$(
-            [MSBuild]::NormalizePath(
-                '$(ArtifactsPath)',
-                'bin',
-                '$(_Allure_BuildTaskProjectName)',
-                'release',
-                '$(_Allure_BuildTaskProjectName).dll'
-            )
-        )</_Allure_BuildTaskAssemblyPath>
-        <_Allure_BinDirectory>$(
-            [MSBuild]::NormalizePath(
-                '$(ArtifactsPath)',
-                'bin'
-            )
-        )</_Allure_BinDirectory>
-        <_Allure_ObjDirectory>$(
-            [MSBuild]::NormalizePath(
-                '$(ArtifactsPath)',
-                'obj'
-            )
-        )</_Allure_ObjDirectory>
-    </PropertyGroup>
-
     <!-- Normalize casing, set the test MSBuild target -->
     <Choose>
         <When Condition=" '$(Allure_TestingPlatform)' == 'VsTest' ">
@@ -93,42 +55,8 @@
         <DefineConstants>$(DefineConstants);ALLURE_TEST_PRERUN_FLOW</DefineConstants>
     </PropertyGroup>
 
-    <ItemGroup>
-        <_Allure_CompileBuildTasksInput Include="$(_Allure_BuildTaskProjectDir)**/*" />
-        <_Allure_CompileBuildTasksInput Include="$([MSBuild]::NormalizePath(
-            '$(_Allure_RepoRoot)',
-            'Directory.Build.props'
-        ))" />
-        <_Allure_CompileBuildTasksInput Include="$([MSBuild]::NormalizePath(
-            '$(_Allure_RepoRoot)',
-            'Directory.Build.targets'
-        ))" />
-    </ItemGroup>
-
     <Target Name="Allure_FailIfError" Condition=" '$(_Allure_Error)' != '' ">
         <Error Text="$(_Allure_Error)" />
-    </Target>
-
-    <Target
-        Name="_Allure_CompileBuildTasks"
-        Inputs="@(_Allure_CompileBuildTasksInput)"
-        Outputs="$(_Allure_BuildTaskAssemblyPath)">
-
-        <PropertyGroup>
-            <_Allure_BuildTasksProject>$(
-                [MSBuild]::NormalizePath(
-                    '$(_Allure_BuildTaskProjectDir)',
-                    '$(_Allure_BuildTaskProjectName).csproj'
-                )
-            )</_Allure_BuildTasksProject>
-        </PropertyGroup>
-
-        <MSBuild
-            Projects="$(_Allure_BuildTasksProject)"
-            Targets="Restore;Build"
-            BuildInParallel="$(BuildInParallel)"
-            Properties="Configuration=Release" />
-
     </Target>
 
     <Target
