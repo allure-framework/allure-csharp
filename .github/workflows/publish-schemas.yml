@@ -1,0 +1,112 @@
+name: Publish schemas
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Release version and matching Git tag.
+        required: true
+        type: string
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version and matching Git tag.
+        required: true
+        type: string
+
+concurrency:
+  group: publish-schemas
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+      contents: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Validate version
+        shell: bash
+        env:
+          SCHEMA_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$SCHEMA_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]; then
+            echo "::error::Invalid schema version: $SCHEMA_VERSION"
+            exit 1
+          fi
+
+      - name: Checkout release
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.version }}
+          fetch-depth: 1
+
+      - name: Checkout Pages working copy
+        uses: actions/checkout@v7
+        with:
+          path: ./artifacts/schema-site
+          fetch-depth: 1
+
+      - name: Prepare Pages branch
+        working-directory: ./artifacts/schema-site
+        shell: bash
+        run: |
+          if git fetch --depth=1 origin gh-pages; then
+            git switch --force-create gh-pages FETCH_HEAD
+          else
+            git switch --orphan gh-pages
+            git rm -rf --ignore-unmatch .
+          fi
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Generate schemas
+        shell: bash
+        env:
+          SCHEMA_VERSION: ${{ inputs.version }}
+        run: dotnet msbuild allure-csharp.slnx -t:Allure_PrepareSchemas -p:Version="$SCHEMA_VERSION"
+
+      - name: Update Pages branch
+        working-directory: ./artifacts/schema-site
+        shell: bash
+        env:
+          SCHEMA_VERSION: ${{ inputs.version }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          git add --all
+          git status --short
+
+          if git diff --cached --quiet; then
+            echo "Nothing to commit. The schemas are already up to date."
+          else
+            git commit -m "Publish schemas for ${SCHEMA_VERSION}"
+            git push origin HEAD:gh-pages
+          fi
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./artifacts/schema-site
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
