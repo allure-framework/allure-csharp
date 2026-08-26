@@ -110,6 +110,7 @@ The canonical JSON format is:
 
 ```json
 {
+  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.testingplatform/allure.config.schema.json",
   "resultsDirectory": "allure-results",
   "hostname": "test-host",
   "linkTemplates": {

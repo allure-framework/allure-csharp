@@ -74,11 +74,15 @@ configuration just as `Allure.Xunit` does.
 
 ## Update configuration
 
-The old configuration shape is accepted for compatibility, but new projects
-should use the current top-level property names:
+The legacy configuration shape remains supported for compatibility.
+When migrating, move the settings to the current top-level properties.
+Replace an existing $schema value (or add one if it is absent) with the
+`Allure.Xunit.v3` schema URL to enable validation and completion in compatible
+editors:
 
 ```diff
 -{
+-  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/refs/heads/main/src/Allure.Xunit/Schemas/allureConfig.schema.json",
 -  "allure": {
 -    "title": "build-agent",
 -    "directory": "allure-results",
@@ -88,6 +92,7 @@ should use the current top-level property names:
 -  }
 -}
 +{
++  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.xunit.v3/allure.config.schema.json",
 +  "hostname": "build-agent",
 +  "resultsDirectory": "allure-results",
 +  "linkTemplates": {

@@ -151,9 +151,10 @@ Example configuration:
 
 ```json
 {
+  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.xunit.v3/allure.config.schema.json",
   "resultsDirectory": "allure-results",
   "hostname": "build-agent",
-  "linkTemplate": {
+  "linkTemplates": {
     "issue": {
       "urlTemplate": "https://github.com/allure-framework/allure-csharp/issues/{0}",
       "nameTemplate": "Issue {0}"
@@ -306,6 +307,7 @@ Alternatively, select the hook through the `runtimeRegistrationHook` property in
 
 ```json
 {
+  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.xunit.v3/allure.config.schema.json",
   "runtimeRegistrationHook":
     "MyTests.ProjectAllureRegistration, MyTests"
 }

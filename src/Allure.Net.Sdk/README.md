@@ -111,6 +111,7 @@ select a hook in `allure.config.json`:
 
 ```json
 {
+  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.net.sdk/allure.config.schema.json",
   "runtimeRegistrationHook": "MyTests.ProjectAllureRegistration, MyTests"
 }
 ```
