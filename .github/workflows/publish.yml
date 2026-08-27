@@ -16,14 +16,15 @@ jobs:
   publish:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 'Setup .NET Core SDK'
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             3.1.x
             6.0.x
+            10.0.x
 
       - name: 'Restore the packages'
         shell: pwsh
@@ -80,3 +81,16 @@ jobs:
           dotnet nuget push ".\artifacts\package\release\*.nupkg" `
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" `
             --source "https://api.nuget.org/v3/index.json"
+
+  publish-schemas:
+    name: Publish schemas
+    needs: publish
+
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    uses: ./.github/workflows/publish-schemas.yml
+    with:
+      version: ${{ github.event.release.tag_name }}

@@ -67,6 +67,8 @@ registered and the project will not produce Allure results through this package.
 
 `Allure.Xunit.v3` currently has the following limitations:
 
+- It does not support the native xUnit.net runner. The project must enable
+  the MTP runner.
 - Unlike `Allure.Xunit`, it cannot delegate to or run alongside a second xUnit
   runner reporter.
 - It cannot be used in the same test process with another integration based on
@@ -76,6 +78,10 @@ registered and the project will not produce Allure results through this package.
 - Instrumentation attributes such as `AllureStep`, `AllureSetUp`,
   `AllureTearDown`, and attachment attributes use AspectInjector. On Apple
   silicon Macs, using these attributes may require Rosetta 2.
+- In server mode, the configuration is not re-read until the process is
+  restarted.
+- Only one MTP request can be active at a time; parallel requests are not
+  supported.
 
 ## Quick Start
 
@@ -128,34 +134,36 @@ are not supported yet.
 
 ## Configuration
 
-The default registration checks the same configuration sources as
-`Allure.TestingPlatform`, in order from highest to lowest precedence:
-
-1. explicit configuration passed during custom registration;
-2. the file path from the `ALLURE_CONFIG` environment variable;
-3. `allureConfig.json` from the application base directory;
-4. default configuration values.
-
-The first source that provides a configuration wins, and resolution stops.
-Configuration sources are not merged: values omitted by the selected source
-are not filled from sources later in the list.
-
-An `allureConfig.json` file can be copied to the output directory:
+Create `allure.config.json` with the required configuration and make sure the
+file is copied to the output directory:
 
 ```xml
 <ItemGroup>
-  <None Update="allureConfig.json">
+  <None Update="allure.config.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
 </ItemGroup>
 ```
 
+The old `allureConfig.json` name is also supported.
+
 Example configuration:
 
 ```json
 {
+  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.xunit.v3/allure.config.schema.json",
   "resultsDirectory": "allure-results",
-  "hostname": "build-agent"
+  "hostname": "build-agent",
+  "linkTemplates": {
+    "issue": {
+      "urlTemplate": "https://github.com/allure-framework/allure-csharp/issues/{0}",
+      "nameTemplate": "Issue {0}"
+    }
+  },
+  "globalLabels": {
+    "layer": "unit",
+    "project": "Allure.Xunit.v3"
+  }
 }
 ```
 
@@ -173,6 +181,8 @@ All properties are optional. JSON property names are case-sensitive.
 | `isEnabled` | `true` | Whether the Allure integration is enabled. |
 | `isProcessWatchdogEnabled` | `true` | Whether an Allure global error is written when the test host process exits unexpectedly. |
 
+### CLI arguments
+
 The `--allure`, `--allure-watchdog`, and `--allure-results-directory`
 command-line options override their corresponding configuration properties for
 the current run:
@@ -182,6 +192,21 @@ dotnet test -- --allure off
 dotnet test -- --allure-watchdog off
 dotnet test -- --allure-results-directory ./artifacts/allure-results
 ```
+
+### Configuration resolution
+
+The default registration checks the following configuration sources
+in order from highest to lowest precedence:
+
+1. explicit configuration passed during custom registration;
+2. the file path from the `ALLURE_CONFIG` environment variable;
+3. `allureConfig.json` from the application base directory;
+4. `allure.config.json` from the application base directory;
+5. default configuration values.
+
+The first source that provides a configuration wins, and resolution stops.
+Configuration sources are not merged: values omitted by the selected source
+are not filled from sources later in the list.
 
 ## Selective run
 
@@ -278,10 +303,11 @@ internal static class AllureSetup
 ```
 
 Alternatively, select the hook through the `runtimeRegistrationHook` property in
-`allureConfig.json`. Specify the hook type followed by the name of its assembly:
+`allure.config.json`. Specify the hook type followed by the name of its assembly:
 
 ```json
 {
+  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.xunit.v3/allure.config.schema.json",
   "runtimeRegistrationHook":
     "MyTests.ProjectAllureRegistration, MyTests"
 }
