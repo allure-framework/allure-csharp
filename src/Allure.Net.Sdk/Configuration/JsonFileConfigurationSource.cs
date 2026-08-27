@@ -269,7 +269,7 @@ public static class JsonFileConfigurationSource
         FromPathEnvironmentVariable<TConfiguration>("ALLURE_CONFIG");
 
     /// <summary>
-    /// Creates a source for <c>allure.config.json</c> in the application base directory.
+    /// Creates a source for <c>allureConfig.json</c> in the application base directory.
     /// </summary>
     /// <typeparam name="TConfiguration">The configuration type.</typeparam>
     /// <param name="isOptional">
