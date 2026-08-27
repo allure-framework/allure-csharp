@@ -498,17 +498,48 @@ context.ConfigureSerialization(
 );
 ```
 
-Select the hook before Allure registration begins. See
-[Registration hook](README.md#registration-hook) for the available registration
-mechanisms.
+Register the hook from a module initializer by assigning it to
+`AllureXunitRegistrationHook.Current`:
 
-The old type formatter API matched only the exact runtime type. A rule derived
-from `TypedParameterSerializationRule<T>` accepts any value compatible with
-`T`. A rule for a base class therefore also handles its subclasses, and a rule
-for an interface handles implementations of that interface. Delegate rules
-created by `AddDelegateRule<T>` derive from the same typed rule and have the
-same behavior. If multiple rules accept a value, the last added matching rule
-has priority.
+```csharp
+using System.Runtime.CompilerServices;
+using Allure.Xunit.Registration;
+
+internal static class AllureSetup
+{
+    [ModuleInitializer]
+    internal static void Initialize()
+    {
+        AllureXunitRegistrationHook.Current =
+            new ProjectAllureRegistration();
+    }
+}
+```
+
+For details about registration hooks, see
+[Registration hook](https://github.com/allure-framework/allure-csharp/blob/main/src/Allure.Xunit.v3/README.md#registration-hook).
+
+### Type matching and rule priority
+
+The old type formatter API matched only the exact runtime type. In contrast,
+`TypedParameterSerializationRule<T>` and `AddDelegateRule<T>` use normal C#
+type compatibility, including inheritance, interface implementation, and
+generic variance. Because the last matching rule wins, add general rules before
+more specific ones when the specific behavior should take priority:
+
+```csharp
+context.ConfigureSerialization(rules =>
+{
+    rules.AddDelegateRule<Account>(account => account.Id);
+    rules.AddDelegateRule<PremiumAccount>(
+        account => $"premium:{account.Id}"
+    );
+});
+```
+
+Assuming `PremiumAccount` derives from `Account`, both rules match it, so the
+`PremiumAccount` rule must be added last to take priority. The same applies to
+an interface rule and a rule for one of its implementations.
 
 ## Replace ExtendedApi
 
