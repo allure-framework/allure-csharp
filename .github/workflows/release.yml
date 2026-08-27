@@ -35,7 +35,7 @@ jobs:
       - name: "Check next version"
         run: |
           expr "${{ inputs.nextVersion }}" : '[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*$'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.QAMETA_CI }}
 
@@ -100,7 +100,7 @@ jobs:
           git push origin ${{ github.ref }}
 
       - name: "Publish Github Release"
-        uses: octokit/request-action@v2.x
+        uses: octokit/request-action@v3.x
         with:
           route: POST /repos/${{ github.repository }}/releases
           tag_name: ${{ env.release_version }}
