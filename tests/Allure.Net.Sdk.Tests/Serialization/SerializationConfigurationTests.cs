@@ -60,6 +60,19 @@ public class SerializationConfigurationTests
     }
 
     [Test]
+    public async Task ShouldApplyDelegateRuleThroughGenericVariance()
+    {
+        var serializer = CreateSerializer(
+            context => context.AddDelegateRule<IConverter<string, object>>(
+                value => $"variant:{value.Convert("value")}"
+            )
+        );
+
+        await Assert.That(serializer.Serialize(new ObjectToStringConverter()))
+            .IsEqualTo("variant:value");
+    }
+
+    [Test]
     public async Task ShouldReplaceDefaultJsonOptions()
     {
         var serializer = CreateSerializer(
@@ -207,6 +220,16 @@ public class SerializationConfigurationTests
     }
 
     sealed record class NamedValue(string Name) : INamedValue;
+
+    interface IConverter<in TInput, out TOutput>
+    {
+        TOutput Convert(TInput input);
+    }
+
+    sealed class ObjectToStringConverter : IConverter<object, string>
+    {
+        public string Convert(object input) => input.ToString()!;
+    }
 
     sealed class JsonObject
     {

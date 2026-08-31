@@ -1,4 +1,39 @@
 <Project>
+
+    <ItemGroup>
+        <_Allure_CompileBuildTasksInput Include="$(_Allure_BuildTaskProjectDir)**/*" />
+        <_Allure_CompileBuildTasksInput Include="$([MSBuild]::NormalizePath(
+            '$(_Allure_RepoRoot)',
+            'Directory.Build.props'
+        ))" />
+        <_Allure_CompileBuildTasksInput Include="$([MSBuild]::NormalizePath(
+            '$(_Allure_RepoRoot)',
+            'Directory.Build.targets'
+        ))" />
+    </ItemGroup>
+
+    <Target
+        Name="_Allure_CompileBuildTasks"
+        Inputs="@(_Allure_CompileBuildTasksInput)"
+        Outputs="$(_Allure_BuildTaskAssemblyPath)">
+
+        <PropertyGroup>
+            <_Allure_BuildTasksProject>$(
+                [MSBuild]::NormalizePath(
+                    '$(_Allure_BuildTaskProjectDir)',
+                    '$(_Allure_BuildTaskProjectName).csproj'
+                )
+            )</_Allure_BuildTasksProject>
+        </PropertyGroup>
+
+        <MSBuild
+            Projects="$(_Allure_BuildTasksProject)"
+            Targets="Restore;Build"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="Configuration=Release" />
+
+    </Target>
+
     <!-- Some assemblies are strong-named.
      We need to re-sign them after AspectInjector runs and before publishing to NuGet.
      Otherwise, they will not pass the `sn.exe -vf <assembly>` check. -->
@@ -75,4 +110,6 @@
     <Target Name="Allure_RunTestSamples" />
     <Target Name="Allure_CleanTestSamples" />
     <Target Name="Allure_DeleteTestSamples" />
+    <Target Name="Allure_PrepareSchemas" />
+
 </Project>

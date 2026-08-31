@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://allure-framework.github.io/allure-csharp/schemas/allure.testingplatform/allure.config.schema.json",
+  "title": "Allure.TestingPlatform configuration",
+  "description": "Configuration properties supported by the Allure Microsoft Testing Platform integration. Framework integrations may extend this object with additional properties.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://allure-framework.github.io/allure-csharp/schemas/allure.net.sdk/allure.config.schema.json"
+    }
+  ],
+  "properties": {
+    "isEnabled": {
+      "description": "Whether the Allure integration is enabled.",
+      "type": "boolean",
+      "default": true
+    },
+    "isProcessWatchdogEnabled": {
+      "description": "Whether an Allure global error is written when the test host process exits unexpectedly.",
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "additionalProperties": true
+}

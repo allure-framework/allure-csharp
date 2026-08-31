@@ -1,6 +1,6 @@
 /*
  * The source code of the Allure_TransformReadmeForNuget task defined in Directory.Build.targets.
- * The task is used by the Allure_GenerateNugetReadmeFiles target. See Directory.Build.targets
+ * The task is used by the _Allure_GenerateNugetReadmeFile target. See Directory.Build.targets
  * for some details.
  *
 */

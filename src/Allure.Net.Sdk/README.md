@@ -58,6 +58,21 @@ using var registration = plan.Build();
 IAllureRuntime runtime = registration.Runtime;
 ```
 
+#### Default configuration resolution
+
+Unless an integration selects configuration explicitly, the builder checks
+these sources in order:
+
+1. the file identified by the `ALLURE_CONFIG` environment variable;
+2. `allureConfig.json` in the application base directory;
+3. `allure.config.json` in the application base directory;
+4. default configuration values.
+
+The first available source wins. Sources are not merged, so properties omitted
+by the selected source are not filled from later sources. Selecting a
+configuration or configuration source through the registration context replaces
+this default source list.
+
 The registration action passed to `Prepare` receives an
 `IAllureRuntimeIntegrationContext`. Use that context to:
 
@@ -92,10 +107,11 @@ public sealed class ProjectAllureRegistration :
 By default, the builder looks for hooks in two places: first in the
 `ALLURE_RUNTIME_REGISTRATION_HOOK` environment variable, then in the resolved
 configuration's `runtimeRegistrationHook` property. For example, a user can
-select a hook in `allureConfig.json`:
+select a hook in `allure.config.json`:
 
 ```json
 {
+  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.net.sdk/allure.config.schema.json",
   "runtimeRegistrationHook": "MyTests.ProjectAllureRegistration, MyTests"
 }
 ```

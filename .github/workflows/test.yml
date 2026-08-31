@@ -20,20 +20,24 @@ permissions:
   pull-requests: write
   checks: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 'Setup .NET Core SDK'
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             3.1.x
             10.0.x
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '20.x'
 
@@ -104,6 +108,10 @@ jobs:
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}
           npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-reqnroll" -- dotnet test ./tests/Allure.Reqnroll.Tests\
+            --no-restore\
+            --no-build\
+            --configuration ${{ env.BUILD_CONFIGURATION }}
+          npx -y allure@3 run --config ./.allurerc.mjs --rerun 2 --environment="${{ env.BUILD_CONFIGURATION }}" --dump="allure-results-schemas" -- dotnet run --project ./tests/Allure.ConfigSchema.Tests\
             --no-restore\
             --no-build\
             --configuration ${{ env.BUILD_CONFIGURATION }}

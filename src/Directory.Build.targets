@@ -11,9 +11,29 @@
         <Allure_TransformReadmeSource>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'build', 'TransformReadmeForNuget.cs'))</Allure_TransformReadmeSource>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <_Allure_ConfigurationSchema>$(
+            [MSBuild]::NormalizePath(
+                '$(MSBuildProjectDirectory)',
+                './schemas/allure.config.schema.json'
+            )
+        )</_Allure_ConfigurationSchema>
+
+        <_Allure_SchemaSitePath>$(
+            [MSBuild]::NormalizeDirectory(
+                '$(ArtifactsPath)',
+                'schema-site'
+            )
+        )</_Allure_SchemaSitePath>
+    </PropertyGroup>
+
     <ItemGroup>
         <NuGetPackInput Include="$(Allure_TransformReadmeSource)" />
     </ItemGroup>
+
+    <UsingTask
+        TaskName="Allure.Build.Tasks.PrepareConfigSchema"
+        AssemblyFile="$(_Allure_BuildTaskAssemblyPath)"/>
 
     <UsingTask TaskName="Allure_TransformReadmeForNuget"
             TaskFactory="RoslynCodeTaskFactory"
@@ -39,17 +59,20 @@
     NuGet doesn't support <img> tags well (in particular, the align, width and height properties).
     This task generates a new README file with those unsupported constructs removed.
     -->
-    <Target Name="Allure_GenerateNugetReadmeFiles"
-            BeforeTargets="GenerateNuspec"
-            Condition="'$(IsPackable)' == 'true'"
+    <Target Name="_Allure_GenerateNugetReadmeFile"
             Inputs="@(NuGetPackInput)" Outputs="@(NuGetPackOutput)">
+
         <Allure_TransformReadmeForNuget
             InputReadmePath="README.md"
             OutputDirPath="$(BaseIntermediateOutputPath)">
+
             <Output TaskParameter="GeneratedReadmePath"
                 PropertyName="Allure_NugetTransformedReadmePath" />
+
         </Allure_TransformReadmeForNuget>
+
         <Message Text="A new README was generated for $(MSBuildProjectName) at $(Allure_NugetTransformedReadmePath)" Importance="high" />
+
         <ItemGroup>
             <_PackageFiles Remove="README.md" />
             <_PackageFiles Include="$(Allure_NugetTransformedReadmePath)">
@@ -58,4 +81,42 @@
             </_PackageFiles>
         </ItemGroup>
     </Target>
+
+    <Target Name="_Allure_AddConfigurationSchema"
+        Condition="Exists('$(_Allure_ConfigurationSchema)')"
+        DependsOnTargets="_Allure_CompileBuildTasks">
+
+        <Allure.Build.Tasks.PrepareConfigSchema
+            InputPath="$(_Allure_ConfigurationSchema)"
+            OutputDirectory="$(BaseIntermediateOutputPath)"
+            Version="$(Version)"
+            PackageName="$(PackageId)">
+
+            <Output TaskParameter="VersionedSchemaPath" PropertyName="_Allure_VersionedSchemaPath" />
+
+        </Allure.Build.Tasks.PrepareConfigSchema>
+
+        <ItemGroup>
+            <_PackageFiles Condition="Exists('$(_Allure_VersionedSchemaPath)')" Include="$(_Allure_VersionedSchemaPath)">
+                <BuildAction>None</BuildAction>
+                <PackagePath>/schemas/allure.config.schema.json</PackagePath>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="_Allure_IncludeDynamicPackageContent"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(IsPackable)' == 'true'"
+        DependsOnTargets="_Allure_GenerateNugetReadmeFile;_Allure_AddConfigurationSchema"/>
+
+    <Target Name="Allure_PrepareSchemas"
+            Condition=" Exists('$(_Allure_ConfigurationSchema)') And '$(IsPackable)' == 'true' "
+            DependsOnTargets="_Allure_CompileBuildTasks">
+        <Allure.Build.Tasks.PrepareConfigSchema
+            InputPath="$(_Allure_ConfigurationSchema)"
+            OutputDirectory="$(_Allure_SchemaSitePath)"
+            Version="$(Version)"
+            PackageName="$(PackageId)"/>
+    </Target>
+
 </Project>

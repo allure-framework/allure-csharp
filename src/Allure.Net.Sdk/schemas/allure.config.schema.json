@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://allure-framework.github.io/allure-csharp/schemas/allure.net.sdk/allure.config.schema.json",
+  "title": "Allure.Net.Sdk configuration",
+  "description": "Common configuration properties supported by Allure.Net.Sdk. Framework integrations may extend this object with additional properties.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "The URL of the JSON Schema used to validate this configuration file.",
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "hostname": {
+      "description": "The host name recorded in generated test results. Defaults to the current machine name.",
+      "type": "string"
+    },
+    "resultsDirectory": {
+      "description": "The absolute or relative path of the directory where Allure result files are written. Relative paths are resolved against the test process working directory.",
+      "type": "string",
+      "minLength": 1
+    },
+    "linkTemplates": {
+      "description": "Link templates indexed by link type. The {0} substitution field represents the original link value.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/linkTemplate"
+      },
+      "default": {}
+    },
+    "failExceptions": {
+      "description": "Exception type names that Allure treats as test failures instead of broken tests.",
+      "type": "array",
+      "items": {
+        "description": "The namespace-qualified or assembly-qualified name of an exception type.",
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    },
+    "indentOutput": {
+      "description": "Whether generated JSON result files are indented.",
+      "type": "boolean",
+      "default": false
+    },
+    "globalLabels": {
+      "description": "Labels applied to every generated test result, indexed by label name.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {}
+    },
+    "runtimeRegistrationHook": {
+      "description": "The assembly-qualified name of the runtime registration hook type.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "linkTemplate": {
+      "title": "link template",
+      "description": "Templates used to expand a link URL and, optionally, its display name.",
+      "type": "object",
+      "properties": {
+        "urlTemplate": {
+          "description": "A composite format string for the link URL. The {0} substitution field represents the original link value.",
+          "type": "string",
+          "minLength": 1
+        },
+        "nameTemplate": {
+          "description": "An optional composite format string for the link display name. The {0} substitution field represents the original link value.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "urlTemplate"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

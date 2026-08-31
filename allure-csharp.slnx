@@ -81,6 +81,9 @@
     </Project>
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Allure.ConfigSchema.Tests/Allure.ConfigSchema.Tests.csproj">
+      <Build Solution="Publish|*" Project="false" />
+    </Project>
     <Project Path="tests/Allure.Net.Commons.Tests/Allure.Net.Commons.Tests.csproj">
       <Build Solution="Publish|*" Project="false" />
     </Project>

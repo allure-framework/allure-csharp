@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://allure-framework.github.io/allure-csharp/schemas/allure.xunit.v3/allure.config.schema.json",
+  "title": "Allure.Xunit.v3 configuration",
+  "description": "Configuration properties supported by the Allure xUnit.net v3 integration.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://allure-framework.github.io/allure-csharp/schemas/allure.testingplatform/allure.config.schema.json"
+    }
+  ],
+  "additionalProperties": true
+}

@@ -74,11 +74,15 @@ configuration just as `Allure.Xunit` does.
 
 ## Update configuration
 
-The old configuration shape is accepted for compatibility, but new projects
-should use the current top-level property names:
+The legacy configuration shape remains supported for compatibility.
+When migrating, move the settings to the current top-level properties.
+Replace an existing $schema value (or add one if it is absent) with the
+`Allure.Xunit.v3` schema URL to enable validation and completion in compatible
+editors:
 
 ```diff
 -{
+-  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/refs/heads/main/src/Allure.Xunit/Schemas/allureConfig.schema.json",
 -  "allure": {
 -    "title": "build-agent",
 -    "directory": "allure-results",
@@ -88,6 +92,7 @@ should use the current top-level property names:
 -  }
 -}
 +{
++  "$schema": "https://allure-framework.github.io/allure-csharp/schemas/allure.xunit.v3/allure.config.schema.json",
 +  "hostname": "build-agent",
 +  "resultsDirectory": "allure-results",
 +  "linkTemplates": {
@@ -111,6 +116,9 @@ The following `Allure.Xunit` properties are not supported: `useLegacyIds`,
 
 Make sure `allureConfig.json` is copied to the test application's output
 directory, or set `ALLURE_CONFIG` to its path.
+
+You may also rename the file to `allure.config.json`: both names are supported
+with `allureConfig.json` taking precedence.
 
 ## Update namespaces
 
@@ -490,17 +498,48 @@ context.ConfigureSerialization(
 );
 ```
 
-Select the hook before Allure registration begins. See
-[Registration hook](README.md#registration-hook) for the available registration
-mechanisms.
+Register the hook from a module initializer by assigning it to
+`AllureXunitRegistrationHook.Current`:
 
-The old type formatter API matched only the exact runtime type. A rule derived
-from `TypedParameterSerializationRule<T>` accepts any value compatible with
-`T`. A rule for a base class therefore also handles its subclasses, and a rule
-for an interface handles implementations of that interface. Delegate rules
-created by `AddDelegateRule<T>` derive from the same typed rule and have the
-same behavior. If multiple rules accept a value, the last added matching rule
-has priority.
+```csharp
+using System.Runtime.CompilerServices;
+using Allure.Xunit.Registration;
+
+internal static class AllureSetup
+{
+    [ModuleInitializer]
+    internal static void Initialize()
+    {
+        AllureXunitRegistrationHook.Current =
+            new ProjectAllureRegistration();
+    }
+}
+```
+
+For details about registration hooks, see
+[Registration hook](https://github.com/allure-framework/allure-csharp/blob/main/src/Allure.Xunit.v3/README.md#registration-hook).
+
+### Type matching and rule priority
+
+The old type formatter API matched only the exact runtime type. In contrast,
+`TypedParameterSerializationRule<T>` and `AddDelegateRule<T>` use normal C#
+type compatibility, including inheritance, interface implementation, and
+generic variance. Because the last matching rule wins, add general rules before
+more specific ones when the specific behavior should take priority:
+
+```csharp
+context.ConfigureSerialization(rules =>
+{
+    rules.AddDelegateRule<Account>(account => account.Id);
+    rules.AddDelegateRule<PremiumAccount>(
+        account => $"premium:{account.Id}"
+    );
+});
+```
+
+Assuming `PremiumAccount` derives from `Account`, both rules match it, so the
+`PremiumAccount` rule must be added last to take priority. The same applies to
+an interface rule and a rule for one of its implementations.
 
 ## Replace ExtendedApi
 
