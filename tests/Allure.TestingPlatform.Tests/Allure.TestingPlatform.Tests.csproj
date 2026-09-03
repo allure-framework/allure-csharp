@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="TUnit" Version="1.65.68" />
     <PackageReference Include="TUnit.Mocks" Version="1.65.68" />
-    <PackageReference Include="TUnit.Mocks.Assertions" Version="1.61.29" />
+    <PackageReference Include="TUnit.Mocks.Assertions" Version="1.65.68" />
   </ItemGroup>
 
   <ItemGroup>
