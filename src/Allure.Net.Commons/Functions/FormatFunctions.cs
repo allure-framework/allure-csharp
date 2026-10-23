@@ -48,6 +48,10 @@ public static class FormatFunctions
     ///     if JSON serialization failed.
     ///     The serializer skips fields that contain loop references
     ///     and fields that could not be serialized
+    ///     Passing <see cref="AllureLifecycle.TypeFormatters" /> matches a
+    ///     formatter by the value's exact type or, failing that, by its
+    ///     generic type definition, the interfaces it implements, or its
+    ///     base classes. A plain dictionary matches by exact type only.
     /// </summary>
     public static string Format(
         object? value,

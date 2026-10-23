@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -33,15 +32,18 @@ namespace Allure.Net.Commons;
 public class AllureLifecycle
 {
     private readonly Dictionary<Type, ITypeFormatter> typeFormatters = new();
+    private readonly HierarchicalTypeFormatterLookup typeFormatterLookup;
     private static readonly Lazy<AllureLifecycle> instance =
         new(Initialize);
 
     /// <summary>
     /// The list of the currently registered formatters used by Allure to
-    /// convert test and step arguments to strings.
+    /// convert test and step arguments to strings. Looking up a type that
+    /// has no formatter registered for it directly falls back to its
+    /// generic type definition, the interfaces it implements, and its base
+    /// classes, in that order.
     /// </summary>
-    public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters =>
-        new ReadOnlyDictionary<Type, ITypeFormatter>(typeFormatters);
+    public IReadOnlyDictionary<Type, ITypeFormatter> TypeFormatters => typeFormatterLookup;
 
     readonly AsyncLocal<AllureContext> context = new();
 
@@ -106,6 +108,7 @@ public class AllureLifecycle
         AllureConfiguration = AllureConfiguration.ReadFromJObject(config);
         writer = writerFactory(AllureConfiguration);
         lazyTestPlan = new(testPlanFactory);
+        typeFormatterLookup = new(typeFormatters);
     }
 
     /// <summary>
@@ -119,6 +122,7 @@ public class AllureLifecycle
         this.AllureConfiguration = config;
         this.writer = writer;
         this.lazyTestPlan = new(AllureTestPlan.FromEnvironment);
+        this.typeFormatterLookup = new(this.typeFormatters);
     }
 
     /// <summary>
@@ -138,6 +142,7 @@ public class AllureLifecycle
         this.writer = writer;
         this.lazyTestPlan = new(AllureTestPlan.FromEnvironment);
         this.typeFormatters = typeFormatters;
+        this.typeFormatterLookup = new(this.typeFormatters);
     }
 
     /// <summary>
@@ -176,8 +181,29 @@ public class AllureLifecycle
     public void AddTypeFormatter<T>(TypeFormatter<T> typeFormatter) =>
         AddTypeFormatterImpl(typeof(T), typeFormatter);
 
-    private void AddTypeFormatterImpl(Type type, ITypeFormatter formatter) =>
+    /// <summary>
+    /// Registers a type formatter to be used when converting a test's or
+    /// step's argument to the string that will be included in the Allure
+    /// report. Unlike <see cref="AddTypeFormatter{T}(TypeFormatter{T})" />,
+    /// this overload accepts an open generic type definition (e.g.
+    /// <c>typeof(List&lt;&gt;)</c>), which cannot be expressed as a type
+    /// argument.
+    /// </summary>
+    /// <param name="type">
+    /// The type that the formatter converts. An argument is matched against
+    /// this type exactly, or, failing that, against its generic type
+    /// definition, the interfaces it implements, and its base classes, in
+    /// that order.
+    /// </param>
+    /// <param name="formatter">The formatter instance.</param>
+    public void AddTypeFormatter(Type type, ITypeFormatter formatter) =>
+        AddTypeFormatterImpl(type, formatter);
+
+    private void AddTypeFormatterImpl(Type type, ITypeFormatter formatter)
+    {
         typeFormatters[type] = formatter;
+        typeFormatterLookup.Invalidate();
+    }
 
     /// <summary>
     /// Binds the provided value as the current Allure context and executes
