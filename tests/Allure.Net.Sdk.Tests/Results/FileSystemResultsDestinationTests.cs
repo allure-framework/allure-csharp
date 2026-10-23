@@ -15,7 +15,7 @@ public class FileSystemResultsDestinationTests
 
         await VerifyObjectWrite(
             "-result.json",
-            result.Uuid,
+            (e) => e.GetProperty("uuid").ToString() == result.Uuid,
             (destination) => destination.WriteTestResult(result)
         );
     }
@@ -27,7 +27,7 @@ public class FileSystemResultsDestinationTests
 
         await VerifyObjectWriteAsync(
             "-result.json",
-            result.Uuid,
+            (e) => e.GetProperty("uuid").ToString() == result.Uuid,
             (destination, token) => destination.WriteTestResultAsync(result, token)
         );
     }
@@ -40,7 +40,7 @@ public class FileSystemResultsDestinationTests
 
         await VerifyObjectWrite(
             "-container.json",
-            container.Uuid,
+            (e) => e.GetProperty("uuid").ToString() == container.Uuid,
             (destination) => destination.WriteContainer(container)
         );
     }
@@ -53,7 +53,7 @@ public class FileSystemResultsDestinationTests
 
         await VerifyObjectWriteAsync(
             "-container.json",
-            container.Uuid,
+            (e) => e.GetProperty("uuid").ToString() == container.Uuid,
             (destination, token) => destination.WriteContainerAsync(container, token)
         );
     }
@@ -63,7 +63,7 @@ public class FileSystemResultsDestinationTests
     {
         await VerifyObjectWrite(
             "-globals.json",
-            "global error",
+            AssertGlobal,
             (destination) => destination.WriteGlobals(NewGlobals())
         );
     }
@@ -73,7 +73,7 @@ public class FileSystemResultsDestinationTests
     {
         await VerifyObjectWriteAsync(
             "-globals.json",
-            "global error",
+            AssertGlobal,
             (destination, token) => destination.WriteGlobalsAsync(NewGlobals(), token)
         );
     }
@@ -363,7 +363,7 @@ public class FileSystemResultsDestinationTests
 
     static async Task VerifyObjectWrite(
         string suffix,
-        string expectedContent,
+        Func<JsonElement, bool> assertObject,
         Action<FileSystemResultsDestination> write
     )
     {
@@ -374,7 +374,7 @@ public class FileSystemResultsDestinationTests
 
             write(new FileSystemResultsDestination(directory, false));
 
-            await VerifyWrittenFile(directory, suffix, expectedContent);
+            await VerifyWrittenFile(directory, suffix, assertObject);
         }
         finally
         {
@@ -384,7 +384,7 @@ public class FileSystemResultsDestinationTests
 
     static async Task VerifyObjectWriteAsync(
         string suffix,
-        string expectedContent,
+        Func<JsonElement, bool> assertObject,
         Func<FileSystemResultsDestination, CancellationToken, Task> write
     )
     {
@@ -398,7 +398,7 @@ public class FileSystemResultsDestinationTests
                 CancellationToken.None
             );
 
-            await VerifyWrittenFile(directory, suffix, expectedContent);
+            await VerifyWrittenFile(directory, suffix, assertObject);
         }
         finally
         {
@@ -409,7 +409,7 @@ public class FileSystemResultsDestinationTests
     static async Task VerifyWrittenFile(
         string directory,
         string suffix,
-        string expectedContent
+        Func<JsonElement, bool> assertObject
     )
     {
         await Assert.That(Directory.Exists(directory)).IsTrue();
@@ -421,8 +421,8 @@ public class FileSystemResultsDestinationTests
 
         var json = await File.ReadAllTextAsync(file);
         using var document = JsonDocument.Parse(json);
-        await Assert.That(json).Contains(expectedContent);
         await Assert.That(document.RootElement.ValueKind).IsEqualTo(JsonValueKind.Object);
+        await Assert.That(document.RootElement).Satisfies(assertObject);
     }
 
     static AllureTestResult NewTestResult(string name = "result name") =>
@@ -486,5 +486,14 @@ public class FileSystemResultsDestinationTests
         {
             return false;
         }
+    }
+
+    static bool AssertGlobal(JsonElement element)
+    {
+        var error = element.GetProperty("errors")[0];
+        var message = error.GetProperty("message").GetString();
+        var status = error.GetProperty("status").GetString();
+
+        return message == "global error" && status == "broken";
     }
 }

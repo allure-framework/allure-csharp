@@ -397,6 +397,13 @@ namespace Allure.Net.Commons
         skipped,
     }
 
+    public enum GlobalErrorStatus
+    {
+        Broken,
+
+        Failed,
+    }
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     public partial class StatusDetails
     {
@@ -573,8 +580,22 @@ namespace Allure.Net.Commons
     {
 
         #region Private fields
+        private GlobalErrorStatus _status = GlobalErrorStatus.Broken;
         private long _timestamp;
         #endregion
+
+        public GlobalErrorStatus status
+        {
+            get
+            {
+                return this._status;
+            }
+
+            set
+            {
+                this._status = value;
+            }
+        }
 
         public long timestamp
         {

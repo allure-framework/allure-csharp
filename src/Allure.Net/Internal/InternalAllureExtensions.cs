@@ -46,6 +46,17 @@ static class InternalAllureExtensions
                     : exception.GetType().Name,
                 Trace = exception.ToString()
             };
+
+        internal GlobalError ToAllureGlobalError(GlobalErrorStatus status) =>
+            new()
+            {
+                Status = status,
+                Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Message = exception.Message is { Length: >0 } message
+                    ? message
+                    : exception.GetType().Name,
+                Trace = exception.ToString()
+            };
     }
 
     extension (MethodBase method)

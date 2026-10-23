@@ -1,4 +1,3 @@
-using Allure.Abstractions;
 using Allure.Model;
 using TUnit.Mocks.Assertions;
 
@@ -419,4 +418,57 @@ public class AddGlobalErrorTests : AllureApiTestsBase
         await AllureApi.AddGlobalErrorAsync(error, CancellationToken.None);
     }
 
+    [Test]
+    public async Task StatuslessOverloadsSetStatusToBroken()
+    {
+        var error = new InvalidOperationException("exception message");
+        using var endpoint = InstallEndpoint(InstallationScope.Global);
+
+        AllureApi.AddGlobalError("");
+        AllureApi.AddGlobalError(new StatusDetails { Message = "" });
+        AllureApi.AddGlobalError(new Exception());
+        await AllureApi.AddGlobalErrorAsync("");
+        await AllureApi.AddGlobalErrorAsync(new StatusDetails { Message = "" });
+        await AllureApi.AddGlobalErrorAsync(new Exception());
+        await AllureApi.AddGlobalErrorAsync("", CancellationToken.None);
+        await AllureApi.AddGlobalErrorAsync(new StatusDetails { Message = "" }, CancellationToken.None);
+        await AllureApi.AddGlobalErrorAsync(new Exception(), CancellationToken.None);
+
+        await Assert.That(endpoint.SyncApi.AddGlobalError(
+            (value) => value is { Status: GlobalErrorStatus.Broken }
+        )).WasCalled(Times.Exactly(3));
+        endpoint.SyncApi.VerifyNoOtherCalls();
+        await Assert.That(endpoint.AsyncApi.AddGlobalErrorAsync(
+            (value) => value is { Status: GlobalErrorStatus.Broken },
+            CancellationToken.None
+        )).WasCalled(Times.Exactly(6));
+        endpoint.SyncApi.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task StatusOverloadsSetStatusToProvidedValue()
+    {
+        var error = new InvalidOperationException("exception message");
+        using var endpoint = InstallEndpoint(InstallationScope.Global);
+
+        AllureApi.AddGlobalError("", GlobalErrorStatus.Failed);
+        AllureApi.AddGlobalError(new StatusDetails { Message = "" }, GlobalErrorStatus.Failed);
+        AllureApi.AddGlobalError(new Exception(), GlobalErrorStatus.Failed);
+        await AllureApi.AddGlobalErrorAsync("", GlobalErrorStatus.Failed);
+        await AllureApi.AddGlobalErrorAsync(new StatusDetails { Message = "" }, GlobalErrorStatus.Failed);
+        await AllureApi.AddGlobalErrorAsync(new Exception(), GlobalErrorStatus.Failed);
+        await AllureApi.AddGlobalErrorAsync("", GlobalErrorStatus.Failed, CancellationToken.None);
+        await AllureApi.AddGlobalErrorAsync(new StatusDetails { Message = "" }, GlobalErrorStatus.Failed, CancellationToken.None);
+        await AllureApi.AddGlobalErrorAsync(new Exception(), GlobalErrorStatus.Failed, CancellationToken.None);
+
+        await Assert.That(endpoint.SyncApi.AddGlobalError(
+            (value) => value is { Status: GlobalErrorStatus.Failed }
+        )).WasCalled(Times.Exactly(3));
+        endpoint.SyncApi.VerifyNoOtherCalls();
+        await Assert.That(endpoint.AsyncApi.AddGlobalErrorAsync(
+            (value) => value is { Status: GlobalErrorStatus.Failed },
+            CancellationToken.None
+        )).WasCalled(Times.Exactly(6));
+        endpoint.SyncApi.VerifyNoOtherCalls();
+    }
 }

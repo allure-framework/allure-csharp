@@ -602,7 +602,21 @@ public static class AllureApi
     public static void AddGlobalError(Exception error) =>
         AddGlobalErrorInternal(
             CreateGlobalError(
-                ModelFunctions.ToStatusDetails(error)
+                ModelFunctions.ToStatusDetails(error),
+                GlobalErrorStatus.Broken
+            )
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="error">The error to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static void AddGlobalError(Exception error, GlobalErrorStatus status) =>
+        AddGlobalErrorInternal(
+            CreateGlobalError(
+                ModelFunctions.ToStatusDetails(error),
+                status
             )
         );
 
@@ -613,7 +627,21 @@ public static class AllureApi
     public static void AddGlobalError(string message) =>
         AddGlobalErrorInternal(
             CreateGlobalError(
-                new StatusDetails { message = message }
+                new StatusDetails { message = message },
+                GlobalErrorStatus.Broken
+            )
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="message">The error message to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static void AddGlobalError(string message, GlobalErrorStatus status) =>
+        AddGlobalErrorInternal(
+            CreateGlobalError(
+                new StatusDetails { message = message },
+                status
             )
         );
 
@@ -622,7 +650,15 @@ public static class AllureApi
     /// </summary>
     /// <param name="statusDetails">The error details to persist.</param>
     public static void AddGlobalError(StatusDetails statusDetails) =>
-        AddGlobalErrorInternal(CreateGlobalError(statusDetails));
+        AddGlobalErrorInternal(CreateGlobalError(statusDetails, GlobalErrorStatus.Broken));
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="statusDetails">The error details to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static void AddGlobalError(StatusDetails statusDetails, GlobalErrorStatus status) =>
+        AddGlobalErrorInternal(CreateGlobalError(statusDetails, status));
 
     /// <summary>
     /// Attaches screen diff images to the current fixture, test, or step.
@@ -993,7 +1029,7 @@ public static class AllureApi
             }
         );
 
-    static GlobalError CreateGlobalError(StatusDetails? statusDetails)
+    static GlobalError CreateGlobalError(StatusDetails? statusDetails, GlobalErrorStatus status)
     {
         statusDetails ??= new StatusDetails();
         return new GlobalError
@@ -1003,6 +1039,7 @@ public static class AllureApi
             flaky = statusDetails.flaky,
             muted = statusDetails.muted,
             known = statusDetails.known,
+            status = status,
             timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds()
         };
     }

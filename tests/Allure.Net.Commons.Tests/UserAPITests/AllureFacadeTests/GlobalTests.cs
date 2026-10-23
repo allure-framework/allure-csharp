@@ -134,6 +134,32 @@ internal class GlobalTests : AllureApiTestFixture
     }
 
     [Test]
+    public void StatusOverloadsAllowProvidingStatus()
+    {
+        AllureApi.AddGlobalError("", GlobalErrorStatus.Failed);
+        AllureApi.AddGlobalError(new Exception(), GlobalErrorStatus.Failed);
+        AllureApi.AddGlobalError(new StatusDetails(), GlobalErrorStatus.Failed);
+
+        Assert.That(
+            this.writer.Globals.Select(static (global) => global.errors[0].status),
+            Is.EqualTo([GlobalErrorStatus.Failed, GlobalErrorStatus.Failed, GlobalErrorStatus.Failed])
+        );
+    }
+
+    [Test]
+    public void StatusDefaultsToBroken()
+    {
+        AllureApi.AddGlobalError("");
+        AllureApi.AddGlobalError(new Exception());
+        AllureApi.AddGlobalError(new StatusDetails());
+
+        Assert.That(
+            this.writer.Globals.Select(static (global) => global.errors[0].status),
+            Is.EqualTo([GlobalErrorStatus.Broken, GlobalErrorStatus.Broken, GlobalErrorStatus.Broken])
+        );
+    }
+
+    [Test]
     public void GlobalApisDoNotMutateCurrentTestAttachments()
     {
         this.lifecycle.StartTestCase(new() { uuid = "1", fullName = "n" });
