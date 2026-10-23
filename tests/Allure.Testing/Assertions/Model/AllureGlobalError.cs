@@ -4,6 +4,7 @@ using Allure.Testing.Assertions.Model.Properties;
 namespace Allure.Testing.Assertions.Model;
 
 public readonly record struct AllureGlobalError(JsonElement Json) :
+    IAllureStatusProperty<AllureGlobalError>,
     IAllureStatusDetails<AllureGlobalError>,
     IAllureTimestampProperty<AllureGlobalError>
 {

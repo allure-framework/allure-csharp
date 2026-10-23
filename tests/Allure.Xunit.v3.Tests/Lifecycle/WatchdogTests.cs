@@ -1,4 +1,5 @@
 using Allure.Testing;
+using Allure.Testing.Assertions.Model;
 
 namespace Allure.Xunit.v3.Tests.Lifecycle;
 
@@ -14,11 +15,12 @@ class WatchdogTests
 
         await Assert.That(results)
             .HasSingleGlobals()
-            .With.SingleError((error) => error.HasMessage((message) =>
-                message
-                    .Contains("Test host application process")
-                    .And.Contains("(PID=")
-                    .And.Contains("has crashed")
-                    .And.Contains("Exit code:")));
+            .With.SingleError((error) =>
+                error.HasMessage((message) =>
+                    message.Contains("Test host application process")
+                        .And.Contains("(PID=")
+                        .And.Contains("has crashed")
+                        .And.Contains("Exit code:"))
+                    .And.HasStatus(AllureStatus.Broken));
     }
 }
