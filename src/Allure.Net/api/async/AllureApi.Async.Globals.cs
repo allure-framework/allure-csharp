@@ -667,6 +667,33 @@ public static partial class AllureApi
     /// <summary>
     /// Adds a global error not tied to the current fixture, test, or step.
     /// </summary>
+    /// <param name="error">The error to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static Task AddGlobalErrorAsync(Exception error, GlobalErrorStatus status) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+            error.ToAllureGlobalError(status),
+            cancellationToken: default
+        ) ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="error">The error to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddGlobalErrorAsync(
+        Exception error,
+        GlobalErrorStatus status,
+        CancellationToken cancellationToken
+    ) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+            error.ToAllureGlobalError(status),
+            cancellationToken: cancellationToken
+        ) ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
     /// <param name="message">The error message to persist.</param>
     public static Task AddGlobalErrorAsync(string message) =>
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
@@ -687,6 +714,43 @@ public static partial class AllureApi
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
+                Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Message = message,
+            },
+            cancellationToken: cancellationToken
+        ) ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="message">The error message to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static Task AddGlobalErrorAsync(string message, GlobalErrorStatus status) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+            error: new()
+            {
+                Status = status,
+                Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Message = message,
+            },
+            cancellationToken: default
+        ) ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="message">The error message to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddGlobalErrorAsync(
+        string message,
+        GlobalErrorStatus status,
+        CancellationToken cancellationToken
+    ) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+            error: new()
+            {
+                Status = status,
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 Message = message,
             },
@@ -724,6 +788,52 @@ public static partial class AllureApi
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
             error: new()
             {
+                Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Message = statusDetails.Message,
+                Trace = statusDetails.Trace,
+                Flaky = statusDetails.Flaky,
+                Known = statusDetails.Known,
+                Muted = statusDetails.Muted,
+            },
+            cancellationToken: cancellationToken
+        ) ?? Task.CompletedTask;
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="statusDetails">The error details to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static Task AddGlobalErrorAsync(StatusDetails statusDetails, GlobalErrorStatus status) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+            error: new()
+            {
+                Status = status,
+                Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Message = statusDetails.Message,
+                Trace = statusDetails.Trace,
+                Flaky = statusDetails.Flaky,
+                Known = statusDetails.Known,
+                Muted = statusDetails.Muted,
+            },
+            cancellationToken: default
+        ) ?? Task.CompletedTask;
+
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="statusDetails">The error details to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static Task AddGlobalErrorAsync(
+        StatusDetails statusDetails,
+        GlobalErrorStatus status,
+        CancellationToken cancellationToken
+    ) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Async.AddGlobalErrorAsync(
+            error: new()
+            {
+                Status = status,
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 Message = statusDetails.Message,
                 Trace = statusDetails.Trace,

@@ -52,6 +52,10 @@ public class FileSystemResultsDestination : IAllureResultsDestination
                     namingPolicy: JsonNamingPolicy.CamelCase,
                     allowIntegerValues: false
                 ),
+                new JsonStringEnumConverter<GlobalErrorStatus>(
+                    namingPolicy: JsonNamingPolicy.CamelCase,
+                    allowIntegerValues: false
+                ),
             },
         };
     }

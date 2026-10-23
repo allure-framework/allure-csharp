@@ -307,6 +307,16 @@ public static partial class AllureApi
     /// <summary>
     /// Adds a global error not tied to the current fixture, test, or step.
     /// </summary>
+    /// <param name="error">The error to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static void AddGlobalError(Exception error, GlobalErrorStatus status) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
+            error.ToAllureGlobalError(status)
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
     /// <param name="message">The error message to persist.</param>
     public static void AddGlobalError(string message) =>
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
@@ -320,11 +330,45 @@ public static partial class AllureApi
     /// <summary>
     /// Adds a global error not tied to the current fixture, test, or step.
     /// </summary>
+    /// <param name="message">The error message to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static void AddGlobalError(string message, GlobalErrorStatus status) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
+            new()
+            {
+                Status = status,
+                Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Message = message,
+            }
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
     /// <param name="statusDetails">The error details to persist.</param>
     public static void AddGlobalError(StatusDetails statusDetails) =>
         AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
             new()
             {
+                Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Message = statusDetails.Message,
+                Trace = statusDetails.Trace,
+                Flaky = statusDetails.Flaky,
+                Known = statusDetails.Known,
+                Muted = statusDetails.Muted,
+            }
+        );
+
+    /// <summary>
+    /// Adds a global error not tied to the current fixture, test, or step.
+    /// </summary>
+    /// <param name="statusDetails">The error details to persist.</param>
+    /// <param name="status">The status to assign to the error.</param>
+    public static void AddGlobalError(StatusDetails statusDetails, GlobalErrorStatus status) =>
+        AllureRuntimeRouter.ResolveGlobalScope()?.Operations.Sync.AddGlobalError(
+            new()
+            {
+                Status = status,
                 Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 Message = statusDetails.Message,
                 Trace = statusDetails.Trace,
