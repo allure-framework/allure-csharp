@@ -150,6 +150,26 @@ sealed class RuntimeSyncOperations<TConfiguration>(IAllureRuntime<TConfiguration
             testResult.DescriptionHtml = descriptionHtml
         );
 
+    public void SetPreconditions(string preconditions) =>
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.Preconditions = preconditions
+        );
+
+    public void SetPreconditionsHtml(string preconditionsHtml) =>
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.PreconditionsHtml = preconditionsHtml
+        );
+
+    public void SetExpectedResults(string expectedResults) =>
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.ExpectedResults = expectedResults
+        );
+
+    public void SetExpectedResultsHtml(string expectedResultsHtml) =>
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.ExpectedResultsHtml = expectedResultsHtml
+        );
+
     public void SetFixtureName(string newName) =>
         runtime.ModelApi.UpdateFixtureResult((fixtureResult) =>
             fixtureResult.Name = newName
