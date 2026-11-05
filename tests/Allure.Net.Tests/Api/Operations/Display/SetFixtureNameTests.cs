@@ -1,4 +1,3 @@
-using Allure.Abstractions;
 using TUnit.Mocks.Assertions;
 
 namespace Allure.Net.Tests.Api.Operations.Display;

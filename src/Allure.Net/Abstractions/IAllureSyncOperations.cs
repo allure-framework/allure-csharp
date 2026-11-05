@@ -49,6 +49,26 @@ public interface IAllureSyncOperations<out TStepContext, out TFixtureContext>
     void SetDescriptionHtml(string descriptionHtml);
 
     /// <summary>
+    /// Sets the preconditions of the current test in Markdown.
+    /// </summary>
+    void SetPreconditions(string preconditions);
+
+    /// <summary>
+    /// Sets the preconditions of the current test in HTML.
+    /// </summary>
+    void SetPreconditionsHtml(string preconditionsHtml);
+
+    /// <summary>
+    /// Sets the expected results of the current test in Markdown.
+    /// </summary>
+    void SetExpectedResults(string expectedResults);
+
+    /// <summary>
+    /// Sets the expected results of the current test in HTML.
+    /// </summary>
+    void SetExpectedResultsHtml(string expectedResultsHtml);
+
+    /// <summary>
     /// Adds labels to the current test.
     /// </summary>
     void AddLabels(IEnumerable<Label> labels);
