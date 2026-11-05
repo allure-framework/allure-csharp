@@ -287,6 +287,26 @@ sealed class AllureTestingPlatformAsyncOperations(
             new AllureDescriptionHtmlProperty<TestResult>(descriptionHtml)
         );
 
+    public Task SetPreconditionsAsync(string preconditions, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
+            new AllurePreconditionsProperty(preconditions)
+        );
+
+    public Task SetPreconditionsHtmlAsync(string preconditionsHtml, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
+            new AllurePreconditionsHtmlProperty(preconditionsHtml)
+        );
+
+    public Task SetExpectedResultsAsync(string expectedResults, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
+            new AllureExpectedResultsProperty(expectedResults)
+        );
+
+    public Task SetExpectedResultsHtmlAsync(string expectedResultsHtml, CancellationToken cancellationToken) =>
+        this.SendTestUpdateAsync(
+            new AllureExpectedResultsHtmlProperty(expectedResultsHtml)
+        );
+
     public Task SetFixtureNameAsync(string newName, CancellationToken cancellationToken) =>
         this.SendFixtureUpdateAsync(
             new AllureNameProperty<FixtureResult>(newName)

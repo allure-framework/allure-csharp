@@ -98,6 +98,126 @@ public class TestPropertyTests : DataConsumerTestsBase
     }
 
     [Test]
+    public async Task ShouldUpdateTestPreconditions()
+    {
+        var testResult = await this.ArrangeAndAct(new AllurePreconditionsProperty("Lorem Ipsum"));
+
+        await Assert.That(testResult.Preconditions).IsEqualTo("Lorem Ipsum");
+    }
+
+    [Test]
+    public async Task ShouldAppendPreconditionsIfAppendIsTrue()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllurePreconditionsProperty("Lorem Ipsum"),
+            new AllurePreconditionsProperty("Dolor Sit Amet") { Append = true }
+        );
+
+        await Assert.That(testResult.Preconditions).IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
+    }
+
+    [Test]
+    public async Task ShouldUpdateTestPreconditionsHtml()
+    {
+        var testResult = await this.ArrangeAndAct(new AllurePreconditionsHtmlProperty("Lorem Ipsum"));
+
+        await Assert.That(testResult.PreconditionsHtml).IsEqualTo("Lorem Ipsum");
+    }
+
+    [Test]
+    public async Task ShouldAppendHtmlPreconditionsIfAppendIsTrue()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllurePreconditionsHtmlProperty("Lorem Ipsum"),
+            new AllurePreconditionsHtmlProperty("Dolor Sit Amet") { Append = true }
+        );
+
+        await Assert.That(testResult.PreconditionsHtml).IsEqualTo("Lorem IpsumDolor Sit Amet");
+    }
+
+    [Test]
+    public async Task ShouldOverwritePreconditionsByDefault()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllurePreconditionsProperty("First"),
+            new AllurePreconditionsProperty("Second")
+        );
+
+        await Assert.That(testResult.Preconditions).IsEqualTo("Second");
+    }
+
+    [Test]
+    public async Task ShouldOverwritePreconditionsHtmlByDefault()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllurePreconditionsHtmlProperty("<p>First</p>"),
+            new AllurePreconditionsHtmlProperty("<p>Second</p>")
+        );
+
+        await Assert.That(testResult.PreconditionsHtml).IsEqualTo("<p>Second</p>");
+    }
+
+    [Test]
+    public async Task ShouldUpdateTestExpectedResults()
+    {
+        var testResult = await this.ArrangeAndAct(new AllureExpectedResultsProperty("Lorem Ipsum"));
+
+        await Assert.That(testResult.ExpectedResults).IsEqualTo("Lorem Ipsum");
+    }
+
+    [Test]
+    public async Task ShouldAppendExpectedResultsIfAppendIsTrue()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureExpectedResultsProperty("Lorem Ipsum"),
+            new AllureExpectedResultsProperty("Dolor Sit Amet") { Append = true }
+        );
+
+        await Assert.That(testResult.ExpectedResults).IsEqualTo("Lorem Ipsum\n\nDolor Sit Amet");
+    }
+
+    [Test]
+    public async Task ShouldUpdateTestExpectedResultsHtml()
+    {
+        var testResult = await this.ArrangeAndAct(new AllureExpectedResultsHtmlProperty("Lorem Ipsum"));
+
+        await Assert.That(testResult.ExpectedResultsHtml).IsEqualTo("Lorem Ipsum");
+    }
+
+    [Test]
+    public async Task ShouldAppendHtmlExpectedResultsIfAppendIsTrue()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureExpectedResultsHtmlProperty("Lorem Ipsum"),
+            new AllureExpectedResultsHtmlProperty("Dolor Sit Amet") { Append = true }
+        );
+
+        await Assert.That(testResult.ExpectedResultsHtml).IsEqualTo("Lorem IpsumDolor Sit Amet");
+    }
+
+    [Test]
+    public async Task ShouldOverwriteExpectedResultsByDefault()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureExpectedResultsProperty("First"),
+            new AllureExpectedResultsProperty("Second")
+        );
+
+        await Assert.That(testResult.ExpectedResults).IsEqualTo("Second");
+    }
+
+    [Test]
+    public async Task ShouldOverwriteExpectedResultsHtmlByDefault()
+    {
+        var testResult = await this.ArrangeAndAct(
+            new AllureExpectedResultsHtmlProperty("<p>First</p>"),
+            new AllureExpectedResultsHtmlProperty("<p>Second</p>")
+        );
+
+        await Assert.That(testResult.ExpectedResultsHtml).IsEqualTo("<p>Second</p>");
+    }
+
+    [Test]
     public async Task ShouldSetStartFromNumber()
     {
         var testResult = await this.ArrangeAndAct(

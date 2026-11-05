@@ -96,6 +96,30 @@ sealed class AllureTestingPlatformSyncOperations(
             .GetAwaiter()
             .GetResult();
 
+    public void SetPreconditions(string preconditions) =>
+        asyncOperations.SetPreconditionsAsync(preconditions, default)
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+
+    public void SetPreconditionsHtml(string preconditionsHtml) =>
+        asyncOperations.SetPreconditionsHtmlAsync(preconditionsHtml, default)
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+
+    public void SetExpectedResults(string expectedResults) =>
+        asyncOperations.SetExpectedResultsAsync(expectedResults, default)
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+
+    public void SetExpectedResultsHtml(string expectedResultsHtml) =>
+        asyncOperations.SetExpectedResultsHtmlAsync(expectedResultsHtml, default)
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+
     public void SetFixtureName(string newName) =>
         asyncOperations.SetFixtureNameAsync(newName, default)
             .ConfigureAwait(false)

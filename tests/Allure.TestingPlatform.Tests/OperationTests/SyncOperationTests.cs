@@ -118,6 +118,30 @@ public class SyncOperationTests : OperationTestsBase
         return Task.CompletedTask;
     }
 
+    protected override Task SetPreconditions(string preconditions)
+    {
+        AllureApi.SetPreconditions(preconditions);
+        return Task.CompletedTask;
+    }
+
+    protected override Task SetPreconditionsHtml(string preconditionsHtml)
+    {
+        AllureApi.SetPreconditionsHtml(preconditionsHtml);
+        return Task.CompletedTask;
+    }
+
+    protected override Task SetExpectedResults(string expectedResults)
+    {
+        AllureApi.SetExpectedResults(expectedResults);
+        return Task.CompletedTask;
+    }
+
+    protected override Task SetExpectedResultsHtml(string expectedResultsHtml)
+    {
+        AllureApi.SetExpectedResultsHtml(expectedResultsHtml);
+        return Task.CompletedTask;
+    }
+
     protected override Task SetFixtureName(string newName)
     {
         AllureApi.SetFixtureName(newName);

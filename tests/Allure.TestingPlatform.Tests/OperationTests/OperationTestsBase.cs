@@ -64,6 +64,14 @@ public abstract class OperationTestsBase
 
     protected abstract Task SetDescriptionHtml(string descriptionHtml);
 
+    protected abstract Task SetPreconditions(string preconditions);
+
+    protected abstract Task SetPreconditionsHtml(string preconditionsHtml);
+
+    protected abstract Task SetExpectedResults(string expectedResults);
+
+    protected abstract Task SetExpectedResultsHtml(string expectedResultsHtml);
+
     protected abstract Task SetFixtureName(string newName);
 
     protected abstract Task SetLabel(string value);
@@ -637,6 +645,50 @@ public abstract class OperationTestsBase
 
         await Assert.That(destination.TestResults.Single().DescriptionHtml)
             .IsEqualTo("<p>description</p>");
+    }
+
+    [Test]
+    public async Task ShouldSetPreconditions()
+    {
+        var destination = await Run(
+            () => this.SetPreconditions("preconditions")
+        );
+
+        await Assert.That(destination.TestResults.Single().Preconditions)
+            .IsEqualTo("preconditions");
+    }
+
+    [Test]
+    public async Task ShouldSetPreconditionsHtml()
+    {
+        var destination = await Run(
+            () => this.SetPreconditionsHtml("<p>preconditions</p>")
+        );
+
+        await Assert.That(destination.TestResults.Single().PreconditionsHtml)
+            .IsEqualTo("<p>preconditions</p>");
+    }
+
+    [Test]
+    public async Task ShouldSetExpectedResults()
+    {
+        var destination = await Run(
+            () => this.SetExpectedResults("expected results")
+        );
+
+        await Assert.That(destination.TestResults.Single().ExpectedResults)
+            .IsEqualTo("expected results");
+    }
+
+    [Test]
+    public async Task ShouldSetExpectedResultsHtml()
+    {
+        var destination = await Run(
+            () => this.SetExpectedResultsHtml("<p>expected results</p>")
+        );
+
+        await Assert.That(destination.TestResults.Single().ExpectedResultsHtml)
+            .IsEqualTo("<p>expected results</p>");
     }
 
     [Test]
