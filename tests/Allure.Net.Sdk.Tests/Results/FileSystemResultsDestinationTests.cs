@@ -33,6 +33,54 @@ public class FileSystemResultsDestinationTests
     }
 
     [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ShouldUseAllureConventionsWhenWritingDocumentationProperties(bool useAsync)
+    {
+        var result = NewTestResult();
+        result.Preconditions = "## Preconditions\n\nThe user is signed in.";
+        result.PreconditionsHtml = "<p>The user is signed in.</p>";
+        result.ExpectedResults = "## Expected results\n\nThe order is created.";
+        result.ExpectedResultsHtml = "<p>The order is created.</p>";
+
+        await VerifyTestResultJson(result, useAsync, async root =>
+        {
+            await Assert.That(root.GetProperty("precondition").GetString())
+                .IsEqualTo(result.Preconditions);
+            await Assert.That(root.GetProperty("preconditionHtml").GetString())
+                .IsEqualTo(result.PreconditionsHtml);
+            await Assert.That(root.GetProperty("expectedResult").GetString())
+                .IsEqualTo(result.ExpectedResults);
+            await Assert.That(root.GetProperty("expectedResultHtml").GetString())
+                .IsEqualTo(result.ExpectedResultsHtml);
+
+            await Assert.That(root.TryGetProperty("preconditions", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("preconditionsHtml", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("expectedResults", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("expectedResultsHtml", out _)).IsFalse();
+        });
+    }
+
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ShouldOmitNullTestDocumentation(bool useAsync)
+    {
+        await VerifyTestResultJson(NewTestResult(), useAsync, async root =>
+        {
+            await Assert.That(root.TryGetProperty("precondition", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("preconditionHtml", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("expectedResult", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("expectedResultHtml", out _)).IsFalse();
+
+            await Assert.That(root.TryGetProperty("preconditions", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("preconditionsHtml", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("expectedResults", out _)).IsFalse();
+            await Assert.That(root.TryGetProperty("expectedResultsHtml", out _)).IsFalse();
+        });
+    }
+
+    [Test]
     public async Task ShouldWriteContainer()
     {
         var container = NewContainer();
@@ -354,6 +402,35 @@ public class FileSystemResultsDestinationTests
                     await File.ReadAllBytesAsync(attachmentFilePath)
                 ).IsEquivalentTo(attachment.Content);
             }
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    static async Task VerifyTestResultJson(
+        AllureTestResult result,
+        bool useAsync,
+        Func<JsonElement, Task> assertResult
+    )
+    {
+        var directory = NewDirectoryPath();
+        try
+        {
+            var destination = new FileSystemResultsDestination(directory, false);
+            if (useAsync)
+            {
+                await destination.WriteTestResultAsync(result, CancellationToken.None);
+            }
+            else
+            {
+                destination.WriteTestResult(result);
+            }
+
+            var file = Directory.GetFiles(directory, "*-result.json").Single();
+            using var document = JsonDocument.Parse(await File.ReadAllTextAsync(file));
+            await assertResult(document.RootElement);
         }
         finally
         {
