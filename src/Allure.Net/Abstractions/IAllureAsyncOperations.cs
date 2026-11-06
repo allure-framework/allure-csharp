@@ -51,6 +51,26 @@ public interface IAllureAsyncOperations<out TStepContext, out TFixtureContext>
     Task SetDescriptionHtmlAsync(string descriptionHtml, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Asynchronously sets the preconditions of the current test in Markdown.
+    /// </summary>
+    Task SetPreconditionsAsync(string preconditions, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Asynchronously sets the preconditions of the current test in HTML.
+    /// </summary>
+    Task SetPreconditionsHtmlAsync(string preconditionsHtml, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Asynchronously sets the expected results of the current test in Markdown.
+    /// </summary>
+    Task SetExpectedResultsAsync(string expectedResults, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Asynchronously sets the expected results of the current test in HTML.
+    /// </summary>
+    Task SetExpectedResultsHtmlAsync(string expectedResultsHtml, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Asynchronously adds labels to the current test.
     /// </summary>
     Task AddLabelsAsync(IEnumerable<Label> labels, CancellationToken cancellationToken);

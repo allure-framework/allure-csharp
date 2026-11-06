@@ -360,7 +360,7 @@ non-matching model type are ignored.
 | Data | Any executable item | Tests only |
 | --- | --- | --- |
 | Identity and hierarchy | `AllureNameProperty<TModel>` | `AllureFullNameProperty`, `AllureTitlePathProperty`, `AllureDefaultSuitesProperty`, `AllureTestMethodProperty` |
-| Descriptions | `AllureDescriptionProperty<TModel>`, `AllureDescriptionHtmlProperty<TModel>` | — |
+| Documentation | `AllureDescriptionProperty<TModel>`, `AllureDescriptionHtmlProperty<TModel>` | `AllurePreconditionsProperty`, `AllurePreconditionsHtmlProperty`, `AllureExpectedResultsProperty`, `AllureExpectedResultsHtmlProperty` |
 | Status and errors | `AllureStatusProperty<TModel>`, `AllureStatusDetailsProperty<TModel>`, `AllureExceptionProperty<TModel>` | — |
 | Labels and links | — | `AllureLabelsProperty`, `AllureSetLabelProperty`, `AllureLinksProperty` |
 | Parameters | `AllureParametersProperty<TModel>`, `AllureTestMethodArgumentsProperty<TModel>` | — |

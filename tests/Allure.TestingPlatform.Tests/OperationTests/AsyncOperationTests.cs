@@ -113,6 +113,24 @@ public class AsyncOperationTests : OperationTestsBase
             CancellationToken.None
         );
 
+    protected override Task SetPreconditions(string preconditions) =>
+        AllureApi.SetPreconditionsAsync(preconditions, CancellationToken.None);
+
+    protected override Task SetPreconditionsHtml(string preconditionsHtml) =>
+        AllureApi.SetPreconditionsHtmlAsync(
+            preconditionsHtml,
+            CancellationToken.None
+        );
+
+    protected override Task SetExpectedResults(string expectedResults) =>
+        AllureApi.SetExpectedResultsAsync(expectedResults, CancellationToken.None);
+
+    protected override Task SetExpectedResultsHtml(string expectedResultsHtml) =>
+        AllureApi.SetExpectedResultsHtmlAsync(
+            expectedResultsHtml,
+            CancellationToken.None
+        );
+
     protected override Task SetFixtureName(string newName) =>
         AllureApi.SetFixtureNameAsync(newName, CancellationToken.None);
 

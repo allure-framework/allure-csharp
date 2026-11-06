@@ -29,7 +29,7 @@ public sealed class AllureDescriptionHtmlProperty<TModel>(string descriptionHtml
     {
         if (this.Append && target.DescriptionHtml is { Length: > 0 })
         {
-            target.DescriptionHtml += $"{this.DescriptionHtml}";
+            target.DescriptionHtml += this.DescriptionHtml;
         }
         else
         {

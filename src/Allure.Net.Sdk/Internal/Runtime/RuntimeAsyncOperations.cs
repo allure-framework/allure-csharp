@@ -187,6 +187,38 @@ sealed class RuntimeAsyncOperations<TConfiguration>(IAllureRuntime<TConfiguratio
         return Task.CompletedTask;
     }
 
+    public Task SetPreconditionsAsync(string preconditions, CancellationToken cancellationToken)
+    {
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.Preconditions = preconditions
+        );
+        return Task.CompletedTask;
+    }
+
+    public Task SetPreconditionsHtmlAsync(string preconditionsHtml, CancellationToken cancellationToken)
+    {
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.PreconditionsHtml = preconditionsHtml
+        );
+        return Task.CompletedTask;
+    }
+
+    public Task SetExpectedResultsAsync(string expectedResults, CancellationToken cancellationToken)
+    {
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.ExpectedResults = expectedResults
+        );
+        return Task.CompletedTask;
+    }
+
+    public Task SetExpectedResultsHtmlAsync(string expectedResultsHtml, CancellationToken cancellationToken)
+    {
+        runtime.ModelApi.UpdateTestResult((testResult) =>
+            testResult.ExpectedResultsHtml = expectedResultsHtml
+        );
+        return Task.CompletedTask;
+    }
+
     public Task SetFixtureNameAsync(string newName, CancellationToken cancellationToken)
     {
         runtime.ModelApi.UpdateFixtureResult((fixtureResult) =>

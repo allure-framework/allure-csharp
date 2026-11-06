@@ -42,6 +42,26 @@ public sealed class TestResult : ExecutableItem
     public string? HistoryId { get; set; }
 
     /// <summary>
+    /// Gets or sets the test preconditions in the Markdown format.
+    /// </summary>
+    public string? Preconditions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the test preconditions in the HTML format.
+    /// </summary>
+    public string? PreconditionsHtml { get; set; }
+
+    /// <summary>
+    /// Gets or sets the test's expected results in the Markdown format.
+    /// </summary>
+    public string? ExpectedResults { get; set; }
+
+    /// <summary>
+    /// Gets or sets the test's expected results in the HTML format.
+    /// </summary>
+    public string? ExpectedResultsHtml { get; set; }
+
+    /// <summary>
     /// Gets the hierarchy of titles leading to the test.
     /// </summary>
     public List<string> TitlePath { get; init; } = [];

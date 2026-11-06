@@ -6,6 +6,7 @@ using Allure.Model;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Allure.Sdk.Internal.Functions;
+using System.Text.Json.Serialization.Metadata;
 
 
 namespace Allure.Sdk.Results;
@@ -56,6 +57,10 @@ public class FileSystemResultsDestination : IAllureResultsDestination
                     namingPolicy: JsonNamingPolicy.CamelCase,
                     allowIntegerValues: false
                 ),
+            },
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver
+            {
+                Modifiers = { RenameTestResultProperties },
             },
         };
     }
@@ -179,6 +184,26 @@ public class FileSystemResultsDestination : IAllureResultsDestination
         writer.Commit();
 
         return outputFileName;
+    }
+
+    static void RenameTestResultProperties(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Type != typeof (TestResult))
+        {
+            return;
+        }
+
+        foreach (var property in typeInfo.Properties)
+        {
+            property.Name = property.Name switch
+            {
+                "preconditions" => "precondition",
+                "preconditionsHtml" => "preconditionHtml",
+                "expectedResults" => "expectedResult",
+                "expectedResultsHtml" => "expectedResultHtml",
+                _ => property.Name,
+            };
+        }
     }
 
     static bool ShouldIgnoreScope(TestResultScope scope) => scope is
